@@ -4,8 +4,9 @@
 \alias{bin}
 \title{Bin elements of \code{x}.}
 \usage{
-bin(x, binmode = c("equalN", "equalWidth", "breaks"), nElements = NULL,
-  nBins = NULL, minAbsX = NULL, breaks = NULL)
+bin(x, binmode = c("equalN", "equalWidth", "breaks"),
+  nElements = round(length(x)/5), nBins = NULL, minAbsX = NULL,
+  breaks = NULL, ...)
 }
 \arguments{
 \item{x}{A numerical vector with the values used for binning.}
@@ -26,9 +27,13 @@ Elements with \code{x} values in \code{[-minAbsX,minAbsX]} will be collected in 
 \item{breaks}{Numerical vector with bin boundaries (only for \code{binmode="breaks"}).
 \code{breaks} has to be ordered and strictly increasing, and has to be of
 length (number of bins) + 1.}
+
+\item{...}{further arguments to be passed to \code{cut(x, breaks, include.lowest = TRUE, ...)},
+such as \code{labels=FALSE}.}
 }
 \value{
-A factor of the same length as \code{x}.
+The return value from \code{cut(x, ...)}, typically a factor of the same
+    length as \code{x}. The bin boundaries are available from \code{attr(..., "breaks")}.
 }
 \description{
 \code{bin} groups elements of \code{x} into bins with either
@@ -53,8 +58,8 @@ Elements are binned according to the values in \code{x} depending on
 \examples{
 set.seed(1)
 x <- rnorm(100)
-summary(bin(x, "equalN", nElements=20))
-summary(bin(x, "equalN", nElements=20, minAbsX=0.5))
+summary(bin(x, "equalN", nElements=10))
+summary(bin(x, "equalN", nElements=10, minAbsX=0.5))
 summary(bin(x, "equalWidth", nBins=5))
 summary(bin(x, "breaks", breaks=c(-10,-1,0,1,10)))
 

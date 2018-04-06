@@ -39,6 +39,8 @@
 #' @param breaks Numerical vector with bin boundaries (only for \code{binmode="breaks"}).
 #'     \code{breaks} has to be ordered and strictly increasing, and has to be of
 #'     length (number of bins) + 1.
+#' @param ... further arguments to be passed to \code{cut(x, breaks, include.lowest = TRUE, ...)},
+#'     such as \code{labels=FALSE}.
 #'
 #' @details Elements are binned according to the values in \code{x} depending on
 #'     \code{binmode}:
@@ -56,19 +58,21 @@
 #'
 #' @seealso \code{\link{cut}} which is used internally.
 #'
-#' @return A factor of the same length as \code{x}.
+#' @return The return value from \code{cut(x, ...)}, typically a factor of the same
+#'     length as \code{x}. The bin boundaries are available from \code{attr(..., "breaks")}.
 #'
 #' @examples
 #' set.seed(1)
 #' x <- rnorm(100)
-#' summary(bin(x, "equalN", nElements=20))
-#' summary(bin(x, "equalN", nElements=20, minAbsX=0.5))
+#' summary(bin(x, "equalN", nElements=10))
+#' summary(bin(x, "equalN", nElements=10, minAbsX=0.5))
 #' summary(bin(x, "equalWidth", nBins=5))
 #' summary(bin(x, "breaks", breaks=c(-10,-1,0,1,10)))
 #'
 #' @export
 bin <- function(x, binmode = c("equalN", "equalWidth", "breaks"),
-                nElements = NULL, nBins = NULL, minAbsX = NULL, breaks = NULL) {
+                nElements = round(length(x)/5), nBins = NULL, minAbsX = NULL, breaks = NULL,
+                ...) {
     stopifnot(is.numeric(x) && length(x) > 1)
     binmode <- match.arg(binmode)
     stopifnot(is.null(nElements) || (is.numeric(nElements) && length(nElements) == 1))
@@ -77,6 +81,8 @@ bin <- function(x, binmode = c("equalN", "equalWidth", "breaks"),
                      "equalN" = .breaksEqualN(x, nElements, minAbsX),
                      "equalWidth" = .breaksEqualWidth(x, nBins, minAbsX),
                      "breaks" = breaks)
-    cut(x, breaks = breaks, include.lowest = TRUE)
+    res <- cut(x, breaks = breaks, include.lowest = TRUE, ...)
+    attr(res, "breaks") <- unname(breaks)
+    res
 }
 
