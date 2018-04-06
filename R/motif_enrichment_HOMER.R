@@ -16,7 +16,7 @@ NULL
 #' @return Absolute path to \code{scriptfile}, or \code{NA} if none or several were found.
 #'
 #' @export
-findHomerPath <- function(scriptfile = "findMotifsGenome.pl", dirs = NULL) {
+findHomer <- function(scriptfile = "findMotifsGenome.pl", dirs = NULL) {
     if (is.null(dirs))
         dirs <- strsplit(x = Sys.getenv("PATH"), split = ":")[[1]]
     res <- list.files(path = dirs, pattern = paste0("^",scriptfile,"$"), full.names = TRUE)
@@ -43,6 +43,8 @@ findHomerPath <- function(scriptfile = "findMotifsGenome.pl", dirs = NULL) {
 #'
 #' @export
 dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "vertebrates")) {
+    stopifnot(!file.exists(filename))
+
     requireNamespace(pkg)
     requireNamespace("TFBSTools")
 
@@ -91,10 +93,14 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "ve
 #'     with the genomic regions to analyze.
 #' @param b A vector of the same length as \code{gr} that groups its elements
 #'     into bins (typically a factor).
+#' @param genomedir Directory containing sequence files in Fasta format (one per chromosome).
 #' @param outdir A path specifying the folder into which the output files (two
 #'     files per unique value of \code{b}) will be written.
 #' @param motifFile A file with HOMER formatted PWMs to be used in the enrichment analysis.
-#' @param HOMER.path Path and file name of the \code{findMotifsGenome.pl} HOMER script.
+#' @param scriptFile Path and file name of the \code{findMotifsGenome.pl} HOMER script.
+#' @param regionsize The peak size to use in HOMER (\code{"give"} keeps the coordinate
+#'     region, an integer value will keep only that many bases in the region center).
+#' @param Ncpu Number of parallel threads that HOMER can use.
 #'
 #' @details For each bin (unique value of \code{b}) this functions creates two files
 #'     in \code{outdir} (\code{outdir/bin_N_foreground.tab} and \code{outdir/bin_N_background.tab},
@@ -109,15 +115,45 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "ve
 #'     analysis.
 #'
 #' @export
-prepareHOMER <- function(gr, b, outdir, motifFile, HOMER.path = findHomerPath()) {
+prepareHomer <- function(gr, b, genomedir, outdir, motifFile, scriptFile = findHomer(), regionsize = "given", Ncpu=2) {
     stopifnot(inherits(gr, "GRanges"))
-    stopifnot(is.vector(b) && length(b) == length(gr))
+    if (!is.factor(b))
+        b <- factor(b, levels=unique(b))
+    stopifnot(is.factor(b) && length(b) == length(gr))
     stopifnot(is.character(outdir))
     stopifnot(file.exists(motifFile))
-    stopifnot(file.exists(HOMER.path))
+    stopifnot(file.exists(scriptFile))
 
     if (file.exists(outdir))
         stop(outdir," already exists - will not overwrite existing folder")
-
     dir.create(outdir)
+
+    homerFile <- file.path(outdir, "run.sh")
+    fh <- file(homerFile, "w")
+
+    message("creating foreground/background region files for HOMER")
+    for(i in 1:nlevels(b)) {
+        bn <- levels(b)[i]
+        message("  bin ",bn)
+
+        fgfile  <- sprintf("%s/bin_%03d_foreground.tab", outdir, i)
+        bgfile  <- sprintf("%s/bin_%03d_background.tab", outdir, i)
+        outputf <- sprintf("%s/bin_%03d_output", outdir, i)
+
+        tmp.gr <- gr[b == bn]
+        write.table(file=fgfile,
+                    data.frame(1:length(tmp.gr), as.character(seqnames(tmp.gr)), start(tmp.gr)-1, end(tmp.gr), "+"),
+                    sep="\t", quote=FALSE, col.names=FALSE, row.names=FALSE)
+
+        tmp.gr <- gr[b != bn]
+        write.table(file=bgfile,
+                    data.frame(1:length(tmp.gr), as.character(seqnames(tmp.gr)), start(tmp.gr)-1, end(tmp.gr), "+"),
+                    sep="\t", quote=FALSE, col.names=FALSE, row.names=FALSE)
+
+        cat(sprintf("%s %s %s %s -bg %s -nomotif -p %d -size %s -mknown %s\n",
+                    scriptFile, fgfile, genomedir, outputf, bgfile, Ncpu, as.character(regionsize), motifFile), file=fh, append=TRUE)
+    }
+    close(fh)
+
+    return(homerFile)
 }
