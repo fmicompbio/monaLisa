@@ -124,6 +124,9 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile, scriptFile = findH
     stopifnot(file.exists(motifFile))
     stopifnot(file.exists(scriptFile))
 
+    if (!is.factor(b))
+        b <- factor(b, levels=unique(b))
+
     if (file.exists(outdir))
         stop(outdir," already exists - will not overwrite existing folder")
     dir.create(outdir)
