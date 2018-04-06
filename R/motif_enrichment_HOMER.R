@@ -16,7 +16,7 @@ NULL
 #' @return Absolute path to \code{scriptfile}, or \code{NA} if none or several were found.
 #'
 #' @export
-findHomerPath <- function(scriptfile = "findMotifsGenome.pl", dirs = NULL) {
+findHomer <- function(scriptfile = "findMotifsGenome.pl", dirs = NULL) {
     if (is.null(dirs))
         dirs <- strsplit(x = Sys.getenv("PATH"), split = ":")[[1]]
     res <- list.files(path = dirs, pattern = paste0("^",scriptfile,"$"), full.names = TRUE)
@@ -94,7 +94,8 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "ve
 #' @param outdir A path specifying the folder into which the output files (two
 #'     files per unique value of \code{b}) will be written.
 #' @param motifFile A file with HOMER formatted PWMs to be used in the enrichment analysis.
-#' @param HOMER.path Path and file name of the \code{findMotifsGenome.pl} HOMER script.
+#' @param scriptFile Path and file name of the \code{findMotifsGenome.pl} HOMER script.
+#' @param Ncpu Number of parallel threads that HOMER can use.
 #'
 #' @details For each bin (unique value of \code{b}) this functions creates two files
 #'     in \code{outdir} (\code{outdir/bin_N_foreground.tab} and \code{outdir/bin_N_background.tab},
@@ -109,15 +110,45 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "ve
 #'     analysis.
 #'
 #' @export
-prepareHOMER <- function(gr, b, outdir, motifFile, HOMER.path = findHomerPath()) {
+prepareHomer <- function(gr, b, outdir, motifFile, scriptFile = findHomer(), Ncpu=2) {
     stopifnot(inherits(gr, "GRanges"))
     stopifnot(is.vector(b) && length(b) == length(gr))
     stopifnot(is.character(outdir))
     stopifnot(file.exists(motifFile))
     stopifnot(file.exists(HOMER.path))
 
+    if (!is.factor(b))
+        b <- factor(b, levels=unique(b))
+
     if (file.exists(outdir))
         stop(outdir," already exists - will not overwrite existing folder")
-
     dir.create(outdir)
+
+    homerFile <- file.path(outdir, "run.sh")
+    fh <- file(homerFile, "w")
+
+    message("creating foreground/background region files for HOMER")
+    for(i in 1:nlevels(b)) {
+        bn <- levels(b)[i]
+        message("  bin ",bn)
+
+        fgfile  <- sprintf("%s/bin_%03d_foreground.tab", outdir, i)
+        bgfile  <- sprintf("%s/bin_%03d_background.tab", outdir, i)
+        outputf <- sprintf("%s/bin_%03d_output", outdir, i)
+
+        tmp.gr <- gr[b == bn]
+        write.table(file=fgfile,
+                    data.frame(1:length(tmp.gr), as.character(seqnames(tmp.gr)), start(tmp.gr)-1, end(tmp.gr), "+"),
+                    sep="\t", quote=FALSE, col.names=FALSE, row.names=FALSE)
+
+        tmp.gr <- gr[b != bn]
+        write.table(file=bgfile,
+                    data.frame(1:length(tmp.gr), as.character(seqnames(tmp.gr)), start(tmp.gr)-1, end(tmp.gr), "+"),
+                    sep="\t", quote=FALSE, col.names=FALSE, row.names=FALSE)
+
+        cat(sprintf("%s %s /work/gbioinfo/DB/genomes/mm10 %s -bg %s -nomotif -p %d -size 500 -mknown %s\n",
+                    scriptFile, fgfile, outputf, bgfile, Ncpu, motifFile), file=fh, append=TRUE)
+    }
+    close(fh)
+
 }
