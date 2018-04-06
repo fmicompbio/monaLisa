@@ -47,7 +47,7 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "ve
     requireNamespace("TFBSTools")
 
     # load PFMs and convert to PWMs
-    mdb <- get(pkg)
+    mdb <- getFromNamespace(pkg, ns=pkg)
     siteList <- TFBSTools::getMatrixSet(mdb, opts)
     message("extracted ",length(siteList)," motifs from ",pkg)
 
