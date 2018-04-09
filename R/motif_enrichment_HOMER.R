@@ -1,6 +1,6 @@
 #' @import GenomicRanges
 #' @importFrom tools file_path_as_absolute
-#' @importFrom utils write.table
+#' @importFrom utils write.table getFromNamespace
 NULL
 
 
@@ -98,7 +98,7 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "ve
 #'     files per unique value of \code{b}) will be written.
 #' @param motifFile A file with HOMER formatted PWMs to be used in the enrichment analysis.
 #' @param scriptFile Path and file name of the \code{findMotifsGenome.pl} HOMER script.
-#' @param regionsize The peak size to use in HOMER (\code{"give"} keeps the coordinate
+#' @param regionsize The peak size to use in HOMER (\code{"given"} keeps the coordinate
 #'     region, an integer value will keep only that many bases in the region center).
 #' @param Ncpu Number of parallel threads that HOMER can use.
 #'
@@ -116,16 +116,14 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "ve
 #'
 #' @export
 prepareHomer <- function(gr, b, genomedir, outdir, motifFile, scriptFile = findHomer(), regionsize = "given", Ncpu=2) {
-    stopifnot(inherits(gr, "GRanges"))
+    if (!inherits(gr, "GRanges"))
+        as(gr, "GRanges")
     if (!is.factor(b))
         b <- factor(b, levels=unique(b))
-    stopifnot(is.factor(b) && length(b) == length(gr))
-    stopifnot(is.character(outdir))
-    stopifnot(file.exists(motifFile))
-    stopifnot(file.exists(scriptFile))
-
-    if (!is.factor(b))
-        b <- factor(b, levels=unique(b))
+    stopifnot(length(b) == length(gr))
+    stopifnot(is.character(outdir) && length(outdir) == 1L)
+    stopifnot(is.character(motifFile) && length(motifFile) == 1L && file.exists(motifFile))
+    stopifnot(is.character(scriptFile) && length(scriptFile) == 1L && file.exists(scriptFile))
 
     if (file.exists(outdir))
         stop(outdir," already exists - will not overwrite existing folder")
@@ -159,4 +157,93 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile, scriptFile = findH
     close(fh)
 
     return(homerFile)
+}
+
+#' @title load output from HOMER findMotifsGenome.pl into R
+#'
+#' @description Parse HOMER output files into R data structures.
+#'
+#' @param infiles HOMER output files to be parsed.
+#'
+#' @return A list of three components (\code{p}, \code{FDR} and \code{enr}),
+#'     containing each a motif (rows) by bin (columns) matrix with raw
+#'     -log10 P values, -log10 false discovery rates and motif enrichments (Pearson residuals).
+#'
+#' @export
+parseHomerOutput <- function(infiles) {
+    stopifnot(all(file.exists(infiles)))
+
+    tabL <- lapply(infiles, read.delim)
+    names(tabL) <- if(is.null(names(infiles))) infiles else names(infiles)
+    P <- lapply(tabL, function(tab) {
+        D <- tab[, c(1, 4)]
+        logpVals <- -D[, 2]/log(10)
+        names(logpVals) <- D[, 1]
+        logpVals[order(names(logpVals))]
+    })
+    enrTF <- lapply(tabL, function(tab) {
+        D <- tab[, c(1, 6, 7, 9)] # name, no. and % of target seqs with motif, % of bg seqs with motif
+        D[, 3] <- as.numeric(sub("%$","", D[, 3])) / 100
+        D[, 4] <- as.numeric(sub("%$","", D[, 4])) / 100
+        obsTF <- D[, 2]
+        expTF <- D[, 2] / (D[, 3] + 0.001) * (D[, 4] + 0.001)
+        enr <- (obsTF - expTF) / sqrt(expTF)
+        enr[ is.na(enr) ] <- 0
+        names(enr) <- D[, 1]
+        enr[order(names(enr))]
+    })
+    P <- do.call(cbind, P)
+    enrTF <- do.call(cbind, enrTF)
+
+    tmp <-  as.vector(10**(-P))
+    fdr <- matrix(-log10(p.adjust(tmp, method="BH")), nrow=nrow(P))
+    dimnames(fdr) <- dimnames(P)
+
+    fdr[which(fdr == Inf, arr.ind = TRUE)] <- max(fdr[is.finite(fdr)])
+
+    return(list(p=P, FDR=fdr, enr=enrTF))
+}
+
+#' @title Prepare and run HOMER motif enrichment analysis.
+#'
+#' @description Run complete HOMER motif enrichment analysis, consisting of
+#'     calls to \code{\link{prepareHomer}}, \code{\link[base]{system}} and
+#'     \code{\link{parseHomerOutput}}.
+#'
+#' @param gr A \code{GRanges} object (or an object that can be coerced to one)
+#'     with the genomic regions to analyze.
+#' @param b A vector of the same length as \code{gr} that groups its elements
+#'     into bins (typically a factor).
+#' @param genomedir Directory containing sequence files in Fasta format (one per chromosome).
+#' @param outdir A path specifying the folder into which the output files will be written.
+#' @param motifFile A file with HOMER formatted PWMs to be used in the enrichment analysis.
+#' @param scriptFile Path and file name of the \code{findMotifsGenome.pl} HOMER script.
+#' @param regionsize The peak size to use in HOMER (\code{"given"} keeps the coordinate
+#'     region, an integer value will keep only that many bases in the region center).
+#' @param Ncpu Number of parallel threads that HOMER can use.
+#'
+#' @seealso The functions that are wrapped: \code{\link{prepareHomer}},
+#'     \code{\link[base]{system}} and \code{\link{parseHomerOutput}}
+#'
+#' @return A list of three components (\code{p}, \code{FDR} and \code{enr}),
+#'     containing each a motif (rows) by bin (columns) matrix with raw
+#'     -log10 P values, -log10 false discovery rates and motif enrichments (Pearson residuals).
+#'
+#' @export
+runHomer <- function(gr, b, genomedir, outdir, motifFile, scriptFile = findHomer(), regionsize = "given", Ncpu=2L) {
+    ## ... prepare
+    message("\npreparing input files...")
+    runfile <- prepareHomer(gr = gr, b = b, genomedir = genomedir, outdir = outdir,
+                            motifFile = motiffile, scriptFile = scriptFile,
+                            regionsize = regionsize, Ncpu = Ncpu)
+
+    ## ... run
+    message("\nrunning HOMER...")
+    system(paste0("chmod a+x ", runfile))
+    system(paste0("./", runfile), intern=TRUE)
+
+    ## ... parse output
+    resfiles <- sprintf("%s/bin_%03d_output/knownResults.txt", outdir, seq_along(levels(b)))
+    names(resfiles) <- levels(b)
+    parseHomerOutput(resfiles)
 }

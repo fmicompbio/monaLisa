@@ -23,7 +23,7 @@ files per unique value of \code{b}) will be written.}
 
 \item{scriptFile}{Path and file name of the \code{findMotifsGenome.pl} HOMER script.}
 
-\item{regionsize}{The peak size to use in HOMER (\code{"give"} keeps the coordinate
+\item{regionsize}{The peak size to use in HOMER (\code{"given"} keeps the coordinate
 region, an integer value will keep only that many bases in the region center).}
 
 \item{Ncpu}{Number of parallel threads that HOMER can use.}

@@ -33,7 +33,9 @@ such as \code{labels=FALSE}.}
 }
 \value{
 The return value from \code{cut(x, ...)}, typically a factor of the same
-    length as \code{x}. The bin boundaries are available from \code{attr(..., "breaks")}.
+    length as \code{x}. Binning mode, bin boundaries and optionally the neutral bin
+    are available from \code{attr(..., "binmode")}, \code{attr(..., "breaks")} and
+    \code{attr(..., "bin0")}.
 }
 \description{
 \code{bin} groups elements of \code{x} into bins with either

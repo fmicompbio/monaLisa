@@ -9,14 +9,18 @@
         x2 <- sort(x, decreasing = TRUE)[1:n2]
         bin.breaks <- c(quantile(x1, seq(0, 1, length.out = n1 / nElements + 1)),
                         quantile(x2, seq(0, 1, length.out = n2 / nElements + 1)))
+        attr(bin.breaks, "bin0") <- ceiling(n1 / nElements + 1)
     } else {
         bin.breaks <- quantile(x, seq(0, 1, length.out = round(length(x) / nElements) + 1L))
+        attr(bin.breaks, "bin0") <- NA
     }
     bin.breaks
 }
 
 # get bin boundaries for bin(x, binmode="equalWidth", ...)
 .breaksEqualWidth <- function(x, nBins, minAbsX) {
+    if (!is.null(minAbsX))
+        warning("'minAbsX' is currently ignored for binmode='equalWidth'")
     seq(min(x, na.rm = TRUE), max(x, na.rm = TRUE), length.out = nBins + 1)
 }
 
@@ -59,7 +63,9 @@
 #' @seealso \code{\link{cut}} which is used internally.
 #'
 #' @return The return value from \code{cut(x, ...)}, typically a factor of the same
-#'     length as \code{x}. The bin boundaries are available from \code{attr(..., "breaks")}.
+#'     length as \code{x}. Binning mode, bin boundaries and optionally the neutral bin
+#'     are available from \code{attr(..., "binmode")}, \code{attr(..., "breaks")} and
+#'     \code{attr(..., "bin0")}.
 #'
 #' @examples
 #' set.seed(1)
@@ -82,7 +88,9 @@ bin <- function(x, binmode = c("equalN", "equalWidth", "breaks"),
                      "equalWidth" = .breaksEqualWidth(x, nBins, minAbsX),
                      "breaks" = breaks)
     res <- cut(x, breaks = breaks, include.lowest = TRUE, ...)
+    attr(res, "binmode") <- binmode
     attr(res, "breaks") <- unname(breaks)
+    attr(res, "bin0") <- attr(breaks, "bin0")
     res
 }
 
