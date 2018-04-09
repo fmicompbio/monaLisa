@@ -201,7 +201,7 @@ plotBinScatter <- function(x, y, b,
 #'
 #'     Each heatmap will be \code{width} inches wide, so the total plot needs a
 #'     graphics device with a width of at least \code{length(which.plots) * width}
-#'     plus the space used for the legend. The height will be auto-adjusted to
+#'     plus the space used for motif names and legend. The height will be auto-adjusted to
 #'     the graphics device.
 #'
 #' @seealso \code{\link[ComplexHeatmap]{Heatmap}}
@@ -232,13 +232,20 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("enr", "FDR"), width = 4,
                                                col = list(bin = bincols),
                                                which = "column", width = grid::unit(width / 16,"inch"),
                                                show_legend=FALSE)
-    ret <- lapply(which.plots, function(w) {
+    tmp <- matrix(rep(NA, nrow(x[[1]])), ncol = 1, dimnames = list(rownames(x[[1]]), NULL))
+    hmMotifs <- ComplexHeatmap::Heatmap(matrix = tmp, name = "names",
+                                        width = grid::unit(0, "inch"),
+                                        na_col = NA, cluster_rows = FALSE, cluster_columns = FALSE,
+                                        show_row_names = TRUE, row_names_side = "left",
+                                        show_column_names = FALSE, show_heatmap_legend = FALSE)
+
+    ret <- c(list(labels = hmMotifs), lapply(which.plots, function(w) {
         dat <- x[[w]]
         if (w == "enr") {
             rng <- c(-1, 1) * quantile(abs(dat), .995)
             cols <- col.enr
         } else {
-            rng <- c(0, quantile(dat, .99))
+            rng <- c(0, quantile(dat, .995))
             cols <- col.sig
         }
         hm <- ComplexHeatmap::Heatmap(matrix = dat, name = c(p="P value", FDR="FDR", enr="enrichment")[w],
@@ -246,12 +253,13 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("enr", "FDR"), width = 4,
                                       column_title = c(p = "P value (-log10)", FDR = "FDR (-log10)", enr = "enrichment [(o-e)/sqrt(e)]")[w],
                                       col = circlize::colorRamp2(breaks = seq(rng[1], rng[2], length.out = 256),
                                                                  colors = colorRampPalette(cols)(256)),
-                                      cluster_rows = FALSE, cluster_columns=FALSE, show_row_names=TRUE, show_column_names=FALSE,
+                                      cluster_rows = FALSE, cluster_columns=FALSE, show_row_names=FALSE, show_column_names=FALSE,
                                       ##column_names_side = "bottom", column_names_max_height = grid::unit(1.5,"inch"),
                                       top_annotation = hmBin, top_annotation_height = grid::unit(width / 16, "inch"),
                                       show_heatmap_legend = TRUE, heatmap_legend_param = list(color_bar="continuous"))
         hm
-    })
-    show(do.call(ComplexHeatmap::add_heatmap, ret))
+    }))
+    names(ret)[-1] <- which.plots
+    show(Reduce(ComplexHeatmap::add_heatmap, ret))
     invisible(ret)
 }

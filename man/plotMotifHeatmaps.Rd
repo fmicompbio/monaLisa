@@ -38,7 +38,7 @@ The heatmaps are plotted side-by-side and are created internally using
 
     Each heatmap will be \code{width} inches wide, so the total plot needs a
     graphics device with a width of at least \code{length(which.plots) * width}
-    plus the space used for the legend. The height will be auto-adjusted to
+    plus the space used for motif names and legend. The height will be auto-adjusted to
     the graphics device.
 }
 \references{
