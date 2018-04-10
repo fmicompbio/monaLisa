@@ -1,6 +1,6 @@
 #' @import GenomicRanges
 #' @importFrom tools file_path_as_absolute
-#' @importFrom utils read.table write.table getFromNamespace
+#' @importFrom utils read.delim write.table getFromNamespace
 #' @importFrom stats p.adjust
 #' @importFrom methods as
 NULL
@@ -236,7 +236,7 @@ runHomer <- function(gr, b, genomedir, outdir, motifFile, scriptFile = findHomer
     ## ... prepare
     message("\npreparing input files...")
     runfile <- prepareHomer(gr = gr, b = b, genomedir = genomedir, outdir = outdir,
-                            motifFile = motiffile, scriptFile = scriptFile,
+                            motifFile = motifFile, scriptFile = scriptFile,
                             regionsize = regionsize, Ncpu = Ncpu)
 
     ## ... run

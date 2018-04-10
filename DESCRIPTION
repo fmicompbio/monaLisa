@@ -9,8 +9,11 @@ Description: Useful functions to bin genomic regions, such as promoters
     or accessible regions, according to a numberical value, such as change of
     expression or accessibility, and identify enriched motifs in each bin.
 Imports: methods, stats, utils, grDevices, graphics, GenomicRanges
-Suggests: TFBSTools, JASPAR2018, grid, cirlize, ComplexHeatmap
+Suggests: TFBSTools, JASPAR2018, grid, circlize, ComplexHeatmap,
+    knitr,
+    rmarkdown
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
+VignetteBuilder: knitr
