@@ -1,0 +1,75 @@
+---
+title: "Lisa - Homer-based motif enrichments in binned regions"
+author: "Lukas Burger, Michael Stadler"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+
+\pkg{lisa} makes use of her father [Homer](http://homer.ucsd.edu/homer/index.html)
+to look for enriched motifs in sets of genomic regions, compared to all other regions.
+
+The motifs come from a collection of transcription factor binding site specificities,
+such as \pkg{JASPAR2018}.
+
+The regions could be for example promoters or accessible regions.
+
+The regions are grouped into bins according to a numerical value assigned to each
+bin, such as change of expression or accessibility.
+
+
+# Quick example
+
+```{r, quick, eval=FALSE}
+# load package
+library(lisa)
+
+# bin regions
+# (atac.peaks.change is a numberical vector)
+bins <- bin(x = atac.peaks.change, binmode = "equalN", nElement = 400)
+
+# dump motifs into file
+motiffile <- dumpJaspar("jaspar2018.motif", pkg = "JASPAR2018")
+
+# find Homer (findMotifsGenome.pl)
+homerbin <- findHomer(dirs = "/path/to/look/into")
+
+# run analysis
+# (atac.peaks is a GRanges)
+resL <- runHomer(gr = atac.peaks, b = bins, genomedir = "/work/gbioinfo/DB/genomes/mm10",
+                 outdir = "myresults", motifFile = "jaspar2018.motif", scriptFile = homerbin,
+                 regionsize = "given", Ncpu = 4L)
+
+```
+
+`resL` is a list with components *p*, *FDR* and *enr*, each containing a matrix
+with motifs (rows) by bins (columns). The values are:  
+
+- *p*: the raw P value ($-\log_{10} p$) of a given motif enrichment in a given bin,
+  as reported by Homer. Each P value results from a Homer analysis testing each
+  motif occuring within the bin, compared to its occurrences in all other bins
+  as a background.  
+- *FDR*: Same as *p* but adjusted for multiple testing using the method of
+  Benjamini and Hochberg, 1995 (`p.adjust(..., method="fdr"`).  
+- *enr*: Motif enrichments, calculated as: $enr = (o - e) / \sqrt e$, where $o$ and
+  $e$ are the observed and expected numbers of regions in the bin containing a
+  given motif. These enrichments correspond to $z$ values ($z = (z - \mu)/\sigma$),
+  assuming that the numbers of regions in a bin that contain a motif are independent
+  Poisson random variables with mean and variance $e$.
+  
+# Session info
+```{r, session}
+sessionInfo(package = "lisa")
+```
