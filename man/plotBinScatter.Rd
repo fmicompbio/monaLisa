@@ -14,12 +14,14 @@ plotBinScatter(x, y, b, cols = getColsByBin(b),
 \item{y}{A numerical vector with y values (the values used for binning).}
 
 \item{b}{A factor that groups elements of \code{x,y} into bins (typically the output
-of \code{\link{bin(y)}}).}
+of \code{\link{bin}(y)}).}
 
 \item{cols}{A color vector (will be computed based on \code{b} by default using
-\code{\link{getColsByBin(b)}}).}
+\code{\link{getColsByBin}(b)}).}
 
 \item{xlab}{Label for x-axis.}
+
+\item{ylab}{Label for y-axis.}
 
 \item{main}{Main title.}
 
@@ -27,8 +29,6 @@ of \code{\link{bin(y)}}).}
 be passed to \code{legend(x=legend)} to control legend position).}
 
 \item{...}{Further arguments passed to \code{plot(x, y, ...)}.}
-
-\item{xlab}{Label for y-axis.}
 }
 \value{
 Invisibly the return value of \code{plot(x, y, ...)} that generated the plot.
@@ -37,5 +37,5 @@ Invisibly the return value of \code{plot(x, y, ...)} that generated the plot.
 Plot a scatter (xy-plot) of binned elements with binning information.
 }
 \seealso{
-\code{\link{getColsByBin}}
+\code{\link{bin}}, \code{\link{getColsByBin}}
 }

@@ -8,14 +8,15 @@ plotMotifHeatmaps(x, b, which.plots = c("enr", "FDR"), width = 4,
   col.enr = c("#053061", "#2166AC", "#4393C3", "#92C5DE", "#D1E5F0",
   "#F7F7F7", "#FDDBC7", "#F4A582", "#D6604D", "#B2182B", "#67001F"),
   col.sig = c("#FFF5EB", "#FEE6CE", "#FDD0A2", "#FDAE6B", "#FD8D3C",
-  "#F16913", "#D94801", "#A63603", "#7F2704"))
+  "#F16913", "#D94801", "#A63603", "#7F2704"), maxEnr = NULL, maxSig = NULL,
+  highlight = NULL)
 }
 \arguments{
 \item{x}{A list with numerical matrices (motifs-by-bins), typically the return value
 of \code{\link{runHomer}} or \code{\link{parseHomerOutput}}.}
 
 \item{b}{A factor that groups elements of \code{x,y} into bins (typically the output
-of \code{\link{bin()}}).}
+of \code{\link{bin}()}).}
 
 \item{which.plots}{Selects which heatmaps to plot (one or several from \code{"p"}, \code{"FDR"}
 and \code{"enr"}).}
@@ -25,6 +26,13 @@ and \code{"enr"}).}
 \item{col.enr}{Colors used for enrichment heatmap.}
 
 \item{col.sig}{Colors used for significance hetmaps (P values and FDR).}
+
+\item{maxEnr}{Cap color mapping at enrichment = \code{maxEnr} (default: 99.5th percentile).}
+
+\item{maxSig}{Cap color mapping at -log10 P value or -log10 FDR = \code{maxSig}
+(default: 99.5th percentile).}
+
+\item{highlight}{A logical vector indicating motifs to be highlighted.}
 }
 \value{
 A list of \code{ComplexHeatmap::Heatmap} objects.
@@ -46,5 +54,5 @@ Gu, Z. Complex heatmaps reveal patterns and correlations in multidimensional
     genomic data. Bioinformatics 2016.
 }
 \seealso{
-\code{\link[ComplexHeatmap]{Heatmap}}
+\code{\link{bin}}, \code{\link[ComplexHeatmap]{Heatmap}}
 }

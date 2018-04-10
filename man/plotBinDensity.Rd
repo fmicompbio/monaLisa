@@ -15,14 +15,14 @@ plotBinDensity(x, b, xlab = deparse(substitute(x)), ylab = "Density",
 
 \item{xlab}{Label for x-axis.}
 
+\item{ylab}{Label for y-axis.}
+
 \item{main}{Main title.}
 
 \item{legend}{If not \code{NULL}, draw a legend with binning information (will
 be passed to \code{legend(x=legend)} to control legend position).}
 
 \item{...}{Further arguments passed to \code{\link{getColsByBin}}.}
-
-\item{xlab}{Label for y-axis.}
 }
 \value{
 Invisibly the return value of \code{density(x)} that generated the plot.

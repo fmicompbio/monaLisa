@@ -1,5 +1,5 @@
 #' @importFrom grDevices colorRampPalette
-#' @importFrom graphics hist rect
+#' @importFrom graphics axis hist lines par plot rect rug segments
 #' @importFrom stats density
 NULL
 
@@ -55,7 +55,7 @@ getColsByBin <- function(b,
 #'     \code{\link{bin}}).
 #' @param breaks Controls the histogram breaks (passed to \code{hist(...)}).
 #' @param xlab Label for x-axis.
-#' @param xlab Label for y-axis.
+#' @param ylab Label for y-axis.
 #' @param main Main title.
 #' @param legend If not \code{NULL}, draw a legend with binning information (will
 #'     be passed to \code{legend(x=legend)} to control legend position).
@@ -94,7 +94,7 @@ plotBinHist <- function(x, b, breaks = 10 * nlevels(b),
 #' @param b A factor that groups elements of \code{x} into bins (typically the output of
 #'     \code{\link{bin}}).
 #' @param xlab Label for x-axis.
-#' @param xlab Label for y-axis.
+#' @param ylab Label for y-axis.
 #' @param main Main title.
 #' @param legend If not \code{NULL}, draw a legend with binning information (will
 #'     be passed to \code{legend(x=legend)} to control legend position).
@@ -139,17 +139,17 @@ plotBinDensity <- function(x, b,
 #' @param x A numerical vector with x values.
 #' @param y A numerical vector with y values (the values used for binning).
 #' @param b A factor that groups elements of \code{x,y} into bins (typically the output
-#'     of \code{\link{bin(y)}}).
+#'     of \code{\link{bin}(y)}).
 #' @param cols A color vector (will be computed based on \code{b} by default using
-#'     \code{\link{getColsByBin(b)}}).
+#'     \code{\link{getColsByBin}(b)}).
 #' @param xlab Label for x-axis.
-#' @param xlab Label for y-axis.
+#' @param ylab Label for y-axis.
 #' @param main Main title.
 #' @param legend If not \code{NULL}, draw a legend with binning information (will
 #'     be passed to \code{legend(x=legend)} to control legend position).
 #' @param ... Further arguments passed to \code{plot(x, y, ...)}.
 #'
-#' @seealso \code{\link{getColsByBin}}
+#' @seealso \code{\link{bin}}, \code{\link{getColsByBin}}
 #'
 #' @return Invisibly the return value of \code{plot(x, y, ...)} that generated the plot.
 #'
@@ -189,12 +189,16 @@ plotBinScatter <- function(x, y, b,
 #' @param x A list with numerical matrices (motifs-by-bins), typically the return value
 #'     of \code{\link{runHomer}} or \code{\link{parseHomerOutput}}.
 #' @param b A factor that groups elements of \code{x,y} into bins (typically the output
-#'     of \code{\link{bin()}}).
+#'     of \code{\link{bin}()}).
 #' @param which.plots Selects which heatmaps to plot (one or several from \code{"p"}, \code{"FDR"}
 #'     and \code{"enr"}).
 #' @param width The width (in inches) of each individual heatmap, without legend.
 #' @param col.enr Colors used for enrichment heatmap.
 #' @param col.sig Colors used for significance hetmaps (P values and FDR).
+#' @param maxEnr Cap color mapping at enrichment = \code{maxEnr} (default: 99.5th percentile).
+#' @param maxSig Cap color mapping at -log10 P value or -log10 FDR = \code{maxSig}
+#'     (default: 99.5th percentile).
+#' @param highlight A logical vector indicating motifs to be highlighted.
 #'
 #' @details The heatmaps are plotted side-by-side and are created internally using
 #'     the \pkg{ComplexHeatmap} package.
@@ -204,7 +208,7 @@ plotBinScatter <- function(x, y, b,
 #'     plus the space used for motif names and legend. The height will be auto-adjusted to
 #'     the graphics device.
 #'
-#' @seealso \code{\link[ComplexHeatmap]{Heatmap}}
+#' @seealso \code{\link{bin}}, \code{\link[ComplexHeatmap]{Heatmap}}
 #'
 #' @references Gu, Z. Complex heatmaps reveal patterns and correlations in multidimensional
 #'     genomic data. Bioinformatics 2016.
@@ -216,7 +220,8 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("enr", "FDR"), width = 4,
                               col.enr = c("#053061","#2166AC","#4393C3","#92C5DE","#D1E5F0",
                                           "#F7F7F7","#FDDBC7","#F4A582","#D6604D","#B2182B","#67001F"),
                               col.sig = c("#FFF5EB","#FEE6CE","#FDD0A2","#FDAE6B","#FD8D3C",
-                                          "#F16913","#D94801","#A63603","#7F2704")) {
+                                          "#F16913","#D94801","#A63603","#7F2704"),
+                              maxEnr = NULL, maxSig = NULL, highlight = NULL) {
     stopifnot(requireNamespace("ComplexHeatmap"))
     stopifnot(requireNamespace("circlize"))
     stopifnot(requireNamespace("grid"))
@@ -227,32 +232,35 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("enr", "FDR"), width = 4,
         b <- factor(b, levels=unique(b))
     stopifnot(all(which.plots %in% c("p", "FDR", "enr")))
     stopifnot(all(which.plots %in% names(x)))
+    stopifnot(is.null(highlight) || (is.logical(highlight) && length(highlight) == nrow(x[[1]])))
     bincols <- attr(getColsByBin(b), "cols")
     hmBin <- ComplexHeatmap::HeatmapAnnotation(df = data.frame(bin = colnames(x[[1]])), name="bin",
                                                col = list(bin = bincols),
                                                which = "column", width = grid::unit(width / 16,"inch"),
                                                show_legend=FALSE)
-    tmp <- matrix(rep(NA, nrow(x[[1]])), ncol = 1, dimnames = list(rownames(x[[1]]), NULL))
+    tmp <- matrix(if (!is.null(highlight)) as.character(highlight) else rep(NA, nrow(x[[1]])),
+                  ncol = 1, dimnames = list(rownames(x[[1]]), NULL))
     hmMotifs <- ComplexHeatmap::Heatmap(matrix = tmp, name = "names",
-                                        width = grid::unit(0, "inch"),
-                                        na_col = NA, cluster_rows = FALSE, cluster_columns = FALSE,
+                                        width = grid::unit(if (!is.null(highlight)) .2 else 0, "inch"),
+                                        na_col = NA, col = c("TRUE" = "green3", "FALSE" = "white"),
+                                        cluster_rows = FALSE, cluster_columns = FALSE,
                                         show_row_names = TRUE, row_names_side = "left",
                                         show_column_names = FALSE, show_heatmap_legend = FALSE)
 
     ret <- c(list(labels = hmMotifs), lapply(which.plots, function(w) {
         dat <- x[[w]]
         if (w == "enr") {
-            rng <- c(-1, 1) * quantile(abs(dat), .995)
+            rng <- c(-1, 1) * if (is.null(maxEnr)) quantile(abs(dat), .995) else maxEnr
             cols <- col.enr
         } else {
-            rng <- c(0, quantile(dat, .995))
+            rng <- c(0, if (is.null(maxSig)) quantile(dat, .995) else maxSig)
             cols <- col.sig
         }
         hm <- ComplexHeatmap::Heatmap(matrix = dat, name = c(p="P value", FDR="FDR", enr="enrichment")[w],
                                       width = grid::unit(width,"inch"),
-                                      column_title = c(p = "P value (-log10)", FDR = "FDR (-log10)", enr = "enrichment [(o-e)/sqrt(e)]")[w],
-                                      col = circlize::colorRamp2(breaks = seq(rng[1], rng[2], length.out = 256),
-                                                                 colors = colorRampPalette(cols)(256)),
+                                      column_title = c(p = "P value (-log10)", FDR = "FDR (-log10)", enr = "enrichment (o-e)/sqrt(e)")[w],
+                                      col = colorRamp2(breaks = seq(rng[1], rng[2], length.out = 256),
+                                                       colors = colorRampPalette(cols)(256)),
                                       cluster_rows = FALSE, cluster_columns=FALSE, show_row_names=FALSE, show_column_names=FALSE,
                                       ##column_names_side = "bottom", column_names_max_height = grid::unit(1.5,"inch"),
                                       top_annotation = hmBin, top_annotation_height = grid::unit(width / 16, "inch"),

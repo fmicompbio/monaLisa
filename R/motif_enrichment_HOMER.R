@@ -1,6 +1,8 @@
 #' @import GenomicRanges
 #' @importFrom tools file_path_as_absolute
-#' @importFrom utils write.table getFromNamespace
+#' @importFrom utils read.table write.table getFromNamespace
+#' @importFrom stats p.adjust
+#' @importFrom methods as
 NULL
 
 
