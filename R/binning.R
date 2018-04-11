@@ -6,7 +6,7 @@
         n1 <- round(sum(x < -minAbsX) / nElements) * nElements
         n2 <- round(sum(x >  minAbsX) / nElements) * nElements
         x1 <- sort(x, decreasing = FALSE)[1:n1]
-        x2 <- sort(x, decreasing = TRUE)[1:n2]
+        x2 <- sort(x, decreasing = TRUE)[1:(n2+1)]
         bin.breaks <- c(quantile(x1, seq(0, 1, length.out = n1 / nElements + 1)),
                         quantile(x2, seq(0, 1, length.out = n2 / nElements + 1)))
         attr(bin.breaks, "bin0") <- ceiling(n1 / nElements + 1)
