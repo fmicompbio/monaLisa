@@ -229,7 +229,8 @@ parseHomerOutput <- function(infiles) {
 #'
 #' @return A list of three components (\code{p}, \code{FDR} and \code{enr}),
 #'     containing each a motif (rows) by bin (columns) matrix with raw
-#'     -log10 P values, -log10 false discovery rates and motif enrichments (Pearson residuals).
+#'     -log10 P values, -log10 false discovery rates and motif enrichments
+#'     (\eqn{(o-e)/\sqrt e}).
 #'
 #' @export
 runHomer <- function(gr, b, genomedir, outdir, motifFile, scriptFile = findHomer(), regionsize = "given", Ncpu=2L) {

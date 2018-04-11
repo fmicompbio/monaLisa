@@ -18,11 +18,11 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-\pkg{lisa} makes use of her father [Homer](http://homer.ucsd.edu/homer/index.html)
+`lisa` makes use of her father [Homer](http://homer.ucsd.edu/homer/index.html)
 to look for enriched motifs in sets of genomic regions, compared to all other regions.
 
 The motifs come from a collection of transcription factor binding site specificities,
-such as \pkg{JASPAR2018}.
+such as `JASPAR2018`.
 
 The regions could be for example promoters or accessible regions.
 

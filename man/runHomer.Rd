@@ -30,7 +30,8 @@ region, an integer value will keep only that many bases in the region center).}
 \value{
 A list of three components (\code{p}, \code{FDR} and \code{enr}),
     containing each a motif (rows) by bin (columns) matrix with raw
-    -log10 P values, -log10 false discovery rates and motif enrichments (Pearson residuals).
+    -log10 P values, -log10 false discovery rates and motif enrichments
+    (\eqn{(o-e)/\sqrt e}).
 }
 \description{
 Run complete HOMER motif enrichment analysis, consisting of
