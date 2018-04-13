@@ -3,10 +3,10 @@
 # get bin boundaries for bin(x, binmode="equalN", ...)
 .breaksEqualN <- function(x, nElements, minAbsX = NULL) {
     if (!is.null(minAbsX)) {
-        n1 <- round(sum(x < -minAbsX) / nElements) * nElements
-        n2 <- round(sum(x >  minAbsX) / nElements) * nElements
-        x1 <- sort(x, decreasing = FALSE)[1:n1]
-        x2 <- sort(x, decreasing = TRUE)[1:(n2+1)]
+        n1 <- round(sum(x < -minAbsX, na.rm = TRUE) / nElements) * nElements
+        n2 <- round(sum(x >  minAbsX, na.rm = TRUE) / nElements) * nElements
+        x1 <- sort(x, decreasing = FALSE, na.last = NA)[1:n1]
+        x2 <- sort(x, decreasing = TRUE,  na.last = NA)[1:(n2+1)]
         bin.breaks <- c(quantile(x1, seq(0, 1, length.out = n1 / nElements + 1)),
                         quantile(x2, seq(0, 1, length.out = n2 / nElements + 1)))
         attr(bin.breaks, "bin0") <- ceiling(n1 / nElements + 1)
@@ -19,9 +19,21 @@
 
 # get bin boundaries for bin(x, binmode="equalWidth", ...)
 .breaksEqualWidth <- function(x, nBins, minAbsX) {
-    if (!is.null(minAbsX))
-        warning("'minAbsX' is currently ignored for binmode='equalWidth'")
-    seq(min(x, na.rm = TRUE), max(x, na.rm = TRUE), length.out = nBins + 1)
+    if (!is.null(minAbsX)) {
+        e1 <- sum(x < -minAbsX, na.rm = TRUE)
+        e2 <- sum(x >  minAbsX, na.rm = TRUE)
+        b1 <- round((nBins - 1) * e1 / (e1 + e2))
+        b2 <- nBins - 1 - b1
+        bw <- max((-minAbsX - min(x, na.rm = TRUE)) / b1, (max(x, na.rm = TRUE) - minAbsX) / b2, na.rm = TRUE)
+        almostOne <- (length(x) - 1) / length(x)
+        bin.breaks <- c(if (b1 > 0) rev(seq(-minAbsX, min(x, na.rm = TRUE) - almostOne * bw, by = -bw)) else numeric(0),
+                        if (b2 > 0) seq(minAbsX, max(x, na.rm = TRUE) + almostOne * bw, by = bw) else numeric(0))
+        attr(bin.breaks, "bin0") <- b1 + 1
+    } else {
+        bin.breaks <- seq(min(x, na.rm = TRUE), max(x, na.rm = TRUE), length.out = nBins + 1)
+        attr(bin.breaks, "bin0") <- NA
+    }
+    bin.breaks
 }
 
 #' @title Bin elements of \code{x}.
@@ -38,8 +50,9 @@
 #' @param nBins The number of bins (only for \code{binmode="equalWidth"}).
 #'     The number of elments per bin will be variable.
 #' @param minAbsX The minimal absolute value in \code{x} for exlements to be binned
-#'     using the \code{binmode="equalN"} (ignored for other values of \code{binmode}).
-#'     Elements with \code{x} values in \code{[-minAbsX,minAbsX]} will be collected in a single bin.
+#'     using the \code{binmode="equalN"} or \code{binmode="equalWidth"} (ignored
+#'     for other values of \code{binmode}). Elements with \code{x} values in
+#'     \code{[-minAbsX,minAbsX]} will be collected in a single bin.
 #' @param breaks Numerical vector with bin boundaries (only for \code{binmode="breaks"}).
 #'     \code{breaks} has to be ordered and strictly increasing, and has to be of
 #'     length (number of bins) + 1.
@@ -83,6 +96,7 @@ bin <- function(x, binmode = c("equalN", "equalWidth", "breaks"),
     binmode <- match.arg(binmode)
     stopifnot(is.null(nElements) || (is.numeric(nElements) && length(nElements) == 1))
     stopifnot(is.null(nBins) || (is.numeric(nBins) && length(nBins) == 1))
+    stopifnot(is.null(minAbsX) || (is.numeric(minAbsX) && length(minAbsX) == 1 && minAbsX > 0))
     breaks <- switch(binmode,
                      "equalN" = .breaksEqualN(x, nElements, minAbsX),
                      "equalWidth" = .breaksEqualWidth(x, nBins, minAbsX),

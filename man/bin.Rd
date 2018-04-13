@@ -21,8 +21,9 @@ The width of bins is adjusted accordingly.}
 The number of elments per bin will be variable.}
 
 \item{minAbsX}{The minimal absolute value in \code{x} for exlements to be binned
-using the \code{binmode="equalN"} (ignored for other values of \code{binmode}).
-Elements with \code{x} values in \code{[-minAbsX,minAbsX]} will be collected in a single bin.}
+using the \code{binmode="equalN"} or \code{binmode="equalWidth"} (ignored
+for other values of \code{binmode}). Elements with \code{x} values in
+\code{[-minAbsX,minAbsX]} will be collected in a single bin.}
 
 \item{breaks}{Numerical vector with bin boundaries (only for \code{binmode="breaks"}).
 \code{breaks} has to be ordered and strictly increasing, and has to be of
