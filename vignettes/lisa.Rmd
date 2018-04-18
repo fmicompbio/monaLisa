@@ -1,5 +1,5 @@
 ---
-title: "Lisa - Homer-based motif enrichments in binned regions"
+title: "Lisa - motif enrichments and more"
 author: "Lukas Burger, Michael Stadler"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -15,6 +15,12 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
+
+<!--
+<img src="lisa_logo_v1.png" style="position:absolute;top:0px;right:0px;" />
+-->
+
+<img src="lisa_logo_v1.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%; border: 0" />
 
 # Introduction
 
@@ -68,8 +74,12 @@ with motifs (rows) by bins (columns). The values are:
   given motif. These enrichments correspond to $z$ values ($z = (z - \mu)/\sigma$),
   assuming that the numbers of regions in a bin that contain a motif are independent
   Poisson random variables with mean and variance $e$.
-  
-# Session info
+
+# Session info and logo
+The lisa logo uses a drawing that was obtained from http://vectorish.com/lisa-simpson.html
+under the Creative Commons attribution - non-commercial 3.0 license: https://creativecommons.org/licenses/by-nc/3.0/.
+
+This vignette was built using:  
 ```{r, session}
 sessionInfo(package = "lisa")
 ```
