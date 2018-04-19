@@ -1,0 +1,12 @@
+#' Lisa - motif enrichments and more.
+#'
+#' \pkg{lisa} is a collection of tools that simplify motif enrichment analyses
+#' in genomic regions of interest.
+#'
+#' She makes use of her father Homer (http://homer.ucsd.edu/homer/index.html)
+#' and other algorithms to search for motif hits and look for enriched motifs
+#' in sets of genomic regions, compared to all other regions.
+#'
+#' The motifs come from a collection of transcription factor binding site
+#' specificities, such as \pkg{JASPAR2018}.
+"_PACKAGE"

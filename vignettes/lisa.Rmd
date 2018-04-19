@@ -16,10 +16,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-<!--
-<img src="lisa_logo_v1.png" style="position:absolute;top:0px;right:0px;" />
--->
-
 <img src="lisa_logo_v1.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%; border: 0" />
 
 # Introduction
