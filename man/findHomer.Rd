@@ -4,17 +4,17 @@
 \alias{findHomer}
 \title{Find HOMER script file.}
 \usage{
-findHomer(scriptfile = "findMotifsGenome.pl", dirs = NULL)
+findHomer(homerfile = "findMotifsGenome.pl", dirs = NULL)
 }
 \arguments{
-\item{scriptfile}{Name of the script file to search.}
+\item{homerfile}{Name of the script file to search.}
 
-\item{dirs}{Directory names to look for \code{scriptfile}. If \code{dirs=NULL},
+\item{dirs}{Directory names to look for \code{homerfile}. If \code{dirs=NULL},
 all directories listed in the \code{PATH} environment variable will be
 searched.}
 }
 \value{
-Absolute path to \code{scriptfile}, or \code{NA} if none or several were found.
+Absolute path to \code{homerfile}, or \code{NA} if none or several were found.
 }
 \description{
 Find absolute path to HOMER script file.

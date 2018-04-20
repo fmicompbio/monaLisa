@@ -4,7 +4,7 @@
 \alias{runHomer}
 \title{Prepare and run HOMER motif enrichment analysis.}
 \usage{
-runHomer(gr, b, genomedir, outdir, motifFile, scriptFile = findHomer(),
+runHomer(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(),
   regionsize = "given", Ncpu = 2L)
 }
 \arguments{
@@ -20,7 +20,7 @@ into bins (typically a factor).}
 
 \item{motifFile}{A file with HOMER formatted PWMs to be used in the enrichment analysis.}
 
-\item{scriptFile}{Path and file name of the \code{findMotifsGenome.pl} HOMER script.}
+\item{homerfile}{Path and file name of the \code{findMotifsGenome.pl} HOMER script.}
 
 \item{regionsize}{The peak size to use in HOMER (\code{"given"} keeps the coordinate
 region, an integer value will keep only that many bases in the region center).}

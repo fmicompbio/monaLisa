@@ -10,18 +10,18 @@ NULL
 #'
 #' @description Find absolute path to HOMER script file.
 #'
-#' @param scriptfile Name of the script file to search.
-#' @param dirs Directory names to look for \code{scriptfile}. If \code{dirs=NULL},
+#' @param homerfile Name of the script file to search.
+#' @param dirs Directory names to look for \code{homerfile}. If \code{dirs=NULL},
 #'     all directories listed in the \code{PATH} environment variable will be
 #'     searched.
 #'
-#' @return Absolute path to \code{scriptfile}, or \code{NA} if none or several were found.
+#' @return Absolute path to \code{homerfile}, or \code{NA} if none or several were found.
 #'
 #' @export
-findHomer <- function(scriptfile = "findMotifsGenome.pl", dirs = NULL) {
+findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
     if (is.null(dirs))
         dirs <- strsplit(x = Sys.getenv("PATH"), split = ":")[[1]]
-    res <- list.files(path = dirs, pattern = paste0("^",scriptfile,"$"), full.names = TRUE)
+    res <- list.files(path = dirs, pattern = paste0("^",homerfile,"$"), full.names = TRUE)
     if (length(res) == 1) {
         return(tools::file_path_as_absolute(res))
     } else {
@@ -99,7 +99,7 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "ve
 #' @param outdir A path specifying the folder into which the output files (two
 #'     files per unique value of \code{b}) will be written.
 #' @param motifFile A file with HOMER formatted PWMs to be used in the enrichment analysis.
-#' @param scriptFile Path and file name of the \code{findMotifsGenome.pl} HOMER script.
+#' @param homerfile Path and file name of the \code{findMotifsGenome.pl} HOMER script.
 #' @param regionsize The peak size to use in HOMER (\code{"given"} keeps the coordinate
 #'     region, an integer value will keep only that many bases in the region center).
 #' @param Ncpu Number of parallel threads that HOMER can use.
@@ -117,7 +117,7 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "ve
 #'     analysis.
 #'
 #' @export
-prepareHomer <- function(gr, b, genomedir, outdir, motifFile, scriptFile = findHomer(), regionsize = "given", Ncpu=2) {
+prepareHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(), regionsize = "given", Ncpu=2) {
     if (!inherits(gr, "GRanges"))
         as(gr, "GRanges")
     if (!is.factor(b))
@@ -125,7 +125,7 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile, scriptFile = findH
     stopifnot(length(b) == length(gr))
     stopifnot(is.character(outdir) && length(outdir) == 1L)
     stopifnot(is.character(motifFile) && length(motifFile) == 1L && file.exists(motifFile))
-    stopifnot(is.character(scriptFile) && length(scriptFile) == 1L && file.exists(scriptFile))
+    stopifnot(is.character(homerfile) && length(homerfile) == 1L && file.exists(homerfile))
 
     if (file.exists(outdir))
         stop(outdir," already exists - will not overwrite existing folder")
@@ -154,7 +154,7 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile, scriptFile = findH
                     sep="\t", quote=FALSE, col.names=FALSE, row.names=FALSE)
 
         cat(sprintf("%s %s %s %s -bg %s -nomotif -p %d -size %s -mknown %s\n",
-                    scriptFile, fgfile, genomedir, outputf, bgfile, Ncpu, as.character(regionsize), motifFile), file=fh, append=TRUE)
+                    homerfile, fgfile, genomedir, outputf, bgfile, Ncpu, as.character(regionsize), motifFile), file=fh, append=TRUE)
     }
     close(fh)
 
@@ -219,7 +219,7 @@ parseHomerOutput <- function(infiles) {
 #' @param genomedir Directory containing sequence files in Fasta format (one per chromosome).
 #' @param outdir A path specifying the folder into which the output files will be written.
 #' @param motifFile A file with HOMER formatted PWMs to be used in the enrichment analysis.
-#' @param scriptFile Path and file name of the \code{findMotifsGenome.pl} HOMER script.
+#' @param homerfile Path and file name of the \code{findMotifsGenome.pl} HOMER script.
 #' @param regionsize The peak size to use in HOMER (\code{"given"} keeps the coordinate
 #'     region, an integer value will keep only that many bases in the region center).
 #' @param Ncpu Number of parallel threads that HOMER can use.
@@ -233,11 +233,11 @@ parseHomerOutput <- function(infiles) {
 #'     (\eqn{(o-e)/\sqrt e}).
 #'
 #' @export
-runHomer <- function(gr, b, genomedir, outdir, motifFile, scriptFile = findHomer(), regionsize = "given", Ncpu=2L) {
+runHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(), regionsize = "given", Ncpu=2L) {
     ## ... prepare
     message("\npreparing input files...")
     runfile <- prepareHomer(gr = gr, b = b, genomedir = genomedir, outdir = outdir,
-                            motifFile = motifFile, scriptFile = scriptFile,
+                            motifFile = motifFile, homerfile = homerfile,
                             regionsize = regionsize, Ncpu = Ncpu)
 
     ## ... run
