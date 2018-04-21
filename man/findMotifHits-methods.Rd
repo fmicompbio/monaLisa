@@ -3,15 +3,26 @@
 \docType{methods}
 \name{findMotifHits}
 \alias{findMotifHits}
-\alias{findMotifHits,ANY-method}
+\alias{findMotifHits,PWMatrix,ANY-method}
+\alias{findMotifHits,PWMatrixList,ANY-method}
+\alias{findMotifHits,ANY,DNAString-method}
+\alias{findMotifHits,ANY,DNAStringSet-method}
 \alias{findMotifHits,character,character-method}
 \title{Find motif matches in sequences.}
 \usage{
-findMotifHits(query, subject, min.score, method = c("homer2", "matchPWM"),
-  homerfile = findHomer("homer2"), Ncpu = 1L, ...)
+findMotifHits(query, subject, ...)
 
-\S4method{findMotifHits}{ANY}(query, subject, min.score, method = c("homer2",
-  "matchPWM"), homerfile = findHomer("homer2"), Ncpu = 1L, ...)
+\S4method{findMotifHits}{PWMatrix,ANY}(query, subject, ...)
+
+\S4method{findMotifHits}{PWMatrixList,ANY}(query, subject, ...)
+
+\S4method{findMotifHits}{ANY,DNAString}(query, subject, ...)
+
+\S4method{findMotifHits}{ANY,DNAStringSet}(query, subject, ...)
+
+\S4method{findMotifHits}{character,character}(query, subject, min.score,
+  method = c("homer2", "matchPWM"), homerfile = findHomer("homer2"),
+  Ncpu = 1L, ...)
 }
 \arguments{
 \item{query}{The motifs to search for, either a
@@ -22,6 +33,18 @@ findMotifHits(query, subject, min.score, method = c("homer2", "matchPWM"),
     \item{\code{PWMatrix}}{ with a single PWM}
     \item{\code{PWMatrixList}}{ with several PWMs to search for.}
  }}
+
+\item{subject}{The sequences to be searched, either a
+\itemize{
+    \item{\code{character}}{ with the path and file name of a sequence
+          file with DNA sequences in FASTA format}
+    \item{\code{DNAString}}{ with a single sequence}
+    \item{\code{DNAStringSet}}{ with several sequences}
+    \item{\code{GRanges}}{ object with the genomic coordinates
+        of the sequences to be searched.}
+}}
+
+\item{...}{Additional arguments for specific methods.}
 
 \item{min.score}{The minimum score for counting a match. Can be given as
 a character string containing a percentage (e.g. "85%") of the highest
@@ -36,8 +59,6 @@ possible score or as a single number.}
 \item{homerfile}{Path and file name of the \code{homer2} binary.}
 
 \item{Ncpu}{Number of parallel threads (only for \code{method="homer2"}, default: 1).}
-
-\item{...}{Additional arguments for specific methods.}
 }
 \value{
 A \code{GRanges} object with the matches to \code{query} in \code{subject}.
@@ -48,8 +69,9 @@ as a file, an R object or genomic coordinates)  for matches to
 positional weight matrices (provided as a file or as R objects)
 }
 \examples{
-pwm <- TFBSTools::PWMatrix(ID="mypwm", profileMatrix=matrix(rep(c(1,-1,-1,-1),3), nrow=4, dimnames=list(c("A","C","G","T"))))
-findMotifHits(pwm, "CCCCCAAACCCCC")
+\dontrun{
+findMotifHits(pwm, "sequences.fa")
+}
 }
 \seealso{
 \code{\link[Biostrings]{matchPWM}}

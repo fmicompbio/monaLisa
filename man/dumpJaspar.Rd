@@ -5,7 +5,7 @@
 \title{Dump Jaspar motifs into a HOMER motif file.}
 \usage{
 dumpJaspar(filename, pkg = "JASPAR2018", opts = list(tax_group =
-  "vertebrates"))
+  "vertebrates"), relScoreCutoff = 0.8)
 }
 \arguments{
 \item{filename}{Name of the output file to be created.}
@@ -13,6 +13,10 @@ dumpJaspar(filename, pkg = "JASPAR2018", opts = list(tax_group =
 \item{pkg}{Name of the Jaspar package to use (default: \code{JASPAR2018}).}
 
 \item{opts}{a search options list used in \code{getMatrixSet}.}
+
+\item{relScoreCutoff}{Currently ignored. numeric(1) in [0,1] that sets the default motif
+log-odds score cutof to relScoreCutoff * maximal score for each PWM
+(default: 0.8).}
 }
 \value{
 \code{TRUE} if successful.

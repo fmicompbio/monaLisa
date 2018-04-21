@@ -38,14 +38,20 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 #' @param filename Name of the output file to be created.
 #' @param pkg Name of the Jaspar package to use (default: \code{JASPAR2018}).
 #' @param opts a search options list used in \code{getMatrixSet}.
+#' @param relScoreCutoff Currently ignored. numeric(1) in [0,1] that sets the default motif
+#'     log-odds score cutof to relScoreCutoff * maximal score for each PWM
+#'     (default: 0.8).
 #'
 #' @return \code{TRUE} if successful.
 #'
 #' @seealso \code{\link[TFBSTools]{getMatrixSet}} for details on the argument \code{opts}.
 #'
 #' @export
-dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "vertebrates")) {
+dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "vertebrates"),
+                       relScoreCutoff = 0.8) {
     stopifnot(!file.exists(filename))
+    stopifnot(is.numeric(relScoreCutoff) && length(relScoreCutoff) == 1 &&
+              relScoreCutoff >= 0.0 && relScoreCutoff <= 1.0)
 
     requireNamespace(pkg)
     requireNamespace("TFBSTools")
@@ -67,6 +73,8 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "ve
         pwm <- TFBSTools::Matrix(siteList[[i]]) + 1
         pwm <- t(t(pwm) / colSums(pwm))
         tmp.rn <- rownames(pwm)
+        #scorecut <- relScoreCutoff * sum(log(apply(pwm, 2, max) / 0.25))
+        scorecut <- log(2**10) # use constant cutoff for all motifs (ignore relScoreCutoff)
         pwm <- apply(pwm, 2, function(x){sprintf("%.3f", x)})
         rownames(pwm) <- tmp.rn
         wm.name <- paste(c(TFBSTools::name(siteList[[i]]),
@@ -74,7 +82,7 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "ve
                            TFBSTools::tags(siteList[[i]])$type), collapse = "|")
         cat(sprintf(">%s\t%s\t%.2f\n",
                     paste(apply(pwm, 2, function(x) { rownames(pwm)[which.max(x)] }), collapse = ""),
-                    wm.name, log(2**10)),  file = fh, append = TRUE)
+                    wm.name, scorecut),  file = fh, append = TRUE)
         write.table(file = fh, t(pwm), row.names = FALSE, col.names = FALSE,
                     sep = "\t", quote = FALSE, append = TRUE)
         flush(fh)

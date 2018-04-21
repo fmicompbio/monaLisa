@@ -2,7 +2,25 @@
 #' @importFrom IRanges IRanges
 #' @importFrom GenomicRanges GRanges
 #' @importFrom TFBSTools Matrix PWMatrix PWMatrixList name
+#' @importFrom methods .valueClassTest
 NULL
+
+# internal function:  dump PWMatrixList to file in homer2 format
+.dumpPWMsToHomer2File <- function(pwmL, fname, relscore=0.8) {
+    stopifnot(inherits(pwmL, "PWMatrixList"))
+    fh <- file(fname, "wb")
+    for (i in seq_along(pwmL)) {
+        pwm <- TFBSTools::Matrix(pwmL[[i]])
+        scorecut <- relscore * sum(log(apply(pwm, 2, max) / 0.25))
+        cat(sprintf(">%s\t%s\t%.2f\n",
+                    paste(apply(pwm, 2, function(x) { rownames(pwm)[which.max(x)] }), collapse = ""),
+                    TFBSTools::name(pwmL[[i]]), scorecut),  file = fh, append = TRUE)
+        write.table(file = fh, t(pwm), row.names = FALSE, col.names = FALSE,
+                    sep = "\t", quote = FALSE, append = TRUE)
+    }
+    close(fh)
+    return(fname)
+}
 
 #' @title Find motif matches in sequences.
 #'
@@ -22,11 +40,11 @@ NULL
 #' @param subject The sequences to be searched, either a
 #'     \itemize{
 #'         \item{\code{character}}{ with the path and file name of a sequence
-#'               file with DNA sequences in FASTA format, or with the sequence(s)})}
+#'               file with DNA sequences in FASTA format}
 #'         \item{\code{DNAString}}{ with a single sequence}
 #'         \item{\code{DNAStringSet}}{ with several sequences}
 #'         \item{\code{GRanges}}{ object with the genomic coordinates
-#'             of the sequences to be searched (.}
+#'             of the sequences to be searched.}
 #'     }
 #'
 #' @param min.score The minimum score for counting a match. Can be given as
@@ -54,44 +72,54 @@ NULL
 #' @rdname findMotifHits-methods
 #'
 #' @examples
-#' pwm <- TFBSTools::PWMatrix(ID="mypwm", profileMatrix=matrix(rep(c(1,-1,-1,-1),3), nrow=4, dimnames=list(c("A","C","G","T"))))
-#' findMotifHits(pwm, "CCCCCAAACCCCC")
+#' \dontrun{
+#' findMotifHits(pwm, "sequences.fa")
+#' }
 setGeneric(name = "findMotifHits",
-           def = function(query, subject, min.score, method = c("homer2", "matchPWM"),
-                          homerfile = findHomer("homer2"), Ncpu = 1L, ...) {
-               method <- match.arg(method)
-               if (method == "matchPWM")
-                   stop("method='matchPWM' is not implemented yet")
+           def = function(query, subject, ...) {
                standardGeneric("findMotifHits")
            },
            valueClass = "GRanges")
 
-
 #' @rdname findMotifHits-methods
-#' @aliases findMotifHits,PWMatrix,character-method
+#' @aliases findMotifHits,PWMatrix,ANY-method
 setMethod("findMotifHits",
-          c("PWMatrix","character"),
+          c("PWMatrix","ANY"),
           function(query, subject, ...) {
               findMotifHits(TFBSTools::PWMatrixList(query), subject, ...)
           })
 
 #' @rdname findMotifHits-methods
-#' @aliases findMotifHits,PWMatrixList,character-method
+#' @aliases findMotifHits,PWMatrixList,ANY-method
 setMethod("findMotifHits",
-          c("PWMatrix","character"),
+          c("PWMatrixList","ANY"),
           function(query, subject, ...) {
+              # write motifs to file for homer2
               tmpf <- tempfile(fileext = ".motif")
-              fh <- file(tmpf, "wb")
-              for (i in seq_along(query)) {
-                  pwm <- TFBSTools::Matrix(query[[i]])
-                  cat(sprintf(">%s\t%s\t%.2f\n",
-                              paste(apply(pwm, 2, function(x) { rownames(pwm)[which.max(x)] }), collapse = ""),
-                              TFBSTools::name(query[[i]]), log(2**10)),  file = fh, append = TRUE)
-                  write.table(file = fh, t(pwm), row.names = FALSE, col.names = FALSE,
-                              sep = "\t", quote = FALSE, append = TRUE)
-              }
-              close(fh)
+              .dumpPWMsToHomer2File(pwmL = query, fname = tmpf)
               res <- findMotifHits(tmpf, subject, ...)
+              unlink(tmpf)
+              return(res)
+          })
+
+#' @rdname findMotifHits-methods
+#' @aliases findMotifHits,ANY,DNAString-method
+setMethod("findMotifHits",
+          c("ANY","DNAString"),
+          function(query, subject, ...) {
+              findMotifHits(query, Biostrings::DNAStringSet(subject), ...)
+          })
+
+#' @rdname findMotifHits-methods
+#' @aliases findMotifHits,ANY,DNAStringSet-method
+setMethod("findMotifHits",
+          c("ANY","DNAStringSet"),
+          function(query, subject, ...) {
+              # write sequences to file for homer2
+              tmpf <- tempfile(fileext = ".fa")
+              Biostrings::writeXStringSet(x = subject, filepath = tmpf,
+                                          append = FALSE, compress = FALSE, format = "fastq")
+              res <- findMotifHits(query, tmpf, ...)
               unlink(tmpf)
               return(res)
           })
@@ -100,48 +128,38 @@ setMethod("findMotifHits",
 #' @aliases findMotifHits,character,character-method
 setMethod("findMotifHits",
           c("character","character"),
-          function(query, subject, min.score, method, homerfile=findHomer("homer2"), Ncpu=1L, ...) {
+          function(query, subject, min.score, method = c("homer2", "matchPWM"),
+                   homerfile = findHomer("homer2"), Ncpu = 1L, ...) {
     stopifnot(is.character(homerfile) && length(homerfile) == 1L && file.exists(homerfile))
+    method <- match.arg(method)
+    res <- NULL
+    if (method == "matchPWM") {
+        stop("method='matchPWM' is not implemented yet")
 
-    # make sure motifs are in file
-    if (length(query) == 1L) {
-        if (file.exists(query)) { # motifs are in file
-            if (method != "homer2") {
-                warning("changed 'method' to 'homer2' for a motif-file query")
-                method <- "homer2"
-            }
-        } else {
-            stop("'query' motif file does not exist")
+    } else if (method == "homer2") {
+
+        # make sure motifs are in file
+        if (!length(query) == 1L || !file.exists(query)) { # motifs are in file
+            stop("'query' must be either a character(1), a PWMatrix or a PWMatrixList object")
         }
-    } else {
-        stop("'query' must be either a character(1) or a PWMatrix(List) object")
-    }
 
-    # make sure sequences are in file
-    if (length(subject) == 1L) { # sequences are in a FASTA file
-        if (!file.exists(subject) && sum(strsplit(subject, split = "")[[1]] %in% Biostrings::DNA_BASES) / nchar(subject) >= 0.8) {
-            tf <- tempfile(fileext = ".fa")
-            on.exit(unlink(subject))
-            Biostrings::writeXStringSet(x = DNAStringSet(subject), filepath = tf)
-            subject <- tf
-        } else {
-            stop("'subject' is neither an existing sequence file nor at least 80% DNA_BASES")
+        # make sure sequences are in file
+        if (length(subject) != 1L || !file.exists(subject)) {
+            stop("'subject' must be a character(1) pointing to a FASTA sequence file, ",
+                 "or a DNAString, DNAStringSet or GRanges object")
         }
-    } else {
-        tf <- tempfile(fileext = ".fa")
-        on.exit(unlink(subject))
-        Biostrings::writeXStringSet(x = DNAStringSet(subject), filepath = tf)
-        subject <- tf
-    }
 
-    # run homer2
-    cmdargs <- sprintf("find -i %s -m %s -offset 1 -strand both -p %d", subject, query, Ncpu)
-    res <- system2(command = homerfile, args = cmdargs, stdout = TRUE, stderr = "", wait = TRUE)
-    con <- textConnection(res)
-    resparsed <- scan(file = con, what = list(seqnames="", start=1L, matchedSeq="", pwmname="", strand="", score=1.0),
-                      sep = "\t", quiet = TRUE)
-    close(con)
-    GenomicRanges::GRanges(resparsed$seqnames, IRanges(start=resparsed$start, width=nchar(resparsed$matchedSeq)),
-                           strand = resparsed$strand, matchedSeq = resparsed$matchedSeq, pwmname = resparsed$pwmname,
-                           score = resparsed$score)
+        # run homer2
+        cmdargs <- sprintf("find -i %s -m %s -offset 1 -strand both -p %d", subject, query, Ncpu)
+        res <- system2(command = homerfile, args = cmdargs, stdout = TRUE, stderr = "", wait = TRUE)
+        con <- textConnection(res)
+        resparsed <- scan(file = con, what = list(seqnames="", start=1L, matchedSeq="", pwmname="", strand="", score=1.0),
+                          sep = "\t", quiet = TRUE)
+        close(con)
+        res <- GenomicRanges::GRanges(seqnames = resparsed$seqnames,
+                                      ranges = IRanges(start=resparsed$start, width=nchar(resparsed$matchedSeq)),
+                                      strand = resparsed$strand, matchedSeq = resparsed$matchedSeq,
+                                      pwmname = resparsed$pwmname, score = resparsed$score)
+    }
+    return(res)
 })
