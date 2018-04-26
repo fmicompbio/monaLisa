@@ -202,16 +202,26 @@ parseHomerOutput <- function(infiles) {
         names(enr) <- D[, 1]
         enr[order(names(enr))]
     })
+    log2enr <- lapply(tabL, function(tab){
+    	D <- tab[, c(6, 8)] # number of target seqs and bg seqs with motif
+    	nTot <- as.numeric(gsub("\\S+\\.(\\d+)\\.", "\\1", colnames(D))) #total number of target and background sequences
+    	D.norm <- t(min(nTot)*t(D)/nTot) # scale to smaller number (usually number of target sequences)
+    	DL <- log2(D.norm + 8)
+    	log2enr <- DL[, 1] - DL[, 2]
+    	names(log2enr) <- tab[, 1]
+    	log2enr[order(names(log2enr))]
+    })
+    
     P <- do.call(cbind, P)
     enrTF <- do.call(cbind, enrTF)
-
+    log2enr <- do.call(cbind, log2enr)
     tmp <-  as.vector(10**(-P))
     fdr <- matrix(-log10(p.adjust(tmp, method="BH")), nrow=nrow(P))
     dimnames(fdr) <- dimnames(P)
 
     fdr[which(fdr == Inf, arr.ind = TRUE)] <- max(fdr[is.finite(fdr)])
 
-    return(list(p=P, FDR=fdr, enr=enrTF))
+    return(list(p=P, FDR=fdr, enr=enrTF, log2enr=log2enr))
 }
 
 #' @title Prepare and run HOMER motif enrichment analysis.
