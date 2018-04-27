@@ -29,7 +29,7 @@ getColsByBin <- function(b,
     if (!is.factor(b))
         b <- factor(b, levels=unique(b))
 
-    if (!is.null(attr(b, "bin0"))) {
+    if (!is.na(attr(b, "bin0"))) {
         bin0 <- attr(b, "bin0")
         cols <- c(colorRampPalette(col1)(bin0 - 1L),
                   "#AAAAAA33",
