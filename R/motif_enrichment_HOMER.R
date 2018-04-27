@@ -175,9 +175,10 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHo
 #'
 #' @param infiles HOMER output files to be parsed.
 #'
-#' @return A list of three components (\code{p}, \code{FDR} and \code{enr}),
+#' @return A list of three components (\code{p}, \code{FDR}, \code{enr} and \code{log2enr}),
 #'     containing each a motif (rows) by bin (columns) matrix with raw
-#'     -log10 P values, -log10 false discovery rates and motif enrichments (Pearson residuals).
+#'     -log10 P values, -log10 false discovery rates and motif enrichments as
+#'     Pearson residuals (\code{enr}) and as log2 ratios (\code{log2enr}).
 #'
 #' @export
 parseHomerOutput <- function(infiles) {
@@ -211,7 +212,7 @@ parseHomerOutput <- function(infiles) {
     	names(log2enr) <- tab[, 1]
     	log2enr[order(names(log2enr))]
     })
-    
+
     P <- do.call(cbind, P)
     enrTF <- do.call(cbind, enrTF)
     log2enr <- do.call(cbind, log2enr)

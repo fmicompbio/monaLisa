@@ -6,12 +6,15 @@
 NULL
 
 # internal function:  dump PWMatrixList to file in homer2 format
-.dumpPWMsToHomer2File <- function(pwmL, fname, relscore=0.8) {
+.dumpPWMsToHomer2File <- function(pwmL, fname, relscore=0.8, absscore=NULL) {
     stopifnot(inherits(pwmL, "PWMatrixList"))
+    stopifnot(is.null(absscore) || is.numeric(absscore))
+    if (is.numeric(absscore) && length(absscore) == 1L)
+        absscore <- rep(absscore, length(pwmL))
     fh <- file(fname, "wb")
     for (i in seq_along(pwmL)) {
         pwm <- TFBSTools::Matrix(pwmL[[i]])
-        scorecut <- relscore * sum(log(apply(pwm, 2, max) / 0.25))
+        scorecut <- if (is.null(absscore)) relscore * sum(log(apply(pwm, 2, max) / 0.25)) else absscore[i]
         cat(sprintf(">%s\t%s\t%.2f\n",
                     paste(apply(pwm, 2, function(x) { rownames(pwm)[which.max(x)] }), collapse = ""),
                     TFBSTools::name(pwmL[[i]]), scorecut),  file = fh, append = TRUE)
