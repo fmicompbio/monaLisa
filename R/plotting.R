@@ -190,8 +190,8 @@ plotBinScatter <- function(x, y, b,
 #'     of \code{\link{runHomer}} or \code{\link{parseHomerOutput}}.
 #' @param b A factor that groups elements of \code{x,y} into bins (typically the output
 #'     of \code{\link{bin}()}).
-#' @param which.plots Selects which heatmaps to plot (one or several from \code{"p"}, \code{"FDR"}
-#'     and \code{"enr"}).
+#' @param which.plots Selects which heatmaps to plot (one or several from \code{"p"}, \code{"FDR"},
+#'     \code{"enr"} and \code{"log2enr"}).
 #' @param width The width (in inches) of each individual heatmap, without legend.
 #' @param col.enr Colors used for enrichment heatmap.
 #' @param col.sig Colors used for significance hetmaps (P values and FDR).
@@ -199,6 +199,8 @@ plotBinScatter <- function(x, y, b,
 #' @param maxSig Cap color mapping at -log10 P value or -log10 FDR = \code{maxSig}
 #'     (default: 99.5th percentile).
 #' @param highlight A logical vector indicating motifs to be highlighted.
+#' @param cluster If \code{TRUE}, the order of transcription factors will be determined by
+#'     hierarchical clustering of the \code{"enr"} component.
 #'
 #' @details The heatmaps are plotted side-by-side and are created internally using
 #'     the \pkg{ComplexHeatmap} package.
@@ -221,7 +223,7 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"
 														 						"#F7F7F7","#FDDBC7","#F4A582","#D6604D","#B2182B","#67001F"),
 														 col.sig = c("#FFF5EB","#FEE6CE","#FDD0A2","#FDAE6B","#FD8D3C",
 														 						"#F16913","#D94801","#A63603","#7F2704"),
-														 maxEnr = NULL, maxSig = NULL, highlight = NULL) {
+														 maxEnr = NULL, maxSig = NULL, highlight = NULL, cluster = FALSE) {
 	stopifnot(requireNamespace("ComplexHeatmap"))
 	stopifnot(requireNamespace("circlize"))
 	stopifnot(requireNamespace("grid"))
@@ -234,19 +236,25 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"
 	stopifnot(all(which.plots %in% names(x)))
 	stopifnot(is.null(highlight) || (is.logical(highlight) && length(highlight) == nrow(x[[1]])))
 	bincols <- attr(getColsByBin(b), "cols")
+	if (cluster) {
+	    clres <- hclust(dist(x[["enr"]]))
+	    o <- clres$order
+	} else {
+	    o <- seq.int(nrow(x[[1]]))
+	}
 	hmBin <- ComplexHeatmap::HeatmapAnnotation(df = data.frame(bin = colnames(x[[1]])), name="bin",
-																						 col = list(bin = bincols),
-																						 which = "column", width = grid::unit(width / 16,"inch"),
-																						 show_legend=FALSE)
+											   col = list(bin = bincols),
+											   which = "column", width = grid::unit(width / 16,"inch"),
+											   show_legend=FALSE)
 	tmp <- matrix(if (!is.null(highlight)) as.character(highlight) else rep(NA, nrow(x[[1]])),
 								ncol = 1, dimnames = list(rownames(x[[1]]), NULL))
 	hmMotifs <- ComplexHeatmap::Heatmap(matrix = tmp, name = "names",
-																			width = grid::unit(if (!is.null(highlight)) .2 else 0, "inch"),
-																			na_col = NA, col = c("TRUE" = "green3", "FALSE" = "white"),
-																			cluster_rows = FALSE, cluster_columns = FALSE,
-																			show_row_names = TRUE, row_names_side = "left",
-																			show_column_names = FALSE, show_heatmap_legend = FALSE)
-	
+										width = grid::unit(if (!is.null(highlight)) .2 else 0, "inch"),
+										na_col = NA, col = c("TRUE" = "green3", "FALSE" = "white"),
+										cluster_rows = FALSE, cluster_columns = FALSE,
+										show_row_names = TRUE, row_names_side = "left",
+										show_column_names = FALSE, show_heatmap_legend = FALSE)
+
 	ret <- c(list(labels = hmMotifs), lapply(which.plots, function(w) {
 		dat <- x[[w]]
 		if ((w == "enr") | (w == "log2enr")) {
@@ -266,7 +274,8 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"
 																	cluster_rows = FALSE, cluster_columns=FALSE, show_row_names=FALSE, show_column_names=FALSE,
 																	##column_names_side = "bottom", column_names_max_height = grid::unit(1.5,"inch"),
 																	top_annotation = hmBin, top_annotation_height = grid::unit(width / 16, "inch"),
-																	show_heatmap_legend = TRUE, heatmap_legend_param = list(color_bar="continuous"))
+																	show_heatmap_legend = TRUE, heatmap_legend_param = list(color_bar="continuous"),
+																	use_raster = TRUE)
 		hm
 	}))
 	names(ret)[-1] <- which.plots

@@ -36,6 +36,7 @@ The regions could be for example promoters or accessible regions.
 The regions are grouped into bins according to a numerical value assigned to each
 bin, such as change of expression or accessibility.
 
+Finally, `lisa` can also be used to look for motifs in sequences.
 
 # Quick example
 
@@ -177,9 +178,17 @@ In case you did not run the above code, let's now read in the results:
 resL <- readRDS(system.file("extdata", "resL.rds", package = "lisa"))
 ```
 
-We can plot the results using the `plotMotifHeatmaps` function:  
+We can plot the results using the `plotMotifHeatmaps` function, e.g. selecting all factors that have an absolute log2 enrichment of at least 1.0 in any bin:  
 ```{r plottfs}
-plotMotifHeatmaps(x = resL, b = bins)
+# select strongly enriched TFs
+sel <- apply(resL[["log2enr"]], 1, function(x) max(abs(x))) > 1.0
+sum(sel)
+resLsel <- lapply(resL, function(x) x[sel,])
+# shorten names
+resLsel <- lapply(resLsel, function(x) { rownames(x) <- sub("\\|.*$","",rownames(x)); x })
+# plot
+plotMotifHeatmaps(x = resLsel, b = bins, which.plots = c("log2enr","FDR"), width = 2.0,
+                  cluster=TRUE, maxEnr = 2, maxSig = 10)
 ```
 
 
