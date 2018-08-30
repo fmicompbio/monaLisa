@@ -261,8 +261,7 @@ runHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(
 
     ## ... run
     message("\nrunning HOMER...")
-    system(paste0("chmod a+x ", runfile))
-    system(paste0("./", runfile), intern=TRUE)
+    system2(command = "sh", args = runfile, env = paste0("PATH=",dirname(homerfile),":",Sys.getenv("PATH"),";"))
 
     ## ... parse output
     resfiles <- sprintf("%s/bin_%03d_output/knownResults.txt", outdir, seq_along(levels(b)))

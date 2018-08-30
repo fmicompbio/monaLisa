@@ -2,6 +2,7 @@
 title: "Lisa - motif enrichments and more"
 author: "Lukas Burger, Michael Stadler"
 date: "`r Sys.Date()`"
+bibliography: lisa-refs.bib
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
@@ -12,7 +13,11 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5,
+  out.width = "80%",
+  fig.align = "center"
 )
 ```
 
@@ -46,12 +51,12 @@ bins <- bin(x = atac.peaks.change, binmode = "equalN", nElement = 400)
 motiffile <- dumpJaspar("jaspar2018.motif", pkg = "JASPAR2018")
 
 # find Homer (findMotifsGenome.pl)
-homerbin <- findHomer(dirs = "/path/to/look/into")
+homerfile <- findHomer(dirs = "/path/to/look/into")
 
 # run analysis
 # (atac.peaks is a GRanges)
 resL <- runHomer(gr = atac.peaks, b = bins, genomedir = "/work/gbioinfo/DB/genomes/mm10",
-                 outdir = "myresults", motifFile = "jaspar2018.motif", scriptFile = homerbin,
+                 outdir = "myresults", motifFile = "jaspar2018.motif", homerfile = homerfile,
                  regionsize = "given", Ncpu = 4L)
 
 ```
@@ -71,6 +76,113 @@ with motifs (rows) by bins (columns). The values are:
   assuming that the numbers of regions in a bin that contain a motif are independent
   Poisson random variables with mean and variance $e$.
 
+
+# Detailed example: Finding TFs enriched in differentially methylated regions
+
+The detailed example is based on an in vitro differentiation system, in which
+mouse embryonic stem (ES) cells are differentiated into neuronal progenitors (NP).
+In an earlier study [@LMRs], we have analyzed the genome-wide CpG methylation patterns
+in these cell types and identified so call *low methylated regions* (LMRs), that
+have reduced methylation levels and correspond to regions bound by transcription
+factors.
+
+We have later published a tool that systematically identifies such regions from
+genome-wide methylation data [@MethylSeekR]. Interestingly, a change in methylation
+of LMRs is indicative of altered transcription factor binding. We will therefore
+use these regions to identify TF motifs that are enriched/depleted in LMR regions
+that change their methylation between ES and NP cell states.
+
+
+## Load library
+We start by loading the needed libraries:  
+```{r loadlib, message=FALSE}
+library(GenomicRanges)
+library(lisa)
+```
+
+## Genomic regions of interest
+`lisa` contains a file with genomic coordinates (mouse mm9 assembly) of LMRs,
+with the respective changes of methylation:  
+```{r loadLMRs}
+lmrfile <- system.file("extdata", "LMRsESNPmerged.gr.rds", package = "lisa")
+lmr <- readRDS(lmrfile)
+lmr
+```
+
+You can see there are `r length(lmr)` LMRs, most of which gain methylation between
+ES and NP stages:  
+```{r deltameth}
+hist(lmr$deltaMeth, 100, col="gray", main="",
+     xlab="Change of methylation (NP - ES)", ylab="Number of LMRs")
+```
+
+In order to keep the computation time reasonable, we'll select 10,000 of the LMRs randomly:  
+```{r lmrsel}
+set.seed(1)
+lmrsel <- lmr[ sample(x = length(lmr), size = 10000, replace = FALSE) ]
+```
+
+
+## Bin genomic regions
+Now let's bin our LMRs by how much they change methylation, using the `bin` function.
+We are not interested in small changes of methylation, say less than 0.3, so we'll
+use the `minAbsX` argument to create a *no-change* bin in [-0.3, 0.3). The remaining
+LMRs are put into bins of 800 each:  
+```{r binlmrs}
+bins <- bin(x = lmrsel$deltaMeth, binmode = "equalN", nElement = 800, minAbsX = 0.3)
+table(bins)
+```
+
+Because of the asymmetry of methylation changes, there is only a single bin with LMRs
+that lost methylation and many that gained:  
+```{r plotbins}
+plotBinDensity(lmrsel$deltaMeth, bins, legend = "topleft")
+```
+
+Note that the bin-breaks around the *no-change* bin are not exactly -0.3 to 0.3.
+They have been adjusted to have the required 800 LMRs per bin.
+
+## Prepare motif enrichment analysis
+Next we prepare the Homer-based motif enrichment analysis. We first need to create
+a file with the motifs that we are interested in. A simple way is to dump the vertebrate
+motifs from the `JASPAR2018` package into a file:  
+```{r dumpjaspar}
+motiffile <- tempfile(fileext = ".motif")
+dumpJaspar(motiffile, pkg = "JASPAR2018", relScoreCutoff = 0.9)
+```
+
+Next we need to know where Homer is installed (you may have to adjust the `dirs`
+argument below according to your environment):  
+```{r homerscript}
+homerfile <- findHomer(dirs = "/work/gbioinfo/Appz/Homer/Homer-4.8/bin/")
+```
+
+## Run motif enrichment analysis
+Finally, we run the analysis. Again, you may have to adjust the `genomedir`.
+
+This step may take a while, for this reason you do not need to run it, but can just load the results as shown below:  
+```{r runhomer, eval=FALSE}
+outdir <- tempfile(fileext = ".output")
+resL <- runHomer(gr = lmrsel, b = bins, genomedir = "/work/gbioinfo/DB/genomes/mm9",
+                 outdir = outdir, motifFile = motiffile, homerfile = homerfile,
+                 regionsize = "given", Ncpu = 20L)
+```
+
+<!--
+saveRDS(resL, "/work/gbioinfo/stadler/development/R/compbio-lisa/inst/extdata/resL.rds")
+-->
+
+In case you did not run the above code, let's now read in the results:  
+```{r gethomerresults}
+resL <- readRDS(system.file("extdata", "resL.rds", package = "lisa"))
+```
+
+We can plot the results using the `plotMotifHeatmaps` function:  
+```{r plottfs}
+plotMotifHeatmaps(x = resL, b = bins)
+```
+
+
 # Session info and logo
 The lisa logo uses a drawing that was obtained from http://vectorish.com/lisa-simpson.html
 under the Creative Commons attribution - non-commercial 3.0 license: https://creativecommons.org/licenses/by-nc/3.0/.
@@ -79,3 +191,5 @@ This vignette was built using:
 ```{r, session}
 sessionInfo(package = "lisa")
 ```
+
+# References

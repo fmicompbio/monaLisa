@@ -15,9 +15,9 @@ test_that("findMotifHits() works properly", {
 
     # method = "homer2"
     if (!is.na(homerbin)) { # only test if homer2 binary was found
-        res1 <- findMotifHits(pwm,  sf,   method = "homer2", homerfile = homerbin) # PWMatrix,character
-        res2 <- findMotifHits(pwmL, seqs, method = "homer2", homerfile = homerbin) # PWMatrixList,DNAStringSet
-        res3 <- findMotifHits(tf,   sf,   method = "homer2", homerfile = homerbin) # character,character
+        res1 <- findMotifHits(pwm,  sf,   min.score = "90%",   method = "homer2", homerfile = homerbin) # PWMatrix,character
+        res2 <- findMotifHits(pwmL, seqs, min.score = "90%", method = "homer2", homerfile = homerbin) # PWMatrixList,DNAStringSet
+        res3 <- findMotifHits(tf,   sf,   min.score = "90%",   method = "homer2", homerfile = homerbin) # character,character
 
         expect_true(inherits(res1, "GRanges"))
         expect_equal(length(res1), 3)
