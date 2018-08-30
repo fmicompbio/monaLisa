@@ -5,8 +5,8 @@
 \title{Scatter plot (xy-plot) of binned elements.}
 \usage{
 plotBinScatter(x, y, b, cols = getColsByBin(b),
-  xlab = deparse(substitute(x)), ylab = deparse(substitute(y)), main = "",
-  legend = "topright", ...)
+  xlab = deparse(substitute(x)), ylab = deparse(substitute(y)),
+  main = "", legend = "topright", ...)
 }
 \arguments{
 \item{x}{A numerical vector with x values.}

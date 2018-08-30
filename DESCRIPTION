@@ -1,7 +1,7 @@
 Package: lisa
 Type: Package
 Title: Binned Motif Enrichment Analysis and Visualization
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: c(
     person("Lukas", "Burger", email = "lukas.burger@fmi.ch", role = c("aut")),
     person("Michael", "Stadler", email = "michael.stadler@fmi.ch", role = c("aut", "cre")))
@@ -15,5 +15,5 @@ Suggests: JASPAR2018, grid, circlize, ComplexHeatmap,
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
 VignetteBuilder: knitr

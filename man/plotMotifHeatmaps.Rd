@@ -4,12 +4,12 @@
 \alias{plotMotifHeatmaps}
 \title{Heatmap of motif enrichments.}
 \usage{
-plotMotifHeatmaps(x, b, which.plots = c("enr", "FDR"), width = 4,
-  col.enr = c("#053061", "#2166AC", "#4393C3", "#92C5DE", "#D1E5F0",
-  "#F7F7F7", "#FDDBC7", "#F4A582", "#D6604D", "#B2182B", "#67001F"),
-  col.sig = c("#FFF5EB", "#FEE6CE", "#FDD0A2", "#FDAE6B", "#FD8D3C",
-  "#F16913", "#D94801", "#A63603", "#7F2704"), maxEnr = NULL, maxSig = NULL,
-  highlight = NULL)
+plotMotifHeatmaps(x, b, which.plots = c("p", "enr", "FDR", "log2enr"),
+  width = 4, col.enr = c("#053061", "#2166AC", "#4393C3", "#92C5DE",
+  "#D1E5F0", "#F7F7F7", "#FDDBC7", "#F4A582", "#D6604D", "#B2182B",
+  "#67001F"), col.sig = c("#FFF5EB", "#FEE6CE", "#FDD0A2", "#FDAE6B",
+  "#FD8D3C", "#F16913", "#D94801", "#A63603", "#7F2704"), maxEnr = NULL,
+  maxSig = NULL, highlight = NULL)
 }
 \arguments{
 \item{x}{A list with numerical matrices (motifs-by-bins), typically the return value

@@ -5,8 +5,9 @@
 \title{Get colors by bin.}
 \usage{
 getColsByBin(b, col1 = c("#3F007D", "#54278F", "#6A51A3", "#807DBA",
-  "#9E9AC8", "#BCBDDC", "#DADAEB"), col2 = c("#FDD0A2", "#FDAE6B", "#FD8D3C",
-  "#F16913", "#D94801", "#A63603", "#7F2704"), col0 = "AAAAAA33")
+  "#9E9AC8", "#BCBDDC", "#DADAEB"), col2 = c("#FDD0A2", "#FDAE6B",
+  "#FD8D3C", "#F16913", "#D94801", "#A63603", "#7F2704"),
+  col0 = "AAAAAA33")
 }
 \arguments{
 \item{b}{A factor that groups elements into bins (typically the output of

@@ -4,8 +4,9 @@
 \alias{plotBinHist}
 \title{Histogram of binned elements.}
 \usage{
-plotBinHist(x, b, breaks = 10 * nlevels(b), xlab = deparse(substitute(x)),
-  ylab = "Frequency", main = "", legend = "topright", ...)
+plotBinHist(x, b, breaks = 10 * nlevels(b),
+  xlab = deparse(substitute(x)), ylab = "Frequency", main = "",
+  legend = "topright", ...)
 }
 \arguments{
 \item{x}{A numerical vector with the values used for binning.}
