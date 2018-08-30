@@ -62,7 +62,7 @@ resL <- runHomer(gr = atac.peaks, b = bins, genomedir = "/work/gbioinfo/DB/genom
 
 ```
 
-`resL` is a list with components *p*, *FDR* and *enr*, each containing a matrix
+`resL` is a list with components *p*, *FDR*, *enr* and *log2enr*, each containing a matrix
 with motifs (rows) by bins (columns). The values are:  
 
 - *p*: the raw P value ($-\log_{10} p$) of a given motif enrichment in a given bin,
@@ -76,6 +76,9 @@ with motifs (rows) by bins (columns). The values are:
   given motif. These enrichments correspond to $z$ values ($z = (z - \mu)/\sigma$),
   assuming that the numbers of regions in a bin that contain a motif are independent
   Poisson random variables with mean and variance $e$.
+- *log2enr*: Motif enrichments, calculated as: $log2enr = log2((o + 8)/(e + 8))$,
+  where $o$ and $e$ are the observed and expected numbers of regions in the bin
+  containing a given motif.
 
 
 # Detailed example: Finding TFs enriched in differentially methylated regions

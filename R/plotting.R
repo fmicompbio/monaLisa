@@ -1,6 +1,6 @@
 #' @importFrom grDevices colorRampPalette
 #' @importFrom graphics axis hist lines par plot rect rug segments
-#' @importFrom stats density
+#' @importFrom stats density dist hclust
 NULL
 
 #' @title Get colors by bin.
@@ -237,7 +237,7 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"
 	stopifnot(is.null(highlight) || (is.logical(highlight) && length(highlight) == nrow(x[[1]])))
 	bincols <- attr(getColsByBin(b), "cols")
 	if (cluster) {
-	    clres <- hclust(dist(x[["enr"]]))
+	    clres <- stats::hclust(stats::dist(x[["enr"]]))
 	    o <- clres$order
 	} else {
 	    o <- seq.int(nrow(x[[1]]))
