@@ -14,33 +14,44 @@
 \alias{findMotifHits,PWMatrixList,DNAStringSet-method}
 \title{Find motif matches in sequences.}
 \usage{
-findMotifHits(query, subject, ...)
+findMotifHits(query, subject, min.score, method = c("homer2",
+  "matchPWM"), homerfile = findHomer("homer2"), Ncpu = 1L)
 
 \S4method{findMotifHits}{character,character}(query, subject, min.score,
   method = c("homer2", "matchPWM"), homerfile = findHomer("homer2"),
-  Ncpu = 1L, ...)
+  Ncpu = 1L)
 
-\S4method{findMotifHits}{character,DNAString}(query, subject, ...)
+\S4method{findMotifHits}{character,DNAString}(query, subject, min.score,
+  method = c("homer2", "matchPWM"), homerfile = findHomer("homer2"),
+  Ncpu = 1L)
 
 \S4method{findMotifHits}{character,DNAStringSet}(query, subject, min.score,
   method = c("homer2", "matchPWM"), homerfile = findHomer("homer2"),
-  Ncpu = 1L, ...)
+  Ncpu = 1L)
 
-\S4method{findMotifHits}{PWMatrix,character}(query, subject, ...)
+\S4method{findMotifHits}{PWMatrix,character}(query, subject, min.score,
+  method = c("homer2", "matchPWM"), homerfile = findHomer("homer2"),
+  Ncpu = 1L)
 
-\S4method{findMotifHits}{PWMatrix,DNAString}(query, subject, ...)
+\S4method{findMotifHits}{PWMatrix,DNAString}(query, subject, min.score,
+  method = c("homer2", "matchPWM"), homerfile = findHomer("homer2"),
+  Ncpu = 1L)
 
-\S4method{findMotifHits}{PWMatrix,DNAStringSet}(query, subject, ...)
+\S4method{findMotifHits}{PWMatrix,DNAStringSet}(query, subject, min.score,
+  method = c("homer2", "matchPWM"), homerfile = findHomer("homer2"),
+  Ncpu = 1L)
 
 \S4method{findMotifHits}{PWMatrixList,character}(query, subject, min.score,
   method = c("homer2", "matchPWM"), homerfile = findHomer("homer2"),
-  Ncpu = 1L, ...)
+  Ncpu = 1L)
 
-\S4method{findMotifHits}{PWMatrixList,DNAString}(query, subject, ...)
+\S4method{findMotifHits}{PWMatrixList,DNAString}(query, subject, min.score,
+  method = c("homer2", "matchPWM"), homerfile = findHomer("homer2"),
+  Ncpu = 1L)
 
 \S4method{findMotifHits}{PWMatrixList,DNAStringSet}(query, subject,
   min.score, method = c("homer2", "matchPWM"),
-  homerfile = findHomer("homer2"), Ncpu = 1L, ...)
+  homerfile = findHomer("homer2"), Ncpu = 1L)
 }
 \arguments{
 \item{query}{The motifs to search for, either a
@@ -61,8 +72,6 @@ findMotifHits(query, subject, ...)
     \item{\code{GRanges}}{ object with the genomic coordinates
         of the sequences to be searched.}
 }}
-
-\item{...}{Additional arguments for specific methods.}
 
 \item{method}{The internal method to use for motif searching. One of
 \itemize{

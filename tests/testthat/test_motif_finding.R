@@ -44,12 +44,6 @@ test_that("findMotifHits() works properly", {
 
         # consistency between "matchPWM" and "homer2"
         expect_equivalent(res1, res4)
-        expect_equal(GenomicRanges::seqnames(res1), GenomicRanges::seqnames(res4))
-        expect_equal(GenomicRanges::ranges(res1), GenomicRanges::ranges(res4))
-        expect_equal(GenomicRanges::strand(res1), GenomicRanges::strand(res4))
-        expect_equal(as.character(res1$matchedSeq), as.character(res4$matchedSeq))
-        expect_equal(res1$pwmname, res4$pwmname)
-        expect_equal(res1$score, res4$score, tolerance = 1e-6)
     }
 
     unlink(c(sf, tf))

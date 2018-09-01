@@ -10,8 +10,8 @@ Description: Useful functions to bin genomic regions, such as promoters
     expression or accessibility, and identify enriched motifs in each bin.
 Imports: methods, stats, utils, grDevices, graphics, GenomicRanges, TFBSTools,
     Biostrings, IRanges
-Suggests: JASPAR2018, grid, circlize, ComplexHeatmap,
-    knitr, rmarkdown, testthat
+Suggests: JASPAR2018, BSgenome.Hsapiens.UCSC.hg19, TxDb.Hsapiens.UCSC.hg19.knownGene,
+    grid, circlize, ComplexHeatmap, knitr, rmarkdown, testthat
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
