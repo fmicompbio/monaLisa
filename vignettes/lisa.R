@@ -80,6 +80,39 @@ resLsel <- lapply(resLsel, function(x) { rownames(x) <- sub("\\|.*$","",rownames
 plotMotifHeatmaps(x = resLsel, b = bins, which.plots = c("log2enr","FDR"), width = 2.0,
                   cluster=TRUE, maxEnr = 2, maxSig = 10)
 
+## ----findMotifs----------------------------------------------------------
+# get sequences of promoters as a DNAStringSet
+# (could also be a single DNAString, or the name of a fasta file)
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+gr <- promoters(TxDb.Hsapiens.UCSC.hg19.knownGene, upstream = 1000, downstream = 500)[c(1,4,5,10)]
+library(BSgenome.Hsapiens.UCSC.hg19)
+seqs <- getSeq(BSgenome.Hsapiens.UCSC.hg19, gr)
+seqs
+
+# get motifs as a PWMatrixList
+# (could also be a single PWMatrix, or the name of a motif file)
+library(JASPAR2018)
+library(TFBSTools)
+pwms <- getMatrixSet(JASPAR2018, list(matrixtype="PWM", tax_group="vertebrates"))
+pwms <- pwms[c("MA0885.1","MA0099.3","MA0033.2","MA0037.3","MA0158.1")]
+pwms
+
+# predict hits in sequences
+res <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0, method = "matchPWM")
+res
+
+# ... or using method = "homer2"
+homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.8/bin/")
+res2 <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0, method = "homer2", homerfile = homerfile)
+res2
+
+summary(res %in% res2)
+
+# create hit matrix:
+# number of site of each motif per sequence
+m <- table(seqnames(res), as.character(res$pwmname))
+m
+
 ## ---- session------------------------------------------------------------
 sessionInfo(package = "lisa")
 

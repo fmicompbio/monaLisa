@@ -7,15 +7,31 @@
 NULL
 
 # internal function:  dump PWMatrixList to file in homer2 format
+# - homer2 needs the matrix as base probabilities
+#   --> convert pwm from log2-odds scores to base probabilities
+#   --> convert cutoff scores to natural log
 .dumpPWMsToHomer2File <- function(pwmL, fname, relscore=0.8, absscore=NULL) {
     stopifnot(inherits(pwmL, "PWMatrixList"))
     stopifnot(is.null(absscore) || is.numeric(absscore))
-    if (is.numeric(absscore) && length(absscore) == 1L)
-        absscore <- rep(absscore, length(pwmL))
+    if (is.numeric(absscore)) {
+        absscore <- absscore / log2(exp(1))
+        if (length(absscore) == 1L)
+            absscore <- rep(absscore, length(pwmL))
+    }
     fh <- file(fname, "wb")
     for (i in seq_along(pwmL)) {
-        pwm <- TFBSTools::Matrix(pwmL[[i]])
-        scorecut <- if (is.null(absscore)) relscore * sum(log(apply(pwm, 2, max) / 0.25)) else absscore[i]
+        x <- pwmL[[i]]
+        pwm <- (2^TFBSTools::Matrix(x) / TFBSTools::bg(x))
+        pwm <- sweep(pwm, 2, colSums(pwm), "/")
+        scorecut <- NA
+        if (is.null(absscore)) {
+            # same definition of relative score as in TFBSTools::searchSeq
+            tmp <- TFBSTools::Matrix(x) / log2(exp(1)) # convert to natural log
+            tmprng <- c(Biostrings::minScore(tmp), Biostrings::maxScore(tmp))
+            scorecut <- tmprng[1] + relscore * diff(tmprng)
+        } else {
+            scorecut <- absscore[i]
+        }
         cat(sprintf(">%s\t%s\t%.2f\n",
                     paste(apply(pwm, 2, function(x) { rownames(pwm)[which.max(x)] }), collapse = ""),
                     TFBSTools::name(pwmL[[i]]), scorecut),  file = fh, append = TRUE)
@@ -27,11 +43,13 @@ NULL
 }
 
 # internal function:  read motifs from file in homer2 format into PWMatrixList
+# - homer2 needs the matrix as base probabilities
+#   --> convert from base probabilities to log2-odds scores
 .readPWMsFromHomer2File <- function(fname) {
     stopifnot(is.character(fname) && length(fname) == 1L && file.exists(fname))
     lns <- readLines(fname)
     i <- grep("^>", lns)
-    df <- strcapture(pattern = "^>([^\t]+)\t([^\t]+)\t([-0-9.]+).*$", x = lns[i],
+    df <- strcapture(pattern = "^>([^\t]+)\t([^\t]+)\t([0-9.]+).*$", x = lns[i],
                      proto = data.frame(id = character(), name = character(), cutoffScore = numeric()))
     df$id <- as.character(df$id)
     df$name <- as.character(df$name)
@@ -41,9 +59,9 @@ NULL
     mL <- lapply(mL, function(x) {
         m <- do.call(cbind, lapply(x, function(xx) as.numeric(unlist(strsplit(xx, "\t", fixed = TRUE)))))
         rownames(m) <- c("A", "C", "G", "T")
-        m
+        log2((m + 1e-9) / (0.25 + 1e-9))
     })
-    pwmL <- lapply(seq_along(mL), function(j) PWMatrix(ID = df[j,"id"], name = df[j,"name"], profileMatrix = mL[[j]]))
+    pwmL <- lapply(seq_along(mL), function(j) TFBSTools::PWMatrix(ID = df[j,"id"], name = df[j,"name"], profileMatrix = mL[[j]]))
     pwmL <- do.call(TFBSTools::PWMatrixList, pwmL)
     names(pwmL) <- df$name
     return(pwmL)
@@ -75,14 +93,16 @@ NULL
 #'     }
 #'
 #' @param min.score The minimum score for counting a match. Can be given as
-#'     a character string containing a percentage (e.g. "85%") of the highest
-#'     possible score or as a single number.
+#'     a character string containing a percentage (e.g. \code{"85%"}) of the quantile
+#'     between the lowest and the highest possible score or as a single number
+#'     (log2-odds score).
 #'
 #' @param method The internal method to use for motif searching. One of
 #'     \itemize{
-#'         \item{\code{homer2}}{call to the homer2 binary}
-#'         \item{\code{"matchPWM"}}{using Biostrings::matchPWM}
+#'         \item{\code{"homer2"}}{ call to the homer2 binary}
+#'         \item{\code{"matchPWM"}}{ using Biostrings::matchPWM}
 #'     }
+#'     Please note that the two methods might give slightly different results (see details).
 #'
 #' @param homerfile Path and file name of the \code{homer2} binary.
 #'
@@ -92,7 +112,21 @@ NULL
 #'
 #' @return A \code{GRanges} object with the matches to \code{query} in \code{subject}.
 #'
-#' @seealso \code{\link[Biostrings]{matchPWM}}
+#' @details The two implemented methods (\code{matchPWM} and \code{homer2}) are there
+#'     for convenience (\code{matchPWM} is available as an R package and does not
+#'     have any software dependencies outside of R) and for efficiency (\code{homer2}
+#'     is typically faster but requires a separate installation of Homer).
+#'
+#'     In general, running \code{findMotifHits} with the same parameters using the two
+#'     methods generates identical results. Some minor differences could occur and result
+#'     from rounding errors during the necessary conversion of PWMs (log2-odd scores) to
+#'     the probability matrices needed by Homer, and the conversion of score from and to
+#'     the natural log scale used by Homer. These conversions are implemented transparently
+#'     for the user, so that the arguments of \code{findMotifHits} do not have to be
+#'     adjusted (e.g. the PWMs shold always contain log2-odd scores, and \code{min.score}
+#'     is always on the log2 scale).
+#'
+#' @seealso \code{\link[Biostrings]{matchPWM}}, \code{\link[TFBSTools]{searchSeq}}
 #'
 #' @export
 #' @docType methods
@@ -159,10 +193,13 @@ setMethod("findMotifHits",
                                     sep = "\t", quiet = TRUE)
                   close(con)
                   sl <- Biostrings::fasta.seqlengths(subject)
+                  hitstart <- ifelse(resparsed$strand == "+", resparsed$start, resparsed$start - nchar(resparsed$matchedSeq) + 1)
                   gr <- GenomicRanges::GRanges(seqnames = resparsed$seqnames,
-                                               ranges = IRanges(start = resparsed$start, width = nchar(resparsed$matchedSeq)),
-                                               strand = resparsed$strand, matchedSeq = resparsed$matchedSeq,
-                                               pwmname = resparsed$pwmname, score = resparsed$score,
+                                               ranges = IRanges(start = hitstart, width = nchar(resparsed$matchedSeq)),
+                                               strand = resparsed$strand,
+                                               matchedSeq = Biostrings::DNAStringSet(resparsed$matchedSeq),
+                                               pwmname = S4Vectors::Rle(resparsed$pwmname),
+                                               score = resparsed$score / log(2), # convert scores from ln to log2
                                                seqlengths = sl)
                   sort(gr)
               } else {
@@ -287,8 +324,17 @@ setMethod("findMotifHits",
               method <- match.arg(method)
               if (method == "matchPWM") {
                   # search motifs using matchPWM (TFBSTools::searchSeq uses matchPWM internally, but has a nicer interface)
-                  tmp <- TFBSTools::searchSeq(x = query, subject = subject, min.score = min.score, mc.cores = Ncpu)
-                  df <- as(tmp, "DataFrame")
+                  if (is.character(min.score) && grepl(pattern = "^[0-9.]+[%]$", x = min.score)) {
+                      tmp <- TFBSTools::searchSeq(x = query, subject = subject, min.score = min.score, mc.cores = Ncpu)
+                      df <- as(tmp, "DataFrame")
+                  } else if (is.numeric(min.score)) {
+                      # searchSeq does not support log2-odds cutoff score -> search with low percent score and filter afterwards
+                      tmp <- TFBSTools::searchSeq(x = query, subject = subject, min.score = "70%", mc.cores = Ncpu)
+                      df <- as(tmp, "DataFrame")
+                      df <- df[df[,"absScore"] > min.score,]
+                  } else {
+                      stop("invalid 'min.score' (must be either a percentage or a scalar): ", min.score)
+                  }
                   sl <- width(subject); names(sl) <- names(subject)
                   gr <- GenomicRanges::GRanges(seqnames = df$seqnames,
                                                ranges = IRanges(start = df$start, end = df$end),

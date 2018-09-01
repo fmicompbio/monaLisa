@@ -7,25 +7,15 @@ test_that("findMotifHits() works properly", {
     Biostrings::writeXStringSet(x = seqs, filepath = sf)
 
     M <- matrix(rep(c(.7,.1,.1,.1),3), nrow = 4, dimnames = list(c("A","C","G","T")))
-    pwm <- TFBSTools::PWMatrix(ID = "mypwm", name = "mypwm", profileMatrix = M)
+    pwm <- TFBSTools::PWMatrix(ID = "mypwm", name = "mypwm", profileMatrix = log2(M / 0.25))
     pwmL <- TFBSTools::PWMatrixList(pwm)
 
     tf <- tempfile(fileext = ".motif")
     lisa:::.dumpPWMsToHomer2File(pwmL, tf)
 
-    # method = "homer2"
-    if (!is.na(homerbin)) { # only test if homer2 binary was found
-        res1 <- findMotifHits(pwm,  sf,   min.score = "90%",   method = "homer2", homerfile = homerbin) # PWMatrix,character
-        res2 <- findMotifHits(pwmL, seqs, min.score = "90%", method = "homer2", homerfile = homerbin) # PWMatrixList,DNAStringSet
-        res3 <- findMotifHits(tf,   sf,   min.score = "90%",   method = "homer2", homerfile = homerbin) # character,character
+    tf.pwm <- lisa:::.readPWMsFromHomer2File(tf)
 
-        expect_true(inherits(res1, "GRanges"))
-        expect_equal(length(res1), 3)
-        expect_equal(res1$pwmname, c("mypwm","mypwm","mypwm"))
-        expect_equal(GenomicRanges::start(res1), c(6, 1, 9))
-        expect_identical(res1, res2)
-        expect_identical(res1, res3)
-    }
+    expect_equal(TFBSTools::Matrix(pwmL[[1]]), TFBSTools::Matrix(tf.pwm[[1]]))
 
     # method = "matchPWM"
     res1 <- findMotifHits(pwm,  sf,   min.score = "90%", method = "matchPWM") # PWMatrix,character
@@ -36,8 +26,31 @@ test_that("findMotifHits() works properly", {
     expect_equal(length(res1), 3)
     expect_equal(as.character(res1$pwmname), rep("mypwm",3))
     expect_equal(GenomicRanges::start(res1), c(6, 1, 9))
-    expect_identical(res1, res2)
-    expect_identical(res1, res3)
+    expect_equal(res1, res2)
+    expect_equal(res1, res3)
+
+    # method = "homer2"
+    if (!is.na(homerbin)) { # only test if homer2 binary was found
+        res4 <- findMotifHits(pwm,  sf,   min.score = "90%",   method = "homer2", homerfile = homerbin) # PWMatrix,character
+        res5 <- findMotifHits(pwmL, seqs, min.score = "90%", method = "homer2", homerfile = homerbin) # PWMatrixList,DNAStringSet
+        res6 <- findMotifHits(tf,   sf,   min.score = "90%",   method = "homer2", homerfile = homerbin) # character,character
+
+        expect_true(inherits(res4, "GRanges"))
+        expect_equal(length(res4), 3)
+        expect_equal(as.character(res4$pwmname), rep("mypwm",3))
+        expect_equal(GenomicRanges::start(res4), c(6, 1, 9))
+        expect_equal(res4, res5)
+        expect_equal(res4, res6)
+
+        # consistency between "matchPWM" and "homer2"
+        expect_equivalent(res1, res4)
+        expect_equal(GenomicRanges::seqnames(res1), GenomicRanges::seqnames(res4))
+        expect_equal(GenomicRanges::ranges(res1), GenomicRanges::ranges(res4))
+        expect_equal(GenomicRanges::strand(res1), GenomicRanges::strand(res4))
+        expect_equal(as.character(res1$matchedSeq), as.character(res4$matchedSeq))
+        expect_equal(res1$pwmname, res4$pwmname)
+        expect_equal(res1$score, res4$score, tolerance = 1e-6)
+    }
 
     unlink(c(sf, tf))
 })
