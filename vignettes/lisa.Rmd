@@ -263,6 +263,25 @@ reverseComplement(seqs[[2]][IRanges(247,254)]) # bug in homer2 parsing code in c
 
 -->
 
+
+
+# Selecting Transcription Factors with Stability Selection
+
+In this example we use stability selection (insertref) to select transcription factors (TFs) that may explain changes in chromatin accessibility between 2 conditions. In principle, one may do this with any other kind of measurement of interest. Our response vector thus consists of log-fold changes in accessibility across peaks, whereas the predicto rmatrix consists of the predicted number of binding sites each TF has across all these peaks. There are several demonstrated uses of linear models to detect what transcription factors may explain these changes. However, most of them account very little or not at all for the issue of having transcription factros with siilar binding sites across the genome (correlated predictors). Meinshausen and Buehlmann (ref) argue for randomized lasso stability selection to overcome this problem a bit, as well as to perform better in terms of selecting less noisy variables.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Session info and logo
 The lisa logo uses a drawing that was obtained from http://vectorish.com/lisa-simpson.html
 under the Creative Commons attribution - non-commercial 3.0 license: https://creativecommons.org/licenses/by-nc/3.0/.

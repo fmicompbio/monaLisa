@@ -282,3 +282,42 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"
 	show(Reduce(ComplexHeatmap::add_heatmap, ret))
 	invisible(ret)
 }
+
+
+#'@title Plot Stability Paths
+#'
+#'@description Plot the stability paths of each variable (predictor), showing the selection probability
+#'as a function of the lambda parameter.
+#'
+#'@param stabs_object the \code{stabs} object resulting from stability selection.
+#'@param cols color vector for the varaiables from the predictor matrix. By default, it's set to NULL
+#'and the function colors the variables by whether or not they were selected.
+#'
+#'@return plot of stability paths.
+#'@export
+plot_stabilityPaths <- function(stabs_object, cols=NULL, lty=1, ...) {
+  
+  # ... checks
+  if(!class(stabs_object)=="stabsel"){stop("stabs_object must be of class 'stabsel', the resulting object from running stability selection with the `stabs` package")}
+  
+  # set plot parameters
+  mat <- t(stabs_object$phat)
+  cols <- rep("black", ncol(mat))
+  names(cols) <- rep("Not Selected", length(cols))
+  cols[stabs_object$selected] <- "Steelblue"
+  names(cols)[stabs_object$selected] <- "Selected"
+  
+  # plot stability paths
+  matplot(mat, col=cols, type="l", lty=lty, ylab = "Selection Probability", xlab = "lambda", ...)
+  legend("topleft", legend = unique(names(cols)), col = unique(cols), lty=1, bty = "n", ...)
+}
+
+
+
+
+
+
+
+
+
+

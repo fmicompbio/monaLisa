@@ -1,7 +1,7 @@
 Package: lisa
 Type: Package
 Title: Binned Motif Enrichment Analysis and Visualization
-Version: 0.1.4
+Version: 0.1.5
 Authors@R: c(
     person("Lukas", "Burger", email = "lukas.burger@fmi.ch", role = c("aut")),
     person("Michael", "Stadler", email = "michael.stadler@fmi.ch", role = c("aut", "cre")))
