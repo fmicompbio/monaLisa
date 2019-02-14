@@ -27,3 +27,6 @@ function present in the \code{stabs} package that runs the lasso version was ada
 the randomized lasso here. Randmized lasso stability selection uses this function repeatedly
 to select predictors.
 }
+\author{
+Dania Machlab
+}

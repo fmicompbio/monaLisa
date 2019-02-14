@@ -28,3 +28,18 @@ This function runs randomized lasso stability selection as presented by Meinshau
 and Buehlmann and with the improved error bounds introduced by Shah and Samworth (2013). The function 
 uses the \code{stabsel} function from the \code{stabs} package, but using the randomized lasso version.
 }
+\details{
+Randomized lasso stability selection runs randomized lasso several times on several subsamples of 
+the response variable and predictor matrix (stability selection). N/2 elements from the response variable are
+randomly chosen, where N is the length of the vector. Their corresponsing section of the predictor matrix is 
+also chosen, and the \code{glmnet.randomized_lasso} function is applied. This is done multiple times, and 
+results in selection probabilities for each predictor. The probability of a specific predictor is the number of 
+times it was selected divided by the total number of subsamples that were made (total number of times the 
+regression was performed). 
+
+We make use of the \code{stabs} package that implements lasso stability selection, and adapt it to run the 
+randomized lasso stability selection. The output is an object of type \code{stabsel}.
+}
+\author{
+Dania Machlab
+}

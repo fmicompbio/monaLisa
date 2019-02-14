@@ -15,7 +15,8 @@
 #'
 #'@return the regression output
 #'
-#'
+#'@author Dania Machlab
+#'@export
 glmnet.randomized_lasso <- function (x, y, q, weakness=1, type = c("conservative", "anticonservative"), ...) {
   if (!requireNamespace("glmnet", quietly = TRUE))
     stop("Package ", sQuote("glmnet"), " needed but not available")
@@ -60,6 +61,19 @@ glmnet.randomized_lasso <- function (x, y, q, weakness=1, type = c("conservative
 #'
 #'@return a \code{stabsel} object
 #'
+#'@details Randomized lasso stability selection runs randomized lasso several times on several subsamples of 
+#'the response variable and predictor matrix (stability selection). N/2 elements from the response variable are
+#'randomly chosen, where N is the length of the vector. Their corresponsing section of the predictor matrix is 
+#'also chosen, and the \code{glmnet.randomized_lasso} function is applied. This is done multiple times, and 
+#'results in selection probabilities for each predictor. The probability of a specific predictor is the number of 
+#'times it was selected divided by the total number of subsamples that were made (total number of times the 
+#'regression was performed). 
+#'
+#'We make use of the \code{stabs} package that implements lasso stability selection, and adapt it to run the 
+#'randomized lasso stability selection. The output is an object of type \code{stabsel}. 
+#'
+#'@author Dania Machlab
+#'@export
 randomized_stabsel <- function(x=x, y=y, weakness=0.8, cutoff=0.8, PFER=2, ...) {
   stabs::stabsel(x=x, y=y, fitfun=glmnet.randomized_lasso, args.fitfun=list(weakness=weakness), cutoff=cutoff, PFER=PFER, ...)
 }
