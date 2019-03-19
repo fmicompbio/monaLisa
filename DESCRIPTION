@@ -1,8 +1,9 @@
 Package: lisa
 Type: Package
 Title: Binned Motif Enrichment Analysis and Visualization
-Version: 0.1.5
+Version: 0.1.6
 Authors@R: c(
+    person("Dania", "Machlab", email = "dania.machlab@fmi.ch", role = c("aut")),
     person("Lukas", "Burger", email = "lukas.burger@fmi.ch", role = c("aut")),
     person("Michael", "Stadler", email = "michael.stadler@fmi.ch", role = c("aut", "cre")))
 Description: Useful functions to bin genomic regions, such as promoters
