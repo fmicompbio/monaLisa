@@ -22,6 +22,7 @@ specificities, such as \pkg{JASPAR2018}.
 
 Authors:
 \itemize{
+  \item Dania Machlab \email{dania.machlab@fmi.ch}
   \item Lukas Burger \email{lukas.burger@fmi.ch}
 }
 
