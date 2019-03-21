@@ -1,6 +1,6 @@
 ---
 title: "Lisa - motif enrichments and more"
-author: "Lukas Burger, Michael Stadler"
+author: "Dania Machlab, Lukas Burger, Michael Stadler"
 date: "`r Sys.Date()`"
 bibliography: lisa-refs.bib
 output: rmarkdown::html_vignette

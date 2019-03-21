@@ -20,6 +20,7 @@ Finally, `lisa` can also be used to look for motifs in sequences.
 
 Current contributors include:
 
+- [Dania Machlab](https://github.com/machlabd)
 - [Michael Stadler](https://github.com/mbstadler)
 - [Lukas Burger](https://github.com/LukasBurger)
 
