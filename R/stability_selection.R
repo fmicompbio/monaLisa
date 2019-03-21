@@ -81,4 +81,71 @@ randomized_stabsel <- function(x=x, y=y, weakness=0.8, cutoff=0.8, PFER=2, ...) 
 
 
 
+#'@title TFBS Matrix 
+#'
+#'@description This function takes in a \code{GRanges} that is the output of \code{findMotifHits} and returns a 
+#'matrix contaiting the number of transcription factor bisnding sites (TFBS) per motif across a given set of genomic ranges.
+#'
+#'@param TFBS_gr the output of \code{findMotifHits} contaiting the TF binding locations across specified genomic regions.
+#'@param subject_gr a \code{GRanges} object showing the positions of the geominc regions That have been scanned for the TFs. 
+#'This corresponds to the \code{GRanges} \code{subject} parameter used in the \code{findMorifHits} function.
+#'@param PWMs \code{PWMatrixList} or \code{PWMatrix} object of the used TFs. This corresponds to the \code{query}
+#'parameter used in the \code{findMorifHits} function.
+#'
+#'@return a matrix containing the number of binding sites each TF has across the genomic regions.
+#'
+#'@details More details to come
+#'
+#'@author Dania Machlab
+#'@export
+TFBS_perSeqName <- function(TFBS_gr, subject_gr, PWMs) {
+  
+  ## checks
+  stopifnot(class(TFBS_gr)=="GRanges")
+  stopifnot(all(colnames(as.data.frame(TFBS_gr))==c("seqnames", "start", "end", "width", "strand", "matchedSeq", "pwmname", "score")))
+  stopifnot(class(PWMs)=="PWMatrixList"| class(PWMs)=="PWMatrix")
+  if(class(PWMs)=="PWMatrix"){PWMs <- TFBSTools::PWMatrixList(PWMs)}
+  if(!all(TFBS_gr$pwmname%in%sapply(PWMs, function(x){name(x)}))){stop("PWMs missing motifs found in TFBS_gr")}
+  
+  ## for each motif count number of TFBS per seqName
+  seqs <- as.character(seqnames(TFBS_gr))
+  TFs <- as.character(TFBS_gr$pwmname)
+  s <- split(TFs, seqs)
+  l <- lapply(s, function(x){table(x)})
+  
+  ## output full matrix
+  if(is.null(names(subject_gr))) {
+    names(subject_gr) <- paste0("row_", seq(from = 1, to = length(subject_gr), by = 1))
+  }
+  full_row_nm <- names(subject_gr)
+  full_TF_nm <- sapply(PWMs, function(x){name(x)})
+  m <- matrix(data = 0L, nrow = length(full_row_nm), ncol = length(full_TF_nm))
+  rownames(m) <- full_row_nm
+  colnames(m) <- full_TF_nm
+  for(i in 1:length(l)){df <- as.data.frame(l[[i]]); m[names(l)[i], as.character(df$x)] <- df$Freq}
+  
+  ## return matrix
+  m
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
