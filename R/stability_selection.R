@@ -98,14 +98,17 @@ randomized_stabsel <- function(x=x, y=y, weakness=0.8, cutoff=0.8, PFER=2, ...) 
 #'
 #'@author Dania Machlab
 #'@export
-TFBS_perSeqName <- function(TFBS_gr, subject_gr, PWMs) {
+get_numberOfTFBS_perSeqName <- function(TFBS_gr, subject_gr, PWMs, nCpu=1L) {
+  
+  # TODO make sure PWM names and peak names are  unique
+  # motif names instead of gene?
   
   ## checks
   stopifnot(class(TFBS_gr)=="GRanges")
   stopifnot(all(colnames(as.data.frame(TFBS_gr))==c("seqnames", "start", "end", "width", "strand", "matchedSeq", "pwmname", "score")))
   stopifnot(class(PWMs)=="PWMatrixList"| class(PWMs)=="PWMatrix")
   if(class(PWMs)=="PWMatrix"){PWMs <- TFBSTools::PWMatrixList(PWMs)}
-  if(!all(TFBS_gr$pwmname%in%sapply(PWMs, function(x){name(x)}))){stop("PWMs missing motifs found in TFBS_gr")}
+  # if(!all(TFBS_gr$pwmname%in%sapply(PWMs, function(x){name(x)}))){stop("PWMs missing motifs found in TFBS_gr")}
   
   ## for each motif count number of TFBS per seqName
   seqs <- as.character(seqnames(TFBS_gr))
@@ -117,31 +120,26 @@ TFBS_perSeqName <- function(TFBS_gr, subject_gr, PWMs) {
   if(is.null(names(subject_gr))) {
     names(subject_gr) <- paste0("row_", seq(from = 1, to = length(subject_gr), by = 1))
   }
-  full_row_nm <- names(subject_gr)
-  full_TF_nm <- sapply(PWMs, function(x){name(x)})
-  m <- matrix(data = 0L, nrow = length(full_row_nm), ncol = length(full_TF_nm))
-  rownames(m) <- full_row_nm
-  colnames(m) <- full_TF_nm
-  for(i in 1:length(l)){df <- as.data.frame(l[[i]]); m[names(l)[i], as.character(df$x)] <- df$Freq}
+  
+  ## rbind vectors
+  m <- do.call(rbind, mclapply(mc.cores = nCpu, X = l, FUN = function(x){
+    full_motif_vec <- numeric(length(PWMs))
+    names(full_motif_vec) <- sapply(PWMs, function(x){name(x)})
+    df <- as.data.frame(x)
+    motifs <- as.character(df$x)
+    full_motif_vec[motifs] <- df$Freq
+    full_motif_vec
+  }))
+  
+  ## order to match subject_gr
+  subject_peaks <- names(subject_gr)[names(subject_gr)%in%rownames(m)] # remove peaks that have 0 TFBS in all columns
+  o <- match(subject_peaks, rownames(m))
+  m <- m[o, ]
   
   ## return matrix
   m
   
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

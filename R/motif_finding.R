@@ -411,7 +411,7 @@ setMethod("findMotifHits",
                           method, homerfile, Ncpu, genome=NULL)
           })
 
-# 12.
+# 11.
 #' @rdname findMotifHits-methods
 #' @aliases findMotifHits,PWMatrix,GRanges-method
 setMethod("findMotifHits",

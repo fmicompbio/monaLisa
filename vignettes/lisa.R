@@ -113,6 +113,52 @@ summary(res %in% res2)
 m <- table(seqnames(res), as.character(res$pwmname))
 m
 
+## ----load_data-----------------------------------------------------------
+
+library(lisa)
+
+# Path to extdata 
+peaks_path <- system.file("extdata", "lung_vs_liver_ATAC_peaks.rds", package = "lisa", mustWork = TRUE)
+response_path <- system.file("extdata", "lung_vs_liver_ATAC_logFC.rds", package = "lisa", mustWork = TRUE)
+
+# Load response vector and peaks GRanges
+response <- readRDS(response_path)
+peaks <- readRDS(peaks_path)
+
+
+## ----predictor-----------------------------------------------------------
+
+library(JASPAR2018)
+library(TFBSTools)
+library("BSgenome.Mmusculus.UCSC.mm10")
+
+# Genome
+genome <- BSgenome.Mmusculus.UCSC.mm10
+
+# Get PWMs
+pwms <- getMatrixSet(JASPAR2018, list(matrixtype="PWM", tax_group="vertebrates"))
+pwms <- pwms[c(20,40,50)]
+
+# Get TFBS on given GRanges
+homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.8/bin/")
+hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "homer2", homerfile = homerfile, genome = genome, Ncpu = 2)
+
+# Get predictor matrix
+predictor_matrix <- get_numberOfTFBS_perSeqName(TFBS_gr = hits, subject_gr = peaks, PWMs = pwms, nCpu = 10)
+head(predictor_matrix)
+
+
+
+## ----run_stability-------------------------------------------------------
+
+# filter the remaining y
+response <- response[names(response)%in%rownames(predictor_matrix)]
+
+stabs <- randomized_stabsel(predictor_matrix, response, mc.cores = 10)
+plot_stabilityPaths(stabs)
+
+
+
 ## ---- session------------------------------------------------------------
 sessionInfo(package = "lisa")
 

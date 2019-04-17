@@ -38,6 +38,8 @@ bin, such as change of expression or accessibility.
 
 Finally, `lisa` can also be used to look for motifs in sequences.
 
+
+
 # Quick example: Identify enriched motifs
 
 ```{r, quick, eval=FALSE}
@@ -270,10 +272,73 @@ reverseComplement(seqs[[2]][IRanges(247,254)]) # bug in homer2 parsing code in c
 In this example we use stability selection (insertref) to select transcription factors (TFs) that may explain changes in chromatin accessibility between 2 conditions. In principle, one may do this with any other kind of measurement of interest. Our response vector thus consists of log-fold changes in accessibility across peaks, whereas the predicto rmatrix consists of the predicted number of binding sites each TF has across all these peaks. There are several demonstrated uses of linear models to detect what transcription factors may explain these changes. However, most of them account very little or not at all for the issue of having transcription factros with siilar binding sites across the genome (correlated predictors). Meinshausen and Buehlmann (ref) argue for randomized lasso stability selection to overcome this problem a bit, as well as to perform better in terms of selecting less noisy variables.
 
 
+### Load Data
+
+We use an example data set compare chromatin accessibility between liver and lung samples.
 
 
+```{r load_data}
+
+library(lisa)
+
+# Path to extdata 
+peaks_path <- system.file("extdata", "lung_vs_liver_ATAC_peaks.rds", package = "lisa", mustWork = TRUE)
+response_path <- system.file("extdata", "lung_vs_liver_ATAC_logFC.rds", package = "lisa", mustWork = TRUE)
+
+# Load response vector and peaks GRanges
+response <- readRDS(response_path)
+peaks <- readRDS(peaks_path)
+
+```
+
+### Get predictor matrix showing number of TFBS per motif across the peaks
+
+The \code{findMotifHits} function can be used to get the binding site of each transcription factor across a given set of genomic regions, 
+which in out case is the ATAC-seq peaks. The \code{get_numberOfTFBS_perSeqName} subsequently generates our predictor matrix which 
+contains the number of TFBS each TF has across the given set of peaks. Note that peaks that have 0 TFBS with all TFs will be removed in the
+resulting matrix.
+\
 
 
+```{r predictor}
+
+library(JASPAR2018)
+library(TFBSTools)
+library("BSgenome.Mmusculus.UCSC.mm10")
+
+# Genome
+genome <- BSgenome.Mmusculus.UCSC.mm10
+
+# Get PWMs
+pwms <- getMatrixSet(JASPAR2018, list(matrixtype="PWM", tax_group="vertebrates"))
+pwms <- pwms[c(20,40,50)]
+
+# Get TFBS on given GRanges
+homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.8/bin/")
+hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "homer2", homerfile = homerfile, genome = genome, Ncpu = 2)
+
+# Get predictor matrix
+predictor_matrix <- get_numberOfTFBS_perSeqName(TFBS_gr = hits, subject_gr = peaks, PWMs = pwms, nCpu = 10)
+head(predictor_matrix)
+
+
+```
+
+
+We can now run randomized lasso stability selection to select TFs that are likely to explain the log-fold changes in accessibility (response vector).
+\
+
+
+```{r run_stability}
+
+# filter the remaining y
+response <- response[names(response)%in%rownames(predictor_matrix)]
+
+stabs <- randomized_stabsel(predictor_matrix, response, mc.cores = 10)
+plot_stabilityPaths(stabs)
+
+
+```
 
 
 
