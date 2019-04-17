@@ -28,10 +28,10 @@ region, an integer value will keep only that many bases in the region center).}
 \item{Ncpu}{Number of parallel threads that HOMER can use.}
 }
 \value{
-A list of three components (\code{p}, \code{FDR} and \code{enr}),
+A list of four components (\code{p}, \code{FDR}, \code{enr} and \code{log2enr}),
     containing each a motif (rows) by bin (columns) matrix with raw
-    -log10 P values, -log10 false discovery rates and motif enrichments
-    (\eqn{(o-e)/\sqrt e}).
+    -log10 P values, -log10 false discovery rates and motif enrichments as
+    Pearson residuals (\code{enr}) and as log2 ratios (\code{log2enr}).
 }
 \description{
 Run complete HOMER motif enrichment analysis, consisting of
