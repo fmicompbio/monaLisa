@@ -98,17 +98,25 @@ randomized_stabsel <- function(x=x, y=y, weakness=0.8, cutoff=0.8, PFER=2, ...) 
 #'
 #'@author Dania Machlab
 #'@export
+<<<<<<< HEAD
 get_numberOfTFBS_perSeqName <- function(TFBS_gr, subject_gr, PWMs, nCpu=1L) {
   
   # TODO make sure PWM names and peak names are  unique
   # motif names instead of gene?
+=======
+TFBS_perSeqName <- function(TFBS_gr, subject_gr, PWMs) {
+>>>>>>> a0979f28b7eeb44b076bad2f1b27ff0b17b07ae2
   
   ## checks
   stopifnot(class(TFBS_gr)=="GRanges")
   stopifnot(all(colnames(as.data.frame(TFBS_gr))==c("seqnames", "start", "end", "width", "strand", "matchedSeq", "pwmname", "score")))
   stopifnot(class(PWMs)=="PWMatrixList"| class(PWMs)=="PWMatrix")
   if(class(PWMs)=="PWMatrix"){PWMs <- TFBSTools::PWMatrixList(PWMs)}
+<<<<<<< HEAD
   # if(!all(TFBS_gr$pwmname%in%sapply(PWMs, function(x){name(x)}))){stop("PWMs missing motifs found in TFBS_gr")}
+=======
+  if(!all(TFBS_gr$pwmname%in%sapply(PWMs, function(x){name(x)}))){stop("PWMs missing motifs found in TFBS_gr")}
+>>>>>>> a0979f28b7eeb44b076bad2f1b27ff0b17b07ae2
   
   ## for each motif count number of TFBS per seqName
   seqs <- as.character(seqnames(TFBS_gr))
@@ -120,6 +128,7 @@ get_numberOfTFBS_perSeqName <- function(TFBS_gr, subject_gr, PWMs, nCpu=1L) {
   if(is.null(names(subject_gr))) {
     names(subject_gr) <- paste0("row_", seq(from = 1, to = length(subject_gr), by = 1))
   }
+<<<<<<< HEAD
   
   ## rbind vectors
   m <- do.call(rbind, mclapply(mc.cores = nCpu, X = l, FUN = function(x){
@@ -135,6 +144,14 @@ get_numberOfTFBS_perSeqName <- function(TFBS_gr, subject_gr, PWMs, nCpu=1L) {
   subject_peaks <- names(subject_gr)[names(subject_gr)%in%rownames(m)] # remove peaks that have 0 TFBS in all columns
   o <- match(subject_peaks, rownames(m))
   m <- m[o, ]
+=======
+  full_row_nm <- names(subject_gr)
+  full_TF_nm <- sapply(PWMs, function(x){name(x)})
+  m <- matrix(data = 0L, nrow = length(full_row_nm), ncol = length(full_TF_nm))
+  rownames(m) <- full_row_nm
+  colnames(m) <- full_TF_nm
+  for(i in 1:length(l)){df <- as.data.frame(l[[i]]); m[names(l)[i], as.character(df$x)] <- df$Freq}
+>>>>>>> a0979f28b7eeb44b076bad2f1b27ff0b17b07ae2
   
   ## return matrix
   m
@@ -147,3 +164,20 @@ get_numberOfTFBS_perSeqName <- function(TFBS_gr, subject_gr, PWMs, nCpu=1L) {
 
 
 
+<<<<<<< HEAD
+=======
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+>>>>>>> a0979f28b7eeb44b076bad2f1b27ff0b17b07ae2
