@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 #  bins <- bin(x = atac.peaks.change, binmode = "equalN", nElement = 400)
 #  
 #  # dump motifs into file
-#  motiffile <- dumpJaspar("jaspar2018.motif", pkg = "JASPAR2018")
+#  dumpJaspar("jaspar2018.motif", pkg = "JASPAR2018")
 #  
 #  # find Homer (findMotifsGenome.pl)
 #  homerfile <- findHomer(dirs = "/path/to/look/into")
@@ -39,8 +39,8 @@ lmr <- readRDS(lmrfile)
 lmr
 
 ## ----deltameth-----------------------------------------------------------
-hist(lmr$deltaMeth, 100, col="gray", main="",
-     xlab="Change of methylation (NP - ES)", ylab="Number of LMRs")
+hist(lmr$deltaMeth, 100, col = "gray", main = "",
+     xlab = "Change of methylation (NP - ES)", ylab = "Number of LMRs")
 
 ## ----lmrsel--------------------------------------------------------------
 set.seed(1)
@@ -78,7 +78,7 @@ resLsel <- lapply(resL, function(x) x[sel,])
 resLsel <- lapply(resLsel, function(x) { rownames(x) <- sub("\\|.*$","",rownames(x)); x })
 # plot
 plotMotifHeatmaps(x = resLsel, b = bins, which.plots = c("log2enr","FDR"), width = 2.0,
-                  cluster=TRUE, maxEnr = 2, maxSig = 10)
+                  cluster = TRUE, maxEnr = 2, maxSig = 10)
 
 ## ----findMotifs----------------------------------------------------------
 # get sequences of promoters as a DNAStringSet
