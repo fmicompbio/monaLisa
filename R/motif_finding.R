@@ -4,6 +4,7 @@
 #' @importFrom TFBSTools Matrix PWMatrix PWMatrixList name
 #' @importFrom methods .valueClassTest
 #' @importFrom utils strcapture
+#' @importFrom S4Vectors Rle
 NULL
 
 # internal function:  dump PWMatrixList to file in homer2 format
