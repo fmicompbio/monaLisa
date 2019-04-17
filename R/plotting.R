@@ -168,7 +168,7 @@ plotBinScatter <- function(x, y, b,
         b <- factor(b, levels=unique(b))
     par(mar = c(5, 4, 4 - if (main == "") 3 else 0, 2) + 0.1, cex = 1.25)
     ret <- plot(x, y, pch = 16, cex = 0.6, col = cols,
-                xlab = xlab, ylab = ylab, main = main, axes = FALSE)
+                xlab = xlab, ylab = ylab, main = main, axes = FALSE, ...)
     axis(1)
     axis(2)
     pusr <- par('usr')
