@@ -4,13 +4,16 @@
 \alias{plot_stabilityPaths}
 \title{Plot Stability Paths}
 \usage{
-plot_stabilityPaths(stabs_object, cols = NULL, lty = 1, ...)
+plot_stabilityPaths(stabs_object, cols = NULL, lwd = 1, lty = 1,
+  ylim = c(0, 1.1), ...)
 }
 \arguments{
 \item{stabs_object}{the \code{stabs} object resulting from stability selection.}
 
 \item{cols}{color vector for the varaiables from the predictor matrix. By default, it's set to NULL
 and the function colors the variables by whether or not they were selected.}
+
+\item{...}{additional parameters to pass on to \code{matplot}}
 }
 \value{
 plot of stability paths.

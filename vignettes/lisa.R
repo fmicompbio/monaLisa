@@ -137,15 +137,14 @@ genome <- BSgenome.Mmusculus.UCSC.mm10
 
 # Get PWMs
 pwms <- getMatrixSet(JASPAR2018, list(matrixtype="PWM", tax_group="vertebrates"))
-pwms <- pwms[c(20,40,50)]
 
 # Get TFBS on given GRanges
 homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.8/bin/")
-hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "homer2", homerfile = homerfile, genome = genome, Ncpu = 2)
+hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "homer2", homerfile = homerfile, genome = genome, Ncpu = 10)
 
 # Get predictor matrix
 predictor_matrix <- get_numberOfTFBS_perSeqName(TFBS_gr = hits, subject_gr = peaks, PWMs = pwms, nCpu = 10)
-head(predictor_matrix)
+predictor_matrix[1:6, 1:6]
 
 
 
@@ -156,6 +155,7 @@ response <- response[names(response)%in%rownames(predictor_matrix)]
 
 stabs <- randomized_stabsel(predictor_matrix, response, mc.cores = 10)
 plot_stabilityPaths(stabs)
+barplot_selectionProbability(stabs)
 
 
 

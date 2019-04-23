@@ -272,7 +272,6 @@ reverseComplement(seqs[[2]][IRanges(247,254)]) # bug in homer2 parsing code in c
 In this example we use stability selection (insertref) to select transcription factors (TFs) that may explain changes in chromatin accessibility between 2 conditions. In principle, one may do this with any other kind of measurement of interest. Our response vector thus consists of log-fold changes in accessibility across peaks, whereas the predicto rmatrix consists of the predicted number of binding sites each TF has across all these peaks. There are several demonstrated uses of linear models to detect what transcription factors may explain these changes. However, most of them account very little or not at all for the issue of having transcription factros with siilar binding sites across the genome (correlated predictors). Meinshausen and Buehlmann (ref) argue for randomized lasso stability selection to overcome this problem a bit, as well as to perform better in terms of selecting less noisy variables.
 
 
-<<<<<<< HEAD
 ### Load Data
 
 We use an example data set compare chromatin accessibility between liver and lung samples.
@@ -294,8 +293,8 @@ peaks <- readRDS(peaks_path)
 
 ### Get predictor matrix showing number of TFBS per motif across the peaks
 
-The \code{findMotifHits} function can be used to get the binding site of each transcription factor across a given set of genomic regions, 
-which in out case is the ATAC-seq peaks. The \code{get_numberOfTFBS_perSeqName} subsequently generates our predictor matrix which 
+The `findMotifHits` function can be used to get the binding site of each transcription factor across a given set of genomic regions, 
+which in out case is the ATAC-seq peaks. The `get_numberOfTFBS_perSeqName` subsequently generates our predictor matrix which 
 contains the number of TFBS each TF has across the given set of peaks. Note that peaks that have 0 TFBS with all TFs will be removed in the
 resulting matrix.
 \
@@ -312,15 +311,14 @@ genome <- BSgenome.Mmusculus.UCSC.mm10
 
 # Get PWMs
 pwms <- getMatrixSet(JASPAR2018, list(matrixtype="PWM", tax_group="vertebrates"))
-pwms <- pwms[c(20,40,50)]
 
 # Get TFBS on given GRanges
 homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.8/bin/")
-hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "homer2", homerfile = homerfile, genome = genome, Ncpu = 2)
+hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "homer2", homerfile = homerfile, genome = genome, Ncpu = 10)
 
 # Get predictor matrix
 predictor_matrix <- get_numberOfTFBS_perSeqName(TFBS_gr = hits, subject_gr = peaks, PWMs = pwms, nCpu = 10)
-head(predictor_matrix)
+predictor_matrix[1:6, 1:6]
 
 
 ```
@@ -337,15 +335,11 @@ response <- response[names(response)%in%rownames(predictor_matrix)]
 
 stabs <- randomized_stabsel(predictor_matrix, response, mc.cores = 10)
 plot_stabilityPaths(stabs)
+barplot_selectionProbability(stabs)
 
 
 ```
-=======
 
-
-
-
->>>>>>> a0979f28b7eeb44b076bad2f1b27ff0b17b07ae2
 
 
 

@@ -1,4 +1,3 @@
-#'
 #'@title Randomized Lasso 
 #'
 #'@description This function perform randomized lasso using the \code{glmnet} package. The 
