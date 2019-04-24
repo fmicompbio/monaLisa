@@ -1,5 +1,5 @@
 #' @importFrom grDevices colorRampPalette
-#' @importFrom graphics axis hist lines par plot rect rug segments
+#' @importFrom graphics axis hist lines par plot rect rug segments barplot matplot abline legend
 #' @importFrom stats density dist hclust
 NULL
 
@@ -334,12 +334,12 @@ barplot_selectionProbability <- function(stabs_object, ylim=c(0,1), onlySelected
   # ... checks
   if(!class(stabs_object)=="stabsel"){stop("stabs_object must be of class 'stabsel', the resulting object from running stability selection with the `stabs` package")}
   
+  phat <- t(stabs_object$phat)
+  TF_prob <- phat[nrow(phat), ]
   
-  if(!onlySelected) {
-    phat <- t(stabs_object$phat)
-    TF_prob <- phat[nrow(phat), ]
-  } else {
-    TF_prob <- stabs_object$selected
+  if(onlySelected) {
+    TF_prob <- TF_prob[stabs$selected]
+    
   }
   
   # check if empty
@@ -350,10 +350,9 @@ barplot_selectionProbability <- function(stabs_object, ylim=c(0,1), onlySelected
   
   # plot
   barplot(TF_prob, ylim=ylim, ylab = "Selection Probability", las=las, ...)
-  if(!onlySelected) {
-    abline(h=stabs_object$cutoff, lty = 5, col = "red")
-    legend("topright", legend = "cutoff", lty = 5, col = "red", bty = "n")
-  }
+  abline(h=stabs_object$cutoff, lty = 5, col = "red")
+  legend("topright", legend = "cutoff", lty = 5, col = "red", bty = "n")
+  
 }
 
 

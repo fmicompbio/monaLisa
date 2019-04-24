@@ -4,7 +4,7 @@
 \alias{get_numberOfTFBS_perSeqName}
 \title{TFBS Matrix}
 \usage{
-get_numberOfTFBS_perSeqName(TFBS_gr, subject_gr, PWMs, nCpu = 1L)
+get_numberOfTFBS_perSeqName(TFBS_gr, subject_gr, PWMs, Ncpu = 1L)
 }
 \arguments{
 \item{TFBS_gr}{the output of \code{findMotifHits} contaiting the TF binding locations across specified genomic regions.}

@@ -5,6 +5,7 @@
 #' @importFrom methods .valueClassTest
 #' @importFrom utils strcapture
 #' @importFrom S4Vectors Rle
+#' @importFrom BSgenome getSeq
 NULL
 
 # internal function:  dump PWMatrixList to file in homer2 format
@@ -194,7 +195,15 @@ setMethod("findMotifHits",
                   # run homer2
                   cmdargs <- sprintf("find -i %s -m %s -offset 1 -strand both -p %d", subject, query, Ncpu)
                   res <- system2(command = homerfile, args = cmdargs, stdout = TRUE, stderr = "", wait = TRUE)
-                  con <- textConnection(res)
+                  
+                  # check homer2 output
+                  ok <- grepl("^[a-z0-9_]+\\t[0-9]+\\t[ACGT]+\\t.+\\t[+-]\\t[0-9.]+$", res, perl = TRUE)
+                  if (any(!ok))
+                    warning(sum(!ok), " of ", length(ok), " hits reported by Homer are malformed and will be ignored.",
+                            " To ensure complete and correct results, re-run Homer (maybe using Ncpu = 1).")
+                  
+                  # parse output
+                  con <- textConnection(res[ok])
                   resparsed <- scan(file = con, what = list(seqnames = "", start = 1L, matchedSeq = "",
                                                             pwmname = "", strand = "", score = 1.0),
                                     sep = "\t", quiet = TRUE)

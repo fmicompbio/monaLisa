@@ -274,7 +274,7 @@ In this example we use stability selection (insertref) to select transcription f
 
 ### Load Data
 
-We use an example data set compare chromatin accessibility between liver and lung samples.
+We use an ATAC-seq dataset from ENCODE (REF) as example to demonstrate the use of stability selection to select TFs that are likely to explain log-fold changes in chromatin accessibility. UPDATE HERE on details of teh response and peaks variables. 
 
 
 ```{r load_data}
@@ -288,6 +288,12 @@ response_path <- system.file("extdata", "lung_vs_liver_ATAC_logFC.rds", package 
 # Load response vector and peaks GRanges
 response <- readRDS(response_path)
 peaks <- readRDS(peaks_path)
+
+# subset (for shorter run time only to demonstrate)
+set.seed(123)
+s <- sample(x = seq(1,length(peaks), 1), size = 10000)
+response <- response[s]
+peaks <- peaks[s]
 
 ```
 
@@ -313,16 +319,18 @@ genome <- BSgenome.Mmusculus.UCSC.mm10
 pwms <- getMatrixSet(JASPAR2018, list(matrixtype="PWM", tax_group="vertebrates"))
 
 # Get TFBS on given GRanges
-homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.8/bin/")
+homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
 hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "homer2", homerfile = homerfile, genome = genome, Ncpu = 10)
 
 # Get predictor matrix
-predictor_matrix <- get_numberOfTFBS_perSeqName(TFBS_gr = hits, subject_gr = peaks, PWMs = pwms, nCpu = 10)
+predictor_matrix <- get_numberOfTFBS_perSeqName(TFBS_gr = hits, subject_gr = peaks, PWMs = pwms, Ncpu = 10)
 predictor_matrix[1:6, 1:6]
 
 
 ```
 
+
+### Run randomized lasso stability selection
 
 We can now run randomized lasso stability selection to select TFs that are likely to explain the log-fold changes in accessibility (response vector).
 \
@@ -334,8 +342,18 @@ We can now run randomized lasso stability selection to select TFs that are likel
 response <- response[names(response)%in%rownames(predictor_matrix)]
 
 stabs <- randomized_stabsel(predictor_matrix, response, mc.cores = 10)
+
+par(mfrow=c(1,1), mar=c(10,5,5,3))
+
 plot_stabilityPaths(stabs)
+
 barplot_selectionProbability(stabs)
+
+# plot correlation on TFBS matrix of selected TFs
+sel_matrix <- predictor_matrix[, stabs$selected]
+sel_cor <- cor(sel_matrix, method = "pearson")
+
+ComplexHeatmap::Heatmap(matrix = sel_cor, name = "Pear. Cor.")
 
 
 ```

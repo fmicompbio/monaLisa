@@ -22,7 +22,7 @@ glmnet.randomized_lasso(x, y, q, weakness = 1, type = c("conservative",
 the regression output
 }
 \description{
-This function perform randomized lasso using the \code{glmnet} package. The 
+This function performs randomized lasso using the \code{glmnet} package. The 
 function present in the \code{stabs} package that runs the lasso version was adapted for
 the randomized lasso here. Randmized lasso stability selection uses this function repeatedly
 to select predictors.

@@ -1,6 +1,11 @@
+#' @importFrom stabs stabsel
+#' @importFrom glmnet glmnet
+#' @importFrom TFBSTools PWMatrixList
+NULL
+
 #'@title Randomized Lasso 
 #'
-#'@description This function perform randomized lasso using the \code{glmnet} package. The 
+#'@description This function performs randomized lasso using the \code{glmnet} package. The 
 #'function present in the \code{stabs} package that runs the lasso version was adapted for
 #'the randomized lasso here. Randmized lasso stability selection uses this function repeatedly
 #'to select predictors. 
@@ -97,7 +102,7 @@ randomized_stabsel <- function(x=x, y=y, weakness=0.8, cutoff=0.8, PFER=2, ...) 
 #'
 #'@author Dania Machlab
 #'@export
-get_numberOfTFBS_perSeqName <- function(TFBS_gr, subject_gr, PWMs, nCpu=1L) {
+get_numberOfTFBS_perSeqName <- function(TFBS_gr, subject_gr, PWMs, Ncpu=1L) {
   
   # TODO make sure PWM names and peak names are  unique
   # motif names instead of gene?
@@ -121,7 +126,7 @@ get_numberOfTFBS_perSeqName <- function(TFBS_gr, subject_gr, PWMs, nCpu=1L) {
   }
 
   ## rbind vectors
-  m <- do.call(rbind, mclapply(mc.cores = nCpu, X = l, FUN = function(x){
+  m <- do.call(rbind, mclapply(mc.cores = Ncpu, X = l, FUN = function(x){
     full_motif_vec <- numeric(length(PWMs))
     names(full_motif_vec) <- sapply(PWMs, function(x){name(x)})
     df <- as.data.frame(x)
