@@ -269,7 +269,12 @@ reverseComplement(seqs[[2]][IRanges(247,254)]) # bug in homer2 parsing code in c
 
 # Selecting Transcription Factors with Stability Selection
 
-In this example we use stability selection (insertref) to select transcription factors (TFs) that may explain changes in chromatin accessibility between 2 conditions. In principle, one may do this with any other kind of measurement of interest. Our response vector thus consists of log-fold changes in accessibility across peaks, whereas the predicto rmatrix consists of the predicted number of binding sites each TF has across all these peaks. There are several demonstrated uses of linear models to detect what transcription factors may explain these changes. However, most of them account very little or not at all for the issue of having transcription factros with siilar binding sites across the genome (correlated predictors). Meinshausen and Buehlmann (ref) argue for randomized lasso stability selection to overcome this problem a bit, as well as to perform better in terms of selecting less noisy variables.
+Randomized Lasso stability selection proposed by Meinshausen and Buehlman (REF) applies the lasso regression on several subsamples of the data using a weakness parameter that adds additional variation to the lambda parameter and allows for more correlated variables to be selected together. The authors argue for this as a way of slightly overcomming the problem of lasso only selecting variables that are not correlated, and performing better in a noisy dataset depending on how strongly one sets the weakness parameter. SHah and Blah further improved error bounds (REF).
+
+Here we demonstrate the use of randomized lasso stability selection to select transcription factors (TFs) that are likely to explain changes in chromatin accessibility from ATAC-seq data. One can also use stability selection on any other type of data like ChIP-seq of specific histone marks for example. We are given a vector of log-fold changes (logFC) in chromatin accessibility between two conditions that we consider to be our response vector. The predictor matrix will consist of the number of transcription factor bindng sites (TFBS) that each TF has across the peaks. The example data set comes from the Bing Ren lab (REF) and was processed in the LAB (REF) from which we obtained the bam files for ATAC-seq from mouse postnatal (P0) liver and lung tissues. Each condition had 2 replicates, and the peak calling was done per condition using MACS2 (REF). The peaks from both conditions were merged and used to calculate counts of the ATAC for all samples with QuasR (REF). Counts per million (CPM) were calculated per sample and averaged across replicates. The logFC was calculated as log2(CPM(Liver)+8) - log2(CPM(Lung)+8).
+
+Only distal autosomal peaks were kept since promoter peaks tend not to change so much in accessibility, and we are interested in selecting TFs that likely explain logFC in enhancer regions. The `.rds` files used in lisa's example dataset consist of peaks that had an absolute logFC greater than 2 and leass than 2.2. This was done to reduce the number of peaks and speed up runtime to demonstrate the functions used in `lisa` that apply randomized lasso stability selection (REF).
+
 
 
 ### Load Data
@@ -282,18 +287,12 @@ We use an ATAC-seq dataset from ENCODE (REF) as example to demonstrate the use o
 library(lisa)
 
 # Path to extdata 
-peaks_path <- system.file("extdata", "lung_vs_liver_ATAC_peaks.rds", package = "lisa", mustWork = TRUE)
-response_path <- system.file("extdata", "lung_vs_liver_ATAC_logFC.rds", package = "lisa", mustWork = TRUE)
+peaks_path <- system.file("extdata", "Liver_vs_Lung_ATAC_peaks.rds", package = "lisa", mustWork = TRUE)
+response_path <- system.file("extdata", "Liver_vs_Lung_ATAC_logFC.rds", package = "lisa", mustWork = TRUE)
 
 # Load response vector and peaks GRanges
 response <- readRDS(response_path)
 peaks <- readRDS(peaks_path)
-
-# subset (for shorter run time only to demonstrate)
-set.seed(123)
-s <- sample(x = seq(1,length(peaks), 1), size = 10000)
-response <- response[s]
-peaks <- peaks[s]
 
 ```
 
@@ -320,10 +319,10 @@ pwms <- getMatrixSet(JASPAR2018, list(matrixtype="PWM", tax_group="vertebrates")
 
 # Get TFBS on given GRanges
 homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
-hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "homer2", homerfile = homerfile, genome = genome, Ncpu = 10)
+hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "homer2", homerfile = homerfile, genome = genome, Ncpu = 1)
 
 # Get predictor matrix
-predictor_matrix <- get_numberOfTFBS_perSeqName(TFBS_gr = hits, subject_gr = peaks, PWMs = pwms, Ncpu = 10)
+predictor_matrix <- get_numberOfTFBS_perSeqName(TFBS_gr = hits, subject_gr = peaks, PWMs = pwms, Ncpu = 1)
 predictor_matrix[1:6, 1:6]
 
 
@@ -341,11 +340,11 @@ We can now run randomized lasso stability selection to select TFs that are likel
 # filter the remaining y
 response <- response[names(response)%in%rownames(predictor_matrix)]
 
-stabs <- randomized_stabsel(predictor_matrix, response, mc.cores = 10)
-
-par(mfrow=c(1,1), mar=c(10,5,5,3))
+stabs <- randomized_stabsel(predictor_matrix, response, mc.cores = 1)
 
 plot_stabilityPaths(stabs)
+
+par(mfrow=c(1,1), mar=c(5,4,4,2)+3)
 
 barplot_selectionProbability(stabs)
 

@@ -118,18 +118,12 @@ m
 library(lisa)
 
 # Path to extdata 
-peaks_path <- system.file("extdata", "lung_vs_liver_ATAC_peaks.rds", package = "lisa", mustWork = TRUE)
-response_path <- system.file("extdata", "lung_vs_liver_ATAC_logFC.rds", package = "lisa", mustWork = TRUE)
+peaks_path <- system.file("extdata", "Liver_vs_Lung_ATAC_peaks.rds", package = "lisa", mustWork = TRUE)
+response_path <- system.file("extdata", "Liver_vs_Lung_ATAC_logFC.rds", package = "lisa", mustWork = TRUE)
 
 # Load response vector and peaks GRanges
 response <- readRDS(response_path)
 peaks <- readRDS(peaks_path)
-
-# subset (for shorter run time only to demonstrate)
-set.seed(123)
-s <- sample(x = seq(1,length(peaks), 1), size = 10000)
-response <- response[s]
-peaks <- peaks[s]
 
 
 ## ----predictor-----------------------------------------------------------
@@ -146,10 +140,10 @@ pwms <- getMatrixSet(JASPAR2018, list(matrixtype="PWM", tax_group="vertebrates")
 
 # Get TFBS on given GRanges
 homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
-hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "homer2", homerfile = homerfile, genome = genome, Ncpu = 10)
+hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "homer2", homerfile = homerfile, genome = genome, Ncpu = 1)
 
 # Get predictor matrix
-predictor_matrix <- get_numberOfTFBS_perSeqName(TFBS_gr = hits, subject_gr = peaks, PWMs = pwms, Ncpu = 10)
+predictor_matrix <- get_numberOfTFBS_perSeqName(TFBS_gr = hits, subject_gr = peaks, PWMs = pwms, Ncpu = 1)
 predictor_matrix[1:6, 1:6]
 
 
@@ -159,11 +153,11 @@ predictor_matrix[1:6, 1:6]
 # filter the remaining y
 response <- response[names(response)%in%rownames(predictor_matrix)]
 
-stabs <- randomized_stabsel(predictor_matrix, response, mc.cores = 10)
-
-par(mfrow=c(1,1), mar=c(10,5,5,3))
+stabs <- randomized_stabsel(predictor_matrix, response, mc.cores = 1)
 
 plot_stabilityPaths(stabs)
+
+par(mfrow=c(1,1), mar=c(5,4,4,2)+3)
 
 barplot_selectionProbability(stabs)
 
