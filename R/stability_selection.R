@@ -51,8 +51,8 @@ glmnet.randomized_lasso <- function (x, y, q, weakness=1, type = c("conservative
 
 #'@title Randomized Lasso Stability Selection
 #'
-#'@description This function runs randomized lasso stability selection as presented by Meinshausen (2010) 
-#'and Buehlmann and with the improved error bounds introduced by Shah and Samworth (2013). The function 
+#'@description This function runs randomized lasso stability selection as presented by Meinshausen
+#'and Bühlmann (2010) and with the improved error bounds introduced by Shah and Samworth (2013). The function 
 #'uses the \code{stabsel} function from the \code{stabs} package, but using the randomized lasso version.
 #'
 #'@param x the predictor matrix 

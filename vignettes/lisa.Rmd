@@ -267,19 +267,17 @@ reverseComplement(seqs[[2]][IRanges(247,254)]) # bug in homer2 parsing code in c
 
 
 
-# Selecting Transcription Factors with Stability Selection
+# Selecting Transcription Factors Likely to Explain Changes in Chromatin Accessibility Using Stability Selection
 
-Randomized Lasso stability selection proposed by Meinshausen and Buehlman (REF) applies the lasso regression on several subsamples of the data using a weakness parameter that adds additional variation to the lambda parameter and allows for more correlated variables to be selected together. The authors argue for this as a way of slightly overcomming the problem of lasso only selecting variables that are not correlated, and performing better in a noisy dataset depending on how strongly one sets the weakness parameter. SHah and Blah further improved error bounds (REF).
+Randomized Lasso stability selection proposed by Meinshausen and Bühlmann [@StabSel] applies the lasso regression on several subsamples of the data using a weakness parameter that adds additional variation to the lambda parameter and allows for more correlated variables to be selected together. The authors argue for this as a way of slightly overcomming the problem of lasso only selecting variables that are not correlated, and performing better in a noisy dataset depending on how strongly one sets the weakness parameter. Shah and Samworth [@compStabs] have further improved error control for stability selection using complementary pairs stability selection. The R `stabs` package [@stabs] implements the Shah and Samworth version of stability selection. `lisa` uses a modified version of the `stabsel` function in `stabs` that performs randomized lasso stability selection.
 
-Here we demonstrate the use of randomized lasso stability selection to select transcription factors (TFs) that are likely to explain changes in chromatin accessibility from ATAC-seq data. One can also use stability selection on any other type of data like ChIP-seq of specific histone marks for example. We are given a vector of log-fold changes (logFC) in chromatin accessibility between two conditions that we consider to be our response vector. The predictor matrix will consist of the number of transcription factor bindng sites (TFBS) that each TF has across the peaks. The example data set comes from the Bing Ren lab (REF) and was processed in the LAB (REF) from which we obtained the bam files for ATAC-seq from mouse postnatal (P0) liver and lung tissues. Each condition had 2 replicates, and the peak calling was done per condition using MACS2 (REF). The peaks from both conditions were merged and used to calculate counts of the ATAC for all samples with QuasR (REF). Counts per million (CPM) were calculated per sample and averaged across replicates. The logFC was calculated as log2(CPM(Liver)+8) - log2(CPM(Lung)+8).
+Here we demonstrate the use of randomized lasso stability selection to select transcription factors (TFs) that are likely to explain changes in chromatin accessibility from ATAC-seq data. One can also use stability selection on any other type of data like ChIP-seq of specific histone marks for example. We are given a vector of log-fold changes (logFC) in chromatin accessibility between two conditions that we consider to be our response vector. The predictor matrix will consist of the number of transcription factor bindng sites (TFBS) that each TF has across the peaks. The example data set comes from ENCODE [@encode] and consists of bam files for ATAC-seq from mouse postnatal (P0) liver (identifiers: ENCFF146ZCO, ENCFF109LQF) and lung (identifiers: ENCFF203DOC, ENCFF823PTD) tissues. Each condition had 2 replicates, and the peak calling was done per condition using MACS2 [@macs]. The peaks from both conditions were merged and used to calculate counts of the ATAC for all samples with QuasR [@QuasR]. Counts per million (CPM) were calculated per sample and averaged across replicates. The logFC was calculated as [log2(CPM(Liver)+8) - log2(CPM(Lung)+8)].
 
-Only distal autosomal peaks were kept since promoter peaks tend not to change so much in accessibility, and we are interested in selecting TFs that likely explain logFC in enhancer regions. The `.rds` files used in lisa's example dataset consist of peaks that had an absolute logFC greater than 2 and leass than 2.2. This was done to reduce the number of peaks and speed up runtime to demonstrate the functions used in `lisa` that apply randomized lasso stability selection (REF).
+Only distal autosomal peaks were kept since promoter peaks tend not to change so much in accessibility, and we are interested in selecting TFs that likely explain logFC in enhancer regions. The `.rds` files used in lisa's example dataset consist of peaks that had an absolute logFC greater than 2 and leass than 2.2. This was done to reduce the number of peaks and speed up runtime to demonstrate the functions used in `lisa` that apply randomized lasso stability selection [@StabSel].
 
 
 
 ### Load Data
-
-We use an ATAC-seq dataset from ENCODE (REF) as example to demonstrate the use of stability selection to select TFs that are likely to explain log-fold changes in chromatin accessibility. UPDATE HERE on details of teh response and peaks variables. 
 
 
 ```{r load_data}
@@ -302,8 +300,9 @@ The `findMotifHits` function can be used to get the binding site of each transcr
 which in out case is the ATAC-seq peaks. The `get_numberOfTFBS_perSeqName` subsequently generates our predictor matrix which 
 contains the number of TFBS each TF has across the given set of peaks. Note that peaks that have 0 TFBS with all TFs will be removed in the
 resulting matrix.
+Note that one can also make use of phylogenetic information of TFs and incorporate that in the predictor matrix. With ATAC-seq, we didn't want to restrict ourselves to conserved motif sequences.
+One can add any additional property of the genomic regions in the response vector to compete against the TFs for selection. We added GC content ond observed over expected CpG (oeCpG) content.
 \
-
 
 ```{r predictor}
 
@@ -325,13 +324,25 @@ hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "
 predictor_matrix <- get_numberOfTFBS_perSeqName(TFBS_gr = hits, subject_gr = peaks, PWMs = pwms, Ncpu = 1)
 predictor_matrix[1:6, 1:6]
 
+# cacluctae GC and oeCpG content
+peakSeq <- BSgenome::getSeq(genome, peaks)
+fMono <- oligonucleotideFrequency(peakSeq, width=1, as.prob=TRUE)
+fDi <- oligonucleotideFrequency(peakSeq, width=2, as.prob=TRUE)
+percGC <- fMono[,"G"]+fMono[,"C"]
+oeCpG <- (fDi[,"CG"] + 0.01) /(fMono[,"G"]*fMono[,"C"] + 0.01)
+
+# add GC and oeCpG to predictor matrix
+predictor_matrix <- cbind( percGC, predictor_matrix)
+predictor_matrix <- cbind(oeCpG, predictor_matrix)
+predictor_matrix[1:6, 1:6]
+
 
 ```
 
 
 ### Run randomized lasso stability selection
 
-We can now run randomized lasso stability selection to select TFs that are likely to explain the log-fold changes in accessibility (response vector).
+We can now run randomized lasso stability selection to select TFs that are likely to explain the log-fold changes in accessibility (response vector). We can appreciate that some selected TFs are correlated to each other and were chosen toegther to explain the observed changes in accessibility.
 \
 
 
@@ -340,7 +351,7 @@ We can now run randomized lasso stability selection to select TFs that are likel
 # filter the remaining y
 response <- response[names(response)%in%rownames(predictor_matrix)]
 
-stabs <- randomized_stabsel(predictor_matrix, response, mc.cores = 1)
+stabs <- randomized_stabsel(predictor_matrix, response, mc.cores = 1, cutoff = 0.7)
 
 plot_stabilityPaths(stabs)
 
@@ -356,11 +367,6 @@ ComplexHeatmap::Heatmap(matrix = sel_cor, name = "Pear. Cor.")
 
 
 ```
-
-
-
-
-
 
 
 

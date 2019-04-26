@@ -146,6 +146,18 @@ hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "
 predictor_matrix <- get_numberOfTFBS_perSeqName(TFBS_gr = hits, subject_gr = peaks, PWMs = pwms, Ncpu = 1)
 predictor_matrix[1:6, 1:6]
 
+# cacluctae GC and oeCpG content
+peakSeq <- BSgenome::getSeq(genome, peaks)
+fMono <- oligonucleotideFrequency(peakSeq, width=1, as.prob=TRUE)
+fDi <- oligonucleotideFrequency(peakSeq, width=2, as.prob=TRUE)
+percGC <- fMono[,"G"]+fMono[,"C"]
+oeCpG <- (fDi[,"CG"] + 0.01) /(fMono[,"G"]*fMono[,"C"] + 0.01)
+
+# add GC and oeCpG to predictor matrix
+predictor_matrix <- cbind( percGC, predictor_matrix)
+predictor_matrix <- cbind(oeCpG, predictor_matrix)
+predictor_matrix[1:6, 1:6]
+
 
 
 ## ----run_stability-------------------------------------------------------
@@ -153,7 +165,7 @@ predictor_matrix[1:6, 1:6]
 # filter the remaining y
 response <- response[names(response)%in%rownames(predictor_matrix)]
 
-stabs <- randomized_stabsel(predictor_matrix, response, mc.cores = 1)
+stabs <- randomized_stabsel(predictor_matrix, response, mc.cores = 1, cutoff = 0.7)
 
 plot_stabilityPaths(stabs)
 
