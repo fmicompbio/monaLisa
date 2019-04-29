@@ -287,12 +287,12 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"
 #'@title Plot Stability Paths
 #'
 #'@description Plot the stability paths of each variable (predictor), showing the selection probability
-#'as a function of the lambda parameter.
+#'as a function of the regularization step.
 #'
 #'@param stabs_object the \code{stabs} object resulting from stability selection.
 #'@param cols color vector for the varaiables from the predictor matrix. By default, it's set to NULL
 #'and the function colors the variables by whether or not they were selected.
-#'@param ... additional parameters to pass on to \code{matplot}
+#'@param ... additional parameters to pass on to \code{matplot}.
 #'
 #'@return plot of stability paths.
 #'@export
@@ -323,7 +323,7 @@ plot_stabilityPaths <- function(stabs_object, cols=NULL, lwd = 1, lty=1, ylim=c(
 #'@param stabs_object the \code{stabs} object resulting from stability selection.
 #'@param ylim the limits for the y-axis.
 #'@param onlySelected logical (default=TRUE) indicating if only selected predictors' selection probabilities 
-#'whould be plotted.
+#'should be plotted.
 #'@param las (2 by default) plot labels vertically or horizontally.
 #'@param ... additional parameters for the \code{barplot} function.
 #'

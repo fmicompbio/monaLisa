@@ -1,4 +1,4 @@
-## ----setup, include = FALSE----------------------------------------------
+## ----setup, include = FALSE------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -8,7 +8,7 @@ knitr::opts_chunk$set(
   fig.align = "center"
 )
 
-## ---- quick, eval=FALSE--------------------------------------------------
+## ---- quick, eval=FALSE----------------------------------------------------
 #  # load package
 #  library(lisa)
 #  
@@ -29,47 +29,47 @@ knitr::opts_chunk$set(
 #                   regionsize = "given", Ncpu = 4L)
 #  
 
-## ----loadlib, message=FALSE----------------------------------------------
+## ----loadlib, message=FALSE------------------------------------------------
 library(GenomicRanges)
 library(lisa)
 
-## ----loadLMRs------------------------------------------------------------
+## ----loadLMRs--------------------------------------------------------------
 lmrfile <- system.file("extdata", "LMRsESNPmerged.gr.rds", package = "lisa")
 lmr <- readRDS(lmrfile)
 lmr
 
-## ----deltameth-----------------------------------------------------------
+## ----deltameth-------------------------------------------------------------
 hist(lmr$deltaMeth, 100, col = "gray", main = "",
      xlab = "Change of methylation (NP - ES)", ylab = "Number of LMRs")
 
-## ----lmrsel--------------------------------------------------------------
+## ----lmrsel----------------------------------------------------------------
 set.seed(1)
 lmrsel <- lmr[ sample(x = length(lmr), size = 10000, replace = FALSE) ]
 
-## ----binlmrs-------------------------------------------------------------
+## ----binlmrs---------------------------------------------------------------
 bins <- bin(x = lmrsel$deltaMeth, binmode = "equalN", nElement = 800, minAbsX = 0.3)
 table(bins)
 
-## ----plotbins------------------------------------------------------------
+## ----plotbins--------------------------------------------------------------
 plotBinDensity(lmrsel$deltaMeth, bins, legend = "topleft")
 
-## ----dumpjaspar----------------------------------------------------------
+## ----dumpjaspar------------------------------------------------------------
 motiffile <- tempfile(fileext = ".motif")
 dumpJaspar(motiffile, pkg = "JASPAR2018", relScoreCutoff = 0.9)
 
-## ----homerscript---------------------------------------------------------
+## ----homerscript-----------------------------------------------------------
 homerfile <- findHomer(dirs = "/work/gbioinfo/Appz/Homer/Homer-4.8/bin/")
 
-## ----runhomer, eval=FALSE------------------------------------------------
+## ----runhomer, eval=FALSE--------------------------------------------------
 #  outdir <- tempfile(fileext = ".output")
 #  resL <- runHomer(gr = lmrsel, b = bins, genomedir = "/work/gbioinfo/DB/genomes/mm9",
 #                   outdir = outdir, motifFile = motiffile, homerfile = homerfile,
 #                   regionsize = "given", Ncpu = 20L)
 
-## ----gethomerresults-----------------------------------------------------
+## ----gethomerresults-------------------------------------------------------
 resL <- readRDS(system.file("extdata", "resL.rds", package = "lisa"))
 
-## ----plottfs-------------------------------------------------------------
+## ----plottfs---------------------------------------------------------------
 # select strongly enriched TFs
 sel <- apply(resL[["log2enr"]], 1, function(x) max(abs(x))) > 1.0
 sum(sel)
@@ -80,7 +80,7 @@ resLsel <- lapply(resLsel, function(x) { rownames(x) <- sub("\\|.*$","",rownames
 plotMotifHeatmaps(x = resLsel, b = bins, which.plots = c("log2enr","FDR"), width = 2.0,
                   cluster = TRUE, maxEnr = 2, maxSig = 10)
 
-## ----findMotifs----------------------------------------------------------
+## ----findMotifs------------------------------------------------------------
 # get sequences of promoters as a DNAStringSet
 # (could also be a single DNAString, or the name of a fasta file)
 library(TxDb.Hsapiens.UCSC.hg19.knownGene)
@@ -113,7 +113,7 @@ summary(res %in% res2)
 m <- table(seqnames(res), as.character(res$pwmname))
 m
 
-## ----load_data-----------------------------------------------------------
+## ----load_data-------------------------------------------------------------
 
 library(lisa)
 
@@ -126,7 +126,7 @@ response <- readRDS(response_path)
 peaks <- readRDS(peaks_path)
 
 
-## ----predictor-----------------------------------------------------------
+## ----predictor-------------------------------------------------------------
 
 library(JASPAR2018)
 library(TFBSTools)
@@ -160,7 +160,7 @@ predictor_matrix[1:6, 1:6]
 
 
 
-## ----run_stability-------------------------------------------------------
+## ----run_stability---------------------------------------------------------
 
 # filter the remaining y
 response <- response[names(response)%in%rownames(predictor_matrix)]
@@ -181,6 +181,6 @@ ComplexHeatmap::Heatmap(matrix = sel_cor, name = "Pear. Cor.")
 
 
 
-## ---- session------------------------------------------------------------
+## ---- session--------------------------------------------------------------
 sessionInfo(package = "lisa")
 

@@ -13,7 +13,7 @@ barplot_selectionProbability(stabs_object, ylim = c(0, 1),
 \item{ylim}{the limits for the y-axis.}
 
 \item{onlySelected}{logical (default=TRUE) indicating if only selected predictors' selection probabilities 
-whould be plotted.}
+should be plotted.}
 
 \item{las}{(2 by default) plot labels vertically or horizontally.}
 

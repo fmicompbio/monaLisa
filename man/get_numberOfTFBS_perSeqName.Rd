@@ -9,11 +9,13 @@ get_numberOfTFBS_perSeqName(TFBS_gr, subject_gr, PWMs, Ncpu = 1L)
 \arguments{
 \item{TFBS_gr}{the output of \code{findMotifHits} contaiting the TF binding locations across specified genomic regions.}
 
-\item{subject_gr}{a \code{GRanges} object showing the positions of the geominc regions That have been scanned for the TFs. 
+\item{subject_gr}{a \code{GRanges} object showing the positions of the geominc regions that have been scanned for the TFs. 
 This corresponds to the \code{GRanges} \code{subject} parameter used in the \code{findMorifHits} function.}
 
 \item{PWMs}{\code{PWMatrixList} or \code{PWMatrix} object of the used TFs. This corresponds to the \code{query}
 parameter used in the \code{findMorifHits} function.}
+
+\item{Ncpu}{number of CPUs to use (set to 1 by default).}
 }
 \value{
 a matrix containing the number of binding sites each TF has across the genomic regions.
@@ -21,9 +23,6 @@ a matrix containing the number of binding sites each TF has across the genomic r
 \description{
 This function takes in a \code{GRanges} that is the output of \code{findMotifHits} and returns a 
 matrix contaiting the number of transcription factor bisnding sites (TFBS) per motif across a given set of genomic ranges.
-}
-\details{
-More details to come
 }
 \author{
 Dania Machlab

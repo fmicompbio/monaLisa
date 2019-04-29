@@ -13,12 +13,12 @@ plot_stabilityPaths(stabs_object, cols = NULL, lwd = 1, lty = 1,
 \item{cols}{color vector for the varaiables from the predictor matrix. By default, it's set to NULL
 and the function colors the variables by whether or not they were selected.}
 
-\item{...}{additional parameters to pass on to \code{matplot}}
+\item{...}{additional parameters to pass on to \code{matplot}.}
 }
 \value{
 plot of stability paths.
 }
 \description{
 Plot the stability paths of each variable (predictor), showing the selection probability
-as a function of the lambda parameter.
+as a function of the regularization step.
 }

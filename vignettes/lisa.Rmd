@@ -3,7 +3,7 @@ title: "Lisa - motif enrichments and more"
 author: "Dania Machlab, Lukas Burger, Michael Stadler"
 date: "`r Sys.Date()`"
 bibliography: lisa-refs.bib
-output: rmarkdown::html_vignette
+output: BiocStyle::html_document
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
@@ -31,12 +31,14 @@ to look for enriched motifs in sets of genomic regions, compared to all other re
 The motifs come from a collection of transcription factor binding site specificities,
 such as `JASPAR2018`.
 
-The regions could be for example promoters or accessible regions.
+The regions could be for example promoters, non-promoters (distal regions) or accessible regions.
 
 The regions are grouped into bins according to a numerical value assigned to each
 bin, such as change of expression or accessibility.
 
-Finally, `lisa` can also be used to look for motifs in sequences.
+`lisa` can also be used to look for motifs in sequences.
+
+Finally, `lisa` can can be used to predict what transcription factors are likely to explain observed changes in chromatin accessibility between two conditions.
 
 
 
@@ -277,7 +279,7 @@ Only distal autosomal peaks were kept since promoter peaks tend not to change so
 
 
 
-### Load Data
+## Load Data
 
 
 ```{r load_data}
@@ -294,7 +296,7 @@ peaks <- readRDS(peaks_path)
 
 ```
 
-### Get predictor matrix showing number of TFBS per motif across the peaks
+## Get predictor matrix showing number of TFBS per motif across the peaks
 
 The `findMotifHits` function can be used to get the binding site of each transcription factor across a given set of genomic regions, 
 which in out case is the ATAC-seq peaks. The `get_numberOfTFBS_perSeqName` subsequently generates our predictor matrix which 
@@ -340,7 +342,7 @@ predictor_matrix[1:6, 1:6]
 ```
 
 
-### Run randomized lasso stability selection
+## Run randomized lasso stability selection
 
 We can now run randomized lasso stability selection to select TFs that are likely to explain the log-fold changes in accessibility (response vector). We can appreciate that some selected TFs are correlated to each other and were chosen toegther to explain the observed changes in accessibility.
 \
