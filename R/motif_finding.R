@@ -157,9 +157,9 @@ setGeneric(name = "findMotifHits",
 # 6. findMotifHits,PWMatrix,DNAStringSet      --> 9.
 # 7. findMotifHits,PWMatrixList,character     --> if method=="homer2" --> 1.     ; else --> 9.
 # 8. findMotifHits,PWMatrixList,DNAString     --> 9.
-# 9. findMotifHits,PWMatrixList,DNAStringSet
-# 10. findMotifHits,PWMatrixList,GRanges      --> 9
-# 11. findMotifHits,PWMatrix,GRanges          --> 10
+# 9. findMotifHits,PWMatrixList,DNAStringSet  --> if method=="homer2" --> 1.     ; else --> use matchPWM
+# 10. findMotifHits,PWMatrixList,GRanges      --> 9.
+# 11. findMotifHits,PWMatrix,GRanges          --> 10.
 
 
 # 1.
@@ -195,13 +195,13 @@ setMethod("findMotifHits",
                   # run homer2
                   cmdargs <- sprintf("find -i %s -m %s -offset 1 -strand both -p %d", subject, query, Ncpu)
                   res <- system2(command = homerfile, args = cmdargs, stdout = TRUE, stderr = "", wait = TRUE)
-                  
+
                   # check homer2 output
                   ok <- grepl("^[a-z0-9_]+\\t[0-9]+\\t[ACGT]+\\t.+\\t[+-]\\t[0-9.]+$", res, perl = TRUE)
                   if (any(!ok))
                     warning(sum(!ok), " of ", length(ok), " hits reported by Homer are malformed and will be ignored.",
                             " To ensure complete and correct results, re-run Homer (maybe using Ncpu = 1).")
-                  
+
                   # parse output
                   con <- textConnection(res[ok])
                   resparsed <- scan(file = con, what = list(seqnames = "", start = 1L, matchedSeq = "",
@@ -402,14 +402,14 @@ setMethod("findMotifHits",
           function(query, subject, min.score, method = c("homer2", "matchPWM"),
                    homerfile = findHomer("homer2"), Ncpu = 1L, genome=NULL) {
             ## checks
-            if(class(subject)=="GRanges"&is.null(genome)){
+            if (class(subject) == "GRanges" & is.null(genome)) {
               stop("genome must be provided.")
             }
-            if(class(genome)!="BSgenome"){
+            if (class(genome) != "BSgenome") {
               stop("genome must be of class 'BSgenome'.")
             }
             ## Make sure to have named rows
-            if (is.null(names(subject))){
+            if (is.null(names(subject))) {
               message("Naming rows ...")
               names(subject) <- paste0("row_", seq(from = 1, to = length(subject), by = 1))
             }
@@ -417,7 +417,7 @@ setMethod("findMotifHits",
             seqs <- BSgenome::getSeq(genome, subject)
             ## findMotifHits
             findMotifHits(query, seqs, min.score,
-                          method, homerfile, Ncpu, genome=NULL)
+                          method, homerfile, Ncpu, genome = NULL)
           })
 
 
