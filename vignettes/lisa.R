@@ -93,7 +93,7 @@ seqs
 # (could also be a single PWMatrix, or the name of a motif file)
 library(JASPAR2018)
 library(TFBSTools)
-pwms <- getMatrixSet(JASPAR2018, list(matrixtype="PWM", tax_group="vertebrates"))
+pwms <- getMatrixSet(JASPAR2018, list(matrixtype = "PWM", tax_group = "vertebrates"))
 pwms <- pwms[c("MA0885.1","MA0099.3","MA0033.2","MA0037.3","MA0158.1")]
 pwms
 
@@ -136,7 +136,7 @@ library("BSgenome.Mmusculus.UCSC.mm10")
 genome <- BSgenome.Mmusculus.UCSC.mm10
 
 # Get PWMs
-pwms <- getMatrixSet(JASPAR2018, list(matrixtype="PWM", tax_group="vertebrates"))
+pwms <- getMatrixSet(JASPAR2018, list(matrixtype = "PWM", tax_group = "vertebrates"))
 
 # Get TFBS on given GRanges
 homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
@@ -148,13 +148,13 @@ predictor_matrix[1:6, 1:6]
 
 # cacluctae GC and oeCpG content
 peakSeq <- BSgenome::getSeq(genome, peaks)
-fMono <- oligonucleotideFrequency(peakSeq, width=1, as.prob=TRUE)
-fDi <- oligonucleotideFrequency(peakSeq, width=2, as.prob=TRUE)
-percGC <- fMono[,"G"]+fMono[,"C"]
-oeCpG <- (fDi[,"CG"] + 0.01) /(fMono[,"G"]*fMono[,"C"] + 0.01)
+fMono <- oligonucleotideFrequency(peakSeq, width = 1L, as.prob = TRUE)
+fDi <- oligonucleotideFrequency(peakSeq, width = 2L, as.prob = TRUE)
+percGC <- fMono[,"G"] + fMono[,"C"]
+oeCpG <- (fDi[,"CG"] + 0.01) / (fMono[,"G"] * fMono[,"C"] + 0.01)
 
 # add GC and oeCpG to predictor matrix
-predictor_matrix <- cbind( percGC, predictor_matrix)
+predictor_matrix <- cbind(percGC, predictor_matrix)
 predictor_matrix <- cbind(oeCpG, predictor_matrix)
 predictor_matrix[1:6, 1:6]
 
@@ -163,13 +163,13 @@ predictor_matrix[1:6, 1:6]
 ## ----run_stability---------------------------------------------------------
 
 # filter the remaining y
-response <- response[names(response)%in%rownames(predictor_matrix)]
+response <- response[names(response) %in% rownames(predictor_matrix)]
 
 stabs <- randomized_stabsel(predictor_matrix, response, mc.cores = 1, cutoff = 0.7)
 
 plot_stabilityPaths(stabs)
 
-par(mfrow=c(1,1), mar=c(5,4,4,2)+3)
+par(mfrow = c(1,1), mar = c(5,4,4,2) + 3)
 
 barplot_selectionProbability(stabs)
 

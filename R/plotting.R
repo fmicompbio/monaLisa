@@ -295,23 +295,29 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"
 #'@param ... additional parameters to pass on to \code{matplot}.
 #'
 #'@return plot of stability paths.
+#'
+#'@seealso \code{\link[stabs]{stabsel}}
+#'
 #'@export
-plot_stabilityPaths <- function(stabs_object, cols=NULL, lwd = 1, lty=1, ylim=c(0,1.1), ...) {
+plotStabilityPaths <- function(stabs_object, cols=NULL, lwd = 1, lty=1, ylim=c(0,1.1), ...) {
 
   # ... checks
-  if (!class(stabs_object) == "stabsel"){stop("stabs_object must be of class 'stabsel', the resulting object from running stability selection with the `stabs` package")}
+  if (!base::inherits(stabs_object, what="stabsel")){stop("stabs_object must be of class 'stabsel', the resulting object from running stability selection with the `stabs` package")}
 
   # set plot parameters
   mat <- t(stabs_object$phat)
-  cols <- rep("black", ncol(mat))
-  names(cols) <- rep("Not Selected", length(cols))
-  cols[stabs_object$selected] <- "Steelblue"
-  names(cols)[stabs_object$selected] <- "Selected"
-
+  if(is.null(cols)){
+    cols <- rep("black", ncol(mat))
+    names(cols) <- rep("Not Selected", length(cols))
+    cols[stabs_object$selected] <- "Steelblue"
+    names(cols)[stabs_object$selected] <- "Selected"
+  }
+  
   # plot stability paths
   matplot(mat, col = cols, type = "l", lty = lty, ylab = "Selection Probability", xlab = "Regularization Step", ylim = ylim, lwd = lwd, ...)
   abline(h = stabs_object$cutoff, lty = 5, col = "red", lwd = lwd)
   legend("topleft", legend = c(unique(names(cols)), "cutoff"), col = c(unique(cols), "red"), lty = c(1, 1, 5), bty = "n", lwd = lwd)
+  invisible(TRUE)
 
 }
 
@@ -329,7 +335,7 @@ plot_stabilityPaths <- function(stabs_object, cols=NULL, lwd = 1, lty=1, ylim=c(
 #'
 #'@return barplot of selection probabilities.
 #'@export
-barplot_selectionProbability <- function(stabs_object, ylim = c(0,1), onlySelected = TRUE, las = 2, ...) {
+plotSelectionProb <- function(stabs_object, ylim = c(0,1), onlySelected = TRUE, las = 2, ...) {
 
   # ... checks
   if (!class(stabs_object) == "stabsel") {stop("stabs_object must be of class 'stabsel', the resulting object from running stability selection with the `stabs` package")}
@@ -352,6 +358,7 @@ barplot_selectionProbability <- function(stabs_object, ylim = c(0,1), onlySelect
   barplot(TF_prob, ylim = ylim, ylab = "Selection Probability", las = las, ...)
   abline(h = stabs_object$cutoff, lty = 5, col = "red")
   legend("topright", legend = "cutoff", lty = 5, col = "red", bty = "n")
+  invisible(TRUE)
 
 }
 

@@ -355,11 +355,11 @@ response <- response[names(response) %in% rownames(predictor_matrix)]
 
 stabs <- randomized_stabsel(predictor_matrix, response, mc.cores = 1, cutoff = 0.7)
 
-plot_stabilityPaths(stabs)
+plotStabilityPaths(stabs)
 
 par(mfrow = c(1,1), mar = c(5,4,4,2) + 3)
 
-barplot_selectionProbability(stabs)
+plotSelectionProb(stabs)
 
 # plot correlation on TFBS matrix of selected TFs
 sel_matrix <- predictor_matrix[, stabs$selected]

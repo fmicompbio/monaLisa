@@ -14,10 +14,10 @@ glmnet.randomized_lasso(x, y, q, weakness = 1, type = c("conservative",
 
 \item{q}{the average number of selected variables.}
 
-\item{weakness}{parameter to apply randomized lasso.}
+\item{weakness}{parameter used randomized lasso (see details).}
 
-\item{type}{parameter from \code{lars.lasso} function in \code{stabs}. It is a character vector specifying 
-how much the PFER should be controlled. If type is "conservative" then the number of selected variables per 
+\item{type}{parameter from \code{lars.lasso} function in \code{stabs}. It is a character vector specifying
+how much the PFER should be controlled. If type is "conservative" then the number of selected variables per
 subsample is <= q. If type is "anticonservative" then the number of selected variables per subsample is >= q.}
 
 \item{...}{additional parameters for \code{glmnet}.}
@@ -25,12 +25,12 @@ subsample is <= q. If type is "anticonservative" then the number of selected var
 \value{
 the regression output which consists of a list of length 2. The list contains the following:
 \itemize{
- \item selected - a logical vector of length equal to the total number of predictors. The predictors that were chosen have a value of TRUE. 
- \item path - a logical matrix containing the regularization steps as columns and the predictors as rows. An entry of TRUE indicates selection. 
+ \item selected - a logical vector of length equal to the total number of predictors. The predictors that were chosen have a value of TRUE.
+ \item path - a logical matrix containing the regularization steps as columns and the predictors as rows. An entry of TRUE indicates selection.
 }
 }
 \description{
-This function performs randomized lasso using the \code{glmnet} package. The 
+This function performs randomized lasso using the \code{glmnet} package. The
 function present in the \code{stabs} package that runs the lasso version was adapted for
 the randomized lasso here. Randmized lasso stability selection uses this function repeatedly
 to select predictors.
