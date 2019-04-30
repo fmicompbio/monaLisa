@@ -162,7 +162,7 @@ dumpJaspar(motiffile, pkg = "JASPAR2018", relScoreCutoff = 0.9)
 Next we need to know where Homer is installed (you may have to adjust the `dirs`
 argument below according to your environment):  
 ```{r homerscript}
-homerfile <- findHomer(dirs = "/work/gbioinfo/Appz/Homer/Homer-4.8/bin/")
+homerfile <- findHomer(dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
 ```
 
 ## Run motif enrichment analysis
@@ -226,7 +226,7 @@ res <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0, method = "ma
 res
 
 # ... or using method = "homer2"
-homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.8/bin/")
+homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
 res2 <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0, method = "homer2", homerfile = homerfile)
 res2
 
@@ -237,35 +237,6 @@ summary(res %in% res2)
 m <- table(seqnames(res), as.character(res$pwmname))
 m
 ```
-
-<!--
-REMARK: findMotifHits(..., method="homer2") seems to differ from matchPWM:
-- homer2 needs base probabilities rather than log2-odds
-- homer2 uses natural logarithm rather than log2
-
-potential solution for method="homer2":
-- convert PWM into pseudo-PWM with base probabilities (see pwms4 below)
-- convert min.score to natural log to run homer2
-- convert homer2 reported scores back to log2 scale
-
-# create pseudo-pwm for homer2 (probabilities instead of log2-odd scores)
-pfms3 <- getMatrixSet(JASPAR2018, list(matrixtype="PFM", tax_group="vertebrates"))
-pfms3 <- pfms3[c("MA0885.1","MA0099.3","MA0033.2","MA0037.3","MA0158.1")]
-pwms3 <- do.call(PWMatrixList, lapply(pfms3, function(x) { y <- toPWM(x); Matrix(y) <- sweep(Matrix(x), 2, colSums(Matrix(x)), "/"); y }))
-
-# create pseudo-pwm for homer2 converting from log2-odds score pwm
-pwms4 <- do.call(PWMatrixList, lapply(pwms, function(x) { y <- (2^Matrix(x) / bg(x)); Matrix(x) <- sweep(y, 2, colSums(y), "/"); x }))
-
-homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.8/bin/")
-matchPWM(pwm = Matrix(pwms[[1]]), subject = seqs[[2]], min.score = "80%", with.score = TRUE) # only + strand hits
-matchPWM(pwm = Matrix(pwms[[1]]), subject = reverseComplement(seqs[[2]]), min.score = "80%", with.score = TRUE) # only - strand hits
-as(searchSeq(x = pwms[1], subject = seqs[2], min.score = 0.98), "DataFrame")
-findMotifHits(query = pwms[1],  subject = seqs[2], min.score = 8.0, method = "matchPWM")
-findMotifHits(query = pwms3[1], subject = seqs[2], min.score = log(2^8.0), method = "homer2", homerfile = homerfile)
-findMotifHits(query = pwms4[1], subject = seqs[2], min.score = log(2^8.0), method = "homer2", homerfile = homerfile)
-reverseComplement(seqs[[2]][IRanges(247,254)]) # bug in homer2 parsing code in conveting - strand coordinates
-
--->
 
 
 
