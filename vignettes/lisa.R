@@ -145,7 +145,7 @@ hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "
 
 # Get predictor matrix
 predictor_matrix <- as.matrix(as.data.frame.matrix(table(seqnames(hits), as.character(hits$pwmname))))
-# predictor_matrix[1:6, 1:6]
+predictor_matrix[1:6, 1:6]
 
 # remove peaks that do not have any hits (also from the response vector) and check all peaks in predictor_matrix are in same order as in peaks
 w <- names(peaks)[!(names(peaks)%in%rownames(predictor_matrix))]
