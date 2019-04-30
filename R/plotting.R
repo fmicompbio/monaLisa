@@ -297,62 +297,62 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"
 #'@return plot of stability paths.
 #'@export
 plot_stabilityPaths <- function(stabs_object, cols=NULL, lwd = 1, lty=1, ylim=c(0,1.1), ...) {
-  
+
   # ... checks
-  if(!class(stabs_object)=="stabsel"){stop("stabs_object must be of class 'stabsel', the resulting object from running stability selection with the `stabs` package")}
-  
+  if (!class(stabs_object) == "stabsel"){stop("stabs_object must be of class 'stabsel', the resulting object from running stability selection with the `stabs` package")}
+
   # set plot parameters
   mat <- t(stabs_object$phat)
   cols <- rep("black", ncol(mat))
   names(cols) <- rep("Not Selected", length(cols))
   cols[stabs_object$selected] <- "Steelblue"
   names(cols)[stabs_object$selected] <- "Selected"
-  
+
   # plot stability paths
-  matplot(mat, col=cols, type="l", lty=lty, ylab = "Selection Probability", xlab = "Regularization Step", ylim=ylim, lwd=lwd, ...)
-  abline(h = stabs_object$cutoff, lty = 5, col = "red", lwd=lwd)
-  legend("topleft", legend = c(unique(names(cols)), "cutoff"), col = c(unique(cols), "red"), lty=c(1,1,5), bty = "n", lwd=lwd)
-  
+  matplot(mat, col = cols, type = "l", lty = lty, ylab = "Selection Probability", xlab = "Regularization Step", ylim = ylim, lwd = lwd, ...)
+  abline(h = stabs_object$cutoff, lty = 5, col = "red", lwd = lwd)
+  legend("topleft", legend = c(unique(names(cols)), "cutoff"), col = c(unique(cols), "red"), lty = c(1, 1, 5), bty = "n", lwd = lwd)
+
 }
 
 
 #'@title Barplot Selection Probabilities
 #'
-#'@description Do a bar plot of the selection probabilities in order from greatest to least.
+#'@description Create a bar plot of the selection probabilities in descending order.
 #'
 #'@param stabs_object the \code{stabs} object resulting from stability selection.
 #'@param ylim the limits for the y-axis.
-#'@param onlySelected logical (default=TRUE) indicating if only selected predictors' selection probabilities 
-#'should be plotted.
+#'@param onlySelected logical (default=TRUE) indicating if only selected predictors' selection probabilities
+#'    should be plotted.
 #'@param las (2 by default) plot labels vertically or horizontally.
 #'@param ... additional parameters for the \code{barplot} function.
 #'
 #'@return barplot of selection probabilities.
 #'@export
-barplot_selectionProbability <- function(stabs_object, ylim=c(0,1), onlySelected=TRUE, las=2, ...) {
-  
+barplot_selectionProbability <- function(stabs_object, ylim = c(0,1), onlySelected = TRUE, las = 2, ...) {
+
   # ... checks
-  if(!class(stabs_object)=="stabsel"){stop("stabs_object must be of class 'stabsel', the resulting object from running stability selection with the `stabs` package")}
-  
+  if (!class(stabs_object) == "stabsel") {stop("stabs_object must be of class 'stabsel', the resulting object from running stability selection with the `stabs` package")}
+
   phat <- t(stabs_object$phat)
   TF_prob <- phat[nrow(phat), ]
-  
-  if(onlySelected) {
+
+  if (onlySelected) {
     TF_prob <- TF_prob[stabs$selected]
-    
+
   }
-  
+
   # check if empty
-  if(isEmpty(TF_prob)){stop("The input for the barplot is empty")}
-  
-  # order 
+  if (isEmpty(TF_prob)) {stop("The input for the barplot is empty")}
+
+  # order
   TF_prob <- TF_prob[order(TF_prob, decreasing = TRUE)]
-  
+
   # plot
-  barplot(TF_prob, ylim=ylim, ylab = "Selection Probability", las=las, ...)
-  abline(h=stabs_object$cutoff, lty = 5, col = "red")
+  barplot(TF_prob, ylim = ylim, ylab = "Selection Probability", las = las, ...)
+  abline(h = stabs_object$cutoff, lty = 5, col = "red")
   legend("topright", legend = "cutoff", lty = 5, col = "red", bty = "n")
-  
+
 }
 
 
