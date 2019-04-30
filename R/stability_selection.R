@@ -1,6 +1,7 @@
 #' @importFrom stabs stabsel
-#' @importFrom glmnet glmnet
+#' @importFrom glmnet glmnet predict.glmnet
 #' @importFrom TFBSTools PWMatrixList
+#' @importFrom stats model.matrix runif
 NULL
 
 #'@title Randomized Lasso
@@ -49,7 +50,7 @@ glmnet.randomized_lasso <- function(x, y, q, weakness=1, type = c("conservative"
     fit <- suppressWarnings(glmnet::glmnet(x, y, pmax = q, penalty.factor = 1/runif(ncol(x), weakness,  1),  ...))
   if (type == "anticonservative")
     fit <- glmnet::glmnet(x, y, dfmax = q - 1, penalty.factor = 1/runif(ncol(x), weakness,  1), ...)
-  selected <- predict(fit, type = "nonzero")
+  selected <- glmnet::predict.glmnet(fit, type = "nonzero")
   selected <- selected[[length(selected)]]
   ret <- logical(ncol(x))
   ret[selected] <- TRUE
@@ -139,28 +140,28 @@ randomized_stabsel <- function(x=x, y=y, weakness=0.8, cutoff=0.8, PFER=2, ...) 
 #' #'@author Dania Machlab
 #' #'@export
 #' get_numberOfTFBS_perSeqName <- function(TFBS_gr, subject_gr, PWMs, Ncpu=1L) {
-#' 
+#'
 #'   # TODO make sure PWM names and peak names are  unique
 #'   # motif names instead of gene?
-#' 
+#'
 #'   ## checks
 #'   stopifnot(base::inherits(TFBS_gr, "GRanges"))
 #'   stopifnot(all(colnames(as.data.frame(TFBS_gr)) == c("seqnames", "start", "end", "width", "strand", "matchedSeq", "pwmname", "score")))
 #'   stopifnot(base::inherits(PWMs, what="PWMatrixList") | base::inherits(PWMs, what="PWMatrix"))
 #'   if (base::inherits(PWMs, what="PWMatrix")) {PWMs <- TFBSTools::PWMatrixList(PWMs)}
 #'   # if(!all(TFBS_gr$pwmname %in% sapply(PWMs, function(x){name(x)}))) {stop("PWMs missing motifs found in TFBS_gr")}
-#' 
+#'
 #'   ## for each motif count number of TFBS per seqName
 #'   seqs <- as.character(seqnames(TFBS_gr))
 #'   TFs <- as.character(TFBS_gr$pwmname)
 #'   s <- split(TFs, seqs)
 #'   l <- lapply(s, function(x){table(x)})
-#' 
+#'
 #'   ## output full matrix
 #'   if (is.null(names(subject_gr))) {
 #'     names(subject_gr) <- paste0("row_", seq(from = 1, to = length(subject_gr), by = 1))
 #'   }
-#' 
+#'
 #'   ## rbind vectors
 #'   m <- do.call(rbind, parallel::mclapply(mc.cores = Ncpu, X = l, FUN = function(x) {
 #'     full_motif_vec <- numeric(length(PWMs))
@@ -170,15 +171,15 @@ randomized_stabsel <- function(x=x, y=y, weakness=0.8, cutoff=0.8, PFER=2, ...) 
 #'     full_motif_vec[motifs] <- df$Freq
 #'     full_motif_vec
 #'   }))
-#' 
+#'
 #'   ## order to match subject_gr
 #'   subject_peaks <- names(subject_gr)[names(subject_gr) %in% rownames(m)] # remove peaks that have 0 TFBS in all columns
 #'   o <- match(subject_peaks, rownames(m))
 #'   m <- m[o, ]
-#' 
+#'
 #'   ## return matrix
 #'   m
-#' 
+#'
 #' }
 
 
