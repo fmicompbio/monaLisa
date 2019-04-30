@@ -12,15 +12,15 @@ randomized_stabsel(x = x, y = y, weakness = 0.8, cutoff = 0.8,
 
 \item{y}{the response vector.}
 
-\item{weakness}{parameter that can take a value between 0 and 1. It affects how strict the method will be in 
-selecting predictors. It is set to 0.8 by default. The closer it goes to 0 the more stringent the selection. A 
+\item{weakness}{parameter that can take a value between 0 and 1. It affects how strict the method will be in
+selecting predictors. It is set to 0.8 by default. The closer it goes to 0 the more stringent the selection. A
 weakness value of 1 is identical to performing lasso stability selection (not the randomized version).}
 
 \item{cutoff}{value between 0 and 1 which is the cutoff for the selection probability. Any variable
 with a selection probability that is higher than the set cutoff will be selected. It is set to 0.8 by default.}
 
-\item{PFER}{the absolute number of false positives that we allow for in the final list of 
-selected variables. This comes from the Meinshausen and Bühlmann paper.}
+\item{PFER}{the absolute number of false positives that we allow for in the final list of
+selected variables. For details see Meinshausen and Bühlmann (2010).}
 
 \item{...}{additional parameters for \code{glmnet}.}
 }
@@ -31,7 +31,7 @@ a \code{stabsel} object. It contains the following:
  are predictors.
  \item selected - a vector containing the selected predictors.
  \item max - maximum of selection probabilities.
- \item cutoff - the selection probability cutoff. 
+ \item cutoff - the selection probability cutoff.
  \item q - average number of selected variables used.
  \item PFER - the realized upper bound for the per-family error rate (number of falsely selected predictors among the group of selected predictors).
  \item specifiedPFER - the set upper bound for the per-family error rate (number of falsely selected predictors among the group of selected predictors).
@@ -44,19 +44,19 @@ a \code{stabsel} object. It contains the following:
 }
 \description{
 This function runs randomized lasso stability selection as presented by Meinshausen
-and Bühlmann (2010) and with the improved error bounds introduced by Shah and Samworth (2013). The function 
+and Bühlmann (2010) and with the improved error bounds introduced by Shah and Samworth (2013). The function
 uses the \code{stabsel} function from the \code{stabs} package, but implements the randomized lasso version.
 }
 \details{
-Randomized lasso stability selection runs randomized lasso several times on subsamples of 
+Randomized lasso stability selection runs randomized lasso several times on subsamples of
 the response variable and predictor matrix (stability selection). N/2 elements from the response variable are
-randomly chosen, where N is the length of the vector. Their corresponsing section of the predictor matrix is 
-also chosen, and the \code{glmnet.randomized_lasso} function is applied. This is done multiple times, and 
-results in selection probabilities for each predictor. The probability of a specific predictor is the number of 
-times it was selected divided by the total number of subsamples that were done (total number of times the 
-regression was performed). 
+randomly chosen, where N is the length of the vector. Their corresponsing section of the predictor matrix is
+also chosen, and the \code{glmnet.randomized_lasso} function is applied. This is done multiple times, and
+results in selection probabilities for each predictor. The probability of a specific predictor is the number of
+times it was selected divided by the total number of subsamples that were done (total number of times the
+regression was performed).
 
-We make use of the \code{stabs} package that implements lasso stability selection, and adapt it to run the 
+We make use of the \code{stabs} package that implements lasso stability selection, and adapt it to run the
 randomized lasso stability selection. The output is an object of type \code{stabsel}.
 }
 \references{

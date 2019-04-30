@@ -12,7 +12,7 @@ barplot_selectionProbability(stabs_object, ylim = c(0, 1),
 
 \item{ylim}{the limits for the y-axis.}
 
-\item{onlySelected}{logical (default=TRUE) indicating if only selected predictors' selection probabilities 
+\item{onlySelected}{logical (default=TRUE) indicating if only selected predictors' selection probabilities
 should be plotted.}
 
 \item{las}{(2 by default) plot labels vertically or horizontally.}
@@ -23,5 +23,5 @@ should be plotted.}
 barplot of selection probabilities.
 }
 \description{
-Do a bar plot of the selection probabilities in order from greatest to least.
+Create a bar plot of the selection probabilities in descending order.
 }
