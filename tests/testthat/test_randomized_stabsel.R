@@ -1,3 +1,5 @@
+context("stability selection")
+
 test_that("randomized_stabsel() works properly", {
 
   # create data set
