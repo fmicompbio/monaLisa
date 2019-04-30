@@ -1,3 +1,5 @@
+context("motifs")
+
 test_that("motifs can be written to/read from files", {
     # create dummy motif file and PWMatrixList
     m <- matrix(data = c(.1,.3,.3,.3,.01,.01,.01,.97,.5,.0,.0,.5), nrow = 4, dimnames = list(c("A","C","G","T"), NULL))

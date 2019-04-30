@@ -1,3 +1,5 @@
+context("motif finding")
+
 test_that("findMotifHits() works properly", {
     homerbin <- findHomer("homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.8/bin")
 

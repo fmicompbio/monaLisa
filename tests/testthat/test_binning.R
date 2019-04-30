@@ -1,3 +1,5 @@
+context("binning")
+
 test_that("bin() works properly", {
     set.seed(1)
     x <- rnorm(1000)
