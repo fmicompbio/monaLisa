@@ -13,7 +13,7 @@ Imports: methods, stats, utils, grDevices, graphics, GenomicRanges, TFBSTools,
     Biostrings, IRanges, stabs, BSgenome, glmnet, parallel
 Suggests: JASPAR2018, BSgenome.Hsapiens.UCSC.hg19, TxDb.Hsapiens.UCSC.hg19.knownGene,
     grid, circlize, ComplexHeatmap, knitr, rmarkdown, testthat, BSgenome.Mmusculus.UCSC.mm10, 
-    BiocStyle, knitr, rmarkdown
+    BiocStyle, knitr, rmarkdown, Biostrings
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
