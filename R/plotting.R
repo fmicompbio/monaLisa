@@ -292,11 +292,14 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"
 #'@param stabs_object the \code{stabs} object resulting from stability selection.
 #'@param cols color vector for the varaiables from the predictor matrix. By default, it's set to NULL
 #'and the function colors the variables by whether or not they were selected.
+#'@param lwd line width (default 1).
+#'@param lty line type (default 1).
+#'@param ylim limits for y-axis (default c(0,1.1)).
 #'@param ... additional parameters to pass on to \code{matplot}.
 #'
 #'@return plot of stability paths.
 #'
-#'@seealso \code{\link[stabs]{stabsel}}
+#'@seealso \code{\link[stabs]{stabsel}} and \code{\link[graphics]{matplot}}
 #'
 #'@export
 plotStabilityPaths <- function(stabs_object, cols=NULL, lwd = 1, lty=1, ylim=c(0,1.1), ...) {
@@ -333,9 +336,11 @@ plotStabilityPaths <- function(stabs_object, cols=NULL, lwd = 1, lty=1, ylim=c(0
 #'@param las (2 by default) plot labels vertically or horizontally.
 #'@param ... additional parameters for the \code{barplot} function.
 #'
+#'@seealso \code{\link[graphics]{barplot}}
+#'
 #'@return barplot of selection probabilities.
 #'@export
-plotSelectionProb <- function(stabs_object, ylim = c(0,1), onlySelected = TRUE, las = 2, ...) {
+plotSelectionProb <- function(stabs_object, ylim = c(0,1.1), onlySelected = TRUE, las = 2, ...) {
 
   # ... checks
   if (!base::inherits(stabs_object, what="stabsel")) {stop("stabs_object must be of class 'stabsel', the resulting object from running stability selection with the `stabs` package")}

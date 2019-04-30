@@ -13,6 +13,12 @@ plotStabilityPaths(stabs_object, cols = NULL, lwd = 1, lty = 1,
 \item{cols}{color vector for the varaiables from the predictor matrix. By default, it's set to NULL
 and the function colors the variables by whether or not they were selected.}
 
+\item{lwd}{line width (default 1).}
+
+\item{lty}{line type (default 1).}
+
+\item{ylim}{limits for y-axis (default c(0,1.1)).}
+
 \item{...}{additional parameters to pass on to \code{matplot}.}
 }
 \value{
@@ -23,5 +29,5 @@ Plot the stability paths of each variable (predictor), showing the selection pro
 as a function of the regularization step.
 }
 \seealso{
-\code{\link[stabs]{stabsel}}
+\code{\link[stabs]{stabsel}} and \code{\link[graphics]{matplot}}
 }

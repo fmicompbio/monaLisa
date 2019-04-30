@@ -4,7 +4,7 @@
 \alias{plotSelectionProb}
 \title{Barplot Selection Probabilities}
 \usage{
-plotSelectionProb(stabs_object, ylim = c(0, 1), onlySelected = TRUE,
+plotSelectionProb(stabs_object, ylim = c(0, 1.1), onlySelected = TRUE,
   las = 2, ...)
 }
 \arguments{
@@ -24,4 +24,7 @@ barplot of selection probabilities.
 }
 \description{
 Create a bar plot of the selection probabilities in descending order.
+}
+\seealso{
+\code{\link[graphics]{barplot}}
 }
