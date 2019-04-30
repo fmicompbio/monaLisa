@@ -10,10 +10,10 @@ Description: Useful functions to work with sequence motifs in the analysis of ge
     These include methods to annotate genomic regions or sequences with predicted motif hits
     and to identify motifs that drive observed changes in accessibility or expression.
 Imports: methods, stats, utils, grDevices, graphics, GenomicRanges, TFBSTools,
-    Biostrings, IRanges, stabs, BSgenome, glmnet, parallel
+    Biostrings, IRanges, stabs, BSgenome, glmnet, parallel, S4Vectors
 Suggests: JASPAR2018, BSgenome.Hsapiens.UCSC.hg19, TxDb.Hsapiens.UCSC.hg19.knownGene,
     grid, circlize, ComplexHeatmap, knitr, rmarkdown, testthat, BSgenome.Mmusculus.UCSC.mm10, 
-    BiocStyle, knitr, rmarkdown, Biostrings
+    BiocStyle
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
