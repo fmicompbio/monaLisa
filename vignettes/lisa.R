@@ -58,7 +58,7 @@ motiffile <- tempfile(fileext = ".motif")
 dumpJaspar(motiffile, pkg = "JASPAR2018", relScoreCutoff = 0.9)
 
 ## ----homerscript-----------------------------------------------------------
-homerfile <- findHomer(dirs = "/work/gbioinfo/Appz/Homer/Homer-4.8/bin/")
+homerfile <- findHomer(dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
 
 ## ----runhomer, eval=FALSE--------------------------------------------------
 #  outdir <- tempfile(fileext = ".output")
@@ -102,7 +102,7 @@ res <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0, method = "ma
 res
 
 # ... or using method = "homer2"
-homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.8/bin/")
+homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
 res2 <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0, method = "homer2", homerfile = homerfile)
 res2
 
