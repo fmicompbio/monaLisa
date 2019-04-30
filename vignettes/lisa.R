@@ -118,8 +118,8 @@ m
 library(lisa)
 
 # Path to extdata 
-peaks_path <- system.file("extdata", "Liver_vs_Lung_ATAC_peaks.rds", package = "lisa", mustWork = TRUE)
-response_path <- system.file("extdata", "Liver_vs_Lung_ATAC_logFC.rds", package = "lisa", mustWork = TRUE)
+peaks_path <- system.file("extdata", "Liver_vs_Lung_ATAC_peaks.rds", package = "lisa")
+response_path <- system.file("extdata", "Liver_vs_Lung_ATAC_logFC.rds", package = "lisa")
 
 # Load response vector and peaks GRanges
 response <- readRDS(response_path)
@@ -131,6 +131,7 @@ peaks <- readRDS(peaks_path)
 library(JASPAR2018)
 library(TFBSTools)
 library("BSgenome.Mmusculus.UCSC.mm10")
+library(Biostrings)
 
 # Genome
 genome <- BSgenome.Mmusculus.UCSC.mm10
@@ -143,8 +144,22 @@ homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/H
 hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "homer2", homerfile = homerfile, genome = genome, Ncpu = 1)
 
 # Get predictor matrix
-predictor_matrix <- get_numberOfTFBS_perSeqName(TFBS_gr = hits, subject_gr = peaks, PWMs = pwms, Ncpu = 1)
-predictor_matrix[1:6, 1:6]
+predictor_matrix <- as.matrix(as.data.frame.matrix(table(seqnames(hits), as.character(hits$pwmname))))
+# predictor_matrix[1:6, 1:6]
+
+# remove peaks that do not have any hits (also from the response vector) and check all peaks in predictor_matrix are in same order as in peaks
+w <- names(peaks)[!(names(peaks)%in%rownames(predictor_matrix))]
+if(length(w>0)){
+  peaks <- peaks[-w]
+  response <- response[-w]
+}
+all(rownames(predictor_matrix)==names(peaks))
+all(rownames(predictor_matrix)==names(response))
+
+# Note that in this case all peaks have at least one TFBS of any of the TFs. However,
+# that may not always be the case. If a given set of peaks does not appear in the 
+# hits variable one must be careful and remove the missing peaks from the peaks
+# variable before doing the GC content calculations below.
 
 # cacluctae GC and oeCpG content
 peakSeq <- BSgenome::getSeq(genome, peaks)
@@ -161,9 +176,7 @@ predictor_matrix[1:6, 1:6]
 
 
 ## ----run_stability---------------------------------------------------------
-
-# filter the remaining y
-response <- response[names(response) %in% rownames(predictor_matrix)]
+library(ComplexHeatmap)
 
 stabs <- randomized_stabsel(predictor_matrix, response, mc.cores = 1, cutoff = 0.7)
 
@@ -177,7 +190,7 @@ plotSelectionProb(stabs)
 sel_matrix <- predictor_matrix[, stabs$selected]
 sel_cor <- cor(sel_matrix, method = "pearson")
 
-ComplexHeatmap::Heatmap(matrix = sel_cor, name = "Pear. Cor.")
+Heatmap(matrix = sel_cor, name = "Pear. Cor.")
 
 
 

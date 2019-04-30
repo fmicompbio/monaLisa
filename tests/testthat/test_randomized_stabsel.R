@@ -16,8 +16,9 @@ test_that("randomized_stabsel() works properly", {
   ss <- randomized_stabsel(x = X, y = Y)
 
   # tests
-  expect_true(inherits(ss, "stabsel"))
+  expect_true(base::inherits(ss, "stabsel"))
   expect_true(all(s_cols %in% ss$selected))
+  expect_true(all(!(seq(1,ncol(X),1)[-s_cols] %in% ss$selected)))
   expect_true(all(c("phat", "selected", "cutoff", "PFER") %in% names(ss))) # this is crucial because they are accessed in other functions in lisa
   expect_true(!is.null(ss$phat))
 

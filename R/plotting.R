@@ -338,13 +338,13 @@ plotStabilityPaths <- function(stabs_object, cols=NULL, lwd = 1, lty=1, ylim=c(0
 plotSelectionProb <- function(stabs_object, ylim = c(0,1), onlySelected = TRUE, las = 2, ...) {
 
   # ... checks
-  if (!class(stabs_object) == "stabsel") {stop("stabs_object must be of class 'stabsel', the resulting object from running stability selection with the `stabs` package")}
+  if (!base::inherits(stabs_object, what="stabsel")) {stop("stabs_object must be of class 'stabsel', the resulting object from running stability selection with the `stabs` package")}
 
   phat <- t(stabs_object$phat)
   TF_prob <- phat[nrow(phat), ]
 
   if (onlySelected) {
-    TF_prob <- TF_prob[stabs$selected]
+    TF_prob <- TF_prob[stabs_object$selected]
 
   }
 

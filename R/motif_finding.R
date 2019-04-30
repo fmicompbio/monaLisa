@@ -402,10 +402,10 @@ setMethod("findMotifHits",
           function(query, subject, min.score, method = c("homer2", "matchPWM"),
                    homerfile = findHomer("homer2"), Ncpu = 1L, genome=NULL) {
             ## checks
-            if (class(subject) == "GRanges" & is.null(genome)) {
+            if (base::inherits(subject, what="GRanges") & is.null(genome)) {
               stop("genome must be provided.")
             }
-            if (class(genome) != "BSgenome") {
+            if (!base::inherits(genome, what="BSgenome")) {
               stop("genome must be of class 'BSgenome'.")
             }
             ## Make sure to have named rows
