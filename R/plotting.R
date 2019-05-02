@@ -1,6 +1,7 @@
 #' @importFrom grDevices colorRampPalette
 #' @importFrom graphics axis hist lines par plot rect rug segments barplot matplot abline legend
 #' @importFrom stats density dist hclust
+#' @importFrom S4Vectors isEmpty
 NULL
 
 #' @title Get colors by bin.
@@ -315,7 +316,7 @@ plotStabilityPaths <- function(stabs_object, cols=NULL, lwd = 1, lty=1, ylim=c(0
     cols[stabs_object$selected] <- "Steelblue"
     names(cols)[stabs_object$selected] <- "Selected"
   }
-  
+
   # plot stability paths
   matplot(mat, col = cols, type = "l", lty = lty, ylab = "Selection Probability", xlab = "Regularization Step", ylim = ylim, lwd = lwd, ...)
   abline(h = stabs_object$cutoff, lty = 5, col = "red", lwd = lwd)
@@ -354,7 +355,7 @@ plotSelectionProb <- function(stabs_object, ylim = c(0,1.1), onlySelected = TRUE
   }
 
   # check if empty
-  if (isEmpty(TF_prob)) {stop("The input for the barplot is empty")}
+  if (S4Vectors::isEmpty(TF_prob)) {stop("The input for the barplot is empty")}
 
   # order
   TF_prob <- TF_prob[order(TF_prob, decreasing = TRUE)]
