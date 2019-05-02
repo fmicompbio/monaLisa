@@ -19,6 +19,7 @@ NULL
 #'@param type parameter from \code{lars.lasso} function in \code{stabs}. It is a character vector specifying
 #'how much the PFER should be controlled. If type is "conservative" then the number of selected variables per
 #'subsample is <= q. If type is "anticonservative" then the number of selected variables per subsample is >= q.
+#'By default the conservative type is chosen.
 #'@param ... additional parameters for \code{glmnet}.
 #'
 #'@return the regression output which consists of a list of length 2. The list contains the following:
