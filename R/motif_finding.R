@@ -158,8 +158,8 @@ setGeneric(name = "findMotifHits",
 # 7. findMotifHits,PWMatrixList,character     --> if method=="homer2" --> 1.     ; else --> 9.
 # 8. findMotifHits,PWMatrixList,DNAString     --> 9.
 # 9. findMotifHits,PWMatrixList,DNAStringSet  --> if method=="homer2" --> 1.     ; else --> use matchPWM
-# 10. findMotifHits,PWMatrixList,GRanges      --> 9.
-# 11. findMotifHits,PWMatrix,GRanges          --> 10.
+# 10. findMotifHits,PWMatrix,GRanges          --> 11.
+# 11. findMotifHits,PWMatrixList,GRanges      --> 9.
 
 
 # 1.
@@ -387,14 +387,24 @@ setMethod("findMotifHits",
                                        method = method, homerfile = homerfile, Ncpu = Ncpu, genome = genome)
                   unlink(c(tmpf1, tmpf2))
                   return(res)
-              } else {
-                  stop("unknown 'method': ", method)
               }
           })
 
 
-
 # 10.
+#' @rdname findMotifHits-methods
+#' @aliases findMotifHits,PWMatrix,GRanges-method
+setMethod("findMotifHits",
+          c("PWMatrix","GRanges"),
+          function(query, subject, min.score, method = c("homer2", "matchPWM"),
+                   homerfile = findHomer("homer2"), Ncpu = 1L, genome=NULL) {
+              findMotifHits(TFBSTools::PWMatrixList(query), subject, min.score,
+                            method, homerfile, Ncpu, genome)
+          })
+
+
+
+# 11.
 #' @rdname findMotifHits-methods
 #' @aliases findMotifHits,PWMatrixList,GRanges-method
 setMethod("findMotifHits",
@@ -418,18 +428,6 @@ setMethod("findMotifHits",
             ## findMotifHits
             findMotifHits(query, seqs, min.score,
                           method, homerfile, Ncpu, genome = NULL)
-          })
-
-
-# 11.
-#' @rdname findMotifHits-methods
-#' @aliases findMotifHits,PWMatrix,GRanges-method
-setMethod("findMotifHits",
-          c("PWMatrix","GRanges"),
-          function(query, subject, min.score, method = c("homer2", "matchPWM"),
-                   homerfile = findHomer("homer2"), Ncpu = 1L, genome=NULL) {
-            findMotifHits(TFBSTools::PWMatrixList(query), subject, min.score,
-                          method, homerfile, Ncpu, genome)
           })
 
 
