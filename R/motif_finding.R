@@ -34,7 +34,7 @@ NULL
         } else {
             scorecut <- absscore[i]
         }
-        cat(sprintf(">%s\t%s\t%.2f\n",
+        cat(sprintf(">%s\t%s\t%.6f\n",
                     paste(apply(pwm, 2, function(x) { rownames(pwm)[which.max(x)] }), collapse = ""),
                     TFBSTools::name(pwmL[[i]]), scorecut),  file = fh, append = TRUE)
         write.table(file = fh, t(pwm), row.names = FALSE, col.names = FALSE,
