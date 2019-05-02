@@ -73,8 +73,10 @@ plotBinHist <- function(x, b, breaks = 10 * nlevels(b),
                         xlab = deparse(substitute(x)), ylab = "Frequency",
                         main = "", legend = "topright", ...) {
     stopifnot(length(x) == length(b))
-    if (!is.factor(b))
+    if (!is.factor(b)) {
         b <- factor(b, levels=unique(b))
+        attr(bin.breaks, "bin0") <- NA
+    }
     cols <- getColsByBin(b, ...)
     binbreaks <- attr(b, "breaks")
     bincols <- attr(cols, "cols")
@@ -112,8 +114,10 @@ plotBinDensity <- function(x, b,
                            xlab = deparse(substitute(x)), ylab = "Density",
                            main = "", legend = "topright", ...) {
     stopifnot(length(x) == length(b))
-    if (!is.factor(b))
+    if (!is.factor(b)) {
         b <- factor(b, levels=unique(b))
+        attr(bin.breaks, "bin0") <- NA
+    }
     cols <- getColsByBin(b, ...)
     binbreaks <- attr(b, "breaks")
     bincols <- attr(cols, "cols")
@@ -167,8 +171,10 @@ plotBinScatter <- function(x, y, b,
     if (length(cols) == 1L)
         cols <- rep(cols, length(x))
     stopifnot(length(x) == length(cols))
-    if (!is.factor(b))
+    if (!is.factor(b)) {
         b <- factor(b, levels=unique(b))
+        attr(bin.breaks, "bin0") <- NA
+    }
     par(mar = c(5, 4, 4 - if (main == "") 3 else 0, 2) + 0.1, cex = 1.25)
     ret <- plot(x, y, pch = 16, cex = 0.6, col = cols,
                 xlab = xlab, ylab = ylab, main = main, axes = FALSE, ...)
@@ -233,8 +239,10 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"
 	stopifnot(is.list(x))
 	stopifnot(all(sapply(x, ncol) == nlevels(b)))
 	stopifnot(all(sapply(x, function(xx) all(dim(xx) == dim(x[[1]])))))
-	if (!is.factor(b))
+	if (!is.factor(b)) {
 		b <- factor(b, levels=unique(b))
+		attr(bin.breaks, "bin0") <- NA
+	}
 	stopifnot(all(which.plots %in% c("p", "FDR", "enr", "log2enr")))
 	stopifnot(all(which.plots %in% names(x)))
 	stopifnot(is.null(highlight) || (is.logical(highlight) && length(highlight) == nrow(x[[1]])))
