@@ -12,8 +12,8 @@
 \alias{findMotifHits,PWMatrixList,character-method}
 \alias{findMotifHits,PWMatrixList,DNAString-method}
 \alias{findMotifHits,PWMatrixList,DNAStringSet-method}
-\alias{findMotifHits,PWMatrixList,GRanges-method}
 \alias{findMotifHits,PWMatrix,GRanges-method}
+\alias{findMotifHits,PWMatrixList,GRanges-method}
 \title{Find motif matches in sequences.}
 \usage{
 findMotifHits(query, subject, min.score, method = c("homer2",
@@ -56,11 +56,11 @@ findMotifHits(query, subject, min.score, method = c("homer2",
   min.score, method = c("homer2", "matchPWM"),
   homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL)
 
-\S4method{findMotifHits}{PWMatrixList,GRanges}(query, subject, min.score,
+\S4method{findMotifHits}{PWMatrix,GRanges}(query, subject, min.score,
   method = c("homer2", "matchPWM"), homerfile = findHomer("homer2"),
   Ncpu = 1L, genome = NULL)
 
-\S4method{findMotifHits}{PWMatrix,GRanges}(query, subject, min.score,
+\S4method{findMotifHits}{PWMatrixList,GRanges}(query, subject, min.score,
   method = c("homer2", "matchPWM"), homerfile = findHomer("homer2"),
   Ncpu = 1L, genome = NULL)
 }
