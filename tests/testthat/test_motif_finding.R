@@ -1,8 +1,9 @@
 context("motif finding")
 
 test_that("findMotifHits() works properly", {
-    homerbin <- findHomer("homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.8/bin")
+    homerbin <- findHomer("homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin")
 
+    seq1 <- Biostrings::DNAString("CCCCCAAACCCCC")
     seqs <- Biostrings::DNAStringSet(c(s1 = "CCCCCAAACCCCC", s2 = "AAAGGGGGAAA"))
 
     sf <- tempfile(fileext = ".fa")
