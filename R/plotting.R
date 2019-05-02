@@ -73,10 +73,7 @@ plotBinHist <- function(x, b, breaks = 10 * nlevels(b),
                         xlab = deparse(substitute(x)), ylab = "Frequency",
                         main = "", legend = "topright", ...) {
     stopifnot(length(x) == length(b))
-    if (!is.factor(b)) {
-        b <- factor(b, levels=unique(b))
-        attr(bin.breaks, "bin0") <- NA
-    }
+    stopifnot(is.factor(b) && "breaks" %in% names(attributes(b)))
     cols <- getColsByBin(b, ...)
     binbreaks <- attr(b, "breaks")
     bincols <- attr(cols, "cols")
@@ -114,10 +111,7 @@ plotBinDensity <- function(x, b,
                            xlab = deparse(substitute(x)), ylab = "Density",
                            main = "", legend = "topright", ...) {
     stopifnot(length(x) == length(b))
-    if (!is.factor(b)) {
-        b <- factor(b, levels=unique(b))
-        attr(bin.breaks, "bin0") <- NA
-    }
+    stopifnot(is.factor(b) && "breaks" %in% names(attributes(b)))
     cols <- getColsByBin(b, ...)
     binbreaks <- attr(b, "breaks")
     bincols <- attr(cols, "cols")
@@ -171,10 +165,6 @@ plotBinScatter <- function(x, y, b,
     if (length(cols) == 1L)
         cols <- rep(cols, length(x))
     stopifnot(length(x) == length(cols))
-    if (!is.factor(b)) {
-        b <- factor(b, levels=unique(b))
-        attr(bin.breaks, "bin0") <- NA
-    }
     par(mar = c(5, 4, 4 - if (main == "") 3 else 0, 2) + 0.1, cex = 1.25)
     ret <- plot(x, y, pch = 16, cex = 0.6, col = cols,
                 xlab = xlab, ylab = ylab, main = main, axes = FALSE, ...)
@@ -183,9 +173,8 @@ plotBinScatter <- function(x, y, b,
     pusr <- par('usr')
     segments(x0=pusr[c(1,1)], y0=pusr[c(4,3)], x1=pusr[c(1,2)], y1=pusr[c(3,3)])
     if (!is.null(legend) && legend[1] != FALSE) {
+        stopifnot("cols" %in% names(attributes(cols)))
         bincols <- attr(cols, "cols")
-        if (is.null(bincols))
-            stop("cannot create legend automatically (missing attributes from 'b')")
         legend(x = legend, legend = sprintf("%s : %d", levels(b), table(b)), fill = bincols, bty = "n")
     }
     invisible(ret)
@@ -228,21 +217,17 @@ plotBinScatter <- function(x, y, b,
 #'
 #' @export
 plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"), width = 4,
-														 col.enr = c("#053061","#2166AC","#4393C3","#92C5DE","#D1E5F0",
-														 						"#F7F7F7","#FDDBC7","#F4A582","#D6604D","#B2182B","#67001F"),
-														 col.sig = c("#FFF5EB","#FEE6CE","#FDD0A2","#FDAE6B","#FD8D3C",
-														 						"#F16913","#D94801","#A63603","#7F2704"),
-														 maxEnr = NULL, maxSig = NULL, highlight = NULL, cluster = FALSE) {
+                              col.enr = c("#053061","#2166AC","#4393C3","#92C5DE","#D1E5F0",
+                                          "#F7F7F7","#FDDBC7","#F4A582","#D6604D","#B2182B","#67001F"),
+                              col.sig = c("#FFF5EB","#FEE6CE","#FDD0A2","#FDAE6B","#FD8D3C",
+                                          "#F16913","#D94801","#A63603","#7F2704"),
+                              maxEnr = NULL, maxSig = NULL, highlight = NULL, cluster = FALSE) {
 	stopifnot(requireNamespace("ComplexHeatmap"))
 	stopifnot(requireNamespace("circlize"))
 	stopifnot(requireNamespace("grid"))
 	stopifnot(is.list(x))
 	stopifnot(all(sapply(x, ncol) == nlevels(b)))
 	stopifnot(all(sapply(x, function(xx) all(dim(xx) == dim(x[[1]])))))
-	if (!is.factor(b)) {
-		b <- factor(b, levels=unique(b))
-		attr(bin.breaks, "bin0") <- NA
-	}
 	stopifnot(all(which.plots %in% c("p", "FDR", "enr", "log2enr")))
 	stopifnot(all(which.plots %in% names(x)))
 	stopifnot(is.null(highlight) || (is.logical(highlight) && length(highlight) == nrow(x[[1]])))
