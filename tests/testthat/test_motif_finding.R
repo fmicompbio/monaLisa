@@ -68,6 +68,9 @@ test_that("findMotifHits() works properly", {
         expect_error(findMotifHits("not-existing", sf, method = "homer2", homerfile = homerbin))
         expect_error(findMotifHits(tf, "not-existing", method = "homer2", homerfile = homerbin))
         expect_error(findMotifHits(tf, sf, method = "error"))
+        expect_error(findMotifHits(pwm,  gr,   min.score = "90%", method = "homer2", homerfile = homerbin))
+        expect_error(findMotifHits(pwm,  gr,   min.score = "90%", method = "homer2", homerfile = homerbin, genome = "error"))
+        expect_message(findMotifHits(pwmL, unname(gr), min.score = "90%", method = "homer2", homerfile = homerbin, genome = BSgenome.Mmusculus.UCSC.mm10::BSgenome.Mmusculus.UCSC.mm10))
 
         expect_error(findMotifHits(pwmL, sf,   min.score = TRUE, method = "homer2", homerfile = homerbin))
         expect_error(findMotifHits(pwmL, seqs, min.score = TRUE, method = "homer2", homerfile = homerbin))
