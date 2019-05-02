@@ -84,6 +84,11 @@ findMotifHits(query, subject, min.score, method = c("homer2",
         of the sequences to be searched.}
 }}
 
+\item{min.score}{The minimum score for counting a match. Can be given as
+a character string containing a percentage (e.g. "85%") of the quantile
+between the lowest and the highest possible score or as a single number
+(log2-odds score).}
+
 \item{method}{The internal method to use for motif searching. One of
 \itemize{
     \item{\code{"homer2"}}{ call to the homer2 binary}

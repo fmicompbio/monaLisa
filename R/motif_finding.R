@@ -95,7 +95,7 @@ NULL
 #'     }
 #'
 #' @param min.score The minimum score for counting a match. Can be given as
-#'     a character string containing a percentage (e.g. \code{"85%"}) of the quantile
+#'     a character string containing a percentage (e.g. "85%") of the quantile
 #'     between the lowest and the highest possible score or as a single number
 #'     (log2-odds score).
 #'
