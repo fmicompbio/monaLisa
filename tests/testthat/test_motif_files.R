@@ -18,7 +18,7 @@ test_that("motifs can be written to/read from files", {
     # write to file
     lisa:::.dumpPWMsToHomer2File(pwmL = pwm, fname = tmpf2, absscore = 6.93)
     lns <- readLines(tmpf2)
-    expect_identical(">CTA\tname\t4.80", lns[1])
+    expect_identical(">CTA\tname\t4.803510", lns[1])
     m.file <- as.matrix(read.delim(tmpf2, header = FALSE, nrows = 3, skip = 1))
     expect_equivalent(m, t(m.file))
 
