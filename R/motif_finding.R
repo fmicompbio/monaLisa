@@ -218,8 +218,6 @@ setMethod("findMotifHits",
                                                score = resparsed$score / log(2), # convert scores from ln to log2
                                                seqlengths = sl)
                   sort(gr)
-              } else {
-                  stop("unknown 'method': ", method)
               }
           })
 
@@ -230,7 +228,9 @@ setMethod("findMotifHits",
           c("character","DNAString"),
           function(query, subject, min.score, method = c("homer2", "matchPWM"),
                    homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
-              findMotifHits(query, Biostrings::DNAStringSet(subject), min.score,
+              subjectSet <- Biostrings::DNAStringSet(subject)
+              names(subjectSet) <- "DNAString"
+              findMotifHits(query, subjectSet, min.score,
                             method, homerfile, Ncpu, genome)
           })
 
@@ -258,8 +258,6 @@ setMethod("findMotifHits",
                                        method = method, homerfile = homerfile, Ncpu = Ncpu, genome = genome)
                   unlink(tmpf)
                   return(res)
-              } else {
-                  stop("unknown 'method': ", method)
               }
           })
 
@@ -281,7 +279,9 @@ setMethod("findMotifHits",
           c("PWMatrix","DNAString"),
           function(query, subject, min.score, method = c("homer2", "matchPWM"),
                    homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
-              findMotifHits(TFBSTools::PWMatrixList(query), Biostrings::DNAStringSet(subject),
+              subjectSet <- Biostrings::DNAStringSet(subject)
+              names(subjectSet) <- "DNAString"
+              findMotifHits(TFBSTools::PWMatrixList(query), subjectSet,
                             min.score, method, homerfile, Ncpu, genome)
           })
 
@@ -324,8 +324,6 @@ setMethod("findMotifHits",
                                        method = method, homerfile = homerfile, Ncpu = Ncpu, genome = genome)
                   unlink(tmpf)
                   return(res)
-              } else {
-                  stop("unknown 'method': ", method)
               }
           })
 
@@ -336,7 +334,9 @@ setMethod("findMotifHits",
           c("PWMatrixList","DNAString"),
           function(query, subject, min.score, method = c("homer2", "matchPWM"),
                    homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
-              findMotifHits(query, Biostrings::DNAStringSet(subject), min.score,
+              subjectSet <- Biostrings::DNAStringSet(subject)
+              names(subjectSet) <- "DNAString"
+              findMotifHits(query, subjectSet, min.score,
                             method, homerfile, Ncpu, genome)
           })
 
