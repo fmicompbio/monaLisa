@@ -197,7 +197,7 @@ setMethod("findMotifHits",
                   res <- system2(command = homerfile, args = cmdargs, stdout = TRUE, stderr = "", wait = TRUE)
 
                   # check homer2 output
-                  ok <- grepl("^[a-z0-9_]+\\t[0-9]+\\t[ACGT]+\\t.+\\t[+-]\\t[0-9.]+$", res, perl = TRUE)
+                  ok <- grepl("^.+\\t[0-9]+\\t[ACGT]+\\t.+\\t[+-]\\t[0-9.]+$", res, perl = TRUE)
                   if (any(!ok))
                     warning(sum(!ok), " of ", length(ok), " hits reported by Homer are malformed and will be ignored.",
                             " To ensure complete and correct results, re-run Homer (maybe using Ncpu = 1).")
