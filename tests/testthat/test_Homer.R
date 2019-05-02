@@ -41,3 +41,14 @@ test_that("prepareHomer() works properly", {
 
     unlink(c(tmp1, tmp2), recursive = TRUE, force = TRUE)
 })
+
+test_that("parseHomerOutput() works properly", {
+    outfile <- system.file("extdata", "homer_output.txt.gz", package = "lisa")
+
+    res <- parseHomerOutput(c(outfile, outfile))
+    expect_length(res, 4L)
+    expect_identical(names(res), c("p", "FDR", "enr", "log2enr"))
+    expect_identical(res$p[,1], res$p[,2])
+    expect_true(all(sapply(res, dim) == c(519L, 2L)))
+    expect_equal(sum(res$enr), -914.6696)
+})
