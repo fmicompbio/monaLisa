@@ -18,7 +18,8 @@ glmnet.randomized_lasso(x, y, q, weakness = 1, type = c("conservative",
 
 \item{type}{parameter from \code{lars.lasso} function in \code{stabs}. It is a character vector specifying
 how much the PFER should be controlled. If type is "conservative" then the number of selected variables per
-subsample is <= q. If type is "anticonservative" then the number of selected variables per subsample is >= q.}
+subsample is <= q. If type is "anticonservative" then the number of selected variables per subsample is >= q.
+By default the conservative type is chosen.}
 
 \item{...}{additional parameters for \code{glmnet}.}
 }
