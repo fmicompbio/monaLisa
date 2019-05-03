@@ -1,17 +1,19 @@
 Package: lisa
 Type: Package
 Title: Binned Motif Enrichment Analysis and Visualization
-Version: 0.1.4
+Version: 0.1.16
 Authors@R: c(
+    person("Dania", "Machlab", email = "dania.machlab@fmi.ch", role = c("aut")),
     person("Lukas", "Burger", email = "lukas.burger@fmi.ch", role = c("aut")),
     person("Michael", "Stadler", email = "michael.stadler@fmi.ch", role = c("aut", "cre")))
-Description: Useful functions to bin genomic regions, such as promoters
-    or accessible regions, according to a numberical value, such as change of
-    expression or accessibility, and identify enriched motifs in each bin.
+Description: Useful functions to work with sequence motifs in the analysis of genomics data.
+    These include methods to annotate genomic regions or sequences with predicted motif hits
+    and to identify motifs that drive observed changes in accessibility or expression.
 Imports: methods, stats, utils, grDevices, graphics, GenomicRanges, TFBSTools,
-    Biostrings, IRanges
+    Biostrings, IRanges, stabs, BSgenome, glmnet, S4Vectors
 Suggests: JASPAR2018, BSgenome.Hsapiens.UCSC.hg19, TxDb.Hsapiens.UCSC.hg19.knownGene,
-    grid, circlize, ComplexHeatmap, knitr, rmarkdown, testthat
+    grid, circlize, ComplexHeatmap, knitr, rmarkdown, testthat, BSgenome.Mmusculus.UCSC.mm10, 
+    BiocStyle
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

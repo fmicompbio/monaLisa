@@ -1,6 +1,7 @@
 #' @importFrom grDevices colorRampPalette
-#' @importFrom graphics axis hist lines par plot rect rug segments
+#' @importFrom graphics axis hist lines par plot rect rug segments barplot matplot abline legend
 #' @importFrom stats density dist hclust
+#' @importFrom S4Vectors isEmpty
 NULL
 
 #' @title Get colors by bin.
@@ -26,8 +27,10 @@ getColsByBin <- function(b,
                          col1 = c("#3F007D","#54278F","#6A51A3","#807DBA","#9E9AC8","#BCBDDC","#DADAEB"),
                          col2 = c("#FDD0A2","#FDAE6B","#FD8D3C","#F16913","#D94801","#A63603","#7F2704"),
                          col0 = "AAAAAA33") {
-    if (!is.factor(b))
+    if (!is.factor(b)) {
         b <- factor(b, levels=unique(b))
+        attr(b, "bin0") <- NA
+    }
 
     if (!is.na(attr(b, "bin0"))) {
         bin0 <- attr(b, "bin0")
@@ -70,8 +73,7 @@ plotBinHist <- function(x, b, breaks = 10 * nlevels(b),
                         xlab = deparse(substitute(x)), ylab = "Frequency",
                         main = "", legend = "topright", ...) {
     stopifnot(length(x) == length(b))
-    if (!is.factor(b))
-        b <- factor(b, levels=unique(b))
+    stopifnot(is.factor(b) && "breaks" %in% names(attributes(b)))
     cols <- getColsByBin(b, ...)
     binbreaks <- attr(b, "breaks")
     bincols <- attr(cols, "cols")
@@ -109,8 +111,7 @@ plotBinDensity <- function(x, b,
                            xlab = deparse(substitute(x)), ylab = "Density",
                            main = "", legend = "topright", ...) {
     stopifnot(length(x) == length(b))
-    if (!is.factor(b))
-        b <- factor(b, levels=unique(b))
+    stopifnot(is.factor(b) && "breaks" %in% names(attributes(b)))
     cols <- getColsByBin(b, ...)
     binbreaks <- attr(b, "breaks")
     bincols <- attr(cols, "cols")
@@ -164,8 +165,6 @@ plotBinScatter <- function(x, y, b,
     if (length(cols) == 1L)
         cols <- rep(cols, length(x))
     stopifnot(length(x) == length(cols))
-    if (!is.factor(b))
-        b <- factor(b, levels=unique(b))
     par(mar = c(5, 4, 4 - if (main == "") 3 else 0, 2) + 0.1, cex = 1.25)
     ret <- plot(x, y, pch = 16, cex = 0.6, col = cols,
                 xlab = xlab, ylab = ylab, main = main, axes = FALSE, ...)
@@ -174,9 +173,8 @@ plotBinScatter <- function(x, y, b,
     pusr <- par('usr')
     segments(x0=pusr[c(1,1)], y0=pusr[c(4,3)], x1=pusr[c(1,2)], y1=pusr[c(3,3)])
     if (!is.null(legend) && legend[1] != FALSE) {
+        stopifnot("cols" %in% names(attributes(cols)))
         bincols <- attr(cols, "cols")
-        if (is.null(bincols))
-            stop("cannot create legend automatically (missing attributes from 'b')")
         legend(x = legend, legend = sprintf("%s : %d", levels(b), table(b)), fill = bincols, bty = "n")
     }
     invisible(ret)
@@ -219,19 +217,17 @@ plotBinScatter <- function(x, y, b,
 #'
 #' @export
 plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"), width = 4,
-														 col.enr = c("#053061","#2166AC","#4393C3","#92C5DE","#D1E5F0",
-														 						"#F7F7F7","#FDDBC7","#F4A582","#D6604D","#B2182B","#67001F"),
-														 col.sig = c("#FFF5EB","#FEE6CE","#FDD0A2","#FDAE6B","#FD8D3C",
-														 						"#F16913","#D94801","#A63603","#7F2704"),
-														 maxEnr = NULL, maxSig = NULL, highlight = NULL, cluster = FALSE) {
+                              col.enr = c("#053061","#2166AC","#4393C3","#92C5DE","#D1E5F0",
+                                          "#F7F7F7","#FDDBC7","#F4A582","#D6604D","#B2182B","#67001F"),
+                              col.sig = c("#FFF5EB","#FEE6CE","#FDD0A2","#FDAE6B","#FD8D3C",
+                                          "#F16913","#D94801","#A63603","#7F2704"),
+                              maxEnr = NULL, maxSig = NULL, highlight = NULL, cluster = FALSE) {
 	stopifnot(requireNamespace("ComplexHeatmap"))
 	stopifnot(requireNamespace("circlize"))
 	stopifnot(requireNamespace("grid"))
 	stopifnot(is.list(x))
 	stopifnot(all(sapply(x, ncol) == nlevels(b)))
 	stopifnot(all(sapply(x, function(xx) all(dim(xx) == dim(x[[1]])))))
-	if (!is.factor(b))
-		b <- factor(b, levels=unique(b))
 	stopifnot(all(which.plots %in% c("p", "FDR", "enr", "log2enr")))
 	stopifnot(all(which.plots %in% names(x)))
 	stopifnot(is.null(highlight) || (is.logical(highlight) && length(highlight) == nrow(x[[1]])))
@@ -282,3 +278,105 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"
 	show(Reduce(ComplexHeatmap::add_heatmap, ret))
 	invisible(ret)
 }
+
+
+#'@title Plot Stability Paths
+#'
+#'@description Plot the stability paths of each variable (predictor), showing the selection probability
+#'as a function of the regularization step.
+#'
+#'@param stabs_object the \code{stabs} object resulting from stability selection.
+#'@param cols color vector for the varaiables from the predictor matrix. By default, it's set to NULL
+#'and the function colors the variables by whether or not they were selected.
+#'@param lwd line width (default 1).
+#'@param lty line type (default 1).
+#'@param ylim limits for y-axis (default c(0,1.1)).
+#'@param ... additional parameters to pass on to \code{matplot}.
+#'
+#'@return plot of stability paths.
+#'
+#'@seealso \code{\link[stabs]{stabsel}} and \code{\link[graphics]{matplot}}
+#'
+#'@export
+plotStabilityPaths <- function(stabs_object, cols=NULL, lwd = 1, lty=1, ylim=c(0,1.1), ...) {
+
+  # ... checks
+  if (!base::inherits(stabs_object, what="stabsel")){stop("stabs_object must be of class 'stabsel', the resulting object from running stability selection with the `stabs` package")}
+
+  # set plot parameters
+  mat <- t(stabs_object$phat)
+  if(is.null(cols)){
+    cols <- rep("black", ncol(mat))
+    names(cols) <- rep("Not Selected", length(cols))
+    cols[stabs_object$selected] <- "Steelblue"
+    names(cols)[stabs_object$selected] <- "Selected"
+  }
+
+  # plot stability paths
+  matplot(mat, col = cols, type = "l", lty = lty, ylab = "Selection Probability", xlab = "Regularization Step", ylim = ylim, lwd = lwd, ...)
+  abline(h = stabs_object$cutoff, lty = 5, col = "red", lwd = lwd)
+  legend("topleft", legend = c(unique(names(cols)), "cutoff"), col = c(unique(cols), "red"), lty = c(1, 1, 5), bty = "n", lwd = lwd)
+  invisible(TRUE)
+
+}
+
+
+#'@title Barplot Selection Probabilities
+#'
+#'@description Create a bar plot of the selection probabilities in descending order.
+#'
+#'@param stabs_object the \code{stabs} object resulting from stability selection.
+#'@param ylim the limits for the y-axis.
+#'@param onlySelected logical (default=TRUE) indicating if only selected predictors' selection probabilities
+#'    should be plotted.
+#'@param las (2 by default) plot labels vertically or horizontally.
+#'@param ... additional parameters for the \code{barplot} function.
+#'
+#'@seealso \code{\link[graphics]{barplot}}
+#'
+#'@return barplot of selection probabilities.
+#'@export
+plotSelectionProb <- function(stabs_object, ylim = c(0,1.1), onlySelected = TRUE, las = 2, ...) {
+
+  # ... checks
+  if (!base::inherits(stabs_object, what="stabsel")) {stop("stabs_object must be of class 'stabsel', the resulting object from running stability selection with the `stabs` package")}
+
+  phat <- t(stabs_object$phat)
+  TF_prob <- phat[nrow(phat), ]
+
+  if (onlySelected) {
+    TF_prob <- TF_prob[stabs_object$selected]
+
+  }
+
+  # check if empty
+  if (S4Vectors::isEmpty(TF_prob)) {stop("The input for the barplot is empty")}
+
+  # order
+  TF_prob <- TF_prob[order(TF_prob, decreasing = TRUE)]
+
+  # plot
+  barplot(TF_prob, ylim = ylim, ylab = "Selection Probability", las = las, ...)
+  abline(h = stabs_object$cutoff, lty = 5, col = "red")
+  legend("topright", legend = "cutoff", lty = 5, col = "red", bty = "n")
+  invisible(TRUE)
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

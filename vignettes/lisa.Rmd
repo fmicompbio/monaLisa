@@ -1,9 +1,9 @@
 ---
 title: "Lisa - motif enrichments and more"
-author: "Lukas Burger, Michael Stadler"
+author: "Dania Machlab, Lukas Burger, Michael Stadler"
 date: "`r Sys.Date()`"
 bibliography: lisa-refs.bib
-output: rmarkdown::html_vignette
+output: BiocStyle::html_document
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
@@ -31,12 +31,16 @@ to look for enriched motifs in sets of genomic regions, compared to all other re
 The motifs come from a collection of transcription factor binding site specificities,
 such as `JASPAR2018`.
 
-The regions could be for example promoters or accessible regions.
+The regions could be for example promoters, non-promoters (distal regions) or accessible regions.
 
 The regions are grouped into bins according to a numerical value assigned to each
 bin, such as change of expression or accessibility.
 
-Finally, `lisa` can also be used to look for motifs in sequences.
+`lisa` can also be used to look for motifs in sequences.
+
+Finally, `lisa` can can be used to predict what transcription factors are likely to explain observed changes in chromatin accessibility between two conditions.
+
+
 
 # Quick example: Identify enriched motifs
 
@@ -158,7 +162,7 @@ dumpJaspar(motiffile, pkg = "JASPAR2018", relScoreCutoff = 0.9)
 Next we need to know where Homer is installed (you may have to adjust the `dirs`
 argument below according to your environment):  
 ```{r homerscript}
-homerfile <- findHomer(dirs = "/work/gbioinfo/Appz/Homer/Homer-4.8/bin/")
+homerfile <- findHomer(dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
 ```
 
 ## Run motif enrichment analysis
@@ -213,7 +217,7 @@ seqs
 # (could also be a single PWMatrix, or the name of a motif file)
 library(JASPAR2018)
 library(TFBSTools)
-pwms <- getMatrixSet(JASPAR2018, list(matrixtype="PWM", tax_group="vertebrates"))
+pwms <- getMatrixSet(JASPAR2018, list(matrixtype = "PWM", tax_group = "vertebrates"))
 pwms <- pwms[c("MA0885.1","MA0099.3","MA0033.2","MA0037.3","MA0158.1")]
 pwms
 
@@ -222,7 +226,7 @@ res <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0, method = "ma
 res
 
 # ... or using method = "homer2"
-homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.8/bin/")
+homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
 res2 <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0, method = "homer2", homerfile = homerfile)
 res2
 
@@ -234,34 +238,121 @@ m <- table(seqnames(res), as.character(res$pwmname))
 m
 ```
 
-<!--
-REMARK: findMotifHits(..., method="homer2") seems to differ from matchPWM:
-- homer2 needs base probabilities rather than log2-odds
-- homer2 uses natural logarithm rather than log2
 
-potential solution for method="homer2":
-- convert PWM into pseudo-PWM with base probabilities (see pwms4 below)
-- convert min.score to natural log to run homer2
-- convert homer2 reported scores back to log2 scale
 
-# create pseudo-pwm for homer2 (probabilities instead of log2-odd scores)
-pfms3 <- getMatrixSet(JASPAR2018, list(matrixtype="PFM", tax_group="vertebrates"))
-pfms3 <- pfms3[c("MA0885.1","MA0099.3","MA0033.2","MA0037.3","MA0158.1")]
-pwms3 <- do.call(PWMatrixList, lapply(pfms3, function(x) { y <- toPWM(x); Matrix(y) <- sweep(Matrix(x), 2, colSums(Matrix(x)), "/"); y }))
+# Selecting Transcription Factors Likely to Explain Changes in Chromatin Accessibility Using Stability Selection
 
-# create pseudo-pwm for homer2 converting from log2-odds score pwm
-pwms4 <- do.call(PWMatrixList, lapply(pwms, function(x) { y <- (2^Matrix(x) / bg(x)); Matrix(x) <- sweep(y, 2, colSums(y), "/"); x }))
+Randomized Lasso stability selection proposed by Meinshausen and Bühlmann [@StabSel] applies the lasso regression on several subsamples of the data using a weakness parameter that adds additional variation to the lambda parameter and allows for more correlated variables to be selected together. Although the main appeal of stability selection is that it allows for selection of predictors when the number of predictors exceeds the number of observations, the authors also argue for this as a way of slightly overcomming the problem of lasso only selecting variables that are not correlated, and performing better in a noisy dataset depending on how strongly one sets the weakness parameter. Shah and Samworth [@compStabs] have further improved error control for stability selection using complementary pairs stability selection. The R `stabs` package [@stabs] implements the Shah and Samworth version of stability selection. `lisa` uses a modified version of the `stabsel` function in `stabs` that performs randomized lasso stability selection.
 
-homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.8/bin/")
-matchPWM(pwm = Matrix(pwms[[1]]), subject = seqs[[2]], min.score = "80%", with.score = TRUE) # only + strand hits
-matchPWM(pwm = Matrix(pwms[[1]]), subject = reverseComplement(seqs[[2]]), min.score = "80%", with.score = TRUE) # only - strand hits
-as(searchSeq(x = pwms[1], subject = seqs[2], min.score = 0.98), "DataFrame")
-findMotifHits(query = pwms[1],  subject = seqs[2], min.score = 8.0, method = "matchPWM")
-findMotifHits(query = pwms3[1], subject = seqs[2], min.score = log(2^8.0), method = "homer2", homerfile = homerfile)
-findMotifHits(query = pwms4[1], subject = seqs[2], min.score = log(2^8.0), method = "homer2", homerfile = homerfile)
-reverseComplement(seqs[[2]][IRanges(247,254)]) # bug in homer2 parsing code in conveting - strand coordinates
+Here we demonstrate the use of randomized lasso stability selection to select transcription factors (TFs) that are likely to explain changes in chromatin accessibility from ATAC-seq data. One can also use stability selection on any other type of data like ChIP-seq of specific histone marks for example. We are given a vector of log-fold changes (logFC) in chromatin accessibility between two conditions that we consider to be our response vector. The predictor matrix will consist of the number of transcription factor bindng sites (TFBS) that each TF has across the peaks. The example data set comes from ENCODE [@encode] and consists of bam files for ATAC-seq from mouse postnatal (P0) liver (identifiers: ENCFF146ZCO, ENCFF109LQF) and lung (identifiers: ENCFF203DOC, ENCFF823PTD) tissues. Each condition had 2 replicates, and the peak calling was done per condition using MACS2 [@macs]. The peaks from both conditions were merged and used to calculate counts of the ATAC for all samples with QuasR [@QuasR]. Counts per million (CPM) were calculated per sample and averaged across replicates. The logFC was calculated as [log2(CPM(Liver)+8) - log2(CPM(Lung)+8)].
 
--->
+Only distal autosomal peaks (ditance > 1kb from any TSS) were kept since promoter peaks tend not to change so much in accessibility, and we are interested in selecting TFs that likely explain logFC in enhancer regions. The `.rds` files used in lisa's example dataset consist of peaks that had an absolute logFC greater than 2 and less than 2.2. This was done to reduce the number of peaks and speed up runtime to demonstrate the functions used in `lisa` that apply randomized lasso stability selection [@StabSel].
+
+
+
+## Load Data
+
+
+```{r load_data}
+
+library(lisa)
+
+# Path to extdata 
+peaks_path <- system.file("extdata", "Liver_vs_Lung_ATAC_peaks.rds", package = "lisa")
+response_path <- system.file("extdata", "Liver_vs_Lung_ATAC_logFC.rds", package = "lisa")
+
+# Load response vector and peaks GRanges
+response <- readRDS(response_path)
+peaks <- readRDS(peaks_path)
+
+```
+
+## Get predictor matrix showing number of TFBS per motif across the peaks
+
+The `findMotifHits` function can be used to get the binding site of each transcription factor across a given set of genomic regions, 
+which in out case is the ATAC-seq peaks. A predictor matrix which contains the number of TFBS each TF has across the given set of peaks is subsequently generated. Note that peaks that have 0 TFBS with all TFs will not be present in the resulting matrix. One can also make use of phylogenetic information of TFs and incorporate that in the predictor matrix. With ATAC-seq, we didn't want to restrict ourselves to conserved motif sequences. One can also add any additional property of the genomic regions in the response vector to compete against the TFs for selection. We added GC content and the ratio of observed-over-expected CpG (oeCpG) content.
+
+
+```{r predictor}
+
+library(JASPAR2018)
+library(TFBSTools)
+library("BSgenome.Mmusculus.UCSC.mm10")
+library(Biostrings)
+
+# Genome
+genome <- BSgenome.Mmusculus.UCSC.mm10
+
+# Get PWMs
+pwms <- getMatrixSet(JASPAR2018, list(matrixtype = "PWM", tax_group = "vertebrates"))
+
+# Get TFBS on given GRanges
+homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
+hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "homer2", homerfile = homerfile, genome = genome, Ncpu = 1)
+
+# Get predictor matrix
+predictor_matrix <- as.matrix(as.data.frame.matrix(table(seqnames(hits), as.character(hits$pwmname))))
+predictor_matrix[1:6, 1:6]
+
+# remove peaks that do not have any hits (also from the response vector) 
+# and check all peaks in predictor_matrix are in same order as in peaks
+w <- names(peaks)[!(names(peaks)%in%rownames(predictor_matrix))]
+if(length(w>0)){
+  peaks <- peaks[-w]
+  response <- response[-w]
+}
+all(rownames(predictor_matrix)==names(peaks))
+all(rownames(predictor_matrix)==names(response))
+
+# Note that in this case all peaks have at least one TFBS of any of the TFs. 
+# However, that may not always be the case. If a given set of peaks does 
+# not appear in the hits variable one must be careful and remove the missing 
+# peaks from the peaks variable before doing the GC content calculations below.
+
+# cacluctae GC and oeCpG content
+peakSeq <- BSgenome::getSeq(genome, peaks)
+fMono <- oligonucleotideFrequency(peakSeq, width = 1L, as.prob = TRUE)
+fDi <- oligonucleotideFrequency(peakSeq, width = 2L, as.prob = TRUE)
+percGC <- fMono[,"G"] + fMono[,"C"]
+oeCpG <- (fDi[,"CG"] + 0.01) / (fMono[,"G"] * fMono[,"C"] + 0.01)
+
+# add GC and oeCpG to predictor matrix
+predictor_matrix <- cbind(percGC, predictor_matrix)
+predictor_matrix <- cbind(oeCpG, predictor_matrix)
+predictor_matrix[1:6, 1:6]
+
+
+```
+
+
+## Run randomized lasso stability selection
+
+We can now run randomized lasso stability selection to select TFs that are likely to explain the log-fold changes in accessibility (response vector). We can appreciate that some selected TFs are correlated to each other and were chosen toegther to explain the observed changes in accessibility.
+
+
+
+```{r run_stability}
+library(ComplexHeatmap)
+
+stabs <- randomized_stabsel(predictor_matrix, response, mc.cores = 1, cutoff = 0.7)
+
+plotStabilityPaths(stabs)
+
+par(mfrow = c(1,1), mar = c(5,4,4,2) + 3)
+
+plotSelectionProb(stabs)
+
+# plot correlation on TFBS matrix of selected TFs
+sel_matrix <- predictor_matrix[, stabs$selected]
+sel_cor <- cor(sel_matrix, method = "pearson")
+
+Heatmap(matrix = sel_cor, name = "Pear. Cor.")
+
+
+```
+
+
+
 
 # Session info and logo
 The lisa logo uses a drawing that was obtained from http://vectorish.com/lisa-simpson.html

@@ -1,3 +1,5 @@
+context("motifs")
+
 test_that("motifs can be written to/read from files", {
     # create dummy motif file and PWMatrixList
     m <- matrix(data = c(.1,.3,.3,.3,.01,.01,.01,.97,.5,.0,.0,.5), nrow = 4, dimnames = list(c("A","C","G","T"), NULL))
@@ -16,7 +18,7 @@ test_that("motifs can be written to/read from files", {
     # write to file
     lisa:::.dumpPWMsToHomer2File(pwmL = pwm, fname = tmpf2, absscore = 6.93)
     lns <- readLines(tmpf2)
-    expect_identical(">CTA\tname\t4.80", lns[1])
+    expect_identical(">CTA\tname\t4.803510", lns[1])
     m.file <- as.matrix(read.delim(tmpf2, header = FALSE, nrows = 3, skip = 1))
     expect_equivalent(m, t(m.file))
 
