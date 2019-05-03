@@ -52,3 +52,34 @@ test_that("parseHomerOutput() works properly", {
     expect_true(all(sapply(res, dim) == c(519L, 2L)))
     expect_equal(sum(res$enr), -914.6696)
 })
+
+test_that("runHomer() works properly", {
+    homerbin <- findHomer("findMotifsGenome.pl", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin")
+    genomedir <- "/tungstenfs/groups/gbioinfo/DB/genomes/mm10/"
+
+    if (!is.na(homerbin) && file.exists(genomedir) && require("JASPAR2018")) { # only test at home
+        gr <- readRDS(system.file("extdata", "LMRsESNPmerged.gr.rds", package = "lisa"))
+        gr <- gr[seqnames(gr) == "chr1"]
+        gr <- c(gr[order(gr$deltaMeth, decreasing = TRUE)[1:200]],
+                gr[abs(gr$deltaMeth) < 0.1][1:200],
+                gr[order(gr$deltaMeth, decreasing = FALSE)][1:200]
+                )
+        b <- bin(gr$deltaMeth, nElements = 200)
+        outdir <- tempfile()
+        motiffile <- tempfile(fileext = ".motifs")
+        dumpJaspar(filename = motiffile, pkg = "JASPAR2018",
+                   opts = list(ID = c("MA0139.1", "MA1102.1", "MA0740.1", "MA0493.1", "MA0856.1")))
+
+        res <- runHomer(gr = gr, b = b, genomedir = genomedir, outdir = outdir,
+                        motifFile = motiffile, homerfile = homerbin,
+                        regionsize = "given", Ncpu = 2L)
+
+        expect_length(res, 4L)
+        expect_identical(names(res), c("p", "FDR", "enr", "log2enr"))
+        expect_true(all(sapply(res, dim) == c(5L, 3L)))
+        expect_equal(sum(res$p), 10.7424234072)
+        expect_equal(sum(res$enr), 2.0460826730)
+
+        unlink(c(motiffile, outdir), recursive = TRUE, force = TRUE)
+    }
+})
