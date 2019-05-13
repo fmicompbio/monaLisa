@@ -67,6 +67,7 @@ homerfile <- findHomer(dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
 #                   regionsize = "given", Ncpu = 20L)
 
 ## ----gethomerresults-------------------------------------------------------
+bins <- readRDS(system.file("extdata", "bins.rds", package = "lisa"))
 resL <- readRDS(system.file("extdata", "resL.rds", package = "lisa"))
 
 ## ----plottfs---------------------------------------------------------------
@@ -158,12 +159,12 @@ if(length(w)>0){
 all(rownames(predictor_matrix)==names(peaks))
 all(rownames(predictor_matrix)==names(response))
 
-# Note that in this case all peaks have at least one TFBS of any of the TFs. 
+# Note that in this case all peaks have at least one TFBS for any of the TFs. 
 # However, that may not always be the case. If a given set of peaks does 
 # not appear in the hits variable one must be careful and remove the missing 
 # peaks from the peaks variable before doing the GC content calculations below.
 
-# cacluctae GC and oeCpG content
+# calculate GC and oeCpG content
 peakSeq <- BSgenome::getSeq(genome, peaks)
 fMono <- oligonucleotideFrequency(peakSeq, width = 1L, as.prob = TRUE)
 fDi <- oligonucleotideFrequency(peakSeq, width = 2L, as.prob = TRUE)

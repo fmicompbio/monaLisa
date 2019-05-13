@@ -9,6 +9,7 @@ Authors@R: c(
 Description: Useful functions to work with sequence motifs in the analysis of genomics data.
     These include methods to annotate genomic regions or sequences with predicted motif hits
     and to identify motifs that drive observed changes in accessibility or expression.
+Depends: R (>= 3.5.0)
 Imports: methods, stats, utils, grDevices, graphics, GenomicRanges, TFBSTools,
     Biostrings, IRanges, stabs, BSgenome, glmnet, S4Vectors
 Suggests: JASPAR2018, BSgenome.Hsapiens.UCSC.hg19, TxDb.Hsapiens.UCSC.hg19.knownGene,
