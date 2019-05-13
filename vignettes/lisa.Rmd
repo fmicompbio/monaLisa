@@ -270,7 +270,7 @@ peaks <- readRDS(peaks_path)
 ## Get predictor matrix showing number of TFBS per motif across the peaks
 
 The `findMotifHits` function can be used to get the predicted binding sites of each transcription factor across a given set of genomic regions, 
-which in out case is the ATAC-seq peaks. A predictor matrix which contains the number of TFBS each TF has across the given set of peaks is subsequently generated. Note that peaks that have 0 TFBS with all TFs will not be present in the resulting matrix. One can also make use of phylogenetic information of TFs and incorporate that in the predictor matrix. With ATAC-seq, we didn't want to restrict ourselves to conserved motif sequences. One can also add any additional property of the genomic regions in the response vector to compete against the TFs for selection. We added GC content and the ratio of observed-over-expected CpG (oeCpG) content.
+which in our case is the ATAC-seq peaks. A predictor matrix which contains the number of TFBS each TF has across the given set of peaks is subsequently generated. Note that peaks that have 0 TFBS with all TFs will not be present in the resulting matrix. One can also make use of phylogenetic information of TFs and incorporate that in the predictor matrix. With ATAC-seq, we didn't want to restrict ourselves to conserved motif sequences. One can also add any additional property of the genomic regions in the response vector to compete against the TFs for selection. We added GC content and the ratio of observed-over-expected CpG (oeCpG) content.
 
 
 ```{r predictor}
@@ -305,12 +305,12 @@ if(length(w)>0){
 all(rownames(predictor_matrix)==names(peaks))
 all(rownames(predictor_matrix)==names(response))
 
-# Note that in this case all peaks have at least one TFBS of any of the TFs. 
+# Note that in this case all peaks have at least one TFBS for any of the TFs. 
 # However, that may not always be the case. If a given set of peaks does 
 # not appear in the hits variable one must be careful and remove the missing 
 # peaks from the peaks variable before doing the GC content calculations below.
 
-# cacluctae GC and oeCpG content
+# calculate GC and oeCpG content
 peakSeq <- BSgenome::getSeq(genome, peaks)
 fMono <- oligonucleotideFrequency(peakSeq, width = 1L, as.prob = TRUE)
 fDi <- oligonucleotideFrequency(peakSeq, width = 2L, as.prob = TRUE)
