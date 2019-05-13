@@ -240,7 +240,9 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"
 	}
 	hmBin <- ComplexHeatmap::HeatmapAnnotation(df = data.frame(bin = colnames(x[[1]])), name="bin",
 											   col = list(bin = bincols),
-											   which = "column", width = grid::unit(width / 16,"inch"),
+											   show_annotation_name = FALSE,
+											   which = "column", width = grid::unit(width,"inch"),
+											   annotation_height = grid::unit(width / 16, "inch"),
 											   show_legend=FALSE)
 	tmp <- matrix(if (!is.null(highlight)) as.character(highlight) else rep(NA, nrow(x[[1]])),
 								ncol = 1, dimnames = list(rownames(x[[1]]), NULL))
@@ -269,7 +271,7 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"
 																														 colors = colorRampPalette(cols)(256)),
 																	cluster_rows = FALSE, cluster_columns=FALSE, show_row_names=FALSE, show_column_names=FALSE,
 																	##column_names_side = "bottom", column_names_max_height = grid::unit(1.5,"inch"),
-																	top_annotation = hmBin, top_annotation_height = grid::unit(width / 16, "inch"),
+																	top_annotation = hmBin,
 																	show_heatmap_legend = TRUE, heatmap_legend_param = list(color_bar="continuous"),
 																	use_raster = TRUE)
 		hm
