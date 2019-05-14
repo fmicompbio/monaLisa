@@ -55,10 +55,18 @@ test_that("glmnet.randomized_lasso() works properly", {
   # ... expect_true
   expect_true(base::inherits(rl, "list"))
   expect_true(all(names(rl)==c("selected", "path")))
-  expect_true(sum(rl$selected)==12)
   expect_true(base::inherits(rl$selected, "logical"))
   expect_true(base::inherits(rl$path, "matrix"))
   
+  # outputs differ depending on R version due to random number generator with 'sample' function (check RNGkind) --> different as of R 3.6.0
+  Rmajor <- as.numeric(R.version$major)
+  Rminor <- as.numeric(R.version$minor)
+  if (Rmajor>=3 & Rminor>=6) {
+    expect_true(sum(rl$selected)==11)
+  } else {
+    expect_true(sum(rl$selected)==12)
+  }
+
   
 })
 
