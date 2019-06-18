@@ -34,7 +34,9 @@ NULL
         } else {
             scorecut <- absscore[i]
         }
-        cat(sprintf(">%s\t%s\t%.6f\n",
+        #the -10 is added so that the motif file has 4 columns, which is need to run compareMotifs.pl
+        #for the weight matrix clustering
+        cat(sprintf(">%s\t%s\t%.6f\t-10\n",
                     paste(apply(pwm, 2, function(x) { rownames(pwm)[which.max(x)] }), collapse = ""),
                     TFBSTools::name(pwmL[[i]]), scorecut),  file = fh, append = TRUE)
         write.table(file = fh, t(pwm), row.names = FALSE, col.names = FALSE,
