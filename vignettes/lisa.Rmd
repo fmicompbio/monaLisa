@@ -49,7 +49,7 @@ Finally, `lisa` can can be used to predict what transcription factors are likely
 library(lisa)
 
 # bin regions
-# (atac.peaks.change is a numberical vector)
+# (atac.peaks.change is a numerical vector)
 bins <- bin(x = atac.peaks.change, binmode = "equalN", nElement = 400)
 
 # dump motifs into file
@@ -201,6 +201,17 @@ resLsel <- lapply(resLsel, function(x) { rownames(x) <- sub("\\|.*$","",rownames
 # plot
 plotMotifHeatmaps(x = resLsel, b = bins, which.plots = c("log2enr","FDR"), width = 2.0,
                   cluster = TRUE, maxEnr = 2, maxSig = 10)
+```
+
+As the Jaspar database contains many similar motifs, it may helpful to show the enrichment heatmap clustered by motif similarity. To this end, we first need to calculate all pairwise motif similarities (measured as maximum Pearson correlation of all possible shifted alignments). As this step may take a while, you can also skip this line of code and load the results using the next line of code. 
+
+```{r wmclustering, eval=FALSE}
+SimMat <- clusterPWMs(motifFile = motiffile, 
+            homerdir ="/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/",
+            outfile = tempfile(fileext = ".simmat"))
+```
+```{r getclusteringresults}
+SimMat <- readRDS(system.file("extdata", "SimMat.rds", package = "lisa"))
 ```
 
 

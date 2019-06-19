@@ -280,7 +280,7 @@ runHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(
 #'
 #' @param motifFile A file with HOMER formatted PWMs as input for compareMotifs.pl.
 #' @param homerdir Path to the HOMER binary directory.
-#' 
+#' @param outfile A file to save the similarity scores.
 #' @return A matrix of Pearson correlations for each pairwise comparison of
 #'     motifs in motifFile.
 #'
