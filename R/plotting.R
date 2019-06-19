@@ -198,7 +198,11 @@ plotBinScatter <- function(x, y, b,
 #'     (default: 99.5th percentile).
 #' @param highlight A logical vector indicating motifs to be highlighted.
 #' @param cluster If \code{TRUE}, the order of transcription factors will be determined by
-#'     hierarchical clustering of the \code{"enr"} component.
+#'     hierarchical clustering of the \code{"enr"} component. Alternatively, an
+#'     \code{hclust}-object can be supplied which will determine the motif ordering.
+#'     No reordering is done for \code{cluster = FALSE}.
+#' @param show_dendrogram If \code{cluster != FALSE}, controls whether to show
+#'     a row dendrogram for the clustering of motifs. Ignored for \code{cluster = FALSE}.
 #'
 #' @details The heatmaps are plotted side-by-side and are created internally using
 #'     the \pkg{ComplexHeatmap} package.
@@ -215,13 +219,15 @@ plotBinScatter <- function(x, y, b,
 #'
 #' @return A list of \code{ComplexHeatmap::Heatmap} objects.
 #'
+#' @importFrom methods is
+#'
 #' @export
 plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"), width = 4,
                               col.enr = c("#053061","#2166AC","#4393C3","#92C5DE","#D1E5F0",
                                           "#F7F7F7","#FDDBC7","#F4A582","#D6604D","#B2182B","#67001F"),
                               col.sig = c("#FFF5EB","#FEE6CE","#FDD0A2","#FDAE6B","#FD8D3C",
                                           "#F16913","#D94801","#A63603","#7F2704"),
-                              maxEnr = NULL, maxSig = NULL, highlight = NULL, cluster = FALSE) {
+                              maxEnr = NULL, maxSig = NULL, highlight = NULL, cluster = FALSE, show_dendrogram = FALSE) {
 	stopifnot(requireNamespace("ComplexHeatmap"))
 	stopifnot(requireNamespace("circlize"))
 	stopifnot(requireNamespace("grid"))
@@ -231,12 +237,16 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"
 	stopifnot(all(which.plots %in% c("p", "FDR", "enr", "log2enr")))
 	stopifnot(all(which.plots %in% names(x)))
 	stopifnot(is.null(highlight) || (is.logical(highlight) && length(highlight) == nrow(x[[1]])))
+	stopifnot(is.logical(show_dendrogram) && length(show_dendrogram) == 1L)
 	bincols <- attr(getColsByBin(b), "cols")
-	if (cluster) {
+	if (is.logical(cluster) && length(cluster) == 1 && cluster[1] == TRUE) {
 	    clres <- stats::hclust(stats::dist(x[["enr"]]))
-	    o <- clres$order
+	} else if (is.logical(cluster) && length(cluster) == 1 && cluster[1] == FALSE) {
+	    clres <- FALSE
+	} else if (is(cluster, "hclust")) {
+	    clres <- cluster
 	} else {
-	    o <- seq.int(nrow(x[[1]]))
+	    stop("'cluster' must be either TRUE, FALSE or an hclust-object.")
 	}
 	hmBin <- ComplexHeatmap::HeatmapAnnotation(df = data.frame(bin = colnames(x[[1]])), name="bin",
 											   col = list(bin = bincols),
@@ -246,10 +256,10 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"
 											   show_legend=FALSE)
 	tmp <- matrix(if (!is.null(highlight)) as.character(highlight) else rep(NA, nrow(x[[1]])),
 								ncol = 1, dimnames = list(rownames(x[[1]]), NULL))
-	hmMotifs <- ComplexHeatmap::Heatmap(matrix = tmp[o, , drop = FALSE], name = "names",
+	hmMotifs <- ComplexHeatmap::Heatmap(matrix = tmp, name = "names",
 										width = grid::unit(if (!is.null(highlight)) .2 else 0, "inch"),
 										na_col = NA, col = c("TRUE" = "green3", "FALSE" = "white"),
-										cluster_rows = FALSE, cluster_columns = FALSE,
+										cluster_rows = clres, show_row_dend = show_dendrogram, cluster_columns = FALSE,
 										show_row_names = TRUE, row_names_side = "left",
 										show_column_names = FALSE, show_heatmap_legend = FALSE)
 
@@ -262,7 +272,7 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"
 			rng <- c(0, if (is.null(maxSig)) quantile(dat, .995) else maxSig)
 			cols <- col.sig
 		}
-		hm <- ComplexHeatmap::Heatmap(matrix = dat[o, , drop = FALSE], name = c(p="P value", FDR="FDR",
+		hm <- ComplexHeatmap::Heatmap(matrix = dat, name = c(p="P value", FDR="FDR",
 		                                                     enr="enrichment", log2enr="log2 enrichment")[w],
 		                              width = grid::unit(width,"inch"),
 		                              column_title = c(p = "P value (-log10)", FDR = "FDR (-log10)",
