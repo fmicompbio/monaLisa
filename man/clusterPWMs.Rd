@@ -10,6 +10,8 @@ clusterPWMs(motifFile, homerdir, outfile)
 \item{motifFile}{A file with HOMER formatted PWMs as input for compareMotifs.pl.}
 
 \item{homerdir}{Path to the HOMER binary directory.}
+
+\item{outfile}{A file to save the similarity scores.}
 }
 \value{
 A matrix of Pearson correlations for each pairwise comparison of

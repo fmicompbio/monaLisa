@@ -9,7 +9,8 @@ plotMotifHeatmaps(x, b, which.plots = c("p", "enr", "FDR", "log2enr"),
   "#D1E5F0", "#F7F7F7", "#FDDBC7", "#F4A582", "#D6604D", "#B2182B",
   "#67001F"), col.sig = c("#FFF5EB", "#FEE6CE", "#FDD0A2", "#FDAE6B",
   "#FD8D3C", "#F16913", "#D94801", "#A63603", "#7F2704"), maxEnr = NULL,
-  maxSig = NULL, highlight = NULL, cluster = FALSE)
+  maxSig = NULL, highlight = NULL, cluster = FALSE,
+  show_dendrogram = FALSE)
 }
 \arguments{
 \item{x}{A list with numerical matrices (motifs-by-bins), typically the return value
@@ -35,7 +36,12 @@ of \code{\link{bin}()}).}
 \item{highlight}{A logical vector indicating motifs to be highlighted.}
 
 \item{cluster}{If \code{TRUE}, the order of transcription factors will be determined by
-hierarchical clustering of the \code{"enr"} component.}
+hierarchical clustering of the \code{"enr"} component. Alternatively, an
+\code{hclust}-object can be supplied which will determine the motif ordering.
+No reordering is done for \code{cluster = FALSE}.}
+
+\item{show_dendrogram}{If \code{cluster != FALSE}, controls whether to show
+a row dendrogram for the clustering of motifs. Ignored for \code{cluster = FALSE}.}
 }
 \value{
 A list of \code{ComplexHeatmap::Heatmap} objects.

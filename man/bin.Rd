@@ -20,7 +20,7 @@ The width of bins is adjusted accordingly.}
 \item{nBins}{The number of bins (only for \code{binmode="equalWidth"}).
 The number of elments per bin will be variable.}
 
-\item{minAbsX}{The minimal absolute value in \code{x} for exlements to be binned
+\item{minAbsX}{The minimal absolute value in \code{x} for elements to be binned
 using the \code{binmode="equalN"} or \code{binmode="equalWidth"} (ignored
 for other values of \code{binmode}). Elements with \code{x} values in
 \code{[-minAbsX,minAbsX]} will be collected in a single bin.}

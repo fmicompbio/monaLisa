@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 #  library(lisa)
 #  
 #  # bin regions
-#  # (atac.peaks.change is a numberical vector)
+#  # (atac.peaks.change is a numerical vector)
 #  bins <- bin(x = atac.peaks.change, binmode = "equalN", nElement = 400)
 #  
 #  # dump motifs into file
@@ -80,6 +80,14 @@ resLsel <- lapply(resLsel, function(x) { rownames(x) <- sub("\\|.*$","",rownames
 # plot
 plotMotifHeatmaps(x = resLsel, b = bins, which.plots = c("log2enr","FDR"), width = 2.0,
                   cluster = TRUE, maxEnr = 2, maxSig = 10)
+
+## ----wmclustering, eval=FALSE----------------------------------------------
+#  SimMat <- clusterPWMs(motifFile = motiffile,
+#              homerdir ="/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/",
+#              outfile = tempfile(fileext = ".simmat"))
+
+## ----getclusteringresults--------------------------------------------------
+SimMat <- readRDS(system.file("extdata", "SimMat.rds", package = "lisa"))
 
 ## ----findMotifs------------------------------------------------------------
 # get sequences of promoters as a DNAStringSet
