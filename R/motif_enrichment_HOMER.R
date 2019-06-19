@@ -270,3 +270,36 @@ runHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(
     names(resfiles) <- levels(b)
     parseHomerOutput(resfiles)
 }
+
+
+#' @title Calculate similarity matrix of motifs.
+#'
+#' @description Run the HOMER script compareMotifs.pl (with default options) to get a similarity matrix
+#'     of all motifs. For details, see the HOMER documentation.
+#'  
+#'
+#' @param motifFile A file with HOMER formatted PWMs as input for compareMotifs.pl.
+#' @param homerdir Path to the HOMER binary directory.
+#' 
+#' @return A matrix of Pearson correlations for each pairwise comparison of
+#'     motifs in motifFile.
+#'
+#' @export
+clusterPWMs <- function(motifFile, homerdir, outfile){
+  
+    stopifnot(is.character(motifFile) && length(motifFile) == 1L && file.exists(motifFile))
+    stopifnot(is.character(homerdir) && length(homerdir) == 1L && file.exists(homerdir))
+    homerfile = findHomer("compareMotifs.pl", dirs = homerdir)
+    #run
+    message("running compareMotifs.pl...")
+    system(sprintf("%s %s test -matrix %s", homerfile, motifFile, outfile), intern=TRUE)
+    #/work/gbioinfo/Appz/Homer/Homer-4.8/bin/compareMotifs.pl test.motif test -matrix testmat
+    as.matrix(read.delim(outfile, row.names=1))
+}
+
+
+
+
+
+
+
