@@ -246,7 +246,7 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"
 											   show_legend=FALSE)
 	tmp <- matrix(if (!is.null(highlight)) as.character(highlight) else rep(NA, nrow(x[[1]])),
 								ncol = 1, dimnames = list(rownames(x[[1]]), NULL))
-	hmMotifs <- ComplexHeatmap::Heatmap(matrix = tmp, name = "names",
+	hmMotifs <- ComplexHeatmap::Heatmap(matrix = tmp[o, , drop = FALSE], name = "names",
 										width = grid::unit(if (!is.null(highlight)) .2 else 0, "inch"),
 										na_col = NA, col = c("TRUE" = "green3", "FALSE" = "white"),
 										cluster_rows = FALSE, cluster_columns = FALSE,
@@ -262,18 +262,18 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"
 			rng <- c(0, if (is.null(maxSig)) quantile(dat, .995) else maxSig)
 			cols <- col.sig
 		}
-		hm <- ComplexHeatmap::Heatmap(matrix = dat, name = c(p="P value", FDR="FDR",
-																												 enr="enrichment", log2enr="log2 enrichment")[w],
-																	width = grid::unit(width,"inch"),
-																	column_title = c(p = "P value (-log10)", FDR = "FDR (-log10)",
-																									 enr = "enrichment (o-e)/sqrt(e)", log2enr="enrichment (log2)")[w],
-																	col = circlize::colorRamp2(breaks = seq(rng[1], rng[2], length.out = 256),
-																														 colors = colorRampPalette(cols)(256)),
-																	cluster_rows = FALSE, cluster_columns=FALSE, show_row_names=FALSE, show_column_names=FALSE,
-																	##column_names_side = "bottom", column_names_max_height = grid::unit(1.5,"inch"),
-																	top_annotation = hmBin,
-																	show_heatmap_legend = TRUE, heatmap_legend_param = list(color_bar="continuous"),
-																	use_raster = TRUE)
+		hm <- ComplexHeatmap::Heatmap(matrix = dat[o, , drop = FALSE], name = c(p="P value", FDR="FDR",
+		                                                     enr="enrichment", log2enr="log2 enrichment")[w],
+		                              width = grid::unit(width,"inch"),
+		                              column_title = c(p = "P value (-log10)", FDR = "FDR (-log10)",
+		                                               enr = "enrichment (o-e)/sqrt(e)", log2enr="enrichment (log2)")[w],
+		                              col = circlize::colorRamp2(breaks = seq(rng[1], rng[2], length.out = 256),
+		                                                         colors = colorRampPalette(cols)(256)),
+		                              cluster_rows = FALSE, cluster_columns=FALSE, show_row_names=FALSE, show_column_names=FALSE,
+		                              ##column_names_side = "bottom", column_names_max_height = grid::unit(1.5,"inch"),
+		                              top_annotation = hmBin,
+		                              show_heatmap_legend = TRUE, heatmap_legend_param = list(color_bar="continuous"),
+		                              use_raster = TRUE)
 		hm
 	}))
 	names(ret)[-1] <- which.plots
