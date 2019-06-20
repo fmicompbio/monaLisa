@@ -26,7 +26,7 @@ plotBinHist(x, b, breaks = 10 * nlevels(b),
 be passed to \code{legend(x=legend)} to control legend position).}
 
 \item{legend.cex}{A scalar that controls the text size in the legend relative
-to the current \code{par("cex)} (see \code{\link{legend}}).}
+to the current \code{par("cex")} (see \code{\link{legend}}).}
 
 \item{...}{Further arguments passed to \code{\link{getColsByBin}}.}
 }
