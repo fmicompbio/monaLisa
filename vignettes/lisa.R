@@ -24,13 +24,14 @@ knitr::opts_chunk$set(
 #  
 #  # run analysis
 #  # (atac.peaks is a GRanges)
-#  resL <- runHomer(gr = atac.peaks, b = bins, genomedir = "/work/gbioinfo/DB/genomes/mm10",
-#                   outdir = "myresults", motifFile = "jaspar2018.motif", homerfile = homerfile,
-#                   regionsize = "given", Ncpu = 4L)
+#  se <- runHomer(gr = atac.peaks, b = bins, genomedir = "/work/gbioinfo/DB/genomes/mm10",
+#                 outdir = "myresults", motifFile = "jaspar2018.motif", homerfile = homerfile,
+#                 regionsize = "given", Ncpu = 4L)
 #  
 
 ## ----loadlib, message=FALSE------------------------------------------------
 library(GenomicRanges)
+library(SummarizedExperiment)
 library(lisa)
 
 ## ----loadLMRs--------------------------------------------------------------
@@ -62,23 +63,39 @@ homerfile <- findHomer(dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
 
 ## ----runhomer, eval=FALSE--------------------------------------------------
 #  outdir <- tempfile(fileext = ".output")
-#  resL <- runHomer(gr = lmrsel, b = bins, genomedir = "/work/gbioinfo/DB/genomes/mm9",
-#                   outdir = outdir, motifFile = motiffile, homerfile = homerfile,
-#                   regionsize = "given", Ncpu = 20L)
+#  se <- runHomer(gr = lmrsel, b = bins, genomedir = "/work/gbioinfo/DB/genomes/mm9",
+#                 outdir = outdir, motifFile = motiffile, homerfile = homerfile,
+#                 regionsize = "given", Ncpu = 20L)
 
 ## ----gethomerresults-------------------------------------------------------
-bins <- readRDS(system.file("extdata", "bins.rds", package = "lisa"))
-resL <- readRDS(system.file("extdata", "resL.rds", package = "lisa"))
+se <- readRDS(system.file("extdata", "se.rds", package = "lisa"))
+
+## ----summarizedexperiment--------------------------------------------------
+# summary
+se
+dim(se) # motifs-by-bins
+
+# motif info
+rowData(se)
+head(rownames(se))
+
+# bin info
+colData(se)
+head(colnames(se))
+
+# assays: the motif enrichment results
+assayNames(se)
+assay(se, "log2enr")[1:6, 1:3]
 
 ## ----plottfs---------------------------------------------------------------
 # select strongly enriched TFs
-sel <- apply(resL[["log2enr"]], 1, function(x) max(abs(x))) > 1.0
+sel <- apply(assay(se, "log2enr"), 1, function(x) max(abs(x))) > 1.0
 sum(sel)
-resLsel <- lapply(resL, function(x) x[sel,])
+seSel <- se[sel, ]
 # shorten names
-resLsel <- lapply(resLsel, function(x) { rownames(x) <- sub("\\|.*$","",rownames(x)); x })
+rownames(seSel) <- sub("\\|.*$","",rownames(seSel))
 # plot
-plotMotifHeatmaps(x = resLsel, b = bins, which.plots = c("log2enr","FDR"), width = 2.0,
+plotMotifHeatmaps(x = seSel, which.plots = c("log2enr","FDR"), width = 2.0,
                   cluster = TRUE, maxEnr = 2, maxSig = 10)
 
 ## ----wmclustering, eval=FALSE----------------------------------------------
@@ -90,13 +107,13 @@ plotMotifHeatmaps(x = resLsel, b = bins, which.plots = c("log2enr","FDR"), width
 SimMat <- readRDS(system.file("extdata", "SimMat.rds", package = "lisa"))
 
 ## ----reordermatrix---------------------------------------------------------
-indx <- setNames(1:nrow(SimMat), rownames(SimMat))[rownames(resL[[1]])]
+indx <- setNames(1:nrow(SimMat), rownames(SimMat))[rownames(se)]
 SimMat <- SimMat[indx, indx]
 
 ## ----plottfsclustered------------------------------------------------------
 #creat hclust object, similarity defined by 1 - Pearson correlation
 hcl <- hclust(as.dist(1 - SimMat[sel, sel]), method="average")
-plotMotifHeatmaps(x = resLsel, b = bins, which.plots = c("log2enr","FDR"), width = 2.0,
+plotMotifHeatmaps(x = seSel, which.plots = c("log2enr","FDR"), width = 2.0,
                   cluster = hcl, maxEnr = 2, maxSig = 10, show_dendrogram=TRUE)
 
 ## ----findMotifs------------------------------------------------------------
