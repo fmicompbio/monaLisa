@@ -196,10 +196,9 @@ plotBinScatter <- function(x, y, b,
 #'
 #' @description Plot motif enrichments (e.g. significance or magnitude) as a heatmap.
 #'
-#' @param x A list with numerical matrices (motifs-by-bins), typically the return value
-#'     of \code{\link{runHomer}} or \code{\link{parseHomerOutput}}.
-#' @param b A factor that groups elements of \code{x,y} into bins (typically the output
-#'     of \code{\link{bin}()}).
+#' @param x A \code{\link[SummarizedExperiment]{SummarizedExperiment}} with numerical matrices
+#'     (motifs-by-bins) in its \code{assays()}, typically the return value
+#'     of \code{\link{runHomer}}.
 #' @param which.plots Selects which heatmaps to plot (one or several from \code{"p"}, \code{"FDR"},
 #'     \code{"enr"} and \code{"log2enr"}).
 #' @param width The width (in inches) of each individual heatmap, without legend.
@@ -232,9 +231,12 @@ plotBinScatter <- function(x, y, b,
 #' @return A list of \code{ComplexHeatmap::Heatmap} objects.
 #'
 #' @importFrom methods is
+#' @importFrom grDevices colorRampPalette
+#' @importFrom S4Vectors metadata
+#' @importFrom SummarizedExperiment assayNames assays metadata
 #'
 #' @export
-plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"), width = 4,
+plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), width = 4,
                               col.enr = c("#053061","#2166AC","#4393C3","#92C5DE","#D1E5F0",
                                           "#F7F7F7","#FDDBC7","#F4A582","#D6604D","#B2182B","#67001F"),
                               col.sig = c("#FFF5EB","#FEE6CE","#FDD0A2","#FDAE6B","#FD8D3C",
@@ -243,16 +245,17 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"
 	stopifnot(requireNamespace("ComplexHeatmap"))
 	stopifnot(requireNamespace("circlize"))
 	stopifnot(requireNamespace("grid"))
-	stopifnot(is.list(x))
-	stopifnot(all(sapply(x, ncol) == nlevels(b)))
-	stopifnot(all(sapply(x, function(xx) all(dim(xx) == dim(x[[1]])))))
+	stopifnot(is(x, "SummarizedExperiment")
+	          && all(assayNames(x) == c("p", "FDR", "enr", "log2enr"))
+	          && "bins" %in% names(metadata(x)))
+	b <- metadata(x)$bins
+	stopifnot(ncol(x) == nlevels(b))
 	stopifnot(all(which.plots %in% c("p", "FDR", "enr", "log2enr")))
-	stopifnot(all(which.plots %in% names(x)))
-	stopifnot(is.null(highlight) || (is.logical(highlight) && length(highlight) == nrow(x[[1]])))
+	stopifnot(is.null(highlight) || (is.logical(highlight) && length(highlight) == nrow(x)))
 	stopifnot(is.logical(show_dendrogram) && length(show_dendrogram) == 1L)
 	bincols <- attr(getColsByBin(b), "cols")
 	if (is.logical(cluster) && length(cluster) == 1 && cluster[1] == TRUE) {
-	    clres <- stats::hclust(stats::dist(x[["enr"]]))
+	    clres <- stats::hclust(stats::dist(assay(x, "enr")))
 	} else if (is.logical(cluster) && length(cluster) == 1 && cluster[1] == FALSE) {
 	    clres <- FALSE
 	} else if (is(cluster, "hclust")) {
@@ -260,14 +263,14 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"
 	} else {
 	    stop("'cluster' must be either TRUE, FALSE or an hclust-object.")
 	}
-	hmBin <- ComplexHeatmap::HeatmapAnnotation(df = data.frame(bin = colnames(x[[1]])), name="bin",
+	hmBin <- ComplexHeatmap::HeatmapAnnotation(df = data.frame(bin = colnames(x)), name="bin",
 											   col = list(bin = bincols),
 											   show_annotation_name = FALSE,
 											   which = "column", width = grid::unit(width,"inch"),
 											   annotation_height = grid::unit(width / 16, "inch"),
 											   show_legend=FALSE)
-	tmp <- matrix(if (!is.null(highlight)) as.character(highlight) else rep(NA, nrow(x[[1]])),
-								ncol = 1, dimnames = list(rownames(x[[1]]), NULL))
+	tmp <- matrix(if (!is.null(highlight)) as.character(highlight) else rep(NA, nrow(x)),
+								ncol = 1, dimnames = list(rownames(x), NULL))
 	hmMotifs <- ComplexHeatmap::Heatmap(matrix = tmp, name = "names",
 										width = grid::unit(if (!is.null(highlight)) .2 else 0, "inch"),
 										na_col = NA, col = c("TRUE" = "green3", "FALSE" = "white"),
@@ -275,8 +278,11 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"
 										show_row_names = TRUE, row_names_side = "left",
 										show_column_names = FALSE, show_heatmap_legend = FALSE)
 
+	assayNameMap1 <- c(p="P value", FDR="FDR", enr="enrichment", log2enr="log2 enrichment")
+	assayNameMap2 <- c(p = "P value (-log10)", FDR = "FDR (-log10)",
+	                   enr = "enrichment (o-e)/sqrt(e)", log2enr="enrichment (log2)")
 	ret <- c(list(labels = hmMotifs), lapply(which.plots, function(w) {
-		dat <- x[[w]]
+		dat <- assay(x, w)
 		if ((w == "enr") | (w == "log2enr")) {
 			rng <- c(-1, 1) * if (is.null(maxEnr)) quantile(abs(dat), .995) else maxEnr
 			cols <- col.enr
@@ -284,11 +290,10 @@ plotMotifHeatmaps <- function(x, b, which.plots = c("p", "enr", "FDR", "log2enr"
 			rng <- c(0, if (is.null(maxSig)) quantile(dat, .995) else maxSig)
 			cols <- col.sig
 		}
-		hm <- ComplexHeatmap::Heatmap(matrix = dat, name = c(p="P value", FDR="FDR",
-		                                                     enr="enrichment", log2enr="log2 enrichment")[w],
+		hm <- ComplexHeatmap::Heatmap(matrix = dat,
+		                              name = assayNameMap1[w],
 		                              width = grid::unit(width,"inch"),
-		                              column_title = c(p = "P value (-log10)", FDR = "FDR (-log10)",
-		                                               enr = "enrichment (o-e)/sqrt(e)", log2enr="enrichment (log2)")[w],
+		                              column_title = assayNameMap2[w],
 		                              col = circlize::colorRamp2(breaks = seq(rng[1], rng[2], length.out = 256),
 		                                                         colors = colorRampPalette(cols)(256)),
 		                              cluster_rows = FALSE, cluster_columns=FALSE, show_row_names=FALSE, show_column_names=FALSE,
