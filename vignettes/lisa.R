@@ -56,7 +56,7 @@ plotBinDensity(lmrsel$deltaMeth, bins, legend = "topleft")
 
 ## ----dumpjaspar------------------------------------------------------------
 motiffile <- tempfile(fileext = ".motif")
-dumpJaspar(motiffile, pkg = "JASPAR2018", relScoreCutoff = 0.9)
+dumpJaspar(motiffile, pkg = "JASPAR2018")
 
 ## ----homerscript-----------------------------------------------------------
 homerfile <- findHomer(dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
