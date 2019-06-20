@@ -62,6 +62,8 @@ getColsByBin <- function(b,
 #' @param main Main title.
 #' @param legend If not \code{NULL}, draw a legend with binning information (will
 #'     be passed to \code{legend(x=legend)} to control legend position).
+#' @param legend.cex A scalar that controls the text size in the legend relative
+#'     to the current \code{par("cex)} (see \code{\link{legend}}).
 #' @param ... Further arguments passed to \code{\link{getColsByBin}}.
 #'
 #' @seealso \code{\link{getColsByBin}}, \code{\link[graphics]{hist}}
@@ -71,9 +73,10 @@ getColsByBin <- function(b,
 #' @export
 plotBinHist <- function(x, b, breaks = 10 * nlevels(b),
                         xlab = deparse(substitute(x)), ylab = "Frequency",
-                        main = "", legend = "topright", ...) {
+                        main = "", legend = "topright", legend.cex = 1.0, ...) {
     stopifnot(length(x) == length(b))
     stopifnot(is.factor(b) && "breaks" %in% names(attributes(b)))
+    stopifnot(is.numeric(legend.cex) && length(legend.cex) == 1)
     cols <- getColsByBin(b, ...)
     binbreaks <- attr(b, "breaks")
     bincols <- attr(cols, "cols")
@@ -84,7 +87,8 @@ plotBinHist <- function(x, b, breaks = 10 * nlevels(b),
     pusr <- par('usr'); segments(x0=pusr[c(1,1)], y0=pusr[c(4,3)], x1=pusr[c(1,2)], y1=pusr[c(3,3)])
     rug(binbreaks, col="black")
     if (!is.null(legend) && legend[1] != FALSE)
-        legend(x = legend, legend = sprintf("%s : %d", levels(b), table(b)), fill = bincols, bty = "n")
+        legend(x = legend, legend = sprintf("%s : %d", levels(b), table(b)),
+               fill = bincols, bty = "n", cex = legend.cex)
     invisible(ret)
 }
 
@@ -100,6 +104,8 @@ plotBinHist <- function(x, b, breaks = 10 * nlevels(b),
 #' @param main Main title.
 #' @param legend If not \code{NULL}, draw a legend with binning information (will
 #'     be passed to \code{legend(x=legend)} to control legend position).
+#' @param legend.cex A scalar that controls the text size in the legend relative
+#'     to the current \code{par("cex)} (see \code{\link{legend}}).
 #' @param ... Further arguments passed to \code{\link{getColsByBin}}.
 #'
 #' @seealso \code{\link{getColsByBin}}
@@ -109,9 +115,10 @@ plotBinHist <- function(x, b, breaks = 10 * nlevels(b),
 #' @export
 plotBinDensity <- function(x, b,
                            xlab = deparse(substitute(x)), ylab = "Density",
-                           main = "", legend = "topright", ...) {
+                           main = "", legend = "topright", legend.cex = 1.0, ...) {
     stopifnot(length(x) == length(b))
     stopifnot(is.factor(b) && "breaks" %in% names(attributes(b)))
+    stopifnot(is.numeric(legend.cex) && length(legend.cex) == 1)
     cols <- getColsByBin(b, ...)
     binbreaks <- attr(b, "breaks")
     bincols <- attr(cols, "cols")
@@ -129,7 +136,8 @@ plotBinDensity <- function(x, b,
     lines(ret$x, ret$y)
 
     if (!is.null(legend) && legend[1] != FALSE)
-        legend(x = legend, legend = sprintf("%s : %d", levels(b), table(b)), fill = bincols, bty = "n")
+        legend(x = legend, legend = sprintf("%s : %d", levels(b), table(b)),
+               fill = bincols, bty = "n", cex = legend.cex)
     invisible(ret)
 }
 
@@ -148,6 +156,8 @@ plotBinDensity <- function(x, b,
 #' @param main Main title.
 #' @param legend If not \code{NULL}, draw a legend with binning information (will
 #'     be passed to \code{legend(x=legend)} to control legend position).
+#' @param legend.cex A scalar that controls the text size in the legend relative
+#'     to the current \code{par("cex)} (see \code{\link{legend}}).
 #' @param ... Further arguments passed to \code{plot(x, y, ...)}.
 #'
 #' @seealso \code{\link{bin}}, \code{\link{getColsByBin}}
@@ -159,9 +169,10 @@ plotBinScatter <- function(x, y, b,
                            cols = getColsByBin(b),
                            xlab = deparse(substitute(x)),
                            ylab = deparse(substitute(y)),
-                           main = "", legend = "topright", ...) {
+                           main = "", legend = "topright", legend.cex = 1.0, ...) {
     stopifnot(length(x) == length(y))
     stopifnot(length(x) == length(b))
+    stopifnot(is.numeric(legend.cex) && length(legend.cex) == 1)
     if (length(cols) == 1L)
         cols <- rep(cols, length(x))
     stopifnot(length(x) == length(cols))
@@ -175,7 +186,8 @@ plotBinScatter <- function(x, y, b,
     if (!is.null(legend) && legend[1] != FALSE) {
         stopifnot("cols" %in% names(attributes(cols)))
         bincols <- attr(cols, "cols")
-        legend(x = legend, legend = sprintf("%s : %d", levels(b), table(b)), fill = bincols, bty = "n")
+        legend(x = legend, legend = sprintf("%s : %d", levels(b), table(b)),
+               fill = bincols, bty = "n", cex = legend.cex)
     }
     invisible(ret)
 }

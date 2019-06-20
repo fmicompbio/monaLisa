@@ -5,7 +5,7 @@
 \title{Denstity plot of binned elements.}
 \usage{
 plotBinDensity(x, b, xlab = deparse(substitute(x)), ylab = "Density",
-  main = "", legend = "topright", ...)
+  main = "", legend = "topright", legend.cex = 1, ...)
 }
 \arguments{
 \item{x}{A numerical vector with the values used for binning.}
@@ -21,6 +21,9 @@ plotBinDensity(x, b, xlab = deparse(substitute(x)), ylab = "Density",
 
 \item{legend}{If not \code{NULL}, draw a legend with binning information (will
 be passed to \code{legend(x=legend)} to control legend position).}
+
+\item{legend.cex}{A scalar that controls the text size in the legend relative
+to the current \code{par("cex)} (see \code{\link{legend}}).}
 
 \item{...}{Further arguments passed to \code{\link{getColsByBin}}.}
 }
