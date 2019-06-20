@@ -11,7 +11,7 @@ Description: Useful functions to work with sequence motifs in the analysis of ge
     and to identify motifs that drive observed changes in accessibility or expression.
 Depends: R (>= 3.5.0)
 Imports: methods, stats, utils, grDevices, graphics, GenomicRanges, TFBSTools,
-    Biostrings, IRanges, stabs, BSgenome, glmnet, S4Vectors
+    Biostrings, IRanges, stabs, BSgenome, glmnet, S4Vectors, SummarizedExperiment
 Suggests: JASPAR2018, BSgenome.Hsapiens.UCSC.hg19, TxDb.Hsapiens.UCSC.hg19.knownGene,
     grid, circlize, ComplexHeatmap (>= 2.0.0), knitr, rmarkdown, testthat,
     BSgenome.Mmusculus.UCSC.mm10, BiocStyle

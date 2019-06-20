@@ -89,6 +89,16 @@ plotMotifHeatmaps(x = resLsel, b = bins, which.plots = c("log2enr","FDR"), width
 ## ----getclusteringresults--------------------------------------------------
 SimMat <- readRDS(system.file("extdata", "SimMat.rds", package = "lisa"))
 
+## ----reordermatrix---------------------------------------------------------
+indx <- setNames(1:nrow(SimMat), rownames(SimMat))[rownames(resL[[1]])]
+SimMat <- SimMat[indx, indx]
+
+## ----plottfsclustered------------------------------------------------------
+#creat hclust object, similarity defined by 1 - Pearson correlation
+hcl <- hclust(as.dist(1 - SimMat[sel, sel]), method="average")
+plotMotifHeatmaps(x = resLsel, b = bins, which.plots = c("log2enr","FDR"), width = 2.0,
+                  cluster = hcl, maxEnr = 2, maxSig = 10, show_dendrogram=TRUE)
+
 ## ----findMotifs------------------------------------------------------------
 # get sequences of promoters as a DNAStringSet
 # (could also be a single DNAString, or the name of a fasta file)

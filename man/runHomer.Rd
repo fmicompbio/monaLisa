@@ -12,7 +12,7 @@ runHomer(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(),
 with the genomic regions to analyze.}
 
 \item{b}{A vector of the same length as \code{gr} that groups its elements
-into bins (typically a factor).}
+into bins (typically a factor, such as the one returned by \code{\link{bin}}).}
 
 \item{genomedir}{Directory containing sequence files in Fasta format (one per chromosome).}
 
@@ -28,10 +28,19 @@ region, an integer value will keep only that many bases in the region center).}
 \item{Ncpu}{Number of parallel threads that HOMER can use.}
 }
 \value{
-A list of four components (\code{p}, \code{FDR}, \code{enr} and \code{log2enr}),
-    containing each a motif (rows) by bin (columns) matrix with raw
-    -log10 P values, -log10 false discovery rates and motif enrichments as
-    Pearson residuals (\code{enr}) and as log2 ratios (\code{log2enr}).
+A \code{\link[SummarizedExperiment]{SummarizedExperiment}} \code{x}
+  with
+  \describe{
+    \item{assays(x)}{containing the four components \code{p}, \code{FDR},
+        \code{enr} and \code{log2enr}), each a motif (rows) by bin (columns)
+        matrix with raw -log10 P values, -log10 false discovery rates and motif
+        enrichments as Pearson residuals (\code{enr}) and as log2 ratios
+        (\code{log2enr}).}
+    \item{rowData(x)}{containing information about the motifs.}
+    \item{colData(x)}{containing information about the bins.}
+    \item{metaData(x)}{containing meta data on the object (e.g. parameter
+        values and distances between pairs of motifs).}
+  }
 }
 \description{
 Run complete HOMER motif enrichment analysis, consisting of
@@ -40,5 +49,6 @@ Run complete HOMER motif enrichment analysis, consisting of
 }
 \seealso{
 The functions that are wrapped: \code{\link{prepareHomer}},
-    \code{\link[base]{system}} and \code{\link{parseHomerOutput}}
+    \code{\link[base]{system}} and \code{\link{parseHomerOutput}},
+    \code{\link{bin}} for binning of regions
 }
