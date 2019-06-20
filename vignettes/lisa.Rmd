@@ -164,7 +164,7 @@ a file with the motifs that we are interested in. A simple way is to dump the ve
 motifs from the `JASPAR2018` package into a file:  
 ```{r dumpjaspar}
 motiffile <- tempfile(fileext = ".motif")
-dumpJaspar(motiffile, pkg = "JASPAR2018", relScoreCutoff = 0.9)
+dumpJaspar(motiffile, pkg = "JASPAR2018")
 ```
 
 Next we need to know where Homer is installed (you may have to adjust the `dirs`
