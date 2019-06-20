@@ -63,7 +63,7 @@ getColsByBin <- function(b,
 #' @param legend If not \code{NULL}, draw a legend with binning information (will
 #'     be passed to \code{legend(x=legend)} to control legend position).
 #' @param legend.cex A scalar that controls the text size in the legend relative
-#'     to the current \code{par("cex)} (see \code{\link{legend}}).
+#'     to the current \code{par("cex")} (see \code{\link{legend}}).
 #' @param ... Further arguments passed to \code{\link{getColsByBin}}.
 #'
 #' @seealso \code{\link{getColsByBin}}, \code{\link[graphics]{hist}}
@@ -105,7 +105,7 @@ plotBinHist <- function(x, b, breaks = 10 * nlevels(b),
 #' @param legend If not \code{NULL}, draw a legend with binning information (will
 #'     be passed to \code{legend(x=legend)} to control legend position).
 #' @param legend.cex A scalar that controls the text size in the legend relative
-#'     to the current \code{par("cex)} (see \code{\link{legend}}).
+#'     to the current \code{par("cex")} (see \code{\link{legend}}).
 #' @param ... Further arguments passed to \code{\link{getColsByBin}}.
 #'
 #' @seealso \code{\link{getColsByBin}}
@@ -157,7 +157,7 @@ plotBinDensity <- function(x, b,
 #' @param legend If not \code{NULL}, draw a legend with binning information (will
 #'     be passed to \code{legend(x=legend)} to control legend position).
 #' @param legend.cex A scalar that controls the text size in the legend relative
-#'     to the current \code{par("cex)} (see \code{\link{legend}}).
+#'     to the current \code{par("cex")} (see \code{\link{legend}}).
 #' @param ... Further arguments passed to \code{plot(x, y, ...)}.
 #'
 #' @seealso \code{\link{bin}}, \code{\link{getColsByBin}}
