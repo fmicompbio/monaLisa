@@ -37,7 +37,7 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 #'
 #' @param filename Name of the output file to be created.
 #' @param pkg Name of the Jaspar package to use (default: \code{JASPAR2018}).
-#' @param opts a search options list used in \code{getMatrixSet}.
+#' @param opts a search options list used in \code{\link[TFBSTools]{getMatrixSet}}.
 #' @param relScoreCutoff Currently ignored. numeric(1) in [0,1] that sets the default motif
 #'     log-odds score cutof to relScoreCutoff * maximal score for each PWM
 #'     (default: 0.8).
@@ -46,18 +46,26 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 #'
 #' @seealso \code{\link[TFBSTools]{getMatrixSet}} for details on the argument \code{opts}.
 #'
+#' @importFrom utils getFromNamespace
+#' @importFrom TFBSTools getMatrixSet Matrix name tags
+#'
 #' @export
 dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "vertebrates"),
                        relScoreCutoff = 0.8) {
     stopifnot(!file.exists(filename))
     stopifnot(is.numeric(relScoreCutoff) && length(relScoreCutoff) == 1 &&
               relScoreCutoff >= 0.0 && relScoreCutoff <= 1.0)
+    if ("matrixtype" %in% names(opts) && opts[["matrixtype"]] != "PFM") {
+      stop("opts[['matrixtype']] must be set to 'PFM'")
+    } else {
+      opts[["matrixtype"]] <- "PFM"
+    }
 
     requireNamespace(pkg)
     requireNamespace("TFBSTools")
 
-    # load PFMs and convert to PWMs
-    mdb <- getFromNamespace(pkg, ns=pkg)
+    # load PFMs and convert to HOMER format (base probabilties)
+    mdb <- utils::getFromNamespace(pkg, ns=pkg)
     siteList <- TFBSTools::getMatrixSet(mdb, opts)
     message("extracted ",length(siteList)," motifs from ",pkg)
 
