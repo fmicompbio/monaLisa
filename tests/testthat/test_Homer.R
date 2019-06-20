@@ -11,11 +11,30 @@ test_that("findHomer() works properly", {
 test_that("dumpJaspar() works properly", {
     tmp1 <- tempfile()
 
-    expect_error(dumpJaspar(filename = system.file("extdata", "resL.rds", package = "lisa")))
+    expect_error(dumpJaspar(filename = system.file("extdata", "se.rds", package = "lisa")))
     expect_error(dumpJaspar(filename = tmp1, relScoreCutoff = "error"))
     expect_true(dumpJaspar(filename = tmp1, opts = list(ID = c("MA0006.1", "MA0007.3"))))
 
     unlink(tmp1)
+})
+
+test_that("homerToPFMatrixList() works properly", {
+    tmp1 <- tempfile()
+    library(JASPAR2018)
+    optsL <- list(ID = c("MA0006.1", "MA0007.3", "MA0019.1", "MA0025.1", "MA0029.1", "MA0030.1"))
+    pfms <- TFBSTools::getMatrixSet(JASPAR2018, opts = optsL)
+    dumpJaspar(filename = tmp1, pkg = "JASPAR2018", opts = optsL)
+
+    expect_error(homerToPFMatrixList("does_not_exist"))
+    expect_error(homerToPFMatrixList(tmp1, "error"))
+
+    res <- homerToPFMatrixList(tmp1, 1000L)
+    expect_is(res, "PFMatrixList")
+    expect_length(res, length(pfms))
+    expect_true(all(abs(colSums(do.call(cbind, TFBSTools::Matrix(res))) - 1000) <= 2)) # 2/1000 rounding error
+    expect_true(all(sapply(TFBSTools::Matrix(res), nrow) == 4L))
+    expect_identical(sapply(TFBSTools::Matrix(res), ncol), c(6L, 17L, 12L, 11L, 14L, 14L))
+    expect_true(all(sapply(seq_along(res), function(i) grepl(name(pfms[[i]]), name(res[[i]]), fixed = TRUE))))
 })
 
 test_that("prepareHomer() works properly", {

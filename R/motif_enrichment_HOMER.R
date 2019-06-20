@@ -45,6 +45,8 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 #' @return \code{TRUE} if successful.
 #'
 #' @seealso \code{\link[TFBSTools]{getMatrixSet}} for details on the argument \code{opts}.
+#'     \code{\link{homerToPFMatrixList}} to read a file with HOMER-formatted
+#'     moitfs into a \code{\link[TFBSTools]{PFMatrixList}}.
 #'
 #' @importFrom utils getFromNamespace
 #' @importFrom TFBSTools getMatrixSet Matrix name tags
@@ -101,6 +103,49 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "ve
     message("done")
 
     return(TRUE)
+}
+
+
+#' @title Read a HOMER motif file and create a TFMatrixList.
+#'
+#' @description Read motifs from a file in HOMER format and create
+#'     a TFMatrixList from them.
+#'
+#' @param filename Name of the input file with HOMER-formatted motifs.
+#' @param n The number of observations (multiplied with base frequencies to
+#'     create the number of observed bases at each position).
+#'
+#' @return A \code{\link[TFBSTools]{PFMatrixList}} with motifs from the file.
+#'
+#' @seealso \code{\link{dumpJaspar}} for writing motifs from a Jaspar database
+#'     package into a file in HOMER format.
+#'
+#' @importFrom utils getFromNamespace
+#' @importFrom TFBSTools PFMatrix PFMatrixList
+#'
+#' @export
+homerToPFMatrixList <- function(filename, n = 100L) {
+  stopifnot(file.exists(filename))
+  stopifnot(is.numeric(n) && length(n) == 1 && n > 0)
+
+  # parse HOMER motif file
+  tmp <- readLines(filename)
+  g <- grep(">", tmp)
+  tmp[g] <- sub("^>","",tmp[g])
+  fields <- strsplit(tmp[g], "\t", fixed = TRUE)
+  L <- lapply(seq_along(g), function(i) {
+    cons <- fields[[i]][1]
+    nm <- fields[[i]][2]
+    log2cut <- round(as.numeric(fields[[i]][3]) / log(2), 2)
+    s <- g[i] + 1L
+    e <- if (i == length(g)) length(tmp) else g[i + 1L] - 1L
+    m <- round(n * do.call(cbind, lapply(strsplit(tmp[s:e], "\t", fixed = TRUE), as.numeric)), 0)
+    rownames(m) <- c("A", "C", "G", "T")
+    TFBSTools::PFMatrix(ID = nm, name = nm, profileMatrix = m,
+                        tags = list(log2cut = log2cut, comment = "imported from HOMER motif file"))
+  })
+
+  do.call(PFMatrixList, c(L, list(use.names = TRUE)))
 }
 
 

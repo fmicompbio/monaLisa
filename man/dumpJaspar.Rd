@@ -27,4 +27,6 @@ Get PWMs from the \code{JASPAR2016} or \code{JASPAR2018} package
 }
 \seealso{
 \code{\link[TFBSTools]{getMatrixSet}} for details on the argument \code{opts}.
+    \code{\link{homerToPFMatrixList}} to read a file with HOMER-formatted
+    moitfs into a \code{\link[TFBSTools]{PFMatrixList}}.
 }
