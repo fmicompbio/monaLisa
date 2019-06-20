@@ -300,7 +300,9 @@ runHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(
                                  motif.pwm = rep(NA, nrow(resL[[1]]))) ## TODO: add PWMs, e.g. parseHomerMotifs(motifFile)
     se <- SummarizedExperiment::SummarizedExperiment(
       assays = resL, colData = cdat, rowData = rdat,
-      metadata = list(bins.binmode = attr(b, "binmode"),
+      metadata = list(regions = gr,
+                      bins = b,
+                      bins.binmode = attr(b, "binmode"),
                       bins.breaks = as.vector(attr(b, "breaks")),
                       bins.bin0 = attr(b, "bin0"),
                       param.genomedir = genomedir,
