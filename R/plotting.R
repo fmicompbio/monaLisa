@@ -233,7 +233,7 @@ plotBinScatter <- function(x, y, b,
 #' @importFrom methods is
 #' @importFrom grDevices colorRampPalette
 #' @importFrom S4Vectors metadata
-#' @importFrom SummarizedExperiment assayNames assays metadata
+#' @importFrom SummarizedExperiment assayNames assays
 #'
 #' @export
 plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), width = 4,
