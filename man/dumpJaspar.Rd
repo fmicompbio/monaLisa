@@ -12,7 +12,7 @@ dumpJaspar(filename, pkg = "JASPAR2018", opts = list(tax_group =
 
 \item{pkg}{Name of the Jaspar package to use (default: \code{JASPAR2018}).}
 
-\item{opts}{a search options list used in \code{getMatrixSet}.}
+\item{opts}{a search options list used in \code{\link[TFBSTools]{getMatrixSet}}.}
 
 \item{relScoreCutoff}{Currently ignored. numeric(1) in [0,1] that sets the default motif
 log-odds score cutof to relScoreCutoff * maximal score for each PWM
@@ -27,4 +27,6 @@ Get PWMs from the \code{JASPAR2016} or \code{JASPAR2018} package
 }
 \seealso{
 \code{\link[TFBSTools]{getMatrixSet}} for details on the argument \code{opts}.
+    \code{\link{homerToPFMatrixList}} to read a file with HOMER-formatted
+    moitfs into a \code{\link[TFBSTools]{PFMatrixList}}.
 }

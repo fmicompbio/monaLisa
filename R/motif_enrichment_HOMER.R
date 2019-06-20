@@ -37,7 +37,7 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 #'
 #' @param filename Name of the output file to be created.
 #' @param pkg Name of the Jaspar package to use (default: \code{JASPAR2018}).
-#' @param opts a search options list used in \code{getMatrixSet}.
+#' @param opts a search options list used in \code{\link[TFBSTools]{getMatrixSet}}.
 #' @param relScoreCutoff Currently ignored. numeric(1) in [0,1] that sets the default motif
 #'     log-odds score cutof to relScoreCutoff * maximal score for each PWM
 #'     (default: 0.8).
@@ -45,6 +45,11 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 #' @return \code{TRUE} if successful.
 #'
 #' @seealso \code{\link[TFBSTools]{getMatrixSet}} for details on the argument \code{opts}.
+#'     \code{\link{homerToPFMatrixList}} to read a file with HOMER-formatted
+#'     moitfs into a \code{\link[TFBSTools]{PFMatrixList}}.
+#'
+#' @importFrom utils getFromNamespace
+#' @importFrom TFBSTools getMatrixSet Matrix name tags
 #'
 #' @export
 dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "vertebrates"),
@@ -52,12 +57,17 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "ve
     stopifnot(!file.exists(filename))
     stopifnot(is.numeric(relScoreCutoff) && length(relScoreCutoff) == 1 &&
               relScoreCutoff >= 0.0 && relScoreCutoff <= 1.0)
+    if ("matrixtype" %in% names(opts) && opts[["matrixtype"]] != "PFM") {
+      stop("opts[['matrixtype']] must be set to 'PFM'")
+    } else {
+      opts[["matrixtype"]] <- "PFM"
+    }
 
     requireNamespace(pkg)
     requireNamespace("TFBSTools")
 
-    # load PFMs and convert to PWMs
-    mdb <- getFromNamespace(pkg, ns=pkg)
+    # load PFMs and convert to HOMER format (base probabilties)
+    mdb <- utils::getFromNamespace(pkg, ns=pkg)
     siteList <- TFBSTools::getMatrixSet(mdb, opts)
     message("extracted ",length(siteList)," motifs from ",pkg)
 
@@ -93,6 +103,49 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "ve
     message("done")
 
     return(TRUE)
+}
+
+
+#' @title Read a HOMER motif file and create a TFMatrixList.
+#'
+#' @description Read motifs from a file in HOMER format and create
+#'     a TFMatrixList from them.
+#'
+#' @param filename Name of the input file with HOMER-formatted motifs.
+#' @param n The number of observations (multiplied with base frequencies to
+#'     create the number of observed bases at each position).
+#'
+#' @return A \code{\link[TFBSTools]{PFMatrixList}} with motifs from the file.
+#'
+#' @seealso \code{\link{dumpJaspar}} for writing motifs from a Jaspar database
+#'     package into a file in HOMER format.
+#'
+#' @importFrom utils getFromNamespace
+#' @importFrom TFBSTools PFMatrix PFMatrixList
+#'
+#' @export
+homerToPFMatrixList <- function(filename, n = 100L) {
+  stopifnot(file.exists(filename))
+  stopifnot(is.numeric(n) && length(n) == 1 && n > 0)
+
+  # parse HOMER motif file
+  tmp <- readLines(filename)
+  g <- grep(">", tmp)
+  tmp[g] <- sub("^>","",tmp[g])
+  fields <- strsplit(tmp[g], "\t", fixed = TRUE)
+  L <- lapply(seq_along(g), function(i) {
+    cons <- fields[[i]][1]
+    nm <- fields[[i]][2]
+    log2cut <- round(as.numeric(fields[[i]][3]) / log(2), 2)
+    s <- g[i] + 1L
+    e <- if (i == length(g)) length(tmp) else g[i + 1L] - 1L
+    m <- round(n * do.call(cbind, lapply(strsplit(tmp[s:e], "\t", fixed = TRUE), as.numeric)), 0)
+    rownames(m) <- c("A", "C", "G", "T")
+    TFBSTools::PFMatrix(ID = nm, name = nm, profileMatrix = m,
+                        tags = list(log2cut = log2cut, comment = "imported from HOMER motif file"))
+  })
+
+  do.call(PFMatrixList, c(L, list(use.names = TRUE)))
 }
 
 
@@ -236,7 +289,7 @@ parseHomerOutput <- function(infiles) {
 #' @param gr A \code{GRanges} object (or an object that can be coerced to one)
 #'     with the genomic regions to analyze.
 #' @param b A vector of the same length as \code{gr} that groups its elements
-#'     into bins (typically a factor).
+#'     into bins (typically a factor, such as the one returned by \code{\link{bin}}).
 #' @param genomedir Directory containing sequence files in Fasta format (one per chromosome).
 #' @param outdir A path specifying the folder into which the output files will be written.
 #' @param motifFile A file with HOMER formatted PWMs to be used in the enrichment analysis.
@@ -246,12 +299,25 @@ parseHomerOutput <- function(infiles) {
 #' @param Ncpu Number of parallel threads that HOMER can use.
 #'
 #' @seealso The functions that are wrapped: \code{\link{prepareHomer}},
-#'     \code{\link[base]{system}} and \code{\link{parseHomerOutput}}
+#'     \code{\link[base]{system}} and \code{\link{parseHomerOutput}},
+#'     \code{\link{bin}} for binning of regions
 #'
-#' @return A list of four components (\code{p}, \code{FDR}, \code{enr} and \code{log2enr}),
-#'     containing each a motif (rows) by bin (columns) matrix with raw
-#'     -log10 P values, -log10 false discovery rates and motif enrichments as
-#'     Pearson residuals (\code{enr}) and as log2 ratios (\code{log2enr}).
+#' @return A \code{\link[SummarizedExperiment]{SummarizedExperiment}} \code{x}
+#'   with
+#'   \describe{
+#'     \item{assays(x)}{containing the four components \code{p}, \code{FDR},
+#'         \code{enr} and \code{log2enr}), each a motif (rows) by bin (columns)
+#'         matrix with raw -log10 P values, -log10 false discovery rates and motif
+#'         enrichments as Pearson residuals (\code{enr}) and as log2 ratios
+#'         (\code{log2enr}).}
+#'     \item{rowData(x)}{containing information about the motifs.}
+#'     \item{colData(x)}{containing information about the bins.}
+#'     \item{metaData(x)}{containing meta data on the object (e.g. parameter
+#'         values and distances between pairs of motifs).}
+#'   }
+#'
+#' @importFrom SummarizedExperiment SummarizedExperiment
+#' @importFrom S4Vectors DataFrame
 #'
 #' @export
 runHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(), regionsize = "given", Ncpu=2L) {
@@ -268,7 +334,31 @@ runHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(
     ## ... parse output
     resfiles <- sprintf("%s/bin_%03d_output/knownResults.txt", outdir, seq_along(levels(b)))
     names(resfiles) <- levels(b)
-    parseHomerOutput(resfiles)
+    resL <- parseHomerOutput(resfiles)
+
+    ## ... create SummarizedExperiment
+    cdat <- S4Vectors::DataFrame(bin.names = levels(b),
+                                 bin.lower = attr(b, "breaks")[-(nlevels(b)+1)],
+                                 bin.upper = attr(b, "breaks")[-1],
+                                 bin.nochange = seq.int(nlevels(b)) %in% attr(b, "bin0"))
+    rdat <- S4Vectors::DataFrame(motif.name = rownames(resL[[1]]),
+                                 motif.pwm = homerToPFMatrixList(motifFile))
+    se <- SummarizedExperiment::SummarizedExperiment(
+      assays = resL, colData = cdat, rowData = rdat,
+      metadata = list(regions = gr,
+                      bins = b,
+                      bins.binmode = attr(b, "binmode"),
+                      bins.breaks = as.vector(attr(b, "breaks")),
+                      bins.bin0 = attr(b, "bin0"),
+                      param.genomedir = genomedir,
+                      param.outdir = outdir,
+                      param.motifFile = motifFile,
+                      param.homerfile = homerfile,
+                      param.regionsize = regionsize,
+                      param.Ncpu = Ncpu,
+                      motif.distances = NULL)
+    )
+    return(se)
 }
 
 
@@ -276,7 +366,7 @@ runHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(
 #'
 #' @description Run the HOMER script compareMotifs.pl (with default options) to get a similarity matrix
 #'     of all motifs. For details, see the HOMER documentation.
-#'  
+#'
 #'
 #' @param motifFile A file with HOMER formatted PWMs as input for compareMotifs.pl.
 #' @param homerdir Path to the HOMER binary directory.
@@ -286,7 +376,7 @@ runHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(
 #'
 #' @export
 clusterPWMs <- function(motifFile, homerdir, outfile){
-  
+
     stopifnot(is.character(motifFile) && length(motifFile) == 1L && file.exists(motifFile))
     stopifnot(is.character(homerdir) && length(homerdir) == 1L && file.exists(homerdir))
     homerfile = findHomer("compareMotifs.pl", dirs = homerdir)

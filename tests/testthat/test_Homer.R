@@ -4,18 +4,37 @@ test_that("findHomer() works properly", {
     res <- findHomer("I-do-not-exist")
     expect_true(is.na(res))
 
-    res <- findHomer("resL.rds", dirs = system.file("extdata", package = "lisa"))
+    res <- findHomer("se.rds", dirs = system.file("extdata", package = "lisa"))
     expect_true(file.exists(res))
 })
 
 test_that("dumpJaspar() works properly", {
     tmp1 <- tempfile()
 
-    expect_error(dumpJaspar(filename = system.file("extdata", "resL.rds", package = "lisa")))
+    expect_error(dumpJaspar(filename = system.file("extdata", "se.rds", package = "lisa")))
     expect_error(dumpJaspar(filename = tmp1, relScoreCutoff = "error"))
     expect_true(dumpJaspar(filename = tmp1, opts = list(ID = c("MA0006.1", "MA0007.3"))))
 
     unlink(tmp1)
+})
+
+test_that("homerToPFMatrixList() works properly", {
+    tmp1 <- tempfile()
+    library(JASPAR2018)
+    optsL <- list(ID = c("MA0006.1", "MA0007.3", "MA0019.1", "MA0025.1", "MA0029.1", "MA0030.1"))
+    pfms <- TFBSTools::getMatrixSet(JASPAR2018, opts = optsL)
+    dumpJaspar(filename = tmp1, pkg = "JASPAR2018", opts = optsL)
+
+    expect_error(homerToPFMatrixList("does_not_exist"))
+    expect_error(homerToPFMatrixList(tmp1, "error"))
+
+    res <- homerToPFMatrixList(tmp1, 1000L)
+    expect_is(res, "PFMatrixList")
+    expect_length(res, length(pfms))
+    expect_true(all(abs(colSums(do.call(cbind, TFBSTools::Matrix(res))) - 1000) <= 2)) # 2/1000 rounding error
+    expect_true(all(sapply(TFBSTools::Matrix(res), nrow) == 4L))
+    expect_identical(sapply(TFBSTools::Matrix(res), ncol), c(6L, 17L, 12L, 11L, 14L, 14L))
+    expect_true(all(sapply(seq_along(res), function(i) grepl(name(pfms[[i]]), name(res[[i]]), fixed = TRUE))))
 })
 
 test_that("prepareHomer() works properly", {
@@ -26,7 +45,7 @@ test_that("prepareHomer() works properly", {
     tmp1 <- tempfile()
     dir.create(tmp1)
     tmp2 <- tempfile()
-    fname <- system.file("extdata", "resL.rds", package = "lisa")
+    fname <- system.file("extdata", "se.rds", package = "lisa")
 
     expect_error(prepareHomer(gr = gr, b = b, genomedir = "genomedir", outdir = tmp1,
                               motifFile = fname, homerfile = fname, regionsize = "given", Ncpu = 2))
@@ -66,20 +85,21 @@ test_that("runHomer() works properly", {
                 )
         b <- bin(gr$deltaMeth, nElements = 200)
         outdir <- tempfile()
-        motiffile <- tempfile(fileext = ".motifs")
-        dumpJaspar(filename = motiffile, pkg = "JASPAR2018",
-                   opts = list(ID = c("MA0139.1", "MA1102.1", "MA0740.1", "MA0493.1", "MA0856.1")))
+        mfile <- tempfile(fileext = ".motifs")
+        expect_true(dumpJaspar(filename = mfile, pkg = "JASPAR2018",
+                               opts = list(ID = c("MA0139.1", "MA1102.1", "MA0740.1", "MA0493.1", "MA0856.1"))))
 
         res <- runHomer(gr = gr, b = b, genomedir = genomedir, outdir = outdir,
-                        motifFile = motiffile, homerfile = homerbin,
+                        motifFile = mfile, homerfile = homerbin,
                         regionsize = "given", Ncpu = 2L)
 
-        expect_length(res, 4L)
-        expect_identical(names(res), c("p", "FDR", "enr", "log2enr"))
-        expect_true(all(sapply(res, dim) == c(5L, 3L)))
-        expect_equal(sum(res$p), 10.7424234072)
-        expect_equal(sum(res$enr), 2.0460826730)
+        expect_is(res, "SummarizedExperiment")
+        expect_length(SummarizedExperiment::assays(res), 4L)
+        expect_identical(SummarizedExperiment::assayNames(res), c("p", "FDR", "enr", "log2enr"))
+        expect_identical(dim(res), c(5L, 3L))
+        expect_equal(sum(SummarizedExperiment::assay(res, "p")), 10.7424234072)
+        expect_equal(sum(SummarizedExperiment::assay(res, "enr")), 2.0460826730)
 
-        unlink(c(motiffile, outdir), recursive = TRUE, force = TRUE)
+        unlink(c(mfile, outdir), recursive = TRUE, force = TRUE)
     }
 })

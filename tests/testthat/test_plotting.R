@@ -7,8 +7,7 @@ set.seed(1)
 x <- rnorm(1000)
 b1 <- bin(x, binmode = "equalN", nElements = 100)
 b2 <- bin(x, binmode = "equalN", nElements = 50, minAbsX = 0.6)
-resL <- lapply(readRDS(system.file("extdata", "resL.rds", package = "lisa")), "[", 1:10, 1:8)
-resB <- factor(rep(1:8, 100)); levels(resB) <- colnames(resL[[1]]); attr(resB, "bin0") <- NA
+se <- readRDS(system.file("extdata", "se.rds", package = "lisa"))[1:10, 1:8]
 
 # ... stability selection
 Y <- rnorm(n = 100, mean = 2, sd = 1)
@@ -67,8 +66,10 @@ test_that("plotMotifHeatmaps() runs", {
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)
 
-    expect_is(plotMotifHeatmaps(x = resL, b = resB, which.plots = "enr", cluster = FALSE), "list")
-    expect_is(plotMotifHeatmaps(x = resL, b = resB, which.plots = "FDR", cluster = TRUE), "list")
+    expect_is(plotMotifHeatmaps(x = se, which.plots = "enr", cluster = FALSE), "list")
+    expect_is(plotMotifHeatmaps(x = se, which.plots = "FDR", cluster = TRUE), "list")
+    cl <- hclust(dist(SummarizedExperiment::assay(se, "log2enr")))
+    expect_is(plotMotifHeatmaps(x = se, which.plots = "log2enr", cluster = cl, show_dendrogram = TRUE), "list")
 
     dev.off()
     unlink(tf)

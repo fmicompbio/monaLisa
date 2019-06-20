@@ -4,7 +4,7 @@
 \alias{plotMotifHeatmaps}
 \title{Heatmap of motif enrichments.}
 \usage{
-plotMotifHeatmaps(x, b, which.plots = c("p", "enr", "FDR", "log2enr"),
+plotMotifHeatmaps(x, which.plots = c("p", "enr", "FDR", "log2enr"),
   width = 4, col.enr = c("#053061", "#2166AC", "#4393C3", "#92C5DE",
   "#D1E5F0", "#F7F7F7", "#FDDBC7", "#F4A582", "#D6604D", "#B2182B",
   "#67001F"), col.sig = c("#FFF5EB", "#FEE6CE", "#FDD0A2", "#FDAE6B",
@@ -13,11 +13,9 @@ plotMotifHeatmaps(x, b, which.plots = c("p", "enr", "FDR", "log2enr"),
   show_dendrogram = FALSE)
 }
 \arguments{
-\item{x}{A list with numerical matrices (motifs-by-bins), typically the return value
-of \code{\link{runHomer}} or \code{\link{parseHomerOutput}}.}
-
-\item{b}{A factor that groups elements of \code{x,y} into bins (typically the output
-of \code{\link{bin}()}).}
+\item{x}{A \code{\link[SummarizedExperiment]{SummarizedExperiment}} with numerical matrices
+(motifs-by-bins) in its \code{assays()}, typically the return value
+of \code{\link{runHomer}}.}
 
 \item{which.plots}{Selects which heatmaps to plot (one or several from \code{"p"}, \code{"FDR"},
 \code{"enr"} and \code{"log2enr"}).}
