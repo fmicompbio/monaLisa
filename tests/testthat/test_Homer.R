@@ -74,11 +74,12 @@ test_that("runHomer() works properly", {
                         motifFile = motiffile, homerfile = homerbin,
                         regionsize = "given", Ncpu = 2L)
 
-        expect_length(res, 4L)
-        expect_identical(names(res), c("p", "FDR", "enr", "log2enr"))
-        expect_true(all(sapply(res, dim) == c(5L, 3L)))
-        expect_equal(sum(res$p), 10.7424234072)
-        expect_equal(sum(res$enr), 2.0460826730)
+        expect_is(res, "SummarizedExperiment")
+        expect_length(assays(res), 4L)
+        expect_identical(assayNames(res), c("p", "FDR", "enr", "log2enr"))
+        expect_identical(dim(res), c(5L, 3L))
+        expect_equal(sum(assay(res, "p")), 10.7424234072)
+        expect_equal(sum(assay(res, "enr")), 2.0460826730)
 
         unlink(c(motiffile, outdir), recursive = TRUE, force = TRUE)
     }
