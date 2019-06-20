@@ -4,7 +4,7 @@ test_that("findHomer() works properly", {
     res <- findHomer("I-do-not-exist")
     expect_true(is.na(res))
 
-    res <- findHomer("resL.rds", dirs = system.file("extdata", package = "lisa"))
+    res <- findHomer("se.rds", dirs = system.file("extdata", package = "lisa"))
     expect_true(file.exists(res))
 })
 
@@ -45,7 +45,7 @@ test_that("prepareHomer() works properly", {
     tmp1 <- tempfile()
     dir.create(tmp1)
     tmp2 <- tempfile()
-    fname <- system.file("extdata", "resL.rds", package = "lisa")
+    fname <- system.file("extdata", "se.rds", package = "lisa")
 
     expect_error(prepareHomer(gr = gr, b = b, genomedir = "genomedir", outdir = tmp1,
                               motifFile = fname, homerfile = fname, regionsize = "given", Ncpu = 2))
@@ -85,21 +85,21 @@ test_that("runHomer() works properly", {
                 )
         b <- bin(gr$deltaMeth, nElements = 200)
         outdir <- tempfile()
-        motiffile <- tempfile(fileext = ".motifs")
-        dumpJaspar(filename = motiffile, pkg = "JASPAR2018",
-                   opts = list(ID = c("MA0139.1", "MA1102.1", "MA0740.1", "MA0493.1", "MA0856.1")))
+        mfile <- tempfile(fileext = ".motifs")
+        expect_true(dumpJaspar(filename = mfile, pkg = "JASPAR2018",
+                               opts = list(ID = c("MA0139.1", "MA1102.1", "MA0740.1", "MA0493.1", "MA0856.1"))))
 
         res <- runHomer(gr = gr, b = b, genomedir = genomedir, outdir = outdir,
-                        motifFile = motiffile, homerfile = homerbin,
+                        motifFile = mfile, homerfile = homerbin,
                         regionsize = "given", Ncpu = 2L)
 
         expect_is(res, "SummarizedExperiment")
-        expect_length(assays(res), 4L)
-        expect_identical(assayNames(res), c("p", "FDR", "enr", "log2enr"))
+        expect_length(SummarizedExperiment::assays(res), 4L)
+        expect_identical(SummarizedExperiment::assayNames(res), c("p", "FDR", "enr", "log2enr"))
         expect_identical(dim(res), c(5L, 3L))
-        expect_equal(sum(assay(res, "p")), 10.7424234072)
-        expect_equal(sum(assay(res, "enr")), 2.0460826730)
+        expect_equal(sum(SummarizedExperiment::assay(res, "p")), 10.7424234072)
+        expect_equal(sum(SummarizedExperiment::assay(res, "enr")), 2.0460826730)
 
-        unlink(c(motiffile, outdir), recursive = TRUE, force = TRUE)
+        unlink(c(mfile, outdir), recursive = TRUE, force = TRUE)
     }
 })

@@ -233,7 +233,7 @@ plotBinScatter <- function(x, y, b,
 #' @importFrom methods is
 #' @importFrom grDevices colorRampPalette
 #' @importFrom S4Vectors metadata
-#' @importFrom SummarizedExperiment assayNames assays
+#' @importFrom SummarizedExperiment assayNames assay
 #'
 #' @export
 plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), width = 4,
@@ -255,7 +255,7 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
 	stopifnot(is.logical(show_dendrogram) && length(show_dendrogram) == 1L)
 	bincols <- attr(getColsByBin(b), "cols")
 	if (is.logical(cluster) && length(cluster) == 1 && cluster[1] == TRUE) {
-	    clres <- stats::hclust(stats::dist(assay(x, "enr")))
+	    clres <- stats::hclust(stats::dist(SummarizedExperiment::assay(x, "enr")))
 	} else if (is.logical(cluster) && length(cluster) == 1 && cluster[1] == FALSE) {
 	    clres <- FALSE
 	} else if (is(cluster, "hclust")) {
@@ -282,7 +282,7 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
 	assayNameMap2 <- c(p = "P value (-log10)", FDR = "FDR (-log10)",
 	                   enr = "enrichment (o-e)/sqrt(e)", log2enr="enrichment (log2)")
 	ret <- c(list(labels = hmMotifs), lapply(which.plots, function(w) {
-		dat <- assay(x, w)
+		dat <- SummarizedExperiment::assay(x, w)
 		if ((w == "enr") | (w == "log2enr")) {
 			rng <- c(-1, 1) * if (is.null(maxEnr)) quantile(abs(dat), .995) else maxEnr
 			cols <- col.enr
