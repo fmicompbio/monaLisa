@@ -342,7 +342,7 @@ runHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(
                                  bin.upper = attr(b, "breaks")[-1],
                                  bin.nochange = seq.int(nlevels(b)) %in% attr(b, "bin0"))
     rdat <- S4Vectors::DataFrame(motif.name = rownames(resL[[1]]),
-                                 motif.pwm = rep(NA, nrow(resL[[1]]))) ## TODO: add PWMs, e.g. parseHomerMotifs(motifFile)
+                                 motif.pwm = homerToPFMatrixList(motiffile))
     se <- SummarizedExperiment::SummarizedExperiment(
       assays = resL, colData = cdat, rowData = rdat,
       metadata = list(regions = gr,
