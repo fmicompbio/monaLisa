@@ -170,16 +170,6 @@ seqLogoGrob <- function(x) {
                 gp = gpar(fill = letters$fill, col = "transparent"))
 }
 
-# draw a seqLogoGrob (fill the current graphics device, internal)
-drawSeqLogoGrob <- function(g, newpage = TRUE) {
-    if (newpage)
-        grid.newpage()
-    pushViewport(plotViewport(c(0, 0, 0, 0)))
-    pushViewport(dataViewport(0:1, 0:1, name = "vp1"))
-    grid.draw(g)
-    popViewport(2)
-}
-
 #' @title Sequence logo annotation
 #'
 #' @description create an annotation for a \code{\link[ComplexHeatmap]{Heatmap}}
