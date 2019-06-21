@@ -66,7 +66,7 @@ test_that("plotMotifHeatmaps() runs", {
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)
 
-    expect_is(plotMotifHeatmaps(x = se, which.plots = "enr", cluster = FALSE), "list")
+    expect_is(plotMotifHeatmaps(x = se, which.plots = "enr", cluster = FALSE, show_motif_GC = TRUE), "list")
     expect_is(plotMotifHeatmaps(x = se, which.plots = "FDR", cluster = TRUE), "list")
     cl <- hclust(dist(SummarizedExperiment::assay(se, "log2enr")))
     expect_is(plotMotifHeatmaps(x = se, which.plots = "log2enr", cluster = cl, show_dendrogram = TRUE), "list")

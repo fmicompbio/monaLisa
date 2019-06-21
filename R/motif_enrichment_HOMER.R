@@ -346,8 +346,14 @@ runHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(
                                  bin.nochange = seq.int(nlevels(b)) %in% attr(b, "bin0"))
     cdat <- cdat[match(colnames(resL[[1]]), levels(b)), ]
     pfms <- homerToPFMatrixList(motifFile)
+    pfms <- pfms[match(rownames(resL[[1]]), TFBSTools::name(pfms))]
+    percentGC <- unlist(lapply(pfms, function(x) {
+        m <- TFBSTools::Matrix(x)
+        100 * sum(rownames(m)[apply(m, 2, which.max)] %in% c("C","G")) / ncol(m)
+    }), use.names = FALSE)
     rdat <- S4Vectors::DataFrame(motif.name = rownames(resL[[1]]),
-                                 motif.pfm = pfms[match(rownames(resL[[1]]), TFBSTools::name(pfms))])
+                                 motif.pfm = pfms,
+                                 motif.percentGC = percentGC)
     se <- SummarizedExperiment::SummarizedExperiment(
       assays = resL, colData = cdat, rowData = rdat,
       metadata = list(regions = gr,
