@@ -123,7 +123,7 @@ pfm2ic <- function (pfm) {
 #'
 #' @return A polygon grob.
 #'
-#' @example
+#' @examples
 #' if (require(JASPAR2018)) {
 #'     pfm1 <- getMatrixByID(JASPAR2018, "MA0139")
 #'     pfm2 <- getMatrixByID(JASPAR2018, "MA0531")
@@ -133,6 +133,7 @@ pfm2ic <- function (pfm) {
 #'
 #'     gridExtra::grid.arrange(g1, g2)
 #' }
+#'
 #' @seealso \code{\link[seqLogo]{seqLogo}} for the original, more flexible version
 #'     of this function.
 #'
@@ -199,10 +200,10 @@ drawSeqLogoGrob <- function(g, newpage = TRUE) {
 #' @param gp Graphic parameters for annotation grids. Can be used to control the
 #'   background color in the annotation grids.
 #'
-#' @value An annotation function which can be used in
+#' @return An annotation function which can be used in
 #'   \code{\link[ComplexHeatmap]{HeatmapAnnotation}}.
 #'
-#' @importFrom grid unit convertHeight convertWidth grid.rect
+#' @importFrom grid unit grid.rect viewport pushViewport popViewport
 #'
 #' @export
 anno_seqlogo <- function(grobL, which = c("column", "row"),
@@ -220,33 +221,11 @@ anno_seqlogo <- function(grobL, which = c("column", "row"),
         }
         return(gp)
     }
-    # .anno_width_and_height <- function (which, width = NULL, height = NULL,
-    #                                     default = unit(10, "mm")) {
-    #     if (which == "column") {
-    #         if (is.null(height)) {
-    #             height <- default
-    #         }
-    #         if (is.null(width)) {
-    #             width <- unit(1, "npc")
-    #         }
-    #     }
-    #     if (which == "row") {
-    #         if (is.null(width)) {
-    #             width <- default
-    #         }
-    #         if (is.null(height)) {
-    #             height <- unit(1, "npc")
-    #         }
-    #     }
-    #     return(list(height = height, width = width))
-    # }
 
     n_seqlogo <- length(grobL)
-    # yx_asp <- sapply(grobL, function(x) { 2.0 / as.numeric(x$name) })
     fact_width <- rel_width / max(rel_width)
     which <- match.arg(which)[1]
     space <- space[1]
-    # anno_size = .anno_width_and_height(which, width, height, unit(1, "cm"))
     anno_size <- switch(which,
                         column = list(height= if (is.null(height)) unit(1, "cm")  else height,
                                       width = if (is.null(width))  unit(1, "npc") else width),
@@ -256,17 +235,8 @@ anno_seqlogo <- function(grobL, which = c("column", "row"),
     column_fun = function(index) {
         n = length(index)
         pushViewport(viewport())
-        # asp = convertHeight(unit(1, "npc") - space * 2, "mm", valueOnly = TRUE)/
-        #     convertWidth(unit(1/n, "npc") - space * 2, "mm", valueOnly = TRUE)
         grid.rect(x = (1:n - 0.5)/n, width = 1/n, gp = subset_gp(gp, index))
         for (i in seq_len(n)) {
-            # if (yx_asp[index[i]] > asp) {
-            #     height = unit(1, "npc") - space * 2
-            #     width = convertHeight(height, "mm") * yx_asp[index[i]]
-            # } else {
-            #     width = unit(1/n, "npc") - space * 2
-            #     height = yx_asp[index[i]] * convertWidth(width, "mm")
-            # }
             height <- unit(1, "npc") - space * 2
             width  <- unit(1 / n, "npc") * fact_width[i] - space * 2
             pushViewport(viewport(x = (i - 0.5)/n, width = width, height = height))
@@ -278,17 +248,8 @@ anno_seqlogo <- function(grobL, which = c("column", "row"),
     row_fun = function(index) {
         n = length(index)
         pushViewport(viewport())
-        # asp = convertHeight(unit(1/n, "npc") - space * 2, "mm", valueOnly = TRUE)/
-        #     convertWidth(unit(1, "npc") - space * 2, "mm", valueOnly = TRUE)
         grid.rect(y = (n - 1:n + 0.5)/n, height = 1/n, gp = subset_gp(gp, index))
         for (i in seq_len(n)) {
-            # if (yx_asp[index[i]] > asp) {
-            #     height = unit(1/n, "npc") - space * 2
-            #     width = convertHeight(height, "mm") * (1/yx_asp[index[i]])
-            # } else {
-            #     width = unit(1, "npc") - space * 2
-            #     height = yx_asp[index[i]] * convertWidth(width, "mm")
-            # }
             height <- unit(1 / n, "npc") - space * 2
             width  <- unit(1, "npc") * fact_width[i] - space * 2
             pushViewport(viewport(y = (n - i + 0.5)/n, width = width, height = height))
@@ -304,7 +265,6 @@ anno_seqlogo <- function(grobL, which = c("column", "row"),
                               width = anno_size$width, height = anno_size$height,
                               n = n_seqlogo, data_scale = c(0.5, 1.5),
                               var_import = list(gp, space, fact_width, grobL))
-    #                          var_import = list(gp, space, yx_asp, grobL))
     anno@subset_rule$gp = subset_vector
     anno@subset_rule$grobL = subset_vector
     anno@subsetable = TRUE

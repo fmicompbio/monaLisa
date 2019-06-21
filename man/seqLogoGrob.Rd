@@ -18,6 +18,18 @@ Create a simple sequence logo grob (grid-graphics object) for a
     code is a simplified version from \code{\link[seqLogo]{seqLogo}} and for
     example can be used to embedd sequence logos within other plots.
 }
+\examples{
+if (require(JASPAR2018)) {
+    pfm1 <- getMatrixByID(JASPAR2018, "MA0139")
+    pfm2 <- getMatrixByID(JASPAR2018, "MA0531")
+
+    g1 <- seqLogoGrob(pfm1)
+    g2 <- seqLogoGrob(pfm2)
+
+    gridExtra::grid.arrange(g1, g2)
+}
+
+}
 \seealso{
 \code{\link[seqLogo]{seqLogo}} for the original, more flexible version
     of this function.
