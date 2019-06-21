@@ -100,6 +100,7 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "ve
         if(!(wm.name == make.names(wm.name))){
           warning("Weight matrix name ",wm.name, " converted to ", make.names(wm.name))
         }
+        wm.name <- make.names(wm.name)
       
         #the -10 is added so that the motif file has 4 columns, which is needed to run compareMotifs.pl
         #for weight matrix clustering (4th column not used, bug in compareMotifs.pl, I think)
