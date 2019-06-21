@@ -349,7 +349,7 @@ runHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(
     pfms <- pfms[match(rownames(resL[[1]]), TFBSTools::name(pfms))]
     percentGC <- unlist(lapply(pfms, function(x) {
         m <- TFBSTools::Matrix(x)
-        100 * sum(rownames(m)[apply(m, 2, which.max)] %in% c("C","G")) / ncol(m)
+        100 * sum(m[c("C","G"), ]) / sum(m)
     }), use.names = FALSE)
     rdat <- S4Vectors::DataFrame(motif.name = rownames(resL[[1]]),
                                  motif.pfm = pfms,
