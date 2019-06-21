@@ -1,13 +1,4 @@
-# library(ComplexHeatmap)
-# library(JASPAR2018)
-# library(TFBSTools)
-# library(seqLogo)
-#
-# # get PWMs
-# pfms <- TFBSTools::getMatrixSet(JASPAR2018, list(matrixtype="PFM", tax_group="vertebrates"))
-# pfms
-
-# custom seqLogo code (no margin, different colors)
+# Coordinates for an A-polygon (internal)
 letterA <- function (x.pos, y.pos, ht, wt) {
     x <- 0.1 * c(0, 4, 6, 10, 8, 6.8, 3.2, 2, 0, 3.6, 5, 6.4, 3.6)
     y <- 0.1 * c(0, 10, 10, 0, 0, 3, 3, 0, 0, 4, 7.5, 4, 4)
@@ -17,6 +8,7 @@ letterA <- function (x.pos, y.pos, ht, wt) {
     list(x = x, y = y, id = id, fill = c("#4DAF4A", "white"))
 }
 
+# Coordinates for an C-polygon (internal)
 letterC <- function (x.pos, y.pos, ht, wt) {
     angle1 <- seq(0.3 + pi/2, pi, length = 100)
     angle2 <- seq(pi, 1.5 * pi, length = 100)
@@ -47,6 +39,7 @@ letterC <- function (x.pos, y.pos, ht, wt) {
     list(x = x, y = y, id = id, fill = "#377EB8")
 }
 
+# Coordinates for an G-polygon (internal)
 letterG <- function (x.pos, y.pos, ht, wt) {
     angle1 <- seq(0.3 + pi/2, pi, length = 100)
     angle2 <- seq(pi, 1.5 * pi, length = 100)
@@ -84,6 +77,7 @@ letterG <- function (x.pos, y.pos, ht, wt) {
     list(x = x, y = y, id = id, fill = c("#FFA500", "#FFA500"))
 }
 
+# Coordinates for an T-polygon (internal)
 letterT <- function (x.pos, y.pos, ht, wt) {
     x <- 0.1 * c(0, 10, 10, 6, 6, 4, 4, 0)
     y <- 0.1 * c(10, 10, 9, 9, 0, 0, 9, 9)
@@ -93,6 +87,7 @@ letterT <- function (x.pos, y.pos, ht, wt) {
     list(x = x, y = y, id = id, fill = "#E41A1C")
 }
 
+# Add coordinates for a new base polygon to the coordinaes in 'letters' (internal)
 addLetter <- function (letters, which = c("A", "C", "G", "T"), x.pos, y.pos, ht, wt) {
     which <- match.arg(which)
     letter <- switch(which,
@@ -108,24 +103,50 @@ addLetter <- function (letters, which = c("A", "C", "G", "T"), x.pos, y.pos, ht,
     letters
 }
 
-myseqLogo <- function(x) { # adapted from seqLogo::seqLogo, x should be a TFBSTools::PFMatrix
+# Calculate the information content for each position in a PFMatrix (internal)
+pfm2ic <- function (pfm) {
+    npos <- ncol(pfm)
+    ic <- numeric(length = npos)
+    for (i in 1:npos)
+        ic[i] <- 2 + sum(sapply(pfm[, i], function(x) if (x > 0) (x * log2(x)) else 0))
+    ic
+}
+
+#' @title Create a simple sequence logo grob.
+#'
+#' @description Create a simple sequence logo grob (grid-graphics object) for a
+#'     transcription factor from a position frequency matrix. The logo drawing
+#'     code is a simplified version from \code{\link[seqLogo]{seqLogo}} and for
+#'     example can be used to embedd sequence logos within other plots.
+#'
+#' @param x A \code{\link[TFBSTools]{PFMatrix}} object
+#'
+#' @return A polygon grob.
+#'
+#' @example
+#' if (require(JASPAR2018)) {
+#'     pfm1 <- getMatrixByID(JASPAR2018, "MA0139")
+#'     pfm2 <- getMatrixByID(JASPAR2018, "MA0531")
+#'
+#'     g1 <- seqLogoGrob(pfm1)
+#'     g2 <- seqLogoGrob(pfm2)
+#'
+#'     gridExtra::grid.arrange(g1, g2)
+#' }
+#' @seealso \code{\link[seqLogo]{seqLogo}} for the original, more flexible version
+#'     of this function.
+#'
+#' @export
+seqLogoGrob <- function(x) {
     stopifnot(is(x, "PFMatrix"))
 
-    .pwm2ic <- function (pwm) {
-        npos <- ncol(pwm)
-        ic <- numeric(length = npos)
-        for (i in 1:npos)
-            ic[i] <- 2 + sum(sapply(pwm[, i], function(x) if (x > 0) (x * log2(x)) else 0))
-        ic
-    }
-
-    xm <- TFBSTools::as.matrix(x)
+    xm <- TFBSTools::Matrix(x)
     xm <- sweep(xm, MARGIN = 2, colSums(xm), "/")
     xm[is.nan(xm)] <- 0.25
     chars <- c("A", "C", "G", "T")
     letters <- list(x = NULL, y = NULL, id = NULL, fill = NULL)
     npos <- ncol(xm)
-    facs <- .pwm2ic(xm)
+    facs <- pfm2ic(xm)
     wt <- 1
     x.pos <- 0
     for (j in 1:npos) {
@@ -141,19 +162,19 @@ myseqLogo <- function(x) { # adapted from seqLogo::seqLogo, x should be a TFBSTo
         }
         x.pos <- x.pos + wt
     }
-    grid.newpage()
-    pushViewport(plotViewport(c(0, 0, 0, 0)))
-    pushViewport(dataViewport(0:ncol(xm), 0:2, name = "vp1"))
-    grid.polygon(x = unit(letters$x, "native"), y = unit(letters$y, "native"),
-                 id = letters$id, gp = gpar(fill = letters$fill, col = "transparent"))
-    popViewport()
-    popViewport()
+
+    x <- unit(letters$x / max(letters$x), "npc")
+    y <- unit(letters$y / max(letters$y), "npc")
+    polygonGrob(x = x, y = y, id = letters$id, gp = gpar(fill = letters$fill, col = "transparent"))
 }
 
-# myseqLogo(pfms[[1]])
-#
-# showMethods("seqLogo")
-# getMethod(seqLogo, "ICMatrix")
-# seqLogo::seqLogo
-# TFBSTools::seqLogo(toICM(pfms[[1]]), ic.scale = TRUE, xaxis = FALSE, yaxis = FALSE)
+# draw a seqLogoGrob (fill the current graphics device, internal)
+drawSeqLogoGrob <- function(g, newpage = TRUE) {
+    if (newpage)
+        grid.newpage()
+    pushViewport(plotViewport(c(0, 0, 0, 0)))
+    pushViewport(dataViewport(0:1, 0:1, name = "vp1"))
+    grid.draw(g)
+    popViewport(2)
+}
 

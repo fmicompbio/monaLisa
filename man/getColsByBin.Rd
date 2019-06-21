@@ -24,8 +24,7 @@ A character vector with colors for the elements in \code{b}.
 }
 \description{
 Get colors for elements according to their bin.
-
-Colors are assigned to bins forming a gradient from \code{col1}
+    Colors are assigned to bins forming a gradient from \code{col1}
     to \code{col2} in the order of \code{levels{b}}. \code{col0} is assigned
     to the neutral bin (attribute \code{""}) if available.
 }
