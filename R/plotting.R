@@ -7,16 +7,15 @@ NULL
 #' @title Get colors by bin.
 #'
 #' @description Get colors for elements according to their bin.
+#'     Colors are assigned to bins forming a gradient from \code{col1}
+#'     to \code{col2} in the order of \code{levels{b}}. \code{col0} is assigned
+#'     to the neutral bin (attribute \code{""}) if available.
 #'
 #' @param b A factor that groups elements into bins (typically the output of
 #'     \code{\link{bin}}).
 #' @param col1 First color.
 #' @param col2 Second color.
 #' @param col0 Neutral color.
-#'
-#' @description Colors are assigned to bins forming a gradient from \code{col1}
-#'     to \code{col2} in the order of \code{levels{b}}. \code{col0} is assigned
-#'     to the neutral bin (attribute \code{""}) if available.
 #'
 #' @seealso \code{\link{bin}}.
 #'
