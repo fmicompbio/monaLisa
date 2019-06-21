@@ -165,7 +165,8 @@ seqLogoGrob <- function(x) {
 
     x <- unit(letters$x / max(letters$x), "npc")
     y <- unit(letters$y / max(letters$y), "npc")
-    polygonGrob(x = x, y = y, id = letters$id, gp = gpar(fill = letters$fill, col = "transparent"))
+    polygonGrob(x = x, y = y, id = letters$id, name = as.character(ncol(xm)),
+                gp = gpar(fill = letters$fill, col = "transparent"))
 }
 
 # draw a seqLogoGrob (fill the current graphics device, internal)
@@ -178,3 +179,134 @@ drawSeqLogoGrob <- function(g, newpage = TRUE) {
     popViewport(2)
 }
 
+#' @title Sequence logo annotation
+#'
+#' @description create an annotation for a \code{\link[ComplexHeatmap]{Heatmap}}
+#'   containing sequence logos.
+#'
+#' @param grobL A \code{list} of sequence logo grobs, typically created using
+#'   \code{\link{seqLogoGrob}}.
+#' @param which Whether it is a column annotation or a row annotation?
+#' @param rel_width A positive \code{numeric} vector of the same length as \code{grobL}
+#'   with the relative width of the individual sequence logos. By default,
+#'   all logos will be drawn to have the same width.
+#' @param space The space around the image to the annotation grid borders. The
+#'   value should be a unit object.
+#' @param width Width of the annotation. The value should be an absolute unit.
+#'   Width is not allowed to be set for column annotation.
+#' @param height Height of the annotation. The value should be an absolute unit.
+#'   Height is not allowed to be set for row annotation.
+#' @param gp Graphic parameters for annotation grids. Can be used to control the
+#'   background color in the annotation grids.
+#'
+#' @value An annotation function which can be used in
+#'   \code{\link[ComplexHeatmap]{HeatmapAnnotation}}.
+#'
+#' @importFrom grid unit convertHeight convertWidth grid.rect
+#'
+#' @export
+anno_seqlogo <- function(grobL, which = c("column", "row"),
+                         rel_width = rep(1, length(grobL)),
+                         space = unit(0.5, "mm"), width = NULL, height = NULL,
+                         gp = gpar(fill = NA, col = NA)) {
+    stopifnot(is(grobL, "list"))
+    stopifnot(all(sapply(grobL, function(x) is(x, "grob"))))
+    stopifnot(is.numeric(rel_width) && length(rel_width) == length(grobL) && all(rel_width > 0))
+
+    .recycle_gp <- function (gp, n = 1) {
+        for (i in seq_along(gp)) {
+            x <- gp[[i]]
+            gp[[i]] <- c(rep(x, floor(n / length(x))), x[seq_len(n %% length(x))])
+        }
+        return(gp)
+    }
+    # .anno_width_and_height <- function (which, width = NULL, height = NULL,
+    #                                     default = unit(10, "mm")) {
+    #     if (which == "column") {
+    #         if (is.null(height)) {
+    #             height <- default
+    #         }
+    #         if (is.null(width)) {
+    #             width <- unit(1, "npc")
+    #         }
+    #     }
+    #     if (which == "row") {
+    #         if (is.null(width)) {
+    #             width <- default
+    #         }
+    #         if (is.null(height)) {
+    #             height <- unit(1, "npc")
+    #         }
+    #     }
+    #     return(list(height = height, width = width))
+    # }
+
+    n_seqlogo <- length(grobL)
+    # yx_asp <- sapply(grobL, function(x) { 2.0 / as.numeric(x$name) })
+    fact_width <- rel_width / max(rel_width)
+    which <- match.arg(which)[1]
+    space <- space[1]
+    # anno_size = .anno_width_and_height(which, width, height, unit(1, "cm"))
+    anno_size <- switch(which,
+                        column = list(height= if (is.null(height)) unit(1, "cm")  else height,
+                                      width = if (is.null(width))  unit(1, "npc") else width),
+                        row    = list(height= if (is.null(height)) unit(1, "npc") else height,
+                                      width = if (is.null(width))  unit(1, "cm")  else width))
+    gp = .recycle_gp(gp, n_seqlogo)
+    column_fun = function(index) {
+        n = length(index)
+        pushViewport(viewport())
+        # asp = convertHeight(unit(1, "npc") - space * 2, "mm", valueOnly = TRUE)/
+        #     convertWidth(unit(1/n, "npc") - space * 2, "mm", valueOnly = TRUE)
+        grid.rect(x = (1:n - 0.5)/n, width = 1/n, gp = subset_gp(gp, index))
+        for (i in seq_len(n)) {
+            # if (yx_asp[index[i]] > asp) {
+            #     height = unit(1, "npc") - space * 2
+            #     width = convertHeight(height, "mm") * yx_asp[index[i]]
+            # } else {
+            #     width = unit(1/n, "npc") - space * 2
+            #     height = yx_asp[index[i]] * convertWidth(width, "mm")
+            # }
+            height <- unit(1, "npc") - space * 2
+            width  <- unit(1 / n, "npc") * fact_width[i] - space * 2
+            pushViewport(viewport(x = (i - 0.5)/n, width = width, height = height))
+            grid.draw(grobL[[i]])
+            popViewport()
+        }
+        popViewport()
+    }
+    row_fun = function(index) {
+        n = length(index)
+        pushViewport(viewport())
+        # asp = convertHeight(unit(1/n, "npc") - space * 2, "mm", valueOnly = TRUE)/
+        #     convertWidth(unit(1, "npc") - space * 2, "mm", valueOnly = TRUE)
+        grid.rect(y = (n - 1:n + 0.5)/n, height = 1/n, gp = subset_gp(gp, index))
+        for (i in seq_len(n)) {
+            # if (yx_asp[index[i]] > asp) {
+            #     height = unit(1/n, "npc") - space * 2
+            #     width = convertHeight(height, "mm") * (1/yx_asp[index[i]])
+            # } else {
+            #     width = unit(1, "npc") - space * 2
+            #     height = yx_asp[index[i]] * convertWidth(width, "mm")
+            # }
+            height <- unit(1 / n, "npc") - space * 2
+            width  <- unit(1, "npc") * fact_width[i] - space * 2
+            pushViewport(viewport(y = (n - i + 0.5)/n, width = width, height = height))
+            grid.draw(grobL[[i]])
+            popViewport()
+        }
+        popViewport()
+    }
+    fun <- switch(which,
+                  row = row_fun,
+                  column = column_fun)
+    anno = AnnotationFunction(fun = fun, fun_name = "anno_seqlogo", which = which,
+                              width = anno_size$width, height = anno_size$height,
+                              n = n_seqlogo, data_scale = c(0.5, 1.5),
+                              var_import = list(gp, space, fact_width, grobL))
+    #                          var_import = list(gp, space, yx_asp, grobL))
+    anno@subset_rule$gp = subset_vector
+    anno@subset_rule$grobL = subset_vector
+    anno@subsetable = TRUE
+    return(anno)
+}
