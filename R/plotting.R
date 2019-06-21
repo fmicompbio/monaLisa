@@ -214,6 +214,8 @@ plotBinScatter <- function(x, y, b,
 #'     No reordering is done for \code{cluster = FALSE}.
 #' @param show_dendrogram If \code{cluster != FALSE}, controls whether to show
 #'     a row dendrogram for the clustering of motifs. Ignored for \code{cluster = FALSE}.
+#' @param show_motif_GC If \code{TRUE}, show a column with the percent G+C of the motif
+#'     as part of the heatmap.
 #'
 #' @details The heatmaps are plotted side-by-side and are created internally using
 #'     the \pkg{ComplexHeatmap} package.
@@ -233,7 +235,7 @@ plotBinScatter <- function(x, y, b,
 #' @importFrom methods is
 #' @importFrom grDevices colorRampPalette
 #' @importFrom S4Vectors metadata
-#' @importFrom SummarizedExperiment assayNames assay
+#' @importFrom SummarizedExperiment assayNames assay rowData
 #'
 #' @export
 plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), width = 4,
@@ -241,13 +243,15 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
                                           "#F7F7F7","#FDDBC7","#F4A582","#D6604D","#B2182B","#67001F"),
                               col.sig = c("#FFF5EB","#FEE6CE","#FDD0A2","#FDAE6B","#FD8D3C",
                                           "#F16913","#D94801","#A63603","#7F2704"),
-                              maxEnr = NULL, maxSig = NULL, highlight = NULL, cluster = FALSE, show_dendrogram = FALSE) {
+                              maxEnr = NULL, maxSig = NULL, highlight = NULL, cluster = FALSE,
+                              show_dendrogram = FALSE, show_motif_GC = FALSE) {
 	stopifnot(requireNamespace("ComplexHeatmap"))
 	stopifnot(requireNamespace("circlize"))
 	stopifnot(requireNamespace("grid"))
 	stopifnot(is(x, "SummarizedExperiment")
 	          && all(assayNames(x) == c("p", "FDR", "enr", "log2enr"))
-	          && "bins" %in% names(metadata(x)))
+	          && "bins" %in% names(metadata(x))
+	          && (!show_motif_GC || "motif.percentGC" %in% colnames(rowData(x))))
 	b <- metadata(x)$bins
 	stopifnot(ncol(x) == nlevels(b))
 	stopifnot(all(which.plots %in% c("p", "FDR", "enr", "log2enr")))
@@ -281,7 +285,21 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
 	assayNameMap1 <- c(p="P value", FDR="FDR", enr="enrichment", log2enr="log2 enrichment")
 	assayNameMap2 <- c(p = "P value (-log10)", FDR = "FDR (-log10)",
 	                   enr = "enrichment (o-e)/sqrt(e)", log2enr="enrichment (log2)")
-	ret <- c(list(labels = hmMotifs), lapply(which.plots, function(w) {
+	L <- list(labels = hmMotifs)
+	if (show_motif_GC) {
+	    tmp <- as.matrix(SummarizedExperiment::rowData(x)[, "motif.percentGC", drop = FALSE])
+	    gccols <- c("#F7FCF5","#E5F5E0","#C7E9C0","#A1D99B","#74C476","#41AB5D","#238B45","#006D2C","#00441B")
+	    hmPercentGC <- ComplexHeatmap::Heatmap(matrix = tmp, name = "Percent G+C",
+	                                           width = grid::unit(0.2, "inch"), na_col = NA,
+	                                           col = circlize::colorRamp2(breaks = c(0, seq(20, 80, length.out = 254), 100),
+	                                                                      colors = colorRampPalette(gccols)(256)),
+	                                           cluster_rows = FALSE, cluster_columns = FALSE,
+	                                           show_row_names = FALSE, show_column_names = FALSE,
+	                                           show_heatmap_legend = TRUE, heatmap_legend_param = list(color_bar="continuous"),
+	                                           use_raster = TRUE)
+	    L <- c(L, list("percentGC" = hmPercentGC))
+	}
+	ret <- c(L, lapply(which.plots, function(w) {
 		dat <- SummarizedExperiment::assay(x, w)
 		if ((w == "enr") | (w == "log2enr")) {
 			rng <- c(-1, 1) * if (is.null(maxEnr)) quantile(abs(dat), .995) else maxEnr

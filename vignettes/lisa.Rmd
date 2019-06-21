@@ -210,7 +210,7 @@ head(colnames(se))
 
 # assays: the motif enrichment results
 assayNames(se)
-assay(se, "log2enr")[1:6, 1:3]
+assay(se, "log2enr")[1:5, 1:3]
 ```
 
 We can plot the results using the `plotMotifHeatmaps` function, e.g. selecting all factors that have an absolute log2 enrichment of at least 1.0 in any bin:  
@@ -223,7 +223,7 @@ seSel <- se[sel, ]
 rownames(seSel) <- sub("\\|.*$","",rownames(seSel))
 # plot
 plotMotifHeatmaps(x = seSel, which.plots = c("log2enr","FDR"), width = 2.0,
-                  cluster = TRUE, maxEnr = 2, maxSig = 10)
+                  cluster = TRUE, maxEnr = 2, maxSig = 10, show_motif_GC = TRUE)
 ```
 
 As the Jaspar database contains many similar motifs, it is helpful to show the enrichment heatmap clustered by motif similarity. To this end, we first need to calculate all pairwise motif similarities (measured as maximum Pearson correlation of all possible shifted alignments). As this step may take a while, you can also skip this line of code and load the results using the next line of code. 
