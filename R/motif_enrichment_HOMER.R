@@ -88,10 +88,25 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "ve
         pwm <- apply(pwm, 2, function(x){sprintf("%.3f", x)})
         rownames(pwm) <- tmp.rn
         wm.name <- paste(c(TFBSTools::name(siteList[[i]]),
-                           paste(TFBSTools::tags(siteList[[i]])$acc, collapse = "::"),
-                           TFBSTools::tags(siteList[[i]])$type), collapse = "|")
-        #the -10 is added so that the motif file has 4 columns, which is need to run compareMotifs.pl
-        #for the weight matrix clustering
+                           paste(TFBSTools::tags(siteList[[i]])$acc, collapse = "."),
+                           TFBSTools::tags(siteList[[i]])$type), collapse = "_")
+        wm.name <- gsub("::", ".", wm.name)
+        wm.name <- gsub("-", "", wm.name)
+        wm.name <- gsub("\\s+", "", wm.name)
+        if(length(grep("\\(var\\.\\d\\)", wm.name)) > 0){
+          tmp.num <- gsub("\\S+\\(var\\.(\\d)\\)\\S+", "\\1", wm.name)
+          wm.name <- gsub(sprintf("\\(var\\.%s\\)", tmp.num),
+                          sprintf("var%s", tmp.num), wm.name)
+        }
+        wm.name <- gsub("\\(PBM\\)", "", wm.name)
+        wm.name.conv <- make.names(wm.name)
+        if(!(wm.name == wm.name.conv)){
+          warning("Weight matrix name ",wm.name, " converted to ", wm.name.conv)
+        }
+        wm.name <- wm.name.conv
+      
+        #the -10 is added so that the motif file has 4 columns, which is needed to run compareMotifs.pl
+        #for weight matrix clustering (4th column not used, bug in compareMotifs.pl, I think)
         cat(sprintf(">%s\t%s\t%.2f\t-10\n",
                     paste(apply(pwm, 2, function(x) { rownames(pwm)[which.max(x)] }), collapse = ""),
                     wm.name, scorecut),  file = fh, append = TRUE)
