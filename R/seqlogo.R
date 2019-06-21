@@ -137,6 +137,8 @@ pfm2ic <- function (pfm) {
 #' @seealso \code{\link[seqLogo]{seqLogo}} for the original, more flexible version
 #'     of this function.
 #'
+#' @importFrom grid polygonGrob gpar
+#'
 #' @export
 seqLogoGrob <- function(x) {
     stopifnot(is(x, "PFMatrix"))
@@ -166,8 +168,8 @@ seqLogoGrob <- function(x) {
 
     x <- unit(letters$x / max(letters$x), "npc")
     y <- unit(letters$y / max(letters$y), "npc")
-    polygonGrob(x = x, y = y, id = letters$id, name = as.character(ncol(xm)),
-                gp = gpar(fill = letters$fill, col = "transparent"))
+    grid::polygonGrob(x = x, y = y, id = letters$id, name = as.character(ncol(xm)),
+                      gp = grid::gpar(fill = letters$fill, col = "transparent"))
 }
 
 #' @title Sequence logo annotation
@@ -194,6 +196,7 @@ seqLogoGrob <- function(x) {
 #'   \code{\link[ComplexHeatmap]{HeatmapAnnotation}}.
 #'
 #' @importFrom grid unit grid.rect viewport pushViewport popViewport
+#' @importFrom ComplexHeatmap AnnotationFunction
 #'
 #' @export
 anno_seqlogo <- function(grobL, which = c("column", "row"),
@@ -255,8 +258,8 @@ anno_seqlogo <- function(grobL, which = c("column", "row"),
                               width = anno_size$width, height = anno_size$height,
                               n = n_seqlogo, data_scale = c(0.5, 1.5),
                               var_import = list(gp, space, fact_width, grobL))
-    anno@subset_rule$gp = subset_vector
-    anno@subset_rule$grobL = subset_vector
+    anno@subset_rule$gp = ComplexHeatmap::subset_vector
+    anno@subset_rule$grobL = ComplexHeatmap::subset_vector
     anno@subsetable = TRUE
     return(anno)
 }
