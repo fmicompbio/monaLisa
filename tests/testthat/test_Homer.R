@@ -97,6 +97,8 @@ test_that("runHomer() works properly", {
         expect_length(SummarizedExperiment::assays(res), 4L)
         expect_identical(SummarizedExperiment::assayNames(res), c("p", "FDR", "enr", "log2enr"))
         expect_identical(dim(res), c(5L, 3L))
+        expect_identical(rownames(res), SummarizedExperiment::rowData(res)[, "motif.name"])
+        expect_identical(rownames(res), TFBSTools::name(SummarizedExperiment::rowData(res)[, "motif.pfm"]))
         expect_equal(sum(SummarizedExperiment::assay(res, "p")), 10.7424234072)
         expect_equal(sum(SummarizedExperiment::assay(res, "enr")), 2.0460826730)
 

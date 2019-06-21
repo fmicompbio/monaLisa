@@ -321,6 +321,9 @@ parseHomerOutput <- function(infiles) {
 #'
 #' @export
 runHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(), regionsize = "given", Ncpu=2L) {
+    ## TODO: check if prepare/run can be skipped (files already existing)
+    ##       -> just parse output and create se
+
     ## ... prepare
     message("\npreparing input files...")
     runfile <- prepareHomer(gr = gr, b = b, genomedir = genomedir, outdir = outdir,
@@ -341,8 +344,10 @@ runHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(
                                  bin.lower = attr(b, "breaks")[-(nlevels(b)+1)],
                                  bin.upper = attr(b, "breaks")[-1],
                                  bin.nochange = seq.int(nlevels(b)) %in% attr(b, "bin0"))
+    cdat <- cdat[match(colnames(resL[[1]]), levels(b)), ]
+    pfms <- homerToPFMatrixList(motifFile)
     rdat <- S4Vectors::DataFrame(motif.name = rownames(resL[[1]]),
-                                 motif.pwm = homerToPFMatrixList(motifFile))
+                                 motif.pfm = pfms[match(rownames(resL[[1]]), TFBSTools::name(pfms))])
     se <- SummarizedExperiment::SummarizedExperiment(
       assays = resL, colData = cdat, rowData = rdat,
       metadata = list(regions = gr,
