@@ -215,6 +215,10 @@ plotBinScatter <- function(x, y, b,
 #'     a row dendrogram for the clustering of motifs. Ignored for \code{cluster = FALSE}.
 #' @param show_motif_GC If \code{TRUE}, show a column with the percent G+C of the motif
 #'     as part of the heatmap.
+#' @param show_seqlogo If \code{TRUE}, show a sequence logo next to each motif label.
+#'     This will likely only make sense for a heatmap with a low number of motifs.
+#' @param width.seqlogo The width (in inches) for the longest sequence logo (shorter
+#'     logos are drawn to scale).
 #'
 #' @details The heatmaps are plotted side-by-side and are created internally using
 #'     the \pkg{ComplexHeatmap} package.
@@ -243,7 +247,8 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
                               col.sig = c("#FFF5EB","#FEE6CE","#FDD0A2","#FDAE6B","#FD8D3C",
                                           "#F16913","#D94801","#A63603","#7F2704"),
                               maxEnr = NULL, maxSig = NULL, highlight = NULL, cluster = FALSE,
-                              show_dendrogram = FALSE, show_motif_GC = FALSE) {
+                              show_dendrogram = FALSE, show_motif_GC = FALSE,
+                              show_seqlogo = FALSE, width.seqlogo = 2.0) {
 	stopifnot(requireNamespace("ComplexHeatmap"))
 	stopifnot(requireNamespace("circlize"))
 	stopifnot(requireNamespace("grid"))
@@ -254,8 +259,12 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
 	b <- metadata(x)$bins
 	stopifnot(ncol(x) == nlevels(b))
 	stopifnot(all(which.plots %in% c("p", "FDR", "enr", "log2enr")))
+	stopifnot(is.numeric(width) && length(width) == 1 && width > 0)
 	stopifnot(is.null(highlight) || (is.logical(highlight) && length(highlight) == nrow(x)))
 	stopifnot(is.logical(show_dendrogram) && length(show_dendrogram) == 1L)
+	stopifnot(is.logical(show_motif_GC) && length(show_motif_GC) == 1L)
+	stopifnot(is.logical(show_seqlogo) && length(show_seqlogo) == 1L)
+	stopifnot(is.numeric(width.seqlogo) && length(width.seqlogo) == 1 && width.seqlogo > 0)
 	bincols <- attr(getColsByBin(b), "cols")
 	if (is.logical(cluster) && length(cluster) == 1 && cluster[1] == TRUE) {
 	    clres <- stats::hclust(stats::dist(SummarizedExperiment::assay(x, "enr")))
@@ -274,12 +283,23 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
 											   show_legend=FALSE)
 	tmp <- matrix(if (!is.null(highlight)) as.character(highlight) else rep(NA, nrow(x)),
 								ncol = 1, dimnames = list(rownames(x), NULL))
+	hmSeqlogo <- NULL
+	if (show_seqlogo) {
+	    pfms <- rowData(x)$motif.pfm
+	    grobL <- lapply(pfms, seqLogoGrob)
+	    hmSeqlogo <- ComplexHeatmap::HeatmapAnnotation(
+	        logo = anno_seqlogo(grobL = grobL, which = "row",
+	                            rel_width = unlist(lapply(TFBSTools::Matrix(pfms), ncol), use.names = FALSE),
+	                            space = grid::unit(0.5, "mm"), width = grid::unit(width.seqlogo, "inch")),
+	        show_legend = FALSE, show_annotation_name = FALSE, which = "row")
+	}
 	hmMotifs <- ComplexHeatmap::Heatmap(matrix = tmp, name = "names",
 										width = grid::unit(if (!is.null(highlight)) .2 else 0, "inch"),
 										na_col = NA, col = c("TRUE" = "green3", "FALSE" = "white"),
 										cluster_rows = clres, show_row_dend = show_dendrogram, cluster_columns = FALSE,
 										show_row_names = TRUE, row_names_side = "left",
-										show_column_names = FALSE, show_heatmap_legend = FALSE)
+										show_column_names = FALSE, show_heatmap_legend = FALSE,
+										left_annotation = hmSeqlogo)
 
 	assayNameMap1 <- c(p="P value", FDR="FDR", enr="enrichment", log2enr="log2 enrichment")
 	assayNameMap2 <- c(p = "P value (-log10)", FDR = "FDR (-log10)",

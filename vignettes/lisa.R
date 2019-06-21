@@ -93,7 +93,7 @@ sel <- apply(assay(se, "log2enr"), 1, function(x) max(abs(x))) > 1.0
 sum(sel)
 seSel <- se[sel, ]
 # shorten names
-rownames(seSel) <- sub("\\|.*$","",rownames(seSel))
+rownames(seSel) <- sub("\\_.*$","",rownames(seSel))
 # plot
 plotMotifHeatmaps(x = seSel, which.plots = c("log2enr","FDR"), width = 2.0,
                   cluster = TRUE, maxEnr = 2, maxSig = 10, show_motif_GC = TRUE)
@@ -107,8 +107,7 @@ plotMotifHeatmaps(x = seSel, which.plots = c("log2enr","FDR"), width = 2.0,
 SimMat <- readRDS(system.file("extdata", "SimMat.rds", package = "lisa"))
 
 ## ----reordermatrix---------------------------------------------------------
-indx <- setNames(1:nrow(SimMat), rownames(SimMat))[rownames(se)]
-SimMat <- SimMat[indx, indx]
+SimMat <- SimMat[rownames(se), rownames(se)]
 
 ## ----plottfsclustered------------------------------------------------------
 #creat hclust object, similarity defined by 1 - Pearson correlation

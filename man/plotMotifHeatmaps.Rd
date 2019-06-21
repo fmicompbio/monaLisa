@@ -10,7 +10,8 @@ plotMotifHeatmaps(x, which.plots = c("p", "enr", "FDR", "log2enr"),
   "#67001F"), col.sig = c("#FFF5EB", "#FEE6CE", "#FDD0A2", "#FDAE6B",
   "#FD8D3C", "#F16913", "#D94801", "#A63603", "#7F2704"), maxEnr = NULL,
   maxSig = NULL, highlight = NULL, cluster = FALSE,
-  show_dendrogram = FALSE, show_motif_GC = FALSE)
+  show_dendrogram = FALSE, show_motif_GC = FALSE,
+  show_seqlogo = FALSE, width.seqlogo = 2)
 }
 \arguments{
 \item{x}{A \code{\link[SummarizedExperiment]{SummarizedExperiment}} with numerical matrices
@@ -43,6 +44,12 @@ a row dendrogram for the clustering of motifs. Ignored for \code{cluster = FALSE
 
 \item{show_motif_GC}{If \code{TRUE}, show a column with the percent G+C of the motif
 as part of the heatmap.}
+
+\item{show_seqlogo}{If \code{TRUE}, show a sequence logo next to each motif label.
+This will likely only make sense for a heatmap with a low number of motifs.}
+
+\item{width.seqlogo}{The width (in inches) for the longest sequence logo (shorter
+logos are drawn to scale).}
 }
 \value{
 A list of \code{ComplexHeatmap::Heatmap} objects.
