@@ -93,10 +93,12 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "ve
         wm.name <- gsub("::", ".", wm.name)
         wm.name <- gsub("-", "", wm.name)
         wm.name <- gsub("\\s+", "", wm.name)
-        wm.name <- gsub("\\(var\\.2\\)", "var2", wm.name)
-        wm.name <- gsub("\\(var\\.3\\)", "var3", wm.name)
+        if(length(grep("\\(var\\.\\d\\)", wm.name)) > 0){
+          tmp.num <- gsub("\\S+\\(var\\.(\\d)\\)\\S+", "\\1", wm.name)
+          wm.name <- gsub(sprintf("\\(var\\.%s\\)", tmp.num),
+                          sprintf("var%s", tmp.num), wm.name)
+        }
         wm.name <- gsub("\\(PBM\\)", "", wm.name)
-        
         wm.name.conv <- make.names(wm.name)
         if(!(wm.name == wm.name.conv)){
           warning("Weight matrix name ",wm.name, " converted to ", wm.name.conv)
