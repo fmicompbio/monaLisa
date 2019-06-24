@@ -287,7 +287,7 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
 	if (show_seqlogo) {
 	    pfms <- rowData(x)$motif.pfm
 	    maxwidth <- max(sapply(TFBSTools::Matrix(pfms), ncol))
-	    grobL <- lapply(pfms, seqLogoGrob, xmax = maxwidth)
+	    grobL <- lapply(pfms, seqLogoGrob, xmax = maxwidth, xjust = "center")
 	    hmSeqlogo <- ComplexHeatmap::HeatmapAnnotation(
 	        logo = anno_seqlogo(grobL = grobL, which = "row",
 	                            space = grid::unit(0.5, "mm"), width = grid::unit(width.seqlogo, "inch")),

@@ -4,7 +4,8 @@
 \alias{seqLogoGrob}
 \title{Create a simple sequence logo grob.}
 \usage{
-seqLogoGrob(x, xmax = NULL, ymax = 2)
+seqLogoGrob(x, xmax = NULL, ymax = 2, xjust = c("left", "center",
+  "right"))
 }
 \arguments{
 \item{x}{A \code{\link[TFBSTools]{PFMatrix}} object}
@@ -14,6 +15,10 @@ A value of \code{NULL} will scale the logo to the full width of the viewport.}
 
 \item{ymax}{A numeric scalar with the maximal height for the logo (in bits)
 A value of \code{NULL} will scale the logo to the full height of the viewport.}
+
+\item{xjust}{A character scalar specifying the horizontal adjustment of the
+sequence log withint the viewport; one of \code{"left"}, \code{"center"} or
+\code{"right"}.}
 }
 \value{
 A polygon grob.

@@ -124,6 +124,9 @@ pfm2ic <- function (pfm) {
 #'     A value of \code{NULL} will scale the logo to the full width of the viewport.
 #' @param ymax A numeric scalar with the maximal height for the logo (in bits)
 #'     A value of \code{NULL} will scale the logo to the full height of the viewport.
+#' @param xjust A character scalar specifying the horizontal adjustment of the
+#'     sequence log withint the viewport; one of \code{"left"}, \code{"center"} or
+#'     \code{"right"}.
 #'
 #' @return A polygon grob.
 #'
@@ -144,10 +147,11 @@ pfm2ic <- function (pfm) {
 #' @importFrom grid polygonGrob gpar
 #'
 #' @export
-seqLogoGrob <- function(x, xmax = NULL, ymax = 2.0) {
+seqLogoGrob <- function(x, xmax = NULL, ymax = 2.0, xjust = c("left", "center", 'right')) {
     stopifnot(is(x, "PFMatrix") && !is(x, "PWMatrix"))
     stopifnot(is.null(xmax) || (is.numeric(xmax) && length(xmax) == 1L && xmax > 0))
     stopifnot(is.null(ymax) || (is.numeric(ymax) && length(ymax) == 1L && ymax > 0))
+    xjust <- match.arg(xjust)
 
     xm <- TFBSTools::Matrix(x)
     xm <- sweep(xm, MARGIN = 2, colSums(xm), "/")
@@ -178,10 +182,12 @@ seqLogoGrob <- function(x, xmax = NULL, ymax = 2.0) {
     if (is.null(ymax)) {
         ymax <- max(letters$y) # use full height of viewport
     }
+    xoff <- switch(xjust,
+                   left = 0,
+                   center = (xmax - max(letters$x)) / 2,
+                   right = (xmax - max(letters$x)))
 
-    ### TODO: currently all motifs will be left-adjusted; also support centered and right-adjusted
-
-    x <- unit(letters$x / xmax, "npc")
+    x <- unit((letters$x + xoff) / xmax, "npc")
     y <- unit(letters$y / ymax, "npc")
     grid::polygonGrob(x = x, y = y, id = letters$id, name = as.character(ncol(xm)),
                       gp = grid::gpar(fill = letters$fill, col = "transparent"))
