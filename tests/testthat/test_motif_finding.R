@@ -65,6 +65,7 @@ test_that("findMotifHits() works properly", {
 
     # method = "homer2"
     if (!is.na(homerbin)) { # only test if homer2 binary was found
+        expect_error(findMotifHits(tf, DNAString(paste(rep("A", 1e6), collapse = "")), method = "homer2", homerfile = homerbin))
         expect_error(findMotifHits("not-existing", sf, method = "homer2", homerfile = homerbin))
         expect_error(findMotifHits(tf, "not-existing", method = "homer2", homerfile = homerbin))
         expect_error(findMotifHits(tf, sf, method = "error"))

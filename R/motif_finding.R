@@ -1,4 +1,4 @@
-#' @importFrom Biostrings matchPWM DNA_BASES DNAStringSet
+#' @importFrom Biostrings matchPWM DNA_BASES DNAStringSet fasta.seqlengths
 #' @importFrom IRanges IRanges
 #' @importFrom GenomicRanges GRanges
 #' @importFrom TFBSTools Matrix PWMatrix PWMatrixList name
@@ -34,7 +34,7 @@ NULL
         } else {
             scorecut <- absscore[i]
         }
-      
+
         cat(sprintf(">%s\t%s\t%.6f\n",
                     paste(apply(pwm, 2, function(x) { rownames(pwm)[which.max(x)] }), collapse = ""),
                     TFBSTools::name(pwmL[[i]]), scorecut),  file = fh, append = TRUE)
@@ -191,6 +191,14 @@ setMethod("findMotifHits",
                   if (length(subject) != 1L || !file.exists(subject)) {
                       stop("'subject' must be a character(1) pointing to a FASTA sequence file, ",
                            "or a DNAString, DNAStringSet or GRanges object")
+                  }
+
+                  # make sure sequences are not too long
+                  # currently, homer2 only support sequences shorter than 1e6 bases
+                  # (see cpp/Motif2.h:#define MOTIF2_BUFFER 10000100 and also char* curSeq = new char[1000000];)
+                  if (any(tooLong <- ((sl <- fasta.seqlengths(subject)) >= 1e6))) {
+                      stop("For method = 'homer2', 'subject' must only contain sequences shorter than 1 Mb, ",
+                           "the following sequences are too long: ", paste(names(sl)[tooLong], collapse = ", "))
                   }
 
                   # run homer2
