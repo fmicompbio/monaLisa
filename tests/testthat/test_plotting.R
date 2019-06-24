@@ -63,6 +63,8 @@ test_that("plotBinScatter() runs", {
 
 
 test_that("plotMotifHeatmaps() runs", {
+    expect_error(plotMotifHeatmaps(x = se, cluster = "error"))
+
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)
 
