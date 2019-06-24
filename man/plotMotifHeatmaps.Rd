@@ -11,7 +11,7 @@ plotMotifHeatmaps(x, which.plots = c("p", "enr", "FDR", "log2enr"),
   "#FD8D3C", "#F16913", "#D94801", "#A63603", "#7F2704"), maxEnr = NULL,
   maxSig = NULL, highlight = NULL, cluster = FALSE,
   show_dendrogram = FALSE, show_motif_GC = FALSE,
-  show_seqlogo = FALSE, width.seqlogo = 2)
+  show_seqlogo = FALSE, width.seqlogo = 1.5)
 }
 \arguments{
 \item{x}{A \code{\link[SummarizedExperiment]{SummarizedExperiment}} with numerical matrices

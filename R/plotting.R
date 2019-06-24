@@ -248,7 +248,7 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
                                           "#F16913","#D94801","#A63603","#7F2704"),
                               maxEnr = NULL, maxSig = NULL, highlight = NULL, cluster = FALSE,
                               show_dendrogram = FALSE, show_motif_GC = FALSE,
-                              show_seqlogo = FALSE, width.seqlogo = 2.0) {
+                              show_seqlogo = FALSE, width.seqlogo = 1.5) {
 	stopifnot(requireNamespace("ComplexHeatmap"))
 	stopifnot(requireNamespace("circlize"))
 	stopifnot(requireNamespace("grid"))

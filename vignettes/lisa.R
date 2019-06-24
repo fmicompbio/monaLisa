@@ -113,7 +113,8 @@ SimMat <- SimMat[rownames(se), rownames(se)]
 #creat hclust object, similarity defined by 1 - Pearson correlation
 hcl <- hclust(as.dist(1 - SimMat[sel, sel]), method="average")
 plotMotifHeatmaps(x = seSel, which.plots = c("log2enr","FDR"), width = 2.0,
-                  cluster = hcl, maxEnr = 2, maxSig = 10, show_dendrogram=TRUE)
+                  cluster = hcl, maxEnr = 2, maxSig = 10,
+                  show_dendrogram=TRUE, show_seqlogo = TRUE, width.seqlogo = 1.2)
 
 ## ----findMotifs------------------------------------------------------------
 # get sequences of promoters as a DNAStringSet
