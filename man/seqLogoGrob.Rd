@@ -25,7 +25,7 @@ Create a simple sequence logo grob (grid-graphics object) for a
     example can be used to embedd sequence logos within other plots.
 }
 \examples{
-if (require(JASPAR2018)) {
+if (require(JASPAR2018) && require(TFBSTools)) {
     pfm1 <- getMatrixByID(JASPAR2018, "MA0139")
     pfm2 <- getMatrixByID(JASPAR2018, "MA0531")
 

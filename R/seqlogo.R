@@ -128,7 +128,7 @@ pfm2ic <- function (pfm) {
 #' @return A polygon grob.
 #'
 #' @examples
-#' if (require(JASPAR2018)) {
+#' if (require(JASPAR2018) && require(TFBSTools)) {
 #'     pfm1 <- getMatrixByID(JASPAR2018, "MA0139")
 #'     pfm2 <- getMatrixByID(JASPAR2018, "MA0531")
 #'
@@ -207,8 +207,8 @@ seqLogoGrob <- function(x, xmax = NULL, ymax = 2.0) {
 #' @return An annotation function which can be used in
 #'   \code{\link[ComplexHeatmap]{HeatmapAnnotation}}.
 #'
-#' @importFrom grid unit grid.rect viewport pushViewport popViewport
-#' @importFrom ComplexHeatmap AnnotationFunction
+#' @importFrom grid unit grid.rect viewport pushViewport popViewport grid.draw
+#' @importFrom ComplexHeatmap AnnotationFunction subset_gp
 #'
 #' @export
 anno_seqlogo <- function(grobL, which = c("column", "row"),
@@ -234,8 +234,8 @@ anno_seqlogo <- function(grobL, which = c("column", "row"),
                         row    = list(height= if (is.null(height)) unit(1, "npc") else height,
                                       width = if (is.null(width))  unit(1, "cm")  else width))
     gp = .recycle_gp(gp, n_seqlogo)
-    column_fun = function(index) {
-        n = length(index)
+    column_fun <- function(index) {
+        n <- length(index)
         pushViewport(viewport())
         grid.rect(x = (1:n - 0.5)/n, width = 1/n, gp = subset_gp(gp, index))
         for (i in seq_len(n)) {
@@ -247,8 +247,8 @@ anno_seqlogo <- function(grobL, which = c("column", "row"),
         }
         popViewport()
     }
-    row_fun = function(index) {
-        n = length(index)
+    row_fun <- function(index) {
+        n <- length(index)
         pushViewport(viewport())
         grid.rect(y = (n - 1:n + 0.5)/n, height = 1/n, gp = subset_gp(gp, index))
         for (i in seq_len(n)) {
