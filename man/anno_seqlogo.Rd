@@ -4,19 +4,14 @@
 \alias{anno_seqlogo}
 \title{Sequence logo annotation}
 \usage{
-anno_seqlogo(grobL, which = c("column", "row"), rel_width = rep(1,
-  length(grobL)), space = unit(0.5, "mm"), width = NULL,
-  height = NULL, gp = gpar(fill = NA, col = NA))
+anno_seqlogo(grobL, which = c("column", "row"), space = unit(0.5,
+  "mm"), width = NULL, height = NULL, gp = gpar(fill = NA, col = NA))
 }
 \arguments{
 \item{grobL}{A \code{list} of sequence logo grobs, typically created using
 \code{\link{seqLogoGrob}}.}
 
 \item{which}{Whether it is a column annotation or a row annotation?}
-
-\item{rel_width}{A positive \code{numeric} vector of the same length as \code{grobL}
-with the relative width of the individual sequence logos. By default,
-all logos will be drawn to have the same width.}
 
 \item{space}{The space around the image to the annotation grid borders. The
 value should be a unit object.}

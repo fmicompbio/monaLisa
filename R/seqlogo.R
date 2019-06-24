@@ -120,6 +120,10 @@ pfm2ic <- function (pfm) {
 #'     example can be used to embedd sequence logos within other plots.
 #'
 #' @param x A \code{\link[TFBSTools]{PFMatrix}} object
+#' @param xmax A numeric scalar with the maximal width for the logo (in base-pairs).
+#'     A value of \code{NULL} will scale the logo to the full width of the viewport.
+#' @param ymax A numeric scalar with the maximal height for the logo (in bits)
+#'     A value of \code{NULL} will scale the logo to the full height of the viewport.
 #'
 #' @return A polygon grob.
 #'
@@ -140,8 +144,10 @@ pfm2ic <- function (pfm) {
 #' @importFrom grid polygonGrob gpar
 #'
 #' @export
-seqLogoGrob <- function(x) {
-    stopifnot(is(x, "PFMatrix"))
+seqLogoGrob <- function(x, xmax = NULL, ymax = 2.0) {
+    stopifnot(is(x, "PFMatrix") && !is(x, "PWMatrix"))
+    stopifnot(is.null(xmax) || (is.numeric(xmax) && length(xmax) == 1L && xmax > 0))
+    stopifnot(is.null(ymax) || (is.numeric(ymax) && length(ymax) == 1L && ymax > 0))
 
     xm <- TFBSTools::Matrix(x)
     xm <- sweep(xm, MARGIN = 2, colSums(xm), "/")
@@ -166,8 +172,17 @@ seqLogoGrob <- function(x) {
         x.pos <- x.pos + wt
     }
 
-    x <- unit(letters$x / max(letters$x), "npc")
-    y <- unit(letters$y / max(letters$y), "npc")
+    if (is.null(xmax)) {
+        xmax <- max(letters$x) # use full width of viewport
+    }
+    if (is.null(ymax)) {
+        ymax <- max(letters$y) # use full height of viewport
+    }
+
+    ### TODO: currently all motifs will be left-adjusted; also support centered and right-adjusted
+
+    x <- unit(letters$x / xmax, "npc")
+    y <- unit(letters$y / ymax, "npc")
     grid::polygonGrob(x = x, y = y, id = letters$id, name = as.character(ncol(xm)),
                       gp = grid::gpar(fill = letters$fill, col = "transparent"))
 }
@@ -180,9 +195,6 @@ seqLogoGrob <- function(x) {
 #' @param grobL A \code{list} of sequence logo grobs, typically created using
 #'   \code{\link{seqLogoGrob}}.
 #' @param which Whether it is a column annotation or a row annotation?
-#' @param rel_width A positive \code{numeric} vector of the same length as \code{grobL}
-#'   with the relative width of the individual sequence logos. By default,
-#'   all logos will be drawn to have the same width.
 #' @param space The space around the image to the annotation grid borders. The
 #'   value should be a unit object.
 #' @param width Width of the annotation. The value should be an absolute unit.
@@ -200,12 +212,10 @@ seqLogoGrob <- function(x) {
 #'
 #' @export
 anno_seqlogo <- function(grobL, which = c("column", "row"),
-                         rel_width = rep(1, length(grobL)),
                          space = unit(0.5, "mm"), width = NULL, height = NULL,
                          gp = gpar(fill = NA, col = NA)) {
     stopifnot(is(grobL, "list"))
     stopifnot(all(sapply(grobL, function(x) is(x, "grob"))))
-    stopifnot(is.numeric(rel_width) && length(rel_width) == length(grobL) && all(rel_width > 0))
 
     .recycle_gp <- function (gp, n = 1) {
         for (i in seq_along(gp)) {
@@ -216,7 +226,6 @@ anno_seqlogo <- function(grobL, which = c("column", "row"),
     }
 
     n_seqlogo <- length(grobL)
-    fact_width <- rel_width / max(rel_width)
     which <- match.arg(which)[1]
     space <- space[1]
     anno_size <- switch(which,
@@ -231,9 +240,9 @@ anno_seqlogo <- function(grobL, which = c("column", "row"),
         grid.rect(x = (1:n - 0.5)/n, width = 1/n, gp = subset_gp(gp, index))
         for (i in seq_len(n)) {
             height <- unit(1, "npc") - space * 2
-            width  <- unit(1 / n, "npc") * fact_width[i] - space * 2
+            width  <- unit(1 / n, "npc") - space * 2
             pushViewport(viewport(x = (i - 0.5)/n, width = width, height = height))
-            grid.draw(grobL[[i]])
+            grid.draw(grobL[[index[i]]])
             popViewport()
         }
         popViewport()
@@ -244,9 +253,9 @@ anno_seqlogo <- function(grobL, which = c("column", "row"),
         grid.rect(y = (n - 1:n + 0.5)/n, height = 1/n, gp = subset_gp(gp, index))
         for (i in seq_len(n)) {
             height <- unit(1 / n, "npc") - space * 2
-            width  <- unit(1, "npc") * fact_width[i] - space * 2
+            width  <- unit(1, "npc") - space * 2
             pushViewport(viewport(y = (n - i + 0.5)/n, width = width, height = height))
-            grid.draw(grobL[[i]])
+            grid.draw(grobL[[index[i]]])
             popViewport()
         }
         popViewport()
@@ -257,8 +266,8 @@ anno_seqlogo <- function(grobL, which = c("column", "row"),
     anno = AnnotationFunction(fun = fun, fun_name = "anno_seqlogo", which = which,
                               width = anno_size$width, height = anno_size$height,
                               n = n_seqlogo, data_scale = c(0.5, 1.5),
-                              var_import = list(gp, space, fact_width, grobL))
-    anno@subset_rule$gp = ComplexHeatmap::subset_vector
+                              var_import = list(gp, space, grobL))
+    anno@subset_rule$gp = ComplexHeatmap::subset_gp
     anno@subset_rule$grobL = ComplexHeatmap::subset_vector
     anno@subsetable = TRUE
     return(anno)
