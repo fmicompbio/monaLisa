@@ -23,7 +23,7 @@ test_that("homerToPFMatrixList() works properly", {
     library(JASPAR2018)
     optsL <- list(ID = c("MA0006.1", "MA0007.3", "MA0019.1", "MA0025.1", "MA0029.1", "MA0030.1"))
     pfms <- TFBSTools::getMatrixSet(JASPAR2018, opts = optsL)
-    dumpJaspar(filename = tmp1, pkg = "JASPAR2018", opts = optsL)
+    expect_true(dumpJaspar(filename = tmp1, pkg = "JASPAR2018", opts = optsL))
 
     expect_error(homerToPFMatrixList("does_not_exist"))
     expect_error(homerToPFMatrixList(tmp1, "error"))
@@ -34,7 +34,9 @@ test_that("homerToPFMatrixList() works properly", {
     expect_true(all(abs(colSums(do.call(cbind, TFBSTools::Matrix(res))) - 1000) <= 2)) # 2/1000 rounding error
     expect_true(all(sapply(TFBSTools::Matrix(res), nrow) == 4L))
     expect_identical(sapply(TFBSTools::Matrix(res), ncol), c(6L, 17L, 12L, 11L, 14L, 14L))
-    expect_true(all(sapply(seq_along(res), function(i) grepl(name(pfms[[i]]), name(res[[i]]), fixed = TRUE))))
+    expect_true(all(sub("_.+$","",name(res)) == sub("::", ".", unname(name(pfms)), fixed = TRUE)))
+
+    unlink(tmp1)
 })
 
 test_that("prepareHomer() works properly", {
