@@ -38,7 +38,7 @@ test_that("motifSimilarity works as expected", {
     expect_error(motifSimilarity("error"))
 
     expect_is(res1 <- motifSimilarity(x = pfmL, y = NULL, method = "R"), "matrix")
-    expect_is(res2 <- motifSimilarity(x = pfmL, y = NULL, method = "R", Ncpu = 3L), "matrix")
+    expect_is(res2 <- motifSimilarity(x = pfmL, y = NULL, method = "R", Ncpu = 2L), "matrix")
     expect_is(res3 <- motifSimilarity(x = pfmL, y = pfmL, method = "R"), "matrix")
     expect_is(res4 <- motifSimilarity(x = tmpf, y = NULL, method = "R"), "matrix")
     expect_identical(res1[c(4,7,8)], c(1.0, 0.63146007727884323479, 0.63146007727884323479))
