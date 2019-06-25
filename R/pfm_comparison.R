@@ -96,7 +96,7 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
                             homerfile = findHomer("compareMotifs.pl"),
                             homerOutfile = NULL, Ncpu = 1L, verbose = TRUE) {
     ## branch by method
-    stopifnot(is.logical(verbose) && length(verbose) == 1L)
+    stopifnot(exprs = { is.logical(verbose); length(verbose) == 1L })
     method <- match.arg(method)
     if (method == "R") {
         ## pre-flight checks for "R"
@@ -106,8 +106,8 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
                 x <- homerToPFMatrixList(x)
             }
         }
-        stopifnot(is(x, "PFMatrixList") && (is.null(y) || is(y, "PFMatrixList")))
-        stopifnot(is.numeric(Ncpu) && length(Ncpu) == 1 && Ncpu > 0)
+        stopifnot(exprs = { is(x, "PFMatrixList"); (is.null(y) || is(y, "PFMatrixList")) })
+        stopifnot(exprs = { is.numeric(Ncpu); length(Ncpu) == 1; Ncpu > 0 })
 
         if (Ncpu > 2 && is.null(y)) {
             y <- x
@@ -155,12 +155,12 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
 
     } else if (method == "HOMER") {
         ## pre-flight checks for "HOMER"
-        stopifnot(is.character(x) && length(x) == 1L && file.exists(x))
-        stopifnot(is.character(homerfile) && length(homerfile) == 1L && file.exists(homerfile))
+        stopifnot(exprs = { is.character(x); length(x) == 1L; file.exists(x) })
+        stopifnot(exprs = { is.character(homerfile); length(homerfile) == 1L; file.exists(homerfile) })
         if (is.null(homerOutfile)) {
             homerOutfile <- tempfile(fileext = ".simmat")
         }
-        stopifnot(is.character(homerOutfile) && length(homerOutfile) == 1L && !file.exists(homerOutfile))
+        stopifnot(exprs = { is.character(homerOutfile); length(homerOutfile) == 1L; !file.exists(homerOutfile) })
 
         ## run
         if (verbose) {

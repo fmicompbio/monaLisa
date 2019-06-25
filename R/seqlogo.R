@@ -148,7 +148,7 @@ pfm2ic <- function (pfm) {
 #'
 #' @export
 seqLogoGrob <- function(x, xmax = NULL, ymax = 2.0, xjust = c("left", "center", 'right')) {
-    stopifnot(is(x, "PFMatrix") && !is(x, "PWMatrix"))
+    stopifnot(exprs = { is(x, "PFMatrix"); !is(x, "PWMatrix") })
     stopifnot(is.null(xmax) || (is.numeric(xmax) && length(xmax) == 1L && xmax > 0))
     stopifnot(is.null(ymax) || (is.numeric(ymax) && length(ymax) == 1L && ymax > 0))
     xjust <- match.arg(xjust)

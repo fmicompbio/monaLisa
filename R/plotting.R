@@ -74,8 +74,8 @@ plotBinHist <- function(x, b, breaks = 10 * nlevels(b),
                         xlab = deparse(substitute(x)), ylab = "Frequency",
                         main = "", legend = "topright", legend.cex = 1.0, ...) {
     stopifnot(length(x) == length(b))
-    stopifnot(is.factor(b) && "breaks" %in% names(attributes(b)))
-    stopifnot(is.numeric(legend.cex) && length(legend.cex) == 1)
+    stopifnot(exprs = { is.factor(b); "breaks" %in% names(attributes(b)) })
+    stopifnot(exprs = { is.numeric(legend.cex); length(legend.cex) == 1 })
     cols <- getColsByBin(b, ...)
     binbreaks <- attr(b, "breaks")
     bincols <- attr(cols, "cols")
@@ -116,8 +116,8 @@ plotBinDensity <- function(x, b,
                            xlab = deparse(substitute(x)), ylab = "Density",
                            main = "", legend = "topright", legend.cex = 1.0, ...) {
     stopifnot(length(x) == length(b))
-    stopifnot(is.factor(b) && "breaks" %in% names(attributes(b)))
-    stopifnot(is.numeric(legend.cex) && length(legend.cex) == 1)
+    stopifnot(exprs = { is.factor(b); "breaks" %in% names(attributes(b)) })
+    stopifnot(exprs = { is.numeric(legend.cex); length(legend.cex) == 1 })
     cols <- getColsByBin(b, ...)
     binbreaks <- attr(b, "breaks")
     bincols <- attr(cols, "cols")
@@ -171,7 +171,7 @@ plotBinScatter <- function(x, y, b,
                            main = "", legend = "topright", legend.cex = 1.0, ...) {
     stopifnot(length(x) == length(y))
     stopifnot(length(x) == length(b))
-    stopifnot(is.numeric(legend.cex) && length(legend.cex) == 1)
+    stopifnot(exprs = { is.numeric(legend.cex); length(legend.cex) == 1 })
     if (length(cols) == 1L)
         cols <- rep(cols, length(x))
     stopifnot(length(x) == length(cols))
@@ -249,22 +249,21 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
                               maxEnr = NULL, maxSig = NULL, highlight = NULL, cluster = FALSE,
                               show_dendrogram = FALSE, show_motif_GC = FALSE,
                               show_seqlogo = FALSE, width.seqlogo = 1.5) {
-	stopifnot(requireNamespace("ComplexHeatmap"))
-	stopifnot(requireNamespace("circlize"))
-	stopifnot(requireNamespace("grid"))
-	stopifnot(is(x, "SummarizedExperiment")
-	          && all(assayNames(x) == c("p", "FDR", "enr", "log2enr"))
-	          && "bins" %in% names(metadata(x))
-	          && (!show_motif_GC || "motif.percentGC" %in% colnames(rowData(x))))
+	stopifnot(exprs = {
+	    is(x, "SummarizedExperiment")
+	    all(assayNames(x) == c("p", "FDR", "enr", "log2enr"))
+	    "bins" %in% names(metadata(x))
+	    (!show_motif_GC || "motif.percentGC" %in% colnames(rowData(x)))
+	})
 	b <- metadata(x)$bins
 	stopifnot(ncol(x) == nlevels(b))
 	stopifnot(all(which.plots %in% c("p", "FDR", "enr", "log2enr")))
-	stopifnot(is.numeric(width) && length(width) == 1 && width > 0)
+	stopifnot(exprs = { is.numeric(width); length(width) == 1; width > 0 })
 	stopifnot(is.null(highlight) || (is.logical(highlight) && length(highlight) == nrow(x)))
-	stopifnot(is.logical(show_dendrogram) && length(show_dendrogram) == 1L)
-	stopifnot(is.logical(show_motif_GC) && length(show_motif_GC) == 1L)
-	stopifnot(is.logical(show_seqlogo) && length(show_seqlogo) == 1L)
-	stopifnot(is.numeric(width.seqlogo) && length(width.seqlogo) == 1 && width.seqlogo > 0)
+	stopifnot(exprs = { is.logical(show_dendrogram); length(show_dendrogram) == 1L })
+	stopifnot(exprs = { is.logical(show_motif_GC); length(show_motif_GC) == 1L })
+	stopifnot(exprs = { is.logical(show_seqlogo); length(show_seqlogo) == 1L })
+	stopifnot(exprs = { is.numeric(width.seqlogo); length(width.seqlogo) == 1; width.seqlogo > 0 })
 	bincols <- attr(getColsByBin(b), "cols")
 	if (is.logical(cluster) && length(cluster) == 1 && cluster[1] == TRUE) {
 	    clres <- stats::hclust(stats::dist(SummarizedExperiment::assay(x, "enr")))

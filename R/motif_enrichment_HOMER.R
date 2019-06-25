@@ -52,21 +52,24 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 #' @importFrom TFBSTools getMatrixSet Matrix name tags
 #'
 #' @export
-dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "vertebrates"),
+dumpJaspar <- function(filename, pkg = "JASPAR2018",
+                       opts = list(tax_group = "vertebrates"),
                        relScoreCutoff = 0.8) {
     stopifnot(!file.exists(filename))
-    stopifnot(is.numeric(relScoreCutoff) && length(relScoreCutoff) == 1 &&
-              relScoreCutoff >= 0.0 && relScoreCutoff <= 1.0)
+    stopifnot(exprs = {
+      is.numeric(relScoreCutoff)
+      length(relScoreCutoff) == 1
+      relScoreCutoff >= 0.0
+      relScoreCutoff <= 1.0
+      })
     if ("matrixtype" %in% names(opts) && opts[["matrixtype"]] != "PFM") {
       stop("opts[['matrixtype']] must be set to 'PFM'")
     } else {
       opts[["matrixtype"]] <- "PFM"
     }
 
-    requireNamespace(pkg)
-    requireNamespace("TFBSTools")
-
     # load PFMs and convert to HOMER format (base probabilties)
+    requireNamespace(pkg)
     mdb <- utils::getFromNamespace(pkg, ns=pkg)
     siteList <- TFBSTools::getMatrixSet(mdb, opts)
     message("extracted ",length(siteList)," motifs from ",pkg)
@@ -93,15 +96,15 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "ve
         wm.name <- gsub("::", ".", wm.name)
         wm.name <- gsub("-", "", wm.name)
         wm.name <- gsub("\\s+", "", wm.name)
-        if(length(grep("\\(var\\.\\d\\)", wm.name)) > 0){
+        if (length(grep("\\(var\\.\\d\\)", wm.name)) > 0) {
           tmp.num <- gsub("\\S+\\(var\\.(\\d)\\)\\S+", "\\1", wm.name)
           wm.name <- gsub(sprintf("\\(var\\.%s\\)", tmp.num),
                           sprintf("var%s", tmp.num), wm.name)
         }
         wm.name <- gsub("\\(PBM\\)", "", wm.name)
         wm.name.conv <- make.names(wm.name)
-        if(!(wm.name == wm.name.conv)){
-          warning("Weight matrix name ",wm.name, " converted to ", wm.name.conv)
+        if (!(wm.name == wm.name.conv)){
+          warning("Weight matrix name ", wm.name, " converted to ", wm.name.conv)
         }
         wm.name <- wm.name.conv
 
@@ -141,7 +144,11 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "ve
 #' @export
 homerToPFMatrixList <- function(filename, n = 100L) {
   stopifnot(file.exists(filename))
-  stopifnot(is.numeric(n) && length(n) == 1 && n > 0)
+  stopifnot(exprs = {
+    is.numeric(n)
+    length(n) == 1
+    n > 0
+  })
 
   # parse HOMER motif file
   tmp <- readLines(filename)
@@ -201,9 +208,17 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHo
     if (!is.factor(b))
         b <- factor(b, levels=unique(b))
     stopifnot(length(b) == length(gr))
-    stopifnot(is.character(outdir) && length(outdir) == 1L)
-    stopifnot(is.character(motifFile) && length(motifFile) == 1L && file.exists(motifFile))
-    stopifnot(is.character(homerfile) && length(homerfile) == 1L && file.exists(homerfile))
+    stopifnot(exprs = { is.character(outdir); length(outdir) == 1L })
+    stopifnot(exprs = {
+      is.character(motifFile)
+      length(motifFile) == 1L
+      file.exists(motifFile)
+    })
+    stopifnot(exprs = {
+      is.character(homerfile)
+      length(homerfile) == 1L
+      file.exists(homerfile)
+    })
 
     if (file.exists(outdir))
         stop(outdir," already exists - will not overwrite existing folder")
@@ -223,16 +238,19 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHo
 
         tmp.gr <- gr[b == bn]
         write.table(file=fgfile,
-                    data.frame(1:length(tmp.gr), as.character(seqnames(tmp.gr)), start(tmp.gr)-1, end(tmp.gr), "+"),
+                    data.frame(1:length(tmp.gr), as.character(seqnames(tmp.gr)),
+                               start(tmp.gr)-1, end(tmp.gr), "+"),
                     sep="\t", quote=FALSE, col.names=FALSE, row.names=FALSE)
 
         tmp.gr <- gr[b != bn]
         write.table(file=bgfile,
-                    data.frame(1:length(tmp.gr), as.character(seqnames(tmp.gr)), start(tmp.gr)-1, end(tmp.gr), "+"),
+                    data.frame(1:length(tmp.gr), as.character(seqnames(tmp.gr)),
+                               start(tmp.gr)-1, end(tmp.gr), "+"),
                     sep="\t", quote=FALSE, col.names=FALSE, row.names=FALSE)
 
         cat(sprintf("%s %s %s %s -bg %s -nomotif -p %d -size %s -mknown %s\n",
-                    homerfile, fgfile, genomedir, outputf, bgfile, Ncpu, as.character(regionsize), motifFile), file=fh, append=TRUE)
+                    homerfile, fgfile, genomedir, outputf, bgfile, Ncpu,
+                    as.character(regionsize), motifFile), file=fh, append=TRUE)
     }
     close(fh)
 
