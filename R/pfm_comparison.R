@@ -1,11 +1,12 @@
 # compare two PFMs of any length (padd left/right with background positions)
+# (internal function used by motifSimilarity)
 compareMotifPair <- function(m1, m2) {
     # stopifnot(is.matrix(m1) && is.matrix(m2) &&
     #               nrow(m1) == 4L && nrow(m2) == 4L &&
     #               all.equal(rep(1.0, ncol(m1)), colSums(m1)) &&
     #               all.equal(rep(1.0, ncol(m2)), colSums(m2)))
 
-    bestScore <- -1e10
+    bestScore <- -2
     bestOffset <- 0
     bestDirection <- ""
 
@@ -171,52 +172,3 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
     return(M)
 }
 
-# pfms <- TFBSTools::getMatrixSet(JASPAR2018, list(tax_group = "vertebrates"))
-# name(pfms[c("MA0139.1", "MA1102.1", "MA1104.1")])
-# tmp <- lapply(Matrix(pfms[c("MA0139.1", "MA1102.1", "MA1104.1")]), function(x) sweep(x, 2, colSums(x), "/"))
-# for (i in 1:2) { for (j in i:3) { print(paste(i,"-",j,":", lisa:::compareMotifPair(tmp[[i]], tmp[[j]])$bestScore)) } }
-# compareAllMotifPairs(pfms[c("MA0139.1", "MA1102.1", "MA1104.1")])
-#
-# tmp2 <- lapply(list(Matrix(pfms[[1]]), cbind(Matrix(pfms[[1]])[4:1,][,6:1],matrix(1,nrow=4, ncol=6))), function(x) sweep(x, 2, colSums(x), "/"))
-# compareMotifPair(tmp2[[1]], tmp2[[2]])
-#
-# length(pfms) # 579
-#
-# motiffile <- tempfile(fileext = ".motif")
-# dumpJaspar(motiffile, pkg = "JASPAR2018")
-# system.time(M0 <- clusterPWMs(motifFile = motiffile,
-#             homerdir ="/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/",
-#             outfile = tempfile(fileext = ".simmat")))
-#    user  system elapsed
-# 568.937   0.313 570.500
-#
-# system.time(M <- compareAllMotifPairs(pfms))
-#    user  system elapsed
-# 228.340   4.810 233.651
-#
-# all.equal.numeric(M0, M, check.attributes = FALSE) # "Mean relative difference: 0.0006257828"
-# summary(diag(cor(M0, M)))
-#    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
-#  0.9991  1.0000  1.0000  1.0000  1.0000  1.0000
-#
-# system.time(M2 <- compareAllMotifPairs(pfms, Ncpu = 30))
-#    user  system elapsed
-# 471.356  71.179  23.236
-# all.equal(M, M2) # TRUE
-#
-# library(microbenchmark)
-# microbenchmark(lisa:::compareMotifPair(tmp[[1]], tmp[[2]]))
-#
-# Ma <- lisa:::compareAllMotifPairs(pfms[1:5])
-# Mb <- lisa::motifSimilarity(pfms[1:5])
-# identical(Ma, Mb) # TRUE
-# motiffileTemp <- tempfile()
-# dumpJaspar(motiffileTemp, opts = list(ID = ID(pfms[1:5])))
-# Mc <- lisa::motifSimilarity(motiffileTemp, method = "HOMER", homerfile = "/tungstenfs/groups/gbioinfo/Appz/Homer/Homer-4.10.4/bin/compareMotifs.pl")
-# all.equal(Ma, Mc, check.attributes = FALSE, tolerance = 0.001) # TRUE
-
-# SimMat[c(51,52,166),c(51,52,166)]
-# CTCF_P49711_ChIPseq CTCFL_Q8NI51_ChIPseq GATA6_Q92908_ChIPseq
-# CTCF_P49711_ChIPseq            1.0000000            0.8431996            0.1991379
-# CTCFL_Q8NI51_ChIPseq           0.8431996            1.0000000            0.1426231
-# GATA6_Q92908_ChIPseq           0.1991379            0.1426231            1.0000000
