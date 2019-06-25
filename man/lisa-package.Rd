@@ -11,11 +11,11 @@ in genomic regions of interest.
 }
 \details{
 She makes use of her father Homer (http://homer.ucsd.edu/homer/index.html)
-and other algorithms to search for motif hits and look for enriched motifs
-in sets of genomic regions, compared to all other regions.
+and other algorithms to search for motif hits and look for enriched motifs in
+sets of genomic regions, compared to all other regions.
 
-The motifs come from a collection of transcription factor binding site
-specificities, such as \pkg{JASPAR2018}.
+Known motifs can for example be obtained from a collection of transcription
+factor binding site specificities, such as \pkg{JASPAR2018}.
 }
 \author{
 \strong{Maintainer}: Michael Stadler \email{michael.stadler@fmi.ch}
