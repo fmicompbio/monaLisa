@@ -340,7 +340,7 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
 		                              use_raster = TRUE)
 		hm
 	}))
-	names(ret)[-1] <- which.plots
+	names(ret)[seq(length(ret) - length(which.plot) + 1L, length(ret))] <- which.plots
 	show(Reduce(ComplexHeatmap::add_heatmap, ret))
 	invisible(ret)
 }
