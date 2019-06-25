@@ -104,7 +104,7 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018", opts = list(tax_group = "ve
           warning("Weight matrix name ",wm.name, " converted to ", wm.name.conv)
         }
         wm.name <- wm.name.conv
-      
+
         #the -10 is added so that the motif file has 4 columns, which is needed to run compareMotifs.pl
         #for weight matrix clustering (4th column not used, bug in compareMotifs.pl, I think)
         cat(sprintf(">%s\t%s\t%.2f\t-10\n",
@@ -385,32 +385,6 @@ runHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(
                       motif.distances = NULL)
     )
     return(se)
-}
-
-
-#' @title Calculate similarity matrix of motifs.
-#'
-#' @description Run the HOMER script compareMotifs.pl (with default options) to get a similarity matrix
-#'     of all motifs. For details, see the HOMER documentation.
-#'
-#'
-#' @param motifFile A file with HOMER formatted PWMs as input for compareMotifs.pl.
-#' @param homerdir Path to the HOMER binary directory.
-#' @param outfile A file to save the similarity scores.
-#' @return A matrix of Pearson correlations for each pairwise comparison of
-#'     motifs in motifFile.
-#'
-#' @export
-clusterPWMs <- function(motifFile, homerdir, outfile){
-
-    stopifnot(is.character(motifFile) && length(motifFile) == 1L && file.exists(motifFile))
-    stopifnot(is.character(homerdir) && length(homerdir) == 1L && file.exists(homerdir))
-    homerfile = findHomer("compareMotifs.pl", dirs = homerdir)
-    #run
-    message("running compareMotifs.pl...")
-    system(sprintf("%s %s test -matrix %s", homerfile, motifFile, outfile), intern=TRUE)
-    #/work/gbioinfo/Appz/Homer/Homer-4.8/bin/compareMotifs.pl test.motif test -matrix testmat
-    as.matrix(read.delim(outfile, row.names=1))
 }
 
 
