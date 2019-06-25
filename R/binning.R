@@ -104,7 +104,7 @@ bin <- function(x, binmode = c("equalN", "equalWidth", "breaks"),
     res <- cut(x, breaks = breaks, include.lowest = TRUE, ...)
     attr(res, "binmode") <- binmode
     attr(res, "breaks") <- unname(breaks)
-    attr(res, "bin0") <- attr(breaks, "bin0")
+    attr(res, "bin0") <- if (binmode == "breaks") NA else attr(breaks, "bin0")
     res
 }
 
