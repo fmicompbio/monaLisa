@@ -1,11 +1,9 @@
-# comparison of PFMs, based on Homer's compareMotifs.pl
-
 # compare two PFMs of any length (padd left/right with background positions)
 compareMotifPair <- function(m1, m2) {
-    stopifnot(is.matrix(m1) && is.matrix(m2) &&
-                  nrow(m1) == 4L && nrow(m2) == 4L &&
-                  all.equal(rep(1.0, ncol(m1)), colSums(m1)) &&
-                  all.equal(rep(1.0, ncol(m2)), colSums(m2)))
+    # stopifnot(is.matrix(m1) && is.matrix(m2) &&
+    #               nrow(m1) == 4L && nrow(m2) == 4L &&
+    #               all.equal(rep(1.0, ncol(m1)), colSums(m1)) &&
+    #               all.equal(rep(1.0, ncol(m2)), colSums(m2)))
 
     bestScore <- -1e10
     bestOffset <- 0
@@ -51,70 +49,126 @@ compareMotifPair <- function(m1, m2) {
     return(list(bestScore = bestScore, bestOffset = bestOffset, bestDirection = bestDirection))
 }
 
-# compare all pairs of motifs between two sets of PFMs
-compareAllMotifPairs <- function(x, y = NULL, Ncpu = 1L) {
-    stopifnot(is(x, "PFMatrixList") && (is.null(y) || is(y, "PFMatrixList")))
-    stopifnot(is.numeric(Ncpu) && length(Ncpu) == 1 && Ncpu > 0)
-
-    xm <- lapply(TFBSTools::Matrix(x), function(x) sweep(x, 2, colSums(x), "/"))
-
-    if (Ncpu > 2 && is.null(y)) {
-        y <- x
-    }
-
-    if (is.null(y)) { # compare x to itself, n*(n-1)/2 comparisons
-        M <- matrix(NA, nrow = length(xm), ncol = length(xm), dimnames = list(name(x), name(x)))
-        diag(M) <- 1.0
-        for (i in seq.int(length(x) - 1L)) {
-            for (j in seq(i + 1, length(x))) {
-                M[i, j] <- M[j, i] <- compareMotifPair(xm[[i]], xm[[j]])$bestScore
-            }
-        }
-    } else {         # compare x to y, n*m comparisons
-        ym <- lapply(TFBSTools::Matrix(y), function(x) sweep(x, 2, colSums(x), "/"))
-        if (Ncpu > 1) {
-            M <- do.call(rbind, parallel::mclapply(seq_along(xm), function(i) {
-                unlist(lapply(seq_along(ym), function(j) compareMotifPair(xm[[i]], ym[[j]])$bestScore))
-            }, mc.cores = Ncpu))
-            dimnames(M) <- list(name(x), name(y))
-        } else {
-            M <- matrix(NA, nrow = length(xm), ncol = length(ym), dimnames = list(name(x), name(y)))
-            for (i in seq_along(xm)) {
-                for (j in seq_along(ym)) {
-                    M[i, j] <- compareMotifPair(xm[[i]], ym[[j]])$bestScore
-                }
-            }
-        }
-    }
-
-    return(M)
-}
-
-
-
-#' @title Calculate similarity matrix of motifs.
+#' @title Calculate similarities between pairs of motifs.
 #'
-#' @description Run the HOMER script compareMotifs.pl (with default options) to get a similarity matrix
-#'     of all motifs. For details, see the HOMER documentation.
+#' @description For each pair of motifs, calculate the similarity defined as the
+#'   maximal Pearson's correlation coefficient between base frequencies over all
+#'   possible shifts (relative positions of the two matrices with at least one
+#'   overlapping position). If necessary matrices are padded on the sides with
+#'   background base frequencies (assuming all bases to have a frequency of
+#'   0.25) to enable comparison of all positions in both matrices.
 #'
+#' @param x Either a \code{\link[TFBSTools]{PFMatrixList}}, or a character
+#'   scalar with a file containing motifs in HOMER format (used directly
+#'   \code{method = "HOMER"}, loaded into a
+#'   \code{\link[TFBSTools]{PFMatrixList}} by \code{\link{homerToPFMatrixList}}
+#'   for \code{method = "R"}).
+#' @param y Either a \code{\link[TFBSTools]{PFMatrixList}} or \code{NULL}
+#'   (default). If \code{y = NULL}, then similarities will be calucalted for all
+#'   pairs of motifs within \code{x}. Otherwise, \code{method} must be
+#'   \code{"R"} and similarities will be calculated between any motif from
+#'   \code{x} to any motif from \code{y}.
+#' @param method A character scalar specifying the method for similarity
+#'   calculations. Either \code{"R"} (pure R implementation) or \code{"HOMER"}
+#'   (will call the \code{compareMotifs.pl} script from HOMER). Results are
+#'   identical (appart from rounding errors), and the R implementation is
+#'   usually faster and can be parallelized (\code{Ncpu} argument).
+#' @param homerfile Path to the HOMER script \code{compareMotifs.pl} (only used
+#'   for \code{method = "HOMER"}.
+#' @param homerOutfile A character scalar giving the file to save the similarity
+#'   scores (only for \code{metho = "HOMER"}). If \code{NULL}, scores will be
+#'   stored into a temporary file.
+#' @param Ncpu The number of CPU cores to use when calculating similarities.
+#'   This uses \code{\link[parallel]{mclapply}} and only works for \code{method
+#'   = "R"}.
+#' @param verbose A logical scalar. If \code{TRUE}, report on progress.
 #'
-#' @param motifFile A file with HOMER formatted PWMs as input for compareMotifs.pl.
-#' @param homerdir Path to the HOMER binary directory.
-#' @param outfile A file to save the similarity scores.
-#' @return A matrix of Pearson correlations for each pairwise comparison of
-#'     motifs in motifFile.
+#' @return A matrix of Pearson's correlation coefficients for each pair of
+#'   motifs.
+#'
+#' @seealso \code{\link[parallel]{mclapply}} for how parallelization is done,
+#'   documentation of HOMER's \code{compareMotifs.pl} for details on
+#'   \code{method = "HOMER"}.
 #'
 #' @export
-motifSimilarity <- function(motifFile, homerdir, outfile){
+motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
+                            homerfile = findHomer("compareMotifs.pl"),
+                            homerOutfile = NULL, Ncpu = 1L, verbose = TRUE) {
+    ## branch by method
+    stopifnot(is.logical(verbose) && length(verbose) == 1L)
+    method <- match.arg(method)
+    if (method == "R") {
+        ## pre-flight checks for "R"
+        if (is.character(x) && length(x) == 1L && file.exists(x)) {
+            if (verbose) {
+                message("reading motifs from ", basename(x))
+                x <- homerToPFMatrixList(x)
+            }
+        }
+        stopifnot(is(x, "PFMatrixList") && (is.null(y) || is(y, "PFMatrixList")))
+        stopifnot(is.numeric(Ncpu) && length(Ncpu) == 1 && Ncpu > 0)
 
-    stopifnot(is.character(motifFile) && length(motifFile) == 1L && file.exists(motifFile))
-    stopifnot(is.character(homerdir) && length(homerdir) == 1L && file.exists(homerdir))
-    homerfile = findHomer("compareMotifs.pl", dirs = homerdir)
-    #run
-    message("running compareMotifs.pl...")
-    system(sprintf("%s %s test -matrix %s", homerfile, motifFile, outfile), intern=TRUE)
-    #/work/gbioinfo/Appz/Homer/Homer-4.8/bin/compareMotifs.pl test.motif test -matrix testmat
-    as.matrix(read.delim(outfile, row.names=1))
+        if (Ncpu > 2 && is.null(y)) {
+            y <- x
+        }
+
+        xm <- lapply(TFBSTools::Matrix(x), function(x) sweep(x, 2, colSums(x), "/"))
+
+        if (is.null(y)) { # compare x to itself, n*(n-1)/2 comparisons
+            if (verbose) {
+                message("calculating ", length(xm) * (length(xm) - 1) / 2, " similarities...", appendLF = FALSE)
+            }
+            M <- matrix(NA, nrow = length(xm), ncol = length(xm), dimnames = list(name(x), name(x)))
+            diag(M) <- 1.0
+            for (i in seq.int(length(x) - 1L)) {
+                for (j in seq(i + 1, length(x))) {
+                    M[i, j] <- M[j, i] <- compareMotifPair(xm[[i]], xm[[j]])$bestScore
+                }
+            }
+            if (verbose) {
+                message("done")
+            }
+        } else {         # compare x to y, n*m comparisons
+            ym <- lapply(TFBSTools::Matrix(y), function(x) sweep(x, 2, colSums(x), "/"))
+            if (verbose) {
+                message("calculating ", length(xm) * length(ym), " similarities using ",
+                        Ncpu, if (Ncpu > 1) " cores..." else " core...", appendLF = FALSE)
+            }
+            if (Ncpu > 1) {
+                M <- do.call(rbind, parallel::mclapply(seq_along(xm), function(i) {
+                    unlist(lapply(seq_along(ym), function(j) compareMotifPair(xm[[i]], ym[[j]])$bestScore))
+                }, mc.cores = Ncpu))
+                dimnames(M) <- list(name(x), name(y))
+            } else {
+                M <- matrix(NA, nrow = length(xm), ncol = length(ym), dimnames = list(name(x), name(y)))
+                for (i in seq_along(xm)) {
+                    for (j in seq_along(ym)) {
+                        M[i, j] <- compareMotifPair(xm[[i]], ym[[j]])$bestScore
+                    }
+                }
+            }
+            if (verbose) {
+                message("done")
+            }
+        }
+
+    } else if (method == "HOMER") {
+        ## pre-flight checks for "HOMER"
+        stopifnot(is.character(x) && length(x) == 1L && file.exists(x))
+        stopifnot(is.character(homerfile) && length(homerfile) == 1L && file.exists(homerfile))
+        if (is.null(homerOutfile)) {
+            homerOutfile <- tempfile(fileext = ".simmat")
+        }
+        stopifnot(is.character(homerOutfile) && length(homerOutfile) == 1L && !file.exists(homerOutfile))
+
+        ## run
+        if (verbose) {
+            message("running compareMotifs.pl...")
+        }
+        system(sprintf("%s %s test -matrix %s", homerfile, x, homerOutfile), intern=TRUE)
+        M <- as.matrix(read.delim(homerOutfile, row.names = 1))
+    }
+    return(M)
 }
 
 # pfms <- TFBSTools::getMatrixSet(JASPAR2018, list(tax_group = "vertebrates"))
@@ -152,6 +206,14 @@ motifSimilarity <- function(motifFile, homerdir, outfile){
 #
 # library(microbenchmark)
 # microbenchmark(lisa:::compareMotifPair(tmp[[1]], tmp[[2]]))
+#
+# Ma <- lisa:::compareAllMotifPairs(pfms[1:5])
+# Mb <- lisa::motifSimilarity(pfms[1:5])
+# identical(Ma, Mb) # TRUE
+# motiffileTemp <- tempfile()
+# dumpJaspar(motiffileTemp, opts = list(ID = ID(pfms[1:5])))
+# Mc <- lisa::motifSimilarity(motiffileTemp, method = "HOMER", homerfile = "/tungstenfs/groups/gbioinfo/Appz/Homer/Homer-4.10.4/bin/compareMotifs.pl")
+# all.equal(Ma, Mc, check.attributes = FALSE, tolerance = 0.001) # TRUE
 
 # SimMat[c(51,52,166),c(51,52,166)]
 # CTCF_P49711_ChIPseq CTCFL_Q8NI51_ChIPseq GATA6_Q92908_ChIPseq
