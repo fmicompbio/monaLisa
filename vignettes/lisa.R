@@ -99,18 +99,16 @@ plotMotifHeatmaps(x = seSel, which.plots = c("log2enr","FDR"), width = 2.0,
                   cluster = TRUE, maxEnr = 2, maxSig = 10, show_motif_GC = TRUE)
 
 ## ----wmclustering, eval=FALSE----------------------------------------------
-#  SimMat <- clusterPWMs(motifFile = motiffile,
-#              homerdir ="/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/",
-#              outfile = tempfile(fileext = ".simmat"))
+#  SimMat <- motifSimilarity(rowData(se)$motif.pfm, Ncpu = 20L)
 
 ## ----getclusteringresults--------------------------------------------------
 SimMat <- readRDS(system.file("extdata", "SimMat.rds", package = "lisa"))
 
-## ----reordermatrix---------------------------------------------------------
-SimMat <- SimMat[rownames(se), rownames(se)]
+## ----checkmatrixorder------------------------------------------------------
+all(rownames(SimMat) == rownames(se))
 
 ## ----plottfsclustered------------------------------------------------------
-#creat hclust object, similarity defined by 1 - Pearson correlation
+# create hclust object, similarity defined by 1 - Pearson correlation
 hcl <- hclust(as.dist(1 - SimMat[sel, sel]), method="average")
 plotMotifHeatmaps(x = seSel, which.plots = c("log2enr","FDR"), width = 1.2,
                   cluster = hcl, maxEnr = 2, maxSig = 10,

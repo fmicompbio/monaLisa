@@ -229,20 +229,18 @@ plotMotifHeatmaps(x = seSel, which.plots = c("log2enr","FDR"), width = 2.0,
 As the Jaspar database contains many similar motifs, it is helpful to show the enrichment heatmap clustered by motif similarity. To this end, we first need to calculate all pairwise motif similarities (measured as maximum Pearson correlation of all possible shifted alignments). As this step may take a while, you can also skip this line of code and load the results using the next line of code. 
 
 ```{r wmclustering, eval=FALSE}
-SimMat <- clusterPWMs(motifFile = motiffile, 
-            homerdir ="/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/",
-            outfile = tempfile(fileext = ".simmat"))
+SimMat <- motifSimilarity(rowData(se)$motif.pfm, Ncpu = 20L)
 ```
 ```{r getclusteringresults}
 SimMat <- readRDS(system.file("extdata", "SimMat.rds", package = "lisa"))
 ```
-We then reorder the matrix so the order is consistent with the elements of `se`
-```{r reordermatrix}
-SimMat <- SimMat[rownames(se), rownames(se)]
+The order of the TFs in the resulting matrix is consistent with the elements of `se`
+```{r checkmatrixorder}
+all(rownames(SimMat) == rownames(se))
 ```
-Finally, using this matrix, we can create an *hclust* object for clustering and plot the clustered heatmap. The plotting of the dendogram is controlled by the parameter *show_dendrogram*. 
+Using this matrix, we can create an *hclust* object for clustering and plot the clustered heatmap. The plotting of the dendogram is controlled by the parameter *show_dendrogram*. 
 ```{r plottfsclustered}
-#creat hclust object, similarity defined by 1 - Pearson correlation
+# create hclust object, similarity defined by 1 - Pearson correlation
 hcl <- hclust(as.dist(1 - SimMat[sel, sel]), method="average")
 plotMotifHeatmaps(x = seSel, which.plots = c("log2enr","FDR"), width = 1.2,
                   cluster = hcl, maxEnr = 2, maxSig = 10,
