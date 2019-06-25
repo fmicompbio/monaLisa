@@ -108,21 +108,3 @@ test_that("runHomer() works properly", {
         unlink(c(mfile, outdir), recursive = TRUE, force = TRUE)
     }
 })
-
-test_that("clusterPWMs() works properly", {
-    homerdir <- "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin"
-
-    if (file.exists(homerdir) && require("JASPAR2018")) { # only test at home
-        tmpmotif <- tempfile()
-        tmpout <- tempfile()
-
-        expect_true(dumpJaspar(filename = tmpmotif, opts = list(ID = c("MA0006.1", "MA0007.3", "MA0828.1"))))
-        expect_is(res <- clusterPWMs(tmpmotif, homerdir, tmpout), "matrix")
-        expect_true(file.exists(tmpout))
-        expect_identical(dim(res), c(3L, 3L))
-        expect_identical(unname(diag(res)), rep(1, 3))
-        expect_true(all(res <= 1.0 & res >= -1.0))
-
-        unlink(c(tmpmotif, tmpout))
-    }
-})
