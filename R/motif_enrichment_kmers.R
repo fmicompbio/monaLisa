@@ -29,6 +29,7 @@ getKmerFreq <- function(seqs, kmerLen = 4, MMorder = 2, pseudoCount = 1) {
         is.numeric(MMorder)
         length(MMorder) == 1L
         round(MMorder, 0L) == MMorder
+        MMorder > 1
         MMorder < kmerLen
     })
 
@@ -40,12 +41,9 @@ getKmerFreq <- function(seqs, kmerLen = 4, MMorder = 2, pseudoCount = 1) {
     p_short <- oligonucleotideFrequency(seqs, width = MMorder - 1L) %>% {colSums(. + pseudoCount)} %>% {./sum(.)}
 
     log2pMM <- sapply(names(kmerFreq), function(current.kmer){
-        ii_long <- sapply(1:(nchar(current.kmer) - MMorder + 1L), function(i) {
-            subseq(current.kmer, start = i, width = MMorder)
-        })
-        ii_short <- sapply(2:(nchar(current.kmer) - MMorder + 1L), function(i) {
-            subseq(current.kmer, start = i, width = MMorder - 1L)
-        })
+        n <- nchar(current.kmer) - MMorder + 1L
+        ii_long <- subseq(rep(current.kmer, n), start = 1:n, width = rep(MMorder, n))
+        ii_short <- subseq(rep(current.kmer, n - 1L), start = 2:n, width = rep(MMorder - 1L, n - 1L))
         sum(log2(p_long[ii_long])) - sum(log2(p_short[ii_short]))
     })
     kmerFreqMM <- (2**log2pMM)*sum(kmerFreq)
