@@ -4,7 +4,7 @@
 #'   frequencies. Expected frequencies are based on a Markov model of order
 #'   \code{MMorder}.
 #'
-#' @param seq Set of sequences, either a \code{character} vector or a
+#' @param seqs Set of sequences, either a \code{character} vector or a
 #'   \code{\link{DNAStringSet}}.
 #' @param kmerLen A \code{numeric} scalar giving the k-mer length.
 #' @param MMorder A \code{numeric} scalar giving the order of the Markov model
@@ -16,10 +16,10 @@
 #' @importFrom tidyr %>%
 #'
 #' @export
-getKmerFreq <- function(seq, kmerLen = 4, MMorder = 1, pseudoCount = 1) {
-    if (is.character(seq))
-        seq <- DNAStringSet(seq)
-    stopifnot(is(seq, "DNAStringSet"))
+getKmerFreq <- function(seqs, kmerLen = 4, MMorder = 1, pseudoCount = 1) {
+    if (is.character(seqs))
+        seqs <- DNAStringSet(seqs)
+    stopifnot(is(seqs, "DNAStringSet"))
     stopifnot(exprs = {
         is.numeric(kmerLen)
         length(kmerLen) == 1L
@@ -33,11 +33,11 @@ getKmerFreq <- function(seq, kmerLen = 4, MMorder = 1, pseudoCount = 1) {
     })
 
     #kmer frequencies
-    kmerFreq <- oligonucleotideFrequency(seq, width = kmerLen) %>% colSums
+    kmerFreq <- oligonucleotideFrequency(seqs, width = kmerLen) %>% colSums
 
     #calculate probabilities for bg model (with a pseudocount of 1)
-    p_long  <- oligonucleotideFrequency(seq, width = MMorder + 1) %>% {colSums(. + pseudoCount)} %>% {./sum(.)}
-    p_short <- oligonucleotideFrequency(seq, width = MMorder)     %>% {colSums(. + pseudoCount)} %>% {./sum(.)}
+    p_long  <- oligonucleotideFrequency(seqs, width = MMorder + 1) %>% {colSums(. + pseudoCount)} %>% {./sum(.)}
+    p_short <- oligonucleotideFrequency(seqs, width = MMorder)     %>% {colSums(. + pseudoCount)} %>% {./sum(.)}
 
     log2pMM <- sapply(names(kmerFreq), function(current.kmer){
         ii_long <- sapply(1:(nchar(current.kmer) - MMorder), function(i) {
