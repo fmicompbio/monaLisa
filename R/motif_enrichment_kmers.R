@@ -16,7 +16,7 @@
 #' @importFrom tidyr %>%
 #'
 #' @export
-getKmerFreq <- function(seqs, kmerLen = 4, MMorder = 1, pseudoCount = 1) {
+getKmerFreq <- function(seqs, kmerLen = 4, MMorder = 2, pseudoCount = 1) {
     if (is.character(seqs))
         seqs <- DNAStringSet(seqs)
     stopifnot(is(seqs, "DNAStringSet"))
@@ -29,22 +29,22 @@ getKmerFreq <- function(seqs, kmerLen = 4, MMorder = 1, pseudoCount = 1) {
         is.numeric(MMorder)
         length(MMorder) == 1L
         round(MMorder, 0L) == MMorder
-        MMorder < kmerLen - 1L
+        MMorder < kmerLen
     })
 
     #kmer frequencies
     kmerFreq <- oligonucleotideFrequency(seqs, width = kmerLen) %>% colSums
 
-    #calculate probabilities for bg model (with a pseudocount of 1)
-    p_long  <- oligonucleotideFrequency(seqs, width = MMorder + 1) %>% {colSums(. + pseudoCount)} %>% {./sum(.)}
-    p_short <- oligonucleotideFrequency(seqs, width = MMorder)     %>% {colSums(. + pseudoCount)} %>% {./sum(.)}
+    #calculate probabilities for bg model (with a pseudocount)
+    p_long  <- oligonucleotideFrequency(seqs, width = MMorder)      %>% {colSums(. + pseudoCount)} %>% {./sum(.)}
+    p_short <- oligonucleotideFrequency(seqs, width = MMorder - 1L) %>% {colSums(. + pseudoCount)} %>% {./sum(.)}
 
     log2pMM <- sapply(names(kmerFreq), function(current.kmer){
-        ii_long <- sapply(1:(nchar(current.kmer) - MMorder), function(i) {
-            subseq(current.kmer, start = i, width = MMorder + 1)
-        })
-        ii_short <- sapply(2:(nchar(current.kmer) - MMorder), function(i) {
+        ii_long <- sapply(1:(nchar(current.kmer) - MMorder + 1L), function(i) {
             subseq(current.kmer, start = i, width = MMorder)
+        })
+        ii_short <- sapply(2:(nchar(current.kmer) - MMorder + 1L), function(i) {
+            subseq(current.kmer, start = i, width = MMorder - 1L)
         })
         sum(log2(p_long[ii_long])) - sum(log2(p_short[ii_short]))
     })
