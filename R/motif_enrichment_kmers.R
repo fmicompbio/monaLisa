@@ -163,7 +163,6 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 4, MMorder = 2,
         b <- factor(b, levels=unique(b))
     }
     stopifnot(exprs = {
-        is(x, "DNAStringSet")
         length(x) == length(b)
         is.numeric(Ncpu)
         length(Ncpu) == 1
@@ -185,7 +184,7 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 4, MMorder = 2,
     ## ... create SummarizedExperiment
     brks <- attr(b, "breaks")
     if (is.null(brks)) {
-        brks <- rep(NA, nlevels(b))
+        brks <- rep(NA, nlevels(b) + 1L)
     }
     cdat <- S4Vectors::DataFrame(bin.names = levels(b),
                                  bin.lower = brks[-(nlevels(b)+1)],
@@ -204,8 +203,8 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 4, MMorder = 2,
                                  motif.pfm = pfms,
                                  motif.percentGC = percentGC)
     se <- SummarizedExperiment::SummarizedExperiment(
-        assays = list(p = do.call(cbind, lapply(resL, "[[", "p")),
-                      FDR = do.call(cbind, lapply(resL, "[[", "FDR")),
+        assays = list(p = -log10(do.call(cbind, lapply(resL, "[[", "p"))),
+                      FDR = -log10(do.call(cbind, lapply(resL, "[[", "FDR"))),
                       enr = do.call(cbind, lapply(resL, "[[", "z")),
                       log2enr = do.call(cbind, lapply(resL, "[[", "log2enr"))),
         colData = cdat, rowData = rdat,
