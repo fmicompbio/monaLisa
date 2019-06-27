@@ -15,6 +15,7 @@
 #' @importFrom Biostrings DNAStringSet oligonucleotideFrequency
 #' @importFrom tidyr %>%
 #' @importFrom XVector subseq
+#' @importFrom stats ppois
 #'
 #' @export
 getKmerFreq <- function(seqs, kmerLen = 4, MMorder = 2, pseudoCount = 1) {
@@ -55,6 +56,16 @@ getKmerFreq <- function(seqs, kmerLen = 4, MMorder = 2, pseudoCount = 1) {
     })
     kmerFreqMM <- (2 ** log2pMM) * sum(kmerFreq)
 
+    ## calculate enrichment statistics
+    ## ... log2 (obs/exp)
+    lenr <- log2((kmerFreq + pseudoCount) / (kmerFreqMM + pseudoCount))
+    ## ... z value (Pearson residuals)
+    z <- (kmerFreq - kmerFreqMM) / sqrt(kmerFreqMM)
+    ## ... P value
+    p <- ppois(q = kmerFreq, lambda = kmerFreqMM, lower.tail = FALSE)
+    padj <- p.adjust(p, method = "fdr")
+
     ## return results
-    data.frame(kmerFreq=kmerFreq, kmerFreqMM=kmerFreqMM)
+    data.frame(freq.obs=kmerFreq, freq.exp=kmerFreqMM,
+               log2enr = lenr, z = z, FDR = padj)
 }
