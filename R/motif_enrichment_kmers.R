@@ -22,13 +22,11 @@ getKmerFreq <- function(seqs, kmerLen = 4, MMorder = 2, pseudoCount = 1) {
     ## pre-flight checks
     if (is.character(seqs))
         seqs <- DNAStringSet(seqs)
-    stopifnot(is(seqs, "DNAStringSet"))
     stopifnot(exprs = {
+        is(seqs, "DNAStringSet")
         is.numeric(kmerLen)
         length(kmerLen) == 1L
         round(kmerLen, 0L) == kmerLen
-    })
-    stopifnot(exprs = {
         is.numeric(MMorder)
         length(MMorder) == 1L
         round(MMorder, 0L) == MMorder

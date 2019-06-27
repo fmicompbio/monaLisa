@@ -207,14 +207,13 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHo
         as(gr, "GRanges")
     if (!is.factor(b))
         b <- factor(b, levels=unique(b))
-    stopifnot(length(b) == length(gr))
-    stopifnot(exprs = { is.character(outdir); length(outdir) == 1L })
     stopifnot(exprs = {
+      length(b) == length(gr)
+      is.character(outdir)
+      length(outdir) == 1L
       is.character(motifFile)
       length(motifFile) == 1L
       file.exists(motifFile)
-    })
-    stopifnot(exprs = {
       is.character(homerfile)
       length(homerfile) == 1L
       file.exists(homerfile)

@@ -106,8 +106,13 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
                 x <- homerToPFMatrixList(x)
             }
         }
-        stopifnot(exprs = { is(x, "PFMatrixList"); (is.null(y) || is(y, "PFMatrixList")) })
-        stopifnot(exprs = { is.numeric(Ncpu); length(Ncpu) == 1; Ncpu > 0 })
+        stopifnot(exprs = {
+            is(x, "PFMatrixList")
+            is.null(y) || is(y, "PFMatrixList")
+            is.numeric(Ncpu)
+            length(Ncpu) == 1
+            Ncpu > 0
+        })
 
         if (Ncpu > 2 && is.null(y)) {
             y <- x
