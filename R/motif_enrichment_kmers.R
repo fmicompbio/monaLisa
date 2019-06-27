@@ -1,3 +1,16 @@
+# given a string of A,C,G,T letters, construct a profileMatrix (internal)
+.cons2matrix <- function(x, n = 100L) {
+    stopifnot(exprs = {
+        is.character(x)
+        length(x) == 1L
+    })
+    m <- matrix(0L, nrow = 4, ncol = nchar(x), dimnames = list(c("A","C","G","T"), NULL))
+    xx <- strsplit(x, "", fixed = TRUE)[[1]]
+    ok <- which(xx %in% rownames(m))
+    m[cbind(match(xx[ok], rownames(m)), ok)] <- n
+    m
+}
+
 #' @title Calculate observed and expected k-mer frequencies
 #'
 #' @description Given a set of sequences, calculate observed and expected k-mer
