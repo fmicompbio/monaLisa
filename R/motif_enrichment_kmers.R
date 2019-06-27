@@ -10,10 +10,11 @@
 #' @param MMorder A \code{numeric} scalar giving the order of the Markov model
 #'   used to calculate the expected frequencies.
 #' @param pseudoCount A \code{numeric} scalar - will be added to the observed
-#'   counts for each k-mer to avoid zero counts.
+#'   counts for each k-mer to avoid zero values.
 #'
 #' @importFrom Biostrings DNAStringSet oligonucleotideFrequency
 #' @importFrom tidyr %>%
+#' @importFrom XVector subseq
 #'
 #' @export
 getKmerFreq <- function(seqs, kmerLen = 4, MMorder = 2, pseudoCount = 1) {
