@@ -42,8 +42,8 @@ getKmerFreq <- function(seqs, kmerLen = 4, MMorder = 2, pseudoCount = 1) {
 
     log2pMM <- sapply(names(kmerFreq), function(current.kmer){
         n <- nchar(current.kmer) - MMorder + 1L
-        ii_long <- subseq(rep(current.kmer, n), start = 1:n, width = rep(MMorder, n))
-        ii_short <- subseq(rep(current.kmer, n - 1L), start = 2:n, width = rep(MMorder - 1L, n - 1L))
+        ii_long <- substr(rep(current.kmer, n), start = 1:n, stop = 0:(n - 1L) + MMorder)
+        ii_short <- substr(rep(current.kmer, n - 1L), start = 2:n, stop = 1:(n - 1L) + MMorder - 1L)
         sum(log2(p_long[ii_long])) - sum(log2(p_short[ii_short]))
     })
     kmerFreqMM <- (2**log2pMM)*sum(kmerFreq)
