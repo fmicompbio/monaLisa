@@ -89,7 +89,7 @@ getKmerFreq <- function(seqs, kmerLen = 4, MMorder = 2, pseudoCount = 1) {
 #'   directly or as genomic coordinates.
 #'
 #' @param x A \code{character} vector, \code{\link[Biostrings]{DNAStringSet}} or
-#'   a \code{\link[GenomicRanges]{GRanges} object with the sequences to analyze.
+#'   a \code{\link[GenomicRanges]{GRanges}} object with the sequences to analyze.
 #' @param b A vector of the same length as \code{x} that groups its elements
 #'   into bins (typically a factor, such as the one returned by
 #'   \code{\link{bin}}).

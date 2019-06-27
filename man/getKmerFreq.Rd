@@ -4,10 +4,10 @@
 \alias{getKmerFreq}
 \title{Calculate observed and expected k-mer frequencies}
 \usage{
-getKmerFreq(seq, kmerLen = 4, MMorder = 1, pseudoCount = 1)
+getKmerFreq(seqs, kmerLen = 4, MMorder = 2, pseudoCount = 1)
 }
 \arguments{
-\item{seq}{Set of sequences, either a \code{character} vector or a
+\item{seqs}{Set of sequences, either a \code{character} vector or a
 \code{\link{DNAStringSet}}.}
 
 \item{kmerLen}{A \code{numeric} scalar giving the k-mer length.}
@@ -16,7 +16,7 @@ getKmerFreq(seq, kmerLen = 4, MMorder = 1, pseudoCount = 1)
 used to calculate the expected frequencies.}
 
 \item{pseudoCount}{A \code{numeric} scalar - will be added to the observed
-counts for each k-mer to avoid zero counts.}
+counts for each k-mer to avoid zero values.}
 }
 \description{
 Given a set of sequences, calculate observed and expected k-mer
