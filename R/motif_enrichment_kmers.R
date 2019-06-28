@@ -220,5 +220,6 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 4, MMorder = 2,
                         param.Ncpu = Ncpu,
                         motif.distances = NULL)
     )
+    rownames(se) <- rownames(resL[[1]])
     return(se)
 }
