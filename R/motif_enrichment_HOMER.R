@@ -315,7 +315,7 @@ parseHomerOutput <- function(infiles) {
 # internal function:  Check if all the HOMER output files already exist and if the run was successful.
 # - needs the motifFile and outdir inputs to runHomer. 
 .checkHomerRun <- function(motifFile, outdir, nbins){
-  
+
   # Checks
   # --> check resultsfile is a txt file
   
@@ -339,7 +339,7 @@ parseHomerOutput <- function(infiles) {
   
       # check the completeness of the run and that the number of output files equals number of bins
       all(sapply(motifs_outdir_list, function(x){all(motifs_motifFile%in%x)})) & (length(out_files)==nbins)
-  
+
 }
 
 #' @title Prepare and run HOMER motif enrichment analysis.
@@ -384,9 +384,6 @@ parseHomerOutput <- function(infiles) {
 #' @export
 runHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(), regionsize = "given", Ncpu=2L) {
 
-    
-  
-  
     ## ... check if the HOMER output is already there for all bins and if it ran completely:
     ## ... ... If yes, go to the 'parse output step', otherwise run homer and check again
     if(.checkHomerRun(motifFile = motifFile, outdir = outdir, nbins = length(levels(b)))) {
