@@ -24,14 +24,15 @@
 #'   used to calculate the expected frequencies.
 #' @param pseudoCount A \code{numeric} scalar - will be added to the observed
 #'   counts for each k-mer to avoid zero values.
+#' @param zoops A \code{logical} scalar. If \code{TRUE} (the default), only one
+#'   or zero occurences of a k-mer are considered per sequence.
 #'
 #' @importFrom Biostrings DNAStringSet oligonucleotideFrequency
-#' @importFrom tidyr %>%
 #' @importFrom XVector subseq
 #' @importFrom stats ppois
 #'
 #' @export
-getKmerFreq <- function(seqs, kmerLen = 4, MMorder = 2, pseudoCount = 0.5) {
+getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops = TRUE) {
     ## pre-flight checks
     if (is.character(seqs))
         seqs <- DNAStringSet(seqs)
@@ -43,26 +44,33 @@ getKmerFreq <- function(seqs, kmerLen = 4, MMorder = 2, pseudoCount = 0.5) {
         is.numeric(MMorder)
         length(MMorder) == 1L
         round(MMorder, 0L) == MMorder
-        MMorder > 1
-        MMorder < kmerLen
+        MMorder > 0
+        MMorder < kmerLen - 1L
+        is.logical(zoops)
+        length(zoops) == 1L
     })
 
     ## observed k-mer frequencies
-    kmerFreq <- oligonucleotideFrequency(seqs, width = kmerLen) %>% colSums
+    kmerFreqRaw <- oligonucleotideFrequency(seqs, width = kmerLen)
+    if (zoops) {
+        kmerFreq <- colSums(kmerFreqRaw > 0)
+        seqs.new <- DNAStringSet(rep(names(kmerFreq), kmerFreq)) # ZOOPS
+    } else {
+        kmerFreq <- colSums(kmerFreqRaw)
+        seqs.new <- seqs
+    }
 
     ## expected k-mer frequencies (log2-probabilities with a pseudocount)
-    lp_long  <- log2(oligonucleotideFrequency(seqs, width = MMorder) %>%
-                     { colSums(.) + pseudoCount } %>%
-                     { . / sum(.) })
-    lp_short <- log2(oligonucleotideFrequency(seqs, width = MMorder - 1L) %>%
-                     { colSums(.) + pseudoCount } %>%
-                     { . / sum(.) })
+    lp_long  <- colSums(oligonucleotideFrequency(seqs.new, width = MMorder + 1L) + pseudoCount)
+    lp_long  <- log2(lp_long / sum(lp_long))
+    lp_short <- colSums(oligonucleotideFrequency(seqs.new, width = MMorder)      + pseudoCount)
+    lp_short <- log2(lp_short / sum(lp_short))
     log2pMM <- sapply(names(kmerFreq), function(current.kmer) {
-        n <- nchar(current.kmer) - MMorder + 1L
+        n <- nchar(current.kmer) - MMorder
         ii_long <- substr(rep(current.kmer, n),
-                          start = 1:n, stop = 0:(n - 1L) + MMorder)
+                          start = 1:n, stop = 1:n + MMorder)
         ii_short <- substr(rep(current.kmer, n - 1L),
-                           start = 2:n, stop = 1:(n - 1L) + MMorder - 1L)
+                           start = 2:n, stop = 1:(n - 1L) + MMorder)
         sum(lp_long[ii_long]) - sum(lp_short[ii_short])
     })
     kmerFreqMM <- (2 ** log2pMM) * sum(kmerFreq)
@@ -129,7 +137,7 @@ getKmerFreq <- function(seqs, kmerLen = 4, MMorder = 2, pseudoCount = 0.5) {
 #' @importFrom TFBSTools PFMatrix PFMatrixList
 #'
 #' @export
-kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 4, MMorder = 2,
+kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5, MMorder = 1,
                             pseudoCount = 1, Ncpu = 2L, verbose = TRUE) {
     ## pre-flight checks
     stopifnot(exprs = { is.logical(verbose); length(verbose) == 1L })

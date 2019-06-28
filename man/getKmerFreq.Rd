@@ -4,7 +4,8 @@
 \alias{getKmerFreq}
 \title{Calculate observed and expected k-mer frequencies}
 \usage{
-getKmerFreq(seqs, kmerLen = 4, MMorder = 2, pseudoCount = 1)
+getKmerFreq(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1,
+  zoops = TRUE)
 }
 \arguments{
 \item{seqs}{Set of sequences, either a \code{character} vector or a
@@ -17,6 +18,9 @@ used to calculate the expected frequencies.}
 
 \item{pseudoCount}{A \code{numeric} scalar - will be added to the observed
 counts for each k-mer to avoid zero values.}
+
+\item{zoops}{A \code{logical} scalar. If \code{TRUE} (the default), only one
+or zero occurences of a k-mer are considered per sequence.}
 }
 \description{
 Given a set of sequences, calculate observed and expected k-mer

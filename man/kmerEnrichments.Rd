@@ -4,7 +4,7 @@
 \alias{kmerEnrichments}
 \title{Run a k-mer enrichment analysis.}
 \usage{
-kmerEnrichments(x, b, genomepkg = NULL, kmerLen = 4, MMorder = 2,
+kmerEnrichments(x, b, genomepkg = NULL, kmerLen = 5, MMorder = 1,
   pseudoCount = 1, Ncpu = 2L, verbose = TRUE)
 }
 \arguments{
