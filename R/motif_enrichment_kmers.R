@@ -31,7 +31,7 @@
 #' @importFrom stats ppois
 #'
 #' @export
-getKmerFreq <- function(seqs, kmerLen = 4, MMorder = 2, pseudoCount = 1) {
+getKmerFreq <- function(seqs, kmerLen = 4, MMorder = 2, pseudoCount = 0.5) {
     ## pre-flight checks
     if (is.character(seqs))
         seqs <- DNAStringSet(seqs)
@@ -52,10 +52,10 @@ getKmerFreq <- function(seqs, kmerLen = 4, MMorder = 2, pseudoCount = 1) {
 
     ## expected k-mer frequencies (log2-probabilities with a pseudocount)
     lp_long  <- log2(oligonucleotideFrequency(seqs, width = MMorder) %>%
-                     { colSums(. + pseudoCount) } %>%
+                     { colSums(.) + pseudoCount } %>%
                      { . / sum(.) })
     lp_short <- log2(oligonucleotideFrequency(seqs, width = MMorder - 1L) %>%
-                     { colSums(. + pseudoCount) } %>%
+                     { colSums(.) + pseudoCount } %>%
                      { . / sum(.) })
     log2pMM <- sapply(names(kmerFreq), function(current.kmer) {
         n <- nchar(current.kmer) - MMorder + 1L
