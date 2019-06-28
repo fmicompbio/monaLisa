@@ -315,7 +315,6 @@ parseHomerOutput <- function(infiles) {
 # internal function:  Check if all the HOMER output files already exist and if the run was successful.
 # - needs the motifFile and outdir inputs to runHomer. 
 .checkHomerRun <- function(motifFile, outdir, nbins){
-
   # Checks
   # --> check resultsfile is a txt file
   
@@ -336,7 +335,7 @@ parseHomerOutput <- function(infiles) {
       # get motif names from resultsfile
       df_list <- lapply(as.list(out_files), function(f){read.table(f, header=FALSE, sep = "\t", skip = 1)}) # skip the column names
       motifs_outdir_list <- lapply(df_list, function(df){ make.names(as.character(df[ ,1])) })
-  
+
       # check the completeness of the run and that the number of output files equals number of bins
       all(sapply(motifs_outdir_list, function(x){all(motifs_motifFile%in%x)})) & (length(out_files)==nbins)
 
