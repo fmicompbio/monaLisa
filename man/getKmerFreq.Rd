@@ -4,7 +4,7 @@
 \alias{getKmerFreq}
 \title{Calculate observed and expected k-mer frequencies}
 \usage{
-getKmerFreq(seqs, kmerLen = 4, MMorder = 2, pseudoCount = 1)
+getKmerFreq(seqs, kmerLen = 4, MMorder = 2, pseudoCount = 0.5)
 }
 \arguments{
 \item{seqs}{Set of sequences, either a \code{character} vector or a
