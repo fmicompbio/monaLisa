@@ -322,8 +322,8 @@ parseHomerOutput <- function(infiles) {
   # get knownResults.txt files
   out_files <- dir(path = outdir, pattern = "knownResults.txt", full.names = TRUE, recursive = TRUE, ignore.case = FALSE)
   
-  # case 1: out_files is empty or the file paths do not exist, so return FALSE
-  if(isEmpty(out_files) | !all(file.exists(out_files))){ 
+  # case 1: out_files is empty, so return FALSE
+  if(isEmpty(out_files)){ 
     return(FALSE)
   }
   
@@ -331,11 +331,11 @@ parseHomerOutput <- function(infiles) {
   
       # get motif names from motifFile
       df <- read.table(file = motifFile, header = FALSE, sep = "\t")
-      motifs_motifFile <- make.names(as.character(df[grep("^>", df[,1]), 2]))
+      motifs_motifFile <- as.character(df[grep("^>", df[,1]), 2])
   
       # get motif names from resultsfile
       df_list <- lapply(as.list(out_files), function(f){read.table(f, header=FALSE, sep = "\t", skip = 1)}) # skip the column names
-      motifs_outdir_list <- lapply(df_list, function(df){ make.names(as.character(df[ ,1])) })
+      motifs_outdir_list <- lapply(df_list, function(df){ as.character(df[ ,1]) })
       # check the completeness of the run and that the number of output files equals number of bins
       all(sapply(motifs_outdir_list, function(x){all(motifs_motifFile%in%x)})) & (length(out_files)==nbins)
 
