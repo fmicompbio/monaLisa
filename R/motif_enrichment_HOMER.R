@@ -312,6 +312,35 @@ parseHomerOutput <- function(infiles) {
     return(list(p=P, FDR=fdr, enr=enrTF, log2enr=log2enr))
 }
 
+# internal function:  Check if all the HOMER output files already exist and if the run was successful.
+# - needs the motifFile and outdir inputs to runHomer. 
+.checkHomerRun <- function(motifFile, outdir, nbins){
+
+  # Checks
+  # --> check resultsfile is a txt file
+  
+  # get knownResults.txt files
+  out_files <- dir(path = outdir, pattern = "knownResults.txt", full.names = TRUE, recursive = TRUE, ignore.case = FALSE)
+  
+  # case 1: out_files is empty, so return FALSE
+  if(isEmpty(out_files)){ 
+    return(FALSE)
+  }
+  
+  # case 2: at least one file exists, so we check HOMER ran correctly and that the number of output files matches the number of bins
+  
+      # get motif names from motifFile
+      df <- read.table(file = motifFile, header = FALSE, sep = "\t")
+      motifs_motifFile <- as.character(df[grep("^>", df[,1]), 2])
+  
+      # get motif names from resultsfile
+      df_list <- lapply(as.list(out_files), function(f){read.table(f, header=FALSE, sep = "\t", skip = 1)}) # skip the column names
+      motifs_outdir_list <- lapply(df_list, function(df){ as.character(df[ ,1]) })
+      # check the completeness of the run and that the number of output files equals number of bins
+      all(sapply(motifs_outdir_list, function(x){all(motifs_motifFile%in%x)})) & (length(out_files)==nbins)
+
+}
+
 #' @title Prepare and run HOMER motif enrichment analysis.
 #'
 #' @description Run complete HOMER motif enrichment analysis, consisting of
@@ -353,19 +382,40 @@ parseHomerOutput <- function(infiles) {
 #'
 #' @export
 runHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(), regionsize = "given", Ncpu=2L) {
-    ## TODO: check if prepare/run can be skipped (files already existing)
-    ##       -> just parse output and create se
 
-    ## ... prepare
-    message("\npreparing input files...")
-    runfile <- prepareHomer(gr = gr, b = b, genomedir = genomedir, outdir = outdir,
-                            motifFile = motifFile, homerfile = homerfile,
-                            regionsize = regionsize, Ncpu = Ncpu)
-
-    ## ... run
-    message("\nrunning HOMER...")
-    system2(command = "sh", args = runfile, env = paste0("PATH=",dirname(homerfile),":",Sys.getenv("PATH"),";"))
-
+    ## ... check if the HOMER output is already there for all bins and if it ran completely:
+    ## ... ... If yes, go to the 'parse output step', otherwise run homer and check again
+    if(.checkHomerRun(motifFile = motifFile, outdir = outdir, nbins = length(levels(b)))) {
+      
+      message("\nHOMER output files already exist, using existing files...")
+      
+    } else {
+      
+      ## ... case: all/some files exist and/or HOMER didn't run correctly: warn the User to remove all existing files and rerun 
+      if(!.checkHomerRun(motifFile = motifFile, outdir = outdir, nbins = length(levels(b))) & any(file.exists(dir(path = outdir, pattern = "knownResults.txt", full.names = TRUE, recursive = TRUE, ignore.case = FALSE)))) {
+        
+        stop("\nThere are existing 'knownResults.txt' file(s) in outdir. There may be missing 'knownResults.txt' files for some bins and/or the existing files
+             are incomplete (cases where the HOMER run failed). Please delete these files and rerun 'runHomer'.")
+        
+      }
+      
+      ## ... prepare
+      message("\npreparing input files...")
+      runfile <- prepareHomer(gr = gr, b = b, genomedir = genomedir, outdir = outdir,
+                              motifFile = motifFile, homerfile = homerfile,
+                              regionsize = regionsize, Ncpu = Ncpu)
+      
+      ## ... run
+      message("\nrunning HOMER...")
+      system2(command = "sh", args = runfile, env = paste0("PATH=",dirname(homerfile),":",Sys.getenv("PATH"),";"))
+      
+      ## ... check HOMER ran correctly
+      if(!.checkHomerRun(motifFile = motifFile, outdir = outdir, nbins = length(levels(b)))){
+        stop("HOMER output wasn't complete. Try running again.")
+      }
+      
+    }
+  
     ## ... parse output
     resfiles <- sprintf("%s/bin_%03d_output/knownResults.txt", outdir, seq_along(levels(b)))
     names(resfiles) <- levels(b)
