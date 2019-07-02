@@ -12,6 +12,31 @@ pfm3 <- TFBSTools::PFMatrix(ID = "m3", name = "m3", profileMatrix = 100 * m3)
 
 pfmL <- TFBSTools::PFMatrixList(pfm1, pfm2, pfm3)
 
+FourMers <- Biostrings::mkAllStrings(c("A","C","G","T"), 4)
+
+
+test_that("compareMotifKmer works as expected", {
+    res1 <- lisa:::compareMotifKmer(m1, FourMers)
+    res2 <- lisa:::compareMotifKmer(m2, FourMers)
+
+    expect_is(res1, "list")
+    expect_is(res2, "list")
+    expect_length(res1, 2L)
+    expect_length(res2, 2L)
+
+    expect_length(b1 <- which(res1$bestScore == max(res1$bestScore)), 42L)
+    expect_identical(unique(substr(FourMers[b1], start = 1 + res1$bestOffset[b1], stop = 3 + res1$bestOffset[b1])),
+                     c("CTA","CTT","GTA","GTT","TTA","TTT"))
+
+    expect_length(b2 <- which(res2$bestScore == max(res2$bestScore)), 42L)
+    o2 <- pmin(5 + res2$bestOffset[b2], 4 - res2$bestOffset[b2], 4)
+    expect_identical(unique(substr(FourMers[b2], start = 1, stop = o2)),
+                     c("AAA","AAC","AAG",
+                       "ATAA","ATAC","ATAG","CAAA","CAAC","CAAG","CTAA","CTAC","CTAG",
+                       "GAAA","GAAC","GAAG","GTAA","GTAC","GTAG",
+                       "TAA","TAC","TAG",
+                       "TTAA","TTAC","TTAG"))
+})
 
 test_that("compareMotifPair works as expected", {
     res1 <- lisa:::compareMotifPair(m1, m2)

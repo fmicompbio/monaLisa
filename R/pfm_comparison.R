@@ -1,4 +1,49 @@
+# compare a PFM to all k-mer of any length (padd left/right with background positions)
+# score := maximal probability of observing k-mer under (potentially padded) PFM
+# (internal function used by motifKmerSimilarity)
+compareMotifKmer <- function(m, kmers) {
+    stopifnot(exprs = {
+        is.matrix(m)
+        is.character(kmers)
+        nrow(m) == 4L
+        rownames(m) == c("A","C","G","T")
+        all.equal(rep(1.0, ncol(m)), colSums(m))
+        all(nchar(kmers[1]) == nchar(kmers))
+        all(grepl("^[ACGT]+$", kmers))
+    })
+
+    bestScore <- rep(-2, length(kmers))
+    bestOffset <- rep(0, length(kmers))
+
+    len1 <- ncol(m)
+    len2 <- nchar(kmers[1])
+    j <- seq.int(len2)
+
+    ## transform k-mers into numeric indices
+    kmersL <- strsplit(x = kmers, split = "", fixed = TRUE)
+    kmersN <- utils::relist(match(unlist(kmersL), c("A","C","G","T")), kmersL)
+    ## offset := start(m) - start(kmers[i])
+    ##        == left-padding of m (if > 0)
+    ##        == -1 * left-padding of kmers[i] (if < 0)
+    for (offset in seq(-len1 + 1L, len2 - 1L)) {
+        # minimal overlap of 1
+        # padding of matrix and kmers
+        mm <- cbind(matrix(0.25, nrow = 4, ncol = max(0, offset)),
+                    m[, seq.int(min(len1 + offset, len2 - offset, len2)) + max(0, -offset)],
+                    matrix(0.25, nrow = 4, ncol = max(0, len2 - (len1 + offset))))
+        score <- unlist(lapply(kmersN, function(i) prod(mm[cbind(i, j)])))
+        b <- score > bestScore
+        if (any(b)) {
+                bestScore[b] <- score[b]
+                bestOffset[b] <- offset
+        }
+    }
+
+    return(list(bestScore = bestScore, bestOffset = bestOffset))
+}
+
 # compare two PFMs of any length (padd left/right with background positions)
+# score := correlation of single base frequencies of aligned and padded matrices
 # (internal function used by motifSimilarity)
 compareMotifPair <- function(m1, m2) {
     # stopifnot(is.matrix(m1) && is.matrix(m2) &&
