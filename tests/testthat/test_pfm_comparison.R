@@ -106,7 +106,7 @@ test_that("motifKmerSimilarity works as expected", {
     expect_is(res2 <- motifKmerSimilarity(x = tmpf, kmerLen = 4L, Ncpu = 2L, verbose = FALSE), "matrix")
     expect_identical(res1, res2)
     expect_identical(dim(res1), c(3L, 256L))
-    expect_identical(dimnames(res1), list(name(pfmL), kmers))
+    expect_identical(dimnames(res1), list(name(pfmL), FourMers))
     expect_identical(which.max(res1), 2L)
     expect_identical(max(res1), prod(m2[1,-1]))
 
