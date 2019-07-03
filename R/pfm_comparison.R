@@ -249,6 +249,7 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
 #' @export
 motifKmerSimilarity <- function(x, kmerLen = 5, Ncpu = 1L, verbose = TRUE) {
     ## pre-flight checks
+    stopifnot(is.logical(verbose) && length(verbose) == 1L)
     if (is.character(x) && length(x) == 1L && file.exists(x)) {
         if (verbose) {
             message("reading motifs from ", basename(x))
@@ -264,8 +265,6 @@ motifKmerSimilarity <- function(x, kmerLen = 5, Ncpu = 1L, verbose = TRUE) {
         is.numeric(Ncpu)
         length(Ncpu) == 1
         Ncpu > 0
-        is.logical(verbose)
-        length(verbose) == 1L
     })
 
     xm <- lapply(TFBSTools::Matrix(x), function(x) sweep(x, 2, colSums(x), "/"))
