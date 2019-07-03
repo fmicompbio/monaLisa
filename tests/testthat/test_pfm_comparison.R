@@ -15,6 +15,16 @@ pfmL <- TFBSTools::PFMatrixList(pfm1, pfm2, pfm3)
 FourMers <- Biostrings::mkAllStrings(c("A","C","G","T"), 4)
 
 
+test_that("compareMotifPair works as expected", {
+    res1 <- lisa:::compareMotifPair(m1, m2)
+    res2 <- lisa:::compareMotifPair(m1, m3)
+    res3 <- lisa:::compareMotifPair(m2, m3)
+
+    expect_identical(res1, list(bestScore = 1.0, bestOffset = 0L, bestDirection = "revcomp"))
+    expect_identical(res2, list(bestScore = 0.63146007727884323479, bestOffset = 0L, bestDirection = "revcomp"))
+    expect_identical(res3, list(bestScore = 0.63146007727884323479, bestOffset = 7L, bestDirection = "forward"))
+})
+
 test_that("compareMotifKmer works as expected", {
     res1 <- lisa:::compareMotifKmer(m1, FourMers)
     res2 <- lisa:::compareMotifKmer(m2, FourMers)
@@ -38,17 +48,8 @@ test_that("compareMotifKmer works as expected", {
                        "TTAA","TTAC","TTAG"))
 })
 
-test_that("compareMotifPair works as expected", {
-    res1 <- lisa:::compareMotifPair(m1, m2)
-    res2 <- lisa:::compareMotifPair(m1, m3)
-    res3 <- lisa:::compareMotifPair(m2, m3)
-
-    expect_identical(res1, list(bestScore = 1.0, bestOffset = 0L, bestDirection = "revcomp"))
-    expect_identical(res2, list(bestScore = 0.63146007727884323479, bestOffset = 0L, bestDirection = "revcomp"))
-    expect_identical(res3, list(bestScore = 0.63146007727884323479, bestOffset = 7L, bestDirection = "forward"))
-})
-
 test_that("motifSimilarity works as expected", {
+    # store motifs in file
     tmpf <- tempfile()
     fh <- file(tmpf, "wt")
     for (i in seq_along(pfmL)) {
@@ -76,6 +77,38 @@ test_that("motifSimilarity works as expected", {
         expect_is(res5 <- motifSimilarity(x = tmpf, y = NULL, method = "HOMER", homerfile = homerfile), "matrix")
         expect_equal(res1, res5)
     }
+
+    # clean up
+    unlink(x = tmpf)
+})
+
+test_that("motifKmerSimilarity works as expected", {
+    # store motifs in file
+    tmpf <- tempfile()
+    fh <- file(tmpf, "wt")
+    for (i in seq_along(pfmL)) {
+        cat(sprintf(">%s\t%s\t5\n", TFBSTools::ID(pfmL[[i]]), TFBSTools::name(pfmL[[i]])),
+            file = fh, append = TRUE)
+        write.table(file = fh, t(TFBSTools::Matrix(pfmL[[i]])), row.names = FALSE, col.names = FALSE,
+                    sep = "\t", quote = FALSE, append = TRUE)
+    }
+    close(fh)
+
+    expect_error(motifKmerSimilarity(1L))
+    expect_error(motifKmerSimilarity("error"))
+    expect_error(motifKmerSimilarity(pfmL, kmerLen = "error"))
+    expect_error(motifKmerSimilarity(pfmL, kmerLen = 2:3))
+    expect_error(motifKmerSimilarity(pfmL, kmerLen = 2.5))
+    expect_error(motifKmerSimilarity(pfmL, kmerLen = -3))
+
+    expect_message(res1 <- motifKmerSimilarity(x = pfmL, kmerLen = 4))
+    expect_is(res1, "matrix")
+    expect_is(res2 <- motifKmerSimilarity(x = tmpf, kmerLen = 4L, Ncpu = 2L, verbose = FALSE), "matrix")
+    expect_identical(res1, res2)
+    expect_identical(dim(res1), c(3L, 256L))
+    expect_identical(dimnames(res1), list(name(pfmL), kmers))
+    expect_identical(which.max(res1), 2L)
+    expect_identical(max(res1), prod(m2[1,-1]))
 
     # clean up
     unlink(x = tmpf)

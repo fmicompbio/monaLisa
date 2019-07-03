@@ -1,47 +1,3 @@
-# compare a PFM to all k-mer of any length (padd left/right with background positions)
-# score := maximal probability of observing k-mer under (potentially padded) PFM
-# (internal function used by motifKmerSimilarity)
-compareMotifKmer <- function(m, kmers) {
-    stopifnot(exprs = {
-        is.matrix(m)
-        is.character(kmers)
-        nrow(m) == 4L
-        rownames(m) == c("A","C","G","T")
-        all.equal(rep(1.0, ncol(m)), colSums(m))
-        all(nchar(kmers[1]) == nchar(kmers))
-        all(grepl("^[ACGT]+$", kmers))
-    })
-
-    bestScore <- rep(-2, length(kmers))
-    bestOffset <- rep(0, length(kmers))
-
-    len1 <- ncol(m)
-    len2 <- nchar(kmers[1])
-    j <- seq.int(len2)
-
-    ## transform k-mers into numeric indices
-    kmersL <- strsplit(x = kmers, split = "", fixed = TRUE)
-    kmersN <- utils::relist(match(unlist(kmersL), c("A","C","G","T")), kmersL)
-    ## offset := start(m) - start(kmers[i])
-    ##        == left-padding of m (if > 0)
-    ##        == -1 * left-padding of kmers[i] (if < 0)
-    for (offset in seq(-len1 + 1L, len2 - 1L)) {
-        # minimal overlap of 1
-        # padding of matrix and kmers
-        mm <- cbind(matrix(0.25, nrow = 4, ncol = max(0, offset)),
-                    m[, seq.int(min(len1 + offset, len2 - offset, len2)) + max(0, -offset)],
-                    matrix(0.25, nrow = 4, ncol = max(0, len2 - (len1 + offset))))
-        score <- unlist(lapply(kmersN, function(i) prod(mm[cbind(i, j)])))
-        b <- score > bestScore
-        if (any(b)) {
-                bestScore[b] <- score[b]
-                bestOffset[b] <- offset
-        }
-    }
-
-    return(list(bestScore = bestScore, bestOffset = bestOffset))
-}
-
 # compare two PFMs of any length (padd left/right with background positions)
 # score := correlation of single base frequencies of aligned and padded matrices
 # (internal function used by motifSimilarity)
@@ -93,6 +49,50 @@ compareMotifPair <- function(m1, m2) {
     }
 
     return(list(bestScore = bestScore, bestOffset = bestOffset, bestDirection = bestDirection))
+}
+
+# compare a PFM to all k-mer of any length (padd left/right with background positions)
+# score := maximal probability of observing k-mer under (potentially padded) PFM
+# (internal function used by motifKmerSimilarity)
+compareMotifKmer <- function(m, kmers) {
+    # stopifnot(exprs = {
+    #     is.matrix(m)
+    #     is.character(kmers)
+    #     nrow(m) == 4L
+    #     rownames(m) == c("A","C","G","T")
+    #     all.equal(rep(1.0, ncol(m)), colSums(m))
+    #     all(nchar(kmers[1]) == nchar(kmers))
+    #     all(grepl("^[ACGT]+$", kmers))
+    # })
+
+    bestScore <- rep(-2, length(kmers))
+    bestOffset <- rep(0, length(kmers))
+
+    len1 <- ncol(m)
+    len2 <- nchar(kmers[1])
+    j <- seq.int(len2)
+
+    ## transform k-mers into numeric indices
+    kmersL <- strsplit(x = kmers, split = "", fixed = TRUE)
+    kmersN <- utils::relist(match(unlist(kmersL), c("A","C","G","T")), kmersL)
+    ## offset := start(m) - start(kmers[i])
+    ##        == left-padding of m (if > 0)
+    ##        == -1 * left-padding of kmers[i] (if < 0)
+    for (offset in seq(-len1 + 1L, len2 - 1L)) {
+        # minimal overlap of 1
+        # padding of matrix and kmers
+        mm <- cbind(matrix(0.25, nrow = 4, ncol = max(0, offset)),
+                    m[, seq.int(min(len1 + offset, len2 - offset, len2)) + max(0, -offset)],
+                    matrix(0.25, nrow = 4, ncol = max(0, len2 - (len1 + offset))))
+        score <- unlist(lapply(kmersN, function(i) prod(mm[cbind(i, j)])))
+        b <- score > bestScore
+        if (any(b)) {
+            bestScore[b] <- score[b]
+            bestOffset[b] <- offset
+        }
+    }
+
+    return(list(bestScore = bestScore, bestOffset = bestOffset))
 }
 
 #' @title Calculate similarities between pairs of motifs.
@@ -148,8 +148,8 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
         if (is.character(x) && length(x) == 1L && file.exists(x)) {
             if (verbose) {
                 message("reading motifs from ", basename(x))
-                x <- homerToPFMatrixList(x)
             }
+            x <- homerToPFMatrixList(x)
         }
         stopifnot(exprs = {
             is(x, "PFMatrixList")
@@ -219,6 +219,69 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
         system(sprintf("%s %s test -matrix %s", homerfile, x, homerOutfile), intern=TRUE)
         M <- as.matrix(read.delim(homerOutfile, row.names = 1))
     }
+    return(M)
+}
+
+
+#' @title Calculate similarities between motifs and k-mers.
+#'
+#' @description For each motif, calculate it's similarity to all k-mers of
+#'   length \code{kmerLen}, defined as the maximal probability of observing the
+#'   k-mer given the base frequencies of the motif (the maximum is taken over
+#'   for all possible ungapped alignments between motif and k-mer). If necessary
+#'   matrices are padded on the sides with background base frequencies (assuming
+#'   all bases to have a frequency of 0.25).
+#'
+#' @param x Either a \code{\link[TFBSTools]{PFMatrixList}}, or a character
+#'   scalar with a file containing motifs in HOMER format (used directly
+#'   \code{method = "HOMER"}, loaded into a
+#'   \code{\link[TFBSTools]{PFMatrixList}} by \code{\link{homerToPFMatrixList}}
+#'   for \code{method = "R"}).
+#' @param kmerLen A \code{numeric} scalar giving the k-mer length.
+#' @param Ncpu The number of CPU cores to use when calculating similarities.
+#'   This uses \code{\link[parallel]{mclapply}}.
+#' @param verbose A logical scalar. If \code{TRUE}, report on progress.
+#'
+#' @return A matrix of probabilties for each motif - k-mer pair.
+#'
+#' @seealso \code{\link[parallel]{mclapply}} for how parallelization is done.
+#'
+#' @export
+motifKmerSimilarity <- function(x, kmerLen = 5, Ncpu = 1L, verbose = TRUE) {
+    ## pre-flight checks
+    if (is.character(x) && length(x) == 1L && file.exists(x)) {
+        if (verbose) {
+            message("reading motifs from ", basename(x))
+        }
+        x <- homerToPFMatrixList(x)
+    }
+    stopifnot(exprs = {
+        is(x, "PFMatrixList")
+        is.numeric(kmerLen)
+        length(kmerLen) == 1L
+        round(kmerLen, 0L) == kmerLen
+        kmerLen > 0
+        is.numeric(Ncpu)
+        length(Ncpu) == 1
+        Ncpu > 0
+        is.logical(verbose)
+        length(verbose) == 1L
+    })
+
+    xm <- lapply(TFBSTools::Matrix(x), function(x) sweep(x, 2, colSums(x), "/"))
+    kmers <- Biostrings::mkAllStrings(c("A","C","G","T"), kmerLen)
+
+    if (verbose) {
+        message("calculating ", length(xm) * length(kmers), " similarities using ",
+                Ncpu, if (Ncpu > 1) " cores..." else " core...", appendLF = FALSE)
+    }
+    M <- do.call(rbind, parallel::mclapply(xm, function(m) compareMotifKmer(m = m, kmers = kmers)$bestScore,
+                                           mc.cores = Ncpu))
+    dimnames(M) <- list(name(x), kmers)
+    if (verbose) {
+        message("done")
+    }
+
     return(M)
 }
 
