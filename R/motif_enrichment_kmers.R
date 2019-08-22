@@ -54,8 +54,11 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
     kmerFreqRaw <- oligonucleotideFrequency(seqs, width = kmerLen)
     if (zoops) {
         kmerFreq <- colSums(kmerFreqRaw > 0)
-        lp_long  <- colSums((oligonucleotideFrequency(seqs, width = MMorder + 1L) > 0) + pseudoCount)
-        lp_short <- colSums((oligonucleotideFrequency(seqs, width = MMorder) > 0)      + pseudoCount)
+        #lp_long  <- colSums((oligonucleotideFrequency(seqs, width = MMorder + 1L) > 0) + pseudoCount)
+        #lp_short <- colSums((oligonucleotideFrequency(seqs, width = MMorder) > 0)      + pseudoCount)
+        # don't use zoops for shorter kmers
+        lp_long  <- colSums(oligonucleotideFrequency(seqs, width = MMorder + 1L) + pseudoCount)
+        lp_short <- colSums(oligonucleotideFrequency(seqs, width = MMorder)      + pseudoCount)
     } else {
         kmerFreq <- colSums(kmerFreqRaw)
         lp_long  <- colSums(oligonucleotideFrequency(seqs, width = MMorder + 1L) + pseudoCount)
