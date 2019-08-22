@@ -54,20 +54,17 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
     kmerFreqRaw <- oligonucleotideFrequency(seqs, width = kmerLen)
     if (zoops) {
         kmerFreq <- colSums(kmerFreqRaw > 0)
-        #lp_long  <- colSums((oligonucleotideFrequency(seqs, width = MMorder + 1L) > 0) + pseudoCount)
-        #lp_short <- colSums((oligonucleotideFrequency(seqs, width = MMorder) > 0)      + pseudoCount)
-        # don't use zoops for shorter kmers
-        lp_long  <- colSums(oligonucleotideFrequency(seqs, width = MMorder + 1L) + pseudoCount)
-        lp_short <- colSums(oligonucleotideFrequency(seqs, width = MMorder)      + pseudoCount)
+        seqs.new <- DNAStringSet(rep(names(kmerFreq), kmerFreq)) # ZOOPS
     } else {
         kmerFreq <- colSums(kmerFreqRaw)
-        lp_long  <- colSums(oligonucleotideFrequency(seqs, width = MMorder + 1L) + pseudoCount)
-        lp_short <- colSums(oligonucleotideFrequency(seqs, width = MMorder)      + pseudoCount)
+        seqs.new <- seqs
     }
-    lp_long  <- log2(lp_long / sum(lp_long))
-    lp_short <- log2(lp_short / sum(lp_short))
 
     ## expected k-mer frequencies (log2-probabilities with a pseudocount)
+    lp_long  <- colSums(oligonucleotideFrequency(seqs.new, width = MMorder + 1L) + pseudoCount)
+    lp_long  <- log2(lp_long / sum(lp_long))
+    lp_short <- colSums(oligonucleotideFrequency(seqs.new, width = MMorder)      + pseudoCount)
+    lp_short <- log2(lp_short / sum(lp_short))
     n <- nchar(names(kmerFreq)[1]) - MMorder
     log2pMM <- sapply(names(kmerFreq), function(current.kmer) {
         ii_long <- substr(rep(current.kmer, n),
