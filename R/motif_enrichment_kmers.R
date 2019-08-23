@@ -33,6 +33,17 @@
 #'
 #' @export
 getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops = TRUE) {
+  
+    ##comments
+  
+    ## When plotting the log2 enrichments or something similar against observed frequencies,
+    ## there will be a correlation as several kmers have the same expected frequency and thus their
+    ## enrichment and observed frequencies will naturally correlate. It makes thus more sense to plot
+    ## the log2 enrichment against expected frequencies
+    
+    ## Generally, higher MMorder will take care of CpG bias and similar effects. Zoops will take care of 
+    ## higher-order repeats.
+  
     ## pre-flight checks
     if (is.character(seqs))
         seqs <- DNAStringSet(seqs)
@@ -54,6 +65,7 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
     kmerFreqRaw <- oligonucleotideFrequency(seqs, width = kmerLen)
     if (zoops) {
         kmerFreq <- colSums(kmerFreqRaw > 0)
+        #make new sequences that are simply the kmers detected
         seqs.zoops <- DNAStringSet(rep(names(kmerFreq), kmerFreq))
         lp_long  <- colSums(oligonucleotideFrequency(seqs.zoops, width = MMorder + 1L)) + pseudoCount
         lp_short <- colSums(oligonucleotideFrequency(seqs.zoops, width = MMorder)     ) + pseudoCount
@@ -81,13 +93,15 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
     lenr <- log2((kmerFreq + pseudoCount) / (kmerFreqMM + pseudoCount))
     ## ... z value (Pearson residuals)
     z <- (kmerFreq - kmerFreqMM) / sqrt(kmerFreqMM)
+    ## ... use square-root as variance-stablizing function
+    sDelta <- sqrt(kmerFreq) - sqrt(kmerFreqMM)
     ## ... P value
     p <- ppois(q = kmerFreq, lambda = kmerFreqMM, lower.tail = FALSE)
     padj <- p.adjust(p, method = "fdr")
 
     ## return results
     data.frame(freq.obs=kmerFreq, freq.exp=kmerFreqMM,
-               log2enr = lenr, z = z, p = p, FDR = padj)
+               log2enr = lenr, sqrtDelta=sDelta, z = z, p = p, FDR = padj)
 }
 
 
