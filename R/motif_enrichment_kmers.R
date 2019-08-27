@@ -26,24 +26,34 @@
 #'   counts for each k-mer to avoid zero values.
 #' @param zoops A \code{logical} scalar. If \code{TRUE} (the default), only one
 #'   or zero occurences of a k-mer are considered per sequence.
+#' @param strata A \code{factor} or a \code{numeric} scalar defining the strata
+#'   of sequences. A separate Markov model and expected k-mer frequencies are
+#'   estimated for the set of sequences in each stratum (level in a \code{strata}
+#'   factor). If \code{strata} is a scalar value, it will be interpreted as the
+#'   number of strata to split the sequences into according to their CpG
+#'   observed-over-expected counts using \code{kmeans(CpGoe, centers = strata)}.
+#'
+#' @return A \code{list} with observed and expected k-mer frequencies (\code{freq.obs}
+#'   and \code{freq.exp}, respectively), and enrichment statistics for each k-mer.
 #'
 #' @importFrom Biostrings DNAStringSet oligonucleotideFrequency
 #' @importFrom XVector subseq
-#' @importFrom stats ppois
+#' @importFrom stats ppois kmeans
 #'
 #' @export
-getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops = TRUE) {
-  
+getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops = TRUE,
+                        strata = rep(1L, length(seqs))) {
+
     ##comments
-  
+
     ## When plotting the log2 enrichments or something similar against observed frequencies,
     ## there will be a correlation as several kmers have the same expected frequency and thus their
     ## enrichment and observed frequencies will naturally correlate. It makes thus more sense to plot
     ## the log2 enrichment against expected frequencies
-    
-    ## Generally, higher MMorder will take care of CpG bias and similar effects. Zoops will take care of 
+
+    ## Generally, higher MMorder will take care of CpG bias and similar effects. Zoops will take care of
     ## higher-order repeats.
-  
+
     ## pre-flight checks
     if (is.character(seqs))
         seqs <- DNAStringSet(seqs)
@@ -59,34 +69,52 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
         MMorder < kmerLen - 1L
         is.logical(zoops)
         length(zoops) == 1L
+        length(strata) == length(seqs) || (is.numeric(strata) && length(strata) == 1L)
     })
 
-    ## observed k-mer frequencies
-    kmerFreqRaw <- oligonucleotideFrequency(seqs, width = kmerLen)
-    if (zoops) {
-        kmerFreq <- colSums(kmerFreqRaw > 0)
-        #make new sequences that are simply the kmers detected
-        seqs.zoops <- DNAStringSet(rep(names(kmerFreq), kmerFreq))
-        lp_long  <- colSums(oligonucleotideFrequency(seqs.zoops, width = MMorder + 1L)) + pseudoCount
-        lp_short <- colSums(oligonucleotideFrequency(seqs.zoops, width = MMorder)     ) + pseudoCount
-    } else {
-        kmerFreq <- colSums(kmerFreqRaw)
-        lp_long  <- colSums(oligonucleotideFrequency(seqs, width = MMorder + 1L)) + pseudoCount
-        lp_short <- colSums(oligonucleotideFrequency(seqs, width = MMorder))      + pseudoCount
+    ## split sequences into strata
+    if (length(strata) == 1L) {
+        n1 <- oligonucleotideFrequency(seqs, width = 1L)
+        n2 <- oligonucleotideFrequency(seqs, width = 2L)
+        CpGoe <- n2[, "CG"] / (n1[,"C"] / rowSums(n1) * n1[,"G"])
+        strata <- kmeans(x = CpGoe, centers = strata)$cluster
     }
-    lp_long  <- log2(lp_long / sum(lp_long))
-    lp_short <- log2(lp_short / sum(lp_short))
 
-    ## expected k-mer frequencies (log2-probabilities with a pseudocount)
-    n <- nchar(names(kmerFreq)[1]) - MMorder
-    log2pMM <- sapply(names(kmerFreq), function(current.kmer) {
-        ii_long <- substr(rep(current.kmer, n),
-                          start = 1:n, stop = 1:n + MMorder)
-        ii_short <- substr(rep(current.kmer, n - 1L),
-                           start = 2:n, stop = 1:(n - 1L) + MMorder)
-        sum(lp_long[ii_long]) - sum(lp_short[ii_short])
+    ## for each sequence stratum, calcluate...
+    res.strata <- lapply(split(seqs, strata), function(seqs.stratum) {
+        ## ... observed k-mer frequencies
+        kmerFreqRaw.stratum <- oligonucleotideFrequency(seqs.stratum, width = kmerLen)
+        if (zoops) {
+            kmerFreq.stratum <- colSums(kmerFreqRaw.stratum > 0)
+            #make new sequences that are simply the kmers detected
+            seqs.stratum.zoops <- DNAStringSet(rep(names(kmerFreq.stratum), kmerFreq.stratum))
+            lp_long  <- colSums(oligonucleotideFrequency(seqs.stratum.zoops, width = MMorder + 1L)) + pseudoCount
+            lp_short <- colSums(oligonucleotideFrequency(seqs.stratum.zoops, width = MMorder)     ) + pseudoCount
+        } else {
+            kmerFreq.stratum <- colSums(kmerFreqRaw.stratum)
+            lp_long  <- colSums(oligonucleotideFrequency(seqs.stratum, width = MMorder + 1L)) + pseudoCount
+            lp_short <- colSums(oligonucleotideFrequency(seqs.stratum, width = MMorder))      + pseudoCount
+        }
+        lp_long  <- log2(lp_long / sum(lp_long))
+        lp_short <- log2(lp_short / sum(lp_short))
+
+        ## ... expected k-mer frequencies (log2-probabilities with a pseudocount)
+        n <- nchar(names(kmerFreq.stratum)[1]) - MMorder
+        log2pMM <- sapply(names(kmerFreq.stratum), function(current.kmer) {
+            ii_long <- substr(rep(current.kmer, n),
+                              start = 1:n, stop = 1:n + MMorder)
+            ii_short <- substr(rep(current.kmer, n - 1L),
+                               start = 2:n, stop = 1:(n - 1L) + MMorder)
+            sum(lp_long[ii_long]) - sum(lp_short[ii_short])
+        })
+        kmerFreqMM.stratum <- (2 ** log2pMM) * sum(kmerFreq.stratum)
+        cbind(obs = kmerFreq.stratum, exp = kmerFreqMM.stratum)
     })
-    kmerFreqMM <- (2 ** log2pMM) * sum(kmerFreq)
+
+    ## sum frequencies over strata
+    tmp <- Reduce("+", res.strata)
+    kmerFreq   <- tmp[, "obs"]
+    kmerFreqMM <- tmp[, "exp"]
 
     ## calculate enrichment statistics
     ## ... log2 (obs/exp)
@@ -100,8 +128,9 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
     padj <- p.adjust(p, method = "fdr")
 
     ## return results
-    data.frame(freq.obs=kmerFreq, freq.exp=kmerFreqMM,
-               log2enr = lenr, sqrtDelta=sDelta, z = z, p = p, FDR = padj)
+    list(freq.obs = kmerFreq, freq.exp = kmerFreqMM,
+         log2enr = lenr, sqrtDelta=sDelta, z = z, p = p, FDR = padj,
+         strata = strata, freq.strata = do.call(rbind, res.strata))
 }
 
 
@@ -213,7 +242,7 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5, MMorder = 1,
                                  bin.lower = brks[-(nlevels(b)+1)],
                                  bin.upper = brks[-1],
                                  bin.nochange = seq.int(nlevels(b)) %in% attr(b, "bin0"))
-    kmers <- rownames(resL[[1]])
+    kmers <- names(resL[[1]][[1]])
     pfms <- do.call(TFBSTools::PFMatrixList, lapply(kmers, function(kmer) {
         TFBSTools::PFMatrix(ID = kmer, name = kmer,
                             profileMatrix = .cons2matrix(kmer))
@@ -222,7 +251,7 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5, MMorder = 1,
         m <- TFBSTools::Matrix(x)
         100 * sum(m[c("C","G"), ]) / sum(m)
     }), use.names = FALSE)
-    rdat <- S4Vectors::DataFrame(motif.name = rownames(resL[[1]]),
+    rdat <- S4Vectors::DataFrame(motif.name = kmers,
                                  motif.pfm = pfms,
                                  motif.percentGC = percentGC)
     se <- SummarizedExperiment::SummarizedExperiment(
@@ -243,7 +272,7 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5, MMorder = 1,
                         param.Ncpu = Ncpu,
                         motif.distances = NULL)
     )
-    rownames(se) <- rownames(resL[[1]])
+    rownames(se) <- kmers
     return(se)
 }
 
