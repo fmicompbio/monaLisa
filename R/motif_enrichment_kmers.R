@@ -130,7 +130,7 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
     ## return results
     list(freq.obs = kmerFreq, freq.exp = kmerFreqMM,
          log2enr = lenr, sqrtDelta=sDelta, z = z, p = p, FDR = padj,
-         strata = strata, freq.strata = do.call(rbind, res.strata))
+         strata = strata, freq.strata = res.strata)
 }
 
 
