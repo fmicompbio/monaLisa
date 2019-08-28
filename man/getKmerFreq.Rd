@@ -5,7 +5,7 @@
 \title{Calculate observed and expected k-mer frequencies}
 \usage{
 getKmerFreq(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1,
-  zoops = TRUE)
+  zoops = TRUE, strata = rep(1L, length(seqs)))
 }
 \arguments{
 \item{seqs}{Set of sequences, either a \code{character} vector or a
@@ -21,6 +21,17 @@ counts for each k-mer to avoid zero values.}
 
 \item{zoops}{A \code{logical} scalar. If \code{TRUE} (the default), only one
 or zero occurences of a k-mer are considered per sequence.}
+
+\item{strata}{A \code{factor} or a \code{numeric} scalar defining the strata
+of sequences. A separate Markov model and expected k-mer frequencies are
+estimated for the set of sequences in each stratum (level in a \code{strata}
+factor). If \code{strata} is a scalar value, it will be interpreted as the
+number of strata to split the sequences into according to their CpG
+observed-over-expected counts using \code{kmeans(CpGoe, centers = strata)}.}
+}
+\value{
+A \code{list} with observed and expected k-mer frequencies (\code{freq.obs}
+  and \code{freq.exp}, respectively), and enrichment statistics for each k-mer.
 }
 \description{
 Given a set of sequences, calculate observed and expected k-mer
