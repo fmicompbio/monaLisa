@@ -298,8 +298,8 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5, MMorder = 1,
 #'   analysis, \code{\link[parallel]{mclapply}} for how parallelization is done.
 #'
 #' @importFrom SummarizedExperiment assayNames assay SummarizedExperiment
-#'   colData metadata
-#' @importFrom S4Vectors DataFrame
+#'   colData
+#' @importFrom S4Vectors DataFrame metadata
 #'
 #' @export
 convertKmersToMotifs <- function(x, m, Ncpu = 1L, verbose = TRUE) {
