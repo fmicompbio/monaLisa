@@ -12,11 +12,11 @@ test_that("motifs can be written to/read from files", {
     cat(tmpstr[c(1,1,1)], file = tmpf1, sep = "")
 
     # read from file
-    pwm.file <- lisa:::.readPWMsFromHomer2File(tmpf1)
+    pwm.file <- monaLisa:::.readPWMsFromHomer2File(tmpf1)
     expect_equal(pwm, pwm.file)
 
     # write to file
-    lisa:::.dumpPWMsToHomer2File(pwmL = pwm, fname = tmpf2, absscore = 6.93)
+    monaLisa:::.dumpPWMsToHomer2File(pwmL = pwm, fname = tmpf2, absscore = 6.93)
     lns <- readLines(tmpf2)
     expect_identical(">CTA\tname\t4.803510", lns[1])
     m.file <- as.matrix(read.delim(tmpf2, header = FALSE, nrows = 3, skip = 1))

@@ -1,8 +1,8 @@
 ---
-title: "Lisa - motif enrichments and more"
+title: "monaLisa - MOtif aNAlysis with Lisa"
 author: "Dania Machlab, Lukas Burger, Michael Stadler"
 date: "`r Sys.Date()`"
-bibliography: lisa-refs.bib
+bibliography: monaLisa-refs.bib
 output: BiocStyle::html_document
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
@@ -21,11 +21,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-<img src="lisa_logo_v1.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%; border: 0" />
+<img src="monaLisa_logo_v1.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%; border: 0" />
 
 # Introduction
 
-`lisa` makes use of her father [Homer](http://homer.ucsd.edu/homer/index.html)
+`monaLisa` makes use of her father [Homer](http://homer.ucsd.edu/homer/index.html)
 to look for enriched motifs in sets of genomic regions, compared to all other regions.
 
 The motifs come from a collection of transcription factor binding site specificities,
@@ -36,9 +36,9 @@ The regions could be for example promoters, non-promoters (distal regions) or ac
 The regions are grouped into bins according to a numerical value assigned to each
 bin, such as change of expression or accessibility.
 
-`lisa` can also be used to look for motifs in sequences.
+`monaLisa` can also be used to look for motifs in sequences.
 
-Finally, `lisa` can can be used to predict what transcription factors are likely to explain observed changes in chromatin accessibility between two conditions.
+Finally, `monaLisa` can can be used to predict what transcription factors are likely to explain observed changes in chromatin accessibility between two conditions.
 
 
 
@@ -46,7 +46,7 @@ Finally, `lisa` can can be used to predict what transcription factors are likely
 
 ```{r, quick, eval=FALSE}
 # load package
-library(lisa)
+library(monaLisa)
 
 # bin regions
 # (atac.peaks.change is a numerical vector)
@@ -109,14 +109,14 @@ We start by loading the needed libraries:
 ```{r loadlib, message=FALSE}
 library(GenomicRanges)
 library(SummarizedExperiment)
-library(lisa)
+library(monaLisa)
 ```
 
 ## Genomic regions of interest
-`lisa` contains a file with genomic coordinates (mouse mm9 assembly) of LMRs,
+`monaLisa` contains a file with genomic coordinates (mouse mm9 assembly) of LMRs,
 with the respective changes of methylation:  
 ```{r loadLMRs}
-lmrfile <- system.file("extdata", "LMRsESNPmerged.gr.rds", package = "lisa")
+lmrfile <- system.file("extdata", "LMRsESNPmerged.gr.rds", package = "monaLisa")
 lmr <- readRDS(lmrfile)
 lmr
 ```
@@ -190,7 +190,7 @@ saveRDS(se, "/work/gbioinfo/stadler/development/R/compbio-lisa/inst/extdata/se.r
 
 In case you did not run the above code, let's now read in the results:  
 ```{r gethomerresults}
-se <- readRDS(system.file("extdata", "se.rds", package = "lisa"))
+se <- readRDS(system.file("extdata", "se.rds", package = "monaLisa"))
 ```
 
 `se` is a `SummarizedExperiment` object which nicely keeps motifs, bins and
@@ -232,7 +232,7 @@ As the Jaspar database contains many similar motifs, it is helpful to show the e
 SimMat <- motifSimilarity(rowData(se)$motif.pfm, Ncpu = 20L)
 ```
 ```{r getclusteringresults}
-SimMat <- readRDS(system.file("extdata", "SimMat.rds", package = "lisa"))
+SimMat <- readRDS(system.file("extdata", "SimMat.rds", package = "monaLisa"))
 ```
 The order of the TFs in the resulting matrix is consistent with the elements of `se`
 ```{r checkmatrixorder}
@@ -249,9 +249,9 @@ plotMotifHeatmaps(x = seSel, which.plots = c("log2enr","FDR"), width = 1.2,
 ```
 
 
-# Use `lisa` to annotate genomic regions with predicted motifs
+# Use `monaLisa` to annotate genomic regions with predicted motifs
 
-As mentioned `lisa` can also be used to scan sequences for motifs. Here is an
+As mentioned `monaLisa` can also be used to scan sequences for motifs. Here is an
 example (just on few sequences/motifs for illustration):
 
 ```{r findMotifs}
@@ -292,11 +292,11 @@ m
 
 # Selecting Transcription Factors Likely to Explain Changes in Chromatin Accessibility Using Stability Selection
 
-Randomized Lasso stability selection proposed by Meinshausen and Bühlmann [@StabSel] applies the lasso regression on several subsamples of the data using a weakness parameter that adds additional variation to the lambda parameter and allows for more correlated variables to be selected together. Although the main appeal of stability selection is that it allows for selection of predictors when the number of predictors exceeds the number of observations, the authors also argue for this as a way of slightly overcoming the problem of lasso only selecting variables that are not correlated, and performing better in a noisy dataset depending on how strongly one sets the weakness parameter. Shah and Samworth [@compStabs] have further improved error control for stability selection using complementary pairs stability selection. The R `stabs` package [@stabs] implements the Shah and Samworth version of stability selection. `lisa` uses a modified version of the `stabsel` function in `stabs` that performs randomized lasso stability selection.
+Randomized Lasso stability selection proposed by Meinshausen and Bühlmann [@StabSel] applies the lasso regression on several subsamples of the data using a weakness parameter that adds additional variation to the lambda parameter and allows for more correlated variables to be selected together. Although the main appeal of stability selection is that it allows for selection of predictors when the number of predictors exceeds the number of observations, the authors also argue for this as a way of slightly overcoming the problem of lasso only selecting variables that are not correlated, and performing better in a noisy dataset depending on how strongly one sets the weakness parameter. Shah and Samworth [@compStabs] have further improved error control for stability selection using complementary pairs stability selection. The R `stabs` package [@stabs] implements the Shah and Samworth version of stability selection. `monaLisa` uses a modified version of the `stabsel` function in `stabs` that performs randomized lasso stability selection.
 
 Here we demonstrate the use of randomized lasso stability selection to select transcription factors (TFs) that are likely to explain changes in chromatin accessibility from ATAC-seq data. One can also use stability selection on any other type of data like ChIP-seq of specific histone marks for example. We are given a vector of log-fold changes (logFC) in chromatin accessibility between two conditions that we consider to be our response vector. The predictor matrix will consist of the number of transcription factor binding sites (TFBS) that each TF has across the peaks. The example data set comes from ENCODE [@encode] and consists of bam files for ATAC-seq from mouse postnatal (P0) liver (identifiers: ENCFF146ZCO, ENCFF109LQF) and lung (identifiers: ENCFF203DOC, ENCFF823PTD) tissues. Each condition had 2 replicates, and the peak calling was done per condition using MACS2 [@macs]. The peaks from both conditions were merged and used to calculate ATAC-seq counts for all samples with QuasR [@QuasR]. Counts per million (CPM) were calculated per sample and averaged across replicates. The logFC was calculated as [log2(CPM(Liver)+8) - log2(CPM(Lung)+8)].
 
-Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promoter peaks tend not to change so much in accessibility, and we are interested in selecting TFs that likely explain logFC in enhancer regions. The `.rds` files used in lisa's example dataset consist of peaks that had an absolute logFC greater than 2 and less than 2.2. This was done to reduce the number of peaks and speed up runtime to demonstrate the functions used in `lisa` that apply randomized lasso stability selection [@StabSel].
+Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promoter peaks tend not to change so much in accessibility, and we are interested in selecting TFs that likely explain logFC in enhancer regions. The `.rds` files used in monaLisa's example dataset consist of peaks that had an absolute logFC greater than 2 and less than 2.2. This was done to reduce the number of peaks and speed up runtime to demonstrate the functions used in `monaLisa` that apply randomized lasso stability selection [@StabSel].
 
 
 
@@ -305,11 +305,11 @@ Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promot
 
 ```{r load_data}
 
-library(lisa)
+library(monaLisa)
 
 # Path to extdata 
-peaks_path <- system.file("extdata", "Liver_vs_Lung_ATAC_peaks.rds", package = "lisa")
-response_path <- system.file("extdata", "Liver_vs_Lung_ATAC_logFC.rds", package = "lisa")
+peaks_path <- system.file("extdata", "Liver_vs_Lung_ATAC_peaks.rds", package = "monaLisa")
+response_path <- system.file("extdata", "Liver_vs_Lung_ATAC_logFC.rds", package = "monaLisa")
 
 # Load response vector and peaks GRanges
 response <- readRDS(response_path)
@@ -422,12 +422,12 @@ Heatmap(matrix = sel_cor, name = "Pear. Cor.",
 
 
 # Session info and logo
-The lisa logo uses a drawing that was obtained from http://vectorish.com/lisa-simpson.html
+The monaLisa logo uses a drawing that was obtained from http://vectorish.com/lisa-simpson.html
 under the Creative Commons attribution - non-commercial 3.0 license: https://creativecommons.org/licenses/by-nc/3.0/.
 
 This vignette was built using:  
 ```{r, session}
-sessionInfo(package = "lisa")
+sessionInfo(package = "monaLisa")
 ```
 
 # References

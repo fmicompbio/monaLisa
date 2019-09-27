@@ -1,7 +1,7 @@
-#' Lisa - motif enrichments and more.
+#' monaLisa - MOtif aNAlysis with Lisa.
 #'
-#' \pkg{lisa} is a collection of tools that simplify motif enrichment analyses
-#' in genomic regions of interest.
+#' \pkg{monaLisa} is a collection of tools that simplify motif enrichment
+#' analyses in genomic regions of interest.
 #'
 #' She makes use of her father Homer (http://homer.ucsd.edu/homer/index.html)
 #' and other algorithms to search for motif hits and look for enriched motifs in

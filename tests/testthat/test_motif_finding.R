@@ -15,9 +15,9 @@ test_that("findMotifHits() works properly", {
     pwmL <- TFBSTools::PWMatrixList(pwm)
 
     tf <- tempfile(fileext = ".motif")
-    lisa:::.dumpPWMsToHomer2File(pwmL, tf)
+    monaLisa:::.dumpPWMsToHomer2File(pwmL, tf)
 
-    tf.pwm <- lisa:::.readPWMsFromHomer2File(tf)
+    tf.pwm <- monaLisa:::.readPWMsFromHomer2File(tf)
 
     expect_equal(TFBSTools::Matrix(pwmL[[1]]), TFBSTools::Matrix(tf.pwm[[1]]))
 

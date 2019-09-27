@@ -7,14 +7,14 @@ set.seed(1)
 x <- rnorm(1000)
 b1 <- bin(x, binmode = "equalN", nElements = 100)
 b2 <- bin(x, binmode = "equalN", nElements = 50, minAbsX = 0.6)
-se <- readRDS(system.file("extdata", "se.rds", package = "lisa"))[1:10, 1:8]
+se <- readRDS(system.file("extdata", "se.rds", package = "monaLisa"))[1:10, 1:8]
 
 # ... stability selection
 Y <- rnorm(n = 100, mean = 2, sd = 1)
 X <- matrix(data = runif(n = 20 * 100, min = 0, max = 3), nrow = length(Y), ncol = 20)
 for (i in sample(x = 1:ncol(X), size = 10, replace = FALSE))
     X[ ,i] <- X[ ,i] + Y
-ss <- lisa::randomized_stabsel(x = X, y = Y)
+ss <- monaLisa::randomized_stabsel(x = X, y = Y)
 
 
 test_that("getColsByBin() works properly", {

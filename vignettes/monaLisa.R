@@ -10,7 +10,7 @@ knitr::opts_chunk$set(
 
 ## ---- quick, eval=FALSE----------------------------------------------------
 #  # load package
-#  library(lisa)
+#  library(monaLisa)
 #  
 #  # bin regions
 #  # (atac.peaks.change is a numerical vector)
@@ -32,10 +32,10 @@ knitr::opts_chunk$set(
 ## ----loadlib, message=FALSE------------------------------------------------
 library(GenomicRanges)
 library(SummarizedExperiment)
-library(lisa)
+library(monaLisa)
 
 ## ----loadLMRs--------------------------------------------------------------
-lmrfile <- system.file("extdata", "LMRsESNPmerged.gr.rds", package = "lisa")
+lmrfile <- system.file("extdata", "LMRsESNPmerged.gr.rds", package = "monaLisa")
 lmr <- readRDS(lmrfile)
 lmr
 
@@ -68,7 +68,7 @@ homerfile <- findHomer(dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
 #                 regionsize = "given", Ncpu = 20L)
 
 ## ----gethomerresults-------------------------------------------------------
-se <- readRDS(system.file("extdata", "se.rds", package = "lisa"))
+se <- readRDS(system.file("extdata", "se.rds", package = "monaLisa"))
 
 ## ----summarizedexperiment--------------------------------------------------
 # summary
@@ -102,7 +102,7 @@ plotMotifHeatmaps(x = seSel, which.plots = c("log2enr","FDR"), width = 2.0,
 #  SimMat <- motifSimilarity(rowData(se)$motif.pfm, Ncpu = 20L)
 
 ## ----getclusteringresults--------------------------------------------------
-SimMat <- readRDS(system.file("extdata", "SimMat.rds", package = "lisa"))
+SimMat <- readRDS(system.file("extdata", "SimMat.rds", package = "monaLisa"))
 
 ## ----checkmatrixorder------------------------------------------------------
 all(rownames(SimMat) == rownames(se))
@@ -150,11 +150,11 @@ m
 
 ## ----load_data-------------------------------------------------------------
 
-library(lisa)
+library(monaLisa)
 
 # Path to extdata 
-peaks_path <- system.file("extdata", "Liver_vs_Lung_ATAC_peaks.rds", package = "lisa")
-response_path <- system.file("extdata", "Liver_vs_Lung_ATAC_logFC.rds", package = "lisa")
+peaks_path <- system.file("extdata", "Liver_vs_Lung_ATAC_peaks.rds", package = "monaLisa")
+response_path <- system.file("extdata", "Liver_vs_Lung_ATAC_logFC.rds", package = "monaLisa")
 
 # Load response vector and peaks GRanges
 response <- readRDS(response_path)
@@ -248,5 +248,5 @@ Heatmap(matrix = sel_cor, name = "Pear. Cor.",
 
 
 ## ---- session--------------------------------------------------------------
-sessionInfo(package = "lisa")
+sessionInfo(package = "monaLisa")
 

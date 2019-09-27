@@ -16,9 +16,9 @@ FourMers <- Biostrings::mkAllStrings(c("A","C","G","T"), 4)
 
 
 test_that("compareMotifPair works as expected", {
-    res1 <- lisa:::compareMotifPair(m1, m2)
-    res2 <- lisa:::compareMotifPair(m1, m3)
-    res3 <- lisa:::compareMotifPair(m2, m3)
+    res1 <- monaLisa:::compareMotifPair(m1, m2)
+    res2 <- monaLisa:::compareMotifPair(m1, m3)
+    res3 <- monaLisa:::compareMotifPair(m2, m3)
 
     expect_identical(res1, list(bestScore = 1.0, bestOffset = 0L, bestDirection = "revcomp"))
     expect_identical(res2, list(bestScore = 0.63146007727884323479, bestOffset = 0L, bestDirection = "revcomp"))
@@ -26,8 +26,8 @@ test_that("compareMotifPair works as expected", {
 })
 
 test_that("compareMotifKmer works as expected", {
-    res1 <- lisa:::compareMotifKmer(m1, FourMers)
-    res2 <- lisa:::compareMotifKmer(m2, FourMers)
+    res1 <- monaLisa:::compareMotifKmer(m1, FourMers)
+    res2 <- monaLisa:::compareMotifKmer(m2, FourMers)
 
     expect_is(res1, "list")
     expect_is(res2, "list")

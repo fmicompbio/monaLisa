@@ -1,14 +1,14 @@
-<img src="vignettes/lisa_logo_v1.png" align="right" alt="lisa" width="200px"/>
+<img src="vignettes/monaLisa_logo_v1.png" align="right" alt="monaLisa" width="200px"/>
 
 <br>
 
-# `lisa`: Binned Motif Enrichment Analysis
+# `monaLisa`: MOtif aNAlysis with Lisa
 
 <br>
 
 ## Overview
 
-`lisa` makes use of her father [Homer](http://homer.ucsd.edu/homer/index.html)
+`monaLisa` makes use of her father [Homer](http://homer.ucsd.edu/homer/index.html)
 to look for enriched motifs in sets of genomic regions, compared to all other regions.
 
 The motifs come from a collection of transcription factor binding site specificities,
@@ -16,7 +16,7 @@ such as `JASPAR2018`. The regions could be for example promoters or accessible r
 The regions are grouped into bins according to a numerical value assigned to each
 bin, such as change of expression or accessibility.
 
-Finally, `lisa` can also be used to look for motifs in sequences.
+Finally, `monaLisa` can also be used to look for motifs in sequences.
 
 Current contributors include:
 
@@ -26,11 +26,11 @@ Current contributors include:
 
 ## Functionality
 
-A minimal example to run `lisa` looks like:
+A minimal example to run `monaLisa` looks like:
 
 ```
 # load package
-library(lisa)
+library(monaLisa)
 
 # bin regions
 # (atac.peaks.change is a numberical vector)

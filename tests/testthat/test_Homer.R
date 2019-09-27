@@ -4,14 +4,14 @@ test_that("findHomer() works properly", {
     res <- findHomer("I-do-not-exist")
     expect_true(is.na(res))
 
-    res <- findHomer("se.rds", dirs = system.file("extdata", package = "lisa"))
+    res <- findHomer("se.rds", dirs = system.file("extdata", package = "monaLisa"))
     expect_true(file.exists(res))
 })
 
 test_that("dumpJaspar() works properly", {
     tmp1 <- tempfile()
 
-    expect_error(dumpJaspar(filename = system.file("extdata", "se.rds", package = "lisa")))
+    expect_error(dumpJaspar(filename = system.file("extdata", "se.rds", package = "monaLisa")))
     expect_error(dumpJaspar(filename = tmp1, opts = list(matrixtype = "PWM")))
     expect_error(dumpJaspar(filename = tmp1, relScoreCutoff = "error"))
     expect_true(dumpJaspar(filename = tmp1, opts = list(ID = c("MA0006.1", "MA0007.3", "MA0828.1"))))
@@ -48,7 +48,7 @@ test_that("prepareHomer() works properly", {
     tmp1 <- tempfile()
     dir.create(tmp1)
     tmp2 <- tempfile()
-    fname <- system.file("extdata", "se.rds", package = "lisa")
+    fname <- system.file("extdata", "se.rds", package = "monaLisa")
 
     expect_error(prepareHomer(gr = gr, b = b, genomedir = "genomedir", outdir = tmp1,
                               motifFile = fname, homerfile = fname, regionsize = "given", Ncpu = 2))
@@ -65,7 +65,7 @@ test_that("prepareHomer() works properly", {
 })
 
 test_that("parseHomerOutput() works properly", {
-    outfile <- system.file("extdata", "homer_output.txt.gz", package = "lisa")
+    outfile <- system.file("extdata", "homer_output.txt.gz", package = "monaLisa")
 
     res <- parseHomerOutput(c(outfile, outfile))
     expect_length(res, 4L)
@@ -80,7 +80,7 @@ test_that("runHomer() works properly", {
     genomedir <- "/tungstenfs/groups/gbioinfo/DB/genomes/mm10/"
 
     if (!is.na(homerbin) && file.exists(genomedir) && require("JASPAR2018")) { # only test at home
-        gr <- readRDS(system.file("extdata", "LMRsESNPmerged.gr.rds", package = "lisa"))
+        gr <- readRDS(system.file("extdata", "LMRsESNPmerged.gr.rds", package = "monaLisa"))
         gr <- gr[seqnames(gr) == "chr1"]
         gr <- c(gr[order(gr$deltaMeth, decreasing = TRUE)[1:200]],
                 gr[abs(gr$deltaMeth) < 0.1][1:200],
