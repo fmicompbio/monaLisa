@@ -35,7 +35,6 @@ NULL
 #'
 #'@seealso \code{\link[stabs]{glmnet.lasso}} and \code{\link[glmnet]{glmnet}}
 #'
-#'@author Dania Machlab
 #'@export
 glmnet.randomized_lasso <- function(x, y, q, weakness=1, type = c("conservative", "anticonservative"), ...) {
   if (is.data.frame(x)) {
@@ -115,73 +114,10 @@ glmnet.randomized_lasso <- function(x, y, q, weakness=1, type = c("conservative"
 #'B. Hofner, L. Boccuto, and M. Göker (2015), Controlling False Discoveries in High-Dimensional Situations: Boosting with Stability Selection, \emph{BMC Bioinformatics}, \strong{16} 144.
 #'
 #'
-#'@author Dania Machlab
 #'@export
 randomized_stabsel <- function(x=x, y=y, weakness=0.8, cutoff=0.8, PFER=2, ...) {
   stabs::stabsel(x = x, y = y, fitfun = glmnet.randomized_lasso, args.fitfun = list(weakness = weakness), cutoff = cutoff, PFER = PFER, ...)
 }
-
-
-
-
-#' #'@title TFBS Matrix
-#' #'
-#' #'@description This function takes in a \code{GRanges} that is the output of \code{findMotifHits} and returns a
-#' #'matrix contaiting the number of transcription factor bisnding sites (TFBS) per motif across a given set of genomic ranges.
-#' #'
-#' #'@param TFBS_gr the output of \code{findMotifHits} contaiting the TF binding locations across specified genomic regions.
-#' #'@param subject_gr a \code{GRanges} object showing the positions of the geominc regions that have been scanned for the TFs.
-#' #'This corresponds to the \code{GRanges} \code{subject} parameter used in the \code{findMotifHits} function.
-#' #'@param PWMs \code{PWMatrixList} or \code{PWMatrix} object of the used TFs. This corresponds to the \code{query}
-#' #'parameter used in the \code{findMotifHits} function.
-#' #'@param Ncpu number of CPUs to use (set to 1 by default).
-#' #'
-#' #'@return a matrix containing the number of binding sites each TF has across the genomic regions.
-#' #'
-#' #'@author Dania Machlab
-#' #'@export
-#' get_numberOfTFBS_perSeqName <- function(TFBS_gr, subject_gr, PWMs, Ncpu=1L) {
-#'
-#'   # TODO make sure PWM names and peak names are  unique
-#'   # motif names instead of gene?
-#'
-#'   ## checks
-#'   stopifnot(base::inherits(TFBS_gr, "GRanges"))
-#'   stopifnot(all(colnames(as.data.frame(TFBS_gr)) == c("seqnames", "start", "end", "width", "strand", "matchedSeq", "pwmname", "score")))
-#'   stopifnot(base::inherits(PWMs, what="PWMatrixList") | base::inherits(PWMs, what="PWMatrix"))
-#'   if (base::inherits(PWMs, what="PWMatrix")) {PWMs <- TFBSTools::PWMatrixList(PWMs)}
-#'   # if(!all(TFBS_gr$pwmname %in% sapply(PWMs, function(x){name(x)}))) {stop("PWMs missing motifs found in TFBS_gr")}
-#'
-#'   ## for each motif count number of TFBS per seqName
-#'   seqs <- as.character(seqnames(TFBS_gr))
-#'   TFs <- as.character(TFBS_gr$pwmname)
-#'   s <- split(TFs, seqs)
-#'   l <- lapply(s, function(x){table(x)})
-#'
-#'   ## output full matrix
-#'   if (is.null(names(subject_gr))) {
-#'     names(subject_gr) <- paste0("row_", seq(from = 1, to = length(subject_gr), by = 1))
-#'   }
-#'
-#'   ## rbind vectors
-#'   m <- do.call(rbind, parallel::mclapply(mc.cores = Ncpu, X = l, FUN = function(x) {
-#'     full_motif_vec <- numeric(length(PWMs))
-#'     names(full_motif_vec) <- sapply(PWMs, function(x){name(x)})
-#'     df <- as.data.frame(x)
-#'     motifs <- as.character(df$x)
-#'     full_motif_vec[motifs] <- df$Freq
-#'     full_motif_vec
-#'   }))
-#'
-#'   ## order to match subject_gr
-#'   subject_peaks <- names(subject_gr)[names(subject_gr) %in% rownames(m)] # remove peaks that have 0 TFBS in all columns
-#'   o <- match(subject_peaks, rownames(m))
-#'   m <- m[o, ]
-#'
-#'   ## return matrix
-#'   m
-#'
-#' }
 
 
 
