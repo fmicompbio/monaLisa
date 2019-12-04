@@ -4,9 +4,15 @@
 \alias{bin}
 \title{Bin elements of \code{x}.}
 \usage{
-bin(x, binmode = c("equalN", "equalWidth", "breaks"),
-  nElements = round(length(x)/5), nBins = NULL, minAbsX = NULL,
-  breaks = NULL, ...)
+bin(
+  x,
+  binmode = c("equalN", "equalWidth", "breaks"),
+  nElements = round(length(x)/5),
+  nBins = NULL,
+  minAbsX = NULL,
+  breaks = NULL,
+  ...
+)
 }
 \arguments{
 \item{x}{A numerical vector with the values used for binning.}

@@ -4,9 +4,15 @@
 \alias{motifSimilarity}
 \title{Calculate similarities between pairs of motifs.}
 \usage{
-motifSimilarity(x, y = NULL, method = c("R", "HOMER"),
-  homerfile = findHomer("compareMotifs.pl"), homerOutfile = NULL,
-  Ncpu = 1L, verbose = TRUE)
+motifSimilarity(
+  x,
+  y = NULL,
+  method = c("R", "HOMER"),
+  homerfile = findHomer("compareMotifs.pl"),
+  homerOutfile = NULL,
+  Ncpu = 1L,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{x}{Either a \code{\link[TFBSTools]{PFMatrixList}}, or a character

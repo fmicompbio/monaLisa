@@ -16,53 +16,125 @@
 \alias{findMotifHits,PWMatrixList,GRanges-method}
 \title{Find motif matches in sequences.}
 \usage{
-findMotifHits(query, subject, min.score, method = c("homer2",
-  "matchPWM"), homerfile = findHomer("homer2"), Ncpu = 1L,
-  genome = NULL)
+findMotifHits(
+  query,
+  subject,
+  min.score,
+  method = c("homer2", "matchPWM"),
+  homerfile = findHomer("homer2"),
+  Ncpu = 1L,
+  genome = NULL
+)
 
-\S4method{findMotifHits}{character,character}(query, subject, min.score,
-  method = c("homer2", "matchPWM"), homerfile = findHomer("homer2"),
-  Ncpu = 1L, genome = NULL)
+\S4method{findMotifHits}{character,character}(
+  query,
+  subject,
+  min.score,
+  method = c("homer2", "matchPWM"),
+  homerfile = findHomer("homer2"),
+  Ncpu = 1L,
+  genome = NULL
+)
 
-\S4method{findMotifHits}{character,DNAString}(query, subject, min.score,
-  method = c("homer2", "matchPWM"), homerfile = findHomer("homer2"),
-  Ncpu = 1L, genome = NULL)
+\S4method{findMotifHits}{character,DNAString}(
+  query,
+  subject,
+  min.score,
+  method = c("homer2", "matchPWM"),
+  homerfile = findHomer("homer2"),
+  Ncpu = 1L,
+  genome = NULL
+)
 
-\S4method{findMotifHits}{character,DNAStringSet}(query, subject, min.score,
-  method = c("homer2", "matchPWM"), homerfile = findHomer("homer2"),
-  Ncpu = 1L, genome = NULL)
+\S4method{findMotifHits}{character,DNAStringSet}(
+  query,
+  subject,
+  min.score,
+  method = c("homer2", "matchPWM"),
+  homerfile = findHomer("homer2"),
+  Ncpu = 1L,
+  genome = NULL
+)
 
-\S4method{findMotifHits}{PWMatrix,character}(query, subject, min.score,
-  method = c("homer2", "matchPWM"), homerfile = findHomer("homer2"),
-  Ncpu = 1L, genome = NULL)
+\S4method{findMotifHits}{PWMatrix,character}(
+  query,
+  subject,
+  min.score,
+  method = c("homer2", "matchPWM"),
+  homerfile = findHomer("homer2"),
+  Ncpu = 1L,
+  genome = NULL
+)
 
-\S4method{findMotifHits}{PWMatrix,DNAString}(query, subject, min.score,
-  method = c("homer2", "matchPWM"), homerfile = findHomer("homer2"),
-  Ncpu = 1L, genome = NULL)
+\S4method{findMotifHits}{PWMatrix,DNAString}(
+  query,
+  subject,
+  min.score,
+  method = c("homer2", "matchPWM"),
+  homerfile = findHomer("homer2"),
+  Ncpu = 1L,
+  genome = NULL
+)
 
-\S4method{findMotifHits}{PWMatrix,DNAStringSet}(query, subject, min.score,
-  method = c("homer2", "matchPWM"), homerfile = findHomer("homer2"),
-  Ncpu = 1L, genome = NULL)
+\S4method{findMotifHits}{PWMatrix,DNAStringSet}(
+  query,
+  subject,
+  min.score,
+  method = c("homer2", "matchPWM"),
+  homerfile = findHomer("homer2"),
+  Ncpu = 1L,
+  genome = NULL
+)
 
-\S4method{findMotifHits}{PWMatrixList,character}(query, subject, min.score,
-  method = c("homer2", "matchPWM"), homerfile = findHomer("homer2"),
-  Ncpu = 1L, genome = NULL)
+\S4method{findMotifHits}{PWMatrixList,character}(
+  query,
+  subject,
+  min.score,
+  method = c("homer2", "matchPWM"),
+  homerfile = findHomer("homer2"),
+  Ncpu = 1L,
+  genome = NULL
+)
 
-\S4method{findMotifHits}{PWMatrixList,DNAString}(query, subject, min.score,
-  method = c("homer2", "matchPWM"), homerfile = findHomer("homer2"),
-  Ncpu = 1L, genome = NULL)
+\S4method{findMotifHits}{PWMatrixList,DNAString}(
+  query,
+  subject,
+  min.score,
+  method = c("homer2", "matchPWM"),
+  homerfile = findHomer("homer2"),
+  Ncpu = 1L,
+  genome = NULL
+)
 
-\S4method{findMotifHits}{PWMatrixList,DNAStringSet}(query, subject,
-  min.score, method = c("homer2", "matchPWM"),
-  homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL)
+\S4method{findMotifHits}{PWMatrixList,DNAStringSet}(
+  query,
+  subject,
+  min.score,
+  method = c("homer2", "matchPWM"),
+  homerfile = findHomer("homer2"),
+  Ncpu = 1L,
+  genome = NULL
+)
 
-\S4method{findMotifHits}{PWMatrix,GRanges}(query, subject, min.score,
-  method = c("homer2", "matchPWM"), homerfile = findHomer("homer2"),
-  Ncpu = 1L, genome = NULL)
+\S4method{findMotifHits}{PWMatrix,GRanges}(
+  query,
+  subject,
+  min.score,
+  method = c("homer2", "matchPWM"),
+  homerfile = findHomer("homer2"),
+  Ncpu = 1L,
+  genome = NULL
+)
 
-\S4method{findMotifHits}{PWMatrixList,GRanges}(query, subject, min.score,
-  method = c("homer2", "matchPWM"), homerfile = findHomer("homer2"),
-  Ncpu = 1L, genome = NULL)
+\S4method{findMotifHits}{PWMatrixList,GRanges}(
+  query,
+  subject,
+  min.score,
+  method = c("homer2", "matchPWM"),
+  homerfile = findHomer("homer2"),
+  Ncpu = 1L,
+  genome = NULL
+)
 }
 \arguments{
 \item{query}{The motifs to search for, either a

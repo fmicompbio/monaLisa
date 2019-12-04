@@ -4,8 +4,7 @@
 \alias{seqLogoGrob}
 \title{Create a simple sequence logo grob.}
 \usage{
-seqLogoGrob(x, xmax = NULL, ymax = 2, xjust = c("left", "center",
-  "right"))
+seqLogoGrob(x, xmax = NULL, ymax = 2, xjust = c("left", "center", "right"))
 }
 \arguments{
 \item{x}{A \code{\link[TFBSTools]{PFMatrix}} object}

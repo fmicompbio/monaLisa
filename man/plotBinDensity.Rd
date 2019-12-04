@@ -4,8 +4,16 @@
 \alias{plotBinDensity}
 \title{Denstity plot of binned elements.}
 \usage{
-plotBinDensity(x, b, xlab = deparse(substitute(x)), ylab = "Density",
-  main = "", legend = "topright", legend.cex = 1, ...)
+plotBinDensity(
+  x,
+  b,
+  xlab = deparse(substitute(x)),
+  ylab = "Density",
+  main = "",
+  legend = "topright",
+  legend.cex = 1,
+  ...
+)
 }
 \arguments{
 \item{x}{A numerical vector with the values used for binning.}

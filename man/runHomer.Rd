@@ -4,8 +4,16 @@
 \alias{runHomer}
 \title{Prepare and run HOMER motif enrichment analysis.}
 \usage{
-runHomer(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(),
-  regionsize = "given", Ncpu = 2L)
+runHomer(
+  gr,
+  b,
+  genomedir,
+  outdir,
+  motifFile,
+  homerfile = findHomer(),
+  regionsize = "given",
+  Ncpu = 2L
+)
 }
 \arguments{
 \item{gr}{A \code{GRanges} object (or an object that can be coerced to one)

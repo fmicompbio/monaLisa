@@ -4,8 +4,13 @@
 \alias{plotSelectionProb}
 \title{Barplot Selection Probabilities}
 \usage{
-plotSelectionProb(stabs_object, ylim = c(0, 1.1), onlySelected = TRUE,
-  las = 2, ...)
+plotSelectionProb(
+  stabs_object,
+  ylim = c(0, 1.1),
+  onlySelected = TRUE,
+  las = 2,
+  ...
+)
 }
 \arguments{
 \item{stabs_object}{the \code{stabs} object resulting from stability selection.}
