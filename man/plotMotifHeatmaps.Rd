@@ -19,8 +19,12 @@ plotMotifHeatmaps(
   show_dendrogram = FALSE,
   show_motif_GC = FALSE,
   show_seqlogo = FALSE,
+<<<<<<< HEAD
   width.seqlogo = 1.5,
   use_raster = FALSE
+=======
+  width.seqlogo = 1.5
+>>>>>>> ran vignette rmd again
 )
 }
 \arguments{
