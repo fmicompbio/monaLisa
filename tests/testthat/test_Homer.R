@@ -4,6 +4,10 @@ test_that("findHomer() works properly", {
     res <- findHomer("I-do-not-exist")
     expect_true(is.na(res))
 
+    Sys.setenv(MONALISA_HOMER = "/I/also/dont/exist")
+    res <- findHomer()
+    expect_true(is.na(res))
+    
     res <- findHomer("se.rds", dirs = system.file("extdata", package = "monaLisa"))
     expect_true(file.exists(res))
 })

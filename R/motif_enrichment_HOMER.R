@@ -14,6 +14,9 @@ NULL
 #' @param dirs Directory names to look for \code{homerfile}. If \code{dirs=NULL},
 #'     all directories listed in the \code{PATH} environment variable will be
 #'     searched.
+#' 
+#' @details In addition to \code{dirs}, \code{findHomer} will also look in the
+#'     directory provided in the environment variable \code{MONALISA_HOMER}. 
 #'
 #' @return Absolute path to \code{homerfile}, or \code{NA} if none or several were found.
 #'
@@ -21,7 +24,11 @@ NULL
 findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
     if (is.null(dirs))
         dirs <- strsplit(x = Sys.getenv("PATH"), split = ":")[[1]]
-    res <- list.files(path = dirs, pattern = paste0("^",homerfile,"$"), full.names = TRUE)
+    if (!is.na(monalisa_homer <- Sys.getenv("MONALISA_HOMER")))
+        dirs <- c(strsplit(x = monalisa_homer, split = ":")[[1]], dirs)
+    dirs <- unique(dirs)
+    res <- list.files(path = dirs, pattern = paste0("^",homerfile,"$"),
+                      full.names = TRUE, recursive = FALSE)
     if (length(res) == 1) {
         return(tools::file_path_as_absolute(res))
     } else {
