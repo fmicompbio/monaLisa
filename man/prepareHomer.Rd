@@ -4,8 +4,16 @@
 \alias{prepareHomer}
 \title{Prepare input files for HOMER motif enrichment analysis.}
 \usage{
-prepareHomer(gr, b, genomedir, outdir, motifFile,
-  homerfile = findHomer(), regionsize = "given", Ncpu = 2)
+prepareHomer(
+  gr,
+  b,
+  genomedir,
+  outdir,
+  motifFile,
+  homerfile = findHomer(),
+  regionsize = "given",
+  Ncpu = 2
+)
 }
 \arguments{
 \item{gr}{A \code{GRanges} object (or an object that can be coerced to one)

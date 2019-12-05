@@ -4,8 +4,16 @@
 \alias{kmerEnrichments}
 \title{Run a k-mer enrichment analysis.}
 \usage{
-kmerEnrichments(x, b, genomepkg = NULL, kmerLen = 5, MMorder = 1,
-  pseudoCount = 1, Ncpu = 2L, verbose = TRUE)
+kmerEnrichments(
+  x,
+  b,
+  genomepkg = NULL,
+  kmerLen = 5,
+  MMorder = 1,
+  pseudoCount = 1,
+  Ncpu = 2L,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{x}{A \code{character} vector, \code{\link[Biostrings]{DNAStringSet}} or
