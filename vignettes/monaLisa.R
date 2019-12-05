@@ -238,6 +238,7 @@ peaks <- readRDS(peaks_path)
 
 library(ComplexHeatmap) # heatmap drawing
 library(circlize) # used for color specification
+library(JASPAR2018)
 
 # load processed data
 stabs <- readRDS(system.file("extdata", "stabs.rds", package = "monaLisa"))
@@ -258,6 +259,8 @@ sel_matrix <- predictor_matrix[, stabs$selected]
 sel_cor <- cor(sel_matrix, method = "pearson")
 
 # ... prepare sequence logos
+pfms <- getMatrixSet(JASPAR2018, list(matrixtype = "PFM", tax_group = "vertebrates")) # for seq-logos
+pwms <- toPWM(pfms) # for searching
 pfmsSel <- pfms[match(rownames(sel_cor), name(pfms))]
 maxwidth <- max(sapply(Matrix(pfmsSel), ncol))
 seqlogoGrobs <- lapply(pfmsSel, seqLogoGrob, xmax = maxwidth)
