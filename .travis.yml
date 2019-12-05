@@ -22,6 +22,7 @@ before_script:
   - wget http://homer.ucsd.edu/homer/configureHomer.pl
   - perl configureHomer.pl -install
   - export PATH=$PATH:$PWD/bin/
+  - export MONALISA_HOMER=$PWD/bin/
 
 before_install:
     - Rscript -e 'install.packages("remotes")'
