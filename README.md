@@ -50,6 +50,9 @@ resL <- runHomer(gr = atac.peaks, b = bins, genomedir = "/work/gbioinfo/DB/genom
 
 ```
 
+## Software status
+
+Travis CI (Linux): [![Travis CI build status](https://travis-ci.com/fmicompbio/monaLisa.svg?branch=master)](https://travis-ci.com/fmicompbio/monaLisa) | [![Codecov.io coverage status](https://codecov.io/github/fmicompbio/monaLisa/coverage.svg?branch=master)](https://codecov.io/github/fmicompbio/monaLisa)
 
 <!--
 ## Reference
