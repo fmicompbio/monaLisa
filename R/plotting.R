@@ -219,6 +219,8 @@ plotBinScatter <- function(x, y, b,
 #'     This will likely only make sense for a heatmap with a low number of motifs.
 #' @param width.seqlogo The width (in inches) for the longest sequence logo (shorter
 #'     logos are drawn to scale).
+#' @param use_raster \code{TRUE} or \code{FALSE} (default). Passed to \code{use_raster}
+#'     of \code{\link[ComplexHeatmap]{Heatmap}}.
 #'
 #' @details The heatmaps are plotted side-by-side and are created internally using
 #'     the \pkg{ComplexHeatmap} package.
@@ -248,7 +250,8 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
                                           "#F16913","#D94801","#A63603","#7F2704"),
                               maxEnr = NULL, maxSig = NULL, highlight = NULL, cluster = FALSE,
                               show_dendrogram = FALSE, show_motif_GC = FALSE,
-                              show_seqlogo = FALSE, width.seqlogo = 1.5) {
+                              show_seqlogo = FALSE, width.seqlogo = 1.5,
+                              use_raster = FALSE) {
 	stopifnot(exprs = {
 	    is(x, "SummarizedExperiment")
 	    all(assayNames(x) == c("p", "FDR", "enr", "log2enr"))
@@ -256,14 +259,25 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
 	    (!show_motif_GC || "motif.percentGC" %in% colnames(rowData(x)))
 	})
 	b <- metadata(x)$bins
-	stopifnot(ncol(x) == nlevels(b))
-	stopifnot(all(which.plots %in% c("p", "FDR", "enr", "log2enr")))
-	stopifnot(exprs = { is.numeric(width); length(width) == 1; width > 0 })
-	stopifnot(is.null(highlight) || (is.logical(highlight) && length(highlight) == nrow(x)))
-	stopifnot(exprs = { is.logical(show_dendrogram); length(show_dendrogram) == 1L })
-	stopifnot(exprs = { is.logical(show_motif_GC); length(show_motif_GC) == 1L })
-	stopifnot(exprs = { is.logical(show_seqlogo); length(show_seqlogo) == 1L })
-	stopifnot(exprs = { is.numeric(width.seqlogo); length(width.seqlogo) == 1; width.seqlogo > 0 })
+	stopifnot(exprs = {
+	    ncol(x) == nlevels(b)
+	    all(which.plots %in% c("p", "FDR", "enr", "log2enr"))
+	    is.numeric(width)
+	    length(width) == 1
+	    width > 0
+	    is.null(highlight) || (is.logical(highlight) && length(highlight) == nrow(x))
+	    is.logical(show_dendrogram)
+	    length(show_dendrogram) == 1L
+	    is.logical(show_motif_GC)
+	    length(show_motif_GC) == 1L
+	    is.logical(show_seqlogo)
+	    length(show_seqlogo) == 1L
+	    is.numeric(width.seqlogo)
+	    length(width.seqlogo) == 1
+	    width.seqlogo > 0
+	    is.logical(use_raster)
+	    length(use_raster) == 1
+	})
 	bincols <- attr(getColsByBin(b), "cols")
 	if (is.logical(cluster) && length(cluster) == 1 && cluster[1] == TRUE) {
 	    clres <- stats::hclust(stats::dist(SummarizedExperiment::assay(x, "enr")))
@@ -279,7 +293,7 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
 											   show_annotation_name = FALSE,
 											   which = "column", width = grid::unit(width,"inch"),
 											   annotation_height = grid::unit(width / 16, "inch"),
-											   show_legend=FALSE)
+											   show_legend = FALSE)
 	tmp <- matrix(if (!is.null(highlight)) as.character(highlight) else rep(NA, nrow(x)),
 								ncol = 1, dimnames = list(rownames(x), NULL))
 	hmSeqlogo <- NULL
@@ -314,7 +328,7 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
 	                                           cluster_rows = FALSE, cluster_columns = FALSE,
 	                                           show_row_names = FALSE, show_column_names = FALSE,
 	                                           show_heatmap_legend = TRUE, heatmap_legend_param = list(color_bar="continuous"),
-	                                           use_raster = TRUE)
+	                                           use_raster = use_raster)
 	    L <- c(L, list("percentGC" = hmPercentGC))
 	}
 	ret <- c(L, lapply(which.plots, function(w) {
@@ -336,7 +350,7 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
 		                              ##column_names_side = "bottom", column_names_max_height = grid::unit(1.5,"inch"),
 		                              top_annotation = hmBin,
 		                              show_heatmap_legend = TRUE, heatmap_legend_param = list(color_bar="continuous"),
-		                              use_raster = TRUE)
+		                              use_raster = use_raster)
 		hm
 	}))
 	names(ret)[seq(length(ret) - length(which.plots) + 1L, length(ret))] <- which.plots
