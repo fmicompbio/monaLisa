@@ -1,0 +1,23 @@
+# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+
+language: r
+r: bioc-devel
+
+warnings_are_errors: false
+cache: packages
+
+r_build_args: "--no-manual --no-resave-data"
+r_check_args: "--no-build-vignettes --no-manual --timings"
+
+notifications:
+  slack:
+    secure: jXSYR16GvV2NldVSMueYu/kkOlH31+6+U3z6rdgNCgkStDd9aNT56xP10Y/ajFmOxEYhRQ4/E43rvObYGUN1Bf09Yu7nhlfOfOwy7nb6cDcuY46W8evIUy+cMlATFZrO8MjECZ3T8a+Kz+7xnVWTCDvktquo8wDhlDrA4hiz7HrHezEoSdtVC2TeQiGIqBPZG3ko76c35QoHeeEurCyT32PjrIPBviYs+6hIeD+IH/bLd1x0d1yJ7sQKfRjY+t66v176dFPqtSEAwUyhLeQmksUjslxZqKet5S5pxt8dqKtWj4WWuC2mxySrevy1O8AN1/8ETjOWCQyJKA/qHt1nrFfDRcqJTpjWLeZQG3o/qcP2AZDtCP1pkNch2jyoyryaF486dwol3q+X/EIajo37s+0vDqKf41wDpDyF11fLQm1dlC5nXB5w0HKumBpWe2/16mHt/jYphIq5md4p/PXDr6EYwJei49n2EjY0bL8ODv70TXljGWSzW46+BI9XaROPeQTRmteDy/XeGuf4SlPXR0f8aeAtmnZn5yB5IyKb8a68aGelEYMF9dAo4nO/8TXQs7VCigBZVbBlnyVtGcpHP+o/VsfXBfcgT369U7G5ypc+l5l7agCVyN6ndgtPXlNUynSE5ahMS6xtkilDzwdwDKoPQmfAGSrhjA5hYrJMZRs=
+
+before_install:	
+    - Rscript -e 'install.packages("remotes")'
+
+r_packages:
+    - covr
+
+after_success:
+    - travis_wait 40 Rscript -e 'library(covr); codecov()'
