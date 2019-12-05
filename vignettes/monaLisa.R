@@ -167,72 +167,83 @@ response <- readRDS(response_path)
 peaks <- readRDS(peaks_path)
 
 
-## ----predictor----------------------------------------------------------------
+## ----predictor, eval=FALSE----------------------------------------------------
+#  
+#  library(JASPAR2018)
+#  library(TFBSTools)
+#  library("BSgenome.Mmusculus.UCSC.mm10")
+#  library(Biostrings)
+#  
+#  # Genome
+#  genome <- BSgenome.Mmusculus.UCSC.mm10
+#  
+#  # Get PWMs
+#  pfms <- getMatrixSet(JASPAR2018, list(matrixtype = "PFM", tax_group = "vertebrates")) # for seq-logos
+#  pwms <- toPWM(pfms) # for searching
+#  
+#  # Get TFBS on given GRanges
+#  homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
+#  if (!is.na(homerfile)) {
+#      # use homer2 if available
+#      hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "homer2",
+#                            homerfile = homerfile, genome = genome, Ncpu = 2)
+#  } else {
+#      # otherwise, use matchPWM
+#      hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "matchPWM",
+#                            genome = genome)
+#  }
+#  
+#  # Get predictor matrix
+#  predictor_matrix <- as.matrix(as.data.frame.matrix(table(seqnames(hits), as.character(hits$pwmname))))
+#  predictor_matrix[1:6, 1:6]
+#  
+#  # remove peaks that do not have any hits (also from the response vector)
+#  # and check all peaks in predictor_matrix are in same order as in the
+#  # peaks variable
+#  w <- names(peaks)[!(names(peaks)%in%rownames(predictor_matrix))]
+#  if(length(w)>0){
+#    peaks <- peaks[-w]
+#    response <- response[-w]
+#  }
+#  all(rownames(predictor_matrix)==names(peaks))
+#  all(rownames(predictor_matrix)==names(response))
+#  
+#  # Note that in this case all peaks have at least one TFBS for any of the TFs.
+#  # However, that may not always be the case. If a given set of peaks does
+#  # not appear in the hits variable one must be careful and remove the missing
+#  # peaks from the peaks variable before doing the GC content calculations below.
+#  
+#  # calculate GC and oeCpG content
+#  peakSeq <- BSgenome::getSeq(genome, peaks)
+#  fMono <- oligonucleotideFrequency(peakSeq, width = 1L, as.prob = TRUE)
+#  fDi <- oligonucleotideFrequency(peakSeq, width = 2L, as.prob = TRUE)
+#  percGC <- fMono[,"G"] + fMono[,"C"]
+#  oeCpG <- (fDi[,"CG"] + 0.01) / (fMono[,"G"] * fMono[,"C"] + 0.01)
+#  
+#  # add GC and oeCpG to predictor matrix
+#  predictor_matrix <- cbind(percGC, predictor_matrix)
+#  predictor_matrix <- cbind(oeCpG, predictor_matrix)
+#  predictor_matrix[1:6, 1:6]
+#  
+#  
 
-library(JASPAR2018)
-library(TFBSTools)
-library("BSgenome.Mmusculus.UCSC.mm10")
-library(Biostrings)
+## ----run_stability, eval=FALSE------------------------------------------------
+#  
+#  stabs <- randomized_stabsel(x = predictor_matrix, y = response,
+#                              weakness = 0.8, cutoff = 0.7, PFER = 2, mc.cores = 2)
+#  
+#  
 
-# Genome
-genome <- BSgenome.Mmusculus.UCSC.mm10
+## ----plot_stabSel_results-----------------------------------------------------
 
-# Get PWMs
-pfms <- getMatrixSet(JASPAR2018, list(matrixtype = "PFM", tax_group = "vertebrates")) # for seq-logos
-pwms <- toPWM(pfms) # for searching
-
-# Get TFBS on given GRanges
-homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
-if (!is.na(homerfile)) {
-    # use homer2 if available
-    hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "homer2",
-                          homerfile = homerfile, genome = genome, Ncpu = 2)
-} else {
-    # otherwise, use matchPWM
-    hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "matchPWM",
-                          genome = genome)
-}
-
-# Get predictor matrix
-predictor_matrix <- as.matrix(as.data.frame.matrix(table(seqnames(hits), as.character(hits$pwmname))))
-predictor_matrix[1:6, 1:6]
-
-# remove peaks that do not have any hits (also from the response vector) 
-# and check all peaks in predictor_matrix are in same order as in the 
-# peaks variable
-w <- names(peaks)[!(names(peaks)%in%rownames(predictor_matrix))]
-if(length(w)>0){
-  peaks <- peaks[-w]
-  response <- response[-w]
-}
-all(rownames(predictor_matrix)==names(peaks))
-all(rownames(predictor_matrix)==names(response))
-
-# Note that in this case all peaks have at least one TFBS for any of the TFs. 
-# However, that may not always be the case. If a given set of peaks does 
-# not appear in the hits variable one must be careful and remove the missing 
-# peaks from the peaks variable before doing the GC content calculations below.
-
-# calculate GC and oeCpG content
-peakSeq <- BSgenome::getSeq(genome, peaks)
-fMono <- oligonucleotideFrequency(peakSeq, width = 1L, as.prob = TRUE)
-fDi <- oligonucleotideFrequency(peakSeq, width = 2L, as.prob = TRUE)
-percGC <- fMono[,"G"] + fMono[,"C"]
-oeCpG <- (fDi[,"CG"] + 0.01) / (fMono[,"G"] * fMono[,"C"] + 0.01)
-
-# add GC and oeCpG to predictor matrix
-predictor_matrix <- cbind(percGC, predictor_matrix)
-predictor_matrix <- cbind(oeCpG, predictor_matrix)
-predictor_matrix[1:6, 1:6]
-
-
-
-## ----run_stability------------------------------------------------------------
 library(ComplexHeatmap) # heatmap drawing
 library(circlize) # used for color specification
 
-stabs <- randomized_stabsel(x = predictor_matrix, y = response,
-                            weakness = 0.8, cutoff = 0.7, PFER = 2, mc.cores = 2)
+# load processed data
+stabs <- readRDS(system.file("extdata", "stabs.rds", package = "monaLisa"))
+predictor_matrix <- readRDS(system.file("extdata", "stabs_predictor.rds", package = "monaLisa"))
+response <- readRDS(system.file("extdata", "stabs_response.rds", package = "monaLisa"))
+
 
 # plot stability paths ...
 plotStabilityPaths(stabs)
