@@ -25,20 +25,21 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-`monaLisa` makes use of her father [Homer](http://homer.ucsd.edu/homer/index.html)
+`monaLisa` is a collection of functions for working with biological sequences and motifs
+that represent the binding preferences of transcription factors or nucleic acid binding proteins.
+
+For example, `monaLisa` can make use of her father [Homer](http://homer.ucsd.edu/homer/index.html)
 to look for enriched motifs in sets of genomic regions, compared to all other regions.
 
 The motifs come from a collection of transcription factor binding site specificities,
-such as `JASPAR2018`.
-
-The regions could be for example promoters, non-promoters (distal regions) or accessible regions.
-
-The regions are grouped into bins according to a numerical value assigned to each
-bin, such as change of expression or accessibility.
+such as `JASPAR2018`. The regions could be for example promoters, non-promoters (distal regions)
+or accessible regions. The regions are grouped into bins according to a numerical value
+assigned to each bin, such as change of expression or accessibility.
 
 `monaLisa` can also be used to look for motifs in sequences.
 
-Finally, `monaLisa` can can be used to predict what transcription factors are likely to explain observed changes in chromatin accessibility between two conditions.
+Finally, `monaLisa` can can be used to predict what transcription factors are likely
+to explain observed changes in chromatin accessibility between two conditions.
 
 
 
@@ -176,7 +177,9 @@ homerfile <- findHomer(dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
 ## Run motif enrichment analysis
 Finally, we run the analysis. Again, you may have to adjust the `genomedir`.
 
-This step may take a while, for this reason you do not need to run it, but can just load the results as shown below:  
+This step requires that you have Homer installed on your system. Also, it may
+take a while, for this reason you do not need to run it, but can just load the
+results as shown below:  
 ```{r runhomer, eval=FALSE}
 outdir <- tempfile(fileext = ".output")
 se <- runHomer(gr = lmrsel, b = bins, genomedir = "/work/gbioinfo/DB/genomes/mm9",
@@ -277,7 +280,13 @@ res
 
 # ... or using method = "homer2"
 homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
-res2 <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0, method = "homer2", homerfile = homerfile)
+if (!is.na(homerfile)) {
+    # use homer2 if available
+    res2 <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0, method = "homer2", homerfile = homerfile)
+} else {
+    # otherwise, use matchPWM
+    res2 <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0, method = "matchPWM")
+}
 res2
 
 summary(res %in% res2)
@@ -339,8 +348,15 @@ pwms <- toPWM(pfms) # for searching
 
 # Get TFBS on given GRanges
 homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
-hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "homer2",
-                      homerfile = homerfile, genome = genome, Ncpu = 2)
+if (!is.na(homerfile)) {
+    # use homer2 if available
+    hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "homer2",
+                          homerfile = homerfile, genome = genome, Ncpu = 2)
+} else {
+    # otherwise, use matchPWM
+    hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "matchPWM",
+                          genome = genome)
+}
 
 # Get predictor matrix
 predictor_matrix <- as.matrix(as.data.frame.matrix(table(seqnames(hits), as.character(hits$pwmname))))

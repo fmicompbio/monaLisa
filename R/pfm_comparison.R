@@ -206,7 +206,7 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
     } else if (method == "HOMER") {
         ## pre-flight checks for "HOMER"
         stopifnot(exprs = { is.character(x); length(x) == 1L; file.exists(x) })
-        stopifnot(exprs = { is.character(homerfile); length(homerfile) == 1L; file.exists(homerfile) })
+        stopifnot(exprs = { !is.na(homerfile); is.character(homerfile); length(homerfile) == 1L; file.exists(homerfile) })
         if (is.null(homerOutfile)) {
             homerOutfile <- tempfile(fileext = ".simmat")
         }
