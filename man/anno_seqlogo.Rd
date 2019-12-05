@@ -4,8 +4,14 @@
 \alias{anno_seqlogo}
 \title{Sequence logo annotation}
 \usage{
-anno_seqlogo(grobL, which = c("column", "row"), space = unit(0.5,
-  "mm"), width = NULL, height = NULL, gp = gpar(fill = NA, col = NA))
+anno_seqlogo(
+  grobL,
+  which = c("column", "row"),
+  space = unit(0.5, "mm"),
+  width = NULL,
+  height = NULL,
+  gp = gpar(fill = NA, col = NA)
+)
 }
 \arguments{
 \item{grobL}{A \code{list} of sequence logo grobs, typically created using

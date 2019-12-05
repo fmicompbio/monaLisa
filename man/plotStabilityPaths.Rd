@@ -4,8 +4,14 @@
 \alias{plotStabilityPaths}
 \title{Plot Stability Paths}
 \usage{
-plotStabilityPaths(stabs_object, cols = NULL, lwd = 1, lty = 1,
-  ylim = c(0, 1.1), ...)
+plotStabilityPaths(
+  stabs_object,
+  cols = NULL,
+  lwd = 1,
+  lty = 1,
+  ylim = c(0, 1.1),
+  ...
+)
 }
 \arguments{
 \item{stabs_object}{the \code{stabs} object resulting from stability selection.}

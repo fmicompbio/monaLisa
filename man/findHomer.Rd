@@ -19,3 +19,7 @@ Absolute path to \code{homerfile}, or \code{NA} if none or several were found.
 \description{
 Find absolute path to HOMER script file.
 }
+\details{
+In addition to \code{dirs}, \code{findHomer} will also look in the
+    directory provided in the environment variable \code{MONALISA_HOMER}.
+}

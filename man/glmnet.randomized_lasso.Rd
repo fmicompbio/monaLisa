@@ -4,8 +4,14 @@
 \alias{glmnet.randomized_lasso}
 \title{Randomized Lasso}
 \usage{
-glmnet.randomized_lasso(x, y, q, weakness = 1, type = c("conservative",
-  "anticonservative"), ...)
+glmnet.randomized_lasso(
+  x,
+  y,
+  q,
+  weakness = 1,
+  type = c("conservative", "anticonservative"),
+  ...
+)
 }
 \arguments{
 \item{x}{the predictor matrix.}

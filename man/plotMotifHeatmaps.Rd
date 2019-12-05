@@ -4,14 +4,24 @@
 \alias{plotMotifHeatmaps}
 \title{Heatmap of motif enrichments.}
 \usage{
-plotMotifHeatmaps(x, which.plots = c("p", "enr", "FDR", "log2enr"),
-  width = 4, col.enr = c("#053061", "#2166AC", "#4393C3", "#92C5DE",
-  "#D1E5F0", "#F7F7F7", "#FDDBC7", "#F4A582", "#D6604D", "#B2182B",
-  "#67001F"), col.sig = c("#FFF5EB", "#FEE6CE", "#FDD0A2", "#FDAE6B",
-  "#FD8D3C", "#F16913", "#D94801", "#A63603", "#7F2704"), maxEnr = NULL,
-  maxSig = NULL, highlight = NULL, cluster = FALSE,
-  show_dendrogram = FALSE, show_motif_GC = FALSE,
-  show_seqlogo = FALSE, width.seqlogo = 1.5)
+plotMotifHeatmaps(
+  x,
+  which.plots = c("p", "enr", "FDR", "log2enr"),
+  width = 4,
+  col.enr = c("#053061", "#2166AC", "#4393C3", "#92C5DE", "#D1E5F0", "#F7F7F7",
+    "#FDDBC7", "#F4A582", "#D6604D", "#B2182B", "#67001F"),
+  col.sig = c("#FFF5EB", "#FEE6CE", "#FDD0A2", "#FDAE6B", "#FD8D3C", "#F16913",
+    "#D94801", "#A63603", "#7F2704"),
+  maxEnr = NULL,
+  maxSig = NULL,
+  highlight = NULL,
+  cluster = FALSE,
+  show_dendrogram = FALSE,
+  show_motif_GC = FALSE,
+  show_seqlogo = FALSE,
+  width.seqlogo = 1.5,
+  use_raster = FALSE
+)
 }
 \arguments{
 \item{x}{A \code{\link[SummarizedExperiment]{SummarizedExperiment}} with numerical matrices
@@ -50,6 +60,9 @@ This will likely only make sense for a heatmap with a low number of motifs.}
 
 \item{width.seqlogo}{The width (in inches) for the longest sequence logo (shorter
 logos are drawn to scale).}
+
+\item{use_raster}{\code{TRUE} or \code{FALSE} (default). Passed to \code{use_raster}
+of \code{\link[ComplexHeatmap]{Heatmap}}.}
 }
 \value{
 A list of \code{ComplexHeatmap::Heatmap} objects.

@@ -4,8 +4,12 @@
 \alias{dumpJaspar}
 \title{Dump Jaspar motifs into a HOMER motif file.}
 \usage{
-dumpJaspar(filename, pkg = "JASPAR2018", opts = list(tax_group =
-  "vertebrates"), relScoreCutoff = 0.8)
+dumpJaspar(
+  filename,
+  pkg = "JASPAR2018",
+  opts = list(tax_group = "vertebrates"),
+  relScoreCutoff = 0.8
+)
 }
 \arguments{
 \item{filename}{Name of the output file to be created.}

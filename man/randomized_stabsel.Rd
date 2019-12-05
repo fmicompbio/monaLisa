@@ -4,8 +4,7 @@
 \alias{randomized_stabsel}
 \title{Randomized Lasso Stability Selection}
 \usage{
-randomized_stabsel(x = x, y = y, weakness = 0.8, cutoff = 0.8,
-  PFER = 2, ...)
+randomized_stabsel(x = x, y = y, weakness = 0.8, cutoff = 0.8, PFER = 2, ...)
 }
 \arguments{
 \item{x}{the predictor matrix.}
