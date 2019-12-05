@@ -19,7 +19,12 @@ plotMotifHeatmaps(
   show_dendrogram = FALSE,
   show_motif_GC = FALSE,
   show_seqlogo = FALSE,
+<<<<<<< HEAD
   width.seqlogo = 1.5
+=======
+  width.seqlogo = 1.5,
+  use_raster = FALSE
+>>>>>>> update docs
 )
 }
 \arguments{
@@ -59,6 +64,9 @@ This will likely only make sense for a heatmap with a low number of motifs.}
 
 \item{width.seqlogo}{The width (in inches) for the longest sequence logo (shorter
 logos are drawn to scale).}
+
+\item{use_raster}{\code{TRUE} or \code{FALSE} (default). Passed to \code{use_raster}
+of \code{\link[ComplexHeatmap]{Heatmap}}.}
 }
 \value{
 A list of \code{ComplexHeatmap::Heatmap} objects.
