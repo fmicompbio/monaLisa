@@ -1,4 +1,4 @@
-## ----setup, include = FALSE------------------------------------------------
+## ----setup, include = FALSE---------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -8,7 +8,7 @@ knitr::opts_chunk$set(
   fig.align = "center"
 )
 
-## ---- quick, eval=FALSE----------------------------------------------------
+## ---- quick, eval=FALSE-------------------------------------------------------
 #  # load package
 #  library(monaLisa)
 #  
@@ -29,48 +29,48 @@ knitr::opts_chunk$set(
 #                 regionsize = "given", Ncpu = 4L)
 #  
 
-## ----loadlib, message=FALSE------------------------------------------------
+## ----loadlib, message=FALSE---------------------------------------------------
 library(GenomicRanges)
 library(SummarizedExperiment)
 library(monaLisa)
 
-## ----loadLMRs--------------------------------------------------------------
+## ----loadLMRs-----------------------------------------------------------------
 lmrfile <- system.file("extdata", "LMRsESNPmerged.gr.rds", package = "monaLisa")
 lmr <- readRDS(lmrfile)
 lmr
 
-## ----deltameth-------------------------------------------------------------
+## ----deltameth----------------------------------------------------------------
 hist(lmr$deltaMeth, 100, col = "gray", main = "",
      xlab = "Change of methylation (NP - ES)", ylab = "Number of LMRs")
 
-## ----lmrsel----------------------------------------------------------------
+## ----lmrsel-------------------------------------------------------------------
 set.seed(1)
 lmrsel <- lmr[ sample(x = length(lmr), size = 10000, replace = FALSE) ]
 
-## ----binlmrs---------------------------------------------------------------
+## ----binlmrs------------------------------------------------------------------
 bins <- bin(x = lmrsel$deltaMeth, binmode = "equalN", nElement = 800, minAbsX = 0.3)
 table(bins)
 
-## ----plotbins--------------------------------------------------------------
+## ----plotbins-----------------------------------------------------------------
 plotBinDensity(lmrsel$deltaMeth, bins, legend = "topleft")
 
-## ----dumpjaspar------------------------------------------------------------
+## ----dumpjaspar---------------------------------------------------------------
 motiffile <- tempfile(fileext = ".motif")
 dumpJaspar(motiffile, pkg = "JASPAR2018")
 
-## ----homerscript-----------------------------------------------------------
+## ----homerscript--------------------------------------------------------------
 homerfile <- findHomer(dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
 
-## ----runhomer, eval=FALSE--------------------------------------------------
+## ----runhomer, eval=FALSE-----------------------------------------------------
 #  outdir <- tempfile(fileext = ".output")
 #  se <- runHomer(gr = lmrsel, b = bins, genomedir = "/work/gbioinfo/DB/genomes/mm9",
 #                 outdir = outdir, motifFile = motiffile, homerfile = homerfile,
 #                 regionsize = "given", Ncpu = 20L)
 
-## ----gethomerresults-------------------------------------------------------
+## ----gethomerresults----------------------------------------------------------
 se <- readRDS(system.file("extdata", "se.rds", package = "monaLisa"))
 
-## ----summarizedexperiment--------------------------------------------------
+## ----summarizedexperiment-----------------------------------------------------
 # summary
 se
 dim(se) # motifs-by-bins
@@ -87,7 +87,7 @@ head(colnames(se))
 assayNames(se)
 assay(se, "log2enr")[1:5, 1:3]
 
-## ----plottfs---------------------------------------------------------------
+## ----plottfs------------------------------------------------------------------
 # select strongly enriched TFs
 sel <- apply(assay(se, "log2enr"), 1, function(x) max(abs(x))) > 1.0
 sum(sel)
@@ -98,16 +98,16 @@ rownames(seSel) <- sub("\\_.*$","",rownames(seSel))
 plotMotifHeatmaps(x = seSel, which.plots = c("log2enr","FDR"), width = 2.0,
                   cluster = TRUE, maxEnr = 2, maxSig = 10, show_motif_GC = TRUE)
 
-## ----wmclustering, eval=FALSE----------------------------------------------
+## ----wmclustering, eval=FALSE-------------------------------------------------
 #  SimMat <- motifSimilarity(rowData(se)$motif.pfm, Ncpu = 20L)
 
-## ----getclusteringresults--------------------------------------------------
+## ----getclusteringresults-----------------------------------------------------
 SimMat <- readRDS(system.file("extdata", "SimMat.rds", package = "monaLisa"))
 
-## ----checkmatrixorder------------------------------------------------------
+## ----checkmatrixorder---------------------------------------------------------
 all(rownames(SimMat) == rownames(se))
 
-## ----plottfsclustered------------------------------------------------------
+## ----plottfsclustered---------------------------------------------------------
 # create hclust object, similarity defined by 1 - Pearson correlation
 hcl <- hclust(as.dist(1 - SimMat[sel, sel]), method="average")
 plotMotifHeatmaps(x = seSel, which.plots = c("log2enr","FDR"), width = 1.2,
@@ -115,7 +115,7 @@ plotMotifHeatmaps(x = seSel, which.plots = c("log2enr","FDR"), width = 1.2,
                   show_dendrogram=TRUE, show_seqlogo = TRUE,
                   width.seqlogo = 1.2)
 
-## ----findMotifs------------------------------------------------------------
+## ----findMotifs---------------------------------------------------------------
 # get sequences of promoters as a DNAStringSet
 # (could also be a single DNAString, or the name of a fasta file)
 library(TxDb.Hsapiens.UCSC.hg19.knownGene)
@@ -138,7 +138,13 @@ res
 
 # ... or using method = "homer2"
 homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
-res2 <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0, method = "homer2", homerfile = homerfile)
+if (!is.na(homerfile)) {
+    # use homer2 if available
+    res2 <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0, method = "homer2", homerfile = homerfile)
+} else {
+    # otherwise, use matchPWM
+    res2 <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0, method = "matchPWM")
+}
 res2
 
 summary(res %in% res2)
@@ -148,7 +154,7 @@ summary(res %in% res2)
 m <- table(seqnames(res), as.character(res$pwmname))
 m
 
-## ----load_data-------------------------------------------------------------
+## ----load_data----------------------------------------------------------------
 
 library(monaLisa)
 
@@ -161,7 +167,7 @@ response <- readRDS(response_path)
 peaks <- readRDS(peaks_path)
 
 
-## ----predictor-------------------------------------------------------------
+## ----predictor----------------------------------------------------------------
 
 library(JASPAR2018)
 library(TFBSTools)
@@ -177,8 +183,15 @@ pwms <- toPWM(pfms) # for searching
 
 # Get TFBS on given GRanges
 homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
-hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "homer2",
-                      homerfile = homerfile, genome = genome, Ncpu = 2)
+if (!is.na(homerfile)) {
+    # use homer2 if available
+    hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "homer2",
+                          homerfile = homerfile, genome = genome, Ncpu = 2)
+} else {
+    # otherwise, use matchPWM
+    hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "matchPWM",
+                          genome = genome)
+}
 
 # Get predictor matrix
 predictor_matrix <- as.matrix(as.data.frame.matrix(table(seqnames(hits), as.character(hits$pwmname))))
@@ -214,7 +227,7 @@ predictor_matrix[1:6, 1:6]
 
 
 
-## ----run_stability---------------------------------------------------------
+## ----run_stability------------------------------------------------------------
 library(ComplexHeatmap) # heatmap drawing
 library(circlize) # used for color specification
 
@@ -247,6 +260,6 @@ Heatmap(matrix = sel_cor, name = "Pear. Cor.",
         right_annotation = hmSeqlogo)
 
 
-## ---- session--------------------------------------------------------------
+## ---- session-----------------------------------------------------------------
 sessionInfo(package = "monaLisa")
 
