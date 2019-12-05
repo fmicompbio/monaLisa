@@ -3,6 +3,11 @@
 language: r
 r: bioc-devel
 
+addons:
+  apt:
+    packages:
+    - libgsl0-dev
+
 warnings_are_errors: false
 cache: packages
 
