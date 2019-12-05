@@ -337,7 +337,7 @@ parseHomerOutput <- function(infiles) {
   # case 2: at least one file exists, so we check HOMER ran correctly and that the number of output files matches the number of bins
 
       # get motif names from motifFile
-      lns <- readLines(motiffile)
+      lns <- readLines(motifFile)
       motifs_motifFile <- unlist(lapply(strsplit(lns[grep("^>", lns)], "\t"), "[", 2))
 
       # get motif names from resultsfile
