@@ -467,9 +467,15 @@ plotSelectionProb <- function(stabs_object, ylim = c(0,1.1), onlySelected = TRUE
 plotMotifDirectionality <- function(stabs_obj = NULL, response = NULL, predictor_matrix = NULL, sel_color="cadetblue", min_sel_prob=0.4, cor_method="pearson", ...) {
   
   # checks
+  # ... NULL checks
   stopifnot(!is.null(stabs_obj))
+  stopifnot(!is.null(response))
+  stopifnot(!is.null(predictor_matrix))
+  # ... class checks
   stopifnot(class(stabs_obj)=="stabsel")
+  stopifnot(class(response)=="numeric")
   stopifnot(class(predictor_matrix)=="matrix")
+  # ... compatibility checks
   stopifnot(length(response)==nrow(predictor_matrix))
   stopifnot(all(rownames(stabs_obj$phat)==colnames(predictor_matrix)))
   
@@ -477,8 +483,11 @@ plotMotifDirectionality <- function(stabs_obj = NULL, response = NULL, predictor
   cor <- as.vector(stats::cor(x = response, y = predictor_matrix, method = cor_method))
   cols <- rep("grey", ncol(predictor_matrix))
   cols[stabs_obj$selected] <- sel_color
-  tf_names <- colnames(predictor_matrix)
-  
+  if(!is.null(colnames(predictor_matrix))) {
+    tf_names <- colnames(predictor_matrix)
+  } else {
+    tf_names <- paste0("pred", 1:ncol(predictor_matrix))
+  }
   # probabilities with directionality
   probs <- stabs_obj$phat[, ncol(stabs_obj$phat)]
   probs <- probs*sign(cor)
@@ -497,11 +506,16 @@ plotMotifDirectionality <- function(stabs_obj = NULL, response = NULL, predictor
   up <- probs>0
   
   # plot
-  bar <- graphics::barplot(probs, col = cols, border = NA, ylab = "Selection probability x sign(pearson cor to response)", names.arg = NA, ylim = (range(probs) + c(-abs(0.3*range(probs)[1]), +abs(0.5*range(probs)[2]))), ...)
-  legend("bottomleft", bty = "n", lty = 1, legend = c("selected", "not selected"), col = c(sel_color, "grey"))
-  text(x = bar[up], y = probs[up], labels = tf_names[up], col = cols[up], xpd = TRUE, srt=90, adj = 0)
-  text(x = bar[!up], y = probs[!up], labels = tf_names[!up], col = cols[!up], xpd = TRUE, srt=90, adj = 1)
-  
+  bar <- graphics::barplot(probs, col = cols, border = NA, ylab = "Sel Prob * sign(cor to response)", names.arg = NA, 
+                           ylim = c(min(0, range(probs)[1]-abs(0.3*range(probs)[1])), max(1, range(probs[2]+abs(0.3*range(probs)[2])))), ...)
+  legend("topright", bty = "n", lty = 1, legend = c("selected", "not selected"), col = c(sel_color, "grey"))
+  if(!(sum(up)==0)&!isEmpty(probs)){
+        text(x = bar[up], y = probs[up], labels = tf_names[up], col = cols[up], xpd = TRUE, srt=90, adj = 0)
+      if(!(sum(!up)==0)){
+        text(x = bar[!up], y = probs[!up], labels = tf_names[!up], col = cols[!up], xpd = TRUE, srt=90, adj = 1)
+      }
+  }
+  invisible(TRUE)
   
 }
 
