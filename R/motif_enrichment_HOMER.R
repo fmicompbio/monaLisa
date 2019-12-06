@@ -321,6 +321,7 @@ parseHomerOutput <- function(infiles) {
 
 # internal function:  Check if all the HOMER output files already exist and if the run was successful.
 # - needs the motifFile and outdir inputs to runHomer.
+#' @importFrom utils read.table
 .checkHomerRun <- function(motifFile, outdir, nbins){
 
   # Checks
