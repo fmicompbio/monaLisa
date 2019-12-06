@@ -1,6 +1,7 @@
 # compare two PFMs of any length (padd left/right with background positions)
 # score := correlation of single base frequencies of aligned and padded matrices
 # (internal function used by motifSimilarity)
+#' @importFrom stats cor
 compareMotifPair <- function(m1, m2) {
     # stopifnot(is.matrix(m1) && is.matrix(m2) &&
     #               nrow(m1) == 4L && nrow(m2) == 4L &&
