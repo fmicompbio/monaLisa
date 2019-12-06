@@ -124,3 +124,21 @@ test_that("plotMotifDirectionality() runs", {
     unlink(tf)
 })
 
+
+test_that("plotMotifDirectionality() runs", {
+    tf <- tempfile(fileext = ".pdf")
+    
+    X2 <- X
+    colnames(X2) <- paste0("pred", 1:ncol(X2))
+    
+    pdf(file = tf)
+    
+    expect_error(plotMotifDirectionality("error"))
+    expect_error(plotMotifDirectionality(stabs_obj = ss, response = Y, predictor_matrix = NULL))
+    expect_true(plotMotifDirectionality(stabs_obj = ss, response = Y, predictor_matrix = X))
+    expect_true(plotMotifDirectionality(stabs_obj = ss, response = Y, predictor_matrix = X2))
+    
+    dev.off()
+    unlink(tf)
+})
+
