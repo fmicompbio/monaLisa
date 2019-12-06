@@ -1,15 +1,32 @@
 context("Homer")
 
 test_that("findHomer() works properly", {
+    # store existing value
+    orig <- Sys.getenv("MONALISA_HOMER", unset = NA)
+    if (!is.na(orig))
+        Sys.unsetenv("MONALISA_HOMER")
+    
+    # test non-existing
     res <- findHomer("I-do-not-exist")
     expect_true(is.na(res))
 
     Sys.setenv(MONALISA_HOMER = "/I/also/dont/exist")
     res <- findHomer()
     expect_true(is.na(res))
+    Sys.unsetenv("MONALISA_HOMER")
     
+    # test existing
     res <- findHomer("se.rds", dirs = system.file("extdata", package = "monaLisa"))
     expect_true(file.exists(res))
+    
+    Sys.setenv(MONALISA_HOMER = system.file("extdata", package = "monaLisa"))
+    res <- findHomer("se.rds")
+    expect_true(file.exists(res))
+    Sys.unsetenv("MONALISA_HOMER")
+    
+    # restore original value
+    if (!is.na(orig))
+        Sys.setenv(MONALISA_HOMER = orig)
 })
 
 test_that("dumpJaspar() works properly", {
