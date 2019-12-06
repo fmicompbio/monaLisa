@@ -24,7 +24,7 @@ before_script:
   - perl configureHomer.pl -install
   - export PATH=$PATH:$PWD/bin/
   - export MONALISA_HOMER=$PWD/bin/
-  - popd
+  - popd && echo "^homer$" >> .Rbuildignore
 
 before_install:
     - Rscript -e 'install.packages("remotes")'
