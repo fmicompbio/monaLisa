@@ -61,10 +61,10 @@ test_that("glmnet.randomized_lasso() works properly", {
   # outputs differ depending on R version due to random number generator with 'sample' function (check RNGkind) --> different as of R 3.6.0
   Rmajor <- as.numeric(R.version$major)
   Rminor <- as.numeric(R.version$minor)
-  if (Rmajor>=3 & Rminor>=6) {
-    expect_true(sum(rl$selected)==11)
-  } else {
+  if (Rmajor == 3 & Rminor == 5) { # we are supporting R >= 3.5.0
     expect_true(sum(rl$selected)==12)
+  } else {
+    expect_true(sum(rl$selected)==11)
   }
 
 
