@@ -111,7 +111,7 @@ test_that("plotMotifDirectionality() runs", {
     tf <- tempfile(fileext = ".pdf")
     
     X2 <- X
-    colnames(X2) <- rep("pred", 1:ncol(X2))
+    colnames(X2) <- paste0("pred", 1:ncol(X2))
     
     pdf(file = tf)
     
