@@ -497,7 +497,7 @@ plotMotifDirectionality <- function(stabs_obj = NULL, response = NULL, predictor
   up <- probs>0
   
   # plot
-  graphics::bar <- barplot(probs, col = cols, border = NA, ylab = "Selection probability x sign(pearson cor to response)", names.arg = NA, ylim = (range(probs) + c(-abs(0.3*range(probs)[1]), +abs(0.5*range(probs)[2]))), ...)
+  bar <- graphics::barplot(probs, col = cols, border = NA, ylab = "Selection probability x sign(pearson cor to response)", names.arg = NA, ylim = (range(probs) + c(-abs(0.3*range(probs)[1]), +abs(0.5*range(probs)[2]))), ...)
   legend("bottomleft", bty = "n", lty = 1, legend = c("selected", "not selected"), col = c(sel_color, "grey"))
   text(x = bar[up], y = probs[up], labels = tf_names[up], col = cols[up], xpd = TRUE, srt=90, adj = 0)
   text(x = bar[!up], y = probs[!up], labels = tf_names[!up], col = cols[!up], xpd = TRUE, srt=90, adj = 1)
