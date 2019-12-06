@@ -167,7 +167,6 @@ response <- readRDS(response_path)
 peaks <- readRDS(peaks_path)
 
 
-
 ## ----predictor, eval=FALSE----------------------------------------------------
 #  
 #  library(JASPAR2018)
@@ -254,6 +253,10 @@ plotStabilityPaths(stabs)
 par(mfrow = c(1,1), mar = c(5,4,4,2) + 3)
 plotSelectionProb(stabs)
 
+# ... and the directionality of the motifs with respect to the response vector
+par(mfrow = c(1,1), mar = c(5,4,4,2) + 3)
+plotMotifDirectionality(stabs_obj=stabs, response=response, predictor_matrix=predictor_matrix)
+
 # plot correlation on TFBS matrix of selected TFs
 # ... select predictors for selected TFs and calculate correlation
 sel_matrix <- predictor_matrix[, stabs$selected]
@@ -277,3 +280,4 @@ Heatmap(matrix = sel_cor, name = "Pear. Cor.",
 
 ## ---- session-----------------------------------------------------------------
 sessionInfo(package = "monaLisa")
+
