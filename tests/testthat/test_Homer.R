@@ -11,7 +11,7 @@ test_that("findHomer() works properly", {
     expect_true(is.na(res))
 
     Sys.setenv(MONALISA_HOMER = "/I/also/dont/exist")
-    res <- findHomer()
+    res <- findHomer(dirs = ".")
     expect_true(is.na(res))
     Sys.unsetenv("MONALISA_HOMER")
     
