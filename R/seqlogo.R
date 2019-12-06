@@ -131,7 +131,7 @@ pfm2ic <- function (pfm) {
 #' @return A polygon grob.
 #'
 #' @examples
-#' if (require(JASPAR2018) && require(TFBSTools)) {
+#' if (require(JASPAR2018) && require(TFBSTools) && require(gridExtra)) {
 #'     pfm1 <- getMatrixByID(JASPAR2018, "MA0139")
 #'     pfm2 <- getMatrixByID(JASPAR2018, "MA0531")
 #'
