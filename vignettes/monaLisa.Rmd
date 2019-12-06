@@ -332,7 +332,11 @@ The `findMotifHits` function can be used to get the predicted binding sites of e
 which in our case is the ATAC-seq peaks. A predictor matrix which contains the number of TFBS each TF has across the given set of peaks is subsequently generated. Note that peaks that have 0 TFBS with all TFs will not be present in the resulting matrix. One can also make use of phylogenetic information of TFs and incorporate that in the predictor matrix. With ATAC-seq, we didn't want to restrict ourselves to conserved motif sequences. One can also add any additional property of the genomic regions in the response vector to compete against the TFs for selection. We added GC content and the ratio of observed-over-expected CpG (oeCpG) content.
 
 
-```{r predictor}
+\ 
+The code below takes some time to run, so the result of stability selection in the form of a 'stabsel' object can be loaded.
+
+
+```{r predictor, eval=FALSE}
 
 library(JASPAR2018)
 library(TFBSTools)
@@ -399,13 +403,27 @@ predictor_matrix[1:6, 1:6]
 We can now run randomized lasso stability selection to select TFs that are likely to explain the log-fold changes in accessibility (response vector). We can appreciate that some selected TFs are correlated to each other and were chosen toegther to explain the observed changes in accessibility.
 
 
-
-```{r run_stability}
-library(ComplexHeatmap) # heatmap drawing
-library(circlize) # used for color specification
+```{r run_stability, eval=FALSE}
 
 stabs <- randomized_stabsel(x = predictor_matrix, y = response,
                             weakness = 0.8, cutoff = 0.7, PFER = 2, mc.cores = 2)
+
+
+```
+
+
+
+```{r plot_stabSel_results}
+
+library(ComplexHeatmap) # heatmap drawing
+library(circlize) # used for color specification
+library(JASPAR2018)
+
+# load processed data
+stabs <- readRDS(system.file("extdata", "stabs.rds", package = "monaLisa"))
+predictor_matrix <- readRDS(system.file("extdata", "stabs_predictor.rds", package = "monaLisa"))
+response <- readRDS(system.file("extdata", "stabs_response.rds", package = "monaLisa"))
+
 
 # plot stability paths ...
 plotStabilityPaths(stabs)
@@ -420,6 +438,8 @@ sel_matrix <- predictor_matrix[, stabs$selected]
 sel_cor <- cor(sel_matrix, method = "pearson")
 
 # ... prepare sequence logos
+pfms <- getMatrixSet(JASPAR2018, list(matrixtype = "PFM", tax_group = "vertebrates")) # for seq-logos
+pwms <- toPWM(pfms) # for searching
 pfmsSel <- pfms[match(rownames(sel_cor), name(pfms))]
 maxwidth <- max(sapply(Matrix(pfmsSel), ncol))
 seqlogoGrobs <- lapply(pfmsSel, seqLogoGrob, xmax = maxwidth)
