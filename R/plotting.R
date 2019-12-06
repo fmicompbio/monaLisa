@@ -477,7 +477,9 @@ plotMotifDirectionality <- function(stabs_obj = NULL, response = NULL, predictor
   stopifnot(class(predictor_matrix)=="matrix")
   # ... compatibility checks
   stopifnot(length(response)==nrow(predictor_matrix))
-  stopifnot(all(rownames(stabs_obj$phat)==colnames(predictor_matrix)))
+  if(!is.null(colnames(predictor_matrix))&!is.null(names(response))){
+    stopifnot(all(rownames(stabs_obj$phat)==colnames(predictor_matrix)))
+  }
   
   # correlation 
   cor <- as.vector(stats::cor(x = response, y = predictor_matrix, method = cor_method))
