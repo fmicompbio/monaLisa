@@ -35,7 +35,6 @@ NULL
 #'
 #'@seealso \code{\link[stabs]{glmnet.lasso}} and \code{\link[glmnet]{glmnet}}
 #'
-#'@author Dania Machlab
 #'@export
 glmnet.randomized_lasso <- function(x, y, q, weakness=1, type = c("conservative", "anticonservative"), ...) {
   if (is.data.frame(x)) {
@@ -115,7 +114,6 @@ glmnet.randomized_lasso <- function(x, y, q, weakness=1, type = c("conservative"
 #'B. Hofner, L. Boccuto, and M. Göker (2015), Controlling False Discoveries in High-Dimensional Situations: Boosting with Stability Selection, \emph{BMC Bioinformatics}, \strong{16} 144.
 #'
 #'
-#'@author Dania Machlab
 #'@export
 randomized_stabsel <- function(x=x, y=y, weakness=0.8, cutoff=0.8, PFER=2, ...) {
   stabs::stabsel(x = x, y = y, fitfun = glmnet.randomized_lasso, args.fitfun = list(weakness = weakness), cutoff = cutoff, PFER = PFER, ...)
