@@ -30,7 +30,6 @@ test_that("getKmerFreq works as expected", {
     expect_equal(sum(res1$freq.obs), sum(res1$freq.exp), tolerance = 0.001)
     expect_identical(names(res1$log2enr)[which.max(res1$log2enr)], "ACGT")
     expect_true(all(names(res1$FDR)[res1$FDR < 0.001] %in% c("AACG", "ACGT", "CGTT")))
-    ## res1[res1$FDR < 0.001,]
 
     ## zoops = TRUE
     set.seed(2)
@@ -43,6 +42,40 @@ test_that("getKmerFreq works as expected", {
     expect_equal(sum(res3$FDR < 0.001), 0L)
     expect_equal(sum(res4$FDR < 0.001), 2L)
     expect_equal(names(res4$FDR[res4$FDR < 0.001]), c("ACAC", "CACA"))
+    
+    ## strata
+    expect_is(res5 <- getKmerFreq(seqsDSS, kmerLen = 4, zoops = FALSE, strata = 3), "list")
+    expect_equal(sum(res1$freq.obs), sum(res5$freq.obs), tolerance = 0.001)
+    expect_equal(sum(res1$freq.exp), sum(res5$freq.exp), tolerance = 0.001)
+    expect_true(all(res5$strata %in% c(1L, 2L, 3L)))
+    expect_length(res5$freq.strata, 3L)
+    expect_equal(sum(res5$CpGoe), 102.0151708, tolerance = 1e-6)
+    expect_identical(names(res5$log2enr)[which.max(res5$log2enr)], "ACGT")
+    expect_true(all(names(res5$FDR)[res5$FDR < 0.001] %in% c("AACG", "ACGT", "CGTT")))
+})
+
+test_that("clusterKmers works as expected", {
+    library(Biostrings)
+    
+    ## truly random sequences...
+    set.seed(1)
+    seqs <- sapply(1:100, function(i) paste(sample(x = c("A","C","G","T"),
+                                                   size = 500L, replace = TRUE),
+                                            collapse = ""))
+    r <- sample(500L - 5L, 100L)
+    ## ... with a planted 6-mer
+    substr(seqs, start = r, stop = r + 5L) <- "AACGTT"
+    x1 <- getKmerFreq(seqs, kmerLen = 4, zoops = FALSE)
+    x2 <- names(x1$FDR[order(x1$FDR)[1:10]])
+    res1 <- clusterKmers(x1)
+    res2 <- clusterKmers(x2)
+    res3 <- clusterKmers(x2, allowReverseComplement = TRUE)
+    
+    expect_type(res1, "double")
+    expect_length(res1, 10L)
+    expect_identical(res1, res2)
+    expect_identical(as.vector(res1), c(1, 1, 1, 2, 3, 1, 3, 1, 4, 5))
+    expect_identical(as.vector(res3), c(1, 1, 1, 2, 3, 1, 3, 1, 3, 4))
 })
 
 test_that("kmerEnrichments works as expected", {
@@ -54,6 +87,7 @@ test_that("kmerEnrichments works as expected", {
     b <- bin(rep(1:5, each = 200), binmode = "equalN", nElements = 200)
 
     expect_error(kmerEnrichments("error"))
+    expect_error(kmerEnrichments(1L))
     expect_error(suppressWarnings(kmerEnrichments(gr, b, genomepkg = "not-exising")))
     expect_error(kmerEnrichments(seqs, b[1:20]))
     expect_error(kmerEnrichments(seqs, b, Ncpu = "error"))
@@ -61,9 +95,9 @@ test_that("kmerEnrichments works as expected", {
     expect_error(kmerEnrichments(seqs, b, Ncpu = -1))
 
     expect_message(res1 <- kmerEnrichments(as.character(seqs), b, verbose = TRUE))
-    res2 <- kmerEnrichments(gr, b, genomepkg = "BSgenome.Hsapiens.UCSC.hg19", verbose = FALSE)
+    res2 <- kmerEnrichments(gr, b, genomepkg = "BSgenome.Hsapiens.UCSC.hg19", verbose = TRUE)
     res3 <- kmerEnrichments(seqs, b, verbose = FALSE)
-    res4 <- kmerEnrichments(seqs, as.numeric(b), verbose = FALSE)
+    res4 <- kmerEnrichments(seqs, as.numeric(b), verbose = TRUE)
 
     expect_is(res1, "SummarizedExperiment")
     expect_is(res2, "SummarizedExperiment")

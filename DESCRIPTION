@@ -12,7 +12,7 @@ Description: Useful functions to work with sequence motifs in the analysis of ge
 Depends: R (>= 3.5.0)
 Imports: methods, stats, utils, grDevices, graphics, GenomicRanges, TFBSTools,
     Biostrings, IRanges, stabs, BSgenome, glmnet, S4Vectors, SummarizedExperiment,
-    grid, gridExtra, circlize, ComplexHeatmap (>= 2.0.0), XVector
+    grid, gridExtra, circlize, ComplexHeatmap (>= 2.0.0), XVector, stringdist, igraph
 Suggests: JASPAR2018, BSgenome.Hsapiens.UCSC.hg19, TxDb.Hsapiens.UCSC.hg19.knownGene,
     knitr, rmarkdown, testthat, BSgenome.Mmusculus.UCSC.mm10, BiocStyle
 License: GPL-3
