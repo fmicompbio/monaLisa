@@ -66,6 +66,3 @@ B. Hofner, L. Boccuto, and M. Göker (2015), Controlling False Discoveries in Hi
 \seealso{
 \code{\link[stabs]{stabsel}}
 }
-\author{
-Dania Machlab
-}
