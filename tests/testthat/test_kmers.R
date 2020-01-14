@@ -111,3 +111,49 @@ test_that("kmerEnrichments works as expected", {
     expect_identical(assayNames(res1), c("p", "FDR", "enr", "log2enr"))
     expect_identical(dim(assay(res1, "log2enr")), c(1024L, 5L))
 })
+
+test_that("convertKmersToMotifs works as expected", {
+    library(SummarizedExperiment)
+    library(TFBSTools)
+    
+    ## truly random sequences...
+    nseqs <- 1000
+    nbins <- 5
+    seqlen <- 100
+    set.seed(1)
+    seqs <- sapply(seq.int(nseqs), function(i) paste(sample(x = c("A","C","G","T"),
+                                                     size = seqlen, replace = TRUE),
+                                                     collapse = ""))
+    b <- bin(rep(seq.int(nbins), each = round(nseqs / nbins)), binmode = "equalN", nElements = round(nseqs / nbins))
+    ## ... with a planted 6-mer
+    for (ib in 1:3) {
+        i <- which(as.numeric(b) == ib)
+        i <- i[seq.int(round(length(i) / ib))]
+        r <- sample(seqlen - 5L, length(i), replace = TRUE)
+        substr(seqs[i], start = r, stop = r + 5L) <- "AACGTT"
+    }
+    res1 <- kmerEnrichments(seqs, b, kmerLen = 4, verbose = TRUE)
+    #o <- order(assay(res1, "log2enr")[, 1], decreasing = TRUE)[1:10]
+    #res2 <- plotMotifHeatmaps(res1[o, ], cluster = TRUE, show_dendrogram = TRUE)
+    
+    ## motifs...
+    pfms <- do.call(PFMatrixList, list(PFMatrix(ID = "m1", name = "m1",
+                                                profileMatrix = rbind(A = c(85, 85,  5,  5,  5,  5),
+                                                                      C = c( 5,  5, 85,  5,  5,  5),
+                                                                      G = c( 5,  5,  5, 85,  5,  5),
+                                                                      T = c( 5,  5,  5,  5, 85, 85))),
+                                       PFMatrix(ID = "m2", name = "m2",
+                                                profileMatrix = rbind(A = c( 5,  5,  5,  5),
+                                                                      C = c(85,  5,  5, 85),
+                                                                      G = c( 5, 85, 85,  5),
+                                                                      T = c( 5,  5,  5,  5)))))
+    tf <- tempfile(fileext = ".motif")
+    monaLisa:::.dumpPWMsToHomer2File(pwmL = toPWM(pfms), fname = tf)
+    pfms <- homerToPFMatrixList(tf) # read back in order to have identical @listData@tags
+    a1 <- convertKmersToMotifs(res1, tf, verbose = TRUE)
+    a2 <- convertKmersToMotifs(res1, pfms)
+    expect_is(a1, "SummarizedExperiment")
+    expect_is(a2, "SummarizedExperiment")
+    expect_identical(a1, a2)
+    expect_equal(rowSums(assay(a1, "enr")), c(m1 = 42.263710609719, m2 = 0.537892231292))
+})
