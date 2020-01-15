@@ -1,5 +1,5 @@
 #' @importFrom grDevices colorRampPalette
-#' @importFrom graphics axis hist lines par plot rect rug segments barplot matplot abline legend
+#' @importFrom graphics axis hist lines par plot rect rug segments barplot matplot abline legend text
 #' @importFrom stats density dist hclust
 #' @importFrom S4Vectors isEmpty
 NULL
@@ -515,9 +515,9 @@ plotMotifDirectionality <- function(stabs_obj = NULL, response = NULL, predictor
                              ylim = c(min(0, range(probs)[1]-abs(0.3*range(probs)[1])), max(1, range(probs[2]+abs(0.3*range(probs)[2])))), ...)
     legend("topright", bty = "n", lty = 1, legend = c("selected", "not selected"), col = c(sel_color, "grey"))
     if(!(sum(up)==0)&!isEmpty(probs)){
-        text(x = bar[up], y = probs[up], labels = tf_names[up], col = cols[up], xpd = TRUE, srt=90, adj = 0)
+        graphics::text(x = bar[up], y = probs[up], labels = tf_names[up], col = cols[up], xpd = TRUE, srt=90, adj = 0)
         if(!(sum(!up)==0)){
-            text(x = bar[!up], y = probs[!up], labels = tf_names[!up], col = cols[!up], xpd = TRUE, srt=90, adj = 1)
+            graphics::text(x = bar[!up], y = probs[!up], labels = tf_names[!up], col = cols[!up], xpd = TRUE, srt=90, adj = 1)
         }
     }
     invisible(TRUE)
