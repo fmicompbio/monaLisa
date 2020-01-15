@@ -50,6 +50,3 @@ where ncol(x) is the number of predictors.
 \seealso{
 \code{\link[stabs]{glmnet.lasso}} and \code{\link[glmnet]{glmnet}}
 }
-\author{
-Dania Machlab
-}
