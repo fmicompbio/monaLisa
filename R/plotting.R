@@ -387,7 +387,7 @@ plotStabilityPaths <- function(stabs_object, cols=NULL, lwd = 1, lty=1, ylim=c(0
   if(is.null(cols)){
     cols <- rep("black", ncol(mat))
     names(cols) <- rep("Not Selected", length(cols))
-    cols[stabs_object$selected] <- "Steelblue"
+    cols[stabs_object$selected] <- "cadetblue"
     names(cols)[stabs_object$selected] <- "Selected"
   }
 
@@ -408,6 +408,7 @@ plotStabilityPaths <- function(stabs_object, cols=NULL, lwd = 1, lty=1, ylim=c(0
 #'@param ylim the limits for the y-axis.
 #'@param onlySelected logical (default=TRUE) indicating if only selected predictors' selection probabilities
 #'    should be plotted.
+#'@param sel_color color of the selected predictors.
 #'@param las (2 by default) plot labels vertically or horizontally.
 #'@param ... additional parameters for the \code{barplot} function.
 #'
@@ -415,17 +416,19 @@ plotStabilityPaths <- function(stabs_object, cols=NULL, lwd = 1, lty=1, ylim=c(0
 #'
 #'@return barplot of selection probabilities.
 #'@export
-plotSelectionProb <- function(stabs_object, ylim = c(0,1.1), onlySelected = TRUE, las = 2, ...) {
+plotSelectionProb <- function(stabs_object, ylim = c(0,1.1), onlySelected = TRUE, sel_color="cadetblue", las = 2, ...) {
 
   # ... checks
   if (!base::inherits(stabs_object, what="stabsel")) {stop("stabs_object must be of class 'stabsel', the resulting object from running stability selection with the `stabs` package")}
 
   phat <- t(stabs_object$phat)
   TF_prob <- phat[nrow(phat), ]
+  cols <- rep("grey", length(TF_prob))
+  cols[stabs_object$selected] <- sel_color
 
   if (onlySelected) {
     TF_prob <- TF_prob[stabs_object$selected]
-
+    cols <- cols[stabs_object$selected]
   }
 
   # check if empty
@@ -435,7 +438,7 @@ plotSelectionProb <- function(stabs_object, ylim = c(0,1.1), onlySelected = TRUE
   TF_prob <- TF_prob[order(TF_prob, decreasing = TRUE)]
 
   # plot
-  barplot(TF_prob, ylim = ylim, ylab = "Selection Probability", las = las, ...)
+  graphics::barplot(TF_prob, ylim = ylim, ylab = "Selection Probability", las = las, col = cols, border = NA, ...)
   abline(h = stabs_object$cutoff, lty = 5, col = "red")
   legend("topright", legend = "cutoff", lty = 5, col = "red", bty = "n")
   invisible(TRUE)

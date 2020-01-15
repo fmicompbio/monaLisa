@@ -8,6 +8,7 @@ plotSelectionProb(
   stabs_object,
   ylim = c(0, 1.1),
   onlySelected = TRUE,
+  sel_color = "cadetblue",
   las = 2,
   ...
 )
@@ -19,6 +20,8 @@ plotSelectionProb(
 
 \item{onlySelected}{logical (default=TRUE) indicating if only selected predictors' selection probabilities
 should be plotted.}
+
+\item{sel_color}{color of the selected predictors.}
 
 \item{las}{(2 by default) plot labels vertically or horizontally.}
 
