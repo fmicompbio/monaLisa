@@ -32,12 +32,12 @@ before_install:
 r_packages:
     - covr
 
-before_cache: Rscript -e 'remotes::install_cran(c("devtools","pkgdown"))'
+before_cache: Rscript -e 'remotes::install_cran("pkgdown")'
 
 after_success:
     - travis_wait 40 Rscript -e 'library(covr); codecov()'
 
 deploy:
   provider: script
-  script: Rscript -e 'devtools::install(); pkgdown::deploy_site_github()'
+  script: Rscript -e 'pkgdown::deploy_site_github()'
   skip_cleanup: true
