@@ -1,0 +1,71 @@
+authors:
+  Michael Stadler:
+    href: https://github.com/mbstadler
+  Dania Machlab:
+    href: https://github.com/machlabd
+  Lukas Burger:
+    href: https://github.com/LukasBurger
+
+url: https://fmicompbio.github.io/monaLisa
+
+navbar:
+  structure:
+    left:
+    - home
+    - intro
+    - reference
+    - articles
+    - tutorials
+    - news
+    right: github
+  components:
+    articles:
+      text: Articles
+      menu:
+      - text: monaLisa
+        href: articles/monaLisa.html
+    github:
+      icon: fa-github fa-lg
+      href: https://github.com/fmicompbio/monaLisa
+
+reference:
+- title: Binned motif-enrichment analysis
+  desc: "Bin regions of interest and analyse motifs enrichments in bins."
+  contents:
+    - '`bin`'
+    - '`runHomer`'
+    - '`plotBinDensity`'
+    - '`plotBinHist`'
+    - '`plotBinScatter`'
+    - '`plotMotifHeatmaps`'
+- title: K-mer analysis
+  desc: "Functions for analysing word (k-mer) occurrences in sequences."
+    - '`getKmerFreq`'
+    - '`kmerEnrichments`'
+    - '`convertKmersToMotifs`'
+- title: Identify predictive motifs using stability selection
+  desc: "Functions for selecting motifs that explain observed changes using Stability Selection."
+  contents:
+    - '`randomized_stabsel`'
+    - '`plotMotifDirectionality`'
+    - '`plotSelectionProb`'
+    - '`plotStabilityPaths`'
+- title: Miscellaneous
+  desc: "Various utilites and helper functions, typically used in the functions above."
+  contents:
+    - '`findMotifHits`'
+    - '`anno_seqlogo`'
+    - '`dumpJaspar`'
+    - '`homerToPFMatrixList`'
+    - '`findHomer`'
+    - '`prepareHomer`'
+    - '`parseHomerOutput`'
+    - '`getColsByBin`'
+    - '`glmnet.randomized_lasso`'
+    - '`motifSimilarity`'
+    - '`motifKmerSimilarity`'
+    - '`seqLogoGrob`'
+
+template:
+  params:
+    bootswatch: cerulean
