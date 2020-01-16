@@ -1,0 +1,9 @@
+pandoc: '2.2'
+pkgdown: 1.4.1
+pkgdown_sha: ~
+articles:
+  monaLisa: monaLisa.html
+urls:
+  reference: https://fmicompbio.github.io/monaLisa/reference
+  article: https://fmicompbio.github.io/monaLisa/articles
+
