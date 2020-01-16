@@ -40,6 +40,7 @@ reference:
     - '`plotMotifHeatmaps`'
 - title: K-mer analysis
   desc: "Functions for analysing word (k-mer) occurrences in sequences."
+  contents:
     - '`getKmerFreq`'
     - '`kmerEnrichments`'
     - '`convertKmersToMotifs`'
