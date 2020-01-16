@@ -1,5 +1,5 @@
 #' @importFrom grDevices colorRampPalette
-#' @importFrom graphics axis hist lines par plot rect rug segments barplot matplot abline legend
+#' @importFrom graphics axis hist lines par plot rect rug segments barplot matplot abline legend text
 #' @importFrom stats density dist hclust
 #' @importFrom S4Vectors isEmpty
 NULL
@@ -387,7 +387,7 @@ plotStabilityPaths <- function(stabs_object, cols=NULL, lwd = 1, lty=1, ylim=c(0
   if(is.null(cols)){
     cols <- rep("black", ncol(mat))
     names(cols) <- rep("Not Selected", length(cols))
-    cols[stabs_object$selected] <- "Steelblue"
+    cols[stabs_object$selected] <- "cadetblue"
     names(cols)[stabs_object$selected] <- "Selected"
   }
 
@@ -408,6 +408,7 @@ plotStabilityPaths <- function(stabs_object, cols=NULL, lwd = 1, lty=1, ylim=c(0
 #'@param ylim the limits for the y-axis.
 #'@param onlySelected logical (default=TRUE) indicating if only selected predictors' selection probabilities
 #'    should be plotted.
+#'@param sel_color color of the selected predictors.
 #'@param las (2 by default) plot labels vertically or horizontally.
 #'@param ... additional parameters for the \code{barplot} function.
 #'
@@ -415,17 +416,19 @@ plotStabilityPaths <- function(stabs_object, cols=NULL, lwd = 1, lty=1, ylim=c(0
 #'
 #'@return barplot of selection probabilities.
 #'@export
-plotSelectionProb <- function(stabs_object, ylim = c(0,1.1), onlySelected = TRUE, las = 2, ...) {
+plotSelectionProb <- function(stabs_object, ylim = c(0,1.1), onlySelected = TRUE, sel_color="cadetblue", las = 2, ...) {
 
   # ... checks
   if (!base::inherits(stabs_object, what="stabsel")) {stop("stabs_object must be of class 'stabsel', the resulting object from running stability selection with the `stabs` package")}
 
   phat <- t(stabs_object$phat)
   TF_prob <- phat[nrow(phat), ]
+  cols <- rep("grey", length(TF_prob))
+  cols[stabs_object$selected] <- sel_color
 
   if (onlySelected) {
     TF_prob <- TF_prob[stabs_object$selected]
-
+    cols <- cols[stabs_object$selected]
   }
 
   # check if empty
@@ -435,13 +438,91 @@ plotSelectionProb <- function(stabs_object, ylim = c(0,1.1), onlySelected = TRUE
   TF_prob <- TF_prob[order(TF_prob, decreasing = TRUE)]
 
   # plot
-  barplot(TF_prob, ylim = ylim, ylab = "Selection Probability", las = las, ...)
+  graphics::barplot(TF_prob, ylim = ylim, ylab = "Selection Probability", las = las, col = cols, border = NA, ...)
   abline(h = stabs_object$cutoff, lty = 5, col = "red")
   legend("topright", legend = "cutoff", lty = 5, col = "red", bty = "n")
   invisible(TRUE)
 
 }
 
+
+#'@title Plot Directionality of Predictor Effect
+#'
+#'@description This function plots the selectiong probabilities of the chosen predictors (for example the selected motifs)
+#'and assigns a + or - sign to these probabilities to give a sense of directionality of the effect. The assumption is that 
+#'the response vector on which stability selection was performed is a measure of fold-change. The correlation (pearson by default)
+#'of each predictor to the response vector is calculated. The selection probabilities of the chosen predictors multiplied by the 
+#'sign of the correlation is plotted to indicate the directionality.
+#'
+#'@param stabs_obj the \code{stabs} object resulting from stability selection.
+#'@param response the response vector that was used for the stability selection (like the log-fold change of a measure of interest).
+#'@param predictor_matrix the predictor matrix that was used for the stability selection (like the number of predicted TFBS of all motifs across the regions of interest).
+#'@param sel_color the color for the selected predictors from stability selection.
+#'@param min_sel_prob predictors with a selection probability greater than or equal to this are included in the plot.
+#'@param cor_method the correlation method to be used.
+#'@param ... additional parameters for the \code{barplot} function.
+#'
+#'@seealso \code{\link[graphics]{barplot}}
+#'
+#'@return a barplot indicating the directionality of the motifs with respect to the correlation to the response vector.
+#'
+#'@export
+plotMotifDirectionality <- function(stabs_obj = NULL, response = NULL, predictor_matrix = NULL, sel_color="cadetblue", min_sel_prob=0.4, cor_method="pearson", ...) {
+    
+    # checks
+    # ... NULL checks
+    stopifnot(!is.null(stabs_obj))
+    stopifnot(!is.null(response))
+    stopifnot(!is.null(predictor_matrix))
+    # ... class checks
+    stopifnot(class(stabs_obj)=="stabsel")
+    stopifnot(class(response)=="numeric")
+    stopifnot(class(predictor_matrix)=="matrix")
+    # ... compatibility checks
+    stopifnot(length(response)==nrow(predictor_matrix))
+    if(!is.null(colnames(predictor_matrix))&!is.null(names(response))){
+        stopifnot(all(rownames(stabs_obj$phat)==colnames(predictor_matrix)))
+    }
+    
+    # correlation 
+    cor <- as.vector(stats::cor(x = response, y = predictor_matrix, method = cor_method))
+    cols <- rep("grey", ncol(predictor_matrix))
+    cols[stabs_obj$selected] <- sel_color
+    if(!is.null(colnames(predictor_matrix))) {
+        tf_names <- colnames(predictor_matrix)
+    } else {
+        tf_names <- paste0("pred", 1:ncol(predictor_matrix))
+    }
+    # probabilities with directionality
+    probs <- stabs_obj$phat[, ncol(stabs_obj$phat)]
+    probs <- probs*sign(cor)
+    
+    # kept and ordered
+    keep <- stabs_obj$phat[,ncol(stabs_obj$phat)]>=min_sel_prob
+    cor <- cor[keep]
+    cols <- cols[keep]
+    tf_names <- tf_names[keep]
+    probs <- probs[keep]
+    o <- order(probs, decreasing = TRUE)
+    cor <- cor[o]
+    cols <- cols[o]
+    tf_names <- tf_names[o]
+    probs <- probs[o]
+    up <- probs>0
+    
+    # plot
+    bar <- graphics::barplot(probs, col = cols, border = NA, ylab = "Sel Prob * sign(cor to response)", names.arg = NA, 
+                             ylim = c(min(0, range(probs)[1]-abs(0.3*range(probs)[1])), max(1, range(probs[2]+abs(0.3*range(probs)[2])))), ...)
+    legend("topright", bty = "n", lty = 1, legend = c("selected", "not selected"), col = c(sel_color, "grey"))
+    if(!(sum(up)==0)&!isEmpty(probs)){
+        graphics::text(x = bar[up], y = probs[up], labels = tf_names[up], col = cols[up], xpd = TRUE, srt=90, adj = 0)
+        if(!(sum(!up)==0)){
+            graphics::text(x = bar[!up], y = probs[!up], labels = tf_names[!up], col = cols[!up], xpd = TRUE, srt=90, adj = 1)
+        }
+    }
+    invisible(TRUE)
+    
+}
 
 
 
