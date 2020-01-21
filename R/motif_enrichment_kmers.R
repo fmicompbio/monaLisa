@@ -282,7 +282,8 @@ clusterKmers <- function(x, allowReverseComplement = FALSE,
 #'   directly or as genomic coordinates.
 #'
 #' @param x A \code{character} vector, \code{\link[Biostrings]{DNAStringSet}} or
-#'   a \code{\link[GenomicRanges]{GRanges}} object with the sequences to analyze.
+#'   a \code{\link[GenomicRanges]{GRanges}} object with the sequences to
+#'   analyze.
 #' @param b A vector of the same length as \code{x} that groups its elements
 #'   into bins (typically a factor, such as the one returned by
 #'   \code{\link{bin}}).
@@ -292,10 +293,12 @@ clusterKmers <- function(x, allowReverseComplement = FALSE,
 #' @param kmerLen A \code{numeric} scalar giving the k-mer length.
 #' @param MMorder A \code{numeric} scalar giving the order of the Markov model
 #'   used to calculate the expected frequencies.
+#' @param zoops A \code{logical} scalar. If \code{TRUE} (the default), only one
+#'   or zero occurences of a k-mer are considered per sequence.
 #' @param pseudoCount A \code{numeric} scalar - will be added to the observed
 #'   counts for each k-mer to avoid zero values.
 #' @param Ncpu Number of parallel threads to use.
-#' @param verbose A logical scalar. If \code{TRUE}, report on progress.
+#' @param verbose A \code{logical} scalar. If \code{TRUE}, report on progress.
 #'
 #' @seealso \code{\link{getKmerFreq}} used to calculate k-mer enrichments;
 #'   \code{\link[BSgenome]{getSeq,BSgenome-method}} which is used to extract
@@ -304,16 +307,14 @@ clusterKmers <- function(x, allowReverseComplement = FALSE,
 #'   \code{\link{bin}} for binning of regions
 #'
 #' @return A \code{\link[SummarizedExperiment]{SummarizedExperiment}} \code{y}
-#'   with \describe{
-#'     \item{assays(y)}{containing the four components \code{p}, \code{FDR},
-#'        \code{enr} and \code{log2enr}), each a k-mer (rows) by bin (columns)
-#'        matrix with raw -log10 P values, -log10 false discovery rates and
-#'        k-mer enrichments as Pearson residuals (\code{enr}) and as log2 ratios
-#'        (\code{log2enr}).}
-#'     \item{rowData(x)}{containing information about the k-mers.}
-#'     \item{colData(x)}{containing information about the bins.}
-#'     \item{metaData(x)}{containing meta data on the object (e.g. parameter values).}
-#'   }
+#'   with \describe{ \item{assays(y)}{containing the four components \code{p},
+#'   \code{FDR}, \code{enr} and \code{log2enr}), each a k-mer (rows) by bin
+#'   (columns) matrix with raw -log10 P values, -log10 false discovery rates and
+#'   k-mer enrichments as Pearson residuals (\code{enr}) and as log2 ratios
+#'   (\code{log2enr}).} \item{rowData(x)}{containing information about the
+#'   k-mers.} \item{colData(x)}{containing information about the bins.}
+#'   \item{metaData(x)}{containing meta data on the object (e.g. parameter
+#'   values).} }
 #'
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom S4Vectors DataFrame split
@@ -323,9 +324,12 @@ clusterKmers <- function(x, allowReverseComplement = FALSE,
 #'
 #' @export
 kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5, MMorder = 1,
-                            pseudoCount = 1, Ncpu = 2L, verbose = TRUE) {
+                            pseudoCount = 1, zoops = TRUE, Ncpu = 2L, verbose = TRUE) {
     ## pre-flight checks
-    stopifnot(exprs = { is.logical(verbose); length(verbose) == 1L })
+    stopifnot(exprs = {
+        is.logical(verbose)
+        length(verbose) == 1L
+    })
     if (is.character(x)) {
         if (!all(grepl("^[ACGTNacgtn]+$", x))) {
             stop("'x' must contain only A, C, G, T or N letters")
@@ -357,8 +361,12 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5, MMorder = 1,
     }
     stopifnot(exprs = {
         length(x) == length(b)
+        is.numeric(pseudoCount)
+        length(pseudoCount) == 1L
+        is.logical(zoops)
+        length(zoops) == 1L
         is.numeric(Ncpu)
-        length(Ncpu) == 1
+        length(Ncpu) == 1L
         Ncpu > 0
     })
 
@@ -369,7 +377,8 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5, MMorder = 1,
                 appendLF = FALSE)
     }
     resL <- parallel::mclapply(split(x, b)[levels(b)], getKmerFreq, kmerLen = kmerLen,
-                               MMorder = MMorder, pseudoCount = pseudoCount, mc.cores = Ncpu)
+                               MMorder = MMorder, pseudoCount = pseudoCount,
+                               zoops = zoops, mc.cores = Ncpu)
     if (verbose) {
         message("done")
     }
@@ -410,6 +419,7 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5, MMorder = 1,
                         param.kmerLen = kmerLen,
                         param.MMorder = MMorder,
                         param.pseudoCount = pseudoCount,
+                        param.zoops = zoops,
                         param.Ncpu = Ncpu,
                         motif.distances = NULL)
     )
