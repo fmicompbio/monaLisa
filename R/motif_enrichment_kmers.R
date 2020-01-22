@@ -331,7 +331,7 @@ clusterKmers <- function(x, allowReverseComplement = FALSE,
 #' @export
 kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5,
                             background = c("other", "model"), MMorder = 1,
-                            pseudoCount = 1, zoops = TRUE,
+                            zoops = TRUE, pseudoCount = 1,
                             Ncpu = 2L, verbose = TRUE) {
     ## pre-flight checks
     background <- match.arg(background)

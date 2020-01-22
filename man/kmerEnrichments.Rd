@@ -9,7 +9,9 @@ kmerEnrichments(
   b,
   genomepkg = NULL,
   kmerLen = 5,
+  background = c("other", "model"),
   MMorder = 1,
+  zoops = TRUE,
   pseudoCount = 1,
   Ncpu = 2L,
   verbose = TRUE
@@ -17,7 +19,8 @@ kmerEnrichments(
 }
 \arguments{
 \item{x}{A \code{character} vector, \code{\link[Biostrings]{DNAStringSet}} or
-a \code{\link[GenomicRanges]{GRanges}} object with the sequences to analyze.}
+a \code{\link[GenomicRanges]{GRanges}} object with the sequences to
+analyze.}
 
 \item{b}{A vector of the same length as \code{x} that groups its elements
 into bins (typically a factor, such as the one returned by
@@ -29,28 +32,35 @@ which to extract the sequences.}
 
 \item{kmerLen}{A \code{numeric} scalar giving the k-mer length.}
 
+\item{background}{A \code{character} scalar. If \code{"other"} (the default),
+the enrichments in a bin are calculated compared to the sequences in all
+other bins. If \code{"model"}, the enrichments are relative to the expected
+frequencies obtained from a Markov model of order \code{MMorder}.}
+
 \item{MMorder}{A \code{numeric} scalar giving the order of the Markov model
-used to calculate the expected frequencies.}
+used to calculate the expected frequencies for \code{background = "model"}.}
+
+\item{zoops}{A \code{logical} scalar. If \code{TRUE} (the default), only one
+or zero occurences of a k-mer are considered per sequence. This is helpful
+to reduce the impact of simple sequence repeats occurring in few sequences.}
 
 \item{pseudoCount}{A \code{numeric} scalar - will be added to the observed
 counts for each k-mer to avoid zero values.}
 
 \item{Ncpu}{Number of parallel threads to use.}
 
-\item{verbose}{A logical scalar. If \code{TRUE}, report on progress.}
+\item{verbose}{A \code{logical} scalar. If \code{TRUE}, report on progress.}
 }
 \value{
 A \code{\link[SummarizedExperiment]{SummarizedExperiment}} \code{y}
-  with \describe{
-    \item{assays(y)}{containing the four components \code{p}, \code{FDR},
-       \code{enr} and \code{log2enr}), each a k-mer (rows) by bin (columns)
-       matrix with raw -log10 P values, -log10 false discovery rates and
-       k-mer enrichments as Pearson residuals (\code{enr}) and as log2 ratios
-       (\code{log2enr}).}
-    \item{rowData(x)}{containing information about the k-mers.}
-    \item{colData(x)}{containing information about the bins.}
-    \item{metaData(x)}{containing meta data on the object (e.g. parameter values).}
-  }
+  with \describe{ \item{assays(y)}{containing the four components \code{p},
+  \code{FDR}, \code{enr} and \code{log2enr}), each a k-mer (rows) by bin
+  (columns) matrix with raw -log10 P values, -log10 false discovery rates and
+  k-mer enrichments as Pearson residuals (\code{enr}) and as log2 ratios
+  (\code{log2enr}).} \item{rowData(x)}{containing information about the
+  k-mers.} \item{colData(x)}{containing information about the bins.}
+  \item{metaData(x)}{containing meta data on the object (e.g. parameter
+  values).} }
 }
 \description{
 Given a set of sequences and corresponding bins, identify
