@@ -7,6 +7,7 @@ addons:
   apt:
     packages:
     - libgsl0-dev
+    - libmagick++-dev
 
 warnings_are_errors: false
 cache: packages
@@ -25,6 +26,7 @@ before_script:
   - export PATH=$PATH:$PWD/bin/
   - export MONALISA_HOMER=$PWD/bin/
   - popd && echo "^homer$" >> .Rbuildignore
+  - Rscript -e 'install.packages("magick")'
 
 before_install:
     - Rscript -e 'install.packages("remotes")'
@@ -41,3 +43,4 @@ deploy:
   provider: script
   script: Rscript -e 'pkgdown::deploy_site_github()'
   skip_cleanup: true
+ 

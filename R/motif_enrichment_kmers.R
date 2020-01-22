@@ -135,6 +135,146 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
 }
 
 
+
+#' @title Cluster k-mers
+#'
+#' @description Given enriched k-mers (typically the result of
+#'   \code{\link{getKmerFreq}}), cluster k-mers into groups of similar k-mers
+#'   that are likely to originate from the same motif.
+#'
+#' @param x Enriched k-mers, either a \code{character} vector or the return
+#'   value of \code{\link{getKmerFreq}}, from which enriched k-mers can be
+#'   extracted.
+#' @param allowReverseComplement A \code{logical} scalar. If \code{TRUE}, use
+#'   the reverse complement of a k-mer if it has a higher toal similarity to all
+#'   other k-mers than the original k-mer. In that case, the resulting k-mer is
+#'   reported with the suffix \code{_rc} in the results, and the
+#'   reverse-complement k-mer sequence is used to calculate pairwise distances.
+#' @param nKmers A \code{numeric} scalar. If \code{x} is a \code{list} as
+#'   returned by \code{\link{getKmerFreq}}, the number of top enriched k-mers to
+#'   use ordered by FDR. If \code{NULL} (the default), it will use \code{nKmers
+#'   <- max(10, sum(x$FDR < 0.05))}. \code{nKmers} is ignored if \code{x} is a
+#'   character vector.
+#' @param maxShift A \code{numeric} scalar with the maximal number of shifts to
+#'   perform when calculating k-mer distances. If \code{NULL} (the default), it
+#'   will use \code{maxShift <- kmerLen - 2}.
+#' @param minSim A \code{numeric} scalar with the minimal k-mer similarity to
+#'   link two k-mer nodes in the graph by an edge. If \code{NULL}, it will use
+#'   \code{minSim <- kmerLen - maxShift + 1}.
+#'
+#' @details The clustering is performed as follows: First, all pairwise k-mer
+#'   distances for all possible shifts (defined by \code{maxShift}) are
+#'   calculated, defined as the Hamming distance of the overlapping substring
+#'   plus the number of shifts. For each k-mer pair, the minimal distance is
+#'   retained.  If \code{allowReverseComplement == TRUE}, repeat this procedure
+#'   to compare each k-mer to all reverse-complemented k-mers, and replace it
+#'   with the reverse-complemented version if this yields a lower sum of
+#'   pairwise distances. The resulting distance matrix is then converted into a
+#'   similarity matrix by subtracting it from \code{kmerLen} (the length of the
+#'   k-mers). Element less than \code{minSim} are set to zero, and the matrix is
+#'   used as an adjacency matrix to construct a k-mer graph. The clusters are
+#'   identified as the connected components in this graph.
+#'
+#' @return A named \code{numeric} vector, with k-mer as names and values
+#'   indicating the k-mer cluster memberships.
+#'
+#' @importFrom stringdist stringdistmatrix
+#' @importFrom igraph graph_from_adjacency_matrix cluster_louvain communities
+#' @importFrom Biostrings reverseComplement DNAStringSet
+#'
+#' @export
+clusterKmers <- function(x, allowReverseComplement = FALSE,
+                         nKmers = NULL, maxShift = NULL, minSim = NULL) {
+    ## pre-flight checks
+    if (is(x, "list")) {
+        stopifnot(exprs = {
+            "FDR" %in% names(x)
+            !is.null(names(x$FDR))
+        })
+        if (is.null(nKmers)) {
+            nKmers <- max(10, sum(x$FDR < 0.05))
+        }
+        x <- names(x$FDR)[order(x$FDR)[seq.int(nKmers)]]
+    }
+    stopifnot(exprs = {
+        is(x, "character")
+        all(nchar(x) == nchar(x[1]))
+        all(grepl("^[ACGT]+$", x))
+        is(allowReverseComplement, "logical")
+        length(allowReverseComplement) == 1
+    })
+    kmerLen <- nchar(x[1])
+    if (is.null(maxShift)) {
+        maxShift <- kmerLen - 2L
+    }
+    stopifnot(exprs = {
+        is(maxShift, "numeric")
+        length(maxShift) == 1L
+        maxShift >= 0 && maxShift < kmerLen
+    })
+    if (is.null(minSim)) {
+        minSim <- kmerLen - maxShift + 1
+    }
+    stopifnot(exprs = {
+        is(minSim, "numeric")
+        length(minSim) == 1L
+        minSim >= 1 && minSim <= (kmerLen - 1L)
+    })
+    message("clustering ", length(x), " ", kmerLen, "-mers (maxShift: ", maxShift, ", minSim: ", minSim, ")")
+    
+    ## calculate pairwise k-mer distances
+    ## distance metric: "hamming + shifts"
+    ##   k-mers are allowed to be shifted relative to one another
+    ##   a shift of one position is identical to one mismatch position
+    ## ... first take the minimum hamming distance over all possible shifts
+    d <- Reduce(pmin, lapply(seq(from = 0, to = min(kmerLen - 1, maxShift)),
+                             function(s) {
+                                 sufx <- substr(x, start = s + 1, stop = kmerLen)
+                                 prex <- substr(x, start = 1, stop = kmerLen - s)
+                                 stringdist::stringdistmatrix(sufx, prex, method = "hamming") + s
+                             }))
+    ## ... then take the minimal distance between left and right shifts
+    d[upper.tri(d)] <- pmin(d[upper.tri(d)], t(d)[upper.tri(d)])
+    d[lower.tri(d)] <- t(d)[lower.tri(d)]
+    colnames(d) <- x
+    ## ... repeat by comparing x to reverseComplement(x) and keep the minium distance
+    if (allowReverseComplement) {
+        message("also considering reverse complement k-mers")
+        xrc <- as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(x)))
+        drc <- Reduce(pmin, lapply(seq(from = 0, to = min(kmerLen - 1, maxShift)),
+                                   function(s) {
+                                       sufx <- substr(x, start = s + 1, stop = kmerLen)
+                                       prex <- substr(xrc, start = 1, stop = kmerLen - s)
+                                       stringdist::stringdistmatrix(sufx, prex, method = "hamming") + s
+                                   }))
+        drc[upper.tri(drc)] <- pmin(drc[upper.tri(drc)], t(drc)[upper.tri(drc)])
+        drc[lower.tri(drc)] <- t(drc)[lower.tri(drc)]
+        ## ... for each k-mer, decide wether to use the forward or reverse-complement
+        useRC <- which(colSums(drc) < colSums(unname(d)))
+        if (length(useRC) > 0) {
+            colnames(d)[useRC] <- paste0(x[useRC], "_rc")
+            d[, useRC] <- drc[, useRC]
+            d[useRC, ] <- drc[useRC, ]
+        }
+    }
+    
+    ## construct and prune k-mer graph (adjacency matrix)
+    ## ... convert the distance into a similarity (adjacency) matrix
+    a <- kmerLen - d
+    ## ... prune and construct the graph
+    a[a < minSim] <- 0
+    diag(a) <- 0
+    G <- igraph::graph_from_adjacency_matrix(a, mode = "undirected", weighted = TRUE)
+
+    ## find communities
+    #comm <- igraph::cluster_louvain(G)
+    comm <- igraph::clusters(G)
+
+    ## return results
+    igraph::membership(comm)
+}
+
+
 #' @title Run a k-mer enrichment analysis.
 #'
 #' @description Given a set of sequences and corresponding bins, identify
@@ -142,7 +282,8 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
 #'   directly or as genomic coordinates.
 #'
 #' @param x A \code{character} vector, \code{\link[Biostrings]{DNAStringSet}} or
-#'   a \code{\link[GenomicRanges]{GRanges}} object with the sequences to analyze.
+#'   a \code{\link[GenomicRanges]{GRanges}} object with the sequences to
+#'   analyze.
 #' @param b A vector of the same length as \code{x} that groups its elements
 #'   into bins (typically a factor, such as the one returned by
 #'   \code{\link{bin}}).
@@ -150,12 +291,19 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
 #'   \code{character} scalar with the name of a \code{BSgenome} package from
 #'   which to extract the sequences.
 #' @param kmerLen A \code{numeric} scalar giving the k-mer length.
+#' @param background A \code{character} scalar. If \code{"other"} (the default),
+#'   the enrichments in a bin are calculated compared to the sequences in all
+#'   other bins. If \code{"model"}, the enrichments are relative to the expected
+#'   frequencies obtained from a Markov model of order \code{MMorder}.
 #' @param MMorder A \code{numeric} scalar giving the order of the Markov model
-#'   used to calculate the expected frequencies.
+#'   used to calculate the expected frequencies for \code{background = "model"}.
+#' @param zoops A \code{logical} scalar. If \code{TRUE} (the default), only one
+#'   or zero occurences of a k-mer are considered per sequence. This is helpful
+#'   to reduce the impact of simple sequence repeats occurring in few sequences.
 #' @param pseudoCount A \code{numeric} scalar - will be added to the observed
 #'   counts for each k-mer to avoid zero values.
 #' @param Ncpu Number of parallel threads to use.
-#' @param verbose A logical scalar. If \code{TRUE}, report on progress.
+#' @param verbose A \code{logical} scalar. If \code{TRUE}, report on progress.
 #'
 #' @seealso \code{\link{getKmerFreq}} used to calculate k-mer enrichments;
 #'   \code{\link[BSgenome]{getSeq,BSgenome-method}} which is used to extract
@@ -164,28 +312,33 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
 #'   \code{\link{bin}} for binning of regions
 #'
 #' @return A \code{\link[SummarizedExperiment]{SummarizedExperiment}} \code{y}
-#'   with \describe{
-#'     \item{assays(y)}{containing the four components \code{p}, \code{FDR},
-#'        \code{enr} and \code{log2enr}), each a k-mer (rows) by bin (columns)
-#'        matrix with raw -log10 P values, -log10 false discovery rates and
-#'        k-mer enrichments as Pearson residuals (\code{enr}) and as log2 ratios
-#'        (\code{log2enr}).}
-#'     \item{rowData(x)}{containing information about the k-mers.}
-#'     \item{colData(x)}{containing information about the bins.}
-#'     \item{metaData(x)}{containing meta data on the object (e.g. parameter values).}
-#'   }
+#'   with \describe{ \item{assays(y)}{containing the four components \code{p},
+#'   \code{FDR}, \code{enr} and \code{log2enr}), each a k-mer (rows) by bin
+#'   (columns) matrix with raw -log10 P values, -log10 false discovery rates and
+#'   k-mer enrichments as Pearson residuals (\code{enr}) and as log2 ratios
+#'   (\code{log2enr}).} \item{rowData(x)}{containing information about the
+#'   k-mers.} \item{colData(x)}{containing information about the bins.}
+#'   \item{metaData(x)}{containing meta data on the object (e.g. parameter
+#'   values).} }
 #'
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom S4Vectors DataFrame split
 #' @importFrom parallel mclapply
 #' @importFrom BSgenome getSeq
 #' @importFrom TFBSTools PFMatrix PFMatrixList
+#' @importFrom stats ppois p.adjust
 #'
 #' @export
-kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5, MMorder = 1,
-                            pseudoCount = 1, Ncpu = 2L, verbose = TRUE) {
+kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5,
+                            background = c("other", "model"), MMorder = 1,
+                            zoops = TRUE, pseudoCount = 1,
+                            Ncpu = 2L, verbose = TRUE) {
     ## pre-flight checks
-    stopifnot(exprs = { is.logical(verbose); length(verbose) == 1L })
+    background <- match.arg(background)
+    stopifnot(exprs = {
+        is.logical(verbose)
+        length(verbose) == 1L
+    })
     if (is.character(x)) {
         if (!all(grepl("^[ACGTNacgtn]+$", x))) {
             stop("'x' must contain only A, C, G, T or N letters")
@@ -217,24 +370,56 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5, MMorder = 1,
     }
     stopifnot(exprs = {
         length(x) == length(b)
+        is.numeric(pseudoCount)
+        length(pseudoCount) == 1L
+        is.logical(zoops)
+        length(zoops) == 1L
         is.numeric(Ncpu)
-        length(Ncpu) == 1
+        length(Ncpu) == 1L
         Ncpu > 0
     })
 
     ## identify enriched k-mers in each bin
     if (verbose) {
         message("searching for enriched ", kmerLen, "-mers in ", nlevels(b),
-                " bins using ", Ncpu, if (Ncpu > 1) " cores..." else " core...",
-                appendLF = FALSE)
+                " bins using ", Ncpu, if (Ncpu > 1) " cores" else " core",
+                " (background: ", c("other" = "sequences in other bins",
+                                    "model" = paste0("Markov model of order ", MMorder))[background],
+                ")...", appendLF = FALSE)
     }
     resL <- parallel::mclapply(split(x, b)[levels(b)], getKmerFreq, kmerLen = kmerLen,
-                               MMorder = MMorder, pseudoCount = pseudoCount, mc.cores = Ncpu)
+                               MMorder = MMorder, pseudoCount = pseudoCount,
+                               zoops = zoops, mc.cores = Ncpu)
     if (verbose) {
         message("done")
     }
 
-    ## ... create SummarizedExperiment
+    ## calculate motif enrichments
+    if (background == "other") {
+        f.obs <- do.call(cbind, lapply(resL, "[[", "freq.obs"))
+        f.exp <- do.call(cbind, lapply(seq_along(resL), function(i) {
+            rowSums(do.call(cbind, lapply(resL[-i], "[[", "freq.obs")))
+        }))
+        colnames(f.exp) <- colnames(f.obs)
+        n.obs <- colSums(f.obs)
+        n.exp <- colSums(f.exp)
+        f.obs <- t(t(f.obs) / n.obs * pmin(n.obs, n.exp))
+        f.exp <- t(t(f.exp) / n.exp * pmin(n.obs, n.exp))
+        lenr <- log2((f.obs + pseudoCount) / (f.exp + pseudoCount))
+        z <- (f.obs - f.exp) / sqrt(f.exp)
+        p <- ppois(q = f.obs, lambda = f.exp, lower.tail = FALSE)
+        padj <- matrix(p.adjust(p, method="fdr"), nrow = nrow(p), dimnames = dimnames(p))
+        assayL <- list(p = -log10(p), FDR = -log10(padj), enr = z, log2enr = lenr)
+
+    } else if (background == "model") {
+        p <- do.call(cbind, lapply(resL, "[[", "p"))
+        padj <- matrix(p.adjust(p, method="fdr"), nrow = nrow(p), dimnames = dimnames(p))
+        assayL <- list(p = -log10(p), FDR = -log10(padj),
+                       enr = do.call(cbind, lapply(resL, "[[", "z")),
+                       log2enr = do.call(cbind, lapply(resL, "[[", "log2enr")))
+    }
+    
+    ## create SummarizedExperiment
     brks <- attr(b, "breaks")
     if (is.null(brks)) {
         brks <- rep(NA, nlevels(b) + 1L)
@@ -256,10 +441,7 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5, MMorder = 1,
                                  motif.pfm = pfms,
                                  motif.percentGC = percentGC)
     se <- SummarizedExperiment::SummarizedExperiment(
-        assays = list(p = -log10(do.call(cbind, lapply(resL, "[[", "p"))),
-                      FDR = -log10(do.call(cbind, lapply(resL, "[[", "FDR"))),
-                      enr = do.call(cbind, lapply(resL, "[[", "z")),
-                      log2enr = do.call(cbind, lapply(resL, "[[", "log2enr"))),
+        assays = assayL,
         colData = cdat, rowData = rdat,
         metadata = list(sequences = x,
                         bins = b,
@@ -268,8 +450,10 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5, MMorder = 1,
                         bins.bin0 = attr(b, "bin0"),
                         param.genomepkg = genomepkg,
                         param.kmerLen = kmerLen,
+                        param.background = background,
                         param.MMorder = MMorder,
                         param.pseudoCount = pseudoCount,
+                        param.zoops = zoops,
                         param.Ncpu = Ncpu,
                         motif.distances = NULL)
     )
