@@ -82,6 +82,7 @@ test_that("kmerEnrichments works as expected", {
     library(BSgenome.Hsapiens.UCSC.hg19)
     library(SummarizedExperiment)
 
+    set.seed(1)
     gr <- GRanges("chr1", IRanges(sample(2e8, 1000), width = 500))
     seqs <- getSeq(BSgenome.Hsapiens.UCSC.hg19, gr)
     b <- bin(rep(1:5, each = 200), binmode = "equalN", nElements = 200)
@@ -90,6 +91,7 @@ test_that("kmerEnrichments works as expected", {
     expect_error(kmerEnrichments(1L))
     expect_error(suppressWarnings(kmerEnrichments(gr, b, genomepkg = "not-exising")))
     expect_error(kmerEnrichments(seqs, b[1:20]))
+    expect_error(kmerEnrichments(seqs, b, background = "error"))
     expect_error(kmerEnrichments(seqs, b, Ncpu = "error"))
     expect_error(kmerEnrichments(seqs, b, Ncpu = 1:2))
     expect_error(kmerEnrichments(seqs, b, Ncpu = -1))
@@ -98,11 +100,13 @@ test_that("kmerEnrichments works as expected", {
     res2 <- kmerEnrichments(gr, b, genomepkg = "BSgenome.Hsapiens.UCSC.hg19", verbose = TRUE)
     res3 <- kmerEnrichments(seqs, b, verbose = FALSE)
     res4 <- kmerEnrichments(seqs, as.numeric(b), verbose = TRUE)
+    res5 <- kmerEnrichments(seqs, b, background = "model")
 
     expect_is(res1, "SummarizedExperiment")
     expect_is(res2, "SummarizedExperiment")
     expect_is(res3, "SummarizedExperiment")
     expect_is(res4, "SummarizedExperiment")
+    expect_is(res5, "SummarizedExperiment")
     expect_identical(assays(res1), assays(res2))
     expect_identical(assays(res1), assays(res3))
     expect_equal(assays(res1), assays(res4), check.attributes = FALSE)
@@ -110,6 +114,9 @@ test_that("kmerEnrichments works as expected", {
     expect_identical(nrow(colData(res1)), nlevels(b))
     expect_identical(assayNames(res1), c("p", "FDR", "enr", "log2enr"))
     expect_identical(dim(assay(res1, "log2enr")), c(1024L, 5L))
+    expect_equal(diag(cor(assay(res1, "enr"), assay(res5, "enr"))),
+                 c(0.4145643727,0.4332920692,0.4948244256,0.3836038418,0.3833744606),
+                 check.attributes = FALSE)
 })
 
 test_that("convertKmersToMotifs works as expected", {
@@ -132,7 +139,7 @@ test_that("convertKmersToMotifs works as expected", {
         r <- sample(seqlen - 5L, length(i), replace = TRUE)
         substr(seqs[i], start = r, stop = r + 5L) <- "AACGTT"
     }
-    res1 <- kmerEnrichments(seqs, b, kmerLen = 4, verbose = TRUE)
+    res1 <- kmerEnrichments(seqs, b, kmerLen = 4, background = "model", verbose = TRUE)
     #o <- order(assay(res1, "log2enr")[, 1], decreasing = TRUE)[1:10]
     #res2 <- plotMotifHeatmaps(res1[o, ], cluster = TRUE, show_dendrogram = TRUE)
     

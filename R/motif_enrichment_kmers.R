@@ -291,10 +291,15 @@ clusterKmers <- function(x, allowReverseComplement = FALSE,
 #'   \code{character} scalar with the name of a \code{BSgenome} package from
 #'   which to extract the sequences.
 #' @param kmerLen A \code{numeric} scalar giving the k-mer length.
+#' @param background A \code{character} scalar. If \code{"other"} (the default),
+#'   the enrichments in a bin are calculated compared to the sequences in all
+#'   other bins. If \code{"model"}, the enrichments are relative to the expected
+#'   frequencies obtained from a Markov model of order \code{MMorder}.
 #' @param MMorder A \code{numeric} scalar giving the order of the Markov model
-#'   used to calculate the expected frequencies.
+#'   used to calculate the expected frequencies for \code{background = "model"}.
 #' @param zoops A \code{logical} scalar. If \code{TRUE} (the default), only one
-#'   or zero occurences of a k-mer are considered per sequence.
+#'   or zero occurences of a k-mer are considered per sequence. This is helpful
+#'   to reduce the impact of simple sequence repeats occurring in few sequences.
 #' @param pseudoCount A \code{numeric} scalar - will be added to the observed
 #'   counts for each k-mer to avoid zero values.
 #' @param Ncpu Number of parallel threads to use.
@@ -321,11 +326,15 @@ clusterKmers <- function(x, allowReverseComplement = FALSE,
 #' @importFrom parallel mclapply
 #' @importFrom BSgenome getSeq
 #' @importFrom TFBSTools PFMatrix PFMatrixList
+#' @importFrom stats ppois p.adjust
 #'
 #' @export
-kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5, MMorder = 1,
-                            pseudoCount = 1, zoops = TRUE, Ncpu = 2L, verbose = TRUE) {
+kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5,
+                            background = c("other", "model"), MMorder = 1,
+                            pseudoCount = 1, zoops = TRUE,
+                            Ncpu = 2L, verbose = TRUE) {
     ## pre-flight checks
+    background <- match.arg(background)
     stopifnot(exprs = {
         is.logical(verbose)
         length(verbose) == 1L
@@ -373,8 +382,10 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5, MMorder = 1,
     ## identify enriched k-mers in each bin
     if (verbose) {
         message("searching for enriched ", kmerLen, "-mers in ", nlevels(b),
-                " bins using ", Ncpu, if (Ncpu > 1) " cores..." else " core...",
-                appendLF = FALSE)
+                " bins using ", Ncpu, if (Ncpu > 1) " cores" else " core",
+                " (background: ", c("other" = "sequences in other bins",
+                                    "model" = paste0("Markov model of order ", MMorder))[background],
+                ")...", appendLF = FALSE)
     }
     resL <- parallel::mclapply(split(x, b)[levels(b)], getKmerFreq, kmerLen = kmerLen,
                                MMorder = MMorder, pseudoCount = pseudoCount,
@@ -383,7 +394,32 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5, MMorder = 1,
         message("done")
     }
 
-    ## ... create SummarizedExperiment
+    ## calculate motif enrichments
+    if (background == "other") {
+        f.obs <- do.call(cbind, lapply(resL, "[[", "freq.obs"))
+        f.exp <- do.call(cbind, lapply(seq_along(resL), function(i) {
+            rowSums(do.call(cbind, lapply(resL[-i], "[[", "freq.obs")))
+        }))
+        colnames(f.exp) <- colnames(f.obs)
+        n.obs <- colSums(f.obs)
+        n.exp <- colSums(f.exp)
+        f.obs <- t(t(f.obs) / n.obs * pmin(n.obs, n.exp))
+        f.exp <- t(t(f.exp) / n.exp * pmin(n.obs, n.exp))
+        lenr <- log2((f.obs + pseudoCount) / (f.exp + pseudoCount))
+        z <- (f.obs - f.exp) / sqrt(f.exp)
+        p <- ppois(q = f.obs, lambda = f.exp, lower.tail = FALSE)
+        padj <- matrix(p.adjust(p, method="fdr"), nrow = nrow(p), dimnames = dimnames(p))
+        assayL <- list(p = -log10(p), FDR = -log10(padj), enr = z, log2enr = lenr)
+
+    } else if (background == "model") {
+        p <- do.call(cbind, lapply(resL, "[[", "p"))
+        padj <- matrix(p.adjust(p, method="fdr"), nrow = nrow(p), dimnames = dimnames(p))
+        assayL <- list(p = -log10(p), FDR = -log10(padj),
+                       enr = do.call(cbind, lapply(resL, "[[", "z")),
+                       log2enr = do.call(cbind, lapply(resL, "[[", "log2enr")))
+    }
+    
+    ## create SummarizedExperiment
     brks <- attr(b, "breaks")
     if (is.null(brks)) {
         brks <- rep(NA, nlevels(b) + 1L)
@@ -405,10 +441,7 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5, MMorder = 1,
                                  motif.pfm = pfms,
                                  motif.percentGC = percentGC)
     se <- SummarizedExperiment::SummarizedExperiment(
-        assays = list(p = -log10(do.call(cbind, lapply(resL, "[[", "p"))),
-                      FDR = -log10(do.call(cbind, lapply(resL, "[[", "FDR"))),
-                      enr = do.call(cbind, lapply(resL, "[[", "z")),
-                      log2enr = do.call(cbind, lapply(resL, "[[", "log2enr"))),
+        assays = assayL,
         colData = cdat, rowData = rdat,
         metadata = list(sequences = x,
                         bins = b,
@@ -417,6 +450,7 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5, MMorder = 1,
                         bins.bin0 = attr(b, "bin0"),
                         param.genomepkg = genomepkg,
                         param.kmerLen = kmerLen,
+                        param.background = background,
                         param.MMorder = MMorder,
                         param.pseudoCount = pseudoCount,
                         param.zoops = zoops,
