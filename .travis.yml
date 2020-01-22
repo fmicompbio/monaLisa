@@ -27,7 +27,7 @@ before_script:
   - popd && echo "^homer$" >> .Rbuildignore
 
 before_install:
-    - Rscript -e 'install.packages("remotes")'
+    - Rscript -e 'install.packages(c("remotes","magick"))'
 
 r_packages:
     - covr
