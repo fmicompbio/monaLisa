@@ -25,9 +25,10 @@ before_script:
   - export PATH=$PATH:$PWD/bin/
   - export MONALISA_HOMER=$PWD/bin/
   - popd && echo "^homer$" >> .Rbuildignore
+  - Rscript -e 'install.packages("magick")'
 
 before_install:
-    - Rscript -e 'install.packages(c("remotes","magick"))'
+    - Rscript -e 'install.packages("remotes")'
 
 r_packages:
     - covr
