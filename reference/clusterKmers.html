@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Run a k-mer enrichment analysis. — kmerEnrichments • monaLisa</title>
+<title>Cluster k-mers — clusterKmers • monaLisa</title>
 
 
 <!-- jquery -->
@@ -35,10 +35,10 @@
 
 
 
-<meta property="og:title" content="Run a k-mer enrichment analysis. — kmerEnrichments" />
-<meta property="og:description" content="Given a set of sequences and corresponding bins, identify
-  enriched k-mers (n-grams) in each bin. The sequences can be given either
-  directly or as genomic coordinates." />
+<meta property="og:title" content="Cluster k-mers — clusterKmers" />
+<meta property="og:description" content="Given enriched k-mers (typically the result of
+  getKmerFreq), cluster k-mers into groups of similar k-mers
+  that are likely to originate from the same motif." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -122,28 +122,23 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Run a k-mer enrichment analysis.</h1>
+    <h1>Cluster k-mers</h1>
     
-    <div class="hidden name"><code>kmerEnrichments.Rd</code></div>
+    <div class="hidden name"><code>clusterKmers.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Given a set of sequences and corresponding bins, identify
-  enriched k-mers (n-grams) in each bin. The sequences can be given either
-  directly or as genomic coordinates.</p>
+    <p>Given enriched k-mers (typically the result of
+  <code><a href='getKmerFreq.html'>getKmerFreq</a></code>), cluster k-mers into groups of similar k-mers
+  that are likely to originate from the same motif.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>kmerEnrichments</span>(
+    <pre class="usage"><span class='fu'>clusterKmers</span>(
   <span class='no'>x</span>,
-  <span class='no'>b</span>,
-  <span class='kw'>genomepkg</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>kmerLen</span> <span class='kw'>=</span> <span class='fl'>5</span>,
-  <span class='kw'>background</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"other"</span>, <span class='st'>"model"</span>),
-  <span class='kw'>MMorder</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>zoops</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>pseudoCount</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>Ncpu</span> <span class='kw'>=</span> <span class='fl'>2L</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
+  <span class='kw'>allowReverseComplement</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>nKmers</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>maxShift</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>minSim</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -151,80 +146,58 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>A <code>character</code> vector, <code><a href='https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html'>DNAStringSet</a></code> or
-a <code><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></code> object with the sequences to
-analyze.</p></td>
+      <td><p>Enriched k-mers, either a <code>character</code> vector or the return
+value of <code><a href='getKmerFreq.html'>getKmerFreq</a></code>, from which enriched k-mers can be
+extracted.</p></td>
     </tr>
     <tr>
-      <th>b</th>
-      <td><p>A vector of the same length as <code>x</code> that groups its elements
-into bins (typically a factor, such as the one returned by
-<code><a href='bin.html'>bin</a></code>).</p></td>
+      <th>allowReverseComplement</th>
+      <td><p>A <code>logical</code> scalar. If <code>TRUE</code>, use
+the reverse complement of a k-mer if it has a higher toal similarity to all
+other k-mers than the original k-mer. In that case, the resulting k-mer is
+reported with the suffix <code>_rc</code> in the results, and the
+reverse-complement k-mer sequence is used to calculate pairwise distances.</p></td>
     </tr>
     <tr>
-      <th>genomepkg</th>
-      <td><p>Only used if <code>x</code> is a <code>GRanges</code> object: A
-<code>character</code> scalar with the name of a <code>BSgenome</code> package from
-which to extract the sequences.</p></td>
+      <th>nKmers</th>
+      <td><p>A <code>numeric</code> scalar. If <code>x</code> is a <code>list</code> as
+returned by <code><a href='getKmerFreq.html'>getKmerFreq</a></code>, the number of top enriched k-mers to
+use ordered by FDR. If <code>NULL</code> (the default), it will use <code>nKmers
+&lt;- max(10, sum(x$FDR &lt; 0.05))</code>. <code>nKmers</code> is ignored if <code>x</code> is a
+character vector.</p></td>
     </tr>
     <tr>
-      <th>kmerLen</th>
-      <td><p>A <code>numeric</code> scalar giving the k-mer length.</p></td>
+      <th>maxShift</th>
+      <td><p>A <code>numeric</code> scalar with the maximal number of shifts to
+perform when calculating k-mer distances. If <code>NULL</code> (the default), it
+will use <code>maxShift &lt;- kmerLen - 2</code>.</p></td>
     </tr>
     <tr>
-      <th>background</th>
-      <td><p>A <code>character</code> scalar. If <code>"other"</code> (the default),
-the enrichments in a bin are calculated compared to the sequences in all
-other bins. If <code>"model"</code>, the enrichments are relative to the expected
-frequencies obtained from a Markov model of order <code>MMorder</code>.</p></td>
-    </tr>
-    <tr>
-      <th>MMorder</th>
-      <td><p>A <code>numeric</code> scalar giving the order of the Markov model
-used to calculate the expected frequencies for <code>background = "model"</code>.</p></td>
-    </tr>
-    <tr>
-      <th>zoops</th>
-      <td><p>A <code>logical</code> scalar. If <code>TRUE</code> (the default), only one
-or zero occurences of a k-mer are considered per sequence. This is helpful
-to reduce the impact of simple sequence repeats occurring in few sequences.</p></td>
-    </tr>
-    <tr>
-      <th>pseudoCount</th>
-      <td><p>A <code>numeric</code> scalar - will be added to the observed
-counts for each k-mer to avoid zero values.</p></td>
-    </tr>
-    <tr>
-      <th>Ncpu</th>
-      <td><p>Number of parallel threads to use.</p></td>
-    </tr>
-    <tr>
-      <th>verbose</th>
-      <td><p>A <code>logical</code> scalar. If <code>TRUE</code>, report on progress.</p></td>
+      <th>minSim</th>
+      <td><p>A <code>numeric</code> scalar with the minimal k-mer similarity to
+link two k-mer nodes in the graph by an edge. If <code>NULL</code>, it will use
+<code>minSim &lt;- kmerLen - maxShift + 1</code>.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A <code><a href='https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html'>SummarizedExperiment</a></code> <code>y</code>
-  with</p><dl class='dl-horizontal'>
-<dt>assays(y)</dt><dd><p>containing the four components <code>p</code>,
-  <code>FDR</code>, <code>enr</code> and <code>log2enr</code>), each a k-mer (rows) by bin
-  (columns) matrix with raw -log10 P values, -log10 false discovery rates and
-  k-mer enrichments as Pearson residuals (<code>enr</code>) and as log2 ratios
-  (<code>log2enr</code>).</p></dd> <dt>rowData(x)</dt><dd><p>containing information about the
-  k-mers.</p></dd> <dt>colData(x)</dt><dd><p>containing information about the bins.</p></dd>
-  <dt>metaData(x)</dt><dd><p>containing meta data on the object (e.g. parameter
-  values).</p></dd> 
-</dl>
+    <p>A named <code>numeric</code> vector, with k-mer as names and values
+  indicating the k-mer cluster memberships.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p><code><a href='getKmerFreq.html'>getKmerFreq</a></code> used to calculate k-mer enrichments;
-  <code><a href='https://rdrr.io/pkg/BSgenome/man/getSeq-methods.html'>getSeq,BSgenome-method</a></code> which is used to extract
-  sequences from <code>genomepkg</code> if <code>x</code> is a <code>GRanges</code> object;
-  <code><a href='https://rdrr.io/r/parallel/mclapply.html'>mclapply</a></code> that is used for parallelization;
-  <code><a href='bin.html'>bin</a></code> for binning of regions</p></div>
+    <p>The clustering is performed as follows: First, all pairwise k-mer
+  distances for all possible shifts (defined by <code>maxShift</code>) are
+  calculated, defined as the Hamming distance of the overlapping substring
+  plus the number of shifts. For each k-mer pair, the minimal distance is
+  retained.  If <code>allowReverseComplement == TRUE</code>, repeat this procedure
+  to compare each k-mer to all reverse-complemented k-mers, and replace it
+  with the reverse-complemented version if this yields a lower sum of
+  pairwise distances. The resulting distance matrix is then converted into a
+  similarity matrix by subtracting it from <code>kmerLen</code> (the length of the
+  k-mers). Element less than <code>minSim</code> are set to zero, and the matrix is
+  used as an adjacency matrix to construct a k-mer graph. The clusters are
+  identified as the connected components in this graph.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -232,7 +205,7 @@ counts for each k-mer to avoid zero values.</p></td>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
-      <li><a href="#see-also">See also</a></li>
+      <li><a href="#details">Details</a></li>
     </ul>
 
   </div>
