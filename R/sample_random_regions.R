@@ -3,12 +3,9 @@
 #' @description Sample random regions from the mappable parts of the genome with
 #'      a given fraction from CpG islands.
 #'
+#' @param allowedRegions An unstranded GRanges object of the "allowed" of the genome, usually the mappable regions. 
 #' @param N Number of regions to sample.
 #' @param regWidth Region width.
-#' @param fractionCGI fraction of regions to be sampled from CpG islands. Not implemented yet.
-#' @param mappableRegions A unstranded GRanges object of the mappable parts of the genome. This can be a GRanges of
-#'                        of the entire genome with one range from start to end of each chromosome if mappability
-#'                        is not an issue.
 #' @param seed Seed for seeding the random number generator.
 #'
 #'
@@ -22,8 +19,8 @@
 #' @importFrom IRanges IRanges
 #'
 #' @export
-sample_random_regions <- function(N = 100L, regWidth = 200L, fractionCGI = 0.5,
-								  mappableRegions = NULL, seed = 123){
+sample_random_regions <- function(allowedRegions = NULL, N = 100L,
+																	regWidth = 200L, seed = 123){
 
 	stopifnot(exprs = {
 		length(N) == 1
@@ -33,10 +30,10 @@ sample_random_regions <- function(N = 100L, regWidth = 200L, fractionCGI = 0.5,
 		length(fractionCGI) == 1
 		is.numeric(fractionCGI)
 		(fractionCGI >= 0) & (fractionCGI <= 1)
-		class(mappableRegions) == "GRanges"
-		length(mappableRegions) > 0
-		sum(width(mappableRegions) >= regWidth) > 0
-		unique(strand(mappableRegions)) == "*"
+		class(allowedRegions) == "GRanges"
+		length(allowedRegions) > 0
+		sum(width(allowedRegions) >= regWidth) > 0
+		unique(strand(allowedRegions)) == "*"
 		length(seed) == 1
 		is.numeric(seed)
 	})
@@ -50,7 +47,7 @@ sample_random_regions <- function(N = 100L, regWidth = 200L, fractionCGI = 0.5,
 	#end position such that the object only contains
 	#the start positions that when extended by width are
 	#entirely within the mappable parts of the genome
-	gr <- mappableRegions[width(mappableRegions) >= regWidth]
+	gr <- allowedRegions[width(allowedRegions) >= regWidth]
 	end(gr) <- end(gr) - regWidth + 1
 
 	#first sample regions according to the number of positions
