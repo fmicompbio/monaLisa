@@ -9,8 +9,8 @@ test_that("sample_random_regions() works properly", {
     expect_error(sample_random_regions(N = "error"))
     # todo: add some more
 
-    res1 <- sample_random_regions(mappableRegions = gr)
-    res2 <- sample_random_regions(mappableRegions = gr)
+    res1 <- sample_random_regions(allowedRegions = gr)
+    res2 <- sample_random_regions(allowedRegions = gr)
 
     expect_is(res1, "GRanges")
     expect_identical(res1, res2)
