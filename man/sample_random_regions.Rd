@@ -2,26 +2,21 @@
 % Please edit documentation in R/sample_random_regions.R
 \name{sample_random_regions}
 \alias{sample_random_regions}
-\title{Sample random regions.}
+\title{Sample random regions of fixed length.}
 \usage{
 sample_random_regions(
+  allowedRegions = NULL,
   N = 100L,
   regWidth = 200L,
-  fractionCGI = 0.5,
-  mappableRegions = NULL,
   seed = 123
 )
 }
 \arguments{
+\item{allowedRegions}{An unstranded GRanges object of the "allowed" of the genome, usually the mappable regions.}
+
 \item{N}{Number of regions to sample.}
 
 \item{regWidth}{Region width.}
-
-\item{fractionCGI}{fraction of regions to be sampled from CpG islands. Not implemented yet.}
-
-\item{mappableRegions}{A unstranded GRanges object of the mappable parts of the genome. This can be a GRanges of
-of the entire genome with one range from start to end of each chromosome if mappability
-is not an issue.}
 
 \item{seed}{Seed for seeding the random number generator.}
 }

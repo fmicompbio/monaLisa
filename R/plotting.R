@@ -477,7 +477,7 @@ plotMotifDirectionality <- function(stabs_obj = NULL, response = NULL, predictor
     # ... class checks
     stopifnot(class(stabs_obj)=="stabsel")
     stopifnot(class(response)=="numeric")
-    stopifnot(class(predictor_matrix)=="matrix")
+    stopifnot(any(class(predictor_matrix)=="matrix"))
     # ... compatibility checks
     stopifnot(length(response)==nrow(predictor_matrix))
     if(!is.null(colnames(predictor_matrix))&!is.null(names(response))){
