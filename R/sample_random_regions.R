@@ -1,4 +1,4 @@
-#' @title Sample random regions.
+#' @title Sample random regions of fixed length.
 #'
 #' @description Sample random regions from the mappable parts of the genome with
 #'      a given fraction from CpG islands.
@@ -27,9 +27,6 @@ sample_random_regions <- function(allowedRegions = NULL, N = 100L,
 		is.numeric(N)
 		length(regWidth) == 1
 		is.numeric(regWidth)
-		length(fractionCGI) == 1
-		is.numeric(fractionCGI)
-		(fractionCGI >= 0) & (fractionCGI <= 1)
 		class(allowedRegions) == "GRanges"
 		length(allowedRegions) > 0
 		sum(width(allowedRegions) >= regWidth) > 0
