@@ -85,7 +85,7 @@
       <h1>monaLisa - MOtif aNAlysis with Lisa</h1>
                         <h4 class="author">Dania Machlab, Lukas Burger, Michael Stadler</h4>
             
-            <h4 class="date">2020-01-30</h4>
+            <h4 class="date">2020-02-14</h4>
       
       
       <div class="hidden name"><code>monaLisa.Rmd</code></div>
@@ -367,113 +367,108 @@ saveRDS(se, "/work/gbioinfo/stadler/development/R/compbio-lisa/inst/extdata/se.r
 <a class="sourceLine" id="cb18-3" data-line-number="3"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(TxDb.Hsapiens.UCSC.hg19.knownGene)</a>
 <a class="sourceLine" id="cb18-4" data-line-number="4"><span class="co">#&gt; Loading required package: GenomicFeatures</span></a>
 <a class="sourceLine" id="cb18-5" data-line-number="5"><span class="co">#&gt; Loading required package: AnnotationDbi</span></a>
-<a class="sourceLine" id="cb18-6" data-line-number="6"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb18-7" data-line-number="7"><span class="co">#&gt; Attaching package: 'GenomicFeatures'</span></a>
-<a class="sourceLine" id="cb18-8" data-line-number="8"><span class="co">#&gt; The following object is masked from 'package:GenomeInfoDb':</span></a>
-<a class="sourceLine" id="cb18-9" data-line-number="9"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb18-10" data-line-number="10"><span class="co">#&gt;     getChromInfoFromUCSC</span></a>
-<a class="sourceLine" id="cb18-11" data-line-number="11">gr &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/GenomicRanges/man/intra-range-methods.html">promoters</a></span>(TxDb.Hsapiens.UCSC.hg19.knownGene, <span class="dt">upstream =</span> <span class="dv">1000</span>, <span class="dt">downstream =</span> <span class="dv">500</span>)[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">10</span>)]</a>
-<a class="sourceLine" id="cb18-12" data-line-number="12"><span class="co">#&gt; Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 1 out-of-bound range located on sequence</span></a>
-<a class="sourceLine" id="cb18-13" data-line-number="13"><span class="co">#&gt;   chrUn_gl000223. Note that ranges located on a sequence whose length is</span></a>
-<a class="sourceLine" id="cb18-14" data-line-number="14"><span class="co">#&gt;   unknown (NA) or on a circular sequence are not considered out-of-bound</span></a>
-<a class="sourceLine" id="cb18-15" data-line-number="15"><span class="co">#&gt;   (use seqlengths() and isCircular() to get the lengths and circularity</span></a>
-<a class="sourceLine" id="cb18-16" data-line-number="16"><span class="co">#&gt;   flags of the underlying sequences). You can use trim() to trim these</span></a>
-<a class="sourceLine" id="cb18-17" data-line-number="17"><span class="co">#&gt;   ranges. See ?`trim,GenomicRanges-method` for more information.</span></a>
-<a class="sourceLine" id="cb18-18" data-line-number="18"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(BSgenome.Hsapiens.UCSC.hg19)</a>
-<a class="sourceLine" id="cb18-19" data-line-number="19"><span class="co">#&gt; Loading required package: BSgenome</span></a>
-<a class="sourceLine" id="cb18-20" data-line-number="20"><span class="co">#&gt; Loading required package: Biostrings</span></a>
-<a class="sourceLine" id="cb18-21" data-line-number="21"><span class="co">#&gt; Loading required package: XVector</span></a>
-<a class="sourceLine" id="cb18-22" data-line-number="22"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb18-23" data-line-number="23"><span class="co">#&gt; Attaching package: 'Biostrings'</span></a>
-<a class="sourceLine" id="cb18-24" data-line-number="24"><span class="co">#&gt; The following object is masked from 'package:base':</span></a>
-<a class="sourceLine" id="cb18-25" data-line-number="25"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb18-26" data-line-number="26"><span class="co">#&gt;     strsplit</span></a>
-<a class="sourceLine" id="cb18-27" data-line-number="27"><span class="co">#&gt; Loading required package: rtracklayer</span></a>
-<a class="sourceLine" id="cb18-28" data-line-number="28">seqs &lt;-<span class="st"> </span><span class="kw">getSeq</span>(BSgenome.Hsapiens.UCSC.hg19, gr)</a>
-<a class="sourceLine" id="cb18-29" data-line-number="29">seqs</a>
-<a class="sourceLine" id="cb18-30" data-line-number="30"><span class="co">#&gt; DNAStringSet object of length 4:</span></a>
-<a class="sourceLine" id="cb18-31" data-line-number="31"><span class="co">#&gt;     width seq                                               names               </span></a>
-<a class="sourceLine" id="cb18-32" data-line-number="32"><span class="co">#&gt; [1]  1500 ACACATGCTACCGCGTCCAGGGGT…CCAGCCGGCTGGAGGGAGGGGCTC uc001aaa.3</span></a>
-<a class="sourceLine" id="cb18-33" data-line-number="33"><span class="co">#&gt; [2]  1500 GCTATTATCACCTATATTTTCCAG…ACTCTTCTGTGGTCCCAATGAGGT uc001aal.1</span></a>
-<a class="sourceLine" id="cb18-34" data-line-number="34"><span class="co">#&gt; [3]  1500 ACATGCATGTCACCCATGCCCAGA…AAGAAGAACTTTTAGTATGTACAT uc001aaq.2</span></a>
-<a class="sourceLine" id="cb18-35" data-line-number="35"><span class="co">#&gt; [4]  1500 TTGGCTCAACTCCTGCCCAGCTCC…CCTCTTTCGGCCCAGCCCAGCTCA uc021oei.1</span></a>
-<a class="sourceLine" id="cb18-36" data-line-number="36"></a>
-<a class="sourceLine" id="cb18-37" data-line-number="37"><span class="co"># get motifs as a PWMatrixList</span></a>
-<a class="sourceLine" id="cb18-38" data-line-number="38"><span class="co"># (could also be a single PWMatrix, or the name of a motif file)</span></a>
-<a class="sourceLine" id="cb18-39" data-line-number="39"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(JASPAR2018)</a>
-<a class="sourceLine" id="cb18-40" data-line-number="40"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(TFBSTools)</a>
-<a class="sourceLine" id="cb18-41" data-line-number="41"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb18-42" data-line-number="42"><span class="co">#&gt; Attaching package: 'TFBSTools'</span></a>
-<a class="sourceLine" id="cb18-43" data-line-number="43"><span class="co">#&gt; The following object is masked from 'package:DelayedArray':</span></a>
-<a class="sourceLine" id="cb18-44" data-line-number="44"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb18-45" data-line-number="45"><span class="co">#&gt;     matrixClass</span></a>
-<a class="sourceLine" id="cb18-46" data-line-number="46">pwms &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/TFBSTools/man/getMatrixSet-methods.html">getMatrixSet</a></span>(JASPAR2018, <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">matrixtype =</span> <span class="st">"PWM"</span>, <span class="dt">tax_group =</span> <span class="st">"vertebrates"</span>))</a>
-<a class="sourceLine" id="cb18-47" data-line-number="47">pwms &lt;-<span class="st"> </span>pwms[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"MA0885.1"</span>,<span class="st">"MA0099.3"</span>,<span class="st">"MA0033.2"</span>,<span class="st">"MA0037.3"</span>,<span class="st">"MA0158.1"</span>)]</a>
-<a class="sourceLine" id="cb18-48" data-line-number="48">pwms</a>
-<a class="sourceLine" id="cb18-49" data-line-number="49"><span class="co">#&gt; PWMatrixList of length 5</span></a>
-<a class="sourceLine" id="cb18-50" data-line-number="50"><span class="co">#&gt; names(5): MA0885.1 MA0099.3 MA0033.2 MA0037.3 MA0158.1</span></a>
-<a class="sourceLine" id="cb18-51" data-line-number="51"></a>
-<a class="sourceLine" id="cb18-52" data-line-number="52"><span class="co"># predict hits in sequences</span></a>
-<a class="sourceLine" id="cb18-53" data-line-number="53">res &lt;-<span class="st"> </span><span class="kw"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span>(<span class="dt">query =</span> pwms, <span class="dt">subject =</span> seqs, <span class="dt">min.score =</span> <span class="fl">6.0</span>, <span class="dt">method =</span> <span class="st">"matchPWM"</span>)</a>
-<a class="sourceLine" id="cb18-54" data-line-number="54">res</a>
-<a class="sourceLine" id="cb18-55" data-line-number="55"><span class="co">#&gt; GRanges object with 81 ranges and 3 metadata columns:</span></a>
-<a class="sourceLine" id="cb18-56" data-line-number="56"><span class="co">#&gt;          seqnames    ranges strand |     matchedSeq  pwmname     score</span></a>
-<a class="sourceLine" id="cb18-57" data-line-number="57"><span class="co">#&gt;             &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;DNAStringSet&gt;    &lt;Rle&gt; &lt;numeric&gt;</span></a>
-<a class="sourceLine" id="cb18-58" data-line-number="58"><span class="co">#&gt;    [1] uc001aaa.3   268-275      + |       CAGTAATC    HOXA5   7.61262</span></a>
-<a class="sourceLine" id="cb18-59" data-line-number="59"><span class="co">#&gt;    [2] uc001aaa.3   673-679      + |        ATAAATA    FOXL1  10.19850</span></a>
-<a class="sourceLine" id="cb18-60" data-line-number="60"><span class="co">#&gt;    [3] uc001aaa.3   696-703      + |       TGATTACC    GATA3   6.16846</span></a>
-<a class="sourceLine" id="cb18-61" data-line-number="61"><span class="co">#&gt;    [4] uc001aaa.3   908-915      + |       CGCAAATT    HOXA5   9.98186</span></a>
-<a class="sourceLine" id="cb18-62" data-line-number="62"><span class="co">#&gt;    [5] uc001aaa.3   315-322      - |       CTGTAGTG    HOXA5   6.51394</span></a>
-<a class="sourceLine" id="cb18-63" data-line-number="63"><span class="co">#&gt;    ...        ...       ...    ... .            ...      ...       ...</span></a>
-<a class="sourceLine" id="cb18-64" data-line-number="64"><span class="co">#&gt;   [77] uc021oei.1   457-466      + |     TTGCCTCACC FOS::JUN   6.57112</span></a>
-<a class="sourceLine" id="cb18-65" data-line-number="65"><span class="co">#&gt;   [78] uc021oei.1   554-563      + |     TTGCCTCACA FOS::JUN   6.05218</span></a>
-<a class="sourceLine" id="cb18-66" data-line-number="66"><span class="co">#&gt;   [79] uc021oei.1   939-946      + |       CTTAAGTT    HOXA5   6.20581</span></a>
-<a class="sourceLine" id="cb18-67" data-line-number="67"><span class="co">#&gt;   [80] uc021oei.1   262-268      - |        ATCAACA    FOXL1   9.08702</span></a>
-<a class="sourceLine" id="cb18-68" data-line-number="68"><span class="co">#&gt;   [81] uc021oei.1   868-874      - |        GCAAACA    FOXL1   8.84244</span></a>
-<a class="sourceLine" id="cb18-69" data-line-number="69"><span class="co">#&gt;   -------</span></a>
-<a class="sourceLine" id="cb18-70" data-line-number="70"><span class="co">#&gt;   seqinfo: 4 sequences from an unspecified genome</span></a>
-<a class="sourceLine" id="cb18-71" data-line-number="71"></a>
-<a class="sourceLine" id="cb18-72" data-line-number="72"><span class="co"># ... or using method = "homer2"</span></a>
-<a class="sourceLine" id="cb18-73" data-line-number="73">homerfile &lt;-<span class="st"> </span><span class="kw"><a href="../reference/findHomer.html">findHomer</a></span>(<span class="dt">homerfile =</span> <span class="st">"homer2"</span>, <span class="dt">dirs =</span> <span class="st">"/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/"</span>)</a>
-<a class="sourceLine" id="cb18-74" data-line-number="74"><span class="cf">if</span> (<span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(homerfile)) {</a>
-<a class="sourceLine" id="cb18-75" data-line-number="75">    <span class="co"># use homer2 if available</span></a>
-<a class="sourceLine" id="cb18-76" data-line-number="76">    res2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span>(<span class="dt">query =</span> pwms, <span class="dt">subject =</span> seqs, <span class="dt">min.score =</span> <span class="fl">6.0</span>, <span class="dt">method =</span> <span class="st">"homer2"</span>, <span class="dt">homerfile =</span> homerfile)</a>
-<a class="sourceLine" id="cb18-77" data-line-number="77">} <span class="cf">else</span> {</a>
-<a class="sourceLine" id="cb18-78" data-line-number="78">    <span class="co"># otherwise, use matchPWM</span></a>
-<a class="sourceLine" id="cb18-79" data-line-number="79">    res2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span>(<span class="dt">query =</span> pwms, <span class="dt">subject =</span> seqs, <span class="dt">min.score =</span> <span class="fl">6.0</span>, <span class="dt">method =</span> <span class="st">"matchPWM"</span>)</a>
-<a class="sourceLine" id="cb18-80" data-line-number="80">}</a>
-<a class="sourceLine" id="cb18-81" data-line-number="81">res2</a>
-<a class="sourceLine" id="cb18-82" data-line-number="82"><span class="co">#&gt; GRanges object with 81 ranges and 3 metadata columns:</span></a>
-<a class="sourceLine" id="cb18-83" data-line-number="83"><span class="co">#&gt;          seqnames    ranges strand |     matchedSeq  pwmname     score</span></a>
-<a class="sourceLine" id="cb18-84" data-line-number="84"><span class="co">#&gt;             &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;DNAStringSet&gt;    &lt;Rle&gt; &lt;numeric&gt;</span></a>
-<a class="sourceLine" id="cb18-85" data-line-number="85"><span class="co">#&gt;    [1] uc001aaa.3   268-275      + |       CAGTAATC    HOXA5   7.61262</span></a>
-<a class="sourceLine" id="cb18-86" data-line-number="86"><span class="co">#&gt;    [2] uc001aaa.3   673-679      + |        ATAAATA    FOXL1  10.19850</span></a>
-<a class="sourceLine" id="cb18-87" data-line-number="87"><span class="co">#&gt;    [3] uc001aaa.3   696-703      + |       TGATTACC    GATA3   6.16846</span></a>
-<a class="sourceLine" id="cb18-88" data-line-number="88"><span class="co">#&gt;    [4] uc001aaa.3   908-915      + |       CGCAAATT    HOXA5   9.98186</span></a>
-<a class="sourceLine" id="cb18-89" data-line-number="89"><span class="co">#&gt;    [5] uc001aaa.3   315-322      - |       CACTACAG    HOXA5   6.51394</span></a>
-<a class="sourceLine" id="cb18-90" data-line-number="90"><span class="co">#&gt;    ...        ...       ...    ... .            ...      ...       ...</span></a>
-<a class="sourceLine" id="cb18-91" data-line-number="91"><span class="co">#&gt;   [77] uc021oei.1   457-466      + |     TTGCCTCACC FOS::JUN   6.57112</span></a>
-<a class="sourceLine" id="cb18-92" data-line-number="92"><span class="co">#&gt;   [78] uc021oei.1   554-563      + |     TTGCCTCACA FOS::JUN   6.05219</span></a>
-<a class="sourceLine" id="cb18-93" data-line-number="93"><span class="co">#&gt;   [79] uc021oei.1   939-946      + |       CTTAAGTT    HOXA5   6.20581</span></a>
-<a class="sourceLine" id="cb18-94" data-line-number="94"><span class="co">#&gt;   [80] uc021oei.1   262-268      - |        TGTTGAT    FOXL1   9.08702</span></a>
-<a class="sourceLine" id="cb18-95" data-line-number="95"><span class="co">#&gt;   [81] uc021oei.1   868-874      - |        TGTTTGC    FOXL1   8.84244</span></a>
-<a class="sourceLine" id="cb18-96" data-line-number="96"><span class="co">#&gt;   -------</span></a>
-<a class="sourceLine" id="cb18-97" data-line-number="97"><span class="co">#&gt;   seqinfo: 4 sequences from an unspecified genome</span></a>
-<a class="sourceLine" id="cb18-98" data-line-number="98"></a>
-<a class="sourceLine" id="cb18-99" data-line-number="99"><span class="kw"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(res <span class="op">%in%</span><span class="st"> </span>res2)</a>
-<a class="sourceLine" id="cb18-100" data-line-number="100"><span class="co">#&gt;    Mode    TRUE </span></a>
-<a class="sourceLine" id="cb18-101" data-line-number="101"><span class="co">#&gt; logical      81</span></a>
-<a class="sourceLine" id="cb18-102" data-line-number="102"></a>
-<a class="sourceLine" id="cb18-103" data-line-number="103"><span class="co"># create hit matrix:</span></a>
-<a class="sourceLine" id="cb18-104" data-line-number="104"><span class="co"># number of site of each motif per sequence</span></a>
-<a class="sourceLine" id="cb18-105" data-line-number="105">m &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/table.html">table</a></span>(<span class="kw">seqnames</span>(res), <span class="kw"><a href="https://rdrr.io/r/base/character.html">as.character</a></span>(res<span class="op">$</span>pwmname))</a>
-<a class="sourceLine" id="cb18-106" data-line-number="106">m</a>
-<a class="sourceLine" id="cb18-107" data-line-number="107"><span class="co">#&gt;             </span></a>
-<a class="sourceLine" id="cb18-108" data-line-number="108"><span class="co">#&gt;              Dlx2 FOS::JUN FOXL1 GATA3 HOXA5</span></a>
-<a class="sourceLine" id="cb18-109" data-line-number="109"><span class="co">#&gt;   uc001aaa.3    1        0     4     1     4</span></a>
-<a class="sourceLine" id="cb18-110" data-line-number="110"><span class="co">#&gt;   uc001aal.1    8        2     5    10    11</span></a>
-<a class="sourceLine" id="cb18-111" data-line-number="111"><span class="co">#&gt;   uc001aaq.2    5        8     3     1    10</span></a>
-<a class="sourceLine" id="cb18-112" data-line-number="112"><span class="co">#&gt;   uc021oei.1    0        5     2     0     1</span></a></code></pre></div>
+<a class="sourceLine" id="cb18-6" data-line-number="6">gr &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/GenomicRanges/man/intra-range-methods.html">promoters</a></span>(TxDb.Hsapiens.UCSC.hg19.knownGene, <span class="dt">upstream =</span> <span class="dv">1000</span>, <span class="dt">downstream =</span> <span class="dv">500</span>)[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">10</span>)]</a>
+<a class="sourceLine" id="cb18-7" data-line-number="7"><span class="co">#&gt; Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 1 out-of-bound range located on sequence</span></a>
+<a class="sourceLine" id="cb18-8" data-line-number="8"><span class="co">#&gt;   chrUn_gl000223. Note that ranges located on a sequence whose length is</span></a>
+<a class="sourceLine" id="cb18-9" data-line-number="9"><span class="co">#&gt;   unknown (NA) or on a circular sequence are not considered out-of-bound</span></a>
+<a class="sourceLine" id="cb18-10" data-line-number="10"><span class="co">#&gt;   (use seqlengths() and isCircular() to get the lengths and circularity</span></a>
+<a class="sourceLine" id="cb18-11" data-line-number="11"><span class="co">#&gt;   flags of the underlying sequences). You can use trim() to trim these</span></a>
+<a class="sourceLine" id="cb18-12" data-line-number="12"><span class="co">#&gt;   ranges. See ?`trim,GenomicRanges-method` for more information.</span></a>
+<a class="sourceLine" id="cb18-13" data-line-number="13"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(BSgenome.Hsapiens.UCSC.hg19)</a>
+<a class="sourceLine" id="cb18-14" data-line-number="14"><span class="co">#&gt; Loading required package: BSgenome</span></a>
+<a class="sourceLine" id="cb18-15" data-line-number="15"><span class="co">#&gt; Loading required package: Biostrings</span></a>
+<a class="sourceLine" id="cb18-16" data-line-number="16"><span class="co">#&gt; Loading required package: XVector</span></a>
+<a class="sourceLine" id="cb18-17" data-line-number="17"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb18-18" data-line-number="18"><span class="co">#&gt; Attaching package: 'Biostrings'</span></a>
+<a class="sourceLine" id="cb18-19" data-line-number="19"><span class="co">#&gt; The following object is masked from 'package:base':</span></a>
+<a class="sourceLine" id="cb18-20" data-line-number="20"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb18-21" data-line-number="21"><span class="co">#&gt;     strsplit</span></a>
+<a class="sourceLine" id="cb18-22" data-line-number="22"><span class="co">#&gt; Loading required package: rtracklayer</span></a>
+<a class="sourceLine" id="cb18-23" data-line-number="23">seqs &lt;-<span class="st"> </span><span class="kw">getSeq</span>(BSgenome.Hsapiens.UCSC.hg19, gr)</a>
+<a class="sourceLine" id="cb18-24" data-line-number="24">seqs</a>
+<a class="sourceLine" id="cb18-25" data-line-number="25"><span class="co">#&gt; DNAStringSet object of length 4:</span></a>
+<a class="sourceLine" id="cb18-26" data-line-number="26"><span class="co">#&gt;     width seq                                               names               </span></a>
+<a class="sourceLine" id="cb18-27" data-line-number="27"><span class="co">#&gt; [1]  1500 ACACATGCTACCGCGTCCAGGGGT…CCAGCCGGCTGGAGGGAGGGGCTC uc001aaa.3</span></a>
+<a class="sourceLine" id="cb18-28" data-line-number="28"><span class="co">#&gt; [2]  1500 GCTATTATCACCTATATTTTCCAG…ACTCTTCTGTGGTCCCAATGAGGT uc001aal.1</span></a>
+<a class="sourceLine" id="cb18-29" data-line-number="29"><span class="co">#&gt; [3]  1500 ACATGCATGTCACCCATGCCCAGA…AAGAAGAACTTTTAGTATGTACAT uc001aaq.2</span></a>
+<a class="sourceLine" id="cb18-30" data-line-number="30"><span class="co">#&gt; [4]  1500 TTGGCTCAACTCCTGCCCAGCTCC…CCTCTTTCGGCCCAGCCCAGCTCA uc021oei.1</span></a>
+<a class="sourceLine" id="cb18-31" data-line-number="31"></a>
+<a class="sourceLine" id="cb18-32" data-line-number="32"><span class="co"># get motifs as a PWMatrixList</span></a>
+<a class="sourceLine" id="cb18-33" data-line-number="33"><span class="co"># (could also be a single PWMatrix, or the name of a motif file)</span></a>
+<a class="sourceLine" id="cb18-34" data-line-number="34"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(JASPAR2018)</a>
+<a class="sourceLine" id="cb18-35" data-line-number="35"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(TFBSTools)</a>
+<a class="sourceLine" id="cb18-36" data-line-number="36"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb18-37" data-line-number="37"><span class="co">#&gt; Attaching package: 'TFBSTools'</span></a>
+<a class="sourceLine" id="cb18-38" data-line-number="38"><span class="co">#&gt; The following object is masked from 'package:DelayedArray':</span></a>
+<a class="sourceLine" id="cb18-39" data-line-number="39"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb18-40" data-line-number="40"><span class="co">#&gt;     matrixClass</span></a>
+<a class="sourceLine" id="cb18-41" data-line-number="41">pwms &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/TFBSTools/man/getMatrixSet-methods.html">getMatrixSet</a></span>(JASPAR2018, <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">matrixtype =</span> <span class="st">"PWM"</span>, <span class="dt">tax_group =</span> <span class="st">"vertebrates"</span>))</a>
+<a class="sourceLine" id="cb18-42" data-line-number="42">pwms &lt;-<span class="st"> </span>pwms[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"MA0885.1"</span>,<span class="st">"MA0099.3"</span>,<span class="st">"MA0033.2"</span>,<span class="st">"MA0037.3"</span>,<span class="st">"MA0158.1"</span>)]</a>
+<a class="sourceLine" id="cb18-43" data-line-number="43">pwms</a>
+<a class="sourceLine" id="cb18-44" data-line-number="44"><span class="co">#&gt; PWMatrixList of length 5</span></a>
+<a class="sourceLine" id="cb18-45" data-line-number="45"><span class="co">#&gt; names(5): MA0885.1 MA0099.3 MA0033.2 MA0037.3 MA0158.1</span></a>
+<a class="sourceLine" id="cb18-46" data-line-number="46"></a>
+<a class="sourceLine" id="cb18-47" data-line-number="47"><span class="co"># predict hits in sequences</span></a>
+<a class="sourceLine" id="cb18-48" data-line-number="48">res &lt;-<span class="st"> </span><span class="kw"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span>(<span class="dt">query =</span> pwms, <span class="dt">subject =</span> seqs, <span class="dt">min.score =</span> <span class="fl">6.0</span>, <span class="dt">method =</span> <span class="st">"matchPWM"</span>)</a>
+<a class="sourceLine" id="cb18-49" data-line-number="49">res</a>
+<a class="sourceLine" id="cb18-50" data-line-number="50"><span class="co">#&gt; GRanges object with 81 ranges and 3 metadata columns:</span></a>
+<a class="sourceLine" id="cb18-51" data-line-number="51"><span class="co">#&gt;          seqnames    ranges strand |     matchedSeq  pwmname     score</span></a>
+<a class="sourceLine" id="cb18-52" data-line-number="52"><span class="co">#&gt;             &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;DNAStringSet&gt;    &lt;Rle&gt; &lt;numeric&gt;</span></a>
+<a class="sourceLine" id="cb18-53" data-line-number="53"><span class="co">#&gt;    [1] uc001aaa.3   268-275      + |       CAGTAATC    HOXA5   7.61262</span></a>
+<a class="sourceLine" id="cb18-54" data-line-number="54"><span class="co">#&gt;    [2] uc001aaa.3   673-679      + |        ATAAATA    FOXL1  10.19850</span></a>
+<a class="sourceLine" id="cb18-55" data-line-number="55"><span class="co">#&gt;    [3] uc001aaa.3   696-703      + |       TGATTACC    GATA3   6.16846</span></a>
+<a class="sourceLine" id="cb18-56" data-line-number="56"><span class="co">#&gt;    [4] uc001aaa.3   908-915      + |       CGCAAATT    HOXA5   9.98186</span></a>
+<a class="sourceLine" id="cb18-57" data-line-number="57"><span class="co">#&gt;    [5] uc001aaa.3   315-322      - |       CTGTAGTG    HOXA5   6.51394</span></a>
+<a class="sourceLine" id="cb18-58" data-line-number="58"><span class="co">#&gt;    ...        ...       ...    ... .            ...      ...       ...</span></a>
+<a class="sourceLine" id="cb18-59" data-line-number="59"><span class="co">#&gt;   [77] uc021oei.1   457-466      + |     TTGCCTCACC FOS::JUN   6.57112</span></a>
+<a class="sourceLine" id="cb18-60" data-line-number="60"><span class="co">#&gt;   [78] uc021oei.1   554-563      + |     TTGCCTCACA FOS::JUN   6.05218</span></a>
+<a class="sourceLine" id="cb18-61" data-line-number="61"><span class="co">#&gt;   [79] uc021oei.1   939-946      + |       CTTAAGTT    HOXA5   6.20581</span></a>
+<a class="sourceLine" id="cb18-62" data-line-number="62"><span class="co">#&gt;   [80] uc021oei.1   262-268      - |        ATCAACA    FOXL1   9.08702</span></a>
+<a class="sourceLine" id="cb18-63" data-line-number="63"><span class="co">#&gt;   [81] uc021oei.1   868-874      - |        GCAAACA    FOXL1   8.84244</span></a>
+<a class="sourceLine" id="cb18-64" data-line-number="64"><span class="co">#&gt;   -------</span></a>
+<a class="sourceLine" id="cb18-65" data-line-number="65"><span class="co">#&gt;   seqinfo: 4 sequences from an unspecified genome</span></a>
+<a class="sourceLine" id="cb18-66" data-line-number="66"></a>
+<a class="sourceLine" id="cb18-67" data-line-number="67"><span class="co"># ... or using method = "homer2"</span></a>
+<a class="sourceLine" id="cb18-68" data-line-number="68">homerfile &lt;-<span class="st"> </span><span class="kw"><a href="../reference/findHomer.html">findHomer</a></span>(<span class="dt">homerfile =</span> <span class="st">"homer2"</span>, <span class="dt">dirs =</span> <span class="st">"/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/"</span>)</a>
+<a class="sourceLine" id="cb18-69" data-line-number="69"><span class="cf">if</span> (<span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(homerfile)) {</a>
+<a class="sourceLine" id="cb18-70" data-line-number="70">    <span class="co"># use homer2 if available</span></a>
+<a class="sourceLine" id="cb18-71" data-line-number="71">    res2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span>(<span class="dt">query =</span> pwms, <span class="dt">subject =</span> seqs, <span class="dt">min.score =</span> <span class="fl">6.0</span>, <span class="dt">method =</span> <span class="st">"homer2"</span>, <span class="dt">homerfile =</span> homerfile)</a>
+<a class="sourceLine" id="cb18-72" data-line-number="72">} <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb18-73" data-line-number="73">    <span class="co"># otherwise, use matchPWM</span></a>
+<a class="sourceLine" id="cb18-74" data-line-number="74">    res2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span>(<span class="dt">query =</span> pwms, <span class="dt">subject =</span> seqs, <span class="dt">min.score =</span> <span class="fl">6.0</span>, <span class="dt">method =</span> <span class="st">"matchPWM"</span>)</a>
+<a class="sourceLine" id="cb18-75" data-line-number="75">}</a>
+<a class="sourceLine" id="cb18-76" data-line-number="76">res2</a>
+<a class="sourceLine" id="cb18-77" data-line-number="77"><span class="co">#&gt; GRanges object with 81 ranges and 3 metadata columns:</span></a>
+<a class="sourceLine" id="cb18-78" data-line-number="78"><span class="co">#&gt;          seqnames    ranges strand |     matchedSeq  pwmname     score</span></a>
+<a class="sourceLine" id="cb18-79" data-line-number="79"><span class="co">#&gt;             &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;DNAStringSet&gt;    &lt;Rle&gt; &lt;numeric&gt;</span></a>
+<a class="sourceLine" id="cb18-80" data-line-number="80"><span class="co">#&gt;    [1] uc001aaa.3   268-275      + |       CAGTAATC    HOXA5   7.61262</span></a>
+<a class="sourceLine" id="cb18-81" data-line-number="81"><span class="co">#&gt;    [2] uc001aaa.3   673-679      + |        ATAAATA    FOXL1  10.19850</span></a>
+<a class="sourceLine" id="cb18-82" data-line-number="82"><span class="co">#&gt;    [3] uc001aaa.3   696-703      + |       TGATTACC    GATA3   6.16846</span></a>
+<a class="sourceLine" id="cb18-83" data-line-number="83"><span class="co">#&gt;    [4] uc001aaa.3   908-915      + |       CGCAAATT    HOXA5   9.98186</span></a>
+<a class="sourceLine" id="cb18-84" data-line-number="84"><span class="co">#&gt;    [5] uc001aaa.3   315-322      - |       CACTACAG    HOXA5   6.51394</span></a>
+<a class="sourceLine" id="cb18-85" data-line-number="85"><span class="co">#&gt;    ...        ...       ...    ... .            ...      ...       ...</span></a>
+<a class="sourceLine" id="cb18-86" data-line-number="86"><span class="co">#&gt;   [77] uc021oei.1   457-466      + |     TTGCCTCACC FOS::JUN   6.57112</span></a>
+<a class="sourceLine" id="cb18-87" data-line-number="87"><span class="co">#&gt;   [78] uc021oei.1   554-563      + |     TTGCCTCACA FOS::JUN   6.05219</span></a>
+<a class="sourceLine" id="cb18-88" data-line-number="88"><span class="co">#&gt;   [79] uc021oei.1   939-946      + |       CTTAAGTT    HOXA5   6.20581</span></a>
+<a class="sourceLine" id="cb18-89" data-line-number="89"><span class="co">#&gt;   [80] uc021oei.1   262-268      - |        TGTTGAT    FOXL1   9.08702</span></a>
+<a class="sourceLine" id="cb18-90" data-line-number="90"><span class="co">#&gt;   [81] uc021oei.1   868-874      - |        TGTTTGC    FOXL1   8.84244</span></a>
+<a class="sourceLine" id="cb18-91" data-line-number="91"><span class="co">#&gt;   -------</span></a>
+<a class="sourceLine" id="cb18-92" data-line-number="92"><span class="co">#&gt;   seqinfo: 4 sequences from an unspecified genome</span></a>
+<a class="sourceLine" id="cb18-93" data-line-number="93"></a>
+<a class="sourceLine" id="cb18-94" data-line-number="94"><span class="kw"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(res <span class="op">%in%</span><span class="st"> </span>res2)</a>
+<a class="sourceLine" id="cb18-95" data-line-number="95"><span class="co">#&gt;    Mode    TRUE </span></a>
+<a class="sourceLine" id="cb18-96" data-line-number="96"><span class="co">#&gt; logical      81</span></a>
+<a class="sourceLine" id="cb18-97" data-line-number="97"></a>
+<a class="sourceLine" id="cb18-98" data-line-number="98"><span class="co"># create hit matrix:</span></a>
+<a class="sourceLine" id="cb18-99" data-line-number="99"><span class="co"># number of site of each motif per sequence</span></a>
+<a class="sourceLine" id="cb18-100" data-line-number="100">m &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/table.html">table</a></span>(<span class="kw">seqnames</span>(res), <span class="kw"><a href="https://rdrr.io/r/base/character.html">as.character</a></span>(res<span class="op">$</span>pwmname))</a>
+<a class="sourceLine" id="cb18-101" data-line-number="101">m</a>
+<a class="sourceLine" id="cb18-102" data-line-number="102"><span class="co">#&gt;             </span></a>
+<a class="sourceLine" id="cb18-103" data-line-number="103"><span class="co">#&gt;              Dlx2 FOS::JUN FOXL1 GATA3 HOXA5</span></a>
+<a class="sourceLine" id="cb18-104" data-line-number="104"><span class="co">#&gt;   uc001aaa.3    1        0     4     1     4</span></a>
+<a class="sourceLine" id="cb18-105" data-line-number="105"><span class="co">#&gt;   uc001aal.1    8        2     5    10    11</span></a>
+<a class="sourceLine" id="cb18-106" data-line-number="106"><span class="co">#&gt;   uc001aaq.2    5        8     3     1    10</span></a>
+<a class="sourceLine" id="cb18-107" data-line-number="107"><span class="co">#&gt;   uc021oei.1    0        5     2     0     1</span></a></code></pre></div>
 </div>
 <div id="selecting-transcription-factors-likely-to-explain-changes-in-chromatin-accessibility-using-stability-selection" class="section level1">
 <h1 class="hasAnchor">
@@ -639,7 +634,7 @@ saveRDS(se, "/work/gbioinfo/stadler/development/R/compbio-lisa/inst/extdata/se.r
 <p>The monaLisa logo uses a drawing that was obtained from <a href="http://vectorish.com/lisa-simpson.html" class="uri">http://vectorish.com/lisa-simpson.html</a> under the Creative Commons attribution - non-commercial 3.0 license: <a href="https://creativecommons.org/licenses/by-nc/3.0/" class="uri">https://creativecommons.org/licenses/by-nc/3.0/</a>.</p>
 <p>This vignette was built using:</p>
 <div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>(<span class="dt">package =</span> <span class="st">"monaLisa"</span>)</a>
-<a class="sourceLine" id="cb26-2" data-line-number="2"><span class="co">#&gt; R Under development (unstable) (2020-01-30 r77747)</span></a>
+<a class="sourceLine" id="cb26-2" data-line-number="2"><span class="co">#&gt; R Under development (unstable) (2020-02-14 r77802)</span></a>
 <a class="sourceLine" id="cb26-3" data-line-number="3"><span class="co">#&gt; Platform: x86_64-pc-linux-gnu (64-bit)</span></a>
 <a class="sourceLine" id="cb26-4" data-line-number="4"><span class="co">#&gt; Running under: Ubuntu 16.04.6 LTS</span></a>
 <a class="sourceLine" id="cb26-5" data-line-number="5"><span class="co">#&gt; </span></a>
@@ -668,7 +663,7 @@ saveRDS(se, "/work/gbioinfo/stadler/development/R/compbio-lisa/inst/extdata/se.r
 <a class="sourceLine" id="cb26-28" data-line-number="28"><span class="co">#&gt;   [4] rprojroot_1.3-2                        </span></a>
 <a class="sourceLine" id="cb26-29" data-line-number="29"><span class="co">#&gt;   [5] circlize_0.4.8                         </span></a>
 <a class="sourceLine" id="cb26-30" data-line-number="30"><span class="co">#&gt;   [6] XVector_0.27.0                         </span></a>
-<a class="sourceLine" id="cb26-31" data-line-number="31"><span class="co">#&gt;   [7] GenomicRanges_1.39.1                   </span></a>
+<a class="sourceLine" id="cb26-31" data-line-number="31"><span class="co">#&gt;   [7] GenomicRanges_1.39.2                   </span></a>
 <a class="sourceLine" id="cb26-32" data-line-number="32"><span class="co">#&gt;   [8] GlobalOptions_0.1.1                    </span></a>
 <a class="sourceLine" id="cb26-33" data-line-number="33"><span class="co">#&gt;   [9] fs_1.3.1                               </span></a>
 <a class="sourceLine" id="cb26-34" data-line-number="34"><span class="co">#&gt;  [10] clue_0.3-57                            </span></a>
@@ -677,9 +672,9 @@ saveRDS(se, "/work/gbioinfo/stadler/development/R/compbio-lisa/inst/extdata/se.r
 <a class="sourceLine" id="cb26-37" data-line-number="37"><span class="co">#&gt;  [13] AnnotationDbi_1.49.1                   </span></a>
 <a class="sourceLine" id="cb26-38" data-line-number="38"><span class="co">#&gt;  [14] codetools_0.2-16                       </span></a>
 <a class="sourceLine" id="cb26-39" data-line-number="39"><span class="co">#&gt;  [15] splines_4.0.0                          </span></a>
-<a class="sourceLine" id="cb26-40" data-line-number="40"><span class="co">#&gt;  [16] R.methodsS3_1.7.1                      </span></a>
-<a class="sourceLine" id="cb26-41" data-line-number="41"><span class="co">#&gt;  [17] knitr_1.27                             </span></a>
-<a class="sourceLine" id="cb26-42" data-line-number="42"><span class="co">#&gt;  [18] Rsamtools_2.3.3                        </span></a>
+<a class="sourceLine" id="cb26-40" data-line-number="40"><span class="co">#&gt;  [16] R.methodsS3_1.8.0                      </span></a>
+<a class="sourceLine" id="cb26-41" data-line-number="41"><span class="co">#&gt;  [17] knitr_1.28                             </span></a>
+<a class="sourceLine" id="cb26-42" data-line-number="42"><span class="co">#&gt;  [18] Rsamtools_2.3.4                        </span></a>
 <a class="sourceLine" id="cb26-43" data-line-number="43"><span class="co">#&gt;  [19] seqLogo_1.53.0                         </span></a>
 <a class="sourceLine" id="cb26-44" data-line-number="44"><span class="co">#&gt;  [20] annotate_1.65.1                        </span></a>
 <a class="sourceLine" id="cb26-45" data-line-number="45"><span class="co">#&gt;  [21] base_4.0.0                             </span></a>
@@ -706,7 +701,7 @@ saveRDS(se, "/work/gbioinfo/stadler/development/R/compbio-lisa/inst/extdata/se.r
 <a class="sourceLine" id="cb26-66" data-line-number="66"><span class="co">#&gt;  [42] TFMPvalue_0.0.8                        </span></a>
 <a class="sourceLine" id="cb26-67" data-line-number="67"><span class="co">#&gt;  [43] GenomeInfoDbData_1.2.2                 </span></a>
 <a class="sourceLine" id="cb26-68" data-line-number="68"><span class="co">#&gt;  [44] reshape2_1.4.3                         </span></a>
-<a class="sourceLine" id="cb26-69" data-line-number="69"><span class="co">#&gt;  [45] dplyr_0.8.3                            </span></a>
+<a class="sourceLine" id="cb26-69" data-line-number="69"><span class="co">#&gt;  [45] dplyr_0.8.4                            </span></a>
 <a class="sourceLine" id="cb26-70" data-line-number="70"><span class="co">#&gt;  [46] rappdirs_0.3.1                         </span></a>
 <a class="sourceLine" id="cb26-71" data-line-number="71"><span class="co">#&gt;  [47] grDevices_4.0.0                        </span></a>
 <a class="sourceLine" id="cb26-72" data-line-number="72"><span class="co">#&gt;  [48] Rcpp_1.0.3                             </span></a>
@@ -728,8 +723,8 @@ saveRDS(se, "/work/gbioinfo/stadler/development/R/compbio-lisa/inst/extdata/se.r
 <a class="sourceLine" id="cb26-88" data-line-number="88"><span class="co">#&gt;  [64] MASS_7.3-51.5                          </span></a>
 <a class="sourceLine" id="cb26-89" data-line-number="89"><span class="co">#&gt;  [65] scales_1.1.0                           </span></a>
 <a class="sourceLine" id="cb26-90" data-line-number="90"><span class="co">#&gt;  [66] JASPAR2018_1.1.1                       </span></a>
-<a class="sourceLine" id="cb26-91" data-line-number="91"><span class="co">#&gt;  [67] BiocStyle_2.15.5                       </span></a>
-<a class="sourceLine" id="cb26-92" data-line-number="92"><span class="co">#&gt;  [68] BSgenome_1.55.2                        </span></a>
+<a class="sourceLine" id="cb26-91" data-line-number="91"><span class="co">#&gt;  [67] BiocStyle_2.15.6                       </span></a>
+<a class="sourceLine" id="cb26-92" data-line-number="92"><span class="co">#&gt;  [68] BSgenome_1.55.3                        </span></a>
 <a class="sourceLine" id="cb26-93" data-line-number="93"><span class="co">#&gt;  [69] graphics_4.0.0                         </span></a>
 <a class="sourceLine" id="cb26-94" data-line-number="94"><span class="co">#&gt;  [70] hms_0.5.3                              </span></a>
 <a class="sourceLine" id="cb26-95" data-line-number="95"><span class="co">#&gt;  [71] parallel_4.0.0                         </span></a>
@@ -738,23 +733,23 @@ saveRDS(se, "/work/gbioinfo/stadler/development/R/compbio-lisa/inst/extdata/se.r
 <a class="sourceLine" id="cb26-98" data-line-number="98"><span class="co">#&gt;  [74] utils_4.0.0                            </span></a>
 <a class="sourceLine" id="cb26-99" data-line-number="99"><span class="co">#&gt;  [75] curl_4.3                               </span></a>
 <a class="sourceLine" id="cb26-100" data-line-number="100"><span class="co">#&gt;  [76] ComplexHeatmap_2.3.0                   </span></a>
-<a class="sourceLine" id="cb26-101" data-line-number="101"><span class="co">#&gt;  [77] yaml_2.2.0                             </span></a>
+<a class="sourceLine" id="cb26-101" data-line-number="101"><span class="co">#&gt;  [77] yaml_2.2.1                             </span></a>
 <a class="sourceLine" id="cb26-102" data-line-number="102"><span class="co">#&gt;  [78] memoise_1.1.0                          </span></a>
 <a class="sourceLine" id="cb26-103" data-line-number="103"><span class="co">#&gt;  [79] ggplot2_3.2.1                          </span></a>
 <a class="sourceLine" id="cb26-104" data-line-number="104"><span class="co">#&gt;  [80] stabs_0.6-3                            </span></a>
 <a class="sourceLine" id="cb26-105" data-line-number="105"><span class="co">#&gt;  [81] datasets_4.0.0                         </span></a>
-<a class="sourceLine" id="cb26-106" data-line-number="106"><span class="co">#&gt;  [82] biomaRt_2.43.1                         </span></a>
+<a class="sourceLine" id="cb26-106" data-line-number="106"><span class="co">#&gt;  [82] biomaRt_2.43.3                         </span></a>
 <a class="sourceLine" id="cb26-107" data-line-number="107"><span class="co">#&gt;  [83] stringi_1.4.5                          </span></a>
 <a class="sourceLine" id="cb26-108" data-line-number="108"><span class="co">#&gt;  [84] RSQLite_2.2.0                          </span></a>
-<a class="sourceLine" id="cb26-109" data-line-number="109"><span class="co">#&gt;  [85] S4Vectors_0.25.11                      </span></a>
+<a class="sourceLine" id="cb26-109" data-line-number="109"><span class="co">#&gt;  [85] S4Vectors_0.25.12                      </span></a>
 <a class="sourceLine" id="cb26-110" data-line-number="110"><span class="co">#&gt;  [86] desc_1.2.0                             </span></a>
-<a class="sourceLine" id="cb26-111" data-line-number="111"><span class="co">#&gt;  [87] foreach_1.4.7                          </span></a>
-<a class="sourceLine" id="cb26-112" data-line-number="112"><span class="co">#&gt;  [88] GenomicFeatures_1.39.3                 </span></a>
+<a class="sourceLine" id="cb26-111" data-line-number="111"><span class="co">#&gt;  [87] foreach_1.4.8                          </span></a>
+<a class="sourceLine" id="cb26-112" data-line-number="112"><span class="co">#&gt;  [88] GenomicFeatures_1.39.4                 </span></a>
 <a class="sourceLine" id="cb26-113" data-line-number="113"><span class="co">#&gt;  [89] caTools_1.18.0                         </span></a>
 <a class="sourceLine" id="cb26-114" data-line-number="114"><span class="co">#&gt;  [90] BiocGenerics_0.33.0                    </span></a>
 <a class="sourceLine" id="cb26-115" data-line-number="115"><span class="co">#&gt;  [91] BiocParallel_1.21.2                    </span></a>
 <a class="sourceLine" id="cb26-116" data-line-number="116"><span class="co">#&gt;  [92] shape_1.4.4                            </span></a>
-<a class="sourceLine" id="cb26-117" data-line-number="117"><span class="co">#&gt;  [93] GenomeInfoDb_1.23.9                    </span></a>
+<a class="sourceLine" id="cb26-117" data-line-number="117"><span class="co">#&gt;  [93] GenomeInfoDb_1.23.13                   </span></a>
 <a class="sourceLine" id="cb26-118" data-line-number="118"><span class="co">#&gt;  [94] rlang_0.4.4                            </span></a>
 <a class="sourceLine" id="cb26-119" data-line-number="119"><span class="co">#&gt;  [95] pkgconfig_2.0.3                        </span></a>
 <a class="sourceLine" id="cb26-120" data-line-number="120"><span class="co">#&gt;  [96] matrixStats_0.55.0                     </span></a>
@@ -763,7 +758,7 @@ saveRDS(se, "/work/gbioinfo/stadler/development/R/compbio-lisa/inst/extdata/se.r
 <a class="sourceLine" id="cb26-123" data-line-number="123"><span class="co">#&gt;  [99] lattice_0.20-38                        </span></a>
 <a class="sourceLine" id="cb26-124" data-line-number="124"><span class="co">#&gt; [100] purrr_0.3.3                            </span></a>
 <a class="sourceLine" id="cb26-125" data-line-number="125"><span class="co">#&gt; [101] GenomicAlignments_1.23.1               </span></a>
-<a class="sourceLine" id="cb26-126" data-line-number="126"><span class="co">#&gt; [102] bit_1.1-15.1                           </span></a>
+<a class="sourceLine" id="cb26-126" data-line-number="126"><span class="co">#&gt; [102] bit_1.1-15.2                           </span></a>
 <a class="sourceLine" id="cb26-127" data-line-number="127"><span class="co">#&gt; [103] tidyselect_1.0.0                       </span></a>
 <a class="sourceLine" id="cb26-128" data-line-number="128"><span class="co">#&gt; [104] BSgenome.Hsapiens.UCSC.hg19_1.4.0      </span></a>
 <a class="sourceLine" id="cb26-129" data-line-number="129"><span class="co">#&gt; [105] plyr_1.8.5                             </span></a>
@@ -786,7 +781,7 @@ saveRDS(se, "/work/gbioinfo/stadler/development/R/compbio-lisa/inst/extdata/se.r
 <a class="sourceLine" id="cb26-146" data-line-number="146"><span class="co">#&gt; [122] grid_4.0.0                             </span></a>
 <a class="sourceLine" id="cb26-147" data-line-number="147"><span class="co">#&gt; [123] blob_1.2.1                             </span></a>
 <a class="sourceLine" id="cb26-148" data-line-number="148"><span class="co">#&gt; [124] methods_4.0.0                          </span></a>
-<a class="sourceLine" id="cb26-149" data-line-number="149"><span class="co">#&gt; [125] digest_0.6.23                          </span></a>
+<a class="sourceLine" id="cb26-149" data-line-number="149"><span class="co">#&gt; [125] digest_0.6.24                          </span></a>
 <a class="sourceLine" id="cb26-150" data-line-number="150"><span class="co">#&gt; [126] xtable_1.8-4                           </span></a>
 <a class="sourceLine" id="cb26-151" data-line-number="151"><span class="co">#&gt; [127] R.utils_2.9.2                          </span></a>
 <a class="sourceLine" id="cb26-152" data-line-number="152"><span class="co">#&gt; [128] openssl_1.4.1                          </span></a>
