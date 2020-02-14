@@ -536,3 +536,50 @@ convertKmersToMotifs <- function(x, m, Ncpu = 1L, verbose = TRUE) {
     )
     return(se)
 }
+
+
+#' @title Match a set of kmers to input sequences and determine frequencies of overlapping matches.
+#'
+#' @description Using a set of kmers, search input sequences for matches and retrieve
+#'    the frequencies of sequences overlapping with 1 or more overlapping kmers.
+#'
+#'@param seqs Set of sequences, either a \code{character} vector or a
+#'   \code{\link{DNAStringSet}}.
+#'   
+#' @param x A \code{character} vector of enriched kmers.
+#'
+#' @param Ncpu The number of CPU cores to used. \code{\link[parallel]{mclapply}} is used.
+#'
+#' @seealso \code{\link{kmerEnrichments}} for performing a k-mer enrichment
+#'   analysis, \code{\link[parallel]{mclapply}} for how parallelization is done. 
+#'
+#' @export
+extractOverlappingKmerFrequecies <- function(seqs, x, Ncpu = 1L) {
+    ## pre-flight checks
+    stopifnot(exprs = {
+        class(seqs) == "DNAStringSet"
+        class(x) == "character"
+    })
+    #also include reverse complements
+    enriched.kmers <- unique(c(x, as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(x)))))
+    tmp <- unlist(parallel::mclapply(seq_along(seq), function(i){
+        tmp.range <- IRanges::reduce(do.call(c, lapply(enriched.kmers, function(kmer){
+            vmatchPattern(kmer, seq[i])[[1]]
+        })))
+        tmp.range
+        res <- NULL
+        if(length(tmp.range) > 0){
+            res <- as.character(do.call(c, lapply(1:length(tmp.range), function(ii){
+                subseq(seq[i], start=start(tmp.range)[ii], end=end(tmp.range)[ii])
+            })))
+        }
+        res
+    }, mc.cores=Ncpu))
+    extended.seqs <- table(tmp)
+    extended.seqs[order(extended.seqs, decreasing=TRUE)]
+}
+
+
+
+
+
