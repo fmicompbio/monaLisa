@@ -14,10 +14,10 @@
 ## usethis namespace: start
 #' @useDynLib monaLisa, .registration = TRUE
 #' @importFrom Rcpp sourceCpp
-#' @import methods
-#' @import IRanges
-#' @import XVector
-#' @import S4Vectors
-#' @import Biostrings
+# @import methods
+# @import IRanges
+# @import XVector
+# @import S4Vectors
+# @import Biostrings
 ## usethis namespace: end
 NULL

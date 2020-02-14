@@ -61,7 +61,7 @@ const char *x_seq = X.seq;  // get a pointer to the sequence in 'x'
 //'
 //' @return A numeric matrix with observed k-mer pairs counts.
 //' @export
-//[[Rcpp::export]]
+// [[Rcpp::export]]
 Rcpp::NumericMatrix count_kmer_pairs(SEXP x,
                                      int k = 6,
                                      int n = 5,
@@ -92,10 +92,15 @@ Rcpp::NumericMatrix count_kmer_pairs(SEXP x,
     colnames(m) = kmers;
 
     // loop through sequences
+    //const XStringSet_holder X = hold_XStringSet(x);
+    //const int x_len = get_XStringSet_length(x);
+    //Rcpp::Rcout << "x has length " << x_len << std::endl;
     /*
-cachedXStringSet X = cache_XStringSet(x);
-int x_len = get_cachedXStringSet_length(&X);
 for (int i = 0; i < x_len; i++) {
+     const Chars_holder seq = get_elt_from_XStringSet_holder(&X, i);
+     for (j = 0; j < seq.length; ++j) {
+     seq.ptr[j]
+
     cachedCharSeq X_elt = get_cachedXStringSet_elt(&X, i);
     int x_elt_len = X_elt.length;
     const char *x_elt_seq = X_elt.seq;
