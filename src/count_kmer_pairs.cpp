@@ -73,7 +73,8 @@ int kmer_index_at(const char* seq_char, int k, int* pow4) {
 //' @param k An integer scalar with the length of sequences.
 //' @param n An integer scalar defining the maximum downstream distance of
 //'     second k-mers, relative to the start position of the first k-mer.
-//' @param zoops (not implemented yet)
+//' @param zoops A logical scalar. If TRUE, count each observed k-mer pair
+//'     only once per sequence.
 //'
 //' @examples
 //' count_kmer_pairs(DNAStringSet(c("AACCGGTT")), k = 2, n = 1)
@@ -97,16 +98,22 @@ Rcpp::NumericMatrix count_kmer_pairs(SEXP x,
 
     // prepare
     int i = 0, j = 0, l = 0, idx1 = 0, idx2 = 0;
+
     int *pow4 = new int[k + 1];
     for (i = 0; i <= k; i++)
         pow4[i] = pow(4, i);
     int nk = pow4[k];
+
     std::string* strkmers = new std::string[nk];
     int position = 0;
     populate(k, 0, "", strkmers, &position);
+
     Rcpp::CharacterVector kmers(nk);
-    for (i = 0; i < nk; i++)
+    bool *seen1 = new bool[nk];
+    bool *seen2 = new bool[nk];
+    for (i = 0; i < nk; i++) {
         kmers(i) = strkmers[i];
+    }
 
     Rcpp::NumericMatrix m(nk, nk);
     rownames(m) = kmers;
@@ -119,20 +126,28 @@ Rcpp::NumericMatrix count_kmer_pairs(SEXP x,
     Chars_holder seq;
     const char *seq_char1, *seq_char2;
     for (i = 0; i < x_len; i++) {
+        for (j = 0; j < nk; j++) {
+            seen1[j] = false;
+            seen2[j] = false;
+        }
+
         seq = get_elt_from_XStringSet_holder(&X, i);
         if (seq.length < k)
             continue;
+
         //Rprintf("seq %d (%d bp): ", i+1, seq.length);
         for (j = 0, seq_char1 = seq.ptr; j < seq.length - k; j++, seq_char1++) {
             //Rprintf("%x ", *seq_char1);
             idx1 = kmer_index_at(seq_char1, k, pow4);
-            if (idx1 < 0)
-                continue; // ignore k-mers with non-ACGT characters
+            if (idx1 < 0 || seen1[idx1])
+                continue; // ignore seen k-mers (zoops = true) and k-mers with non-ACGT characters
+            seen1[idx1] = zoops;
             //Rprintf("%d(%s) ", idx, strkmers[idx].c_str());
             for (l = j + 1, seq_char2 = seq_char1 + 1; l <= j+n && l <= seq.length - k; l++, seq_char2++) {
                 idx2 = kmer_index_at(seq_char2, k, pow4);
-                if (idx2 < 0)
-                    continue; // ignore k-mers with non-ACGT characters
+                if (idx2 < 0 || seen2[idx2])
+                    continue; // ignore seen k-mers (zoops = true) and k-mers with non-ACGT characters
+                seen2[idx2] = zoops;
                 m(idx1,idx2) += 1;
             }
         }
@@ -142,6 +157,8 @@ Rcpp::NumericMatrix count_kmer_pairs(SEXP x,
     // clean up
     delete [] strkmers;
     delete [] pow4;
+    delete [] seen1;
+    delete [] seen2;
 
     return m;
 }

@@ -14,7 +14,8 @@ count_kmer_pairs(x, k = 6L, n = 5L, zoops = FALSE)
 \item{n}{An integer scalar defining the maximum downstream distance of
 second k-mers, relative to the start position of the first k-mer.}
 
-\item{zoops}{(not implemented yet)}
+\item{zoops}{A logical scalar. If TRUE, count each observed k-mer pair
+only once per sequence.}
 }
 \value{
 A numeric matrix with observed k-mer pairs counts.

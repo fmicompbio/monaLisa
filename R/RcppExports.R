@@ -10,7 +10,8 @@
 #' @param k An integer scalar with the length of sequences.
 #' @param n An integer scalar defining the maximum downstream distance of
 #'     second k-mers, relative to the start position of the first k-mer.
-#' @param zoops (not implemented yet)
+#' @param zoops A logical scalar. If TRUE, count each observed k-mer pair
+#'     only once per sequence.
 #'
 #' @examples
 #' count_kmer_pairs(DNAStringSet(c("AACCGGTT")), k = 2, n = 1)
