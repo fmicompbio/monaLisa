@@ -77,15 +77,15 @@ int kmer_index_at(const char* seq_char, int k, int* pow4) {
 //'     only once per sequence.
 //'
 //' @examples
-//' count_kmer_pairs(DNAStringSet(c("AACCGGTT")), k = 2, n = 1)
+//' countKmerPairs(DNAStringSet(c("AACCGGTT")), k = 2, n = 1)
 //'
 //' @return A numeric matrix with observed k-mer pairs counts.
 //' @export
 // [[Rcpp::export]]
-Rcpp::NumericMatrix count_kmer_pairs(SEXP x,
-                                     int k = 6,
-                                     int n = 5,
-                                     bool zoops = false) {
+Rcpp::NumericMatrix countKmerPairs(SEXP x,
+                                   int k = 6,
+                                   int n = 5,
+                                   bool zoops = false) {
     // pre-flight checks
     if (! ::Rf_inherits(x, "DNAStringSet"))
         ::Rf_error("'x' must be a DNAStringSet");
