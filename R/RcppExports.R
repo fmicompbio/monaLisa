@@ -14,11 +14,11 @@
 #'     only once per sequence.
 #'
 #' @examples
-#' count_kmer_pairs(DNAStringSet(c("AACCGGTT")), k = 2, n = 1)
+#' countKmerPairs(DNAStringSet(c("AACCGGTT")), k = 2, n = 1)
 #'
 #' @return A numeric matrix with observed k-mer pairs counts.
 #' @export
-count_kmer_pairs <- function(x, k = 6L, n = 5L, zoops = FALSE) {
-    .Call(`_monaLisa_count_kmer_pairs`, x, k, n, zoops)
+countKmerPairs <- function(x, k = 6L, n = 5L, zoops = FALSE) {
+    .Call(`_monaLisa_countKmerPairs`, x, k, n, zoops)
 }
 

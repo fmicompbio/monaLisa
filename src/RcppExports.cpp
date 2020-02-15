@@ -5,9 +5,9 @@
 
 using namespace Rcpp;
 
-// count_kmer_pairs
-Rcpp::NumericMatrix count_kmer_pairs(SEXP x, int k, int n, bool zoops);
-RcppExport SEXP _monaLisa_count_kmer_pairs(SEXP xSEXP, SEXP kSEXP, SEXP nSEXP, SEXP zoopsSEXP) {
+// countKmerPairs
+Rcpp::NumericMatrix countKmerPairs(SEXP x, int k, int n, bool zoops);
+RcppExport SEXP _monaLisa_countKmerPairs(SEXP xSEXP, SEXP kSEXP, SEXP nSEXP, SEXP zoopsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -15,13 +15,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type k(kSEXP);
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
     Rcpp::traits::input_parameter< bool >::type zoops(zoopsSEXP);
-    rcpp_result_gen = Rcpp::wrap(count_kmer_pairs(x, k, n, zoops));
+    rcpp_result_gen = Rcpp::wrap(countKmerPairs(x, k, n, zoops));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_monaLisa_count_kmer_pairs", (DL_FUNC) &_monaLisa_count_kmer_pairs, 4},
+    {"_monaLisa_countKmerPairs", (DL_FUNC) &_monaLisa_countKmerPairs, 4},
     {NULL, NULL, 0}
 };
 
