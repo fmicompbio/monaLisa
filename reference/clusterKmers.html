@@ -135,10 +135,13 @@
 
     <pre class="usage"><span class='fu'>clusterKmers</span>(
   <span class='no'>x</span>,
+  <span class='kw'>method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"cooccurrence"</span>, <span class='st'>"similarity"</span>),
   <span class='kw'>allowReverseComplement</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>nKmers</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>maxShift</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>minSim</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
+  <span class='kw'>minSim</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>seqs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>zoops</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -151,12 +154,23 @@ value of <code><a href='getKmerFreq.html'>getKmerFreq</a></code>, from which enr
 extracted.</p></td>
     </tr>
     <tr>
+      <th>method</th>
+      <td><p>A <code>character</code> scalar specifying the clustering method to use.
+Currently, either <code>"cooccurrence"</code> (co-occurrence of k-mers in a
+set of sequences, the default) or <code>"similarity"</code> (using k-mer
+similarities, see Details below).</p></td>
+    </tr>
+    <tr>
       <th>allowReverseComplement</th>
-      <td><p>A <code>logical</code> scalar. If <code>TRUE</code>, use
-the reverse complement of a k-mer if it has a higher toal similarity to all
-other k-mers than the original k-mer. In that case, the resulting k-mer is
-reported with the suffix <code>_rc</code> in the results, and the
-reverse-complement k-mer sequence is used to calculate pairwise distances.</p></td>
+      <td><p>A <code>logical</code> scalar. If <code>TRUE</code>, also
+include the reverse complement of enriched k-mers in the analysis. For
+<code>method = "cooccurrence"</code>, this will extract also reverse complement
+k-mers from the co-occurrence count matrix for graph estimation. For
+<code>method = "similarity"</code>, this will use the reverse complement of a
+k-mer if it has a higher toal similarity to all other k-mers than the
+original k-mer. In that case, the resulting k-mer is reported with the
+suffix <code>_rc</code> in the results, and the reverse-complement k-mer sequence
+is used to calculate pairwise similarities.</p></td>
     </tr>
     <tr>
       <th>nKmers</th>
@@ -168,15 +182,26 @@ character vector.</p></td>
     </tr>
     <tr>
       <th>maxShift</th>
-      <td><p>A <code>numeric</code> scalar with the maximal number of shifts to
-perform when calculating k-mer distances. If <code>NULL</code> (the default), it
-will use <code>maxShift &lt;- kmerLen - 2</code>.</p></td>
+      <td><p>(Only used for <code>method = "similarity"</code>.) A <code>numeric</code>
+scalar with the maximal number of shifts to perform when calculating k-mer
+similarities. If <code>NULL</code> (the default), it will use <code>maxShift &lt;- kmerLen - 2</code>.</p></td>
     </tr>
     <tr>
       <th>minSim</th>
-      <td><p>A <code>numeric</code> scalar with the minimal k-mer similarity to
-link two k-mer nodes in the graph by an edge. If <code>NULL</code>, it will use
-<code>minSim &lt;- kmerLen - maxShift + 1</code>.</p></td>
+      <td><p>(Only used for <code>method = "similarity"</code>.) A <code>numeric</code>
+scalar with the minimal k-mer similarity to link two k-mer nodes in the
+graph by an edge. If <code>NULL</code>, it will use <code>minSim &lt;- kmerLen - maxShift + 1</code>.</p></td>
+    </tr>
+    <tr>
+      <th>seqs</th>
+      <td><p>(Only used for <code>method = "cooccurrence"</code>.) A <code>DNAStringSet</code>
+with the sequences, in which k-mer co-occurrences will be counted using
+<code><a href='countKmerPairs.html'>countKmerPairs</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>zoops</th>
+      <td><p>(Only used for <code>method = "cooccurrence"</code>.) A <code>logical</code>
+scalar passed to <code><a href='countKmerPairs.html'>countKmerPairs</a></code>.</p></td>
     </tr>
     </table>
 
@@ -186,18 +211,31 @@ link two k-mer nodes in the graph by an edge. If <code>NULL</code>, it will use
   indicating the k-mer cluster memberships.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The clustering is performed as follows: First, all pairwise k-mer
-  distances for all possible shifts (defined by <code>maxShift</code>) are
-  calculated, defined as the Hamming distance of the overlapping substring
-  plus the number of shifts. For each k-mer pair, the minimal distance is
-  retained.  If <code>allowReverseComplement == TRUE</code>, repeat this procedure
-  to compare each k-mer to all reverse-complemented k-mers, and replace it
-  with the reverse-complemented version if this yields a lower sum of
-  pairwise distances. The resulting distance matrix is then converted into a
-  similarity matrix by subtracting it from <code>kmerLen</code> (the length of the
-  k-mers). Element less than <code>minSim</code> are set to zero, and the matrix is
-  used as an adjacency matrix to construct a k-mer graph. The clusters are
-  identified as the connected components in this graph.</p>
+    <p>The clustering is performed depending on <code>method</code>.
+  For <code>method = "cooccurrence"</code>,
+  <code><a href='countKmerPairs.html'>countKmerPairs(x = seqs, k = k, n = k - 1, zoops = zoops)</a></code>
+  will be used to first get a pairwise co-occurrence count matrix.
+  Rows and columns corresponding to enriched k-mers from <code>x</code> (and their
+  reverse complements, if <code>allowReverseComplement = TRUE</code>) will
+  be extracted, and the resulting adjacency matrix will be converted to a
+  graph, in which clusters will be identified as communities.
+  For <code>method = "similarity"</code>, all pairwise k-mer distances for all
+  possible shifts (defined by <code>maxShift</code>) are calculated, defined as
+  the Hamming distance of the overlapping substring plus the number of shifts.
+  For each k-mer pair, the minimal distance over shifts is retained. If
+  <code>allowReverseComplement == TRUE</code>, this procedure is repeated to compare
+  each k-mer to all reverse-complemented k-mers, and replace it with the
+  reverse-complemented version if this yields a lower sum of pairwise distances.
+  The resulting distance matrix is then converted into a similarity matrix by
+  subtracting it from the length of the k-mers. Elements less than <code>minSim</code>
+  are set to zero, and the matrix is used as an adjacency matrix to construct
+  a k-mer graph. The clusters are identified as the connected components in
+  this graph.</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='getKmerFreq.html'>getKmerFreq</a></code> for finding enriched k-mers in a set of
+  sequences; <code><a href='countKmerPairs.html'>countKmerPairs</a></code> for counting k-mer co-occurrences
+  in a set of sequences.</p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -206,6 +244,7 @@ link two k-mer nodes in the graph by an edge. If <code>NULL</code>, it will use
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
       <li><a href="#details">Details</a></li>
+      <li><a href="#see-also">See also</a></li>
     </ul>
 
   </div>
