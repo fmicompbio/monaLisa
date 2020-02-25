@@ -145,47 +145,75 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
 #' @param x Enriched k-mers, either a \code{character} vector or the return
 #'   value of \code{\link{getKmerFreq}}, from which enriched k-mers can be
 #'   extracted.
-#' @param allowReverseComplement A \code{logical} scalar. If \code{TRUE}, use
-#'   the reverse complement of a k-mer if it has a higher toal similarity to all
-#'   other k-mers than the original k-mer. In that case, the resulting k-mer is
-#'   reported with the suffix \code{_rc} in the results, and the
-#'   reverse-complement k-mer sequence is used to calculate pairwise distances.
+#' @param method A \code{character} scalar specifying the clustering method to use.
+#'   Currently, either \code{"cooccurrence"} (co-occurrence of k-mers in a
+#'   set of sequences, the default) or \code{"similarity"} (using k-mer
+#'   similarities, see Details below).
+#' @param allowReverseComplement A \code{logical} scalar. If \code{TRUE}, also
+#'   include the reverse complement of enriched k-mers in the analysis. For
+#'   \code{method = "cooccurrence"}, this will extract also reverse complement
+#'   k-mers from the co-occurrence count matrix for graph estimation. For
+#'   \code{method = "similarity"}, this will use the reverse complement of a
+#'   k-mer if it has a higher toal similarity to all other k-mers than the
+#'   original k-mer. In that case, the resulting k-mer is reported with the
+#'   suffix \code{_rc} in the results, and the reverse-complement k-mer sequence
+#'   is used to calculate pairwise similarities.
 #' @param nKmers A \code{numeric} scalar. If \code{x} is a \code{list} as
 #'   returned by \code{\link{getKmerFreq}}, the number of top enriched k-mers to
 #'   use ordered by FDR. If \code{NULL} (the default), it will use \code{nKmers
 #'   <- max(10, sum(x$FDR < 0.05))}. \code{nKmers} is ignored if \code{x} is a
 #'   character vector.
-#' @param maxShift A \code{numeric} scalar with the maximal number of shifts to
-#'   perform when calculating k-mer distances. If \code{NULL} (the default), it
-#'   will use \code{maxShift <- kmerLen - 2}.
-#' @param minSim A \code{numeric} scalar with the minimal k-mer similarity to
-#'   link two k-mer nodes in the graph by an edge. If \code{NULL}, it will use
-#'   \code{minSim <- kmerLen - maxShift + 1}.
+#' @param maxShift (Only used for \code{method = "similarity"}.) A \code{numeric}
+#'   scalar with the maximal number of shifts to perform when calculating k-mer
+#'   similarities. If \code{NULL} (the default), it will use \code{maxShift <- kmerLen - 2}.
+#' @param minSim (Only used for \code{method = "similarity"}.) A \code{numeric}
+#'   scalar with the minimal k-mer similarity to link two k-mer nodes in the
+#'   graph by an edge. If \code{NULL}, it will use \code{minSim <- kmerLen - maxShift + 1}.
+#' @param seqs (Only used for \code{method = "cooccurrence"}.) A \code{DNAStringSet}
+#'   with the sequences, in which k-mer co-occurrences will be counted using
+#'   \code{\link{countKmerPairs}}.
+#' @param zoops (Only used for \code{method = "cooccurrence"}.) A \code{logical}
+#'   scalar passed to \code{\link{countKmerPairs}}.
 #'
-#' @details The clustering is performed as follows: First, all pairwise k-mer
-#'   distances for all possible shifts (defined by \code{maxShift}) are
-#'   calculated, defined as the Hamming distance of the overlapping substring
-#'   plus the number of shifts. For each k-mer pair, the minimal distance is
-#'   retained.  If \code{allowReverseComplement == TRUE}, repeat this procedure
-#'   to compare each k-mer to all reverse-complemented k-mers, and replace it
-#'   with the reverse-complemented version if this yields a lower sum of
-#'   pairwise distances. The resulting distance matrix is then converted into a
-#'   similarity matrix by subtracting it from \code{kmerLen} (the length of the
-#'   k-mers). Element less than \code{minSim} are set to zero, and the matrix is
-#'   used as an adjacency matrix to construct a k-mer graph. The clusters are
-#'   identified as the connected components in this graph.
+#' @details The clustering is performed depending on \code{method}.
+#'   For \code{method = "cooccurrence"},
+#'   \code{\link{countKmerPairs(x = seqs, k = k, n = k - 1, zoops = zoops)}}
+#'   will be used to first get a pairwise co-occurrence count matrix.
+#'   Rows and columns corresponding to enriched k-mers from \code{x} (and their
+#'   reverse complements, if \code{allowReverseComplement = TRUE}) will
+#'   be extracted, and the resulting adjacency matrix will be converted to a
+#'   graph, in which clusters will be identified as communities.
+#'   For \code{method = "similarity"}, all pairwise k-mer distances for all
+#'   possible shifts (defined by \code{maxShift}) are calculated, defined as
+#'   the Hamming distance of the overlapping substring plus the number of shifts.
+#'   For each k-mer pair, the minimal distance over shifts is retained. If
+#'   \code{allowReverseComplement == TRUE}, this procedure is repeated to compare
+#'   each k-mer to all reverse-complemented k-mers, and replace it with the
+#'   reverse-complemented version if this yields a lower sum of pairwise distances.
+#'   The resulting distance matrix is then converted into a similarity matrix by
+#'   subtracting it from the length of the k-mers. Elements less than \code{minSim}
+#'   are set to zero, and the matrix is used as an adjacency matrix to construct
+#'   a k-mer graph. The clusters are identified as the connected components in
+#'   this graph.
 #'
 #' @return A named \code{numeric} vector, with k-mer as names and values
 #'   indicating the k-mer cluster memberships.
 #'
+#' @seealso \code{\link{getKmerFreq}} for finding enriched k-mers in a set of
+#'   sequences; \code{\link{countKmerPairs}} for counting k-mer co-occurrences
+#'   in a set of sequences.
+#' 
 #' @importFrom stringdist stringdistmatrix
-#' @importFrom igraph graph_from_adjacency_matrix cluster_louvain communities
+#' @importFrom igraph graph_from_adjacency_matrix cluster_louvain clusters communities
 #' @importFrom Biostrings reverseComplement DNAStringSet
 #'
 #' @export
-clusterKmers <- function(x, allowReverseComplement = FALSE,
-                         nKmers = NULL, maxShift = NULL, minSim = NULL) {
+clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
+                         allowReverseComplement = FALSE,
+                         nKmers = NULL, maxShift = NULL, minSim = NULL,
+                         seqs = NULL, zoops = TRUE) {
     ## pre-flight checks
+    method <- match.arg(method)
     if (is(x, "list")) {
         stopifnot(exprs = {
             "FDR" %in% names(x)
@@ -201,77 +229,109 @@ clusterKmers <- function(x, allowReverseComplement = FALSE,
         all(nchar(x) == nchar(x[1]))
         all(grepl("^[ACGT]+$", x))
         is(allowReverseComplement, "logical")
-        length(allowReverseComplement) == 1
+        length(allowReverseComplement) == 1L
     })
     kmerLen <- nchar(x[1])
-    if (is.null(maxShift)) {
-        maxShift <- kmerLen - 2L
-    }
-    stopifnot(exprs = {
-        is(maxShift, "numeric")
-        length(maxShift) == 1L
-        maxShift >= 0 && maxShift < kmerLen
-    })
-    if (is.null(minSim)) {
-        minSim <- kmerLen - maxShift + 1
-    }
-    stopifnot(exprs = {
-        is(minSim, "numeric")
-        length(minSim) == 1L
-        minSim >= 1 && minSim <= (kmerLen - 1L)
-    })
-    message("clustering ", length(x), " ", kmerLen, "-mers (maxShift: ", maxShift, ", minSim: ", minSim, ")")
-    
-    ## calculate pairwise k-mer distances
-    ## distance metric: "hamming + shifts"
-    ##   k-mers are allowed to be shifted relative to one another
-    ##   a shift of one position is identical to one mismatch position
-    ## ... first take the minimum hamming distance over all possible shifts
-    d <- Reduce(pmin, lapply(seq(from = 0, to = min(kmerLen - 1, maxShift)),
-                             function(s) {
-                                 sufx <- substr(x, start = s + 1, stop = kmerLen)
-                                 prex <- substr(x, start = 1, stop = kmerLen - s)
-                                 stringdist::stringdistmatrix(sufx, prex, method = "hamming") + s
-                             }))
-    ## ... then take the minimal distance between left and right shifts
-    d[upper.tri(d)] <- pmin(d[upper.tri(d)], t(d)[upper.tri(d)])
-    d[lower.tri(d)] <- t(d)[lower.tri(d)]
-    colnames(d) <- x
-    ## ... repeat by comparing x to reverseComplement(x) and keep the minium distance
-    if (allowReverseComplement) {
-        message("also considering reverse complement k-mers")
-        xrc <- as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(x)))
-        drc <- Reduce(pmin, lapply(seq(from = 0, to = min(kmerLen - 1, maxShift)),
-                                   function(s) {
-                                       sufx <- substr(x, start = s + 1, stop = kmerLen)
-                                       prex <- substr(xrc, start = 1, stop = kmerLen - s)
-                                       stringdist::stringdistmatrix(sufx, prex, method = "hamming") + s
-                                   }))
-        drc[upper.tri(drc)] <- pmin(drc[upper.tri(drc)], t(drc)[upper.tri(drc)])
-        drc[lower.tri(drc)] <- t(drc)[lower.tri(drc)]
-        ## ... for each k-mer, decide wether to use the forward or reverse-complement
-        useRC <- which(colSums(drc) < colSums(unname(d)))
-        if (length(useRC) > 0) {
-            colnames(d)[useRC] <- paste0(x[useRC], "_rc")
-            d[, useRC] <- drc[, useRC]
-            d[useRC, ] <- drc[useRC, ]
+    if (method == "cooccurrence") {
+        stopifnot(exprs = {
+            is(seqs, "DNAStringSet")
+            is(zoops, "logical")
+            length(zoops) == 1L
+        })
+        message("clustering ", length(x), " ", kmerLen,
+                "-mers (co-occurrence-based in ", length(seqs), " sequences)")
+    } else if (method == "similarity") {
+        if (is.null(maxShift)) {
+            maxShift <- kmerLen - 2L
         }
+        stopifnot(exprs = {
+            is(maxShift, "numeric")
+            length(maxShift) == 1L
+            maxShift >= 0 && maxShift < kmerLen
+        })
+        if (is.null(minSim)) {
+            minSim <- kmerLen - maxShift + 1
+        }
+        stopifnot(exprs = {
+            is(minSim, "numeric")
+            length(minSim) == 1L
+            minSim >= 1 && minSim <= (kmerLen - 1L)
+        })
+        message("clustering ", length(x), " ", kmerLen,
+                "-mers (similarity-based, maxShift: ", maxShift, ", minSim: ", minSim, ")")
     }
     
-    ## construct and prune k-mer graph (adjacency matrix)
-    ## ... convert the distance into a similarity (adjacency) matrix
-    a <- kmerLen - d
-    ## ... prune and construct the graph
-    a[a < minSim] <- 0
-    diag(a) <- 0
-    G <- igraph::graph_from_adjacency_matrix(a, mode = "undirected", weighted = TRUE)
+    if (method == "cooccurrence") {
+        ## calculate pairwise co-occurrence matrix
+        co <- countKmerPairs(x = seqs, k = kmerLen, n = kmerLen - 1L, zoops = zoops)
+        ## select enriched k-mers
+        if (allowReverseComplement) {
+            xrc <- as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(x)))
+            xsel <- unique(c(x, xrc))
+        } else {
+            xsel <- x
+        }
+        co <- co[xsel, xsel]
+        ## construct graph
+        G <- igraph::graph_from_adjacency_matrix(co, mode = "undirected", weighted = TRUE)
+        ## find communities
+        comm <- igraph::cluster_louvain(G)
+        res <- igraph::membership(comm)
+        
+        
+    } else if (method == "similarity") {
+        ## calculate pairwise k-mer distances
+        ## distance metric: "hamming + shifts"
+        ##   k-mers are allowed to be shifted relative to one another
+        ##   a shift of one position is identical to one mismatch position
+        ## ... first take the minimum hamming distance over all possible shifts
+        d <- Reduce(pmin, lapply(seq(from = 0, to = min(kmerLen - 1, maxShift)),
+                                 function(s) {
+                                     sufx <- substr(x, start = s + 1, stop = kmerLen)
+                                     prex <- substr(x, start = 1, stop = kmerLen - s)
+                                     stringdist::stringdistmatrix(sufx, prex, method = "hamming") + s
+                                 }))
+        ## ... then take the minimal distance between left and right shifts
+        d[upper.tri(d)] <- pmin(d[upper.tri(d)], t(d)[upper.tri(d)])
+        d[lower.tri(d)] <- t(d)[lower.tri(d)]
+        colnames(d) <- x
+        ## ... repeat by comparing x to reverseComplement(x) and keep the minium distance
+        if (allowReverseComplement) {
+            message("also considering reverse complement k-mers")
+            xrc <- as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(x)))
+            drc <- Reduce(pmin, lapply(seq(from = 0, to = min(kmerLen - 1, maxShift)),
+                                       function(s) {
+                                           sufx <- substr(x, start = s + 1, stop = kmerLen)
+                                           prex <- substr(xrc, start = 1, stop = kmerLen - s)
+                                           stringdist::stringdistmatrix(sufx, prex, method = "hamming") + s
+                                       }))
+            drc[upper.tri(drc)] <- pmin(drc[upper.tri(drc)], t(drc)[upper.tri(drc)])
+            drc[lower.tri(drc)] <- t(drc)[lower.tri(drc)]
+            ## ... for each k-mer, decide wether to use the forward or reverse-complement
+            useRC <- which(colSums(drc) < colSums(unname(d)))
+            if (length(useRC) > 0) {
+                colnames(d)[useRC] <- paste0(x[useRC], "_rc")
+                d[, useRC] <- drc[, useRC]
+                d[useRC, ] <- drc[useRC, ]
+            }
+        }
+    
+        ## construct and prune k-mer graph (adjacency matrix)
+        ## ... convert the distance into a similarity (adjacency) matrix
+        a <- kmerLen - d
+        ## ... prune and construct the graph
+        a[a < minSim] <- 0
+        diag(a) <- 0
+        G <- igraph::graph_from_adjacency_matrix(a, mode = "undirected", weighted = TRUE)
 
-    ## find communities
-    #comm <- igraph::cluster_louvain(G)
-    comm <- igraph::clusters(G)
-
+        ## find communities
+        #comm <- igraph::cluster_louvain(G)
+        comm <- igraph::clusters(G)
+        res <- igraph::membership(comm)
+    }
+    
     ## return results
-    igraph::membership(comm)
+    return(res)
 }
 
 
