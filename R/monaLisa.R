@@ -10,3 +10,14 @@
 #' Known motifs can for example be obtained from a collection of transcription
 #' factor binding site specificities, such as \pkg{JASPAR2018}.
 "_PACKAGE"
+
+## usethis namespace: start
+#' @useDynLib monaLisa, .registration = TRUE
+#' @importFrom Rcpp sourceCpp
+# @import methods
+# @import IRanges
+# @import XVector
+# @import S4Vectors
+# @import Biostrings
+## usethis namespace: end
+NULL

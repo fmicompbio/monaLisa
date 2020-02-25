@@ -42,7 +42,7 @@ test_that("getKmerFreq works as expected", {
     expect_equal(sum(res3$FDR < 0.001), 0L)
     expect_equal(sum(res4$FDR < 0.001), 2L)
     expect_equal(names(res4$FDR[res4$FDR < 0.001]), c("ACAC", "CACA"))
-    
+
     ## strata
     expect_is(res5 <- getKmerFreq(seqsDSS, kmerLen = 4, zoops = FALSE, strata = 3), "list")
     expect_equal(sum(res1$freq.obs), sum(res5$freq.obs), tolerance = 0.001)
@@ -54,9 +54,28 @@ test_that("getKmerFreq works as expected", {
     expect_true(all(names(res5$FDR)[res5$FDR < 0.001] %in% c("AACG", "ACGT", "CGTT")))
 })
 
+test_that("countKmerPairs works as expected", {
+    library(Biostrings)
+
+    seqs <- DNAStringSet(c("AAAAAAN","ATATAT","ACGTAC","N"))
+
+    expect_error(countKmerPairs(x = "error"))
+    expect_error(countKmerPairs(x = seqs, k = 0))
+    expect_error(countKmerPairs(x = seqs, k = 2, n = 0))
+
+    expect_is(res1 <- countKmerPairs(x = seqs, k = 2, n = 1, zoops = FALSE), "matrix")
+    expect_is(res2 <- countKmerPairs(x = seqs, k = 2, n = 1, zoops = TRUE),  "matrix")
+    expect_identical(which(res1 > 0, arr.ind = TRUE), which(res2 > 0, arr.ind = TRUE))
+    expect_equal(unname(which(res1 > 0, arr.ind = TRUE)),
+                 cbind(c(1, 13, 13, 2, 7,  4,  12),
+                       c(1,  2,  4, 7, 12, 13, 13)))
+    expect_identical(sum(res1), 12)
+    expect_identical(sum(res2), 7)
+})
+
 test_that("clusterKmers works as expected", {
     library(Biostrings)
-    
+
     ## truly random sequences...
     set.seed(1)
     seqs <- sapply(1:100, function(i) paste(sample(x = c("A","C","G","T"),
@@ -67,15 +86,20 @@ test_that("clusterKmers works as expected", {
     substr(seqs, start = r, stop = r + 5L) <- "AACGTT"
     x1 <- getKmerFreq(seqs, kmerLen = 4, zoops = FALSE)
     x2 <- names(x1$FDR[order(x1$FDR)[1:10]])
-    res1 <- clusterKmers(x1)
-    res2 <- clusterKmers(x2)
-    res3 <- clusterKmers(x2, allowReverseComplement = TRUE)
-    
+    expect_error(clusterKmers(x2, method = "cooccurrence"))
+    res1 <- clusterKmers(x1, method = "similarity")
+    res2 <- clusterKmers(x2, method = "similarity")
+    res3 <- clusterKmers(x2, method = "similarity", allowReverseComplement = TRUE)
+    res4 <- clusterKmers(x2, method = "cooccurrence", seqs = DNAStringSet(seqs))
+    res5 <- clusterKmers(x2, method = "cooccurrence", seqs = DNAStringSet(seqs), allowReverseComplement = TRUE)
+
     expect_type(res1, "double")
     expect_length(res1, 10L)
     expect_identical(res1, res2)
     expect_identical(as.vector(res1), c(1, 1, 1, 2, 3, 1, 3, 1, 4, 5))
     expect_identical(as.vector(res3), c(1, 1, 1, 2, 3, 1, 3, 1, 3, 4))
+    expect_identical(as.vector(res4), c(1, 1, 1, 2, 3, 1, 3, 1, 4, 4))
+    expect_identical(as.vector(res5), c(1, 1, 1, 5, 2, 1, 2, 1, 4, 4, 3, 4, 1, 4, 1, 2, 2))
 })
 
 test_that("kmerEnrichments works as expected", {
@@ -122,7 +146,7 @@ test_that("kmerEnrichments works as expected", {
 test_that("convertKmersToMotifs works as expected", {
     library(SummarizedExperiment)
     library(TFBSTools)
-    
+
     ## truly random sequences...
     nseqs <- 1000
     nbins <- 5
@@ -142,7 +166,7 @@ test_that("convertKmersToMotifs works as expected", {
     res1 <- kmerEnrichments(seqs, b, kmerLen = 4, background = "model", verbose = TRUE)
     #o <- order(assay(res1, "log2enr")[, 1], decreasing = TRUE)[1:10]
     #res2 <- plotMotifHeatmaps(res1[o, ], cluster = TRUE, show_dendrogram = TRUE)
-    
+
     ## motifs...
     pfms <- do.call(PFMatrixList, list(PFMatrix(ID = "m1", name = "m1",
                                                 profileMatrix = rbind(A = c(85, 85,  5,  5,  5,  5),

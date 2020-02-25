@@ -42,6 +42,7 @@ reference:
   desc: "Functions for analysing word (k-mer) occurrences in sequences."
   contents:
     - '`getKmerFreq`'
+    - '`countKmerPairs`'
     - '`kmerEnrichments`'
     - '`convertKmersToMotifs`'
     - '`clusterKmers`'

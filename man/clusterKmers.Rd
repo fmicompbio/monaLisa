@@ -6,10 +6,13 @@
 \usage{
 clusterKmers(
   x,
+  method = c("cooccurrence", "similarity"),
   allowReverseComplement = FALSE,
   nKmers = NULL,
   maxShift = NULL,
-  minSim = NULL
+  minSim = NULL,
+  seqs = NULL,
+  zoops = TRUE
 )
 }
 \arguments{
@@ -17,11 +20,20 @@ clusterKmers(
 value of \code{\link{getKmerFreq}}, from which enriched k-mers can be
 extracted.}
 
-\item{allowReverseComplement}{A \code{logical} scalar. If \code{TRUE}, use
-the reverse complement of a k-mer if it has a higher toal similarity to all
-other k-mers than the original k-mer. In that case, the resulting k-mer is
-reported with the suffix \code{_rc} in the results, and the
-reverse-complement k-mer sequence is used to calculate pairwise distances.}
+\item{method}{A \code{character} scalar specifying the clustering method to use.
+Currently, either \code{"cooccurrence"} (co-occurrence of k-mers in a
+set of sequences, the default) or \code{"similarity"} (using k-mer
+similarities, see Details below).}
+
+\item{allowReverseComplement}{A \code{logical} scalar. If \code{TRUE}, also
+include the reverse complement of enriched k-mers in the analysis. For
+\code{method = "cooccurrence"}, this will extract also reverse complement
+k-mers from the co-occurrence count matrix for graph estimation. For
+\code{method = "similarity"}, this will use the reverse complement of a
+k-mer if it has a higher toal similarity to all other k-mers than the
+original k-mer. In that case, the resulting k-mer is reported with the
+suffix \code{_rc} in the results, and the reverse-complement k-mer sequence
+is used to calculate pairwise similarities.}
 
 \item{nKmers}{A \code{numeric} scalar. If \code{x} is a \code{list} as
 returned by \code{\link{getKmerFreq}}, the number of top enriched k-mers to
@@ -29,13 +41,20 @@ use ordered by FDR. If \code{NULL} (the default), it will use \code{nKmers
 <- max(10, sum(x$FDR < 0.05))}. \code{nKmers} is ignored if \code{x} is a
 character vector.}
 
-\item{maxShift}{A \code{numeric} scalar with the maximal number of shifts to
-perform when calculating k-mer distances. If \code{NULL} (the default), it
-will use \code{maxShift <- kmerLen - 2}.}
+\item{maxShift}{(Only used for \code{method = "similarity"}.) A \code{numeric}
+scalar with the maximal number of shifts to perform when calculating k-mer
+similarities. If \code{NULL} (the default), it will use \code{maxShift <- kmerLen - 2}.}
 
-\item{minSim}{A \code{numeric} scalar with the minimal k-mer similarity to
-link two k-mer nodes in the graph by an edge. If \code{NULL}, it will use
-\code{minSim <- kmerLen - maxShift + 1}.}
+\item{minSim}{(Only used for \code{method = "similarity"}.) A \code{numeric}
+scalar with the minimal k-mer similarity to link two k-mer nodes in the
+graph by an edge. If \code{NULL}, it will use \code{minSim <- kmerLen - maxShift + 1}.}
+
+\item{seqs}{(Only used for \code{method = "cooccurrence"}.) A \code{DNAStringSet}
+with the sequences, in which k-mer co-occurrences will be counted using
+\code{\link{countKmerPairs}}.}
+
+\item{zoops}{(Only used for \code{method = "cooccurrence"}.) A \code{logical}
+scalar passed to \code{\link{countKmerPairs}}.}
 }
 \value{
 A named \code{numeric} vector, with k-mer as names and values
@@ -47,16 +66,29 @@ Given enriched k-mers (typically the result of
   that are likely to originate from the same motif.
 }
 \details{
-The clustering is performed as follows: First, all pairwise k-mer
-  distances for all possible shifts (defined by \code{maxShift}) are
-  calculated, defined as the Hamming distance of the overlapping substring
-  plus the number of shifts. For each k-mer pair, the minimal distance is
-  retained.  If \code{allowReverseComplement == TRUE}, repeat this procedure
-  to compare each k-mer to all reverse-complemented k-mers, and replace it
-  with the reverse-complemented version if this yields a lower sum of
-  pairwise distances. The resulting distance matrix is then converted into a
-  similarity matrix by subtracting it from \code{kmerLen} (the length of the
-  k-mers). Element less than \code{minSim} are set to zero, and the matrix is
-  used as an adjacency matrix to construct a k-mer graph. The clusters are
-  identified as the connected components in this graph.
+The clustering is performed depending on \code{method}.
+  For \code{method = "cooccurrence"},
+  \code{countKmerPairs(x = seqs, k = k, n = k - 1, zoops = zoops)}
+  will be used to first get a pairwise co-occurrence count matrix.
+  Rows and columns corresponding to enriched k-mers from \code{x} (and their
+  reverse complements, if \code{allowReverseComplement = TRUE}) will
+  be extracted, and the resulting adjacency matrix will be converted to a
+  graph, in which clusters will be identified as communities.
+  For \code{method = "similarity"}, all pairwise k-mer distances for all
+  possible shifts (defined by \code{maxShift}) are calculated, defined as
+  the Hamming distance of the overlapping substring plus the number of shifts.
+  For each k-mer pair, the minimal distance over shifts is retained. If
+  \code{allowReverseComplement == TRUE}, this procedure is repeated to compare
+  each k-mer to all reverse-complemented k-mers, and replace it with the
+  reverse-complemented version if this yields a lower sum of pairwise distances.
+  The resulting distance matrix is then converted into a similarity matrix by
+  subtracting it from the length of the k-mers. Elements less than \code{minSim}
+  are set to zero, and the matrix is used as an adjacency matrix to construct
+  a k-mer graph. The clusters are identified as the connected components in
+  this graph.
+}
+\seealso{
+\code{\link{getKmerFreq}} for finding enriched k-mers in a set of
+  sequences; \code{\link{countKmerPairs}} for counting k-mer co-occurrences
+  in a set of sequences.
 }

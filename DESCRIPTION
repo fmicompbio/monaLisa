@@ -10,10 +10,29 @@ Description: Useful functions to work with sequence motifs in the analysis of ge
     These include methods to annotate genomic regions or sequences with predicted motif hits
     and to identify motifs that drive observed changes in accessibility or expression.
 Depends: R (>= 3.5.0)
-Imports: methods, stats, utils, grDevices, graphics, GenomicRanges, TFBSTools,
-    Biostrings, IRanges, stabs, BSgenome, glmnet, S4Vectors, SummarizedExperiment,
-    grid, circlize, ComplexHeatmap (>= 2.0.0), XVector, stringdist, igraph,
-    GenomeInfoDb
+Imports: 
+    methods,
+    stats,
+    utils,
+    grDevices,
+    graphics,
+    GenomicRanges,
+    TFBSTools,
+    Biostrings,
+    IRanges,
+    stabs,
+    BSgenome,
+    glmnet,
+    S4Vectors,
+    SummarizedExperiment,
+    grid,
+    circlize,
+    ComplexHeatmap (>= 2.0.0),
+    XVector,
+    stringdist,
+    igraph,
+    GenomeInfoDb,
+    Rcpp
 Suggests: JASPAR2018, BSgenome.Hsapiens.UCSC.hg19, TxDb.Hsapiens.UCSC.hg19.knownGene,
     knitr, rmarkdown, testthat, BSgenome.Mmusculus.UCSC.mm10, BiocStyle, gridExtra
 License: GPL-3
@@ -21,3 +40,9 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.0.2
 VignetteBuilder: knitr
+LinkingTo: 
+    Rcpp,
+    IRanges,
+    XVector,
+    S4Vectors,
+    Biostrings
