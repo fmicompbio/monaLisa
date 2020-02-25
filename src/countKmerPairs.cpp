@@ -109,8 +109,6 @@ Rcpp::NumericMatrix countKmerPairs(SEXP x,
     populate(k, 0, "", strkmers, &position);
 
     Rcpp::CharacterVector kmers(nk);
-    bool *seen1 = new bool[nk];
-    bool *seen2 = new bool[nk];
     for (i = 0; i < nk; i++) {
         kmers(i) = strkmers[i];
     }
@@ -126,10 +124,7 @@ Rcpp::NumericMatrix countKmerPairs(SEXP x,
     Chars_holder seq;
     const char *seq_char1, *seq_char2;
     for (i = 0; i < x_len; i++) {
-        for (j = 0; j < nk; j++) {
-            seen1[j] = false;
-            seen2[j] = false;
-        }
+        Rcpp::LogicalMatrix seen(nk, nk);
 
         seq = get_elt_from_XStringSet_holder(&X, i);
         if (seq.length < k)
@@ -139,16 +134,15 @@ Rcpp::NumericMatrix countKmerPairs(SEXP x,
         for (j = 0, seq_char1 = seq.ptr; j < seq.length - k; j++, seq_char1++) {
             //Rprintf("%x ", *seq_char1);
             idx1 = kmer_index_at(seq_char1, k, pow4);
-            if (idx1 < 0 || seen1[idx1])
-                continue; // ignore seen k-mers (zoops = true) and k-mers with non-ACGT characters
-            seen1[idx1] = zoops;
+            if (idx1 < 0)
+                continue; // ignore k-mers with non-ACGT characters
             //Rprintf("%d(%s) ", idx, strkmers[idx].c_str());
             for (l = j + 1, seq_char2 = seq_char1 + 1; l <= j+n && l <= seq.length - k; l++, seq_char2++) {
                 idx2 = kmer_index_at(seq_char2, k, pow4);
-                if (idx2 < 0 || seen2[idx2])
-                    continue; // ignore seen k-mers (zoops = true) and k-mers with non-ACGT characters
-                seen2[idx2] = zoops;
-                m(idx1,idx2) += 1;
+                if (idx2 < 0 || seen(idx1, idx2))
+                    continue; // ignore seen k-mer pairs (zoops = true) and k-mers with non-ACGT characters
+                seen(idx1, idx2) = zoops;
+                m(idx1, idx2) += 1;
             }
         }
         //Rprintf("\n");
@@ -157,8 +151,6 @@ Rcpp::NumericMatrix countKmerPairs(SEXP x,
     // clean up
     delete [] strkmers;
     delete [] pow4;
-    delete [] seen1;
-    delete [] seen2;
 
     return m;
 }
