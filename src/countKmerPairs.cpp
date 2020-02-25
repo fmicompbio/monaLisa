@@ -77,7 +77,7 @@ int kmer_index_at(const char* seq_char, int k, int* pow4) {
 //'     only once per sequence.
 //'
 //' @examples
-//' countKmerPairs(DNAStringSet(c("AACCGGTT")), k = 2, n = 1)
+//' countKmerPairs(Biostrings::DNAStringSet(c("AACCGGTT")), k = 2, n = 1)
 //'
 //' @return A numeric matrix with observed k-mer pairs counts.
 //' @export

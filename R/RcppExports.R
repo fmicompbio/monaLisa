@@ -14,7 +14,7 @@
 #'     only once per sequence.
 #'
 #' @examples
-#' countKmerPairs(DNAStringSet(c("AACCGGTT")), k = 2, n = 1)
+#' countKmerPairs(Biostrings::DNAStringSet(c("AACCGGTT")), k = 2, n = 1)
 #'
 #' @return A numeric matrix with observed k-mer pairs counts.
 #' @export

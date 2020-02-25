@@ -25,6 +25,6 @@ Over a set of sequences, for each k-mer a, count occurences of all k-mers b
 within a defined distance downstream of the start of a.
 }
 \examples{
-countKmerPairs(DNAStringSet(c("AACCGGTT")), k = 2, n = 1)
+countKmerPairs(Biostrings::DNAStringSet(c("AACCGGTT")), k = 2, n = 1)
 
 }

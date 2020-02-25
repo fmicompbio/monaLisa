@@ -68,7 +68,7 @@ Given enriched k-mers (typically the result of
 \details{
 The clustering is performed depending on \code{method}.
   For \code{method = "cooccurrence"},
-  \code{\link{countKmerPairs(x = seqs, k = k, n = k - 1, zoops = zoops)}}
+  \code{countKmerPairs(x = seqs, k = k, n = k - 1, zoops = zoops)}
   will be used to first get a pairwise co-occurrence count matrix.
   Rows and columns corresponding to enriched k-mers from \code{x} (and their
   reverse complements, if \code{allowReverseComplement = TRUE}) will
