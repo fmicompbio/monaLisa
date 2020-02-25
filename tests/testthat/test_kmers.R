@@ -57,7 +57,7 @@ test_that("getKmerFreq works as expected", {
 test_that("countKmerPairs works as expected", {
     library(Biostrings)
 
-    seqs <- DNAStringSet(c("AAAAAA","ATATAT","ACGTAC"))
+    seqs <- DNAStringSet(c("AAAAAAN","ATATAT","ACGTAC","N"))
 
     expect_error(countKmerPairs(x = "error"))
     expect_error(countKmerPairs(x = seqs, k = 0))
@@ -86,15 +86,20 @@ test_that("clusterKmers works as expected", {
     substr(seqs, start = r, stop = r + 5L) <- "AACGTT"
     x1 <- getKmerFreq(seqs, kmerLen = 4, zoops = FALSE)
     x2 <- names(x1$FDR[order(x1$FDR)[1:10]])
-    res1 <- clusterKmers(x1)
-    res2 <- clusterKmers(x2)
-    res3 <- clusterKmers(x2, allowReverseComplement = TRUE)
+    expect_error(clusterKmers(x2, method = "cooccurrence"))
+    res1 <- clusterKmers(x1, method = "similarity")
+    res2 <- clusterKmers(x2, method = "similarity")
+    res3 <- clusterKmers(x2, method = "similarity", allowReverseComplement = TRUE)
+    res4 <- clusterKmers(x2, method = "cooccurrence", seqs = DNAStringSet(seqs))
+    res5 <- clusterKmers(x2, method = "cooccurrence", seqs = DNAStringSet(seqs), allowReverseComplement = TRUE)
 
     expect_type(res1, "double")
     expect_length(res1, 10L)
     expect_identical(res1, res2)
     expect_identical(as.vector(res1), c(1, 1, 1, 2, 3, 1, 3, 1, 4, 5))
     expect_identical(as.vector(res3), c(1, 1, 1, 2, 3, 1, 3, 1, 3, 4))
+    expect_identical(as.vector(res4), c(1, 1, 1, 2, 3, 1, 3, 1, 4, 4))
+    expect_identical(as.vector(res5), c(1, 1, 1, 5, 2, 1, 2, 1, 4, 4, 3, 4, 1, 4, 1, 2, 2))
 })
 
 test_that("kmerEnrichments works as expected", {
