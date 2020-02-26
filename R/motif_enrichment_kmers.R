@@ -197,7 +197,9 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
 #'   this graph.
 #'
 #' @return A named \code{numeric} vector, with k-mer as names and values
-#'   indicating the k-mer cluster memberships.
+#'   indicating the k-mer cluster memberships. In \code{attr(y, "graph")} (where
+#'   \code{y} is the return value), you can get the k-mer graph on which the
+#'   clustering is based.
 #'
 #' @seealso \code{\link{getKmerFreq}} for finding enriched k-mers in a set of
 #'   sequences; \code{\link{countKmerPairs}} for counting k-mer co-occurrences
@@ -277,8 +279,8 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
         ## find communities
         comm <- igraph::cluster_louvain(G)
         res <- igraph::membership(comm)
-        
-        
+        attr(res, "graph") <- G
+
     } else if (method == "similarity") {
         ## calculate pairwise k-mer distances
         ## distance metric: "hamming + shifts"
@@ -328,6 +330,7 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
         #comm <- igraph::cluster_louvain(G)
         comm <- igraph::clusters(G)
         res <- igraph::membership(comm)
+        attr(res, "graph") <- G
     }
     
     ## return results

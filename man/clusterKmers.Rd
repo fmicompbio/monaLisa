@@ -58,7 +58,9 @@ scalar passed to \code{\link{countKmerPairs}}.}
 }
 \value{
 A named \code{numeric} vector, with k-mer as names and values
-  indicating the k-mer cluster memberships.
+  indicating the k-mer cluster memberships. In \code{attr(y, "graph")} (where
+  \code{y} is the return value), you can get the k-mer graph on which the
+  clustering is based.
 }
 \description{
 Given enriched k-mers (typically the result of
