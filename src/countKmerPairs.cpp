@@ -97,7 +97,7 @@ Rcpp::NumericMatrix countKmerPairs(SEXP x,
         ::Rf_error("'n' must be greater than 0");
 
     // prepare
-    int i = 0, j = 0, l = 0, idx1 = 0, idx2 = 0;
+    int i = 0, j = 0, l = 0, a = 0, b = 0, idx1 = 0, idx2 = 0;
 
     int *pow4 = new int[k + 1];
     for (i = 0; i <= k; i++)
@@ -123,29 +123,69 @@ Rcpp::NumericMatrix countKmerPairs(SEXP x,
 
     Chars_holder seq;
     const char *seq_char1, *seq_char2;
-    for (i = 0; i < x_len; i++) {
-        Rcpp::LogicalMatrix seen(nk, nk);
+    
+    if (zoops) { // zoops == true
 
-        seq = get_elt_from_XStringSet_holder(&X, i);
-        if (seq.length < k)
-            continue;
+        bool **seen = new bool*[nk];
+        for (a = 0; a < nk; a++)
+            seen[a] = new bool[nk];
 
-        //Rprintf("seq %d (%d bp): ", i+1, seq.length);
-        for (j = 0, seq_char1 = seq.ptr; j < seq.length - k; j++, seq_char1++) {
-            //Rprintf("%x ", *seq_char1);
-            idx1 = kmer_index_at(seq_char1, k, pow4);
-            if (idx1 < 0)
-                continue; // ignore k-mers with non-ACGT characters
-            //Rprintf("%d(%s) ", idx, strkmers[idx].c_str());
-            for (l = j + 1, seq_char2 = seq_char1 + 1; l <= j+n && l <= seq.length - k; l++, seq_char2++) {
-                idx2 = kmer_index_at(seq_char2, k, pow4);
-                if (idx2 < 0 || seen(idx1, idx2))
-                    continue; // ignore seen k-mer pairs (zoops = true) and k-mers with non-ACGT characters
-                seen(idx1, idx2) = zoops;
-                m(idx1, idx2) += 1;
+        for (i = 0; i < x_len; i++) {
+            
+            seq = get_elt_from_XStringSet_holder(&X, i);
+            if (seq.length < k)
+                continue;
+            
+            // initialize seen matrix
+            for (a = 0; a < nk; a++)
+                for (b = 0; b < nk; b++)
+                    seen[a][b] = false; 
+
+            //Rprintf("seq %d (%d bp): ", i+1, seq.length);
+            for (j = 0, seq_char1 = seq.ptr; j < seq.length - k; j++, seq_char1++) {
+                //Rprintf("%x ", *seq_char1);
+                idx1 = kmer_index_at(seq_char1, k, pow4);
+                if (idx1 < 0)
+                    continue; // ignore k-mers with non-ACGT characters
+                //Rprintf("%d(%s) ", idx, strkmers[idx].c_str());
+                for (l = j + 1, seq_char2 = seq_char1 + 1; l <= j+n && l <= seq.length - k; l++, seq_char2++) {
+                    idx2 = kmer_index_at(seq_char2, k, pow4);
+                    if (idx2 < 0 || seen[idx1][idx2])
+                        continue; // ignore seen k-mer pairs (zoops = true) and k-mers with non-ACGT characters
+                    seen[idx1][idx2] = true; 
+                    m(idx1, idx2) += 1;
+                }
             }
+            //Rprintf("\n");
         }
-        //Rprintf("\n");
+        
+        for (a = 0; a < nk; a++)
+            delete [] seen[a];
+        delete [] seen;
+
+    } else {     // zoops == false
+        for (i = 0; i < x_len; i++) {
+
+            seq = get_elt_from_XStringSet_holder(&X, i);
+            if (seq.length < k)
+                continue;
+            
+            //Rprintf("seq %d (%d bp): ", i+1, seq.length);
+            for (j = 0, seq_char1 = seq.ptr; j < seq.length - k; j++, seq_char1++) {
+                //Rprintf("%x ", *seq_char1);
+                idx1 = kmer_index_at(seq_char1, k, pow4);
+                if (idx1 < 0)
+                    continue; // ignore k-mers with non-ACGT characters
+                //Rprintf("%d(%s) ", idx, strkmers[idx].c_str());
+                for (l = j + 1, seq_char2 = seq_char1 + 1; l <= j+n && l <= seq.length - k; l++, seq_char2++) {
+                    idx2 = kmer_index_at(seq_char2, k, pow4);
+                    if (idx2 < 0)
+                        continue; // ignore k-mers with non-ACGT characters
+                    m(idx1, idx2) += 1;
+                }
+            }
+            //Rprintf("\n");
+        }
     }
 
     // clean up
