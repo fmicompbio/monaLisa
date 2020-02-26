@@ -12,7 +12,8 @@ clusterKmers(
   maxShift = NULL,
   minSim = NULL,
   seqs = NULL,
-  zoops = TRUE
+  zoops = TRUE,
+  n = 1L
 )
 }
 \arguments{
@@ -55,6 +56,10 @@ with the sequences, in which k-mer co-occurrences will be counted using
 
 \item{zoops}{(Only used for \code{method = "cooccurrence"}.) A \code{logical}
 scalar passed to \code{\link{countKmerPairs}}.}
+
+\item{n}{(Only used for \code{method = "cooccurrence"}.) An integer scalar
+defining the maximum downstream distance of second k-mers, relative to the
+start position of the first k-mer (default: \code{n = NULL}).}
 }
 \value{
 A named \code{numeric} vector, with k-mer as names and values
@@ -70,7 +75,7 @@ Given enriched k-mers (typically the result of
 \details{
 The clustering is performed depending on \code{method}.
   For \code{method = "cooccurrence"},
-  \code{countKmerPairs(x = seqs, k = k, n = k - 1, zoops = zoops)}
+  \code{countKmerPairs(x = seqs, k = k, n = 1, zoops = zoops)}
   will be used to first get a pairwise co-occurrence count matrix.
   Rows and columns corresponding to enriched k-mers from \code{x} (and their
   reverse complements, if \code{allowReverseComplement = TRUE}) will

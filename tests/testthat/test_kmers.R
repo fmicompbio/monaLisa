@@ -98,8 +98,8 @@ test_that("clusterKmers works as expected", {
     expect_equal(res1, res2, check.attributes = FALSE)
     expect_identical(as.vector(res1), c(1, 1, 1, 2, 3, 1, 3, 1, 4, 5))
     expect_identical(as.vector(res3), c(1, 1, 1, 2, 3, 1, 3, 1, 3, 4))
-    expect_identical(as.vector(res4), c(1, 1, 1, 2, 3, 1, 3, 1, 4, 4))
-    expect_identical(as.vector(res5), c(1, 1, 1, 5, 2, 1, 2, 1, 4, 4, 3, 4, 1, 4, 1, 2, 2))
+    expect_identical(as.vector(res4), c(1, 1, 3, 2, 4, 3, 4, 3, 5, 6))
+    expect_identical(as.vector(res5), c(1, 1, 3, 2, 4, 3, 4, 3, 7, 5, 6, 7, 1, 7, 1, 4, 8))
 })
 
 test_that("kmerEnrichments works as expected", {

@@ -174,10 +174,13 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
 #'   \code{\link{countKmerPairs}}.
 #' @param zoops (Only used for \code{method = "cooccurrence"}.) A \code{logical}
 #'   scalar passed to \code{\link{countKmerPairs}}.
+#' @param n (Only used for \code{method = "cooccurrence"}.) An integer scalar
+#'   defining the maximum downstream distance of second k-mers, relative to the
+#'   start position of the first k-mer (default: \code{n = NULL}).
 #'
 #' @details The clustering is performed depending on \code{method}.
 #'   For \code{method = "cooccurrence"},
-#'   \code{countKmerPairs(x = seqs, k = k, n = k - 1, zoops = zoops)}
+#'   \code{countKmerPairs(x = seqs, k = k, n = 1, zoops = zoops)}
 #'   will be used to first get a pairwise co-occurrence count matrix.
 #'   Rows and columns corresponding to enriched k-mers from \code{x} (and their
 #'   reverse complements, if \code{allowReverseComplement = TRUE}) will
@@ -213,7 +216,7 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
 clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
                          allowReverseComplement = FALSE,
                          nKmers = NULL, maxShift = NULL, minSim = NULL,
-                         seqs = NULL, zoops = TRUE) {
+                         seqs = NULL, zoops = TRUE, n = 1L) {
     ## pre-flight checks
     method <- match.arg(method)
     if (is(x, "list")) {
@@ -239,7 +242,12 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
             is(seqs, "DNAStringSet")
             is(zoops, "logical")
             length(zoops) == 1L
+            is(n, "numeric")
+            length(n) == 1L
         })
+        if (n >= kmerLen)
+            warning("Using n > k (n = ", n, ", k = ", kmerLen,
+                    ") will count co-occurrences of non-overlapping k-mers.")
         message("clustering ", length(x), " ", kmerLen,
                 "-mers (co-occurrence-based in ", length(seqs), " sequences)")
     } else if (method == "similarity") {
@@ -265,7 +273,7 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
     
     if (method == "cooccurrence") {
         ## calculate pairwise co-occurrence matrix
-        co <- countKmerPairs(x = seqs, k = kmerLen, n = kmerLen - 1L, zoops = zoops)
+        co <- countKmerPairs(x = seqs, k = kmerLen, n = n, zoops = zoops)
         ## select enriched k-mers
         if (allowReverseComplement) {
             xrc <- as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(x)))
