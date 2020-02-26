@@ -95,7 +95,7 @@ test_that("clusterKmers works as expected", {
 
     expect_type(res1, "double")
     expect_length(res1, 10L)
-    expect_identical(res1, res2)
+    expect_equal(res1, res2, check.attributes = FALSE)
     expect_identical(as.vector(res1), c(1, 1, 1, 2, 3, 1, 3, 1, 4, 5))
     expect_identical(as.vector(res3), c(1, 1, 1, 2, 3, 1, 3, 1, 3, 4))
     expect_identical(as.vector(res4), c(1, 1, 1, 2, 3, 1, 3, 1, 4, 4))
