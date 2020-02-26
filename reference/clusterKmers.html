@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.28</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.29</span>
       </span>
     </div>
 
@@ -141,7 +141,8 @@
   <span class='kw'>maxShift</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>minSim</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>seqs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>zoops</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
+  <span class='kw'>zoops</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>1L</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -203,17 +204,25 @@ with the sequences, in which k-mer co-occurrences will be counted using
       <td><p>(Only used for <code>method = "cooccurrence"</code>.) A <code>logical</code>
 scalar passed to <code><a href='countKmerPairs.html'>countKmerPairs</a></code>.</p></td>
     </tr>
+    <tr>
+      <th>n</th>
+      <td><p>(Only used for <code>method = "cooccurrence"</code>.) An integer scalar
+defining the maximum downstream distance of second k-mers, relative to the
+start position of the first k-mer (default: <code>n = NULL</code>).</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A named <code>numeric</code> vector, with k-mer as names and values
-  indicating the k-mer cluster memberships.</p>
+  indicating the k-mer cluster memberships. In <code><a href='https://rdrr.io/r/base/attr.html'>attr(y, "graph")</a></code> (where
+  <code>y</code> is the return value), you can get the k-mer graph on which the
+  clustering is based.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>The clustering is performed depending on <code>method</code>.
   For <code>method = "cooccurrence"</code>,
-  <code><a href='countKmerPairs.html'>countKmerPairs(x = seqs, k = k, n = k - 1, zoops = zoops)</a></code>
+  <code><a href='countKmerPairs.html'>countKmerPairs(x = seqs, k = k, n = 1, zoops = zoops)</a></code>
   will be used to first get a pairwise co-occurrence count matrix.
   Rows and columns corresponding to enriched k-mers from <code>x</code> (and their
   reverse complements, if <code>allowReverseComplement = TRUE</code>) will
