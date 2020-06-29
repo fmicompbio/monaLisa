@@ -4,17 +4,21 @@
 \alias{getGCweight}
 \title{Get GC weights for background regions}
 \usage{
-getGCweight(foreGround_seq = NULL, backGround_seq = NULL)
+getGCweight(inputList = NULL)
 }
 \arguments{
-\item{foreGround_seq}{object of class \code{DNAStringSet} containing all foreGround sequences}
-
-\item{backGround_seq}{object of class \code{DNAStringSet} containing all backGround sequences}
+\item{inputList}{a `list` containing
+\itemize{
+  \item{sequenceWeights}{: a \code{dataframe} with nrows equal to the number of sequences, with a 
+    column called `foreGround` that is 1 if a sequence is in the foreGround group, and 0 otherwise, 
+    and a column containing the name of the sequnce.}
+  \item{sequenceNucleotides}{: a \code{DNAStringSet} object containing the raw sequences}
+}}
 }
 \value{
 a list containing:
   \itemize{
-    \item{sequenceWeights}{: a \code{dataframe} comtaining the sequence GC content, GC bins
+    \item{sequenceWeights}{: a \code{dataframe} containing the sequence GC content, GC bins
       they were assigned to, and the weight to correct for GC differences between foreGround
       and backGround sequences}
     \item{sequenceNucleotides}{: a \code{DNAStringSet} object containing the raw sequences}

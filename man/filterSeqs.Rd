@@ -4,20 +4,23 @@
 \alias{filterSeqs}
 \title{Filter Bad Sequences}
 \usage{
-filterSeqs(seqs = NULL, frac = 0.7)
+filterSeqs(inputList = NULL, frac = 0.7)
 }
 \arguments{
-\item{seqs}{object of class \code{DNAStringSet} containing all the sequences (foreGround and backGround)}
+\item{inputList}{a `list` containing
+\itemize{
+  \item{sequenceWeights}{: a \code{dataframe} with nrows equal to the number of sequences, with a 
+    column called `foreGround` that is 1 if a sequence is in the foreGround group, and 0 otherwise, 
+    and a column containing the name of the sequnce.}
+  \item{sequenceNucleotides}{: a \code{DNAStringSet} object containing the raw sequences}
+}}
 
 \item{frac}{the fraction of Ns allowed in a sequence (default set to 0.7)}
 }
 \value{
-object of class \code{DNAStringSet} containing the sequences that passed the filter.
+the filtered inputList.
 }
 \description{
 We filter sequences similarly to how HOMER does it. Namely, sequences with more
   than 70% (default) N are removed.
-}
-\details{
-Functions folowing/inspired by HOMER to do motif enrichment analysis
 }
