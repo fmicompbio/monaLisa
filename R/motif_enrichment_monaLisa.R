@@ -1,7 +1,3 @@
-#' @importFrom Biostrings alphabetFrequency oligonucleotideFrequency reverseComplement DNAStringSet
-NULL
-
-
 #' @title Filter Bad Sequences
 #'
 #' @description We filter sequences similarly to how HOMER does it. Namely, sequences with more
@@ -19,7 +15,7 @@ NULL
 #'   
 #' @return the filtered inputList.
 #'   
-#' @importFrom Biostrings alphabetFrequency
+#' @importFrom Biostrings alphabetFrequency DNAStringSet
 #' 
 #' @export
 filterSeqs <- function(inputList=NULL, frac=0.7) {
@@ -67,7 +63,7 @@ filterSeqs <- function(inputList=NULL, frac=0.7) {
 #'     \item{sequenceNucleotides}{: a \code{DNAStringSet} object containing the raw sequences}
 #'   }
 #' 
-#' @importFrom Biostrings oligonucleotideFrequency  
+#' @importFrom Biostrings oligonucleotideFrequency DNAStringSet
 #'   
 #' @export
 getGCweight <- function(inputList=NULL) {
@@ -284,7 +280,8 @@ normalizeForKmerComposition <- function(inputList=NULL, maxKmerSize=3){
 #'     \item{sequenceNucleotides}{: a \code{DNAStringSet} object containing the raw sequences}
 #'   }
 #' 
-#'   
+#' @importFrom Biostrings DNAStringSet
+#' 
 #' @export
 multipleNormalizeForKmerComposition <- function(inputList=NULL, maxAutoNormIters=160, lastError=1e100){
   
