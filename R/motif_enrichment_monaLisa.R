@@ -29,7 +29,7 @@ filter_seqs <- function(inputList=NULL, frac=0.7) {
     lengths(inputList$sequenceNucleotides)
 
   # remove sequences with fraction > frac
-  w <- which(frac_N>frac)
+  w <- which(frac_N > frac)
   if (!isEmpty(w)) {
     inputList$sequenceNucleotides <- inputList$sequenceNucleotides[-w]
     inputList$sequenceWeights <- inputList$sequenceWeights[-w, ]
@@ -76,8 +76,8 @@ get_GC_weight <- function(inputList=NULL) {
 
   # calculate GC fraction for each sequence
   f_mono <- oligonucleotideFrequency(inputList$sequenceNucleotides,
-                                     width=1, as.prob=TRUE)
-  gc_frac <- f_mono[,"G"]+f_mono[,"C"]
+                                     width = 1, as.prob = TRUE)
+  gc_frac <- f_mono[,"G"] + f_mono[,"C"]
 
   # HOMER's GC breaks/bins
   gc_breaks <- c(0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.6,0.7,0.8)
@@ -87,28 +87,28 @@ get_GC_weight <- function(inputList=NULL) {
 
   # keep bins that have at least 1 foreGround and 1 backGround sequence
   bins <- unique(gc_bin)
-  keep <- bins%in%unique(gc_bin[inputList$sequenceWeights$foreGround==1]) &
-    bins%in%unique(gc_bin[inputList$sequenceWeights$foreGround==0])
+  keep <- bins %in% unique(gc_bin[inputList$sequenceWeights$foreGround == 1]) &
+    bins %in% unique(gc_bin[inputList$sequenceWeights$foreGround == 0])
   bins <- bins[keep]
 
   # keep sequences belonging to these bins
-  keep_seq <- gc_bin%in%bins
+  keep_seq <- gc_bin %in% bins
   gc_bin <- gc_bin[keep_seq]
   inputList$sequenceNucleotides <- inputList$sequenceNucleotides[keep_seq]
   inputList$sequenceWeights <- inputList$sequenceWeights[keep_seq, ]
   gc_frac <- gc_frac[keep_seq]
 
   # total number of foreGround and backGround sequences
-  total_fg <- sum(inputList$sequenceWeights$foreGround==1)
-  total_bg <- sum(inputList$sequenceWeights$foreGround==0)
+  total_fg <- sum(inputList$sequenceWeights$foreGround == 1)
+  total_bg <- sum(inputList$sequenceWeights$foreGround == 0)
 
   # calculate GC weight per bin
   weight_per_bin <- sapply(bins, function(b) {
     # number of fg seqs in b
-    n_fg_b <- sum(gc_bin[inputList$sequenceWeights$foreGround==1]%in%b)
+    n_fg_b <- sum(gc_bin[inputList$sequenceWeights$foreGround == 1] %in% b)
     # number of bg seqs in b
-    n_bg_b <- sum(gc_bin[inputList$sequenceWeights$foreGround==0]%in%b)
-    (n_fg_b/n_bg_b)* (total_bg/total_fg)
+    n_bg_b <- sum(gc_bin[inputList$sequenceWeights$foreGround == 0] %in% b)
+    (n_fg_b / n_bg_b) * (total_bg / total_fg)
   })
 
   # assign calculated GC weight to each backGround sequence (foreGround get a
@@ -121,7 +121,7 @@ get_GC_weight <- function(inputList=NULL) {
   for (i in 1:length(bins)) {
     b <- bins[i]
     w <- weight_per_bin[i]
-    df$gc_weight[gc_bin%in%b & df$foreGround==0] <- w
+    df$gc_weight[gc_bin %in% b & df$foreGround == 0] <- w
   }
 
   # update list
@@ -183,7 +183,7 @@ norm_for_kmer_comp <- function(inputList=NULL, maxKmerSize=3) {
     g_oligos <- rowSums(kmer_freq)
 
     # divide the current weight of each sequence by its g_oligos
-    div_weight <- cur_weight/g_oligos
+    div_weight <- cur_weight / g_oligos
 
     # for each sequence multiply the frequency of each oligo by its div_weight.
     # This is the same as summing the weights for each oligo in a sequence.
@@ -192,60 +192,60 @@ norm_for_kmer_comp <- function(inputList=NULL, maxKmerSize=3) {
 
     # sum all weights per oligo for foreGround (target_levels) and backGround
     # (background_levels)
-    target_levels <- colSums(oligo_wights_per_seq[inputList$sequenceWeights$foreGround==1, ])
-    background_levels <- colSums(oligo_wights_per_seq[inputList$sequenceWeights$foreGround==0, ])
+    target_levels <- colSums(oligo_wights_per_seq[inputList$sequenceWeights$foreGround == 1, ])
+    background_levels <- colSums(oligo_wights_per_seq[inputList$sequenceWeights$foreGround == 0, ])
 
     # sum weights in target_levels and background_levels
     total_target <- sum(target_levels)
     total_background <- sum(background_levels)
 
     # min values given by HOMER
-    min_target_levels <- 0.5/total_target
-    min_background_levels <- 0.5/total_background
+    min_target_levels <- 0.5 / total_target
+    min_background_levels <- 0.5 / total_background
 
     # Average the weight of a kmer with its reverse complement
     rev_kmers_fg <- as.character(reverseComplement(x = DNAStringSet(names(target_levels))))
     rev_kmers_bg <- as.character(reverseComplement(x = DNAStringSet(names(background_levels))))
-    t_level <- (target_levels + target_levels[rev_kmers_fg])/2
-    b_level <- (background_levels + background_levels[rev_kmers_bg])/2
+    t_level <- (target_levels + target_levels[rev_kmers_fg]) / 2
+    b_level <- (background_levels + background_levels[rev_kmers_bg]) / 2
 
     # check if less than set minimum
-    t_level[t_level<min_target_levels] <- min_target_levels
-    b_level[b_level<min_target_levels] <- min_background_levels
+    t_level[t_level < min_target_levels] <- min_target_levels
+    b_level[b_level < min_target_levels] <- min_background_levels
 
     # Calculate normFactor (to be used to correct backGround sequences)
-    norm_factors <- (t_level/b_level)* (total_background/total_target)
+    norm_factors <- (t_level / b_level) * (total_background / total_target)
 
     # update error
-    error <- error + sum((norm_factors-1)^2/length(target_levels))
+    error <- error + sum((norm_factors - 1)^2 / length(target_levels))
 
     # calculate new weights for background sequences
 
     # ... sum the norm_factors of all kmers per backGround sequence
-    bg_new_score <- rowSums(sweep(x = kmer_freq[inputList$sequenceWeights$foreGround==0,
+    bg_new_score <- rowSums(sweep(x = kmer_freq[inputList$sequenceWeights$foreGround == 0,
                                                 names(norm_factors)],
                                   MARGIN = 2, STATS = norm_factors, FUN = "*"))
 
     # ... HOMER check: if number of good oligos is > 0.5
-    bg_g_oligos <- g_oligos[inputList$sequenceWeights$foreGround==0]
+    bg_g_oligos <- g_oligos[inputList$sequenceWeights$foreGround == 0]
     g <- bg_g_oligos > 0.5
-    bg_new_score[g] <- bg_new_score[g]/bg_g_oligos[g]
+    bg_new_score[g] <- bg_new_score[g] / bg_g_oligos[g]
 
     # ... new weight for each background sequence
     # ... ... newWeight = newScore*currentWeight
-    bg_cur_weight <- cur_weight[inputList$sequenceWeights$foreGround==0]
-    bg_new_weight <- bg_new_score*bg_cur_weight
+    bg_cur_weight <- cur_weight[inputList$sequenceWeights$foreGround == 0]
+    bg_new_weight <- bg_new_score * bg_cur_weight
 
     # ... HOMERs minimum weight cutoffs
     g <- bg_new_weight < HOMER_MINIMUM_SEQ_WEIGHT # lower bound
     bg_new_weight[g] <- HOMER_MINIMUM_SEQ_WEIGHT
-    g <- bg_new_weight > 1/HOMER_MINIMUM_SEQ_WEIGHT # upper bound
-    bg_new_weight[g] <- 1/HOMER_MINIMUM_SEQ_WEIGHT
+    g <- bg_new_weight > 1 / HOMER_MINIMUM_SEQ_WEIGHT # upper bound
+    bg_new_weight[g] <- 1 / HOMER_MINIMUM_SEQ_WEIGHT
 
     # ... penalty (still following HOMER)
     bg_penalty <- bg_new_weight
     g <- bg_penalty < 1
-    bg_penalty[g] <- 1/bg_penalty[g]
+    bg_penalty[g] <- 1 / bg_penalty[g]
     bg_penalty <- bg_penalty^2
 
     # ... delta (still following HOMER)
@@ -253,12 +253,12 @@ norm_for_kmer_comp <- function(inputList=NULL, maxKmerSize=3) {
 
     # ... newWeight1 (still following HOMER)
     bg_new_weight1 <- bg_cur_weight + bg_delta
-    g <- bg_penalty > 1 & ((bg_delta>0 & bg_new_weight>1) |
-                             (bg_delta<0 & bg_new_weight < 1))
-    bg_new_weight1[g] <- bg_cur_weight[g] + bg_delta[g]/bg_penalty[g]
+    g <- bg_penalty > 1 & ((bg_delta > 0 & bg_new_weight > 1) |
+                             (bg_delta < 0 & bg_new_weight < 1))
+    bg_new_weight1[g] <- bg_cur_weight[g] + bg_delta[g] / bg_penalty[g]
 
     # ... update cur_weight with newWeight1
-    cur_weight[inputList$sequenceWeights$foreGround==0] <- bg_new_weight1
+    cur_weight[inputList$sequenceWeights$foreGround == 0] <- bg_new_weight1
 
   }
 
@@ -348,20 +348,20 @@ iterate_norm_for_kmer_comp <- function(inputList=NULL,
 run_monaLisa <- function(seqs=NULL, foreGround=NULL) {
 
   # checks
-  if (class(seqs)!="DNAStringSet") {
+  if (class(seqs) != "DNAStringSet") {
     stop("class of 'seqs' must be DNAStringSet")
   }
-  if (class(foreGround)!="numeric") {
+  if (class(foreGround) != "numeric") {
     stop("'foreGround' must be a numeric vector with 1 to indicate foreGround",
          " sequences and 0 to indicate backGround sequences")
   }
-  if (length(unique(foreGround))!=2) {
+  if (length(unique(foreGround)) != 2) {
     stop("make sure that the 'foreGround' vector only contains 1s and 0s")
   }
-  if (!all(foreGround%in%c(1,0))) {
+  if (!all(foreGround %in% c(1,0))) {
     stop("make sure that the 'foreGround' vector only contains 1s and 0s")
   }
-  if (length(seqs)!=length(foreGround)) {
+  if (length(seqs) != length(foreGround)) {
     stop("'seqs' and 'foreGround' must be of equal length")
   }
   if (is.null(names(seqs))) {
@@ -371,8 +371,8 @@ run_monaLisa <- function(seqs=NULL, foreGround=NULL) {
   }
 
   # create list of the inputs
-  df <- data.frame(seqName=nm, foreGround=foreGround)
-  l <- list(sequenceWeights=df, sequenceNucleotides=seqs)
+  df <- data.frame(seqName = nm, foreGround = foreGround)
+  l <- list(sequenceWeights = df, sequenceNucleotides = seqs)
 
   # filter 'bad' sequences
   l <- filter_seqs(inputList = l) ## CHANGE FUNCTION ABOVE
