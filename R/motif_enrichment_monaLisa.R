@@ -245,9 +245,7 @@ norm_for_kmer_comp <- function(df,
 
     # check if less than set minimum
     f_level[f_level < min_foreground_levels] <- min_foreground_levels
-    b_level[b_level < min_foreground_levels] <- min_background_levels
-    # TODO: the above line is probably wrong? I guess it should be:
-    # b_level[b_level < min_background_levels] <- min_background_levels
+    b_level[b_level < min_background_levels] <- min_background_levels
 
     # Calculate normFactor (to be used to correct background sequences)
     norm_factors <- (f_level / b_level) * (total_background / total_foreground)
