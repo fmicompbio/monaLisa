@@ -348,10 +348,10 @@ iterate_norm_for_kmer_comp <- function(inputList=NULL,
 run_monaLisa <- function(seqs=NULL, foreGround=NULL) {
 
   # checks
-  if (class(seqs) != "DNAStringSet") {
+  if (!is(seqs, "DNAStringSet")) {
     stop("class of 'seqs' must be DNAStringSet")
   }
-  if (class(foreGround) != "numeric") {
+  if (!is.numeric(foreGround)) {
     stop("'foreGround' must be a numeric vector with 1 to indicate foreGround",
          " sequences and 0 to indicate backGround sequences")
   }
