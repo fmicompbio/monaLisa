@@ -1,22 +1,21 @@
 #' @title Filter Bad Sequences
 #'
-#' @description We filter sequences similarly to how HOMER does it. Namely, sequences with more
-#'   than 70% (default) N are removed.
-#'   
-#' @param inputList a `list` containing
-#'   \itemize{
-#'     \item{sequenceWeights}{: a \code{dataframe} with nrows equal to the number of sequences, with a 
-#'       column called `foreGround` that is 1 if a sequence is in the foreGround group, and 0 otherwise, 
-#'       and a column containing the name of the sequnce.}
-#'     \item{sequenceNucleotides}{: a \code{DNAStringSet} object containing the raw sequences}
-#'   }
-#'   
+#' @description We filter sequences similarly to how HOMER does it. Namely,
+#'   sequences with more than 70% (default) N are removed.
+#'
+#' @param inputList a `list` containing \itemize{ \item{sequenceWeights}{: a
+#'   \code{dataframe} with nrows equal to the number of sequences, with a column
+#'   called `foreGround` that is 1 if a sequence is in the foreGround group, and
+#'   0 otherwise, and a column containing the name of the sequnce.}
+#'   \item{sequenceNucleotides}{: a \code{DNAStringSet} object containing the
+#'   raw sequences} }
+#'
 #' @param frac the fraction of Ns allowed in a sequence (default set to 0.7)
-#'   
+#'
 #' @return the filtered inputList.
-#'   
+#'
 #' @importFrom Biostrings alphabetFrequency DNAStringSet
-#' 
+#'
 #' @export
 filterSeqs <- function(inputList=NULL, frac=0.7) {
   
@@ -39,32 +38,32 @@ filterSeqs <- function(inputList=NULL, frac=0.7) {
 }
 
 
-#' @title Get GC weights for background regions 
+#' @title Get GC weights for background regions
 #'
-#' @description In this implementation we still follow HOMER. But this can be re-implemented in 
-#'   a more continuous fashion. Each sequence is put in a specific GC bin depending on its GC content. 
-#'   Then, for each GC bin, the number of foreGround and backGround sequences in that bin is calculated.
+#' @description In this implementation we still follow HOMER. But this can be
+#'   re-implemented in a more continuous fashion. Each sequence is put in a
+#'   specific GC bin depending on its GC content. Then, for each GC bin, the
+#'   number of foreGround and backGround sequences in that bin is calculated.
 #'   Weights are calculated for the backGround sequences in bin i as follows:
-#'   weight_i = (number_fg_seqs_i/number_bg_seqs_i)*(number_bg_seqs_total/number_fg_seqs_total)
-#'   
-#' @param inputList a `list` containing
-#'   \itemize{
-#'     \item{sequenceWeights}{: a \code{dataframe} with nrows equal to the number of sequences, with a 
-#'       column called `foreGround` that is 1 if a sequence is in the foreGround group, and 0 otherwise, 
-#'       and a column containing the name of the sequnce.}
-#'     \item{sequenceNucleotides}{: a \code{DNAStringSet} object containing the raw sequences}
-#'   }
-#'   
-#' @return a list containing:
-#'   \itemize{
-#'     \item{sequenceWeights}{: a \code{dataframe} containing the sequence GC content, GC bins
-#'       they were assigned to, and the weight to correct for GC differences between foreGround
-#'       and backGround sequences}
-#'     \item{sequenceNucleotides}{: a \code{DNAStringSet} object containing the raw sequences}
-#'   }
-#' 
+#'   weight_i =
+#'   (number_fg_seqs_i/number_bg_seqs_i)*(number_bg_seqs_total/number_fg_seqs_total)
+#'
+#'
+#' @param inputList a `list` containing \itemize{ \item{sequenceWeights}{: a
+#'   \code{dataframe} with nrows equal to the number of sequences, with a column
+#'   called `foreGround` that is 1 if a sequence is in the foreGround group, and
+#'   0 otherwise, and a column containing the name of the sequnce.}
+#'   \item{sequenceNucleotides}{: a \code{DNAStringSet} object containing the
+#'   raw sequences} }
+#'
+#' @return a list containing: \itemize{ \item{sequenceWeights}{: a
+#'   \code{dataframe} containing the sequence GC content, GC bins they were
+#'   assigned to, and the weight to correct for GC differences between
+#'   foreGround and backGround sequences} \item{sequenceNucleotides}{: a
+#'   \code{DNAStringSet} object containing the raw sequences} }
+#'
 #' @importFrom Biostrings oligonucleotideFrequency DNAStringSet
-#'   
+#'
 #' @export
 getGCweight <- function(inputList=NULL) {
   
@@ -83,7 +82,8 @@ getGCweight <- function(inputList=NULL) {
   
   # keep bins that have at least 1 foreGround and 1 backGround sequence
   bins <- unique(GC_bin)
-  keep <- bins%in%unique(GC_bin[inputList$sequenceWeights$foreGround==1]) & bins%in%unique(GC_bin[inputList$sequenceWeights$foreGround==0])
+  keep <- bins%in%unique(GC_bin[inputList$sequenceWeights$foreGround==1]) &
+    bins%in%unique(GC_bin[inputList$sequenceWeights$foreGround==0])
   bins <- bins[keep]
   
   # keep sequences belonging to these bins
@@ -126,28 +126,29 @@ getGCweight <- function(inputList=NULL) {
 
 
 
-#' @title Adjust for Kmer Composition 
+#' @title Adjust for Kmer Composition
 #'
-#' @description Here we correct the backGround sequence weights, adjusting for kmer composition
-#'   compared to the foreGroud sequences. This function implements one run, and it will be iteratively 
-#'   called multiple times by another function to get to the final set of adjusted weights. These 
-#'   weights will the result of adjusting for GC and kmer composition. We closely follow `HOMER`'s 
-#'   `normalizeSequenceIteration()` function found in `Motif2.cpp`.
-#'   
+#' @description Here we correct the backGround sequence weights, adjusting for
+#'   kmer composition compared to the foreGroud sequences. This function
+#'   implements one run, and it will be iteratively called multiple times by
+#'   another function to get to the final set of adjusted weights. These weights
+#'   will the result of adjusting for GC and kmer composition. We closely follow
+#'   `HOMER`'s `normalizeSequenceIteration()` function found in `Motif2.cpp`.
+#'
 #' @param inputList a `list`.
-#' @param maxKmerSize the maximum kmer size to consider. The default is set to 3 (like in `HOMER`), 
-#'   meaning that kmers of size 1,2 and 3 are considered. 
-#'   
-#' @return a list containing:
-#'   \itemize{
-#'     \item{sequenceWeights}{: a \code{dataframe} containing the sequence GC content, GC bins
-#'       they were assigned to, the weight to correct for GC differences between foreGround
-#'       and backGround sequences, the weight to adjust for kmer composition, and the the error term}
-#'     \item{sequenceNucleotides}{: a \code{DNAStringSet} object containing the raw sequences}
-#'   }
-#' 
-#' @importFrom Biostrings oligonucleotideFrequency reverseComplement DNAStringSet
-#'   
+#' @param maxKmerSize the maximum kmer size to consider. The default is set to 3
+#'   (like in `HOMER`), meaning that kmers of size 1,2 and 3 are considered.
+#'
+#' @return a list containing: \itemize{ \item{sequenceWeights}{: a
+#'   \code{dataframe} containing the sequence GC content, GC bins they were
+#'   assigned to, the weight to correct for GC differences between foreGround
+#'   and backGround sequences, the weight to adjust for kmer composition, and
+#'   the the error term} \item{sequenceNucleotides}{: a \code{DNAStringSet}
+#'   object containing the raw sequences} }
+#'
+#' @importFrom Biostrings oligonucleotideFrequency reverseComplement
+#'   DNAStringSet
+#'
 #' @export
 normalizeForKmerComposition <- function(inputList=NULL, maxKmerSize=3){
   
@@ -175,7 +176,8 @@ normalizeForKmerComposition <- function(inputList=NULL, maxKmerSize=3){
     # divide the current weight of each sequence by its gOligos
     div_weight <- curWeight/gOligos
     
-    # for each sequence multiply the frequency of each oligo by its div_weight. This is the same as summing the weights for each oligo in a sequence.
+    # for each sequence multiply the frequency of each oligo by its div_weight.
+    # This is the same as summing the weights for each oligo in a sequence.
     oligo_wights_per_seq <- sweep(x = kmerFreq, MARGIN = 1, STATS = div_weight, FUN = "*")
     
     # sum all weights per oligo for foreGround (targetLevels) and backGround (backgroundLevels)
@@ -258,30 +260,32 @@ normalizeForKmerComposition <- function(inputList=NULL, maxKmerSize=3){
 
 
 
-#' @title Get Final Sequence Weights 
+#' @title Get Final Sequence Weights
 #'
-#' @description Here we run `normalizeForKmerComposition` multiple times to get the final set of weights that 
-#'   will be used to correct the background sequences for kmer composition differences compared to the foreGround.
-#'   We closely follow `HOMER`'s `normalizeSequence()` function found in `Motif2.cpp`. Note that `HOMER`
-#'   runs the `normalizeSequence()` one last time after going through all iterations or reaching a low error, 
-#'   which we do not do here.
-#'   
+#' @description Here we run `normalizeForKmerComposition` multiple times to get
+#'   the final set of weights that will be used to correct the background
+#'   sequences for kmer composition differences compared to the foreGround. We
+#'   closely follow `HOMER`'s `normalizeSequence()` function found in
+#'   `Motif2.cpp`. Note that `HOMER` runs the `normalizeSequence()` one last
+#'   time after going through all iterations or reaching a low error, which we
+#'   do not do here.
+#'
 #' @param inputList a `list` resulting from running `getGCweight`
-#' @param maxAutoNormIters the maximum number if times to run `normalizeForKmerComposition`. the default
-#'   is set to 160 (as in `HOMER`).
-#' @param lastError teh starting value for the last error. Once `normalizeForKmerComposition` is run, the aim is 
-#'   to stop when teh current error is bigger than the last error.
-#'   
-#' @return a list containing:
-#'   \itemize{
-#'     \item{sequenceWeights}{: a \code{dataframe} containing the sequence GC content, GC bins
-#'       they were assigned to, the weight to correct for GC differences between foreGround
-#'       and backGround sequences, the weight to adjust for kmer composition, and the the error term}
-#'     \item{sequenceNucleotides}{: a \code{DNAStringSet} object containing the raw sequences}
-#'   }
-#' 
+#' @param maxAutoNormIters the maximum number if times to run
+#'   `normalizeForKmerComposition`. the default is set to 160 (as in `HOMER`).
+#' @param lastError teh starting value for the last error. Once
+#'   `normalizeForKmerComposition` is run, the aim is to stop when teh current
+#'   error is bigger than the last error.
+#'
+#' @return a list containing: \itemize{ \item{sequenceWeights}{: a
+#'   \code{dataframe} containing the sequence GC content, GC bins they were
+#'   assigned to, the weight to correct for GC differences between foreGround
+#'   and backGround sequences, the weight to adjust for kmer composition, and
+#'   the the error term} \item{sequenceNucleotides}{: a \code{DNAStringSet}
+#'   object containing the raw sequences} }
+#'
 #' @importFrom Biostrings DNAStringSet
-#' 
+#'
 #' @export
 multipleNormalizeForKmerComposition <- function(inputList=NULL, maxAutoNormIters=160, lastError=1e100){
   
@@ -293,7 +297,8 @@ multipleNormalizeForKmerComposition <- function(inputList=NULL, maxAutoNormIters
   # set current KmerAdjWeight equal to the GCweight. This will change later
   l_final$sequenceWeights$KmerAdjWeight <- l_final$sequenceWeights$GCweight
   
-  # run normalizeForKmerComposition() maxAutoNormIters times or stop when error is bigger than previous run
+  # run normalizeForKmerComposition() maxAutoNormIters times or stop when error
+  # is bigger than previous run
   for(i in 1:maxAutoNormIters){
     
     # run normalizeForKmerComposition
@@ -315,7 +320,8 @@ multipleNormalizeForKmerComposition <- function(inputList=NULL, maxAutoNormIters
 
 
 
-#' @title Do Motif Enrichment Analysis with `monaLisa` (for simple fg vs bg situation, this wil lbe changed for bins later)
+#' @title Do Motif Enrichment Analysis with `monaLisa` (for simple fg vs bg
+#'   situation, this wil lbe changed for bins later)
 #'
 #'
 #'
@@ -344,7 +350,8 @@ runMonaLisa <- function(seqs=NULL, foreGround=NULL){
   # filter 'bad' sequences
   l <- filterSeqs(inputList = l) ## CHANGE FUNCTION ABOVE
   
-  # calculate weight to adjust for GC differences between foreGround and backGround
+  # calculate weight to adjust for GC differences between foreGround and
+  # backGround
   l <- getGCweight(inputList = l)
   
   # calculate weight to in addition adjust for kmer composition differences
@@ -352,13 +359,3 @@ runMonaLisa <- function(seqs=NULL, foreGround=NULL){
   
   
 }
-
-
-
-
-
-
-
-
-
-
