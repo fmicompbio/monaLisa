@@ -6,6 +6,7 @@
 \usage{
 norm_for_kmer_comp(
   kmer_freq,
+  g_oligos,
   kmer_seq_rc,
   kmer_weight,
   is_foreground,
@@ -17,6 +18,10 @@ norm_for_kmer_comp(
 \item{kmer_freq}{a \code{list} with of matrices. The matrix at index \code{i}
 contains the counts of k-mers of length \code{i} (columns) for each
 sequence (rows).}
+
+\item{g_oligos}{a \code{list} of \code{numeric} vectors; the element at index
+\code{i} contains the number of good (non-N-containing) k-mers of length
+\code{i} for each sequence.}
 
 \item{kmer_seq_rc}{a \code{list} of character vectors; the element at index
 \code{i} contains the reverse complement sequences of all k-mers of length

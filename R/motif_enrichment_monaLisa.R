@@ -195,6 +195,9 @@ calculate_GC_weight <- function(df, verbose = TRUE) {
 #' @param kmer_freq a \code{list} with of matrices. The matrix at index \code{i}
 #'   contains the counts of k-mers of length \code{i} (columns) for each
 #'   sequence (rows).
+#' @param g_oligos a \code{list} of \code{numeric} vectors; the element at index
+#'   \code{i} contains the number of good (non-N-containing) k-mers of length
+#'   \code{i} for each sequence.
 #' @param kmer_seq_rc a \code{list} of character vectors; the element at index
 #'   \code{i} contains the reverse complement sequences of all k-mers of length
 #'   \code{i}.
@@ -216,6 +219,7 @@ calculate_GC_weight <- function(df, verbose = TRUE) {
 #'
 #' @export
 norm_for_kmer_comp <- function(kmer_freq,
+                               g_oligos,
                                kmer_seq_rc,
                                kmer_weight,
                                is_foreground,
@@ -231,16 +235,12 @@ norm_for_kmer_comp <- function(kmer_freq,
   # iterate over the k-mer sizes
   for (k in seq_along(kmer_freq)) {
 
-    # number of good (non-N containing) oligos per sequence
-    g_oligos <- rowSums(kmer_freq[[k]])
-
     # divide the current weight of each sequence by its g_oligos
-    div_weight <- kmer_weight / g_oligos
+    div_weight <- kmer_weight / g_oligos[[k]]
 
-    # For each sequence multiply the frequency of each oligo by its div_weight.
-    # This is the same as summing the weights for each oligo in a sequence.
-    oligo_weights_per_seq <- sweep(x = kmer_freq[[k]], MARGIN = 1,
-                                   STATS = div_weight, FUN = "*")
+    # for each sequence multiply the frequency of each oligo by its div_weight
+    # (distributing the weights of each sequence to its oligos)
+    oligo_weights_per_seq <- kmer_freq[[k]] * div_weight
 
     # sum weights per oligo over foreground (foreground_levels) and background
     # (background_levels) sequences
@@ -276,7 +276,7 @@ norm_for_kmer_comp <- function(kmer_freq,
                                   MARGIN = 2, STATS = norm_factors, FUN = "*"))
 
     # ... HOMER check: if number of good oligos is > 0.5
-    bg_g_oligos <- g_oligos[!is_foreground]
+    bg_g_oligos <- g_oligos[[k]][!is_foreground]
     g <- bg_g_oligos > 0.5
     bg_new_score[g] <- bg_new_score[g] / bg_g_oligos[g]
 
@@ -385,9 +385,10 @@ iterate_norm_for_kmer_comp <- function(df,
   cur_weight <- df$gc_weight
 
   # pre-calculate k-mer frequencies used in iterations
-  kmer_freq <- kmer_seq_rc <- list()
+  kmer_freq <- g_oligos <- kmer_seq_rc <- list()
   for (k in seq_len(max_kmer_size)) {
     kmer_freq[[k]] <- oligonucleotideFrequency(x = df$seqs, width = k)
+    g_oligos[[k]] <- rowSums(kmer_freq[[k]])
     kmers <- DNAStringSet(colnames(kmer_freq[[k]]))
     kmer_seq_rc[[k]] <- as.character(reverseComplement(x = kmers))
   }
@@ -404,6 +405,7 @@ iterate_norm_for_kmer_comp <- function(df,
 
     # run norm_for_kmer_comp
     res <- norm_for_kmer_comp(kmer_freq = kmer_freq,
+                              g_oligos = g_oligos,
                               kmer_seq_rc = kmer_seq_rc,
                               kmer_weight = cur_weight,
                               is_foreground = df$is_foreground,
@@ -416,7 +418,7 @@ iterate_norm_for_kmer_comp <- function(df,
       }
       break
     } else {
-      if (verbose && (i %% 20 == 0)) {
+      if (verbose && (i %% 40 == 0)) {
         message("    ", i, " of ", max_autonorm_iters, " iterations done")
       }
       cur_weight <- res$kmer_weight
