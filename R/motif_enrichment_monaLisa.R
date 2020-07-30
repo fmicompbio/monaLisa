@@ -20,7 +20,7 @@
 filter_seqs <- function(inputList=NULL, frac=0.7) {
 
   # checks
-  if (is.null(inputList)){stop("'inputList' in NULL")}
+  if (is.null(inputList)) {stop("'inputList' in NULL")}
 
   # fraction of Ns per sequence
   frac_N <- Biostrings::alphabetFrequency(inputList$sequenceNucleotides)[, "N"] / lengths(inputList$sequenceNucleotides)
@@ -68,7 +68,7 @@ filter_seqs <- function(inputList=NULL, frac=0.7) {
 get_GC_weight <- function(inputList=NULL) {
 
   # checks
-  if (is.null(inputList)){stop("'inputList' is NULL")}
+  if (is.null(inputList)) {stop("'inputList' is NULL")}
 
   # calculate GC fraction for each sequence
   f_mono <- Biostrings::oligonucleotideFrequency(inputList$sequenceNucleotides, width=1, as.prob=TRUE)
@@ -98,7 +98,7 @@ get_GC_weight <- function(inputList=NULL) {
   total_bg <- sum(inputList$sequenceWeights$foreGround==0)
 
   # calculate GC weight per bin
-  weight_per_bin <- sapply(bins, function(b){
+  weight_per_bin <- sapply(bins, function(b) {
     n_fg_b <- sum(gc_bin[inputList$sequenceWeights$foreGround==1]%in%b) # number of fg seqs in b
     n_bg_b <- sum(gc_bin[inputList$sequenceWeights$foreGround==0]%in%b) # number of bg seqs in b
     (n_fg_b/n_bg_b)* (total_bg/total_fg)
@@ -150,7 +150,7 @@ get_GC_weight <- function(inputList=NULL) {
 #'   DNAStringSet
 #'
 #' @export
-norm_for_kmer_comp <- function(inputList=NULL, maxKmerSize=3){
+norm_for_kmer_comp <- function(inputList=NULL, maxKmerSize=3) {
 
   # checks
 
@@ -165,7 +165,7 @@ norm_for_kmer_comp <- function(inputList=NULL, maxKmerSize=3){
   cur_weight <- inputList$sequenceWeights$KmerAdjWeight 
 
   # iterate over the kmer sizes: 1 till maxKmerSize
-  for (curLen in 1:maxKmerSize){
+  for (curLen in 1:maxKmerSize) {
 
     # frequency of each kmer of size curLen per sequence
     kmer_freq <- Biostrings::oligonucleotideFrequency(x = inputList$sequenceNucleotides, width = curLen)
@@ -332,12 +332,12 @@ iterate_norm_for_kmer_comp <- function(inputList=NULL, max_autonorm_iters=160, l
 run_monaLisa <- function(seqs=NULL, foreGround=NULL){
 
   # checks
-  if (class(seqs)!="DNAStringSet"){stop("class of 'seqs' must be DNAStringSet")}
-  if (class(foreGround)!="numeric"){stop("'foreGround' must be a numeric vector with 1 to indicate foreGround sequences and 0 to indicate backGround sequences")}
-  if (length(unique(foreGround))!=2){stop("make sure that the 'foreGround' vector only contains 1s and 0s")}
-  if (!all(foreGround%in%c(1,0))){stop("make sure that the 'foreGround' vector only contains 1s and 0s")}
-  if (length(seqs)!=length(foreGround)){stop("'seqs' and 'foreGround' must be of equal length")}
-  if (is.null(names(seqs))){
+  if (class(seqs)!="DNAStringSet") {stop("class of 'seqs' must be DNAStringSet")}
+  if (class(foreGround)!="numeric") {stop("'foreGround' must be a numeric vector with 1 to indicate foreGround sequences and 0 to indicate backGround sequences")}
+  if (length(unique(foreGround))!=2) {stop("make sure that the 'foreGround' vector only contains 1s and 0s")}
+  if (!all(foreGround%in%c(1,0))) {stop("make sure that the 'foreGround' vector only contains 1s and 0s")}
+  if (length(seqs)!=length(foreGround)) {stop("'seqs' and 'foreGround' must be of equal length")}
+  if (is.null(names(seqs))) {
     nm <- paste0("seq_", 1:length(seqs))
   } else {
     nm <- names(seqs)
