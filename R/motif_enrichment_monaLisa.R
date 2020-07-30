@@ -44,9 +44,9 @@ is_valid_df <- function(x) {
 #'     \item{\code{kmer_weight}}{: the sequence weight to adjust for k-mer
 #'       differences between foreground and background sequences.}
 #'   }
-#'
 #' @param frac A numeric scalar with the maximal fraction of N bases allowed in
 #'   a sequence (defaults to 0.7).
+#' @param verbose A logical scalar. If \code{TRUE}, report on filtering.
 #'
 #' @return the filtered \code{df}.
 #'
@@ -54,7 +54,7 @@ is_valid_df <- function(x) {
 #' @importFrom S4Vectors DataFrame
 #'
 #' @export
-filter_seqs <- function(df, frac = 0.7) {
+filter_seqs <- function(df, frac = 0.7, verbose = TRUE) {
 
   # checks
   if (!is_valid_df(df)) {
@@ -63,6 +63,9 @@ filter_seqs <- function(df, frac = 0.7) {
   if (!is.numeric(frac) || length(frac) != 1L || frac < 0 || frac > 1) {
     stop("'frac' has to be a numerical scalar with a value in [0,1]")
   }
+  if (!is.logical(verbose) || length(verbose) != 1L) {
+    stop("'verbose' has to be either TRUE or FALSE")
+  }
 
   # fraction of N bases per sequence
   frac_N <- alphabetFrequency(df$seqs)[, "N"] / nrow(df)
@@ -70,7 +73,13 @@ filter_seqs <- function(df, frac = 0.7) {
   # remove sequences with frac_N > frac
   w <- which(frac_N > frac)
   if (length(w) > 0) {
+    if (verbose) {
+      message(sprintf("  filtering out %d of %d (%.1f%%) sequences with too many N bases",
+                      length(w), nrow(df), 100 * length(w) / nrow(df)))
+    }
     df <- df[-w, ]
+  } else {
+    message("  no sequences filtered out because of too many N bases")
   }
 
   # return filtered df
@@ -100,6 +109,8 @@ filter_seqs <- function(df, frac = 0.7) {
 #'     \item{\code{kmer_weight}}{: the sequence weight to adjust for k-mer
 #'       differences between foreground and background sequences.}
 #'   }
+#' @param verbose A logical scalar. If \code{TRUE}, report on GC weight
+#'   calculation.
 #'
 #' @return a \code{DataFrame} of the same dimensions as the input \code{df},
 #'   with the columns \code{gc_frac}, \code{gc_bin} and \code{gc_weight}
@@ -111,13 +122,16 @@ filter_seqs <- function(df, frac = 0.7) {
 #' @importFrom S4Vectors DataFrame
 #'
 #' @export
-calculate_GC_weight <- function(df) {
+calculate_GC_weight <- function(df, verbose = TRUE) {
 
   # checks
   if (!is_valid_df(df)) {
     stop("'df' is not a valid input object")
   }
-
+  if (!is.logical(verbose) || length(verbose) != 1L) {
+    stop("'verbose' has to be either TRUE or FALSE")
+  }
+  
   # calculate GC fraction for each sequence
   f_mono <- oligonucleotideFrequency(df$seqs, width = 1, as.prob = TRUE)
   df$gc_frac <- f_mono[, "G"] + f_mono[, "C"]
@@ -131,8 +145,17 @@ calculate_GC_weight <- function(df) {
   # keep bins that have at least 1 foreground and 1 background sequence
   used_bins <- sort(intersect(df$gc_bin[df$is_foreground],
                               df$gc_bin[!df$is_foreground]))
-
+  if (verbose) {
+    message(sprintf("  %d of %d GC-bins used (have both foreground and background sequences)",
+                    length(used_bins), length(gc_breaks) - 1))
+  }
+  
   # keep sequences belonging to these bins
+  if (verbose) {
+    message(sprintf("  %d of %d (%.1f%%) sequences filtered out from unused GC-bins",
+                    sum(!df$gc_bin %in% used_bins), nrow(df),
+                    100 * sum(!df$gc_bin %in% used_bins) / nrow(df)))
+  }
   df <- df[df$gc_bin %in% used_bins, ]
 
   # total number of foreGround and background sequences
@@ -149,6 +172,9 @@ calculate_GC_weight <- function(df) {
   df$gc_weight <- ifelse(df$is_foreground,
                          1.0,
                          weight_per_bin[as.character(df$gc_bin)])
+  if (verbose) {
+    message("  GC-weight calculation finished")
+  }
 
   # return result
   df
@@ -188,17 +214,7 @@ norm_for_kmer_comp <- function(df,
                                minimum_seq_weight = 0.001) {
 
   # checks
-  # df is checked by iterate_norm_for_kmer_comp()
-  if (!is.integer(max_kmer_size) ||
-      length(max_kmer_size) != 1L ||
-      max_kmer_size < 1) {
-    stop("'max_kmer_size' must be an integer scalar greater than zero")
-  }
-  if (!is.numeric(minimum_seq_weight) ||
-      length(minimum_seq_weight) != 1L ||
-      minimum_seq_weight <= 0) {
-    stop("'minimum_seq_weight' must be a numeric scalar greater than zero")
-  }
+  # arguments are all checked by iterate_norm_for_kmer_comp()
 
   # set starting error
   error <- 0
@@ -318,9 +334,17 @@ norm_for_kmer_comp <- function(df,
 #'   or reaching a low error, which we do not do here.
 #'
 #' @param df a \code{DataFrame} as returned by \code{calculate_GC_weight}
+#' @param max_kmer_size Integer scalar giving the maximum k-mer size to
+#'   consider. The default is set to 3 (like in \code{HOMER}), meaning that
+#'   k-mers of size 1, 2 and 3 are considered.
+#' @param minimum_seq_weight Numeric scalar greater than zero giving the
+#'   minimal weight of a sequence. The default value (0.001) was also used by
+#'   \code{HOMER} (HOMER_MINIMUM_SEQ_WEIGHT  constant in Motif2.h).
 #' @param max_autonorm_iters An integer scalar giving the maximum number if
 #'   times to run \code{norm_for_kmer_comp}. the default is set to 160 (as in
 #'   \code{HOMER}).
+#' @param verbose A logical scalar. If \code{TRUE}, report on k-mer composition
+#'   adjustment.
 #'
 #' @return a list containing: \itemize{ \item{sequenceWeights}{: a
 #'   \code{dataframe} containing the sequence GC content, GC bins they were
@@ -334,18 +358,34 @@ norm_for_kmer_comp <- function(df,
 #'
 #' @export
 iterate_norm_for_kmer_comp <- function(df,
-                                       max_autonorm_iters = 160L) {
+                                       max_kmer_size = 3L,
+                                       minimum_seq_weight = 0.001,
+                                       max_autonorm_iters = 160L,
+                                       verbose = TRUE) {
 
   # check
   if (!is_valid_df(df)) {
     stop("'df' is not a valid input object")
+  }
+  if (!is.integer(max_kmer_size) ||
+      length(max_kmer_size) != 1L ||
+      max_kmer_size < 1) {
+    stop("'max_kmer_size' must be an integer scalar greater than zero")
+  }
+  if (!is.numeric(minimum_seq_weight) ||
+      length(minimum_seq_weight) != 1L ||
+      minimum_seq_weight <= 0) {
+    stop("'minimum_seq_weight' must be a numeric scalar greater than zero")
   }
   if (!is.integer(max_autonorm_iters) ||
       length(max_autonorm_iters) != 1L ||
       max_autonorm_iters < 1) {
     stop("'max_autonorm_iters' must be an integer scalar greater than zero")
   }
-
+  if (!is.logical(verbose) || length(verbose) != 1L) {
+    stop("'verbose' has to be either TRUE or FALSE")
+  }
+  
   # set starting df_final
   df_final <- df
   last_error <- Inf
@@ -355,18 +395,34 @@ iterate_norm_for_kmer_comp <- function(df,
 
   # run norm_for_kmer_comp() up to max_autonorm_iters times or
   # stop when new error is bigger than the error from the previous iteration
+  if (verbose) {
+    message("  starting iterative adjustment for k-mer composition (up to ",
+            max_autonorm_iters, " iterations)")
+  }
+
   for (i in seq_len(max_autonorm_iters)) {
 
     # run norm_for_kmer_comp
-    df_final <- norm_for_kmer_comp(df_final)
-    cur_error <- attr(df_final, "err")
+    # TODO: pre-calc k-mer frequencies and pass to norm_for_kmer_comp
+    df_final <- norm_for_kmer_comp(df = df_final,
+                                   max_kmer_size = max_kmer_size,
+                                   minimum_seq_weight = minimum_seq_weight)
 
     # if current error is bigger than the last one, stop
-    if (cur_error >= last_error) {
+    if (attr(df_final, "err") >= last_error) {
+      if (verbose) {
+        message("    detected increasing error - stopping after ", i, " iterations")
+      }
       break
     } else {
-      last_error <- cur_error
+      if (verbose && (i %% 20 == 0)) {
+        message("    ", i, " of ", max_autonorm_iters, " iterations done")
+      }
+      last_error <- attr(df_final, "err")
     }
+  }
+  if (verbose) {
+    message("    iterations finished")
   }
 
   # return final weights
@@ -382,12 +438,14 @@ iterate_norm_for_kmer_comp <- function(df,
 #' @param is_forground logical vector of the same length as \code{seqs}.
 #'   \code{TRUE} indicates that the sequence corresponds to the foreground set,
 #'   \code{FALSE} indicates a background set sequence.
+#' @param verbose A logical scalar. If \code{TRUE}, report on k-mer composition
+#'   adjustment.
 #'
 #'
 #'
 #'
 #' @export
-run_monaLisa <- function(seqs, is_foreground) {
+run_monaLisa <- function(seqs, is_foreground, verbose = TRUE) {
 
   # checks
   if (!is(seqs, "DNAStringSet")) {
@@ -400,10 +458,13 @@ run_monaLisa <- function(seqs, is_foreground) {
   if (length(seqs) != length(is_foreground)) {
     stop("'seqs' and 'is_foreground' must be of equal length")
   }
+  if (!is.logical(verbose) || length(verbose) != 1L) {
+    stop("'verbose' has to be either TRUE or FALSE")
+  }
   if (is.null(names(seqs))) {
     names(seqs) <- paste0("seq_", seq_along(seqs))
   }
-
+  
   # create list of the inputs
   df <- DataFrame(seqs = seqs,
                   is_foreground = is_foreground,
@@ -414,13 +475,14 @@ run_monaLisa <- function(seqs, is_foreground) {
   attr(df, "err") <- NA
 
   # filter 'bad' sequences
-  df <- filter_seqs(df)
+  df <- filter_seqs(df, verbose = verbose)
 
   # calculate weight to adjust for GC differences between foreground and
   # background
-  df <- calculate_GC_weight(df)
+  df <- calculate_GC_weight(df, verbose = verbose)
 
   # calculate weight to in addition adjust for kmer composition differences
-  df <- iterate_norm_for_kmer_comp(df)
+  df <- iterate_norm_for_kmer_comp(df, verbose = verbose)
 
+  df
 }
