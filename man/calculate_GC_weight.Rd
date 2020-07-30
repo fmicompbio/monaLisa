@@ -4,7 +4,7 @@
 \alias{calculate_GC_weight}
 \title{Get GC weights for background regions}
 \usage{
-calculate_GC_weight(df)
+calculate_GC_weight(df, verbose = TRUE)
 }
 \arguments{
 \item{df}{a \code{DataFrame} with an attribute \code{err} and columns
@@ -19,6 +19,9 @@ calculate_GC_weight(df)
   \item{\code{kmer_weight}}{: the sequence weight to adjust for k-mer
     differences between foreground and background sequences.}
 }}
+
+\item{verbose}{A logical scalar. If \code{TRUE}, report on GC weight
+calculation.}
 }
 \value{
 a \code{DataFrame} of the same dimensions as the input \code{df},

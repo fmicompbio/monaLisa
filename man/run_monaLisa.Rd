@@ -5,10 +5,13 @@
 \title{Do Motif Enrichment Analysis with `monaLisa` (for simple fg vs bg
   situation, this wil lbe changed for bins later)}
 \usage{
-run_monaLisa(seqs, is_foreground)
+run_monaLisa(seqs, is_foreground, verbose = TRUE)
 }
 \arguments{
 \item{seqs}{DNAStringSet object with sequences to analyze}
+
+\item{verbose}{A logical scalar. If \code{TRUE}, report on k-mer composition
+adjustment.}
 
 \item{is_forground}{logical vector of the same length as \code{seqs}.
 \code{TRUE} indicates that the sequence corresponds to the foreground set,

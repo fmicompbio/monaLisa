@@ -192,58 +192,60 @@ calculate_GC_weight <- function(df, verbose = TRUE) {
 #'   composition. We closely follow HOMER's \code{normalizeSequenceIteration()}
 #'   function found in \code{Motif2.cpp}.
 #'
-#' @param df a \code{DataFrame} as returned by \code{calculate_GC_weight}.
-#' @param max_kmer_size Integer scalar giving the maximum k-mer size to
-#'   consider. The default is set to 3 (like in \code{HOMER}), meaning that
-#'   k-mers of size 1, 2 and 3 are considered.
+#' @param kmer_freq a \code{list} with of matrices. The matrix at index \code{i}
+#'   contains the counts of k-mers of length \code{i} (columns) for each
+#'   sequence (rows).
+#' @param kmer_seq_rc a \code{list} of character vectors; the element at index
+#'   \code{i} contains the reverse complement sequences of all k-mers of length
+#'   \code{i}.
+#' @param kmer_weight a \code{numeric} vector with sequence weights adjusting
+#'   for k-mer composition at the beginning of the iteration.
+#' @param is_forground logical vector of the same length as \code{seqs}.
+#'   \code{TRUE} indicates that the sequence corresponds to the foreground set,
+#'   \code{FALSE} indicates a background set sequence.
 #' @param minimum_seq_weight Numeric scalar greater than zero giving the
 #'   minimal weight of a sequence. The default value (0.001) was also used by
-#'   \code{HOMER} (HOMER_MINIMUM_SEQ_WEIGHT  constant in Motif2.h).
+#'   \code{HOMER} (HOMER_MINIMUM_SEQ_WEIGHT constant in Motif2.h).
+#' @param maximum_seq_weight Numeric scalar greater than zero giving the
+#'   maximal weight of a sequence. The default value (1000) was also used by
+#'   \code{HOMER} (1 / HOMER_MINIMUM_SEQ_WEIGHT constant in Motif2.h).
 #'
 #' @return a \code{DataFrame} of the same dimensions as the input \code{df},
 #'   with the weight to adjust for k-mer composition and the current error
 #'   stored in the column \code{kmer_weight} and the attribute \code{err}.
 #'
-#' @importFrom Biostrings oligonucleotideFrequency reverseComplement
-#'   DNAStringSet
-#' @importFrom S4Vectors DataFrame
-#'
 #' @export
-norm_for_kmer_comp <- function(df,
-                               max_kmer_size = 3L,
-                               minimum_seq_weight = 0.001) {
+norm_for_kmer_comp <- function(kmer_freq,
+                               kmer_seq_rc,
+                               kmer_weight,
+                               is_foreground,
+                               minimum_seq_weight = 0.001,
+                               maximum_seq_weight = 1000) {
 
   # checks
   # arguments are all checked by iterate_norm_for_kmer_comp()
 
   # set starting error
-  error <- 0
+  err <- 0
 
-  # set starting weight per sequence
-  cur_weight <- df$kmer_weight
-
-  # iterate over the kmer sizes: 1 till max_kmer_size
-  for (cur_len in seq_len(max_kmer_size)) {
-
-    # frequency of each k-mer of size cur_len per sequence
-    kmer_freq <- oligonucleotideFrequency(x = df$seqs, width = cur_len)
+  # iterate over the k-mer sizes
+  for (k in seq_along(kmer_freq)) {
 
     # number of good (non-N containing) oligos per sequence
-    g_oligos <- rowSums(kmer_freq)
+    g_oligos <- rowSums(kmer_freq[[k]])
 
     # divide the current weight of each sequence by its g_oligos
-    div_weight <- cur_weight / g_oligos
+    div_weight <- kmer_weight / g_oligos
 
     # For each sequence multiply the frequency of each oligo by its div_weight.
     # This is the same as summing the weights for each oligo in a sequence.
-    oligo_weights_per_seq <- sweep(x = kmer_freq, MARGIN = 1,
+    oligo_weights_per_seq <- sweep(x = kmer_freq[[k]], MARGIN = 1,
                                    STATS = div_weight, FUN = "*")
 
     # sum weights per oligo over foreground (foreground_levels) and background
     # (background_levels) sequences
-    foreground_levels <- colSums(oligo_weights_per_seq[df$is_foreground, ])
-    background_levels <- colSums(oligo_weights_per_seq[!df$is_foreground, ])
-    kmers <- DNAStringSet(names(foreground_levels))
+    foreground_levels <- colSums(oligo_weights_per_seq[is_foreground, ])
+    background_levels <- colSums(oligo_weights_per_seq[!is_foreground, ])
 
     # sum weights in foreground_levels and background_levels
     total_foreground <- sum(foreground_levels)
@@ -254,10 +256,8 @@ norm_for_kmer_comp <- function(df,
     min_background_levels <- 0.5 / total_background
 
     # Average the weight of a kmer with its reverse complement
-    rev_kmers_fg <- as.character(reverseComplement(x = kmers))
-    rev_kmers_bg <- as.character(reverseComplement(x = kmers))
-    f_level <- (foreground_levels + foreground_levels[rev_kmers_fg]) / 2
-    b_level <- (background_levels + background_levels[rev_kmers_bg]) / 2
+    f_level <- (foreground_levels + foreground_levels[kmer_seq_rc[[k]]]) / 2
+    b_level <- (background_levels + background_levels[kmer_seq_rc[[k]]]) / 2
 
     # check if less than set minimum
     f_level[f_level < min_foreground_levels] <- min_foreground_levels
@@ -267,30 +267,27 @@ norm_for_kmer_comp <- function(df,
     norm_factors <- (f_level / b_level) * (total_background / total_foreground)
 
     # update error
-    error <- error + sum((norm_factors - 1)^2 / length(foreground_levels))
+    err <- err + sum((norm_factors - 1)^2 / length(foreground_levels))
 
     # calculate new weights for background sequences
 
     # ... sum the norm_factors of all k-mers per background sequence
-    bg_new_score <- rowSums(sweep(x = kmer_freq[!df$is_foreground,
-                                                names(norm_factors)],
+    bg_new_score <- rowSums(sweep(x = kmer_freq[[k]][!is_foreground, ],
                                   MARGIN = 2, STATS = norm_factors, FUN = "*"))
 
     # ... HOMER check: if number of good oligos is > 0.5
-    bg_g_oligos <- g_oligos[!df$is_foreground]
+    bg_g_oligos <- g_oligos[!is_foreground]
     g <- bg_g_oligos > 0.5
     bg_new_score[g] <- bg_new_score[g] / bg_g_oligos[g]
 
     # ... new weight for each background sequence
     # ... ... newWeight = newScore*currentWeight
-    bg_cur_weight <- cur_weight[!df$is_foreground]
+    bg_cur_weight <- kmer_weight[!is_foreground]
     bg_new_weight <- bg_new_score * bg_cur_weight
 
-    # ... HOMERs minimum weight cutoffs
-    g <- bg_new_weight < minimum_seq_weight # lower bound
-    bg_new_weight[g] <- minimum_seq_weight
-    g <- bg_new_weight > 1 / minimum_seq_weight # upper bound
-    bg_new_weight[g] <- 1 / minimum_seq_weight
+    # ... HOMERs minimum and maximum weight cutoffs
+    bg_new_weight[bg_new_weight < minimum_seq_weight] <- minimum_seq_weight
+    bg_new_weight[bg_new_weight > maximum_seq_weight] <- maximum_seq_weight
 
     # ... penalty (still following HOMER)
     bg_penalty <- bg_new_weight
@@ -307,17 +304,13 @@ norm_for_kmer_comp <- function(df,
                              (bg_delta < 0 & bg_new_weight < 1))
     bg_new_weight1[g] <- bg_cur_weight[g] + bg_delta[g] / bg_penalty[g]
 
-    # ... update cur_weight with bg_new_weight1
-    cur_weight[!df$is_foreground] <- bg_new_weight1
+    # ... update kmer_weight with bg_new_weight1
+    kmer_weight[!is_foreground] <- bg_new_weight1
 
   }
 
-  # update kmer_weight and err in df
-  df$kmer_weight <- cur_weight
-  attr(df, "err") <- error
-
-  # return new df, containing new k-mer weights and the error
-  df
+  # return new kmer_weight and error
+  list(kmer_weight = kmer_weight, err = err)
 }
 
 
@@ -353,7 +346,8 @@ norm_for_kmer_comp <- function(df,
 #'   the the error term} \item{sequenceNucleotides}{: a \code{DNAStringSet}
 #'   object containing the raw sequences} }
 #'
-#' @importFrom Biostrings DNAStringSet
+#' @importFrom Biostrings oligonucleotideFrequency reverseComplement
+#'   DNAStringSet
 #' @importFrom S4Vectors DataFrame
 #'
 #' @export
@@ -386,12 +380,17 @@ iterate_norm_for_kmer_comp <- function(df,
     stop("'verbose' has to be either TRUE or FALSE")
   }
   
-  # set starting df_final
-  df_final <- df
-  last_error <- Inf
-
   # initialize kmer_weight using gc_weight
-  df_final$kmer_weight <- df_final$gc_weight
+  last_error <- Inf
+  cur_weight <- df$gc_weight
+
+  # pre-calculate k-mer frequencies used in iterations
+  kmer_freq <- kmer_seq_rc <- list()
+  for (k in seq_len(max_kmer_size)) {
+    kmer_freq[[k]] <- oligonucleotideFrequency(x = df$seqs, width = k)
+    kmers <- DNAStringSet(colnames(kmer_freq[[k]]))
+    kmer_seq_rc[[k]] <- as.character(reverseComplement(x = kmers))
+  }
 
   # run norm_for_kmer_comp() up to max_autonorm_iters times or
   # stop when new error is bigger than the error from the previous iteration
@@ -400,16 +399,18 @@ iterate_norm_for_kmer_comp <- function(df,
             max_autonorm_iters, " iterations)")
   }
 
+  res <- list()
   for (i in seq_len(max_autonorm_iters)) {
 
     # run norm_for_kmer_comp
-    # TODO: pre-calc k-mer frequencies and pass to norm_for_kmer_comp
-    df_final <- norm_for_kmer_comp(df = df_final,
-                                   max_kmer_size = max_kmer_size,
-                                   minimum_seq_weight = minimum_seq_weight)
+    res <- norm_for_kmer_comp(kmer_freq = kmer_freq,
+                              kmer_seq_rc = kmer_seq_rc,
+                              kmer_weight = cur_weight,
+                              is_foreground = df$is_foreground,
+                              minimum_seq_weight = minimum_seq_weight)
 
     # if current error is bigger than the last one, stop
-    if (attr(df_final, "err") >= last_error) {
+    if (res$err >= last_error) {
       if (verbose) {
         message("    detected increasing error - stopping after ", i, " iterations")
       }
@@ -418,7 +419,8 @@ iterate_norm_for_kmer_comp <- function(df,
       if (verbose && (i %% 20 == 0)) {
         message("    ", i, " of ", max_autonorm_iters, " iterations done")
       }
-      last_error <- attr(df_final, "err")
+      cur_weight <- res$kmer_weight
+      last_error <- res$err
     }
   }
   if (verbose) {
@@ -426,7 +428,9 @@ iterate_norm_for_kmer_comp <- function(df,
   }
 
   # return final weights
-  df_final
+  df$kmer_weight <- cur_weight
+  attr(df, "err") <- last_error
+  return(df)
 }
 
 

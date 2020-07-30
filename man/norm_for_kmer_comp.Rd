@@ -4,18 +4,38 @@
 \alias{norm_for_kmer_comp}
 \title{Adjust for k-mer composition (single iteration)}
 \usage{
-norm_for_kmer_comp(df, max_kmer_size = 3L, minimum_seq_weight = 0.001)
+norm_for_kmer_comp(
+  kmer_freq,
+  kmer_seq_rc,
+  kmer_weight,
+  is_foreground,
+  minimum_seq_weight = 0.001,
+  maximum_seq_weight = 1000
+)
 }
 \arguments{
-\item{df}{a \code{DataFrame} as returned by \code{calculate_GC_weight}.}
+\item{kmer_freq}{a \code{list} with of matrices. The matrix at index \code{i}
+contains the counts of k-mers of length \code{i} (columns) for each
+sequence (rows).}
 
-\item{max_kmer_size}{Integer scalar giving the maximum k-mer size to
-consider. The default is set to 3 (like in \code{HOMER}), meaning that
-k-mers of size 1, 2 and 3 are considered.}
+\item{kmer_seq_rc}{a \code{list} of character vectors; the element at index
+\code{i} contains the reverse complement sequences of all k-mers of length
+\code{i}.}
+
+\item{kmer_weight}{a \code{numeric} vector with sequence weights adjusting
+for k-mer composition at the beginning of the iteration.}
 
 \item{minimum_seq_weight}{Numeric scalar greater than zero giving the
 minimal weight of a sequence. The default value (0.001) was also used by
-\code{HOMER} (HOMER_MINIMUM_SEQ_WEIGHT  constant in Motif2.h).}
+\code{HOMER} (HOMER_MINIMUM_SEQ_WEIGHT constant in Motif2.h).}
+
+\item{maximum_seq_weight}{Numeric scalar greater than zero giving the
+maximal weight of a sequence. The default value (1000) was also used by
+\code{HOMER} (1 / HOMER_MINIMUM_SEQ_WEIGHT constant in Motif2.h).}
+
+\item{is_forground}{logical vector of the same length as \code{seqs}.
+\code{TRUE} indicates that the sequence corresponds to the foreground set,
+\code{FALSE} indicates a background set sequence.}
 }
 \value{
 a \code{DataFrame} of the same dimensions as the input \code{df},

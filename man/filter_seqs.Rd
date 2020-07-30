@@ -4,7 +4,7 @@
 \alias{filter_seqs}
 \title{Filter Bad Sequences}
 \usage{
-filter_seqs(df, frac = 0.7)
+filter_seqs(df, frac = 0.7, verbose = TRUE)
 }
 \arguments{
 \item{df}{a \code{DataFrame} with an attribute \code{err} and columns
@@ -22,6 +22,8 @@ filter_seqs(df, frac = 0.7)
 
 \item{frac}{A numeric scalar with the maximal fraction of N bases allowed in
 a sequence (defaults to 0.7).}
+
+\item{verbose}{A logical scalar. If \code{TRUE}, report on filtering.}
 }
 \value{
 the filtered \code{df}.
