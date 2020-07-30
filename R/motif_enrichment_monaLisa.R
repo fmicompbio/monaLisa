@@ -25,7 +25,8 @@ filter_seqs <- function(inputList=NULL, frac=0.7) {
   }
 
   # fraction of Ns per sequence
-  frac_N <- Biostrings::alphabetFrequency(inputList$sequenceNucleotides)[, "N"] / lengths(inputList$sequenceNucleotides)
+  frac_N <- alphabetFrequency(inputList$sequenceNucleotides)[, "N"] /
+    lengths(inputList$sequenceNucleotides)
 
   # remove sequences with fraction > frac
   w <- which(frac_N>frac)
@@ -47,9 +48,8 @@ filter_seqs <- function(inputList=NULL, frac=0.7) {
 #'   specific GC bin depending on its GC content. Then, for each GC bin, the
 #'   number of foreGround and backGround sequences in that bin is calculated.
 #'   Weights are calculated for the backGround sequences in bin i as follows:
-#'   weight_i =
-#'   (number_fg_seqs_i/number_bg_seqs_i)*(number_bg_seqs_total/number_fg_seqs_total)
-#'
+#'   weight_i = (number_fg_seqs_i / number_bg_seqs_i) * (number_bg_seqs_total /
+#'   number_fg_seqs_total)
 #'
 #' @param inputList a `list` containing \itemize{ \item{sequenceWeights}{: a
 #'   \code{dataframe} with nrows equal to the number of sequences, with a column
@@ -75,7 +75,8 @@ get_GC_weight <- function(inputList=NULL) {
   }
 
   # calculate GC fraction for each sequence
-  f_mono <- Biostrings::oligonucleotideFrequency(inputList$sequenceNucleotides, width=1, as.prob=TRUE)
+  f_mono <- oligonucleotideFrequency(inputList$sequenceNucleotides,
+                                     width=1, as.prob=TRUE)
   gc_frac <- f_mono[,"G"]+f_mono[,"C"]
 
   # HOMER's GC breaks/bins
@@ -103,12 +104,15 @@ get_GC_weight <- function(inputList=NULL) {
 
   # calculate GC weight per bin
   weight_per_bin <- sapply(bins, function(b) {
-    n_fg_b <- sum(gc_bin[inputList$sequenceWeights$foreGround==1]%in%b) # number of fg seqs in b
-    n_bg_b <- sum(gc_bin[inputList$sequenceWeights$foreGround==0]%in%b) # number of bg seqs in b
+    # number of fg seqs in b
+    n_fg_b <- sum(gc_bin[inputList$sequenceWeights$foreGround==1]%in%b)
+    # number of bg seqs in b
+    n_bg_b <- sum(gc_bin[inputList$sequenceWeights$foreGround==0]%in%b)
     (n_fg_b/n_bg_b)* (total_bg/total_fg)
   })
 
-  # assign calculated GC weight to each backGround sequence (foreGround get a weight of 1)
+  # assign calculated GC weight to each backGround sequence (foreGround get a
+  # weight of 1)
   df <- inputList$sequenceWeights
   df$gc_fraction <- gc_frac
   df$gc_bin <- gc_bin
@@ -172,7 +176,8 @@ norm_for_kmer_comp <- function(inputList=NULL, maxKmerSize=3) {
   for (curLen in 1:maxKmerSize) {
 
     # frequency of each kmer of size curLen per sequence
-    kmer_freq <- Biostrings::oligonucleotideFrequency(x = inputList$sequenceNucleotides, width = curLen)
+    kmer_freq <- oligonucleotideFrequency(x = inputList$sequenceNucleotides,
+                                          width = curLen)
 
     # number of good oligos per sequence
     g_oligos <- rowSums(kmer_freq)
@@ -182,9 +187,11 @@ norm_for_kmer_comp <- function(inputList=NULL, maxKmerSize=3) {
 
     # for each sequence multiply the frequency of each oligo by its div_weight.
     # This is the same as summing the weights for each oligo in a sequence.
-    oligo_wights_per_seq <- sweep(x = kmer_freq, MARGIN = 1, STATS = div_weight, FUN = "*")
+    oligo_wights_per_seq <- sweep(x = kmer_freq, MARGIN = 1,
+                                  STATS = div_weight, FUN = "*")
 
-    # sum all weights per oligo for foreGround (target_levels) and backGround (background_levels)
+    # sum all weights per oligo for foreGround (target_levels) and backGround
+    # (background_levels)
     target_levels <- colSums(oligo_wights_per_seq[inputList$sequenceWeights$foreGround==1, ])
     background_levels <- colSums(oligo_wights_per_seq[inputList$sequenceWeights$foreGround==0, ])
 
@@ -197,8 +204,8 @@ norm_for_kmer_comp <- function(inputList=NULL, maxKmerSize=3) {
     min_background_levels <- 0.5/total_background
 
     # Average the weight of a kmer with its reverse complement
-    rev_kmers_fg <- as.character(Biostrings::reverseComplement(x = Biostrings::DNAStringSet(names(target_levels))))
-    rev_kmers_bg <- as.character(Biostrings::reverseComplement(x = Biostrings::DNAStringSet(names(background_levels))))
+    rev_kmers_fg <- as.character(reverseComplement(x = DNAStringSet(names(target_levels))))
+    rev_kmers_bg <- as.character(reverseComplement(x = DNAStringSet(names(background_levels))))
     t_level <- (target_levels + target_levels[rev_kmers_fg])/2
     b_level <- (background_levels + background_levels[rev_kmers_bg])/2
 
@@ -215,7 +222,9 @@ norm_for_kmer_comp <- function(inputList=NULL, maxKmerSize=3) {
     # calculate new weights for background sequences
 
     # ... sum the norm_factors of all kmers per backGround sequence
-    bg_new_score <- rowSums(sweep(x = kmer_freq[inputList$sequenceWeights$foreGround==0, names(norm_factors)], MARGIN = 2, STATS = norm_factors, FUN = "*"))
+    bg_new_score <- rowSums(sweep(x = kmer_freq[inputList$sequenceWeights$foreGround==0,
+                                                names(norm_factors)],
+                                  MARGIN = 2, STATS = norm_factors, FUN = "*"))
 
     # ... HOMER check: if number of good oligos is > 0.5
     bg_g_oligos <- g_oligos[inputList$sequenceWeights$foreGround==0]
@@ -244,7 +253,8 @@ norm_for_kmer_comp <- function(inputList=NULL, maxKmerSize=3) {
 
     # ... newWeight1 (still following HOMER)
     bg_new_weight1 <- bg_cur_weight + bg_delta
-    g <- bg_penalty > 1 & ((bg_delta>0 & bg_new_weight>1) | (bg_delta<0 & bg_new_weight < 1))
+    g <- bg_penalty > 1 & ((bg_delta>0 & bg_new_weight>1) |
+                             (bg_delta<0 & bg_new_weight < 1))
     bg_new_weight1[g] <- bg_cur_weight[g] + bg_delta[g]/bg_penalty[g]
 
     # ... update cur_weight with newWeight1
@@ -291,7 +301,9 @@ norm_for_kmer_comp <- function(inputList=NULL, maxKmerSize=3) {
 #' @importFrom Biostrings DNAStringSet
 #'
 #' @export
-iterate_norm_for_kmer_comp <- function(inputList=NULL, max_autonorm_iters=160, last_error=1e100) {
+iterate_norm_for_kmer_comp <- function(inputList=NULL,
+                                       max_autonorm_iters=160,
+                                       last_error=1e100) {
 
   # check
 
@@ -340,7 +352,8 @@ run_monaLisa <- function(seqs=NULL, foreGround=NULL) {
     stop("class of 'seqs' must be DNAStringSet")
   }
   if (class(foreGround)!="numeric") {
-    stop("'foreGround' must be a numeric vector with 1 to indicate foreGround sequences and 0 to indicate backGround sequences")
+    stop("'foreGround' must be a numeric vector with 1 to indicate foreGround",
+         " sequences and 0 to indicate backGround sequences")
   }
   if (length(unique(foreGround))!=2) {
     stop("make sure that the 'foreGround' vector only contains 1s and 0s")
