@@ -77,10 +77,10 @@ get_GC_weight <- function(inputList=NULL) {
   # calculate GC fraction for each sequence
   f_mono <- oligonucleotideFrequency(inputList$sequenceNucleotides,
                                      width = 1, as.prob = TRUE)
-  gc_frac <- f_mono[,"G"] + f_mono[,"C"]
+  gc_frac <- f_mono[, "G"] + f_mono[, "C"]
 
   # HOMER's GC breaks/bins
-  gc_breaks <- c(0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.6,0.7,0.8)
+  gc_breaks <- c(0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.7, 0.8)
 
   # assign each sequence to a GC bin (for foreGround and backGround)
   gc_bin <- findInterval(x = gc_frac, vec = gc_breaks)
@@ -358,7 +358,7 @@ run_monaLisa <- function(seqs=NULL, foreGround=NULL) {
   if (length(unique(foreGround)) != 2) {
     stop("make sure that the 'foreGround' vector only contains 1s and 0s")
   }
-  if (!all(foreGround %in% c(1,0))) {
+  if (!all(foreGround %in% c(1, 0))) {
     stop("make sure that the 'foreGround' vector only contains 1s and 0s")
   }
   if (length(seqs) != length(foreGround)) {
