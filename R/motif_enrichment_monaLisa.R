@@ -118,7 +118,7 @@ get_GC_weight <- function(inputList=NULL) {
   df$gc_bin <- gc_bin
   df$gc_weight <- rep(1, nrow(df))
 
-  for (i in 1:length(bins)) {
+  for (i in seq_along(bins)) {
     b <- bins[i]
     w <- weight_per_bin[i]
     df$gc_weight[gc_bin %in% b & df$foreGround == 0] <- w
@@ -365,7 +365,7 @@ run_monaLisa <- function(seqs=NULL, foreGround=NULL) {
     stop("'seqs' and 'foreGround' must be of equal length")
   }
   if (is.null(names(seqs))) {
-    nm <- paste0("seq_", 1:length(seqs))
+    nm <- paste0("seq_", seq_along(seqs))
   } else {
     nm <- names(seqs)
   }
