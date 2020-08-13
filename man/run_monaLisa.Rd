@@ -3,12 +3,16 @@
 \name{run_monaLisa}
 \alias{run_monaLisa}
 \title{Do Motif Enrichment Analysis with `monaLisa` (for simple fg vs bg
-  situation, this wil lbe changed for bins later)}
+  situation, this will be changed for bins later)}
 \usage{
-run_monaLisa(seqs, is_foreground, verbose = TRUE)
+run_monaLisa(seqs, is_foreground, pwmL, Ncpu = 1L, verbose = TRUE)
 }
 \arguments{
 \item{seqs}{DNAStringSet object with sequences to analyze}
+
+\item{pwmL}{PWMatrixList object with PWMs of motifs}
+
+\item{Ncpu}{Number of CPUs to use (default set to 1).}
 
 \item{verbose}{A logical scalar. If \code{TRUE}, report on k-mer composition
 adjustment.}
@@ -19,5 +23,12 @@ adjustment.}
 }
 \description{
 Do Motif Enrichment Analysis with `monaLisa` (for simple fg vs bg
-  situation, this wil lbe changed for bins later)
+  situation, this will be changed for bins later)
+}
+\details{
+TODO: - parallellize the other functions using Ncpu.
+               - add log-enrichment info to final output.
+               - change functions to do one-time calculations when using in binned mode.
+               - make a better get_motif_hits_in_ZOOPS_mode function with our own 
+                 implementation of matchPWM (faster). for now it uses homer2 because it's so fast.
 }

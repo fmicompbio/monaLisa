@@ -339,7 +339,7 @@ norm_for_kmer_comp <- function(kmer_freq,
 #' @param verbose A logical scalar. If \code{TRUE}, report on k-mer composition
 #'   adjustment.
 #'
-#' @return a list containing: \itemize{ \item{sequenceWeights}{: a
+#' @return a DataFrame containing: \itemize{ \item{sequenceWeights}{: a
 #'   \code{dataframe} containing the sequence GC content, GC bins they were
 #'   assigned to, the weight to correct for GC differences between foreGround
 #'   and background sequences, the weight to adjust for kmer composition, and
@@ -435,23 +435,142 @@ iterate_norm_for_kmer_comp <- function(df,
   return(df)
 }
 
+#' @title Get Motif Hits
+#'
+#' @param df DNAStringSet object with sequences to analyze
+#' @param pwmL PWMatrixList object with PWMs of motifs
+#' @param method the \code{method} parameter in the \code{findMotifHits} function
+#' @param min.score the \code{min.score} parameter in the \code{findMotifHits} function
+#' @param Ncpu number of CPUs to use
+#'
+#' @importFrom S4Vectors DataFrame
+#' @return a matrix where the rows are the sequences and the columns the motifs. This matrix
+#'   consists of 0 and 1 entries for a motif hit or not, respectively.
+#'   
+#' @details TODO: should the returned matrix be a sparse matrix? and should we run this once for all
+#'   sequences in all bins (when doing motif enrichment across bins)?
+#'      
+#' @export
+get_motif_hits_in_ZOOPS_mode <- function(df, 
+                                         pwmL, 
+                                         method=c("homer2"), 
+                                         homerfile = findHomer("homer2"), 
+                                         min.score = 10L, 
+                                         Ncpu = 1L){
+  
+  # checks
+  if (!is_valid_df(df)) {
+      stop("'df' is not a valid input object")
+  }
+  if(!is(pwmL, "PWMatrixList")){
+    stop("pwmL must be of class PWMatrixList")
+  }
+  
+  # find motifs
+  hits <- monaLisa::findMotifHits(pwmL, df$seqs, method = "homer2", homerfile = homerfile, min.score = min.score)
+  hits_matrix <- as.matrix(as.data.frame.matrix(table(seqnames(hits), as.character(hits$pwmname))))
+  
+  # match rows in df (add missing rows with no TF hits)
+  missing <- rownames(df)[!rownames(df)%in%rownames(hits_matrix)]
+  if(!isEmpty(missing)) {
+    missing_mat <- matrix(data = 0, nrow = length(missing), ncol = ncol(hits_matrix))
+    rownames(missing_mat) <- missing
+    colnames(missing_mat) <- colnames(hits_matrix)
+    # add to hits_matrix and order as in df
+    hits_matrix <- rbind(hits_matrix, missing_mat)
+    hits_matrix <- hits_matrix[rownames(df), ]
+  }
+  
+  # ZOOPS mode: 1/0 matrix for hit or no hit
+  w <- hits_matrix > 1
+  if(!isEmpty(w)) {
+    hits_matrix[w] <- 1
+  }
+  
+  # return
+  hits_matrix
+  
+}
+
+
+#' @title Do Motif Enrichment
+#'
+#' @param motif_matrix matrix with 0 and 1 entries for absence or presence of 
+#'   motif hits per sequence.
+#' @param df DatFrame object (output of running \code{iterate_norm_for_kmer_comp})
+#' 
+#' @return a data.frame containing the motif names and the log10(p-value) of their enrichment
+#' 
+#' @export 
+get_motif_enrichment <- function(motif_matrix=NULL, df=NULL){
+  
+  # checks
+  if(!nrow(motif_matrix)==nrow(df)){
+    stop("'motif_matrix' and 'df' must have the same number of rows")
+  }
+  if(!all(rownames(motif_matrix)==rownames(df))){
+    stop("'motif_matrix' and 'df' must have matching names (same order)")
+  }
+  if (is.null(motif_matrix) | is.null(df)) {
+    stop("'motif_matrix' and 'df' have to be provided")
+  }
+  if (!is.matrix(motif_matrix)) {
+    stop("'motif_matrix' has to be a matrix")
+  }
+  if (!is_valid_df(df)) {
+      stop("'df' is not a valid input object")
+  }
+
+  # calculate sum of sequence weights for fg and bg per TF (for seqs with hits)
+  total_foreground <- sum(df$kmer_weight[df$is_foreground])
+  total_background <- sum(df$kmer_weight[!df$is_foreground])
+  
+  tf_foreground <- apply(X = motif_matrix, 
+                         MARGIN = 2, 
+                         FUN = function(x){
+                           sum(df$kmer_weight[df$is_foreground & x==1])
+                         })
+  
+  tf_background <- apply(X = motif_matrix, 
+                         MARGIN = 2, 
+                         FUN = function(x){
+                           sum(df$kmer_weight[!df$is_foreground & x==1])
+                         })
+  # ... if a tf_background has a value of 0, give it a small value
+  tf_background[tf_background==0] <- .Machine$double.eps
+  
+  # calculate motif enrichment
+  enrichment_log_p_value <- pbinom(q = tf_foreground - 1, size = total_foreground, prob = tf_background / total_background, lower.tail = FALSE, log.p = TRUE)
+  enrichment_log_p_value <- sort(enrichment_log_p_value)
+  
+  # return sorted log-pvalues 
+  data.frame(Motif_name=names(enrichment_log_p_value), log_p_value=enrichment_log_p_value)
+  
+}
+
 
 
 #' @title Do Motif Enrichment Analysis with `monaLisa` (for simple fg vs bg
-#'   situation, this wil lbe changed for bins later)
+#'   situation, this will be changed for bins later)
 #'
 #' @param seqs DNAStringSet object with sequences to analyze
 #' @param is_forground logical vector of the same length as \code{seqs}.
 #'   \code{TRUE} indicates that the sequence corresponds to the foreground set,
 #'   \code{FALSE} indicates a background set sequence.
+#' @param pwmL PWMatrixList object with PWMs of motifs
+#' @param Ncpu Number of CPUs to use (default set to 1).
 #' @param verbose A logical scalar. If \code{TRUE}, report on k-mer composition
 #'   adjustment.
 #'
-#'
+#' @details TODO: - parallellize the other functions using Ncpu.
+#'                - add log-enrichment info to final output.
+#'                - change functions to do one-time calculations when using in binned mode.
+#'                - make a better get_motif_hits_in_ZOOPS_mode function with our own 
+#'                  implementation of matchPWM (faster). for now it uses homer2 because it's so fast.
 #'
 #'
 #' @export
-run_monaLisa <- function(seqs, is_foreground, verbose = TRUE) {
+run_monaLisa <- function(seqs, is_foreground, pwmL, Ncpu=1L, verbose = TRUE) {
 
   # checks
   if (!is(seqs, "DNAStringSet")) {
@@ -460,6 +579,9 @@ run_monaLisa <- function(seqs, is_foreground, verbose = TRUE) {
   if (!is.logical(is_foreground)) {
     stop("'is_foreground' must be a logical vector with TRUE to indicate",
          "foreground sequences and FALSE to indicate background sequences")
+  }
+  if(!is(pwmL, "PWMatrixList")){
+    stop("pwmL must be of class PWMatrixList")
   }
   if (length(seqs) != length(is_foreground)) {
     stop("'seqs' and 'is_foreground' must be of equal length")
@@ -489,6 +611,14 @@ run_monaLisa <- function(seqs, is_foreground, verbose = TRUE) {
 
   # calculate weight to in addition adjust for kmer composition differences
   df <- iterate_norm_for_kmer_comp(df, verbose = verbose)
+  
+  # get motif hits matrix in ZOOPS mode
+  motif_matrix <- get_motif_hits_in_ZOOPS_mode(df, pwmL, Ncpu = Ncpu)
+  
+  # get log10(p-values) for motif enrichment (ordered)
+  res <- get_motif_enrichment(motif_matrix, df)
+  
+  # return
+  res
 
-  df
 }
