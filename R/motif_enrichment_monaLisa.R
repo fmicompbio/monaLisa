@@ -537,10 +537,15 @@ get_motif_enrichment <- function(motif_matrix=NULL, df=NULL){
                            sum(df$kmer_weight[!df$is_foreground & x==1])
                          })
   # ... if a tf_background has a value of 0, give it a small value
-  tf_background[tf_background==0] <- .Machine$double.eps
+  # tf_background[tf_background==0] <- .Machine$double.eps
   
   # calculate motif enrichment
   enrichment_log_p_value <- pbinom(q = tf_foreground - 1, size = total_foreground, prob = tf_background / total_background, lower.tail = FALSE, log.p = TRUE)
+  
+  # replace -Inf values (case when tf_background has a zero value) with a small value close to zero
+  enrichment_log_p_value[!is.finite(enrichment_log_p_value)] <- log(.Machine$double.eps)
+  
+  # sort
   enrichment_log_p_value <- sort(enrichment_log_p_value)
   
   # return sorted log-pvalues 
