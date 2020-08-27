@@ -442,6 +442,7 @@ iterate_norm_for_kmer_comp <- function(df,
 #' @param method the \code{method} parameter in the \code{findMotifHits} function
 #' @param min.score the \code{min.score} parameter in the \code{findMotifHits} function
 #' @param Ncpu number of CPUs to use
+#' @param verbose A logical scalar. If \code{TRUE}, describe motif matrix being created
 #'
 #' @importFrom S4Vectors DataFrame
 #' @return a matrix where the rows are the sequences and the columns the motifs. This matrix
@@ -456,7 +457,8 @@ get_motif_hits_in_ZOOPS_mode <- function(df,
                                          method=c("homer2"), 
                                          homerfile = findHomer("homer2"), 
                                          min.score = 10L, 
-                                         Ncpu = 1L){
+                                         Ncpu = 1L, 
+                                         verbose = TRUE){
   
   # checks
   if (!is_valid_df(df)) {
@@ -464,6 +466,15 @@ get_motif_hits_in_ZOOPS_mode <- function(df,
   }
   if(!is(pwmL, "PWMatrixList")){
     stop("pwmL must be of class PWMatrixList")
+  }
+  if (!is.logical(verbose) || length(verbose) != 1L) {
+    stop("'verbose' has to be either TRUE or FALSE")
+  }
+  
+  # verbose=TRUE
+  if (verbose) {
+    message("creating matrix of motif hits in ZOOPS mode (sequences as rows and 
+    motifs as columns), where 1 means at least one motif is present and 0 means no hit")
   }
   
   # find motifs
@@ -502,13 +513,15 @@ get_motif_hits_in_ZOOPS_mode <- function(df,
 #'   is what \code{Homer} uses by default. Fisher's exact test (two-sided) is another alternative which allows
 #'   for testing enrichment or depletion, without having to account for special cases of zero 
 #'   background counts for a motif. 
+#' @param verbose A logical scalar. If \code{TRUE}, report motif enrichment test.
 #' 
 #' @return a data.frame containing the motif names and the log10(p-value) of their enrichment
 #' 
 #' @export 
 get_motif_enrichment <- function(motif_matrix=NULL, 
                                  df=NULL, 
-                                 test=c("binomial", "fishers_exact")){
+                                 test=c("binomial", "fishers_exact"), 
+                                 verbose = TRUE){
   
   # checks
   if(!nrow(motif_matrix)==nrow(df)){
@@ -525,6 +538,9 @@ get_motif_enrichment <- function(motif_matrix=NULL,
   }
   if (!is_valid_df(df)) {
       stop("'df' is not a valid input object")
+  }
+  if (!is.logical(verbose) || length(verbose) != 1L) {
+    stop("'verbose' has to be either TRUE or FALSE")
   }
   method <- match.arg(test)
 
@@ -551,6 +567,11 @@ get_motif_enrichment <- function(motif_matrix=NULL,
     # prob value in pbinom (see logbinomial function in statistics.cpp file
     # and scoreEnrichmentBinomial function in Motif2.cpp file)
     
+    # verbose=TRUE
+    if (verbose) {
+      message("using the binomial test to calculate log(p-values) for motif enrichments")
+    }
+   
     # limits
     lower_prob_limit <- 1/total_background
     upper_prob_limit <- (total_background-1)/total_background
@@ -561,13 +582,13 @@ get_motif_enrichment <- function(motif_matrix=NULL,
     # print warnings if necessary
     if(sum(prob < lower_prob_limit) > 0){
       warning("some probabilities (TF_bgSum/total_bgSum) have a 
-              value less than lower_prob_limit (example when TF_bgSum=0) 
-              and will be given a value of lower_prob_limit=1/total_bgSum")
+      value less than lower_prob_limit (example when TF_bgSum=0) 
+      and will be given a value of lower_prob_limit=1/total_bgSum")
     }
     if(sum(prob > upper_prob_limit) > 0){
       warning("some probabilities (TF_bgSum/total_bgSum) have a 
-              value greater than upper_prob_limit and will be given 
-              a value of upper_prob_limit=(total_bgSum-1)/total_bgSum")
+      value greater than upper_prob_limit and will be given 
+      a value of upper_prob_limit=(total_bgSum-1)/total_bgSum")
     }
     
     # update prob if necessary
@@ -581,6 +602,12 @@ get_motif_enrichment <- function(motif_matrix=NULL,
   }
   if(method=="fishers_exact") {
     
+    # verbose=TRUE
+    if (verbose) {
+      message("using fisher's exact test (two-sided) to calculate log(p-values) for motif enrichments")
+    }
+    
+    # index
     ind <- 1:length(tf_foreground)
     names(ind) <- names(tf_foreground)
     
@@ -687,10 +714,10 @@ run_monaLisa <- function(seqs,
   df <- iterate_norm_for_kmer_comp(df, verbose = verbose)
   
   # get motif hits matrix in ZOOPS mode
-  motif_matrix <- get_motif_hits_in_ZOOPS_mode(df, pwmL, Ncpu = Ncpu)
+  motif_matrix <- get_motif_hits_in_ZOOPS_mode(df, pwmL, Ncpu = Ncpu, verbose = verbose)
   
   # get log(p-values) for motif enrichment (ordered)
-  res <- get_motif_enrichment(motif_matrix, df, test=enrichment_test)
+  res <- get_motif_enrichment(motif_matrix, df, test=enrichment_test, verbose = verbose)
   
   # return
   res

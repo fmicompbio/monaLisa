@@ -10,7 +10,8 @@ get_motif_hits_in_ZOOPS_mode(
   method = c("homer2"),
   homerfile = findHomer("homer2"),
   min.score = 10L,
-  Ncpu = 1L
+  Ncpu = 1L,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -23,6 +24,8 @@ get_motif_hits_in_ZOOPS_mode(
 \item{min.score}{the \code{min.score} parameter in the \code{findMotifHits} function}
 
 \item{Ncpu}{number of CPUs to use}
+
+\item{verbose}{A logical scalar. If \code{TRUE}, describe motif matrix being created}
 }
 \value{
 a matrix where the rows are the sequences and the columns the motifs. This matrix

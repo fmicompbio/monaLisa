@@ -7,7 +7,8 @@
 get_motif_enrichment(
   motif_matrix = NULL,
   df = NULL,
-  test = c("binomial", "fishers_exact")
+  test = c("binomial", "fishers_exact"),
+  verbose = TRUE
 )
 }
 \arguments{
@@ -20,6 +21,8 @@ motif hits per sequence.}
 is what \code{Homer} uses by default. Fisher's exact test (two-sided) is another alternative which allows
 for testing enrichment or depletion, without having to account for special cases of zero 
 background counts for a motif.}
+
+\item{verbose}{A logical scalar. If \code{TRUE}, report motif enrichment test.}
 }
 \value{
 a data.frame containing the motif names and the log10(p-value) of their enrichment
