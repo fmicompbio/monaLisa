@@ -557,8 +557,23 @@ get_motif_enrichment <- function(motif_matrix=NULL,
     
     # prob
     prob <- tf_background / total_background
+    
+    # print warnings if necessary
+    if(sum(prob < lower_prob_limit) > 0){
+      warning("some probabilities (TF_bgSum/total_bgSum) have a 
+              value less than lower_prob_limit (example when TF_bgSum=0) 
+              and will be given a value of lower_prob_limit=1/total_bgSum")
+    }
+    if(sum(prob > upper_prob_limit) > 0){
+      warning("some probabilities (TF_bgSum/total_bgSum) have a 
+              value greater than upper_prob_limit and will be given 
+              a value of upper_prob_limit=(total_bgSum-1)/total_bgSum")
+    }
+    
+    # update prob if necessary
     prob[prob < lower_prob_limit] <- lower_prob_limit
     prob[prob > upper_prob_limit] <- upper_prob_limit
+    
     
     # enrichment
     enrichment_log_p_value <- pbinom(q = tf_foreground - 1, size = total_foreground, prob = prob, lower.tail = FALSE, log.p = TRUE)
@@ -569,7 +584,7 @@ get_motif_enrichment <- function(motif_matrix=NULL,
     ind <- 1:length(tf_foreground)
     names(ind) <- names(tf_foreground)
     
-    # contingency table per motif for fisher's exact test (x, y, z and w are rounded up to the nearest integer):
+    # contingency table per motif for fisher's exact test (x, y, z and w are rounded to the nearest integer):
     #          TF_hit  not_TF_hit
     #   is_fg     x         y
     #   is_bg     z         w
@@ -583,7 +598,7 @@ get_motif_enrichment <- function(motif_matrix=NULL,
                             byrow = TRUE)
       
       # round to integer for fisher's exact test
-      cont_table <- ceiling(cont_table)
+      cont_table <- round(cont_table)
       
       # fisher's exact test: get p-value
       fisher.test(x = cont_table)$p.value}, 
