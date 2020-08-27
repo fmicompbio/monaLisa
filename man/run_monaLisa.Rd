@@ -5,7 +5,14 @@
 \title{Do Motif Enrichment Analysis with `monaLisa` (for simple fg vs bg
   situation, this will be changed for bins later)}
 \usage{
-run_monaLisa(seqs, is_foreground, pwmL, Ncpu = 1L, verbose = TRUE)
+run_monaLisa(
+  seqs,
+  is_foreground,
+  pwmL,
+  enrichment_test = c("binomial", "fishers_exact"),
+  Ncpu = 1L,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{seqs}{DNAStringSet object with sequences to analyze}
@@ -28,6 +35,7 @@ Do Motif Enrichment Analysis with `monaLisa` (for simple fg vs bg
 \details{
 TODO: - parallellize the other functions using Ncpu.
                - add log-enrichment info to final output.
+               - for fisher's exact test: discriminate between enriched and depleted motifs
                - change functions to do one-time calculations when using in binned mode.
                - make a better get_motif_hits_in_ZOOPS_mode function with our own 
                  implementation of matchPWM (faster). for now it uses homer2 because it's so fast.

@@ -4,13 +4,22 @@
 \alias{get_motif_enrichment}
 \title{Do Motif Enrichment}
 \usage{
-get_motif_enrichment(motif_matrix = NULL, df = NULL)
+get_motif_enrichment(
+  motif_matrix = NULL,
+  df = NULL,
+  test = c("binomial", "fishers_exact")
+)
 }
 \arguments{
 \item{motif_matrix}{matrix with 0 and 1 entries for absence or presence of 
 motif hits per sequence.}
 
 \item{df}{DatFrame object (output of running \code{iterate_norm_for_kmer_comp})}
+
+\item{test}{type of test to do for the motif enrichment. By default it is the binomial, which 
+is what \code{Homer} uses by default. Fisher's exact test (two-sided) is another alternative which allows
+for testing enrichment or depletion, without having to account for special cases of zero 
+background counts for a motif.}
 }
 \value{
 a data.frame containing the motif names and the log10(p-value) of their enrichment

@@ -498,11 +498,17 @@ get_motif_hits_in_ZOOPS_mode <- function(df,
 #' @param motif_matrix matrix with 0 and 1 entries for absence or presence of 
 #'   motif hits per sequence.
 #' @param df DatFrame object (output of running \code{iterate_norm_for_kmer_comp})
+#' @param test type of test to do for the motif enrichment. By default it is the binomial, which 
+#'   is what \code{Homer} uses by default. Fisher's exact test (two-sided) is another alternative which allows
+#'   for testing enrichment or depletion, without having to account for special cases of zero 
+#'   background counts for a motif. 
 #' 
 #' @return a data.frame containing the motif names and the log10(p-value) of their enrichment
 #' 
 #' @export 
-get_motif_enrichment <- function(motif_matrix=NULL, df=NULL){
+get_motif_enrichment <- function(motif_matrix=NULL, 
+                                 df=NULL, 
+                                 test=c("binomial", "fishers_exact")){
   
   # checks
   if(!nrow(motif_matrix)==nrow(df)){
@@ -520,6 +526,7 @@ get_motif_enrichment <- function(motif_matrix=NULL, df=NULL){
   if (!is_valid_df(df)) {
       stop("'df' is not a valid input object")
   }
+  method <- match.arg(test)
 
   # calculate sum of sequence weights for fg and bg per TF (for seqs with hits)
   total_foreground <- sum(df$kmer_weight[df$is_foreground])
@@ -536,14 +543,54 @@ get_motif_enrichment <- function(motif_matrix=NULL, df=NULL){
                          FUN = function(x){
                            sum(df$kmer_weight[!df$is_foreground & x==1])
                          })
-  # ... if a tf_background has a value of 0, give it a small value
-  # tf_background[tf_background==0] <- .Machine$double.eps
-  
+
   # calculate motif enrichment
-  enrichment_log_p_value <- pbinom(q = tf_foreground - 1, size = total_foreground, prob = tf_background / total_background, lower.tail = FALSE, log.p = TRUE)
+  if(method=="binomial") {
   
-  # replace -Inf values (case when tf_background has a zero value) with a small value close to zero
-  enrichment_log_p_value[!is.finite(enrichment_log_p_value)] <- log(.Machine$double.eps)
+    # follow Homer in terms of setting upper and lower limits for the 
+    # prob value in pbinom (see logbinomial function in statistics.cpp file
+    # and scoreEnrichmentBinomial function in Motif2.cpp file)
+    
+    # limits
+    lower_prob_limit <- 1/total_background
+    upper_prob_limit <- (total_background-1)/total_background
+    
+    # prob
+    prob <- tf_background / total_background
+    prob[prob < lower_prob_limit] <- lower_prob_limit
+    prob[prob > upper_prob_limit] <- upper_prob_limit
+    
+    # enrichment
+    enrichment_log_p_value <- pbinom(q = tf_foreground - 1, size = total_foreground, prob = prob, lower.tail = FALSE, log.p = TRUE)
+    
+  }
+  if(method=="fishers_exact") {
+    
+    ind <- 1:length(tf_foreground)
+    names(ind) <- names(tf_foreground)
+    
+    # contingency table per motif for fisher's exact test (x, y, z and w are rounded up to the nearest integer):
+    #          TF_hit  not_TF_hit
+    #   is_fg     x         y
+    #   is_bg     z         w
+    #
+    enrichment_log_p_value <- log(vapply(ind, function(i){
+      
+      # contingency table
+      cont_table <-  matrix(data = c(tf_foreground[i], (total_foreground-tf_foreground[i]), 
+                                     tf_background[i], (total_background-tf_background[i])), 
+                            ncol = 2, 
+                            byrow = TRUE)
+      
+      # round to integer for fisher's exact test
+      cont_table <- ceiling(cont_table)
+      
+      # fisher's exact test: get p-value
+      fisher.test(x = cont_table)$p.value}, 
+      FUN.VALUE = 0.02)
+    )
+    
+  }
   
   # sort
   enrichment_log_p_value <- sort(enrichment_log_p_value)
@@ -569,13 +616,19 @@ get_motif_enrichment <- function(motif_matrix=NULL, df=NULL){
 #'
 #' @details TODO: - parallellize the other functions using Ncpu.
 #'                - add log-enrichment info to final output.
+#'                - for fisher's exact test: discriminate between enriched and depleted motifs
 #'                - change functions to do one-time calculations when using in binned mode.
 #'                - make a better get_motif_hits_in_ZOOPS_mode function with our own 
 #'                  implementation of matchPWM (faster). for now it uses homer2 because it's so fast.
 #'
 #'
 #' @export
-run_monaLisa <- function(seqs, is_foreground, pwmL, Ncpu=1L, verbose = TRUE) {
+run_monaLisa <- function(seqs, 
+                         is_foreground, 
+                         pwmL, 
+                         enrichment_test=c("binomial", "fishers_exact"), 
+                         Ncpu=1L, 
+                         verbose = TRUE) {
 
   # checks
   if (!is(seqs, "DNAStringSet")) {
@@ -597,6 +650,7 @@ run_monaLisa <- function(seqs, is_foreground, pwmL, Ncpu=1L, verbose = TRUE) {
   if (is.null(names(seqs))) {
     names(seqs) <- paste0("seq_", seq_along(seqs))
   }
+  enrichment_test <- match.arg(enrichment_test)
   
   # create list of the inputs
   df <- DataFrame(seqs = seqs,
@@ -620,8 +674,8 @@ run_monaLisa <- function(seqs, is_foreground, pwmL, Ncpu=1L, verbose = TRUE) {
   # get motif hits matrix in ZOOPS mode
   motif_matrix <- get_motif_hits_in_ZOOPS_mode(df, pwmL, Ncpu = Ncpu)
   
-  # get log10(p-values) for motif enrichment (ordered)
-  res <- get_motif_enrichment(motif_matrix, df)
+  # get log(p-values) for motif enrichment (ordered)
+  res <- get_motif_enrichment(motif_matrix, df, test=enrichment_test)
   
   # return
   res
