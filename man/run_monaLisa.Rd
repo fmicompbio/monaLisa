@@ -39,4 +39,5 @@ TODO: - parallellize the other functions using Ncpu.
                - change functions to do one-time calculations when using in binned mode.
                - make a better get_motif_hits_in_ZOOPS_mode function with our own 
                  implementation of matchPWM (faster). for now it uses homer2 because it's so fast.
+               - should the calculated p-values be adjusted for multiple testing? (something Homer doesn't do)
 }

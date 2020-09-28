@@ -25,7 +25,15 @@ background counts for a motif.}
 \item{verbose}{A logical scalar. If \code{TRUE}, report motif enrichment test.}
 }
 \value{
-a data.frame containing the motif names and the log10(p-value) of their enrichment
+a \code{data.frame} containing the motifs as rows and the following columns: \itemize{
+  \item{motif_name}{: the motif name}
+  \item{log_p_value}{: the log p-value for enrichment. If test=binomial (default), this log p-value is identical to the one
+     that Homer returns.}
+  \item{fg_weight_sum}{: the sum of the weights of the foreGround sequences that have at least one instance of a specific motif (ZOOPS mode).}
+  \item{bg_weight_sum}{: the sum of the weights of the backGround sequences that have at least one instance of a specific motif (ZOOPS mode).}
+  \item{fg_weight_sum_total}{: the total sum of the weights of all foreGround sequences.}
+  \item{bg_weight_sum_total}{: the total sum of the weights of all backGround sequences.}
+}
 }
 \description{
 Do Motif Enrichment

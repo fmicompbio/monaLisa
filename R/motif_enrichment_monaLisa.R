@@ -515,7 +515,15 @@ get_motif_hits_in_ZOOPS_mode <- function(df,
 #'   background counts for a motif. 
 #' @param verbose A logical scalar. If \code{TRUE}, report motif enrichment test.
 #' 
-#' @return a data.frame containing the motif names and the log10(p-value) of their enrichment
+#' @return a \code{data.frame} containing the motifs as rows and the following columns: \itemize{
+#'   \item{motif_name}{: the motif name}
+#'   \item{log_p_value}{: the log p-value for enrichment. If test=binomial (default), this log p-value is identical to the one
+#'      that Homer returns.}
+#'   \item{fg_weight_sum}{: the sum of the weights of the foreGround sequences that have at least one instance of a specific motif (ZOOPS mode).}
+#'   \item{bg_weight_sum}{: the sum of the weights of the backGround sequences that have at least one instance of a specific motif (ZOOPS mode).}
+#'   \item{fg_weight_sum_total}{: the total sum of the weights of all foreGround sequences.}
+#'   \item{bg_weight_sum_total}{: the total sum of the weights of all backGround sequences.}
+#' }
 #' 
 #' @export 
 get_motif_enrichment <- function(motif_matrix=NULL, 
@@ -635,10 +643,15 @@ get_motif_enrichment <- function(motif_matrix=NULL,
   }
   
   # sort
-  enrichment_log_p_value <- sort(enrichment_log_p_value)
-  
-  # return sorted log-pvalues 
-  data.frame(Motif_name=names(enrichment_log_p_value), log_p_value=enrichment_log_p_value)
+  o <- order(enrichment_log_p_value)
+
+  # return sorted log-pvalues and what was used to calculate them per motif
+  data.frame(motif_name=names(enrichment_log_p_value)[o], 
+             log_p_value=enrichment_log_p_value[o], 
+             fg_weight_sum=tf_foreground[o], 
+             bg_weight_sum=tf_background[o], 
+             fg_weight_sum_total=rep(total_foreground, length(o)), 
+             bg_weight_sum_total=rep(total_background, length(o)))
   
 }
 
@@ -662,6 +675,7 @@ get_motif_enrichment <- function(motif_matrix=NULL,
 #'                - change functions to do one-time calculations when using in binned mode.
 #'                - make a better get_motif_hits_in_ZOOPS_mode function with our own 
 #'                  implementation of matchPWM (faster). for now it uses homer2 because it's so fast.
+#'                - should the calculated p-values be adjusted for multiple testing? (something Homer doesn't do)
 #'
 #'
 #' @export
