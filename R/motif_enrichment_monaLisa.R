@@ -444,13 +444,14 @@ iterate_norm_for_kmer_comp <- function(df,
 #' @param Ncpu number of CPUs to use
 #' @param verbose A logical scalar. If \code{TRUE}, describe motif matrix being created
 #'
-#' @importFrom S4Vectors DataFrame
 #' @return a matrix where the rows are the sequences and the columns the motifs. This matrix
 #'   consists of 0 and 1 entries for a motif hit or not, respectively.
 #'   
 #' @details TODO: should the returned matrix be a sparse matrix? and should we run this once for all
 #'   sequences in all bins (when doing motif enrichment across bins)?
 #'      
+#' @importFrom S4Vectors DataFrame
+#' 
 #' @export
 get_motif_hits_in_ZOOPS_mode <- function(df, 
                                          pwmL, 
@@ -511,8 +512,9 @@ get_motif_hits_in_ZOOPS_mode <- function(df,
 #' @param df DatFrame object (output of running \code{iterate_norm_for_kmer_comp})
 #' @param test type of test to do for the motif enrichment. By default it is the binomial, which 
 #'   is what \code{Homer} uses by default. Fisher's exact test (two-sided) is another alternative which allows
-#'   for testing enrichment or depletion, without having to account for special cases of zero 
-#'   background counts for a motif. 
+#'   for testing enrichment, without having to account for special cases of zero 
+#'   background counts for a motif. \code{fisher.test} is used with \code{alternative="greater"}, making
+#'   it a one-sided test for enrichment, as is the case with the binomial test. 
 #' @param verbose A logical scalar. If \code{TRUE}, report motif enrichment test.
 #' 
 #' @return a \code{data.frame} containing the motifs as rows and the following columns: \itemize{
@@ -524,6 +526,8 @@ get_motif_hits_in_ZOOPS_mode <- function(df,
 #'   \item{fg_weight_sum_total}{: the total sum of the weights of all foreGround sequences.}
 #'   \item{bg_weight_sum_total}{: the total sum of the weights of all backGround sequences.}
 #' }
+#' 
+#' @importFrom stats pbinom fisher.test
 #' 
 #' @export 
 get_motif_enrichment <- function(motif_matrix=NULL, 
@@ -605,7 +609,7 @@ get_motif_enrichment <- function(motif_matrix=NULL,
     
     
     # enrichment
-    enrichment_log_p_value <- pbinom(q = tf_foreground - 1, size = total_foreground, prob = prob, lower.tail = FALSE, log.p = TRUE)
+    enrichment_log_p_value <- stats::pbinom(q = tf_foreground - 1, size = total_foreground, prob = prob, lower.tail = FALSE, log.p = TRUE)
     
   }
   if(method=="fishers_exact") {
@@ -636,7 +640,7 @@ get_motif_enrichment <- function(motif_matrix=NULL,
       cont_table <- round(cont_table)
       
       # fisher's exact test: get p-value
-      fisher.test(x = cont_table)$p.value}, 
+      stats::fisher.test(x = cont_table, alternative = "greater")$p.value}, 
       FUN.VALUE = 0.02)
     )
     

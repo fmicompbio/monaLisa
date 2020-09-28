@@ -19,8 +19,9 @@ motif hits per sequence.}
 
 \item{test}{type of test to do for the motif enrichment. By default it is the binomial, which 
 is what \code{Homer} uses by default. Fisher's exact test (two-sided) is another alternative which allows
-for testing enrichment or depletion, without having to account for special cases of zero 
-background counts for a motif.}
+for testing enrichment, without having to account for special cases of zero 
+background counts for a motif. \code{fisher.test} is used with \code{alternative="greater"}, making
+it a one-sided test for enrichment, as is the case with the binomial test.}
 
 \item{verbose}{A logical scalar. If \code{TRUE}, report motif enrichment test.}
 }
