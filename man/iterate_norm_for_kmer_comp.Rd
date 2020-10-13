@@ -43,7 +43,7 @@ Here we run `norm_for_kmer_comp` multiple times to converge to
   the final weights that will be used to correct the background
   sequences for k-mer composition differences compared to the foreground. We
   closely follow \code{HOMER}'s \code{normalizeSequence()} function found in
-  \cod{Motif2.cpp}. Note that \code{HOMER} runs the
+  \code{Motif2.cpp}. Note that \code{HOMER} runs the
   \code{normalizeSequence()} one last time after going through all iterations
   or reaching a low error, which we do not do here.
 }
