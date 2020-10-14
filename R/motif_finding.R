@@ -113,7 +113,8 @@ NULL
                 ranges = IRanges(start = start(matches[queryHits(ov)]) - start(combgr[subjectHits(ov)]) + 1,
                                  width = width(matches[queryHits(ov)])),
                 strand = strand(matches[queryHits(ov)]),
-                mcols(matches[queryHits(ov)]))
+                mcols(matches[queryHits(ov)]),
+                seqlengths = structure(width(subject), names = snames))
     }, mc.cores = mc.cores))
     
     # order by subject
