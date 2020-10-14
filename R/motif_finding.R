@@ -88,7 +88,7 @@ NULL
     
     # search pwm on both strands
     gr <- do.call(c, mclapply(seq_along(pwm), function(pi) {
-        pwm1 <- as.matrix(pwm[[pi]])
+        pwm1 <- Matrix(pwm[[pi]])
         pos <- matchPWM(pwm1, concatsubject, min.score = min.score, with.score = TRUE)
         neg <- matchPWM(reverseComplement(pwm1), concatsubject, min.score = min.score, with.score = TRUE)
         matches <- c(GRanges(rep("seq", length(pos)),
@@ -231,7 +231,7 @@ setMethod("findMotifHits",
               stopifnot(method == "matchPWM.concat" || method == "matchPWM" ||
                             (method == "homer2" && is.character(homerfile) &&
                                  length(homerfile) == 1L && file.exists(homerfile)))
-              if (method == "matchPWM.concat" || method == method == "matchPWM") {
+              if (method == "matchPWM.concat" || method == "matchPWM") {
                   # read in motifs from query into PMatrixList
                   pwmL <- .readPWMsFromHomer2File(query)
                   # read in sequences from subject into DNAStringSet
