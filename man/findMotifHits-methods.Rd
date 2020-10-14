@@ -20,7 +20,7 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("homer2", "matchPWM"),
+  method = c("matchPWM.concat", "homer2", "matchPWM"),
   homerfile = findHomer("homer2"),
   Ncpu = 1L,
   genome = NULL
@@ -30,7 +30,7 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("homer2", "matchPWM"),
+  method = c("matchPWM.concat", "homer2", "matchPWM"),
   homerfile = findHomer("homer2"),
   Ncpu = 1L,
   genome = NULL
@@ -40,7 +40,7 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("homer2", "matchPWM"),
+  method = c("matchPWM.concat", "homer2", "matchPWM"),
   homerfile = findHomer("homer2"),
   Ncpu = 1L,
   genome = NULL
@@ -50,7 +50,7 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("homer2", "matchPWM"),
+  method = c("matchPWM.concat", "homer2", "matchPWM"),
   homerfile = findHomer("homer2"),
   Ncpu = 1L,
   genome = NULL
@@ -60,7 +60,7 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("homer2", "matchPWM"),
+  method = c("matchPWM.concat", "homer2", "matchPWM"),
   homerfile = findHomer("homer2"),
   Ncpu = 1L,
   genome = NULL
@@ -70,7 +70,7 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("homer2", "matchPWM"),
+  method = c("matchPWM.concat", "homer2", "matchPWM"),
   homerfile = findHomer("homer2"),
   Ncpu = 1L,
   genome = NULL
@@ -80,7 +80,7 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("homer2", "matchPWM"),
+  method = c("matchPWM.concat", "homer2", "matchPWM"),
   homerfile = findHomer("homer2"),
   Ncpu = 1L,
   genome = NULL
@@ -90,7 +90,7 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("homer2", "matchPWM"),
+  method = c("matchPWM.concat", "homer2", "matchPWM"),
   homerfile = findHomer("homer2"),
   Ncpu = 1L,
   genome = NULL
@@ -100,7 +100,7 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("homer2", "matchPWM"),
+  method = c("matchPWM.concat", "homer2", "matchPWM"),
   homerfile = findHomer("homer2"),
   Ncpu = 1L,
   genome = NULL
@@ -110,7 +110,7 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("homer2", "matchPWM"),
+  method = c("matchPWM.concat", "homer2", "matchPWM"),
   homerfile = findHomer("homer2"),
   Ncpu = 1L,
   genome = NULL
@@ -120,7 +120,7 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("homer2", "matchPWM"),
+  method = c("matchPWM.concat", "homer2", "matchPWM"),
   homerfile = findHomer("homer2"),
   Ncpu = 1L,
   genome = NULL
@@ -130,7 +130,7 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("homer2", "matchPWM"),
+  method = c("matchPWM.concat", "homer2", "matchPWM"),
   homerfile = findHomer("homer2"),
   Ncpu = 1L,
   genome = NULL
@@ -163,6 +163,7 @@ between the lowest and the highest possible score or as a single number
 
 \item{method}{The internal method to use for motif searching. One of
 \itemize{
+    \item{\code{"matchPWM.concat}}{ using Biostrings::matchPWM (optimized)}
     \item{\code{"homer2"}}{ call to the homer2 binary}
     \item{\code{"matchPWM"}}{ using Biostrings::matchPWM}
 }
@@ -186,18 +187,21 @@ as a file, an R object or genomic coordinates)  for matches to
 positional weight matrices (provided as a file or as R objects)
 }
 \details{
-The two implemented methods (\code{matchPWM} and \code{homer2}) are there
-    for convenience (\code{matchPWM} is available as an R package and does not
-    have any software dependencies outside of R) and for efficiency (\code{homer2}
-    is typically faster but requires a separate installation of Homer).
+The implemented methods (\code{matchPWM.concat}, \code{matchPWM} and
+    \code{homer2}) are there for convenience (\code{matchPWM} is available from
+    the Biostrings package and does not have any software dependencies outside
+    of R, \code{matchPWM.concat} overcomes some of the limitations of the
+    \code{Biostrings::matchPWM} function) and for efficiency (\code{homer2}
+    is typically faster than \code{matchPWM} and similar in runtime as
+    \code{matchPWM.concat}, but requires a separate installation of Homer).
 
-    In general, running \code{findMotifHits} with the same parameters using the two
+    In general, running \code{findMotifHits} with the same parameters using any of the
     methods generates identical results. Some minor differences could occur and result
     from rounding errors during the necessary conversion of PWMs (log2-odd scores) to
     the probability matrices needed by Homer, and the conversion of score from and to
     the natural log scale used by Homer. These conversions are implemented transparently
     for the user, so that the arguments of \code{findMotifHits} do not have to be
-    adjusted (e.g. the PWMs shold always contain log2-odd scores, and \code{min.score}
+    adjusted (e.g. the PWMs should always contain log2-odd scores, and \code{min.score}
     is always on the log2 scale).
 }
 \examples{
