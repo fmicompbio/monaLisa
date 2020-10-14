@@ -291,7 +291,7 @@ setMethod("findMotifHits",
           function(query, subject, min.score, method = c("homer2", "matchPWM"),
                    homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
               subjectSet <- Biostrings::DNAStringSet(subject)
-              names(subjectSet) <- "DNAString"
+              names(subjectSet) <- if (is.null(names(subject))) "DNAString" else names(subject)
               findMotifHits(query, subjectSet, min.score,
                             method, homerfile, Ncpu, genome)
           })
@@ -342,7 +342,7 @@ setMethod("findMotifHits",
           function(query, subject, min.score, method = c("homer2", "matchPWM"),
                    homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
               subjectSet <- Biostrings::DNAStringSet(subject)
-              names(subjectSet) <- "DNAString"
+              names(subjectSet) <- if (is.null(names(subject))) "DNAString" else names(subject)
               findMotifHits(TFBSTools::PWMatrixList(query), subjectSet,
                             min.score, method, homerfile, Ncpu, genome)
           })
@@ -397,7 +397,7 @@ setMethod("findMotifHits",
           function(query, subject, min.score, method = c("homer2", "matchPWM"),
                    homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
               subjectSet <- Biostrings::DNAStringSet(subject)
-              names(subjectSet) <- "DNAString"
+              names(subjectSet) <- if (is.null(names(subject))) "DNAString" else names(subject)
               findMotifHits(query, subjectSet, min.score,
                             method, homerfile, Ncpu, genome)
           })
@@ -480,10 +480,10 @@ setMethod("findMotifHits",
             if (!base::inherits(genome, what="BSgenome")) {
               stop("genome must be of class 'BSgenome'.")
             }
-            ## Make sure to have named rows
+            ## Make sure to have named regions
             if (is.null(names(subject))) {
-              message("Naming rows ...")
-              names(subject) <- paste0("row_", seq(from = 1, to = length(subject), by = 1))
+              message("Naming regions ...")
+              names(subject) <- paste0("r", seq_along(subject))
             }
             ## get DNAStringSet
             seqs <- BSgenome::getSeq(genome, subject)
