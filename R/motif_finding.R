@@ -336,7 +336,9 @@ setMethod("findMotifHits",
           c("PWMatrix","character"),
           function(query, subject, min.score, method = c("matchPWM.concat", "homer2", "matchPWM"),
                    homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
-              findMotifHits(TFBSTools::PWMatrixList(query), subject, min.score,
+              queryList <- TFBSTools::PWMatrixList(query)
+              names(queryList) <- name(query)
+              findMotifHits(queryList, subject, min.score,
                             method, homerfile, Ncpu, genome)
           })
 
@@ -347,9 +349,11 @@ setMethod("findMotifHits",
           c("PWMatrix","DNAString"),
           function(query, subject, min.score, method = c("matchPWM.concat", "homer2", "matchPWM"),
                    homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
+              queryList <- TFBSTools::PWMatrixList(query)
+              names(queryList) <- name(query)
               subjectSet <- Biostrings::DNAStringSet(subject)
               names(subjectSet) <- if (is.null(names(subject))) "DNAString" else names(subject)
-              findMotifHits(TFBSTools::PWMatrixList(query), subjectSet,
+              findMotifHits(queryList, subjectSet,
                             min.score, method, homerfile, Ncpu, genome)
           })
 
@@ -360,7 +364,9 @@ setMethod("findMotifHits",
           c("PWMatrix","DNAStringSet"),
           function(query, subject, min.score, method = c("matchPWM.concat", "homer2", "matchPWM"),
                    homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
-              findMotifHits(TFBSTools::PWMatrixList(query), subject, min.score,
+              queryList <- TFBSTools::PWMatrixList(query)
+              names(queryList) <- name(query)
+              findMotifHits(queryList, subject, min.score,
                             method, homerfile, Ncpu, genome)
           })
 
@@ -472,7 +478,9 @@ setMethod("findMotifHits",
           c("PWMatrix","GRanges"),
           function(query, subject, min.score, method = c("matchPWM.concat", "homer2", "matchPWM"),
                    homerfile = findHomer("homer2"), Ncpu = 1L, genome=NULL) {
-              findMotifHits(TFBSTools::PWMatrixList(query), subject, min.score,
+              queryList <- TFBSTools::PWMatrixList(query)
+              names(queryList) <- name(query)
+              findMotifHits(queryList, subject, min.score,
                             method, homerfile, Ncpu, genome)
           })
 
@@ -499,6 +507,7 @@ setMethod("findMotifHits",
             }
             ## get DNAStringSet
             seqs <- BSgenome::getSeq(genome, subject)
+            names(seqs) <- if (is.null(names(subject))) paste0("r", seq_along(subject)) else names(subject)
             ## findMotifHits
             findMotifHits(query, seqs, min.score,
                           method, homerfile, Ncpu, genome = NULL)
