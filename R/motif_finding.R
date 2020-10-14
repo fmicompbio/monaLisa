@@ -118,7 +118,7 @@ NULL
     }, mc.cores = mc.cores))
     
     # order by subject
-    return(gr[order(as.numeric(match(seqnames(gr), snames)), start(gr))])
+    return(sort(g))
 }
 
 
