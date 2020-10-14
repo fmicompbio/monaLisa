@@ -1,10 +1,10 @@
 #' @importFrom Biostrings matchPWM DNA_BASES DNAStringSet fasta.seqlengths reverseComplement
-#' @importFrom IRanges IRanges start width mcols
+#' @importFrom IRanges IRanges start width
 #' @importFrom GenomicRanges GRanges
 #' @importFrom TFBSTools Matrix PWMatrix PWMatrixList name
 #' @importFrom methods .valueClassTest
 #' @importFrom utils strcapture
-#' @importFrom S4Vectors Rle
+#' @importFrom S4Vectors Rle queryHits subjectHits mcols
 #' @importFrom BSgenome getSeq
 #' @importFrom parallel mclapply
 NULL
