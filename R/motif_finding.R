@@ -118,7 +118,7 @@ NULL
     }, mc.cores = mc.cores))
     
     # order by subject
-    return(sort(g))
+    return(sort(gr))
 }
 
 
