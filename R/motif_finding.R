@@ -1,11 +1,12 @@
-#' @importFrom Biostrings matchPWM DNA_BASES DNAStringSet fasta.seqlengths
-#' @importFrom IRanges IRanges
+#' @importFrom Biostrings matchPWM DNA_BASES DNAStringSet fasta.seqlengths reverseComplement
+#' @importFrom IRanges IRanges start width mcols
 #' @importFrom GenomicRanges GRanges
 #' @importFrom TFBSTools Matrix PWMatrix PWMatrixList name
 #' @importFrom methods .valueClassTest
 #' @importFrom utils strcapture
 #' @importFrom S4Vectors Rle
 #' @importFrom BSgenome getSeq
+#' @importFrom parallel mclapply
 NULL
 
 # internal function:  dump PWMatrixList to file in homer2 format
@@ -69,6 +70,57 @@ NULL
     names(pwmL) <- df$name
     return(pwmL)
 }
+
+# internal function: matchPWM.concat
+# - interface similar to matchPWM,DNAString-method, but:
+#      * without arguments "with.score" and "..."
+#      * "pwm" of class PWMatrixList (as opposed to matrix)
+#      * "subject" of class DNAStringSet (as opposed to DNAString)
+#      * new "mc.cores" argument (parallelize over motifs in "pwm")
+#      * returns a GRanges object with hits
+# - concatenates the subject sequences for efficiency
+# - intended to be used via findMotifHits
+.matchPWM.concat <- function(pwm, subject, min.score = "80%", mc.cores = 1L) {
+    # concatenate subject
+    snames <- if(is.null(names(subject))) paste0("s", seq_along(subject)) else names(subject)
+    pwmnames <- if(is.null(names(pwm))) paste0("m",seq_along(pwm)) else names(pwm)
+    concatsubject <- unlist(subject)
+    
+    # search pwm on both strands
+    gr <- do.call(c, mclapply(seq_along(pwm), function(pi) {
+        pwm1 <- as.matrix(pwm[[pi]])
+        pos <- matchPWM(pwm1, concatsubject, min.score = min.score, with.score = TRUE)
+        neg <- matchPWM(reverseComplement(pwm1), concatsubject, min.score = min.score, with.score = TRUE)
+        matches <- c(GRanges(rep("seq", length(pos)),
+                             IRanges(start = start(pos), width = width(pos)),
+                             strand = rep("+", length(pos)),
+                             matchedSeq = DNAStringSet(pos),
+                             pwmname = rep(pwmnames[pi], length(pos)),
+                             score = mcols(pos)$score),
+                     GRanges(rep("seq", length(neg)),
+                             IRanges(start = start(neg), width = width(neg)),
+                             strand = rep("-", length(neg)),
+                             matchedSeq = reverseComplement(DNAStringSet(neg)),
+                             pwmname = rep(pwmnames[pi], length(neg)),
+                             score = mcols(neg)$score))
+        
+        # exclude overlap with boundaries and convert to original coordinates
+        combgr <- GRanges("seq",
+                          IRanges(start = cumsum(c(1, width(subject[-length(subject)]))),
+                                  width = width(subject)))
+        ov <- findOverlaps(matches, combgr, type = "within")
+        GRanges(seqnames = snames[subjectHits(ov)],
+                ranges = IRanges(start = start(matches[queryHits(ov)]) - start(combgr[subjectHits(ov)]) + 1,
+                                 width = width(matches[queryHits(ov)])),
+                strand = strand(matches[queryHits(ov)]),
+                mcols(matches[queryHits(ov)]))
+    }, mc.cores = mc.cores))
+    
+    # order by subject
+    return(gr[order(as.numeric(match(seqnames(gr), snames)), start(gr))])
+}
+
+
 
 #' @title Find motif matches in sequences.
 #'
