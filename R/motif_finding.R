@@ -155,7 +155,7 @@ NULL
 #'
 #' @param method The internal method to use for motif searching. One of
 #'     \itemize{
-#'         \item{\code{"matchPWM.concat}}{ using Biostrings::matchPWM (optimized)}
+#'         \item{\code{"matchPWM.concat"}}{ using Biostrings::matchPWM (optimized)}
 #'         \item{\code{"homer2"}}{ call to the homer2 binary}
 #'         \item{\code{"matchPWM"}}{ using Biostrings::matchPWM}
 #'     }

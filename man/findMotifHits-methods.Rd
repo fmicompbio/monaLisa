@@ -163,7 +163,7 @@ between the lowest and the highest possible score or as a single number
 
 \item{method}{The internal method to use for motif searching. One of
 \itemize{
-    \item{\code{"matchPWM.concat}}{ using Biostrings::matchPWM (optimized)}
+    \item{\code{"matchPWM.concat"}}{ using Biostrings::matchPWM (optimized)}
     \item{\code{"homer2"}}{ call to the homer2 binary}
     \item{\code{"matchPWM"}}{ using Biostrings::matchPWM}
 }
