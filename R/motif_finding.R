@@ -95,13 +95,13 @@ NULL
                              IRanges(start = start(pos), width = width(pos)),
                              strand = rep("+", length(pos)),
                              matchedSeq = DNAStringSet(pos),
-                             pwmname = rep(pwmnames[pi], length(pos)),
+                             pwmname = Rle(pwmnames[pi], length(pos)),
                              score = mcols(pos)$score),
                      GRanges(rep("seq", length(neg)),
                              IRanges(start = start(neg), width = width(neg)),
                              strand = rep("-", length(neg)),
                              matchedSeq = reverseComplement(DNAStringSet(neg)),
-                             pwmname = rep(pwmnames[pi], length(neg)),
+                             pwmname = Rle(pwmnames[pi], length(neg)),
                              score = mcols(neg)$score))
         
         # exclude overlap with boundaries and convert to original coordinates
