@@ -38,7 +38,7 @@ NULL
 
         cat(sprintf(">%s\t%s\t%.6f\n",
                     paste(apply(pwm, 2, function(x) { rownames(pwm)[which.max(x)] }), collapse = ""),
-                    TFBSTools::name(pwmL[[i]]), scorecut),  file = fh, append = TRUE)
+                    paste0(TFBSTools::ID(pwmL[[i]]), ":::", TFBSTools::name(pwmL[[i]])), scorecut),  file = fh, append = TRUE)
         write.table(file = fh, t(pwm), row.names = FALSE, col.names = FALSE,
                     sep = "\t", quote = FALSE, append = TRUE)
     }
@@ -53,10 +53,10 @@ NULL
     stopifnot(is.character(fname) && length(fname) == 1L && file.exists(fname))
     lns <- readLines(fname)
     i <- grep("^>", lns)
-    df <- strcapture(pattern = "^>([^\t]+)\t([^\t]+)\t([0-9.]+).*$", x = lns[i],
-                     proto = data.frame(id = character(), name = character(), cutoffScore = numeric()))
-    df$id <- as.character(df$id)
-    df$name <- as.character(df$name)
+    df <- strcapture(pattern = "^>([^\t]+)\t([^\t]+):::([^\t]+)\t([0-9.]+).*$", x = lns[i],
+                     proto = data.frame(cons = character(), id = character(), name = character(), cutoffScore = numeric()))
+    # df$id <- as.character(df$id)
+    # df$name <- as.character(df$name)
     w <- diff(c(i, length(lns) + 1L)) - 1L
     mL <- split(lns[-i], rep(seq_along(i), w))
     names(mL) <- df$name
@@ -83,7 +83,9 @@ NULL
 .matchPWM.concat <- function(pwm, subject, min.score = "80%", mc.cores = 1L) {
     # concatenate subject
     snames <- if(is.null(names(subject))) paste0("s", seq_along(subject)) else names(subject)
-    pwmnames <- if(is.null(names(pwm))) paste0("m",seq_along(pwm)) else names(pwm)
+    pwmids <- ID(pwm)
+    pwmnames <- unlist(lapply(pwm, name))
+    pwmnames <- if(is.null(pwmnames)) paste0("m",seq_along(pwm)) else pwmnames
     concatsubject <- unlist(subject)
     
     # search pwm on both strands
@@ -95,12 +97,14 @@ NULL
                              IRanges(start = start(pos), width = width(pos)),
                              strand = rep("+", length(pos)),
                              matchedSeq = DNAStringSet(pos),
+                             pwmid = Rle(pwmids[pi], length(pos)),
                              pwmname = Rle(pwmnames[pi], length(pos)),
                              score = mcols(pos)$score),
                      GRanges(rep("seq", length(neg)),
                              IRanges(start = start(neg), width = width(neg)),
                              strand = rep("-", length(neg)),
                              matchedSeq = reverseComplement(DNAStringSet(neg)),
+                             pwmid = Rle(pwmids[pi], length(neg)),
                              pwmname = Rle(pwmnames[pi], length(neg)),
                              score = mcols(neg)$score))
         
@@ -273,16 +277,20 @@ setMethod("findMotifHits",
                   # parse output
                   con <- textConnection(res[ok])
                   resparsed <- scan(file = con, what = list(seqnames = "", start = 1L, matchedSeq = "",
-                                                            pwmname = "", strand = "", score = 1.0),
+                                                            pwmidname = "", strand = "", score = 1.0),
                                     sep = "\t", quiet = TRUE)
                   close(con)
+                  tmp <- strsplit(resparsed$pwmidname, ":::", fixed = TRUE)
+                  pwmid <- unlist(lapply(tmp, "[", 1L))
+                  pwmname <- unlist(lapply(tmp, "[", 2L))
                   sl <- Biostrings::fasta.seqlengths(subject)
                   hitstart <- ifelse(resparsed$strand == "+", resparsed$start, resparsed$start - nchar(resparsed$matchedSeq) + 1)
                   gr <- GenomicRanges::GRanges(seqnames = resparsed$seqnames,
                                                ranges = IRanges(start = hitstart, width = nchar(resparsed$matchedSeq)),
                                                strand = resparsed$strand,
                                                matchedSeq = Biostrings::DNAStringSet(resparsed$matchedSeq),
-                                               pwmname = S4Vectors::Rle(resparsed$pwmname),
+                                               pwmid = S4Vectors::Rle(pwmid),
+                                               pwmname = S4Vectors::Rle(pwmname),
                                                score = resparsed$score / log(2), # convert scores from ln to log2
                                                seqlengths = sl)
                   sort(gr)
@@ -432,7 +440,7 @@ setMethod("findMotifHits",
                   # search motifs using matchPWM (TFBSTools::searchSeq uses matchPWM internally, but has a nicer interface)
                   if (is.character(min.score) && grepl(pattern = "^[0-9.]+[%]$", x = min.score)) {
                       tmp <- TFBSTools::searchSeq(x = query, subject = subject, min.score = min.score, mc.cores = Ncpu)
-                      df <- as(tmp, "DataFrame")
+                      df <- as(tmp[lengths(tmp) > 0], "DataFrame")
                   } else if (is.numeric(min.score)) {
                       # searchSeq does not support log2-odds cutoff score -> search with low percent score and filter afterwards
                       tmp <- TFBSTools::searchSeq(x = query, subject = subject, min.score = "70%", mc.cores = Ncpu)
@@ -445,7 +453,7 @@ setMethod("findMotifHits",
                   gr <- GenomicRanges::GRanges(seqnames = df$seqnames,
                                                ranges = IRanges(start = df$start, end = df$end),
                                                strand = df$strand, matchedSeq = df$siteSeqs,
-                                               pwmname = df$TF, score = df$absScore,
+                                               pwmid = df$ID, pwmname = df$TF, score = df$absScore,
                                                seqlengths = sl)
                   return(sort(gr))
 
