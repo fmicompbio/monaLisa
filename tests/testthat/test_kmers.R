@@ -186,5 +186,5 @@ test_that("convertKmersToMotifs works as expected", {
     expect_is(a1, "SummarizedExperiment")
     expect_is(a2, "SummarizedExperiment")
     expect_identical(a1, a2)
-    expect_equal(rowSums(assay(a1, "enr")), c(m1 = 42.263710609719, m2 = 0.537892231292))
+    expect_equal(rowSums(assay(a1, "enr")), c("m1:::m1" = 42.263710609719, "m2:::m2" = 0.537892231292))
 })

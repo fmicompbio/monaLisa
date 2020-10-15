@@ -55,8 +55,6 @@ NULL
     i <- grep("^>", lns)
     df <- strcapture(pattern = "^>([^\t]+)\t([^\t]+):::([^\t]+)\t([0-9.]+).*$", x = lns[i],
                      proto = data.frame(cons = character(), id = character(), name = character(), cutoffScore = numeric()))
-    # df$id <- as.character(df$id)
-    # df$name <- as.character(df$name)
     w <- diff(c(i, length(lns) + 1L)) - 1L
     mL <- split(lns[-i], rep(seq_along(i), w))
     names(mL) <- df$name
