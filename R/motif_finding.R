@@ -91,31 +91,26 @@ NULL
         pwm1 <- Matrix(pwm[[pi]])
         pos <- matchPWM(pwm1, concatsubject, min.score = min.score, with.score = TRUE)
         neg <- matchPWM(reverseComplement(pwm1), concatsubject, min.score = min.score, with.score = TRUE)
-        matches <- c(GRanges(rep("seq", length(pos)),
-                             IRanges(start = start(pos), width = width(pos)),
-                             strand = rep("+", length(pos)),
-                             matchedSeq = DNAStringSet(pos),
-                             pwmid = Rle(pwmids[pi], length(pos)),
-                             pwmname = Rle(pwmnames[pi], length(pos)),
-                             score = mcols(pos)$score),
-                     GRanges(rep("seq", length(neg)),
-                             IRanges(start = start(neg), width = width(neg)),
-                             strand = rep("-", length(neg)),
-                             matchedSeq = reverseComplement(DNAStringSet(neg)),
-                             pwmid = Rle(pwmids[pi], length(neg)),
-                             pwmname = Rle(pwmnames[pi], length(neg)),
-                             score = mcols(neg)$score))
-        
+        matches <- GRanges(rep("seq", length(pos) + length(neg)), # use arbitrary seqname for concatsubject
+                           IRanges(start = c(start(pos), start(neg)),
+                                   width = c(width(pos), width(neg))),
+                           strand = Rle(factor(c("+","-"), levels = c("+","-","*")),
+                                        c(length(pos), length(neg))),
+                           matchedSeq = c(DNAStringSet(pos), reverseComplement(DNAStringSet(neg))),
+                           pwmid = rep(pwmids[pi], length(pos) + length(neg)),
+                           pwmname = rep(pwmnames[pi], length(pos) + length(neg)),
+                           score = c(mcols(pos)$score, mcols(neg)$score))
+
         # exclude overlap with boundaries and convert to original coordinates
-        combgr <- GRanges("seq",
+        combgr <- GRanges("seq", # again, use arbitrary seqname for concatsubject
                           IRanges(start = cumsum(c(1, width(subject[-length(subject)]))),
                                   width = width(subject)))
         ov <- findOverlaps(matches, combgr, type = "within")
         GRanges(seqnames = snames[subjectHits(ov)],
-                ranges = IRanges(start = start(matches[queryHits(ov)]) - start(combgr[subjectHits(ov)]) + 1,
-                                 width = width(matches[queryHits(ov)])),
-                strand = strand(matches[queryHits(ov)]),
-                mcols(matches[queryHits(ov)]),
+                ranges = IRanges(start = start(matches)[queryHits(ov)] - start(combgr)[subjectHits(ov)] + 1,
+                                 width = width(matches)[queryHits(ov)]),
+                strand = strand(matches)[queryHits(ov)],
+                mcols(matches)[queryHits(ov), , drop = FALSE],
                 seqlengths = structure(width(subject), names = snames))
     }, mc.cores = mc.cores))
     
@@ -287,8 +282,8 @@ setMethod("findMotifHits",
                                                ranges = IRanges(start = hitstart, width = nchar(resparsed$matchedSeq)),
                                                strand = resparsed$strand,
                                                matchedSeq = Biostrings::DNAStringSet(resparsed$matchedSeq),
-                                               pwmid = S4Vectors::Rle(pwmid),
-                                               pwmname = S4Vectors::Rle(pwmname),
+                                               pwmid = pwmid,
+                                               pwmname = pwmname,
                                                score = resparsed$score / log(2), # convert scores from ln to log2
                                                seqlengths = sl)
                   sort(gr)
