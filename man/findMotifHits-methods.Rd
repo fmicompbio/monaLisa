@@ -167,19 +167,23 @@ between the lowest and the highest possible score or as a single number
     \item{\code{"homer2"}}{ call to the homer2 binary}
     \item{\code{"matchPWM"}}{ using Biostrings::matchPWM}
 }
-Please note that the two methods might give slightly different results (see details).}
+Please note that the two methods might give slightly different results
+(see details).}
 
 \item{homerfile}{Path and file name of the \code{homer2} binary.}
 
-\item{Ncpu}{Number of parallel threads (only for \code{method="homer2"}, default: 1).}
+\item{Ncpu}{Number of parallel threads (only for \code{method="homer2"},
+default: 1).}
 
-\item{genome}{\code{BSgenome} object that is the reference genome of the subject. This
-argument is set to NULL by default and only used by the function when the subject is
-a \code{GRanges} object. It is then necessary to specify the genome so that the function
-can internally convert the genomic regions into a \code{DNAStringSet} object.}
+\item{genome}{\code{BSgenome} object that is the reference genome of the
+subject. This argument is set to NULL by default and only used by the
+function when the subject is a \code{GRanges} object. It is then
+necessary to specify the genome so that the function can internally
+convert the genomic regions into a \code{DNAStringSet} object.}
 }
 \value{
-A \code{GRanges} object with the matches to \code{query} in \code{subject}.
+A \code{GRanges} object with the matches to \code{query} in
+    \code{subject}.
 }
 \description{
 \code{findMotifHits} scans sequences (either provided
@@ -188,21 +192,23 @@ positional weight matrices (provided as a file or as R objects)
 }
 \details{
 The implemented methods (\code{matchPWM.concat}, \code{matchPWM} and
-    \code{homer2}) are there for convenience (\code{matchPWM} is available from
-    the Biostrings package and does not have any software dependencies outside
-    of R, \code{matchPWM.concat} overcomes some of the limitations of the
-    \code{Biostrings::matchPWM} function) and for efficiency (\code{homer2}
-    is typically faster than \code{matchPWM} and similar in runtime as
-    \code{matchPWM.concat}, but requires a separate installation of Homer).
+    \code{homer2}) are there for convenience (\code{matchPWM} is available
+    from the Biostrings package and does not have any software dependencies
+    outside of R, \code{matchPWM.concat} overcomes some of the limitations of
+    the \code{Biostrings::matchPWM} function) and for efficiency (
+    \code{homer2} is typically faster than \code{matchPWM} and similar in
+    run-time as \code{matchPWM.concat}, but requires a separate installation
+    of Homer).
 
-    In general, running \code{findMotifHits} with the same parameters using any of the
-    methods generates identical results. Some minor differences could occur and result
-    from rounding errors during the necessary conversion of PWMs (log2-odd scores) to
-    the probability matrices needed by Homer, and the conversion of score from and to
-    the natural log scale used by Homer. These conversions are implemented transparently
-    for the user, so that the arguments of \code{findMotifHits} do not have to be
-    adjusted (e.g. the PWMs should always contain log2-odd scores, and \code{min.score}
-    is always on the log2 scale).
+    In general, running \code{findMotifHits} with the same parameters using
+    any of the methods generates identical results. Some minor differences
+    could occur and result from rounding errors during the necessary
+    conversion of PWMs (log2-odd scores) to the probability matrices needed
+    by Homer, and the conversion of score from and to the natural log scale
+    used by Homer. These conversions are implemented transparently for the
+    user, so that the arguments of \code{findMotifHits} do not have to be
+    adjusted (e.g. the PWMs should always contain log2-odd scores, and
+     \code{min.score} is always on the log2 scale).
 }
 \examples{
 \dontrun{
