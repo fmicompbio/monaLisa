@@ -29,6 +29,6 @@ a sequence (defaults to 0.7).}
 the filtered \code{df}.
 }
 \description{
-We filter sequences similarly to how HOMER does it. Namely,
-  sequences with more than 70% (default) N are removed.
+We filter sequences similarly to how HOMER (version 4.11) does it. Namely,
+  sequences with more than 70 percent (default) N are removed.
 }

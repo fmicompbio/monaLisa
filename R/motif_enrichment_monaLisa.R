@@ -3,10 +3,10 @@
 #' @description Check if the input object is valid, i.e. is of the correct
 #'   object type (DataFrame) and has all expected columns and attributes.
 #'
-#' @param x Input object to be checked.
+#' @param df Input object to be checked.
 #'
-#' @return \code{TRUE} if \code{x} is valid, \code{FALSE} otherwise
-is_valid_df <- function(x) {
+#' @return \code{TRUE} if \code{df} is valid, \code{FALSE} otherwise
+is_valid_df <- function(df) {
   expected_cols <- c("seqs", "is_foreground",
                      "gc_frac", "gc_bin", "gc_weight",
                      "kmer_weight")
@@ -18,7 +18,7 @@ is_valid_df <- function(x) {
     message("'df' has to have columns: ",
             paste(expected_cols, collapse = ", "))
     return(FALSE)
-  } else if (!all(expected_attrs %in% names(attributes(x)))) {
+  } else if (!all(expected_attrs %in% names(attributes(df)))) {
     message("'df' has to have attributes: ",
             paste(expected_attrs, collapse = ", "))
     return(FALSE)
@@ -29,8 +29,8 @@ is_valid_df <- function(x) {
 
 #' @title Filter Bad Sequences
 #'
-#' @description We filter sequences similarly to how HOMER does it. Namely,
-#'   sequences with more than 70% (default) N are removed.
+#' @description We filter sequences similarly to how HOMER (version 4.11) does it. Namely,
+#'   sequences with more than 70 percent (default) N are removed.
 #'
 #' @param df a \code{DataFrame} with an attribute \code{err} and columns
 #'   \itemize{

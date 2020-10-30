@@ -4,13 +4,13 @@
 \alias{is_valid_df}
 \title{Check input object}
 \usage{
-is_valid_df(x)
+is_valid_df(df)
 }
 \arguments{
-\item{x}{Input object to be checked.}
+\item{df}{Input object to be checked.}
 }
 \value{
-\code{TRUE} if \code{x} is valid, \code{FALSE} otherwise
+\code{TRUE} if \code{df} is valid, \code{FALSE} otherwise
 }
 \description{
 Check if the input object is valid, i.e. is of the correct
