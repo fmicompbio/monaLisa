@@ -1,0 +1,4 @@
+name: R-CMD-check
+
+on: push
+
