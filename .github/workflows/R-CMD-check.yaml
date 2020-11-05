@@ -2,3 +2,62 @@ name: R-CMD-check
 
 on: push
 
+jobs:
+  R-CMD-check:
+ 
+    # define the operating systems and R versions we want to test on
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - { os: macOS-latest, r: 'devel', bioc: 'devel'}
+        # - { os: windows-latest, r: 'devel', bioc: 'devel'}
+        # - { os: ubuntu-16.04, r: 'devel', bioc: 'devel', cran: "https://demo.rstudiopm.com/all/__linux__/xenial/latest"}
+        # - { os: ubuntu-latest, r: 'devel', image: 'bioconductor/bioconductor_docker:devel'}
+ 
+    runs-on: ${{ matrix.config.os }}
+    # container: ${{ matrix.config.image }}
+
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }} - ${{ matrix.config.bioc }}
+
+    env:
+      R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
+      # CRAN: ${{ matrix.config.cran }}
+      # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+    # steps to run in the defined environments
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        
+      - name: Install Homer 
+        run: | 
+          mkdir homer && pushd homer
+          wget http://homer.ucsd.edu/homer/configureHomer.pl
+          perl configureHomer.pl -install
+          export PATH=$PATH:$PWD/bin/
+          export MONALISA_HOMER=$PWD/bin/
+          popd 
+          # echo "^homer$" >> .Rbuildignore
+          # Rscript -e 'install.packages("magick")'
+        
+      - name: Setup R
+        uses: r-lib/actions/setup-r@v1
+        if: matrix.config.image == null
+        with: 
+          r-version: ${{  matrix.config.r  }}
+          
+      - name: Install remotes
+        run: | 
+          install.packages('remotes')
+        shell: Rscript {0}
+      
+      - name: Set BiocManager version
+        run: |  
+          install.packages('BiocManager')
+          BiocManager::install(version = "${{ matrix.config.bioc }}", ask = FALSE)
+        shell: Rscript {0}
+      
+  
+
