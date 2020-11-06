@@ -39,17 +39,12 @@ jobs:
           export PATH=$PATH:$PWD/bin/
           export MONALISA_HOMER=$PWD/bin/
           popd
-          echo "pwd"
-          pwd
-          echo "ls"
-          ls -lh
-          echo "MONALISA_HOMER"
-          echo $MONALISA_HOMER
-          echo "which homer"
-          which homer 
-          homer 
           # echo "^homer$" >> .Rbuildignore
           # Rscript -e 'install.packages("magick")'
+
+      - name: Set up pandoc
+        uses: r-lib/actions/setup-pandoc@v1
+        if: matrix.config.image == null
         
       - name: Setup R
         uses: r-lib/actions/setup-r@v1
@@ -58,15 +53,57 @@ jobs:
           r-version: ${{  matrix.config.r  }}
           
       - name: Install remotes
-        run: | 
+        run: |
           install.packages('remotes')
         shell: Rscript {0}
-      
+          
       - name: Set BiocManager version
+        if: matrix.config.image == null
         run: |  
           install.packages('BiocManager')
           BiocManager::install(version = "${{ matrix.config.bioc }}", ask = FALSE)
         shell: Rscript {0}
-      
+        
+      - name: List package dependencies
+        run: | 
+          saveRDS(remotes::dev_package_deps(dependencies = TRUE, repos = c(getOption('repos'), BiocManager::repositories())), 'depends.Rds', version = 2)
+        shell: Rscript {0}
+        
+      - name: Cache R packages
+        if: runner.os != 'Windows' && matrix.config.image == null
+        uses: actions/cache@v1
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-r-${{ matrix.config.r }}-bioc-${{ matrix.config.bioc }}-${{ hashFiles('depends.Rds') }}
+          restore-keys: ${{ runner.os }}-r-${{ matrix.config.r }}-bioc-${{ matrix.config.bioc }}-
+          
+      - name: Install system dependencies for Linux
+        if: runner.os == 'Linux'
+        env:
+          RHUB_PLATFORM: linux-x86_64-ubuntu-gcc
+        run: |
+          Rscript -e "remotes::install_github('r-hub/sysreqs')"
+          sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands('DESCRIPTION'))")
+          sudo -s eval "$sysreqs"
+          sudo apt-get update && sudo apt-get -y install libcurl4-openssl-dev
+          
+      - name: Install dependencies (R packages)
+        run: |
+          local_deps <- remotes::local_package_deps(dependencies = TRUE)
+          deps <- remotes::dev_package_deps(dependencies = TRUE, repos = BiocManager::repositories())
+          BiocManager::install(local_deps[local_deps %in% deps$package[deps$diff != 0]], Ncpu = 2L)
+          remotes::install_cran('rcmdcheck', Ncpu = 2L)
+        shell: Rscript {0}
+        
+      - name: Session info
+        run: |
+          options(width = 100)
+          pkgs <- installed.packages()[, "Package"]
+          sessioninfo::session_info(pkgs, include_base = TRUE)
+        shell: Rscript {0}
+
+
+
+
   
 
