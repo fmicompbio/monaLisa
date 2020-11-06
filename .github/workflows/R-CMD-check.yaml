@@ -50,7 +50,12 @@ jobs:
           export MONALISA_HOMER=$PWD/bin/
           popd
           echo "^homer$" >> .Rbuildignore
-          Rscript -e 'install.packages("magick")'
+          # Rscript -e 'install.packages("magick")'
+          
+      - name: Install Cairo
+        run: |
+          install.packages('Cairo')
+        shell: Rscript {0}
 
       - name: Install remotes
         run: |
