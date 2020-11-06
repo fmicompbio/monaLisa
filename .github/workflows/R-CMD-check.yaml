@@ -18,7 +18,7 @@ jobs:
     runs-on: ${{ matrix.config.os }}
     # container: ${{ matrix.config.image }}
 
-    name: ${{ matrix.config.os }} (${{ matrix.config.r }} - ${{ matrix.config.bioc }})
+    name: ${{ matrix.config.os }} (R ${{ matrix.config.r }} - BioC ${{ matrix.config.bioc }})
 
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
@@ -39,17 +39,19 @@ jobs:
           export PATH=$PATH:$PWD/bin/
           export MONALISA_HOMER=$PWD/bin/
           popd
+          echo "pwd"
           pwd
-          echo $PATH
+          echo "ls"
+          ls -lh
+          echo "MONALISA_HOMER"
           echo $MONALISA_HOMER
+          echo "which homer"
           which homer 
+          $MONALISA_HOMER 
+          homer 
           # echo "^homer$" >> .Rbuildignore
           # Rscript -e 'install.packages("magick")'
         
-      - name: test homer
-        run:  | 
-          $MONALISA_HOMER findMotifsGenome.pl
-      
       - name: Setup R
         uses: r-lib/actions/setup-r@v1
         if: matrix.config.image == null
