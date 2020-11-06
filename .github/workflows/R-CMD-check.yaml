@@ -39,8 +39,11 @@ jobs:
           export PATH=$PATH:$PWD/bin/
           export MONALISA_HOMER=$PWD/bin/
           popd
+          pwd
           echo $PATH
           echo $MONALISA_HOMER
+          which homer 
+          find homer
           # echo "^homer$" >> .Rbuildignore
           # Rscript -e 'install.packages("magick")'
         
