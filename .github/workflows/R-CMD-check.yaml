@@ -18,7 +18,7 @@ jobs:
     runs-on: ${{ matrix.config.os }}
     # container: ${{ matrix.config.image }}
 
-    name: ${{ matrix.config.os }} (${{ matrix.config.r }} - ${{ matrix.config.bioc }}
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }} - ${{ matrix.config.bioc }})
 
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
@@ -38,10 +38,15 @@ jobs:
           perl configureHomer.pl -install
           export PATH=$PATH:$PWD/bin/
           export MONALISA_HOMER=$PWD/bin/
-          popd 
+          popd
+          echo $PATH
+          echo $MONALISA_HOMER
           # echo "^homer$" >> .Rbuildignore
           # Rscript -e 'install.packages("magick")'
         
+      - name: test homer
+        run: homer findMotifsGenome.pl
+      
       - name: Setup R
         uses: r-lib/actions/setup-r@v1
         if: matrix.config.image == null
