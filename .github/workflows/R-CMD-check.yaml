@@ -43,12 +43,12 @@ jobs:
           echo $PATH
           echo $MONALISA_HOMER
           which homer 
-          find homer
           # echo "^homer$" >> .Rbuildignore
           # Rscript -e 'install.packages("magick")'
         
       - name: test homer
-        run: homer findMotifsGenome.pl
+        run:  | 
+          $MONALISA_HOMER findMotifsGenome.pl
       
       - name: Setup R
         uses: r-lib/actions/setup-r@v1
