@@ -31,6 +31,16 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
         
+      - name: Set up pandoc
+        uses: r-lib/actions/setup-pandoc@v1
+        if: matrix.config.image == null
+        
+      - name: Setup R
+        uses: r-lib/actions/setup-r@v1
+        if: matrix.config.image == null
+        with: 
+          r-version: ${{  matrix.config.r  }}
+          
       - name: Install Homer 
         run: | 
           mkdir homer && pushd homer
@@ -42,16 +52,6 @@ jobs:
           echo "^homer$" >> .Rbuildignore
           Rscript -e 'install.packages("magick")'
 
-      - name: Set up pandoc
-        uses: r-lib/actions/setup-pandoc@v1
-        if: matrix.config.image == null
-        
-      - name: Setup R
-        uses: r-lib/actions/setup-r@v1
-        if: matrix.config.image == null
-        with: 
-          r-version: ${{  matrix.config.r  }}
-          
       - name: Install remotes
         run: |
           install.packages('remotes')
