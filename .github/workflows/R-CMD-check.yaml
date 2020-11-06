@@ -40,7 +40,7 @@ jobs:
           export MONALISA_HOMER=$PWD/bin/
           popd
           echo "^homer$" >> .Rbuildignore
-          # Rscript -e 'install.packages("magick")'
+          Rscript -e 'install.packages("magick")'
 
       - name: Set up pandoc
         uses: r-lib/actions/setup-pandoc@v1
