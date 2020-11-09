@@ -667,10 +667,13 @@ get_motif_enrichment <- function(motif_matrix=NULL,
 #'   situation, this will be changed for bins later)
 #'
 #' @param seqs DNAStringSet object with sequences to analyze
-#' @param is_forground logical vector of the same length as \code{seqs}.
+#' @param is_foreground logical vector of the same length as \code{seqs}.
 #'   \code{TRUE} indicates that the sequence corresponds to the foreground set,
 #'   \code{FALSE} indicates a background set sequence.
 #' @param pwmL PWMatrixList object with PWMs of motifs
+#' @param enrichment_test A \code{character} scalar specifying the type of
+#'   enrichment test to perform. One of \code{"binomial"} (default) or
+#'   \code{"fisher_exact"}.
 #' @param Ncpu Number of CPUs to use (default set to 1).
 #' @param verbose A logical scalar. If \code{TRUE}, report on k-mer composition
 #'   adjustment.
@@ -688,8 +691,8 @@ get_motif_enrichment <- function(motif_matrix=NULL,
 run_monaLisa <- function(seqs, 
                          is_foreground, 
                          pwmL, 
-                         enrichment_test=c("binomial", "fishers_exact"), 
-                         Ncpu=1L, 
+                         enrichment_test = c("binomial", "fishers_exact"), 
+                         Ncpu = 1L, 
                          verbose = TRUE) {
 
   # checks
