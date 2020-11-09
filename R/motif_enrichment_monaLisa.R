@@ -203,7 +203,7 @@ calculate_GC_weight <- function(df, verbose = TRUE) {
 #'   \code{i}.
 #' @param kmer_weight a \code{numeric} vector with sequence weights adjusting
 #'   for k-mer composition at the beginning of the iteration.
-#' @param is_forground logical vector of the same length as \code{seqs}.
+#' @param is_foreground logical vector of the same length as \code{seqs}.
 #'   \code{TRUE} indicates that the sequence corresponds to the foreground set,
 #'   \code{FALSE} indicates a background set sequence.
 #' @param minimum_seq_weight Numeric scalar greater than zero giving the
