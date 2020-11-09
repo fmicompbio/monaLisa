@@ -108,7 +108,8 @@ jobs:
         shell: Rscript {0}
 
       - name: Check
-        run: rcmdcheck::rcmdcheck(args = "--no-build-vignettes --no-manual --timings", error_on = "warning", check_dir = "check")
+        run: rcmdcheck::rcmdcheck(args = c("--no-build-vignettes","--no-manual","--timings"),
+                                  error_on = "warning", check_dir = "check")
         shell: Rscript {0}
 
       # - name: BiocCheck
