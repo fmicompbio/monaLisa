@@ -614,8 +614,8 @@ convertKmersToMotifs <- function(x, m, Ncpu = 1L, verbose = TRUE) {
 #' @description Using a set of kmers, search input sequences for matches and retrieve
 #'    the frequencies of sequences overlapping with 1 or more overlapping kmers.
 #'
-#'@param seqs Set of sequences, either a \code{character} vector or a
-#'   \code{\link{DNAStringSet}}.
+#' @param seqs Set of sequences, either a \code{character} vector or a
+#'    \code{\link{DNAStringSet}}.
 #'   
 #' @param x A \code{character} vector of enriched kmers.
 #'
@@ -624,6 +624,8 @@ convertKmersToMotifs <- function(x, m, Ncpu = 1L, verbose = TRUE) {
 #' @seealso \code{\link{kmerEnrichments}} for performing a k-mer enrichment
 #'   analysis, \code{\link[parallel]{mclapply}} for how parallelization is done. 
 #'
+#' @importFrom Biostrings vmatchPattern
+#' 
 #' @export
 extractOverlappingKmerFrequecies <- function(seqs, x, Ncpu = 1L) {
     ## pre-flight checks
