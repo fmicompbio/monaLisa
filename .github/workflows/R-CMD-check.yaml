@@ -90,7 +90,7 @@ jobs:
       - name: Install system dependencies for macOS
         if: matrix.config.os == 'macOS-latest'
         run: |
-          brew install cairo
+          brew cask install xquartz
 
       - name: Install dependencies (R packages)
         run: |
