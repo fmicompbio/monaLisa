@@ -30,6 +30,10 @@ sequence (rows).}
 \item{kmer_weight}{a \code{numeric} vector with sequence weights adjusting
 for k-mer composition at the beginning of the iteration.}
 
+\item{is_foreground}{logical vector of the same length as \code{seqs}.
+\code{TRUE} indicates that the sequence corresponds to the foreground set,
+\code{FALSE} indicates a background set sequence.}
+
 \item{minimum_seq_weight}{Numeric scalar greater than zero giving the
 minimal weight of a sequence. The default value (0.001) was also used by
 \code{HOMER} (HOMER_MINIMUM_SEQ_WEIGHT constant in Motif2.h).}
@@ -37,10 +41,6 @@ minimal weight of a sequence. The default value (0.001) was also used by
 \item{maximum_seq_weight}{Numeric scalar greater than zero giving the
 maximal weight of a sequence. The default value (1000) was also used by
 \code{HOMER} (1 / HOMER_MINIMUM_SEQ_WEIGHT constant in Motif2.h).}
-
-\item{is_forground}{logical vector of the same length as \code{seqs}.
-\code{TRUE} indicates that the sequence corresponds to the foreground set,
-\code{FALSE} indicates a background set sequence.}
 }
 \value{
 a \code{DataFrame} of the same dimensions as the input \code{df},

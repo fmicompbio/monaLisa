@@ -21,6 +21,9 @@ get_motif_hits_in_ZOOPS_mode(
 
 \item{method}{the \code{method} parameter in the \code{findMotifHits} function}
 
+\item{homerfile}{\code{character} scalar with path to homer2 binary, passed on
+to \code{findMotifHits}.}
+
 \item{min.score}{the \code{min.score} parameter in the \code{findMotifHits} function}
 
 \item{Ncpu}{number of CPUs to use}

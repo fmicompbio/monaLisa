@@ -17,16 +17,20 @@ run_monaLisa(
 \arguments{
 \item{seqs}{DNAStringSet object with sequences to analyze}
 
+\item{is_foreground}{logical vector of the same length as \code{seqs}.
+\code{TRUE} indicates that the sequence corresponds to the foreground set,
+\code{FALSE} indicates a background set sequence.}
+
 \item{pwmL}{PWMatrixList object with PWMs of motifs}
+
+\item{enrichment_test}{A \code{character} scalar specifying the type of
+enrichment test to perform. One of \code{"binomial"} (default) or
+\code{"fisher_exact"}.}
 
 \item{Ncpu}{Number of CPUs to use (default set to 1).}
 
 \item{verbose}{A logical scalar. If \code{TRUE}, report on k-mer composition
 adjustment.}
-
-\item{is_forground}{logical vector of the same length as \code{seqs}.
-\code{TRUE} indicates that the sequence corresponds to the foreground set,
-\code{FALSE} indicates a background set sequence.}
 }
 \description{
 Do Motif Enrichment Analysis with `monaLisa` (for simple fg vs bg
