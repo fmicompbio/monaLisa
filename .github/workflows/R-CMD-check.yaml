@@ -52,11 +52,6 @@ jobs:
           echo "^homer$" >> .Rbuildignore
           # Rscript -e 'install.packages("magick")'
           
-      - name: Install Cairo
-        run: |
-          install.packages('Cairo')
-        shell: Rscript {0}
-
       - name: Install remotes
         run: |
           install.packages('remotes')
@@ -92,6 +87,11 @@ jobs:
           sudo -s eval "$sysreqs"
           sudo apt-get update && sudo apt-get -y install libcurl4-openssl-dev
           
+      - name: Install system dependencies for macOS
+        if: matrix.config.os == 'macOS-latest'
+        run: |
+          brew install cairo
+
       - name: Install dependencies (R packages)
         run: |
           local_deps <- remotes::local_package_deps(dependencies = TRUE)
