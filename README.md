@@ -52,26 +52,5 @@ resL <- runHomer(gr = atac.peaks, b = bins, genomedir = "/work/gbioinfo/DB/genom
 
 ## Software status
 
-Travis CI (Linux): [![Travis CI build status](https://travis-ci.com/fmicompbio/monaLisa.svg?branch=master)](https://travis-ci.com/fmicompbio/monaLisa) [![Codecov.io coverage status](https://codecov.io/github/fmicompbio/monaLisa/coverage.svg?branch=master)](https://codecov.io/github/fmicompbio/monaLisa)
+Github Actions (multiple OS): [![R build status](https://github.com/fmicompbio/monaLisa/workflows/R-CMD-check/badge.svg)](https://github.com/fmicompbio/monaLisa/actions) [![Codecov.io coverage status](https://codecov.io/github/fmicompbio/monaLisa/coverage.svg?branch=master)](https://codecov.io/github/fmicompbio/monaLisa)
 
-<!--
-## Reference
-`EISA` has been described in:  
-
-"Analysis of intronic and exonic reads in RNA-seq data characterizes
-transcriptional and post-transcriptional regulation."  
-Gaidatzis D., Burger L., Florescu M. and Stadler, M.B.  
-*Nat Biotechnol.* **2015**; 33(7):722-9.
-[PubMed: 26098447](https://www.ncbi.nlm.nih.gov/pubmed/26098447), [doi: 10.1038/nbt.3269](https://doi.org/10.1038/nbt.3269)
-
-## Download from Bioconductor
-[QuasR download page](https://bioconductor.org/packages/QuasR/)
-
-## Software status
-
-| Platforms |  OS  | R CMD check | Coverage | 
-|:----------------:|:----------------:|:----------------:|:----------------:|
-| Travis CI | Linux | [![Travis CI build status](https://travis-ci.com/fmicompbio/QuasR.svg?branch=master)](https://travis-ci.com/fmicompbio/QuasR) | [![Codecov.io coverage status](https://codecov.io/github/fmicompbio/QuasR/coverage.svg?branch=master)](https://codecov.io/github/fmicompbio/QuasR) |
-| Bioc ([_devel_](http://bioconductor.org/packages/devel/bioc/html/QuasR.html)) | Multiple | [![Bioconductor-devel Build Status](http://bioconductor.org/shields/build/devel/bioc/QuasR.svg)](http://bioconductor.org/checkResults/devel/bioc-LATEST/QuasR) | `NA` |
-| Bioc ([_release_](http://bioconductor.org/packages/release/bioc/html/QuasR.html)) | Multiple | [![Bioconductor-release Build Status](http://bioconductor.org/shields/build/release/bioc/QuasR.svg)](http://bioconductor.org/checkResults/release/bioc-LATEST/QuasR) | `NA` |
--->
