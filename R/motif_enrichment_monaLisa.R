@@ -439,6 +439,8 @@ iterate_norm_for_kmer_comp <- function(df,
 #'
 #' @param df DNAStringSet object with sequences to analyze
 #' @param pwmL PWMatrixList object with PWMs of motifs
+#' @param homerfile \code{character} scalar with path to homer2 binary, passed on
+#'     to \code{findMotifHits}.
 #' @param method the \code{method} parameter in the \code{findMotifHits} function
 #' @param min.score the \code{min.score} parameter in the \code{findMotifHits} function
 #' @param Ncpu number of CPUs to use
