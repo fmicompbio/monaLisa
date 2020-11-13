@@ -662,87 +662,140 @@ get_motif_enrichment <- function(motif_matrix=NULL,
 }
 
 
-
-#' @title Do Motif Enrichment Analysis with `monaLisa` (for simple fg vs bg
-#'   situation, this will be changed for bins later)
+#' @title Do Binned Motif Enrichment Analysis with `monaLisa` a la `Homer`
 #'
-#' @param seqs DNAStringSet object with sequences to analyze
-#' @param is_foreground logical vector of the same length as \code{seqs}.
-#'   \code{TRUE} indicates that the sequence corresponds to the foreground set,
-#'   \code{FALSE} indicates a background set sequence.
-#' @param pwmL PWMatrixList object with PWMs of motifs
+#' @description This function does a motif enrichment analysis on the set of sequences belonging
+#'   to the same bin, using all the sequences in the rest of the bins as background. 
+#'   In each enrichment analysis (per bin), \code{get_binned_motif_enrichment} uses other 
+#'   functions within `monaLisa`, which do a motif enrichment analysis as `Homer` (version 4.11)
+#'   implements. See Details for more.
+#' 
+#' @param seqs DNAStringSet object with sequences to test
+#' @param bins factor vector of the same length and order as \code{seqs}, indicating the bin
+#'   each sequence belongs to. See the \code{\link[monaLisa]{bin}} function. 
+#' @param pwmL PWMatrixList object with PWMs of motifs.
+#' @param genome a BSgenome object indicating the genome to which the \code{seqs} 
+#'   belong to, and which will be scanned for motif matches.
 #' @param enrichment_test A \code{character} scalar specifying the type of
 #'   enrichment test to perform. One of \code{"binomial"} (default) or
-#'   \code{"fisher_exact"}.
-#' @param Ncpu Number of CPUs to use (default set to 1).
-#' @param verbose A logical scalar. If \code{TRUE}, report on k-mer composition
-#'   adjustment.
+#'   \code{"fisher_exact"}. The enrichment test is one-sided (enriched in foreground).
+#' @param frac_N_allowed A numeric scalar with the maximal fraction of N bases allowed 
+#'   in a sequence (defaults to 0.7). Sequences with a fraction of N bases greater than
+#'   this will be excluded from the analysis.
+#' @param max_kmer_size the maximum kmer size to consider, when adjusting background weights
+#'   for kmer composition compared to the foreground sequences (default 1-mer, 2-mers and 3-mers).
+#' @param min.score the \code{min.score} parameter for the \code{findMotifHits} function. It
+#'   is the minimum score for counting a match (default set to 10).
+#' @param match_method the \code{method} parameter in \code{findMotifHits}. It specifies
+#'   the method used for motif searching.
+#' @param Ncpu Number of CPUs to use (default set to 1). This can enter the \code{findMotifHits}
+#'   function when searching for motif matches. 
+#' @param verbose A logical scalar. If \code{TRUE}, report progress.
 #'
-#' @details TODO: - parallellize the other functions using Ncpu.
+#' @details TODO: - Use Ncpu to also parallelize across list of DFs (enrichment per bin)
+#'                - parallellize the other functions using Ncpu.
 #'                - add log-enrichment info to final output.
-#'                - for fisher's exact test: discriminate between enriched and depleted motifs
-#'                - change functions to do one-time calculations when using in binned mode.
-#'                - make a better get_motif_hits_in_ZOOPS_mode function with our own 
-#'                  implementation of matchPWM (faster). for now it uses homer2 because it's so fast.
+#'                - for fisher's exact test: update dosumentation on one-sidedness.
+#'                - change functions to do one-time calculations when using in binned mode?
+#'                - filter seqs: make one-time thing.
 #'                - should the calculated p-values be adjusted for multiple testing? (something Homer doesn't do)
+#'                - avoid ordering of TFs in enrichment, to more easily patch things up together.
 #'
+#' @importFrom TFBSTools ID name
 #'
 #' @export
-run_monaLisa <- function(seqs, 
-                         is_foreground, 
-                         pwmL, 
-                         enrichment_test = c("binomial", "fishers_exact"), 
-                         Ncpu = 1L, 
-                         verbose = TRUE) {
-
+get_binned_motif_enrichment <- function(seqs, 
+                                        bins, 
+                                        pwmL, 
+                                        genome = NULL, 
+                                        enrichment_test = c("binomial", "fishers_exact"), 
+                                        frac_N_allowed = 0.7, 
+                                        max_kmer_size = 3L, 
+                                        min.score = 10, 
+                                        match_method = "matchPWM.concat", 
+                                        Ncpu = 1L, 
+                                        verbose = TRUE) {
   # checks
+  if(!is(genome, "BSgenome")){
+    stop("'genome' must be of class 'BSgenome'")
+  }
   if (!is(seqs, "DNAStringSet")) {
     stop("class of 'seqs' must be DNAStringSet")
   }
-  if (!is.logical(is_foreground)) {
-    stop("'is_foreground' must be a logical vector with TRUE to indicate",
-         "foreground sequences and FALSE to indicate background sequences")
-  }
-  if(!is(pwmL, "PWMatrixList")){
-    stop("pwmL must be of class PWMatrixList")
-  }
-  if (length(seqs) != length(is_foreground)) {
-    stop("'seqs' and 'is_foreground' must be of equal length")
-  }
-  if (!is.logical(verbose) || length(verbose) != 1L) {
-    stop("'verbose' has to be either TRUE or FALSE")
-  }
   if (is.null(names(seqs))) {
+    if(verbose){
+      message("names(seqs) is empty, naming the sequences ...")
+    }
     names(seqs) <- paste0("seq_", seq_along(seqs))
   }
-  enrichment_test <- match.arg(enrichment_test)
+  if(!is(pwmL, "PWMatrixList")){
+    stop("'pwmL' must be of class 'PWMatrixList'")
+  }
+  if(is.null(names(pwmL))){
+    stop("names(pwmL) is NULL, please name the PWMs, preferably with their unique ID.")
+  }
+  if (length(seqs) != length(bins)) {
+    stop("'seqs' and 'bins' must be of equal length and in the same order")
+  }
+  if(!is(bins, "factor")){
+    stop("'bins' must be of class 'factor'")
+  }
   
-  # create list of the inputs
-  df <- DataFrame(seqs = seqs,
-                  is_foreground = is_foreground,
-                  gc_frac = NA,
-                  gc_bin = NA,
-                  gc_weight = NA,
-                  kmer_weight = NA)
-  attr(df, "err") <- NA
-
-  # filter 'bad' sequences
-  df <- filter_seqs(df, verbose = verbose)
-
-  # calculate weight to adjust for GC differences between foreground and
-  # background
-  df <- calculate_GC_weight(df, verbose = verbose)
-
-  # calculate weight to in addition adjust for kmer composition differences
-  df <- iterate_norm_for_kmer_comp(df, verbose = verbose)
+  # create data.frame of motif names and symbols
+  TF_df <- data.frame(motif_ID=TFBSTools::ID(pwmL), 
+                      motif_symbol=TFBSTools::name(pwmL))
   
-  # get motif hits matrix in ZOOPS mode
-  motif_matrix <- get_motif_hits_in_ZOOPS_mode(df, pwmL, Ncpu = Ncpu, verbose = verbose)
+  # create list of DataFrames, one for each bin
+  bin_levels <- levels(bins)
+  DF_list <- list()
+  for(i in 1:length(bin_levels)){
+    is_foreground <- logical(length = length(seqs))
+    is_foreground[bins==bin_levels[i]] <- TRUE
+    df <- DataFrame(seqs = seqs,
+                    is_foreground = is_foreground,
+                    gc_frac = NA,
+                    gc_bin = NA,
+                    gc_weight = NA,
+                    kmer_weight = NA)
+    attr(df, "err") <- NA
+    
+    DF_list[[i]] <- df
+    names(DF_list)[i] <- bin_levels[i]
+  }
   
-  # get log(p-values) for motif enrichment (ordered)
-  res <- get_motif_enrichment(motif_matrix, df, test=enrichment_test, verbose = verbose)
+  # filter 'bad' sequences per bin (can be done only once for all seqs--> need to change filtering function)
+  DF_list <- lapply(DF_list, function(x){monaLisa::filter_seqs(df = x, frac = frac_N_allowed, verbose = verbose)})
   
-  # return
-  res
-
+  # calculate weight to adjust for GC differences between foreground and background per bin 
+  # ... in this step, sequences may be filtered out (if a GC bin contains one sequence only, that sequence is filtered out).
+  # ... Since the kept seqs may differ per bin, we select the kept seqs at the enrichment per bin.
+  DF_list <- lapply(DF_list, function(x){monaLisa::calculate_GC_weight(df = x, verbose = verbose)})
+  
+  # update weight to in addition adjust for kmer composition differences between foreground and background per bin
+  DF_list <- lapply(DF_list, function(x){monaLisa::iterate_norm_for_kmer_comp(df = x, max_kmer_size = max_kmer_size, verbose = verbose)})
+  
+  # get motif hits matrix in ZOOPS mode for all seqs
+  if(verbose){
+    message("Finding motif hits across seqs ...")
+  }
+  hits <- findMotifHits(query = pwmL, subject = seqs, min.score = min.score, method = match_method, Ncpu = Ncpu)
+  mat <- as.matrix(as.data.frame.matrix(table(seqnames(hits), as.character(hits$pwmid))))
+  # ... add missing rows (sequences that had no hit)
+  missing_row_names <- names(seqs)[!names(seqs)%in%rownames(mat)]
+  missing_mat <- matrix(data = 0, nrow = length(missing_row_names), ncol = ncol(mat))
+  rownames(missing_mat) <- missing_row_names
+  colnames(missing_mat) <- colnames(mat)
+  complete_hit_mat <- rbind(mat, missing_mat)
+  complete_hit_mat <- complete_hit_mat[names(seqs), ]
+  # ... ZOOPS mode
+  w <- complete_hit_mat > 1
+  complete_hit_mat[w] <- 1
+  
+  # get log(p-values) for motif enrichment (ordered) --> change function so it's not ordered
+  enrich_list <- lapply(DF_list, function(x){get_motif_enrichment(motif_matrix = complete_hit_mat[rownames(x), ], df = x, test = enrichment_test, verbose = verbose)})
+  
+  # return list of enrichment results per bin
+  enrich_list
+  
 }
+
