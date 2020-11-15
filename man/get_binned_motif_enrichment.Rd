@@ -2,7 +2,7 @@
 % Please edit documentation in R/motif_enrichment_monaLisa.R
 \name{get_binned_motif_enrichment}
 \alias{get_binned_motif_enrichment}
-\title{Do Binned Motif Enrichment Analysis with `monaLisa` a la `Homer`}
+\title{Do Binned Motif Enrichment Analysis with \code{monaLisa} a la \code{Homer}}
 \usage{
 get_binned_motif_enrichment(
   seqs,
@@ -55,11 +55,32 @@ function when searching for motif matches.}
 This function does a motif enrichment analysis on the set of sequences belonging
   to the same bin, using all the sequences in the rest of the bins as background. 
   In each enrichment analysis (per bin), \code{get_binned_motif_enrichment} uses other 
-  functions within `monaLisa`, which do a motif enrichment analysis as `Homer` (version 4.11)
-  implements. See Details for more.
+  functions within `monaLisa`, which do a motif enrichment analysis as implemented in `Homer` 
+  (version 4.11). See Details for more.
 }
 \details{
-TODO: - Use Ncpu to also parallelize across list of DFs (enrichment per bin)
+This function implements a binned motif enrichment analysis. In each enrichment
+  analysis, the sequences in a specific bin are used as foreground sequences to test for 
+  motif enrichment using all other sequences (in the remaining bins) as background sequences.
+  The function implements the \code{findMotifsGenome.pl} function from \code{Homer} version 4.11, 
+  with \code{-size given -nomotif -mknown}, using the given list of known PWMs to test for 
+  their enrichment. These \code{Homer} functions have been re-iplemented in R within \code{monaLisa} and 
+  can reproduce the same output as \code{Homer} in this mode of use. Namely, weights that correct for
+  GC, and k-mer composition differences between foreground and background are calculated for each
+  sequence. Motif hits are scanned across the specified genome using \code{findMotifHits}, resulting
+  in a sequence (row) by motif (column) matrix in ZOOPS mode, with a 1 entry if at least 1 hit is found, 
+  and a 0 entry otherwise. For each motif, the weights of sequences that have a hit are summed separately
+  for foreground (\code{fg_weight_sum}) and background (\code{bg_weight_sum}). The total foreground 
+  (\code{fg_weight_sum_total}) and background (\code{bg_weight_sum_total}) sum is also calculated.
+  
+  The enrichment log p-value calculation can be done in two modes: Binomial (default) or Fisher's exact test: \itemize{
+    \item{binomial}{: \code{pbinom(q = fg_weight_sum - 1, size = fg_weight_sum_total, prob = bg_weight_sum / bg_weight_sum_total, lower.tail = FALSE, log.p = TRUE)}}
+    \item{fisher_exact}{: \code{fisher.test(x = cont_table, alternative = "greater")}, where cont_table is the contingency table with 
+       rows specifying foreground or background, and columns indicating hit or no hit for a particular motif. The entries in this table
+       are the sum of the weights of sequences meeting the row and column specifications.}
+  }
+  
+  TODO: - Use Ncpu to also parallelize across list of DFs (enrichment per bin)
                - parallellize the other functions using Ncpu.
                - add log-enrichment info to final output.
                - for fisher's exact test: update dosumentation on one-sidedness.
