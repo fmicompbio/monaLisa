@@ -750,7 +750,7 @@ get_motif_enrichment <- function(motif_matrix=NULL,
 #'  The assays are the enrichment results for each bin.
 #'  
 #' @importFrom TFBSTools ID name
-#' @importFrom SummarizedExperiment SummarizedExperiment
+#' @importFrom SummarizedExperiment SummarizedExperiment rowData
 #'
 #' @export
 get_binned_motif_enrichment <- function(seqs, 
@@ -846,8 +846,47 @@ get_binned_motif_enrichment <- function(seqs,
   # return SummarizedExperiment: each assay represents the result matrix of a bin
   se <- SummarizedExperiment::SummarizedExperiment(assays = enrich_list)
   m <- match(rownames(se), rownames(TF_df))
-  rowData(se) <- TF_df[m, ]
+  SummarizedExperiment::rowData(se) <- TF_df[m, ]
   se
   
 }
+
+
+#' @title Summarize Binned Enrichmetn results
+#'
+#' @description This function summarizes the output from \code{get_binned_motif_enrichment} to 
+#'   produce matrices that depict the log enrichment and log p-values for each motif across
+#'   the defined bins. 
+#' 
+#' @param se a \code{SummarizedExperiment} object resulting from running the \code{get_binned_motif_enrichment} function.
+#' @param pseudo the pseudo count used when calculating the log2 enrichment for foreground over background. 
+#' 
+#' @return A \code{SummarizedExperiment} object where the rows are the bins. The assays represent summarized results: An 
+#'   assay called "log2_enrichment" that contains the log2(enrichment) values, and an assay called "log_p_value" that 
+#'   contains the log p-values.
+#'  
+#' @importFrom SummarizedExperiment SummarizedExperiment rowData
+#'
+#' @export
+summarize_binned_enrichment_results <- function(se, pseudo = 0.01) {
+  
+  # checks
+  if(!is(se, "SummarizedExperiment")){
+    stop("'se' must be of class 'SummarizedExperiment'")
+  }
+  
+  # log2(enrichment)
+  enr <- do.call(cbind, lapply(assays(se), function(df){log2((df$fg_weight_sum + pseudo) / (df$bg_weight_sum + pseudo))}))
+  
+  # log p-value
+  log_p_val <-  do.call(cbind, lapply(assays(se), function(df){df$log_p_value}))
+  
+  # return
+  ret <- SummarizedExperiment(assays = list(log2_enrichment=enr, log_p_value=log_p_val))
+  rownames(ret) <- rownames(se)
+  SummarizedExperiment::rowData(ret) <- SummarizedExperiment::rowData(se)
+  ret
+  
+}
+
 
