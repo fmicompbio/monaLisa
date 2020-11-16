@@ -46,7 +46,11 @@ is_valid_df <- function(df) {
 #'   }
 #' @param frac A numeric scalar with the maximal fraction of N bases allowed in
 #'   a sequence (defaults to 0.7).
+#' @param min_length The minimum sequence length (default from Homer). Sequences shorter than this will be filtered out.
+#' @param max_length The maximum sequence length (default from Homer). Sequences bigger than this will be filtered out.
 #' @param verbose A logical scalar. If \code{TRUE}, report on filtering.
+#' 
+#' @details The function follows the \code{removePoorSeq.pl} function from Homer.
 #'
 #' @return the filtered \code{df}.
 #'
@@ -54,7 +58,7 @@ is_valid_df <- function(df) {
 #' @importFrom S4Vectors DataFrame
 #'
 #' @export
-filter_seqs <- function(df, frac = 0.7, verbose = TRUE) {
+filter_seqs <- function(df, frac = 0.7, min_length = 5L, max_length = 100000L, verbose = TRUE) {
 
   # checks
   if (!is_valid_df(df)) {
@@ -81,6 +85,18 @@ filter_seqs <- function(df, frac = 0.7, verbose = TRUE) {
   } else {
     message("  no sequences filtered out because of too many N bases")
   }
+  # remove seqs that are too short or too long
+  w <- which(width(df$seqs) < min_length | width(df$seqs) > max_length)
+  if (length(w) > 0) {
+    if (verbose) {
+      message(sprintf("  filtering out %d of %d (%.1f%%) sequences that are too short or too long",
+                      length(w), nrow(df), 100 * length(w) / nrow(df)))
+    }
+    df <- df[-w, ]
+  } else {
+    message("  no sequences filtered out because of being too short or too long")
+  }
+  
 
   # return filtered df
   df

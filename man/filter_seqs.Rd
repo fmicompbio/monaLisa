@@ -4,7 +4,13 @@
 \alias{filter_seqs}
 \title{Filter Bad Sequences}
 \usage{
-filter_seqs(df, frac = 0.7, verbose = TRUE)
+filter_seqs(
+  df,
+  frac = 0.7,
+  min_length = 5L,
+  max_length = 100000L,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{df}{a \code{DataFrame} with an attribute \code{err} and columns
@@ -23,6 +29,10 @@ filter_seqs(df, frac = 0.7, verbose = TRUE)
 \item{frac}{A numeric scalar with the maximal fraction of N bases allowed in
 a sequence (defaults to 0.7).}
 
+\item{min_length}{The minimum sequence length (default from Homer). Sequences shorter than this will be filtered out.}
+
+\item{max_length}{The maximum sequence length (default from Homer). Sequences bigger than this will be filtered out.}
+
 \item{verbose}{A logical scalar. If \code{TRUE}, report on filtering.}
 }
 \value{
@@ -31,4 +41,7 @@ the filtered \code{df}.
 \description{
 We filter sequences similarly to how HOMER (version 4.11) does it. Namely,
   sequences with more than 70 percent (default) N are removed.
+}
+\details{
+The function follows the \code{removePoorSeq.pl} function from Homer.
 }
