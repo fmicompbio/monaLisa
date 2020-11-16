@@ -739,7 +739,18 @@ get_motif_enrichment <- function(motif_matrix=NULL,
 #'                - should the calculated p-values be adjusted for multiple testing? (something Homer doesn't do)
 #'                - avoid ordering of TFs in enrichment, to more easily patch things up together.
 #'
+#' @return A \code{SummarizedExperiment} object where the rows are the motifs and the columns are: \itemize{
+#'   \item{motif_name}{: the motif name}
+#'   \item{log_p_value}{: the log p-value for enrichment in foreground vs background}
+#'   \item{fg_weight_sum}{: the sum of the foreground weights for sequences that have a hit for the motif}
+#'   \item{bg_weight_sum}{: the sum of the background weights for sequences that have a hit for the motif}
+#'   \item{fg_weight_sum_total}{: the total sum of the foreground sequences}
+#'   \item{bg_weight_sum_total}{: the total sum of the background sequences}
+#' }
+#'  The assays are the enrichment results for each bin.
+#'  
 #' @importFrom TFBSTools ID name
+#' @importFrom SummarizedExperiment SummarizedExperiment
 #'
 #' @export
 get_binned_motif_enrichment <- function(seqs, 
@@ -832,8 +843,11 @@ get_binned_motif_enrichment <- function(seqs,
   # get log(p-values) for motif enrichment (ordered) --> change function so it's not ordered
   enrich_list <- lapply(DF_list, function(x){get_motif_enrichment(motif_matrix = complete_hit_mat[rownames(x), ], df = x, test = enrichment_test, verbose = verbose)})
   
-  # return list of enrichment results per bin
-  enrich_list
+  # return SummarizedExperiment: each assay represents the result matrix of a bin
+  se <- SummarizedExperiment::SummarizedExperiment(assays = enrich_list)
+  m <- match(rownames(se), rownames(TF_df))
+  rowData(se) <- TF_df[m, ]
+  se
   
 }
 

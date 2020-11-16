@@ -51,6 +51,17 @@ function when searching for motif matches.}
 
 \item{verbose}{A logical scalar. If \code{TRUE}, report progress.}
 }
+\value{
+A \code{SummarizedExperiment} object where the rows are the motifs and the columns are: \itemize{
+  \item{motif_name}{: the motif name}
+  \item{log_p_value}{: the log p-value for enrichment in foreground vs background}
+  \item{fg_weight_sum}{: the sum of the foreground weights for sequences that have a hit for the motif}
+  \item{bg_weight_sum}{: the sum of the background weights for sequences that have a hit for the motif}
+  \item{fg_weight_sum_total}{: the total sum of the foreground sequences}
+  \item{bg_weight_sum_total}{: the total sum of the background sequences}
+}
+ The assays are the enrichment results for each bin.
+}
 \description{
 This function does a motif enrichment analysis on the set of sequences belonging
   to the same bin, using all the sequences in the rest of the bins as background. 
