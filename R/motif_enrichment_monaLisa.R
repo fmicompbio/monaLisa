@@ -813,14 +813,23 @@ get_binned_motif_enrichment <- function(seqs,
   }
   
   # filter 'bad' sequences per bin (can be done only once for all seqs--> need to change filtering function)
+  if (verbose) {
+    message("filtering out bad sequences ...")
+  }
   DF_list <- lapply(DF_list, function(x){monaLisa::filter_seqs(df = x, frac = frac_N_allowed, verbose = verbose)})
   
   # calculate weight to adjust for GC differences between foreground and background per bin 
   # ... in this step, sequences may be filtered out (if a GC bin contains one sequence only, that sequence is filtered out).
   # ... Since the kept seqs may differ per bin, we select the kept seqs at the enrichment per bin.
+  if (verbose) {
+    message("Correcting for GC differences to the background sequences per bin ...")
+  }
   DF_list <- lapply(DF_list, function(x){monaLisa::calculate_GC_weight(df = x, verbose = verbose)})
   
   # update weight to in addition adjust for kmer composition differences between foreground and background per bin
+  if (verbose) {
+    message("Correcting for kmer differences to the background sequences per bin ...")
+  }
   DF_list <- lapply(DF_list, function(x){monaLisa::iterate_norm_for_kmer_comp(df = x, max_kmer_size = max_kmer_size, verbose = verbose)})
   
   # get motif hits matrix in ZOOPS mode for all seqs
@@ -829,7 +838,7 @@ get_binned_motif_enrichment <- function(seqs,
   }
   hits <- findMotifHits(query = pwmL, subject = seqs, min.score = min.score, method = match_method, Ncpu = Ncpu, genome = genome)
   if(isEmpty(hits)){
-    stop("did not find any motif hits.")
+    stop("motif hits matrix is empty")
   }
   mat <- as.matrix(as.data.frame.matrix(table(seqnames(hits), as.character(hits$pwmid))))
   # ... add missing rows (sequences that had no hit)
@@ -843,7 +852,10 @@ get_binned_motif_enrichment <- function(seqs,
   w <- complete_hit_mat > 1
   complete_hit_mat[w] <- 1
   
-  # get log(p-values) for motif enrichment (ordered) --> change function so it's not ordered
+  # get log(p-values) for motif enrichment
+  if(verbose){
+    message("Calculating motif enrichment per bin ...")
+  }
   enrich_list <- lapply(DF_list, function(x){get_motif_enrichment(motif_matrix = complete_hit_mat[rownames(x), , drop=FALSE], df = x, test = enrichment_test, verbose = verbose)})
   
   # return SummarizedExperiment: each assay represents the result matrix of a bin
