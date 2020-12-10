@@ -827,7 +827,10 @@ get_binned_motif_enrichment <- function(seqs,
   if(verbose){
     message("Finding motif hits across seqs ...")
   }
-  hits <- findMotifHits(query = pwmL, subject = seqs, min.score = min.score, method = match_method, Ncpu = Ncpu)
+  hits <- findMotifHits(query = pwmL, subject = seqs, min.score = min.score, method = match_method, Ncpu = Ncpu, genome = genome)
+  if(isEmpty(hits)){
+    stop("did not find any motif hits.")
+  }
   mat <- as.matrix(as.data.frame.matrix(table(seqnames(hits), as.character(hits$pwmid))))
   # ... add missing rows (sequences that had no hit)
   missing_row_names <- names(seqs)[!names(seqs)%in%rownames(mat)]
@@ -835,13 +838,13 @@ get_binned_motif_enrichment <- function(seqs,
   rownames(missing_mat) <- missing_row_names
   colnames(missing_mat) <- colnames(mat)
   complete_hit_mat <- rbind(mat, missing_mat)
-  complete_hit_mat <- complete_hit_mat[names(seqs), ]
+  complete_hit_mat <- complete_hit_mat[names(seqs), , drop=FALSE]
   # ... ZOOPS mode
   w <- complete_hit_mat > 1
   complete_hit_mat[w] <- 1
   
   # get log(p-values) for motif enrichment (ordered) --> change function so it's not ordered
-  enrich_list <- lapply(DF_list, function(x){get_motif_enrichment(motif_matrix = complete_hit_mat[rownames(x), ], df = x, test = enrichment_test, verbose = verbose)})
+  enrich_list <- lapply(DF_list, function(x){get_motif_enrichment(motif_matrix = complete_hit_mat[rownames(x), , drop=FALSE], df = x, test = enrichment_test, verbose = verbose)})
   
   # return SummarizedExperiment: each assay represents the result matrix of a bin
   se <- SummarizedExperiment::SummarizedExperiment(assays = enrich_list)
