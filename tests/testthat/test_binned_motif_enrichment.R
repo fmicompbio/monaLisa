@@ -45,6 +45,10 @@ test_that("get_binned_motif_enrichment() works in default mode", {
   expect_equal(SummarizedExperiment::assay(enr_res, 1)$motif_name[1], "MA0528.1")
   expect_equal(SummarizedExperiment::assay(enr_res, 1)$fg_weight_sum[1], 2)
   expect_equal(SummarizedExperiment::assay(enr_res, 1)$fg_weight_sum_total[1], 5)
+  
+  # ... missing BSgenome or wrong class
+  expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwms))
+  expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwms, genome = "mm10"))
  
   # seqs <- getSeq(genome)
   # hits <- findMotifHits(query = pwms, subject = seqs[[12]], min.score = 10, method = "matchPWM.concat", Ncpu = 10, genome=genome)

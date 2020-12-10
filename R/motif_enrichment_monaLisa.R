@@ -753,9 +753,9 @@ get_motif_enrichment <- function(motif_matrix=NULL,
 #' @importFrom SummarizedExperiment SummarizedExperiment rowData
 #'
 #' @export
-get_binned_motif_enrichment <- function(seqs, 
-                                        bins, 
-                                        pwmL, 
+get_binned_motif_enrichment <- function(seqs = NULL, 
+                                        bins = NULL, 
+                                        pwmL = NULL, 
                                         genome = NULL, 
                                         enrichment_test = c("binomial", "fishers_exact"), 
                                         frac_N_allowed = 0.7, 
@@ -765,29 +765,57 @@ get_binned_motif_enrichment <- function(seqs,
                                         Ncpu = 1L, 
                                         verbose = TRUE) {
   # checks
-  if(!is(genome, "BSgenome")){
-    stop("'genome' must be of class 'BSgenome'")
+  # ... missing arguments
+  if(is.null(seqs)){
+    stop("'seqs' argument must be supplied")
   }
+  if(is.null(bins)){
+    stop("'bins' argument must be supplied")
+  }
+  if(is.null(pwmL)){
+    stop("'pwmL' argument must be supplied")
+  }
+  if(is.null(genome)){
+    stop("'genome' argument must be supplied")
+  }
+  # ... correct classes
   if (!is(seqs, "DNAStringSet")) {
     stop("class of 'seqs' must be DNAStringSet")
   }
+  if(!is(bins, "factor")){
+    stop("'bins' must be of class 'factor'")
+  }
+  if(!is(pwmL, "PWMatrixList")){
+    stop("'pwmL' must be of class 'PWMatrixList'")
+  }
+  if(!is(genome, "BSgenome")){
+    stop("'genome' must be of class 'BSgenome'")
+  }
+  if(!is(frac_N_allowed, "numeric")){
+    stop("'frac_N_allowed' must be of class 'numeric'")
+  }
+  if(!is(max_kmer_size, "integer")){
+    stop("'max_kmer_size' must be of class 'integer'")
+  }
+  if(!is(Ncpu, "integer")){
+    stop("'Ncpu' must be of class 'integer'")
+  }
+  if(!is(verbose, "logical")){
+    stop("'verbose' must be of class 'logical'")
+  }
+  # ... supply/check for names
   if (is.null(names(seqs))) {
     if(verbose){
       message("names(seqs) is empty, naming the sequences ...")
     }
     names(seqs) <- paste0("seq_", seq_along(seqs))
   }
-  if(!is(pwmL, "PWMatrixList")){
-    stop("'pwmL' must be of class 'PWMatrixList'")
-  }
   if(is.null(names(pwmL))){
     stop("names(pwmL) is NULL, please name the PWMs, preferably with their unique ID.")
   }
+  # ... number of sequences and bins match
   if (length(seqs) != length(bins)) {
     stop("'seqs' and 'bins' must be of equal length and in the same order")
-  }
-  if(!is(bins, "factor")){
-    stop("'bins' must be of class 'factor'")
   }
   
   # create data.frame of motif names and symbols

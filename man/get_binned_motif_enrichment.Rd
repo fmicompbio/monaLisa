@@ -5,9 +5,9 @@
 \title{Do Binned Motif Enrichment Analysis with \code{monaLisa} a la \code{Homer}}
 \usage{
 get_binned_motif_enrichment(
-  seqs,
-  bins,
-  pwmL,
+  seqs = NULL,
+  bins = NULL,
+  pwmL = NULL,
   genome = NULL,
   enrichment_test = c("binomial", "fishers_exact"),
   frac_N_allowed = 0.7,
