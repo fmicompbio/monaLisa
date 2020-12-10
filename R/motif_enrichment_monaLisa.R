@@ -701,9 +701,9 @@ get_motif_enrichment <- function(motif_matrix=NULL,
 #'   this will be excluded from the analysis.
 #' @param max_kmer_size the maximum kmer size to consider, when adjusting background weights
 #'   for kmer composition compared to the foreground sequences (default 1-mer, 2-mers and 3-mers).
-#' @param min.score the \code{min.score} parameter for the \code{findMotifHits} function. It
+#' @param min.score the \code{min.score} parameter for the \code{\link[monaLisa]{findMotifHits}} function. It
 #'   is the minimum score for counting a match (default set to 10).
-#' @param match_method the \code{method} parameter in \code{findMotifHits}. It specifies
+#' @param match_method the \code{method} parameter in \code{\link[monaLisa]{findMotifHits}}. It specifies
 #'   the method used for motif searching.
 #' @param Ncpu Number of CPUs to use (default set to 1). This can enter the \code{findMotifHits}
 #'   function when searching for motif matches. 

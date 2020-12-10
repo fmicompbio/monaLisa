@@ -40,13 +40,18 @@ test_that("get_binned_motif_enrichment() works in default mode", {
                                          genome = genome)
   
   ## Tests
-  # expect_type(enr_res, "SummarizedExperiment")
+  # ... expected results on dataset
   expect_true(base::inherits(enr_res, "SummarizedExperiment"))
   expect_equal(SummarizedExperiment::assay(enr_res, 1)$motif_name[1], "MA0528.1")
   expect_equal(SummarizedExperiment::assay(enr_res, 1)$fg_weight_sum[1], 2)
   expect_equal(SummarizedExperiment::assay(enr_res, 1)$fg_weight_sum_total[1], 5)
-  
-  # ... missing BSgenome or wrong class
+  # ... missing arguments or wrong classes
+  expect_error(get_binned_motif_enrichment(bins = b, pwmL = pwms, genome = genome))
+  expect_error(get_binned_motif_enrichment(seqs = as.character(seqs), bins = b, pwmL = pwms, genome = genome))
+  expect_error(get_binned_motif_enrichment(seqs = seqs, pwmL = pwms, genome = genome))
+  expect_error(get_binned_motif_enrichment(seqs = seqs, bins = as.character(b), pwmL = pwms, genome = genome))
+  expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, genome = genome))
+  expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = as.matrix(pwms[[1]]), genome = genome))
   expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwms))
   expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwms, genome = "mm10"))
  
