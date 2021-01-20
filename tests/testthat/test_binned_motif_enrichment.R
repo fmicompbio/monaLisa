@@ -157,5 +157,57 @@ test_that("get_binned_motif_enrichment() works in default mode", {
 })
 
 
+test_that("summarize_binned_enrichment_results() works", {
+  
+  library(GenomicRanges)
+  library(BSgenome.Mmusculus.UCSC.mm10)
+  library(JASPAR2018)
+  library(TFBSTools)
+  library(Biostrings)
+  library(SummarizedExperiment)
+  
+  genome <- BSgenome.Mmusculus.UCSC.mm10
+  
+  ## Create dataset
+  gr_SPIB <- GRanges(seqnames = "chr10", 
+                     ranges = IRanges(start = c(3133401, 3447301, 3927801, 4110201, 4179501, 4444901, 4731101, 5110901, 5114401, 5332501, 3289801, 3420201), 
+                                      end = c(3133500, 3447400, 3927900, 4110300, 4179600, 4445000, 4731200, 5111000, 5114500, 5332600, 3289900, 3420300)), 
+                     strand = "*")
+  gr_RBPJ <- GRanges(seqnames = "chr10", 
+                     ranges = IRanges(start = c(3289801, 3420201, 3594201, 3622701, 3877101, 3993201, 4068701, 4485601, 4641401, 4683701, 3133401, 3447301), 
+                                      end = c(3289900, 3420300, 3594300, 3622800, 3877200, 3993300, 4068800, 4485700, 4641500, 4683800, 3133500, 3447400)), 
+                     strand = "*")
+  gr <- c(gr_RBPJ, gr_SPIB)
+  names(gr) <- paste0("peak_", 1:length(gr))
+  seqs <- getSeq(genome, gr)
+  
+  ## PWMs
+  pfms <- getMatrixSet(JASPAR2018, list(matrixtype = "PFM", tax_group = "vertebrates", name = c("RBPJ", "SPIB")))
+  pwms <- toPWM(pfms)
+  
+  ## bins
+  b <- monaLisa::bin(x = 1:length(seqs),
+                     binmode = "breaks",
+                     breaks = c(0, (length(gr_RBPJ)), (length(seqs)+1)))
+  
+  ## Binned motif enrichment with monaLisa
+  enr_res <- monaLisa::get_binned_motif_enrichment(seqs = seqs,
+                                                   bins = b,
+                                                   pwmL = pwms,
+                                                   genome = genome)
+  
+  ## Summarise results
+  sum_res <- monaLisa::summarize_binned_enrichment_results(enr_res)
+  
+  ## Tests
+  # ... expected results on dataset
+  expect_true(base::inherits(sum_res, "SummarizedExperiment"))
+  expect_true(all(names(assays(sum_res))==c("log2_enrichment", "log_p_value")))
+  expect_true(assay(sum_res, "log2_enrichment")[1,1] < -1.17)
+  expect_true(assay(sum_res, "log2_enrichment")[1,2] > 1.3)
+  expect_true(assay(sum_res, "log2_enrichment")[2,1] > 1.7)
+  expect_true(assay(sum_res, "log2_enrichment")[2,2] < -2.3)
+  
+})
 
 
