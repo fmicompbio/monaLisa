@@ -196,7 +196,7 @@ setMethod("findMotifHits",
                   # make sure sequences are not too long
                   # currently, homer2 only support sequences shorter than 1e6 bases
                   # (see cpp/Motif2.h:#define MOTIF2_BUFFER 10000100 and also char* curSeq = new char[1000000];)
-                  if (any(tooLong <- ((sl <- fasta.seqlengths(subject)) >= 1e6))) {
+                  if ((method == 'homer2') && any(tooLong <- ((sl <- fasta.seqlengths(subject)) >= 1e6))) {
                       stop("For method = 'homer2', 'subject' must only contain sequences shorter than 1 Mb, ",
                            "the following sequences are too long: ", paste(names(sl)[tooLong], collapse = ", "))
                   }
