@@ -760,7 +760,6 @@ get_binned_motif_enrichment <- function(seqs = NULL,
                                         max_kmer_size = 3L, 
                                         min.score = 10, 
                                         match_method = "matchPWM.concat",
-                                        pseudo = 0.01, 
                                         Ncpu = 1L, 
                                         verbose = TRUE) {
   # checks
