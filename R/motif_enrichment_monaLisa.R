@@ -739,15 +739,13 @@ get_motif_enrichment <- function(motif_matrix=NULL,
 #'                - should the calculated p-values be adjusted for multiple testing? (something Homer doesn't do)
 #'                - avoid ordering of TFs in enrichment, to more easily patch things up together.
 #'
-#' @return A \code{SummarizedExperiment} object where the rows are the motifs and the columns are: \itemize{
-#'   \item{motif_name}{: the motif name}
-#'   \item{log_p_value}{: the log p-value for enrichment in foreground vs background}
-#'   \item{fg_weight_sum}{: the sum of the foreground weights for sequences that have a hit for the motif}
-#'   \item{bg_weight_sum}{: the sum of the background weights for sequences that have a hit for the motif}
-#'   \item{fg_weight_sum_total}{: the total sum of the foreground sequences}
-#'   \item{bg_weight_sum_total}{: the total sum of the background sequences}
+#' @return A \code{SummarizedExperiment} object where the rows are the motifs and the columns are bins. The
+#'   four assays are: \itemize{
+#'   \item{p}{: -log10 P values}
+#'   \item{FDR}{: -log10 false discovery rates}
+#'   \item{enr}{: motif enrichments as Pearson residuals}
+#'   \item{log2enr}{: motif enrichments as log2 ratios}
 #' }
-#'  The assays are the enrichment results for each bin.
 #'  
 #' @importFrom TFBSTools ID name
 #' @importFrom SummarizedExperiment SummarizedExperiment rowData
@@ -761,7 +759,8 @@ get_binned_motif_enrichment <- function(seqs = NULL,
                                         frac_N_allowed = 0.7, 
                                         max_kmer_size = 3L, 
                                         min.score = 10, 
-                                        match_method = "matchPWM.concat", 
+                                        match_method = "matchPWM.concat",
+                                        pseudo = 0.01, 
                                         Ncpu = 1L, 
                                         verbose = TRUE) {
   # checks
@@ -886,50 +885,58 @@ get_binned_motif_enrichment <- function(seqs = NULL,
   }
   enrich_list <- lapply(DF_list, function(x){get_motif_enrichment(motif_matrix = complete_hit_mat[rownames(x), , drop=FALSE], df = x, test = enrichment_test, verbose = verbose)})
   
-  # return SummarizedExperiment: each assay represents the result matrix of a bin
-  se <- SummarizedExperiment::SummarizedExperiment(assays = enrich_list)
+  # summarize results to return as SE
+
+  # -log10(p-value)
+  P <- do.call(cbind, lapply(enrich_list, function(bin_res){
+    D <- bin_res[, "log_p_value"]
+    logpVals <- -D/log(10)
+    names(logpVals) <- bin_res[, "motif_name"]
+    logpVals
+    # logpVals[order(names(logpVals))]
+  })
+  )
+  
+  # -log10(FDR)
+  tmp <-  as.vector(10**(-P))
+  fdr <- matrix(-log10(p.adjust(tmp, method="BH")), nrow=nrow(P)) # add as parameter? the method of choice for multiple testing correction?
+  dimnames(fdr) <- dimnames(P)
+  fdr[which(fdr == Inf, arr.ind = TRUE)] <- max(fdr[is.finite(fdr)])
+  
+  # enrTF (Pearson residuals)
+  enrTF <- do.call(cbind, lapply(enrich_list, function(bin_res) {
+    D <- as.matrix(
+      data.frame(
+        fg_weight_sum = bin_res[, "fg_weight_sum"], 
+        frac_fg_seq_with_motif = (bin_res[, "fg_weight_sum"] / bin_res[, "fg_weight_sum_total"]), 
+        frac_bg_seq_with_motif = (bin_res[, "bg_weight_sum"] / bin_res[, "bg_weight_sum_total"]))
+    )
+    rownames(D) <-  bin_res[, "motif_name"]
+    obsTF <- D[, "fg_weight_sum"]
+    expTF <- D[, "fg_weight_sum"] / (D[, "frac_fg_seq_with_motif"] + 0.001) * (D[, "frac_bg_seq_with_motif"] + 0.001) # keep pseudo count fixed?
+    enr <- (obsTF - expTF) / sqrt(expTF)
+    enr[ is.na(enr) ] <- 0
+    enr
+  })
+  )
+  
+  # log2enr
+  log2enr <- do.call(cbind, lapply(enrich_list, function(bin_res) {
+    D <- bin_res[, c("fg_weight_sum", "bg_weight_sum")]
+    nTot <- bin_res[1, "fg_weight_sum_total"] + bin_res[1, "bg_weight_sum_total"] # Do I round the bg total to the nearest integer?
+    D.norm <- t(min(nTot)*t(D)/nTot) # scale to smaller number (usually number of target sequences) # is min necessary here? This just gives us D again?
+    DL <- log2(D.norm + 8) # keep pseudo count fixed?
+    log2enr <- DL[, 1] - DL[, 2]
+    names(log2enr) <- bin_res[, "motif_name"]
+    log2enr
+  })
+  )
+                     
+  # return SummarizedExperiment
+  se <- SummarizedExperiment::SummarizedExperiment(assays = list(p=P, FDR=fdr, enr=enrTF, log2enr=log2enr)) # better names? P and fdr are -log10(p-value)
   m <- match(rownames(se), rownames(TF_df))
   SummarizedExperiment::rowData(se) <- TF_df[m, ]
   se
   
 }
-
-
-#' @title Summarize Binned Enrichmetn results
-#'
-#' @description This function summarizes the output from \code{get_binned_motif_enrichment} to 
-#'   produce matrices that depict the log enrichment and log p-values for each motif across
-#'   the defined bins. 
-#' 
-#' @param se a \code{SummarizedExperiment} object resulting from running the \code{get_binned_motif_enrichment} function.
-#' @param pseudo the pseudo count used when calculating the log2 enrichment for foreground over background. 
-#' 
-#' @return A \code{SummarizedExperiment} object where the rows are the bins. The assays represent summarized results: An 
-#'   assay called "log2_enrichment" that contains the log2(enrichment) values, and an assay called "log_p_value" that 
-#'   contains the log p-values.
-#'  
-#' @importFrom SummarizedExperiment SummarizedExperiment rowData
-#'
-#' @export
-summarize_binned_enrichment_results <- function(se, pseudo = 0.01) {
-  
-  # checks
-  if(!is(se, "SummarizedExperiment")){
-    stop("'se' must be of class 'SummarizedExperiment'")
-  }
-  
-  # log2(enrichment)
-  enr <- do.call(cbind, lapply(assays(se), function(df){log2((df$fg_weight_sum + pseudo) / (df$bg_weight_sum + pseudo))}))
-  
-  # log p-value
-  log_p_val <-  do.call(cbind, lapply(assays(se), function(df){df$log_p_value}))
-  
-  # return
-  ret <- SummarizedExperiment(assays = list(log2_enrichment=enr, log_p_value=log_p_val))
-  rownames(ret) <- rownames(se)
-  SummarizedExperiment::rowData(ret) <- SummarizedExperiment::rowData(se)
-  ret
-  
-}
-
 

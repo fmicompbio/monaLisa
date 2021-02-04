@@ -14,6 +14,7 @@ get_binned_motif_enrichment(
   max_kmer_size = 3L,
   min.score = 10,
   match_method = "matchPWM.concat",
+  pseudo = 0.01,
   Ncpu = 1L,
   verbose = TRUE
 )
@@ -52,15 +53,13 @@ function when searching for motif matches.}
 \item{verbose}{A logical scalar. If \code{TRUE}, report progress.}
 }
 \value{
-A \code{SummarizedExperiment} object where the rows are the motifs and the columns are: \itemize{
-  \item{motif_name}{: the motif name}
-  \item{log_p_value}{: the log p-value for enrichment in foreground vs background}
-  \item{fg_weight_sum}{: the sum of the foreground weights for sequences that have a hit for the motif}
-  \item{bg_weight_sum}{: the sum of the background weights for sequences that have a hit for the motif}
-  \item{fg_weight_sum_total}{: the total sum of the foreground sequences}
-  \item{bg_weight_sum_total}{: the total sum of the background sequences}
+A \code{SummarizedExperiment} object where the rows are the motifs and the columns are bins. The
+  four assays are: \itemize{
+  \item{p}{: -log10 P values}
+  \item{FDR}{: -log10 false discovery rates}
+  \item{enr}{: motif enrichments as Pearson residuals}
+  \item{log2enr}{: motif enrichments as log2 ratios}
 }
- The assays are the enrichment results for each bin.
 }
 \description{
 This function does a motif enrichment analysis on the set of sequences belonging
