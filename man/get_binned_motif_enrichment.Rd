@@ -90,11 +90,10 @@ This function implements a binned motif enrichment analysis. In each enrichment
   }
   
   TODO: - Use Ncpu to also parallelize across list of DFs (enrichment per bin)
-               - parallellize the other functions using Ncpu.
-               - add log-enrichment info to final output.
-               - for fisher's exact test: update dosumentation on one-sidedness.
+               - parallellize the other functions using Ncpu..
                - change functions to do one-time calculations when using in binned mode?
                - filter seqs: make one-time thing.
-               - should the calculated p-values be adjusted for multiple testing? (something Homer doesn't do)
-               - avoid ordering of TFs in enrichment, to more easily patch things up together.
+               - think if we want to parametrize some of the pseudo-counts used (leaning towards not)
+               - change the names of the assays in the SE or return the p-values and FDR (not -log10)
+               - have a look again at using motif IDs and not names, but keeping both information
 }

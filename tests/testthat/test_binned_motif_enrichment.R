@@ -142,7 +142,7 @@ test_that("get_binned_motif_enrichment() works in default mode", {
   expect_true(base::inherits(enr_res, "SummarizedExperiment"))
   expect_true(all(rownames(enr_res) == c("MA0081.1", "MA1116.1")))
   expect_true(all(round(assay(enr_res, 3)) == matrix(c(-2,4,2,-2), ncol = 2, byrow = TRUE)))
-  expect_true(all(round(assay(enr_res, 4)) == matrix(c(0,1,1,-1), ncol = 2, byrow = TRUE)))
+  expect_true(all(round(assay(enr_res, 4)) == matrix(c(0,1,0,-1), ncol = 2, byrow = TRUE)))
   # ... missing arguments or wrong classes
   expect_error(get_binned_motif_enrichment(bins = b, pwmL = pwms, genome = genome))
   expect_error(get_binned_motif_enrichment(seqs = as.character(seqs), bins = b, pwmL = pwms, genome = genome))
