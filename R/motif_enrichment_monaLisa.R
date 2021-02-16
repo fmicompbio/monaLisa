@@ -701,13 +701,14 @@ get_motif_enrichment <- function(motif_matrix=NULL,
 #'   this will be excluded from the analysis.
 #' @param max_kmer_size the maximum kmer size to consider, when adjusting background weights
 #'   for kmer composition compared to the foreground sequences (default 1-mer, 2-mers and 3-mers).
-#' @param min.score the \code{min.score} parameter for the \code{\link[monaLisa]{findMotifHits}} function. It
+#' @param min.score the \code{min.score} parameter in \code{\link[monaLisa]{findMotifHits}}. It
 #'   is the minimum score for counting a match (default set to 10).
 #' @param match_method the \code{method} parameter in \code{\link[monaLisa]{findMotifHits}}. It specifies
 #'   the method used for motif searching.
 #' @param Ncpu Number of CPUs to use (default set to 1). This can enter the \code{findMotifHits}
 #'   function when searching for motif matches. 
 #' @param verbose A logical scalar. If \code{TRUE}, report progress.
+#' @param ... Additional arguments for  \code{\link[monaLisa]{findMotifHits}}.
 #'
 #' @details This function implements a binned motif enrichment analysis. In each enrichment
 #'   analysis, the sequences in a specific bin are used as foreground sequences to test for 
@@ -861,7 +862,7 @@ get_binned_motif_enrichment <- function(seqs = NULL,
   if(verbose){
     message("Finding motif hits across seqs ...")
   }
-  hits <- findMotifHits(query = pwmL, subject = seqs, min.score = min.score, method = match_method, Ncpu = Ncpu, genome = genome)
+  hits <- findMotifHits(query = pwmL, subject = seqs, min.score = min.score, method = match_method, Ncpu = Ncpu, genome = genome, ...)
   if(isEmpty(hits)){
     stop("motif hits matrix is empty")
   }

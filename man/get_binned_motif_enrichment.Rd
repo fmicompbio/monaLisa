@@ -40,7 +40,7 @@ this will be excluded from the analysis.}
 \item{max_kmer_size}{the maximum kmer size to consider, when adjusting background weights
 for kmer composition compared to the foreground sequences (default 1-mer, 2-mers and 3-mers).}
 
-\item{min.score}{the \code{min.score} parameter for the \code{\link[monaLisa]{findMotifHits}} function. It
+\item{min.score}{the \code{min.score} parameter in \code{\link[monaLisa]{findMotifHits}}. It
 is the minimum score for counting a match (default set to 10).}
 
 \item{match_method}{the \code{method} parameter in \code{\link[monaLisa]{findMotifHits}}. It specifies
@@ -50,6 +50,8 @@ the method used for motif searching.}
 function when searching for motif matches.}
 
 \item{verbose}{A logical scalar. If \code{TRUE}, report progress.}
+
+\item{...}{Additional arguments for  \code{\link[monaLisa]{findMotifHits}}.}
 }
 \value{
 A \code{SummarizedExperiment} object where the rows are the motifs and the columns are bins. The
