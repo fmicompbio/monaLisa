@@ -761,7 +761,8 @@ get_binned_motif_enrichment <- function(seqs = NULL,
                                         min.score = 10, 
                                         match_method = "matchPWM.concat",
                                         Ncpu = 1L, 
-                                        verbose = TRUE) {
+                                        verbose = TRUE, 
+                                        ...) {
   # checks
   # ... missing arguments
   if(is.null(seqs)){

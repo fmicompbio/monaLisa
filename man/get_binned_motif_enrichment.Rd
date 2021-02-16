@@ -15,7 +15,8 @@ get_binned_motif_enrichment(
   min.score = 10,
   match_method = "matchPWM.concat",
   Ncpu = 1L,
-  verbose = TRUE
+  verbose = TRUE,
+  ...
 )
 }
 \arguments{
