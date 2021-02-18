@@ -105,8 +105,8 @@ NULL
                            strand = Rle(factor(c("+", "-"), levels = c("+", "-", "*")),
                                         c(length(pos), length(neg))),
                            matchedSeq = c(DNAStringSet(pos), reverseComplement(DNAStringSet(neg))),
-                           pwmid = rep(pwmids[pi], length(pos) + length(neg)),
-                           pwmname = rep(pwmnames[pi], length(pos) + length(neg)),
+                           pwmid = Rle(pwmids[pi], length(pos) + length(neg)),
+                           pwmname = Rle(pwmnames[pi], length(pos) + length(neg)),
                            score = c(mcols(pos)$score, mcols(neg)$score))
 
         # exclude overlap with boundaries and convert to original coordinates
@@ -301,13 +301,15 @@ setMethod("findMotifHits",
                   pwmid <- unlist(lapply(tmp, "[", 1L))
                   pwmname <- unlist(lapply(tmp, "[", 2L))
                   hitstart <- ifelse(resparsed$strand == "+", resparsed$start, resparsed$start - nchar(resparsed$matchedSeq) + 1)
+                  seqtemp <- DNAStringSet(resparsed$matchedSeq)
+                  seqtemp[resparsed$strand != "+"] <- reverseComplement(seqtemp[resparsed$strand != "+"])
                   gr <- GRanges(seqnames = resparsed$seqnames,
                                 ranges = IRanges(start = hitstart,
                                                  width = nchar(resparsed$matchedSeq)),
                                 strand = resparsed$strand,
-                                matchedSeq = DNAStringSet(resparsed$matchedSeq),
-                                pwmid = pwmid,
-                                pwmname = pwmname,
+                                matchedSeq = seqtemp,
+                                pwmid = Rle(pwmid),
+                                pwmname = Rle(pwmname),
                                 score = resparsed$score / log(2), # convert scores from ln to log2
                                 seqlengths = fasta.seqlengths(subject))
                   sort(gr)
@@ -494,7 +496,7 @@ setMethod("findMotifHits",
                                                ranges = IRanges(start = df$start, end = df$end),
                                                strand = df$strand,
                                                matchedSeq = df$siteSeqs,
-                                               pwmid = df$ID, pwmname = df$TF,
+                                               pwmid = Rle(df$ID), pwmname = Rle(df$TF),
                                                score = df$absScore,
                                                seqlengths = structure(width(subject), names = names(subject)))
                   return(sort(gr))
