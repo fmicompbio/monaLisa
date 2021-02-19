@@ -192,13 +192,22 @@ NULL
 #'
 #'     In general, running \code{findMotifHits} with the same parameters using
 #'     any of the methods generates identical results. Some minor differences
-#'     could occur and result from rounding errors during the necessary
+#'     could occur that result from rounding errors during the necessary
 #'     conversion of PWMs (log2-odd scores) to the probability matrices needed
-#'     by Homer, and the conversion of score from and to the natural log scale
+#'     by Homer, and the conversion of scores from and to the natural log scale
 #'     used by Homer. These conversions are implemented transparently for the
 #'     user, so that the arguments of \code{findMotifHits} do not have to be
 #'     adjusted (e.g. the PWMs should always contain log2-odd scores, and
-#'      \code{min.score} is always on the log2 scale).
+#'     \code{min.score} is always on the log2 scale).
+#'     
+#'     If there are bases with frequencies of less than 0.001 in a motif, Homer
+#'     will set them to 0.001 and adjust the other frequencies at that motif
+#'     position accordingly so that they sum to 1.0. This may differ from the
+#'     adjustment used when scanning a PWM with \code{matchPWM} (e.g. the
+#'     \code{pseudocounts} argument in the \code{\link[TFBSTools]{toPWM}}
+#'     function), and thus can give rise to differences in reported motif hits
+#'     and hit scores (typically only low-scoring hits).
+#'     
 #'
 #' @seealso \code{\link[Biostrings]{matchPWM}}, \code{\link[TFBSTools]{searchSeq}}
 #'
