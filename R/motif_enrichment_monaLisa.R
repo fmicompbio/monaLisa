@@ -113,13 +113,15 @@
 #' @title Get background sequence weights for GC bins
 #'
 #' @description The logic is based on Homer (version 4.11). All sequences
-#'   binned depending on GC content (hard-coded bin breaks). The numbers of
+#'   binned depending on GC content (\code{GCbreaks}). The numbers of
 #'   foreground and background sequences in each bin are counted, and weights
 #'   for background sequences in bin i are defined as:
 #'   weight_i = (number_fg_seqs_i / number_bg_seqs_i) * (number_bg_seqs_total /
 #'   number_fg_seqs_total)
 #'
 #' @param df a \code{DataFrame} with sequence information.
+#' @param GCbreaks The breaks between GC bins. The default value is based on
+#'   the hard-coded bins used in Homer.
 #' @param verbose A logical scalar. If \code{TRUE}, report on GC weight
 #'   calculation.
 #'
@@ -131,61 +133,58 @@
 #'
 #' @importFrom Biostrings oligonucleotideFrequency DNAStringSet
 #' @importFrom S4Vectors DataFrame
-#'
-#' @export
-.calculateGCweight <- function(df, verbose = TRUE) {
+.calculateGCweight <- function(df,
+                               GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4,
+                                            0.45, 0.5, 0.6, 0.7, 0.8),
+                               verbose = TRUE) {
 
-  .checkDfValidity(df)
-  if (!is.logical(verbose) || length(verbose) != 1L) {
-    stop("'verbose' has to be either TRUE or FALSE")
-  }
+    .checkDfValidity(df)
+    if (!is.logical(verbose) || length(verbose) != 1L) {
+        stop("'verbose' has to be either TRUE or FALSE")
+    }
+    if (!is.numeric(GCbreaks) || length(GCbreaks) < 2 ||
+        any(diff(GCbreaks) <= 0) || any(GCbreaks < 0 || GCbreaks > 1)) {
+        stop("'GCbreaks' have to be a strictly increasing vector of ",
+             "at least length two and with values in (0, 1).")
+    }
+    
+    # calculate GC fraction for each sequence
+    fmono <- oligonucleotideFrequency(df$seqs, width = 1, as.prob = TRUE)
+    df$gc_frac <- fmono[, "G"] + fmono[, "C"]
   
-  # calculate GC fraction for each sequence
-  f_mono <- oligonucleotideFrequency(df$seqs, width = 1, as.prob = TRUE)
-  df$gc_frac <- f_mono[, "G"] + f_mono[, "C"]
-
-  # HOMER's GC breaks/bins
-  gc_breaks <- c(0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.7, 0.8)
-
-  # assign each sequence to a GC bin (for foreGround and background)
-  df$gc_bin <- findInterval(x = df$gc_frac, vec = gc_breaks)
-
-  # keep bins that have at least 1 foreground and 1 background sequence
-  used_bins <- sort(intersect(df$gc_bin[df$is_foreground],
-                              df$gc_bin[!df$is_foreground]))
-  if (verbose) {
-    message(sprintf("  %d of %d GC-bins used (have both foreground and background sequences)",
-                    length(used_bins), length(gc_breaks) - 1))
-  }
+    # assign sequences to a GC bin
+    df$gc_bin <- findInterval(x = df$gc_frac, vec = GCbreaks, all.inside = TRUE)
   
-  # keep sequences belonging to these bins
-  if (verbose) {
-    message(sprintf("  %d of %d (%.1f%%) sequences filtered out from unused GC-bins",
-                    sum(!df$gc_bin %in% used_bins), nrow(df),
-                    100 * sum(!df$gc_bin %in% used_bins) / nrow(df)))
-  }
-  df <- df[df$gc_bin %in% used_bins, ]
+    # keep bins that have at least 1 foreground and 1 background sequence
+    # and filter out sequences from unused bins
+    used_bins <- sort(intersect(df$gc_bin[df$is_foreground],
+                                df$gc_bin[!df$is_foreground]))
+    keep <- df$gc_bin %in% used_bins
+    if (verbose) {
+        message("  ", length(used_bins), " of ", length(GCbreaks) - 1,
+                " GC-bins used (have both fore- and background sequences)\n",
+                "  ", sum(!keep), " of ", nrow(df), " sequences (",
+                round(100 * sum(!keep) / nrow(df), 1),
+                "%) filtered out from unused GC-bins.")
+    }
+    df <- df[keep, ]
+  
+    # total number of foreground and background sequences
+    total_fg <- sum(df$is_foreground)
+    total_bg <- sum(!df$is_foreground)
+  
+    # calculate GC weight per bin
+    n_fg_b <- table(df$gc_bin[df$is_foreground])
+    n_bg_b <- table(df$gc_bin[!df$is_foreground])
+    weight_per_bin <- (n_fg_b / n_bg_b) * (total_bg / total_fg)
+  
+    # assign calculated GC weight to each background sequence
+    # (foreground sequences get a weight of 1)
+    df$gc_weight <- ifelse(df$is_foreground,
+                           1.0,
+                           weight_per_bin[as.character(df$gc_bin)])
 
-  # total number of foreGround and background sequences
-  total_fg <- sum(df$is_foreground)
-  total_bg <- sum(!df$is_foreground)
-
-  # calculate GC weight per bin
-  n_fg_b <- table(df$gc_bin[df$is_foreground])
-  n_bg_b <- table(df$gc_bin[!df$is_foreground])
-  weight_per_bin <- (n_fg_b / n_bg_b) * (total_bg / total_fg)
-
-  # assign calculated GC weight to each background sequence
-  # (foreground sequences get a weight of 1)
-  df$gc_weight <- ifelse(df$is_foreground,
-                         1.0,
-                         weight_per_bin[as.character(df$gc_bin)])
-  if (verbose) {
-    message("  GC-weight calculation finished")
-  }
-
-  # return result
-  df
+    return(df)
 }
 
 
