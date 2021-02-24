@@ -55,7 +55,7 @@
 #' @description Filter sequences that are unlikely to be useful for motif
 #'   enrichment analysis. The current defaults are based on HOMER (version 4.11).
 #'
-#' @param df a \code{DataFrame} sequence information.
+#' @param df a \code{DataFrame} with sequence information.
 #' @param maxFracN A numeric scalar with the maximal fraction of N bases allowed
 #'   in a sequence (defaults to 0.7).
 #' @param minLength The minimum sequence length (default from Homer).
@@ -110,42 +110,30 @@ filterSeqs <- function(df, maxFracN = 0.7, minLength = 5L,
 }
 
 
-#' @title Get GC weights for background regions
+#' @title Get background sequence weights for GC bins
 #'
-#' @description In this implementation we still follow HOMER. But this can be
-#'   re-implemented in a more continuous fashion. Each sequence is put in a
-#'   specific GC bin depending on its GC content. Then, for each GC bin, the
-#'   number of foreGround and background sequences in that bin is calculated.
-#'   Weights are calculated for the background sequences in bin i as follows:
+#' @description The logic is based on Homer (version 4.11). All sequences
+#'   binned depending on GC content (hard-coded bin breaks). The numbers of
+#'   foreground and background sequences in each bin are counted, and weights
+#'   for background sequences in bin i are defined as:
 #'   weight_i = (number_fg_seqs_i / number_bg_seqs_i) * (number_bg_seqs_total /
 #'   number_fg_seqs_total)
 #'
-#' @param df a \code{DataFrame} with an attribute \code{err} and columns
-#'   \itemize{
-#'     \item{\code{seqs}}{: a \code{DNAStringSet} object.}
-#'     \item{\code{is_foreground}}{ that indicates if a sequence is in the
-#'                                 foreground group.}
-#'     \item{\code{gc_frac}}{: the fraction of G+C bases per sequence.}
-#'     \item{\code{gc_bin}}{: the GC bin for each sequence.}
-#'     \item{\code{gc_weight}}{: the sequence weight to adjust for GC
-#'       differences between foreground and background sequences.}
-#'     \item{\code{kmer_weight}}{: the sequence weight to adjust for k-mer
-#'       differences between foreground and background sequences.}
-#'   }
+#' @param df a \code{DataFrame} with sequence information.
 #' @param verbose A logical scalar. If \code{TRUE}, report on GC weight
 #'   calculation.
 #'
 #' @return a \code{DataFrame} of the same dimensions as the input \code{df},
 #'   with the columns \code{gc_frac}, \code{gc_bin} and \code{gc_weight}
-#'   filled in with the sequence GC content, GC bins they were
-#'   assigned to, and the weight to correct for GC differences between
-#'   foreground and background sequences, respecitvely.
+#'   filled in with the sequence GC content, assigned GC bins and weights to
+#'   correct differences in GC distributions between foreground and background
+#'   sequences.
 #'
 #' @importFrom Biostrings oligonucleotideFrequency DNAStringSet
 #' @importFrom S4Vectors DataFrame
 #'
 #' @export
-calculate_GC_weight <- function(df, verbose = TRUE) {
+.calculateGCweight <- function(df, verbose = TRUE) {
 
   .checkDfValidity(df)
   if (!is.logical(verbose) || length(verbose) != 1L) {
@@ -346,7 +334,8 @@ norm_for_kmer_comp <- function(kmer_freq,
 #'   \code{normalizeSequence()} one last time after going through all iterations
 #'   or reaching a low error, which we do not do here.
 #'
-#' @param df a \code{DataFrame} as returned by \code{calculate_GC_weight}
+#' @param df a \code{DataFrame} with sequence information as returned by
+#'   \code{.calculateGCweight}.
 #' @param max_kmer_size Integer scalar giving the maximum k-mer size to
 #'   consider. The default is set to 3 (like in \code{HOMER}), meaning that
 #'   k-mers of size 1, 2 and 3 are considered.
@@ -454,7 +443,7 @@ iterate_norm_for_kmer_comp <- function(df,
 
 #' @title Get Motif Hits
 #'
-#' @param df DNAStringSet object with sequences to analyze
+#' @param df a \code{DataFrame} with sequence information.
 #' @param pwmL PWMatrixList object with PWMs of motifs
 #' @param homerfile \code{character} scalar with path to homer2 binary, passed on
 #'     to \code{findMotifHits}.
@@ -525,7 +514,8 @@ get_motif_hits_in_ZOOPS_mode <- function(df,
 #'
 #' @param motif_matrix matrix with 0 and 1 entries for absence or presence of 
 #'   motif hits per sequence.
-#' @param df DatFrame object (output of running \code{iterate_norm_for_kmer_comp})
+#' @param df a \code{DataFrame} with sequence information as returned by
+#'   \code{iterate_norm_for_kmer_comp()}.
 #' @param test type of test to do for the motif enrichment. By default it is the binomial, which 
 #'   is what \code{Homer} uses by default. Fisher's exact test is another 
 #'   option which allows for testing enrichment, without having to account for special cases of zero 
@@ -847,7 +837,7 @@ get_binned_motif_enrichment <- function(seqs = NULL,
   if (verbose) {
     message("Correcting for GC differences to the background sequences per bin ...")
   }
-  DF_list <- lapply(DF_list, function(x){monaLisa::calculate_GC_weight(df = x, verbose = verbose)})
+  DF_list <- lapply(DF_list, function(x){.calculateGCweight(df = x, verbose = verbose)})
   
   # update weight to in addition adjust for kmer composition differences between foreground and background per bin
   if (verbose) {

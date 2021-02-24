@@ -15,7 +15,7 @@ get_motif_hits_in_ZOOPS_mode(
 )
 }
 \arguments{
-\item{df}{DNAStringSet object with sequences to analyze}
+\item{df}{a \code{DataFrame} with sequence information.}
 
 \item{pwmL}{PWMatrixList object with PWMs of motifs}
 

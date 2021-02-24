@@ -13,7 +13,7 @@ filterSeqs(
 )
 }
 \arguments{
-\item{df}{a \code{DataFrame} sequence information.}
+\item{df}{a \code{DataFrame} with sequence information.}
 
 \item{maxFracN}{A numeric scalar with the maximal fraction of N bases allowed
 in a sequence (defaults to 0.7).}

@@ -13,7 +13,8 @@ iterate_norm_for_kmer_comp(
 )
 }
 \arguments{
-\item{df}{a \code{DataFrame} as returned by \code{calculate_GC_weight}}
+\item{df}{a \code{DataFrame} with sequence information as returned by
+\code{.calculateGCweight}.}
 
 \item{max_kmer_size}{Integer scalar giving the maximum k-mer size to
 consider. The default is set to 3 (like in \code{HOMER}), meaning that
