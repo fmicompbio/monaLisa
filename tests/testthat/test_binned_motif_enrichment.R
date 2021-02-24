@@ -129,7 +129,7 @@ test_that("get_binned_motif_enrichment() works in default mode", {
   ## bins
   b <- monaLisa::bin(x = 1:length(seqs),
                      binmode = "breaks",
-                     breaks = c(0, (length(gr_RBPJ)), (length(seqs)+1)))
+                     breaks = c(0, (length(gr_RBPJ)), (length(seqs) + 1)))
   
   ## Binned motif enrichment with monaLisa
   enr_res <- monaLisa::get_binned_motif_enrichment(seqs = seqs,
