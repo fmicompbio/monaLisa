@@ -34,10 +34,10 @@ test_that("findMotifHits() works properly", {
     res5  <- findMotifHits(pwm,  seq1, min.score = "90%", method = "matchPWM") # PWMatrix,DNAString
     res6  <- findMotifHits(pwm,  seqs, min.score = "90%", method = "matchPWM") # PWMatrix,DNAStringSet
     res7  <- findMotifHits(pwmL, sf,   min.score = "90%", method = "matchPWM") # PWMatrixList,character
-    res7b <- findMotifHits(pwmL, sf,   min.score = 4.456, method = "matchPWM") # PWMatrixList,character
+    expect_warning(res7b <- findMotifHits(pwmL, sf,   min.score = 4.456, method = "matchPWM")) # PWMatrixList,character
     res8  <- findMotifHits(pwmL, seq1, min.score = "90%", method = "matchPWM") # PWMatrixList,DNAString
     res9  <- findMotifHits(pwmL, seqs, min.score = "90%", method = "matchPWM") # PWMatrixList,DNAStringSet
-    res9b <- findMotifHits(pwmL, seqs, min.score = 4.456, method = "matchPWM") # PWMatrixList,DNAStringSet
+    expect_warning(res9b <- findMotifHits(pwmL, seqs, min.score = 4.456, method = "matchPWM")) # PWMatrixList,DNAStringSet
     res10 <- findMotifHits(pwm,  gr,   min.score = "90%", method = "matchPWM", genome = BSgenome.Mmusculus.UCSC.mm10::BSgenome.Mmusculus.UCSC.mm10) # PWMatrix,GRanges
     res11 <- findMotifHits(pwmL, gr,   min.score = "90%", method = "matchPWM", genome = BSgenome.Mmusculus.UCSC.mm10::BSgenome.Mmusculus.UCSC.mm10) # PWMatrixList,GRanges
 
@@ -120,7 +120,7 @@ test_that("findMotifHits() works properly", {
         expect_error(findMotifHits(tf, sf, method = "error"))
         expect_error(findMotifHits(pwm,  gr,   min.score = "90%", method = "homer2", homerfile = homerbin))
         expect_error(findMotifHits(pwm,  gr,   min.score = "90%", method = "homer2", homerfile = homerbin, genome = "error"))
-        expect_message(findMotifHits(pwmL, unname(gr), min.score = "90%", method = "homer2", homerfile = homerbin, genome = BSgenome.Mmusculus.UCSC.mm10::BSgenome.Mmusculus.UCSC.mm10))
+        expect_is(findMotifHits(pwmL, unname(gr), min.score = "90%", method = "homer2", homerfile = homerbin, genome = BSgenome.Mmusculus.UCSC.mm10::BSgenome.Mmusculus.UCSC.mm10), "GRanges")
 
         expect_error(findMotifHits(pwmL, sf,   min.score = TRUE, method = "homer2", homerfile = homerbin))
         expect_error(findMotifHits(pwmL, seqs, min.score = TRUE, method = "homer2", homerfile = homerbin))
