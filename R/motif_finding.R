@@ -75,7 +75,7 @@ NULL
     return(pwmL)
 }
 
-# internal function: matchPWM.concat
+# internal function:  run matchPWM on concatenated queries
 # - interface similar to matchPWM,DNAString-method, but:
 #      * without arguments "with.score" and "..."
 #      * "pwm" of class PWMatrixList (as opposed to matrix)
@@ -99,19 +99,21 @@ NULL
                         min.score = min.score, with.score = TRUE)
         neg <- matchPWM(reverseComplement(pwm1), concatsubject,
                         min.score = min.score, with.score = TRUE)
-        matches <- GRanges(rep("seq", length(pos) + length(neg)), # use arbitrary seqname for concatsubject
+        matches <- GRanges(rep("arbitrary_seqname", length(pos) + length(neg)),
                            IRanges(start = c(start(pos), start(neg)),
                                    width = c(width(pos), width(neg))),
-                           strand = Rle(factor(c("+", "-"), levels = c("+", "-", "*")),
+                           strand = Rle(factor(c("+", "-"),
+                                               levels = c("+", "-", "*")),
                                         c(length(pos), length(neg))),
-                           matchedSeq = c(DNAStringSet(pos), reverseComplement(DNAStringSet(neg))),
+                           matchedSeq = c(DNAStringSet(pos),
+                                          reverseComplement(DNAStringSet(neg))),
                            pwmid = Rle(pwmids[pi], length(pos) + length(neg)),
                            pwmname = Rle(pwmnames[pi], length(pos) + length(neg)),
                            score = c(mcols(pos)$score, mcols(neg)$score))
 
         # exclude overlap with boundaries and convert to original coordinates
-        combgr <- GRanges("seq", # again, use arbitrary seqname for concatsubject
-                          IRanges(start = cumsum(c(1, width(subject[-length(subject)]))),
+        combgr <- GRanges("arbitrary_seqname",
+                          IRanges(start = cumsum(c(1, width(subject)[-length(subject)])),
                                   width = width(subject)))
         ov <- findOverlaps(matches, combgr, type = "within")
         GRanges(seqnames = snames[subjectHits(ov)],
@@ -199,7 +201,7 @@ NULL
 #'     user, so that the arguments of \code{findMotifHits} do not have to be
 #'     adjusted (e.g. the PWMs should always contain log2-odd scores, and
 #'     \code{min.score} is always on the log2 scale).
-#'     
+#'
 #'     If there are bases with frequencies of less than 0.001 in a motif, Homer
 #'     will set them to 0.001 and adjust the other frequencies at that motif
 #'     position accordingly so that they sum to 1.0. This may differ from the
@@ -207,9 +209,10 @@ NULL
 #'     \code{pseudocounts} argument in the \code{\link[TFBSTools]{toPWM}}
 #'     function), and thus can give rise to differences in reported motif hits
 #'     and hit scores (typically only low-scoring hits).
-#'     
 #'
-#' @seealso \code{\link[Biostrings]{matchPWM}}, \code{\link[TFBSTools]{searchSeq}}
+#'
+#' @seealso \code{\link[Biostrings]{matchPWM}},
+#'     \code{\link[TFBSTools]{searchSeq}}
 #'
 #' @export
 #' @docType methods
@@ -253,27 +256,26 @@ setMethod("findMotifHits",
               stopifnot(method == "matchPWM.concat" || method == "matchPWM" ||
                         (method == "homer2" && is.character(homerfile) &&
                          length(homerfile) == 1L && file.exists(homerfile)))
+              
               if (method == "matchPWM.concat" || method == "matchPWM") {
-                  # read in motifs from query into PMatrixList
+                  
                   pwmL <- .readPWMsFromHomer2File(query)
-                  # read in sequences from subject into DNAStringSet
                   seqs <- Biostrings::readDNAStringSet(filepath = subject)
-                  # call next method
                   findMotifHits(query = pwmL, subject = seqs,
                                 min.score = min.score, method = method,
                                 Ncpu = Ncpu, genome = genome)
 
               } else if (method == "homer2") {
 
-                  # make sure motifs are in file
                   if (!length(query) == 1L || !file.exists(query)) {
-                      stop("'query' must be either a character(1), a PWMatrix or a PWMatrixList object")
+                      stop("'query' must be either a character(1), a PWMatrix ",
+                           " or a PWMatrixList object")
                   }
 
-                  # make sure sequences are in file
                   if (length(subject) != 1L || !file.exists(subject)) {
-                      stop("'subject' must be a character(1) pointing to a FASTA sequence file, ",
-                           "or a DNAString, DNAStringSet or GRanges object")
+                      stop("'subject' must be a character(1) with the name of ",
+                           "FASTA sequence file, or a DNAString, DNAStringSet ",
+                           "or GRanges object")
                   }
 
                   # make sure sequences are not too long
@@ -282,34 +284,40 @@ setMethod("findMotifHits",
                   #  and also char* curSeq = new char[1000000];)
                   if (any(tooLong <- ((sl <- fasta.seqlengths(subject)) >= 1e6))) {
                       stop("For method = 'homer2', 'subject' must only contain",
-                           " sequences shorter than 1 Mb, the following sequences",
-                           " are too long: ", paste(names(sl)[tooLong], collapse = ", "))
+                           " sequences shorter than 1 Mb, the following",
+                           " sequences are too long: ",
+                           paste(names(sl)[tooLong], collapse = ", "))
                   }
 
                   # run homer2
-                  cmdargs <- sprintf("find -i %s -m %s -offset 1 -strand both -p %d",
-                                     subject, query, Ncpu)
-                  res <- system2(command = homerfile, args = cmdargs,
+                  args <- sprintf("find -i %s -m %s -offset 1 -strand both -p %d",
+                                  subject, query, Ncpu)
+                  res <- system2(command = homerfile, args = args,
                                  stdout = TRUE, stderr = "", wait = TRUE)
 
                   # check homer2 output
-                  ok <- grepl("^.+\\t[0-9]+\\t[ACGT]+\\t.+\\t[+-]\\t[0-9.]+$", res, perl = TRUE)
+                  ok <- grepl("^.+\\t[0-9]+\\t[ACGT]+\\t.+\\t[+-]\\t[0-9.]+$",
+                              res, perl = TRUE)
                   if (any(!ok))
-                    warning(sum(!ok), " of ", length(ok), " hits reported by Homer",
-                            "are malformed and will be ignored.",
+                    warning(sum(!ok), " of ", length(ok), " hits reported by",
+                            " Homer are malformed and will be ignored.",
                             " To ensure complete and correct results,",
                             " re-run Homer using Ncpu = 1.")
 
                   # parse output
                   con <- textConnection(res[ok])
-                  resparsed <- scan(file = con, what = list(seqnames = "", start = 1L, matchedSeq = "",
-                                                            pwmidname = "", strand = "", score = 1.0),
+                  resparsed <- scan(file = con,
+                                    what = list(seqnames = "", start = 1L,
+                                                matchedSeq = "", pwmidname = "",
+                                                strand = "", score = 1.0),
                                     sep = "\t", quiet = TRUE)
                   close(con)
                   tmp <- strsplit(resparsed$pwmidname, ":::", fixed = TRUE)
                   pwmid <- unlist(lapply(tmp, "[", 1L))
                   pwmname <- unlist(lapply(tmp, "[", 2L))
-                  hitstart <- ifelse(resparsed$strand == "+", resparsed$start, resparsed$start - nchar(resparsed$matchedSeq) + 1)
+                  hitstart <- ifelse(resparsed$strand == "+",
+                                     resparsed$start,
+                                     resparsed$start - nchar(resparsed$matchedSeq) + 1)
                   seqtemp <- DNAStringSet(resparsed$matchedSeq)
                   seqtemp[resparsed$strand != "+"] <- reverseComplement(seqtemp[resparsed$strand != "+"])
                   gr <- GRanges(seqnames = resparsed$seqnames,
@@ -319,7 +327,7 @@ setMethod("findMotifHits",
                                 matchedSeq = seqtemp,
                                 pwmid = Rle(pwmid),
                                 pwmname = Rle(pwmname),
-                                score = resparsed$score / log(2), # convert scores from ln to log2
+                                score = resparsed$score / log(2),
                                 seqlengths = fasta.seqlengths(subject))
                   sort(gr)
               }
@@ -348,16 +356,17 @@ setMethod("findMotifHits",
                    method = c("matchPWM.concat", "homer2", "matchPWM"),
                    homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
               method <- match.arg(method)
+              
               if (method == "matchPWM.concat" || method == "matchPWM") {
-                  # read in motifs from query into PMatrixList
+                  
                   pwmL <- .readPWMsFromHomer2File(query)
-                  # call next method
                   findMotifHits(query = pwmL, subject = subject,
                                 min.score = min.score,
                                 method = method, homerfile = homerfile,
                                 Ncpu = Ncpu, genome = genome)
 
               } else if (method == "homer2") {
+                  
                   # write sequences to file
                   tmpf <- tempfile(fileext = ".fa")
                   Biostrings::writeXStringSet(x = subject, filepath = tmpf,
@@ -425,16 +434,17 @@ setMethod("findMotifHits",
                    method = c("matchPWM.concat", "homer2", "matchPWM"),
                    homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
               method <- match.arg(method)
+              
               if (method == "matchPWM.concat" || method == "matchPWM") {
-                  # read in sequences from subject into DNAStringSet
+                  
                   seqs <- Biostrings::readDNAStringSet(filepath = subject)
-                  # call next method
                   findMotifHits(query = query, subject = seqs,
                                 min.score = min.score,
                                 method = method, homerfile = homerfile,
                                 Ncpu = Ncpu, genome = genome)
 
               } else if (method == "homer2") {
+                  
                   # write motifs to file
                   tmpf <- tempfile(fileext = ".motif")
                   if (is.character(min.score) &&
@@ -447,6 +457,7 @@ setMethod("findMotifHits",
                   } else {
                       stop("wrong type of 'min.score': ", min.score)
                   }
+                  
                   res <- findMotifHits(query = tmpf, subject = subject,
                                        min.score = min.score,
                                        method = method, homerfile = homerfile,
@@ -479,38 +490,48 @@ setMethod("findMotifHits",
                    method = c("matchPWM.concat", "homer2", "matchPWM"),
                    homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
               method <- match.arg(method)
+              
               if (method == "matchPWM.concat") {
-                  # search motifs using .matchPWM.concat
+
                   gr <- .matchPWM.concat(pwm = query, subject = subject,
                                          min.score = min.score, mc.cores = Ncpu)
                   return(gr)
 
               } else if (method == "matchPWM") {
-                  # search motifs using matchPWM (TFBSTools::searchSeq uses matchPWM internally, but has a nicer interface)
-                  if (is.character(min.score) && grepl(pattern = "^[0-9.]+[%]$", x = min.score)) {
+
+                  # TFBSTools::searchSeq uses matchPWM internally, but has a nicer interface
+                  if (is.character(min.score) &&
+                      grepl(pattern = "^[0-9.]+[%]$", x = min.score)) {
                       tmp <- TFBSTools::searchSeq(x = query, subject = subject,
-                                                  min.score = min.score, mc.cores = Ncpu)
+                                                  min.score = min.score,
+                                                  mc.cores = Ncpu)
                       df <- as(tmp[lengths(tmp) > 0], "DataFrame")
+
                   } else if (is.numeric(min.score)) {
                       # searchSeq does not support log2-odds cutoff score
                       #   -> search with low percent score and filter afterwards
                       tmp <- TFBSTools::searchSeq(x = query, subject = subject,
-                                                  min.score = "70%", mc.cores = Ncpu)
+                                                  min.score = "70%",
+                                                  mc.cores = Ncpu)
                       df <- as(tmp, "DataFrame")
                       df <- df[df[, "absScore"] > min.score, ]
+
                   } else {
-                      stop("invalid 'min.score' (must be either a percentage or a scalar): ", min.score)
+                      stop("invalid 'min.score' (must be either a percentage",
+                           " or a numeric scalar): ", min.score)
                   }
                   gr <- GenomicRanges::GRanges(seqnames = df$seqnames,
                                                ranges = IRanges(start = df$start, end = df$end),
                                                strand = df$strand,
                                                matchedSeq = df$siteSeqs,
-                                               pwmid = Rle(df$ID), pwmname = Rle(df$TF),
+                                               pwmid = Rle(df$ID),
+                                               pwmname = Rle(df$TF),
                                                score = df$absScore,
                                                seqlengths = structure(width(subject), names = names(subject)))
                   return(sort(gr))
 
               } else if (method == "homer2") {
+
                   # write motifs to file
                   tmpf1 <- tempfile(fileext = ".motif")
                   if (is.character(min.score) &&
@@ -523,6 +544,7 @@ setMethod("findMotifHits",
                   } else {
                       stop("wrong type of 'min.score': ", min.score)
                   }
+
                   # write sequences to file
                   tmpf2 <- tempfile(fileext = ".fa")
                   Biostrings::writeXStringSet(x = subject, filepath = tmpf2,
@@ -546,13 +568,12 @@ setMethod("findMotifHits",
           c("PWMatrix", "GRanges"),
           function(query, subject, min.score,
                    method = c("matchPWM.concat", "homer2", "matchPWM"),
-                   homerfile = findHomer("homer2"), Ncpu = 1L, genome=NULL) {
+                   homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
               queryList <- TFBSTools::PWMatrixList(query)
               names(queryList) <- name(query)
               findMotifHits(queryList, subject, min.score,
                             method, homerfile, Ncpu, genome)
           })
-
 
 
 # 11.
@@ -562,23 +583,18 @@ setMethod("findMotifHits",
           c("PWMatrixList", "GRanges"),
           function(query, subject, min.score,
                    method = c("matchPWM.concat", "homer2", "matchPWM"),
-                   homerfile = findHomer("homer2"), Ncpu = 1L, genome=NULL) {
-            ## checks
-            if (base::inherits(subject, what = "GRanges") & is.null(genome)) {
-              stop("genome must be provided.")
+                   homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
+
+            if (is.null(genome)) {
+                stop("'genome' must be provided for a GRanges 'subject'.")
             }
-            if (!base::inherits(genome, what = "BSgenome")) {
-              stop("genome must be of class 'BSgenome'.")
+            if (!is(genome, "BSgenome")) {
+                stop("'genome' must be of class 'BSgenome'.")
             }
-            ## Make sure to have named regions
-            if (is.null(names(subject))) {
-              message("Naming regions ...")
-              names(subject) <- paste0("r", seq_along(subject))
-            }
-            ## get DNAStringSet
+
             seqs <- BSgenome::getSeq(genome, subject)
             names(seqs) <- if (is.null(names(subject))) paste0("r", seq_along(subject)) else names(subject)
-            ## findMotifHits
+
             findMotifHits(query, seqs, min.score,
                           method, homerfile, Ncpu, genome = NULL)
           })
