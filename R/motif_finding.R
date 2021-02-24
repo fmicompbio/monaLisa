@@ -510,6 +510,9 @@ setMethod("findMotifHits",
                   } else if (is.numeric(min.score)) {
                       # searchSeq does not support log2-odds cutoff score
                       #   -> search with low percent score and filter afterwards
+                      warning("Using a numeric 'min.score' with ",
+                              "method='matchPWM' may be slow. ",
+                              "Use method='matchPWM.concat' instead.")
                       tmp <- TFBSTools::searchSeq(x = query, subject = subject,
                                                   min.score = "70%",
                                                   mc.cores = Ncpu)
