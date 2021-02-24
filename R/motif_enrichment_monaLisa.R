@@ -70,7 +70,7 @@
 #'
 #' @importFrom Biostrings alphabetFrequency DNAStringSet
 #' @importFrom S4Vectors DataFrame
-filterSeqs <- function(df, maxFracN = 0.7, minLength = 5L,
+.filterSeqs <- function(df, maxFracN = 0.7, minLength = 5L,
                         maxLength = 100000L, verbose = TRUE) {
 
     .checkDfValidity(df)
@@ -829,7 +829,7 @@ get_binned_motif_enrichment <- function(seqs = NULL,
   if (verbose) {
     message("filtering out bad sequences ...")
   }
-  DF_list <- lapply(DF_list, function(x){monaLisa::filterSeqs(df = x, maxFracN = frac_N_allowed, verbose = verbose)})
+  DF_list <- lapply(DF_list, function(x){.filterSeqs(df = x, maxFracN = frac_N_allowed, verbose = verbose)})
   
   # calculate weight to adjust for GC differences between foreground and background per bin 
   # ... in this step, sequences may be filtered out (if a GC bin contains one sequence only, that sequence is filtered out).
