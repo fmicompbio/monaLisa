@@ -1,38 +1,11 @@
-#' @title Check input object
+#' @title Check if seqinfo DataFrame is valid
 #'
-#' @description Check if the input object is valid, i.e. is of the correct
-#'   object type (DataFrame) and has all expected columns and attributes.
+#' @description Check if the DataFrame with sequence information is valid,
+#'   i.e. is of the correct object type (DataFrame) and has all expected
+#'   columns and attributes.
 #'
-#' @param df Input object to be checked.
-#'
-#' @return \code{TRUE} if \code{df} is valid, \code{FALSE} otherwise
-is_valid_df <- function(df) {
-  expected_cols <- c("seqs", "is_foreground",
-                     "gc_frac", "gc_bin", "gc_weight",
-                     "kmer_weight")
-  expected_attrs <- c("err")
-  if (!is(df, "DataFrame")) {
-    message("'df' should be a DataFrame, but it is a ", class(df))
-    return(FALSE)
-  } else if (!all(expected_cols %in% colnames(df))) {
-    message("'df' has to have columns: ",
-            paste(expected_cols, collapse = ", "))
-    return(FALSE)
-  } else if (!all(expected_attrs %in% names(attributes(df)))) {
-    message("'df' has to have attributes: ",
-            paste(expected_attrs, collapse = ", "))
-    return(FALSE)
-  }
-  return(TRUE)
-}
-
-
-#' @title Filter Bad Sequences
-#'
-#' @description We filter sequences similarly to how HOMER (version 4.11) does it. Namely,
-#'   sequences with more than 70 percent (default) N are removed.
-#'
-#' @param df a \code{DataFrame} with an attribute \code{err} and columns
+#' @param df Input object to be checked. It should have an attribute \code{err}
+#'   and columns:
 #'   \itemize{
 #'     \item{\code{seqs}}{: a \code{DNAStringSet} object.}
 #'     \item{\code{is_foreground}}{ that indicates if a sequence is in the
@@ -44,62 +17,96 @@ is_valid_df <- function(df) {
 #'     \item{\code{kmer_weight}}{: the sequence weight to adjust for k-mer
 #'       differences between foreground and background sequences.}
 #'   }
-#' @param frac A numeric scalar with the maximal fraction of N bases allowed in
-#'   a sequence (defaults to 0.7).
-#' @param min_length The minimum sequence length (default from Homer). Sequences shorter than this will be filtered out.
-#' @param max_length The maximum sequence length (default from Homer). Sequences bigger than this will be filtered out.
+#'
+#' @return \code{TRUE} (invisibly) if \code{df} is valid, otherwise it
+#'   raises an exception using \code{stop()}
+.checkDfValidity <- function(df) {
+    expected_cols <- c("seqs", "is_foreground",
+                       "gc_frac", "gc_bin", "gc_weight", "kmer_weight")
+    expected_types <- c("DNAStringSet", "logical",
+                        "numeric", "numeric", "numeric", "numeric")
+    expected_attrs <- c("err")
+
+    if (!is(df, "DataFrame")) {
+        stop("'df' should be a DataFrame, but it is a ", class(df))
+
+    } else if (!all(expected_cols %in% colnames(df))) {
+        stop("'df' has to have columns: ",
+             paste(expected_cols, collapse = ", "))
+
+    } else if (!all(unlist(lapply(seq_along(expected_cols), function(i) {
+      is(df[, expected_cols[i]], expected_types[i])
+    })))) {
+        stop("Not all columns in 'df' have the expected types:\n ",
+             paste(paste0(expected_cols, ": '", expected_types, "'"),
+                   collapse = "\n "))
+
+    } else if (!all(expected_attrs %in% names(attributes(df)))) {
+        stop("'df' has to have attributes: ",
+             paste(expected_attrs, collapse = ", "))
+    }
+
+    return(invisible(TRUE))
+}
+
+
+#' @title Filter Sequences
+#'
+#' @description Filter sequences that are unlikely to be useful for motif
+#'   enrichment analysis. The current defaults are based on HOMER (version 4.11).
+#'
+#' @param df a \code{DataFrame} sequence information.
+#' @param maxFracN A numeric scalar with the maximal fraction of N bases allowed
+#'   in a sequence (defaults to 0.7).
+#' @param minLength The minimum sequence length (default from Homer).
+#'   Sequences shorter than this will be filtered out.
+#' @param maxLength The maximum sequence length (default from Homer).
+#'   Sequences bigger than this will be filtered out.
 #' @param verbose A logical scalar. If \code{TRUE}, report on filtering.
-#' 
-#' @details The function follows the \code{removePoorSeq.pl} function from Homer.
+#'
+#' @details The filtering logic is based on \code{removePoorSeq.pl} from Homer.
 #'
 #' @return the filtered \code{df}.
 #'
 #' @importFrom Biostrings alphabetFrequency DNAStringSet
 #' @importFrom S4Vectors DataFrame
-#'
-#' @export
-filter_seqs <- function(df, frac = 0.7, min_length = 5L, max_length = 100000L, verbose = TRUE) {
+filterSeqs <- function(df, maxFracN = 0.7, minLength = 5L,
+                        maxLength = 100000L, verbose = TRUE) {
 
-  # checks
-  if (!is_valid_df(df)) {
-    stop("'df' is not a valid input object")
-  }
-  if (!is.numeric(frac) || length(frac) != 1L || frac < 0 || frac > 1) {
-    stop("'frac' has to be a numerical scalar with a value in [0,1]")
-  }
-  if (!is.logical(verbose) || length(verbose) != 1L) {
-    stop("'verbose' has to be either TRUE or FALSE")
-  }
-
-  # fraction of N bases per sequence
-  frac_N <- alphabetFrequency(df$seqs)[, "N"] / nrow(df)
-
-  # remove sequences with frac_N > frac
-  w <- which(frac_N > frac)
-  if (length(w) > 0) {
-    if (verbose) {
-      message(sprintf("  filtering out %d of %d (%.1f%%) sequences with too many N bases",
-                      length(w), nrow(df), 100 * length(w) / nrow(df)))
+    .checkDfValidity(df)
+    if (!is.numeric(maxFracN) || length(maxFracN) != 1L || maxFracN < 0 || maxFracN > 1) {
+        stop("'maxFracN' has to be a numerical scalar with a value in [0,1]")
     }
-    df <- df[-w, ]
-  } else {
-    message("  no sequences filtered out because of too many N bases")
-  }
-  # remove seqs that are too short or too long
-  w <- which(width(df$seqs) < min_length | width(df$seqs) > max_length)
-  if (length(w) > 0) {
-    if (verbose) {
-      message(sprintf("  filtering out %d of %d (%.1f%%) sequences that are too short or too long",
-                      length(w), nrow(df), 100 * length(w) / nrow(df)))
+    if (!is.logical(verbose) || length(verbose) != 1L) {
+        stop("'verbose' has to be either TRUE or FALSE")
     }
-    df <- df[-w, ]
-  } else {
-    message("  no sequences filtered out because of being too short or too long")
-  }
-  
 
-  # return filtered df
-  df
+    # fraction of N bases per sequence
+    observedFracN <- alphabetFrequency(df$seqs, as.prob = TRUE)[, "N"]
+
+    # remove sequences with observedFracN > maxFracN
+    w <- which(observedFracN > maxFracN)
+    if (length(w) > 0) {
+        if (verbose) {
+            message("  filtering out ", length(w), " of ", nrow(df),
+                    " sequences (", round(100 * length(w) / nrow(df), 1), "%)",
+                    " with too many N bases")
+        }
+        df <- df[-w, ]
+    }
+
+    # remove too long/short sequences
+    w <- which(width(df$seqs) < minLength | width(df$seqs) > maxLength)
+    if (length(w) > 0) {
+        if (verbose) {
+            message("  filtering out ", length(w), " of ", nrow(df),
+                    " sequences (", round(100 * length(w) / nrow(df), 1), "%)",
+                    " that are too short or too long")
+        }
+        df <- df[-w, ]
+    }
+
+    return(df)
 }
 
 
@@ -140,10 +147,7 @@ filter_seqs <- function(df, frac = 0.7, min_length = 5L, max_length = 100000L, v
 #' @export
 calculate_GC_weight <- function(df, verbose = TRUE) {
 
-  # checks
-  if (!is_valid_df(df)) {
-    stop("'df' is not a valid input object")
-  }
+  .checkDfValidity(df)
   if (!is.logical(verbose) || length(verbose) != 1L) {
     stop("'verbose' has to be either TRUE or FALSE")
   }
@@ -373,10 +377,7 @@ iterate_norm_for_kmer_comp <- function(df,
                                        max_autonorm_iters = 160L,
                                        verbose = TRUE) {
 
-  # check
-  if (!is_valid_df(df)) {
-    stop("'df' is not a valid input object")
-  }
+  .checkDfValidity(df)
   if (!is.integer(max_kmer_size) ||
       length(max_kmer_size) != 1L ||
       max_kmer_size < 1) {
@@ -479,11 +480,8 @@ get_motif_hits_in_ZOOPS_mode <- function(df,
                                          Ncpu = 1L, 
                                          verbose = TRUE){
   
-  # checks
-  if (!is_valid_df(df)) {
-      stop("'df' is not a valid input object")
-  }
-  if(!is(pwmL, "PWMatrixList")){
+  .checkDfValidity(df)
+  if (!is(pwmL, "PWMatrixList")) {
     stop("pwmL must be of class PWMatrixList")
   }
   if (!is.logical(verbose) || length(verbose) != 1L) {
@@ -554,10 +552,10 @@ get_motif_enrichment <- function(motif_matrix=NULL,
                                  verbose = TRUE){
   
   # checks
-  if(!nrow(motif_matrix)==nrow(df)){
+  if (!nrow(motif_matrix) == nrow(df)) {
     stop("'motif_matrix' and 'df' must have the same number of rows")
   }
-  if(!all(rownames(motif_matrix)==rownames(df))){
+  if (!all(rownames(motif_matrix) == rownames(df))) {
     stop("'motif_matrix' and 'df' must have matching names (same order)")
   }
   if (is.null(motif_matrix) | is.null(df)) {
@@ -566,9 +564,7 @@ get_motif_enrichment <- function(motif_matrix=NULL,
   if (!is.matrix(motif_matrix)) {
     stop("'motif_matrix' has to be a matrix")
   }
-  if (!is_valid_df(df)) {
-      stop("'df' is not a valid input object")
-  }
+  .checkDfValidity(df)
   if (!is.logical(verbose) || length(verbose) != 1L) {
     stop("'verbose' has to be either TRUE or FALSE")
   }
@@ -829,10 +825,10 @@ get_binned_motif_enrichment <- function(seqs = NULL,
     is_foreground[bins==bin_levels[i]] <- TRUE
     df <- DataFrame(seqs = seqs,
                     is_foreground = is_foreground,
-                    gc_frac = NA,
-                    gc_bin = NA,
-                    gc_weight = NA,
-                    kmer_weight = NA)
+                    gc_frac = NA_real_,
+                    gc_bin = NA_integer_,
+                    gc_weight = NA_real_,
+                    kmer_weight = NA_real_)
     attr(df, "err") <- NA
     
     DF_list[[i]] <- df
@@ -843,7 +839,7 @@ get_binned_motif_enrichment <- function(seqs = NULL,
   if (verbose) {
     message("filtering out bad sequences ...")
   }
-  DF_list <- lapply(DF_list, function(x){monaLisa::filter_seqs(df = x, frac = frac_N_allowed, verbose = verbose)})
+  DF_list <- lapply(DF_list, function(x){monaLisa::filterSeqs(df = x, maxFracN = frac_N_allowed, verbose = verbose)})
   
   # calculate weight to adjust for GC differences between foreground and background per bin 
   # ... in this step, sequences may be filtered out (if a GC bin contains one sequence only, that sequence is filtered out).
