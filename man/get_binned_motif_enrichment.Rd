@@ -2,17 +2,17 @@
 % Please edit documentation in R/motif_enrichment_monaLisa.R
 \name{get_binned_motif_enrichment}
 \alias{get_binned_motif_enrichment}
-\title{Do Binned Motif Enrichment Analysis with \code{monaLisa} a la \code{Homer}}
+\title{Binned Motif Enrichment Analysis with \code{monaLisa}}
 \usage{
 get_binned_motif_enrichment(
   seqs,
   bins,
   pwmL,
-  enrichment_test = c("binomial", "fisher"),
-  frac_N_allowed = 0.7,
-  max_kmer_size = 3L,
+  test = c("binomial", "fisher"),
+  maxFracN = 0.7,
+  maxKmerSize = 3L,
   min.score = 10,
-  match_method = "matchPWM.concat",
+  matchMethod = "matchPWM.concat",
   Ncpu = 1L,
   verbose = FALSE,
   ...
@@ -21,32 +21,35 @@ get_binned_motif_enrichment(
 \arguments{
 \item{seqs}{DNAStringSet object with sequences to test}
 
-\item{bins}{factor vector of the same length and order as \code{seqs}, indicating the bin
-each sequence belongs to. See the \code{\link[monaLisa]{bin}} function.}
+\item{bins}{factor of the same length and order as \code{seqs}, indicating
+the bin for each sequence. Typically the return value of
+\code{\link[monaLisa]{bin}}.}
 
-\item{pwmL}{PWMatrixList object with PWMs of motifs.}
+\item{pwmL}{PWMatrixList with motifs for which to calculate enrichments.}
 
-\item{enrichment_test}{A \code{character} scalar specifying the type of
-enrichment test to perform. One of \code{"binomial"} (default) or
-\code{"fisher"}. The enrichment test is one-sided (enriched in foreground).}
+\item{test}{A \code{character} scalar specifying the type of enrichment test
+to perform. One of \code{"binomial"} (default) or \code{"fisher"}. The
+enrichment test is one-sided (enriched in foreground).}
 
-\item{frac_N_allowed}{A numeric scalar with the maximal fraction of N bases allowed 
-in a sequence (defaults to 0.7). Sequences with a fraction of N bases greater than
-this will be excluded from the analysis.}
+\item{maxFracN}{A numeric scalar with the maximal fraction of N bases allowed 
+in a sequence (defaults to 0.7). Sequences with higher fractions are
+excluded from the analysis.}
 
-\item{max_kmer_size}{the maximum kmer size to consider, when adjusting background weights
-for kmer composition compared to the foreground sequences (default 1-mer, 2-mers and 3-mers).}
+\item{maxKmerSize}{the maximum k-mer size to consider, when adjusting
+background sequence weights for k-mer composition compared to the
+foreground sequences. The default value (3) will correct for mono-, di-
+and tri-mer composition.}
 
-\item{min.score}{the \code{min.score} parameter in \code{\link[monaLisa]{findMotifHits}}. It
-is the minimum score for counting a match (default set to 10).}
+\item{min.score}{the minimal score for motif hits, used in 
+\code{\link[monaLisa]{findMotifHits}}.}
 
-\item{match_method}{the \code{method} parameter in \code{\link[monaLisa]{findMotifHits}}. It specifies
-the method used for motif searching.}
+\item{matchMethod}{the method used to scan for motif hits, passed to the
+\code{method} parameter in \code{\link[monaLisa]{findMotifHits}}.}
 
-\item{Ncpu}{Number of CPUs to use (default set to 1). This can enter the \code{findMotifHits}
-function when searching for motif matches.}
+\item{Ncpu}{Number of CPUs to use for parts of the analysis that can run
+in parallel (e.g. the scanning for motif hits).}
 
-\item{verbose}{A logical scalar. If \code{TRUE}, report progress.}
+\item{verbose}{A logical scalar. If \code{TRUE}, print progress messages.}
 
 \item{...}{Additional arguments for  \code{\link[monaLisa]{findMotifHits}}.}
 }
@@ -60,32 +63,39 @@ A \code{SummarizedExperiment} object where the rows are the motifs and the colum
 }
 }
 \description{
-This function does a motif enrichment analysis on the set of sequences belonging
-  to the same bin, using all the sequences in the rest of the bins as background. 
-  In each enrichment analysis (per bin), \code{get_binned_motif_enrichment} uses other 
-  functions within `monaLisa`, which do a motif enrichment analysis as implemented in `Homer` 
-  (version 4.11). See Details for more.
+This function performs a motif enrichment analysis on bins of
+  sequences. For each bin, the sequences in all other bins are used as
+  background.
 }
 \details{
-This function implements a binned motif enrichment analysis. In each enrichment
-  analysis, the sequences in a specific bin are used as foreground sequences to test for 
-  motif enrichment using all other sequences (in the remaining bins) as background sequences.
-  The function implements the \code{findMotifsGenome.pl} function from \code{Homer} version 4.11, 
-  with \code{-size given -nomotif -mknown}, using the given list of known PWMs to test for 
-  their enrichment. These \code{Homer} functions have been re-iplemented in R within \code{monaLisa} and 
-  can reproduce the same output as \code{Homer} in this mode of use. Namely, weights that correct for
-  GC, and k-mer composition differences between foreground and background are calculated for each
-  sequence. Motif hits are scanned across the specified genome using \code{findMotifHits}, resulting
-  in a sequence (row) by motif (column) matrix in ZOOPS mode, with a 1 entry if at least 1 hit is found, 
-  and a 0 entry otherwise. For each motif, the weights of sequences that have a hit are summed separately
-  for foreground (\code{fg_weight_sum}) and background (\code{bg_weight_sum}). The total foreground 
-  (\code{fg_weight_sum_total}) and background (\code{bg_weight_sum_total}) sum is also calculated.
+This function implements a binned motif enrichment analysis. In each
+  enrichment analysis, the sequences in a specific bin are used as foreground
+  sequences to test for motif enrichment using sequences in the remaining
+  bins as background. The logic follows the \code{findMotifsGenome.pl} tool
+  from \code{Homer} version 4.11, with \code{-size given -nomotif -mknown}
+  and gives very similar results. As in the \code{Homer} tool, sequences are
+  weighted to correct for GC and k-mer composition differences between fore-
+  and background sets.
   
-  The enrichment log p-value calculation can be done in two modes: Binomial (default) or Fisher's exact test: \itemize{
-    \item{binomial}{: \code{pbinom(q = fg_weight_sum - 1, size = fg_weight_sum_total, prob = bg_weight_sum / bg_weight_sum_total, lower.tail = FALSE, log.p = TRUE)}}
-    \item{fisher}{: \code{fisher.test(x = cont_table, alternative = "greater")}, where cont_table is the contingency table with 
-       rows specifying foreground or background, and columns indicating hit or no hit for a particular motif. The entries in this table
-       are the sum of the weights of sequences meeting the row and column specifications.}
+  Motif hits are predicted using \code{\link[monaLisa]{findMotifHits}} and
+  multiple hits per sequence are counted as just one hit (ZOOPS mode). For
+  each motif, the weights of sequences that have a hit are summed separately
+  for foreground (\code{fg_weight_sum}) and background (\code{bg_weight_sum}).
+  The total foreground  (\code{fg_weight_sum_total}) and background
+  (\code{bg_weight_sum_total}) sum of sequence weights is also calculated.
+  
+  To statistical tests for the calculation of enrichment log p-value are
+  available: \code{test = "binomial"} (default) to perform binomial test
+  like \code{Homer}, or \code{test = "fisher"} to perform Fisher's exact
+  tests, using:
+  \itemize{
+    \item{binomial}{: \code{pbinom(q = fg_weight_sum - 1, size =
+      fg_weight_sum_total, prob = bg_weight_sum / bg_weight_sum_total,
+      lower.tail = FALSE, log.p = TRUE)}}
+    \item{fisher}{: \code{fisher.test(x = tab, alternative =
+      "greater")}, where \code{tab} is the contingency table with the summed
+      weights of sequences in foreground or background sets (rows), and with
+      or without a hit for a particular motif (columns).}
   }
   
   TODO: - Use Ncpu to also parallelize across list of DFs (enrichment per bin)
