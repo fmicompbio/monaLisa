@@ -71,11 +71,18 @@
 #' @importFrom Biostrings alphabetFrequency DNAStringSet
 #' @importFrom S4Vectors DataFrame
 .filterSeqs <- function(df, maxFracN = 0.7, minLength = 5L,
-                        maxLength = 100000L, verbose = TRUE) {
+                        maxLength = 100000L, verbose = FALSE) {
 
     .checkDfValidity(df)
     if (!is.numeric(maxFracN) || length(maxFracN) != 1L || maxFracN < 0 || maxFracN > 1) {
         stop("'maxFracN' has to be a numerical scalar with a value in [0,1]")
+    }
+    if (!is.numeric(minLength) || length(minLength) != 1L || minLength < 0) {
+        stop("'minLength' has to be a non-negative numerical scalar")
+    }
+    if (!is.numeric(maxLength) || length(maxLength) != 1L || maxLength < max(minLength, 0)) {
+        stop("'maxLength' has to be a non-negative numerical scalar",
+             " greater than 'minLength' (", minLength, ")")
     }
     if (!is.logical(verbose) || length(verbose) != 1L) {
         stop("'verbose' has to be either TRUE or FALSE")

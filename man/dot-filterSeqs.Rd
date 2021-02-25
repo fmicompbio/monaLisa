@@ -9,7 +9,7 @@
   maxFracN = 0.7,
   minLength = 5L,
   maxLength = 100000L,
-  verbose = TRUE
+  verbose = FALSE
 )
 }
 \arguments{

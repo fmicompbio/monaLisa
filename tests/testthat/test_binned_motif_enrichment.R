@@ -19,6 +19,30 @@ test_that(".checkDfValidity() works", {
 })
 
 
+test_that(".filterSeqs() works", {
+  seqchar <- c(s1 = "GTGCATGCATACCA", s2 = "ACGNNNGTAC")
+  df <- DataFrame(seqs = DNAStringSet(seqchar),
+                  is_foreground = c(TRUE, FALSE),
+                  gc_frac = NA_real_,
+                  gc_bin = NA_integer_,
+                  gc_weight = NA_real_,
+                  kmer_weight = NA_real_)
+  attr(df, "err") <- 0
+  
+  expect_error(.filterSeqs("error"), "should be a DataFrame")
+  expect_error(.filterSeqs(df, maxFracN = "error"), "numerical scalar")
+  expect_error(.filterSeqs(df, minLength = -1), "non-negative numerical scalar")
+  expect_error(.filterSeqs(df, maxLength = 0), "greater than 'minLength'")
+  expect_error(.filterSeqs(df, verbose = "error"), "either TRUE or FALSE")
+  expect_message(.filterSeqs(df, maxFracN = 0.1, verbose = TRUE))
+  
+  expect_identical(.filterSeqs(df), df)
+  expect_identical(.filterSeqs(df, maxFracN = 0.1, verbose = FALSE), df[1, ])
+  expect_identical(.filterSeqs(df, minLength = 12, verbose = FALSE), df[1, ])
+  expect_identical(.filterSeqs(df, maxLength = 10, verbose = FALSE), df[2, ])
+})
+
+
 test_that("get_binned_motif_enrichment() works in default mode", {
 
     library(GenomicRanges)
