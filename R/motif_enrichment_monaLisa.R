@@ -665,7 +665,7 @@
 #' }
 #'  
 #' @importFrom TFBSTools ID name
-#' @importFrom SummarizedExperiment SummarizedExperiment rowData
+#' @importFrom SummarizedExperiment SummarizedExperiment rowData metadata
 #'
 #' @export
 get_binned_motif_enrichment <- function(seqs, 
@@ -837,6 +837,11 @@ get_binned_motif_enrichment <- function(seqs,
                                              log2enr = log2enr)) # better names? P and fdr are -log10(p-value), yes or transform into p-values
     m <- match(rownames(se), rownames(TF_df))
     rowData(se) <- TF_df[m, ]
+    metadata(se) <- list(params = list(test = test, maxFracN = maxFracN,
+                                       maxKmerSize = maxKmerSize,
+                                       min.score = min.score,
+                                       matchMethod = matchMethod,
+                                       Ncpu = Ncpu, verbose = verbose))
     
     # ?order by p-value or enrichment in the future?
     return(se)
