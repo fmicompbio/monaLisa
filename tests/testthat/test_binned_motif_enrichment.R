@@ -20,9 +20,9 @@ test_that(".checkDfValidity() works", {
 
 
 test_that(".filterSeqs() works", {
-    seqchar <- c(s1 = "GTGCATGCATACCA", s2 = "ACGNNNGTAC")
+    seqchar <- c(s1 = "GTGCATGCATACCA", s2 = "ACGNNNGTAC", s3 = "AAA")
     df <- DataFrame(seqs = DNAStringSet(seqchar),
-                    is_foreground = c(TRUE, FALSE),
+                    is_foreground = c(TRUE, FALSE, FALSE),
                     gc_frac = NA_real_,
                     gc_bin = NA_integer_,
                     gc_weight = NA_real_,
@@ -36,7 +36,7 @@ test_that(".filterSeqs() works", {
     expect_error(.filterSeqs(df, verbose = "error"), "either TRUE or FALSE")
     expect_message(.filterSeqs(df, maxFracN = 0.1, verbose = TRUE))
     
-    expect_identical(.filterSeqs(df), df)
+    expect_identical(.filterSeqs(df), df[1:2, ])
     expect_identical(.filterSeqs(df, maxFracN = 0.1, verbose = FALSE), df[1, ])
     expect_identical(.filterSeqs(df, minLength = 12, verbose = FALSE), df[1, ])
     expect_identical(.filterSeqs(df, maxLength = 10, verbose = FALSE), df[2, ])
