@@ -296,11 +296,12 @@ test_that("get_binned_motif_enrichment() works in default mode", {
   
     ## Tests
     # ... missing arguments or wrong classes
-    expect_error(get_binned_motif_enrichment(bins = b, pwmL = pwms))
-    expect_error(get_binned_motif_enrichment(seqs = as.character(seqs), bins = b, pwmL = pwms))
-    expect_error(get_binned_motif_enrichment(seqs = seqs, pwmL = pwms))
-    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = as.character(b), pwmL = pwms))
-    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b))
+    expect_error(get_binned_motif_enrichment(seqs = "error"), "DNAStringSet")
+    expect_error(get_binned_motif_enrichment(seqs = as.character(seqs)), "DNAStringSet")
+    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = "error"), "factor")
+    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b[-1]), "must be of equal length")
+    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = "error"), "PWMatrixList")
+    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwms, maxFracN = "error"), "numerical scalar")
     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = as.matrix(pwms[[1]])))
 
     # ... expected results on dataset
@@ -311,5 +312,96 @@ test_that("get_binned_motif_enrichment() works in default mode", {
     expect_identical(unname(round(assay(enr_res, 4), 3)),
                      matrix(c(-0.436, 0.375, 0.656, -0.729), ncol = 2))
 
+})
+
+test_that("get_binned_motif_enrichment() works (synthetic data)", {
+    set.seed(1)
+    len <- 50
+    seqschar <- unlist(lapply(seq.int(150), function(i) {
+        paste(sample(c("A","C","G","T"), len, replace = TRUE), collapse = "")
+    }))
+    b <- factor(rep(c(1, 2, 3), each = 50))
+    m1 <- rbind(A = c(7, 7, 7, 7, 7), # AAAAA
+                C = c(1, 1, 1, 1, 1),
+                G = c(1, 1, 1, 1, 1),
+                T = c(1, 1, 1, 1, 1))
+    m2 <- rbind(A = c(7, 1, 1, 1, 7), # ACGTA
+                C = c(1, 7, 1, 1, 1),
+                G = c(1, 1, 7, 1, 1),
+                T = c(1, 1, 1, 7, 1))
+    pfm <- TFBSTools::PFMatrixList(m1 = TFBSTools::PFMatrix(ID = "m1", name = "m1", profileMatrix = m1),
+                                   m2 = TFBSTools::PFMatrix(ID = "m2", name = "m2", profileMatrix = m2))
+    pwm <- TFBSTools::toPWM(pfm)
+    # plant m1 in bin 1
+    p1 <- sample(len - 2 * ncol(m1), round(sum(b == 1) * 0.8), replace = TRUE)
+    substring(seqschar[b == 1], first = p1, last = p1 + ncol(m1) - 1) <- "AAAAA"
+    # plant m2 in bin 2
+    p2 <- sample(len - 2 * ncol(m2), round(sum(b == 2) * 0.8), replace = TRUE)
+    substring(seqschar[b == 2], first = p2, last = p2 + ncol(m2) - 1) <- "ACGTA"
+    seqs <- Biostrings::DNAStringSet(seqschar)
+        
+    expect_message(res1 <- get_binned_motif_enrichment(seqs = seqs,
+                                                       bins = b,
+                                                       pwmL = pwm,
+                                                       min.score = 6,
+                                                       test = "binom",
+                                                       verbose = TRUE))
+    expect_message(res2 <- get_binned_motif_enrichment(seqs = seqs,
+                                                       bins = b,
+                                                       pwmL = pwm,
+                                                       min.score = 6,
+                                                       test = "fisher",
+                                                       verbose = TRUE))
+    expect_is(res1, "SummarizedExperiment")
+    expect_is(res2, "SummarizedExperiment")
+    expect_identical(dim(res1), c(length(pwm), nlevels(b)))
+    expect_identical(dim(res1), dim(res1))
+    expect_identical(dimnames(res1), list(names(pwm), levels(b)))
+    expect_identical(dimnames(res1), dimnames(res1))
+    expect_identical(names(metadata(res1)$params),
+                     c("test", "maxFracN", "maxKmerSize",
+                       "min.score", "matchMethod", 
+                       "Ncpu", "verbose"))
+    expect_identical(metadata(res1)$params$test, "binom")
+    expect_identical(metadata(res2)$params$test, "fisher")
+    expect_identical(metadata(res1)$params[-1], metadata(res2)$params[-1])
+    expect_identical(assayNames(res1), c("p", "FDR", "enr", "log2enr"))
+    expect_identical(assayNames(res2), c("p", "FDR", "enr", "log2enr"))
+    expect_identical(colnames(rowData(res1)), c("motif_ID", "motif_symbol"))
+    expect_identical(rowData(res1), rowData(res2))
+    expect_identical(dim(colData(res1)), c(3L, 0L))
+    expect_identical(colData(res1), colData(res2))
+    expect_identical(round(assay(res1, "p"), 3),
+                     structure(c(25.893, 0, 0, 34.537, 0, 0),
+                               dim = c(length(pwm), nlevels(b)),
+                               dimnames = list(names(pwm), levels(b))))
+    expect_identical(round(assay(res1, "FDR"), 3),
+                     structure(c(25.416, 0, 0, 33.759, 0, 0),
+                               dim = c(length(pwm), nlevels(b)),
+                               dimnames = list(names(pwm), levels(b))))
+    expect_identical(round(assay(res1, "enr"), 3),
+                     structure(c(9.271, -3.449, -3.521, 12.433, -3.853, -4.192),
+                               dim = c(length(pwm), nlevels(b)),
+                               dimnames = list(names(pwm), levels(b))))
+    expect_identical(round(assay(res1, "log2enr"), 3),
+                     structure(c(1.374, -1.219, -1.293, 1.673, -1.299, -1.423),
+                               dim = c(length(pwm), nlevels(b)),
+                               dimnames = list(names(pwm), levels(b))))
+    expect_identical(round(assay(res2, "p"), 3),
+                     structure(c(17.038, 0, 0, 21.361, 0, 0),
+                               dim = c(length(pwm), nlevels(b)),
+                               dimnames = list(names(pwm), levels(b))))
+    expect_identical(round(assay(res2, "FDR"), 3),
+                     structure(c(16.561, 0, 0, 20.582, 0, 0),
+                               dim = c(length(pwm), nlevels(b)),
+                               dimnames = list(names(pwm), levels(b))))
+    expect_identical(round(assay(res2, "enr"), 3),
+                     structure(c(9.271, -3.449, -3.521, 12.433, -3.853, -4.192),
+                               dim = c(length(pwm), nlevels(b)),
+                               dimnames = list(names(pwm), levels(b))))
+    expect_identical(round(assay(res2, "log2enr"), 3),
+                     structure(c(1.374, -1.219, -1.293, 1.673, -1.299, -1.423),
+                               dim = c(length(pwm), nlevels(b)),
+                               dimnames = list(names(pwm), levels(b))))
 })
 
