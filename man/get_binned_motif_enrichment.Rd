@@ -9,7 +9,7 @@ get_binned_motif_enrichment(
   bins,
   pwmL,
   genome = NULL,
-  enrichment_test = c("binomial", "fishers_exact"),
+  enrichment_test = c("binomial", "fisher"),
   frac_N_allowed = 0.7,
   max_kmer_size = 3L,
   min.score = 10,
@@ -32,7 +32,7 @@ belong to, and which will be scanned for motif matches.}
 
 \item{enrichment_test}{A \code{character} scalar specifying the type of
 enrichment test to perform. One of \code{"binomial"} (default) or
-\code{"fisher_exact"}. The enrichment test is one-sided (enriched in foreground).}
+\code{"fisher"}. The enrichment test is one-sided (enriched in foreground).}
 
 \item{frac_N_allowed}{A numeric scalar with the maximal fraction of N bases allowed 
 in a sequence (defaults to 0.7). Sequences with a fraction of N bases greater than
@@ -87,7 +87,7 @@ This function implements a binned motif enrichment analysis. In each enrichment
   
   The enrichment log p-value calculation can be done in two modes: Binomial (default) or Fisher's exact test: \itemize{
     \item{binomial}{: \code{pbinom(q = fg_weight_sum - 1, size = fg_weight_sum_total, prob = bg_weight_sum / bg_weight_sum_total, lower.tail = FALSE, log.p = TRUE)}}
-    \item{fisher_exact}{: \code{fisher.test(x = cont_table, alternative = "greater")}, where cont_table is the contingency table with 
+    \item{fisher}{: \code{fisher.test(x = cont_table, alternative = "greater")}, where cont_table is the contingency table with 
        rows specifying foreground or background, and columns indicating hit or no hit for a particular motif. The entries in this table
        are the sum of the weights of sequences meeting the row and column specifications.}
   }

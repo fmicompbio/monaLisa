@@ -440,36 +440,51 @@
 }
 
 
-#' @title Do Motif Enrichment
+#' @title Calculate motif enrichment
+#'
+#' @description Given motif counts, foreground/background labels and
+#'   weights for a set of sequences, calculate the enrichment of each motif
+#'   in foreground compared to background. This function is called by
+#'   \code{get_binned_motif_enrichment()} for each bin.
+#'   
+#'   The defaults type of test is \code{"binomial"}, which is also what
+#'   \code{Homer} uses by default. Alternatively, Fisher's exact test can be
+#'   used by \code{test = "fisher"}, which has the advantage that special cases
+#'   such as zero background counts are handled without ad-hoc adjustments to
+#'   the frequencies.
+#'   
+#'   For \code{test = "fisher"}, \code{fisher.test} is used with
+#'   \code{alternative = "greater"}, making it a one-sided test for enrichment,
+#'   as is the case with the binomial test.
 #'
 #' @param motif_matrix matrix with 0 and 1 entries for absence or presence of 
-#'   motif hits per sequence.
+#'   motif hits in each sequence.
 #' @param df a \code{DataFrame} with sequence information as returned by
 #'   \code{.iterativeNormForKmers()}.
-#' @param test type of test to do for the motif enrichment. By default it is the binomial, which 
-#'   is what \code{Homer} uses by default. Fisher's exact test is another 
-#'   option which allows for testing enrichment, without having to account for special cases of zero 
-#'   background counts for a motif. \code{fisher.test} is used with \code{alternative="greater"}, making
-#'   it a one-sided test for enrichment, as is the case with the binomial test. 
-#' @param verbose A logical scalar. If \code{TRUE}, report motif enrichment test.
+#' @param test type of motif enrichment test to perform. 
+#' @param verbose A logical scalar. If \code{TRUE}, report on progress.
 #' 
-#' @return a \code{data.frame} containing the motifs as rows and the following columns: \itemize{
-#'   \item{motif_name}{: the motif name}
-#'   \item{log_p_value}{: the log p-value for enrichment. If test=binomial (default), this log p-value is identical to the one
-#'      that Homer returns.}
-#'   \item{fg_weight_sum}{: the sum of the weights of the foreGround sequences that have at least one instance of a specific motif (ZOOPS mode).}
-#'   \item{bg_weight_sum}{: the sum of the weights of the backGround sequences that have at least one instance of a specific motif (ZOOPS mode).}
-#'   \item{fg_weight_sum_total}{: the total sum of the weights of all foreGround sequences.}
-#'   \item{bg_weight_sum_total}{: the total sum of the weights of all backGround sequences.}
-#' }
+#' @return a \code{data.frame} containing the motifs as rows and the columns:
+#'   \itemize{
+#'     \item{motif_name}{: the motif name}
+#'     \item{log_p_value}{: the log p-value for enrichment (natural logarithm).
+#'        If \code{test="binomial"} (default), this log p-value is identical to
+#'        the one returned by Homer.}
+#'     \item{fg_weight_sum}{: the sum of the weights of the foreground sequences
+#'        that have at least one instance of a specific motif (ZOOPS mode).}
+#'     \item{bg_weight_sum}{: the sum of the weights of the background sequences
+#'        that have at least one instance of a specific motif (ZOOPS mode).}
+#'     \item{fg_weight_sum_total}{: the total sum of weights of foreground
+#'        sequences.}
+#'     \item{bg_weight_sum_total}{: the total sum of weights of background
+#'        sequences.}
+#'   }
 #' 
 #' @importFrom stats pbinom fisher.test
-#' 
-#' @export 
-get_motif_enrichment <- function(motif_matrix=NULL, 
-                                 df=NULL, 
-                                 test=c("binomial", "fishers_exact"), 
-                                 verbose = TRUE){
+.calcMotifEnrichment <- function(motif_matrix = NULL, 
+                                 df = NULL, 
+                                 test = c("binomial", "fisher"), 
+                                 verbose = FALSE){
   
   # checks
   if (!nrow(motif_matrix) == nrow(df)) {
@@ -497,44 +512,43 @@ get_motif_enrichment <- function(motif_matrix=NULL,
   tf_foreground <- apply(X = motif_matrix, 
                          MARGIN = 2, 
                          FUN = function(x){
-                           sum(df$kmer_weight[df$is_foreground & x==1])
+                           sum(df$kmer_weight[df$is_foreground & x == 1])
                          })
   
   tf_background <- apply(X = motif_matrix, 
                          MARGIN = 2, 
                          FUN = function(x){
-                           sum(df$kmer_weight[!df$is_foreground & x==1])
+                           sum(df$kmer_weight[!df$is_foreground & x == 1])
                          })
 
   # calculate motif enrichment
-  if(method=="binomial") {
+  if (method == "binomial") {
   
     # follow Homer in terms of setting upper and lower limits for the 
     # prob value in pbinom (see logbinomial function in statistics.cpp file
     # and scoreEnrichmentBinomial function in Motif2.cpp file)
     
-    # verbose=TRUE
     if (verbose) {
-      message("using the binomial test to calculate log(p-values) for motif enrichments")
+        message("using the binomial test to calculate log(p-values) for motif enrichments")
     }
    
     # limits
-    lower_prob_limit <- 1/total_background
-    upper_prob_limit <- (total_background-1)/total_background
+    lower_prob_limit <- 1 / total_background
+    upper_prob_limit <- (total_background - 1) / total_background
     
     # prob
     prob <- tf_background / total_background
     
     # print warnings if necessary
-    if(sum(prob < lower_prob_limit) > 0){
-      warning("some probabilities (TF_bgSum/total_bgSum) have a 
-      value less than lower_prob_limit (example when TF_bgSum=0) 
-      and will be given a value of lower_prob_limit=1/total_bgSum")
+    if (sum(prob < lower_prob_limit) > 0) {
+        warning("some probabilities (TF_bgSum/total_bgSum) have a ",
+                "value less than lower_prob_limit (example when TF_bgSum=0) ",
+                "and will be given a value of lower_prob_limit=1/total_bgSum")
     }
-    if(sum(prob > upper_prob_limit) > 0){
-      warning("some probabilities (TF_bgSum/total_bgSum) have a 
-      value greater than upper_prob_limit and will be given 
-      a value of upper_prob_limit=(total_bgSum-1)/total_bgSum")
+    if (sum(prob > upper_prob_limit) > 0) {
+      warning("some probabilities (TF_bgSum/total_bgSum) have a ",
+              "value greater than upper_prob_limit and will be given ",
+              "a value of upper_prob_limit=(total_bgSum-1)/total_bgSum")
     }
     
     # update prob if necessary
@@ -543,40 +557,43 @@ get_motif_enrichment <- function(motif_matrix=NULL,
     
     
     # enrichment
-    enrichment_log_p_value <- stats::pbinom(q = tf_foreground - 1, size = total_foreground, prob = prob, lower.tail = FALSE, log.p = TRUE)
+    enrichment_log_p_value <- pbinom(q = tf_foreground - 1,
+                                     size = total_foreground,
+                                     prob = prob,
+                                     lower.tail = FALSE, log.p = TRUE)
     
-  }
-  if(method=="fishers_exact") {
+  } else if (method == "fisher") {
     
-    # verbose=TRUE
-    if (verbose) {
-      message("using fisher's exact test (two-sided) to calculate log(p-values) for motif enrichments")
-    }
-    
-    # index
-    ind <- 1:length(tf_foreground)
-    names(ind) <- names(tf_foreground)
-    
-    # contingency table per motif for fisher's exact test (x, y, z and w are rounded to the nearest integer):
-    #          TF_hit  not_TF_hit
-    #   is_fg     x         y
-    #   is_bg     z         w
-    #
-    enrichment_log_p_value <- log(vapply(ind, function(i){
+      if (verbose) {
+          message("using fisher's exact test (two-sided) to calculate log(p-values) for motif enrichments")
+      }
       
-      # contingency table
-      cont_table <-  matrix(data = c(tf_foreground[i], (total_foreground-tf_foreground[i]), 
-                                     tf_background[i], (total_background-tf_background[i])), 
-                            ncol = 2, 
-                            byrow = TRUE)
+      # index
+      ind <- 1:length(tf_foreground)
+      names(ind) <- names(tf_foreground)
       
-      # round to integer for fisher's exact test
-      cont_table <- round(cont_table)
-      
-      # fisher's exact test: get p-value
-      stats::fisher.test(x = cont_table, alternative = "greater")$p.value}, 
-      FUN.VALUE = 0.02)
-    )
+      # contingency table per motif for fisher's exact test
+      # (x, y, z and w are rounded to the nearest integer):
+      #          TF_hit  not_TF_hit
+      #   is_fg     x         y
+      #   is_bg     z         w
+      #
+      enrichment_log_p_value <- log(vapply(ind, function(i) {
+        
+          # contingency table
+          cont_table <-  matrix(data = c(tf_foreground[i],
+                                         (total_foreground - tf_foreground[i]), 
+                                         tf_background[i],
+                                         (total_background - tf_background[i])), 
+                                ncol = 2, 
+                                byrow = TRUE)
+          
+          # round to integer for fisher's exact test
+          cont_table <- round(cont_table)
+          
+          # fisher's exact test: get p-value
+          fisher.test(x = cont_table, alternative = "greater")$p.value
+      }, FUN.VALUE = numeric(1)))
     
   }
   
@@ -611,7 +628,7 @@ get_motif_enrichment <- function(motif_matrix=NULL,
 #'   belong to, and which will be scanned for motif matches.
 #' @param enrichment_test A \code{character} scalar specifying the type of
 #'   enrichment test to perform. One of \code{"binomial"} (default) or
-#'   \code{"fisher_exact"}. The enrichment test is one-sided (enriched in foreground).
+#'   \code{"fisher"}. The enrichment test is one-sided (enriched in foreground).
 #' @param frac_N_allowed A numeric scalar with the maximal fraction of N bases allowed 
 #'   in a sequence (defaults to 0.7). Sequences with a fraction of N bases greater than
 #'   this will be excluded from the analysis.
@@ -642,7 +659,7 @@ get_motif_enrichment <- function(motif_matrix=NULL,
 #'   
 #'   The enrichment log p-value calculation can be done in two modes: Binomial (default) or Fisher's exact test: \itemize{
 #'     \item{binomial}{: \code{pbinom(q = fg_weight_sum - 1, size = fg_weight_sum_total, prob = bg_weight_sum / bg_weight_sum_total, lower.tail = FALSE, log.p = TRUE)}}
-#'     \item{fisher_exact}{: \code{fisher.test(x = cont_table, alternative = "greater")}, where cont_table is the contingency table with 
+#'     \item{fisher}{: \code{fisher.test(x = cont_table, alternative = "greater")}, where cont_table is the contingency table with 
 #'        rows specifying foreground or background, and columns indicating hit or no hit for a particular motif. The entries in this table
 #'        are the sum of the weights of sequences meeting the row and column specifications.}
 #'   }
@@ -671,7 +688,7 @@ get_binned_motif_enrichment <- function(seqs,
                                         bins, 
                                         pwmL, 
                                         genome = NULL, 
-                                        enrichment_test = c("binomial", "fishers_exact"), 
+                                        enrichment_test = c("binomial", "fisher"), 
                                         frac_N_allowed = 0.7, 
                                         max_kmer_size = 3L, 
                                         min.score = 10, 
@@ -732,18 +749,18 @@ get_binned_motif_enrichment <- function(seqs,
     bin_levels <- levels(bins)
     DF_list <- list()
     for (i in 1:length(bin_levels)) {
-      is_foreground <- logical(length = length(seqs))
-      is_foreground[bins == bin_levels[i]] <- TRUE
-      df <- DataFrame(seqs = seqs,
-                      is_foreground = is_foreground,
-                      gc_frac = NA_real_,
-                      gc_bin = NA_integer_,
-                      gc_weight = NA_real_,
-                      kmer_weight = NA_real_)
-      attr(df, "err") <- NA
-      
-      DF_list[[i]] <- df
-      names(DF_list)[i] <- bin_levels[i]
+        is_foreground <- logical(length = length(seqs))
+        is_foreground[bins == bin_levels[i]] <- TRUE
+        df <- DataFrame(seqs = seqs,
+                        is_foreground = is_foreground,
+                        gc_frac = NA_real_,
+                        gc_bin = NA_integer_,
+                        gc_weight = NA_real_,
+                        kmer_weight = NA_real_)
+        attr(df, "err") <- NA
+        
+        DF_list[[i]] <- df
+        names(DF_list)[i] <- bin_levels[i]
     }
     
     # filter 'bad' sequences per bin (can be done only once for all seqs--> need to change filtering function)
@@ -791,7 +808,7 @@ get_binned_motif_enrichment <- function(seqs,
         message("Calculating motif enrichment per bin ...")
     }
     enrich_list <- lapply(DF_list, function(x) {
-        get_motif_enrichment(motif_matrix = complete_hit_mat[rownames(x), , drop = FALSE],
+        .calcMotifEnrichment(motif_matrix = complete_hit_mat[rownames(x), , drop = FALSE],
                              df = x, test = enrichment_test, verbose = verbose)
     })
     
@@ -800,7 +817,7 @@ get_binned_motif_enrichment <- function(seqs,
     # -log10(p-value)
     P <- do.call(cbind, lapply(enrich_list, function(bin_res) {
         D <- bin_res[, "log_p_value"]
-        logpVals <- -D/log(10)
+        logpVals <- -D / log(10)
         names(logpVals) <- bin_res[, "motif_name"]
         logpVals
         # logpVals[order(names(logpVals))]
@@ -815,10 +832,10 @@ get_binned_motif_enrichment <- function(seqs,
     # enrTF (Pearson residuals)
     enrTF <- do.call(cbind, lapply(enrich_list, function(bin_res) {
         D <- as.matrix(
-          data.frame(
-            fg_weight_sum = bin_res[, "fg_weight_sum"], 
-            frac_fg_seq_with_motif = (bin_res[, "fg_weight_sum"] / bin_res[, "fg_weight_sum_total"]), 
-            frac_bg_seq_with_motif = (bin_res[, "bg_weight_sum"] / bin_res[, "bg_weight_sum_total"]))
+            data.frame(
+              fg_weight_sum = bin_res[, "fg_weight_sum"], 
+              frac_fg_seq_with_motif = (bin_res[, "fg_weight_sum"] / bin_res[, "fg_weight_sum_total"]), 
+              frac_bg_seq_with_motif = (bin_res[, "bg_weight_sum"] / bin_res[, "bg_weight_sum_total"]))
         )
         rownames(D) <-  bin_res[, "motif_name"]
         obsTF <- D[, "fg_weight_sum"]
