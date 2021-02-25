@@ -143,16 +143,16 @@
 .calculateGCweight <- function(df,
                                GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4,
                                             0.45, 0.5, 0.6, 0.7, 0.8),
-                               verbose = TRUE) {
+                               verbose = FALSE) {
 
     .checkDfValidity(df)
-    if (!is.logical(verbose) || length(verbose) != 1L) {
-        stop("'verbose' has to be either TRUE or FALSE")
-    }
     if (!is.numeric(GCbreaks) || length(GCbreaks) < 2 ||
         any(diff(GCbreaks) <= 0) || any(GCbreaks < 0 || GCbreaks > 1)) {
-        stop("'GCbreaks' have to be a strictly increasing vector of ",
+        stop("'GCbreaks' have to be a strictly increasing numerical vector of ",
              "at least length two and with values in (0, 1).")
+    }
+    if (!is.logical(verbose) || length(verbose) != 1L) {
+        stop("'verbose' has to be either TRUE or FALSE")
     }
     
     # calculate GC fraction for each sequence

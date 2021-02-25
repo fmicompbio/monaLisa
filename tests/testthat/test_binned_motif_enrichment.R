@@ -1,45 +1,76 @@
 test_that(".checkDfValidity() works", {
-  seqchar <- c(s1 = "GTGCATGCAT", s2 = "ACGTACGTAC")
-  df <- DataFrame(seqs = DNAStringSet(seqchar),
-                  is_foreground = c(TRUE, FALSE),
-                  gc_frac = NA_real_,
-                  gc_bin = NA_integer_,
-                  gc_weight = NA_real_,
-                  kmer_weight = NA_real_)
-  
-  expect_error(.checkDfValidity("error"), "should be a DataFrame")
-  expect_error(.checkDfValidity(df[1:3]), "has to have columns")
-  expect_error(.checkDfValidity(DataFrame(seqs = seqchar, df[2:6])), "expected types")
-  expect_error(.checkDfValidity(DataFrame(df[1], DataFrame(is_foreground = 1:2), df[3:6])), "expected types")
-  expect_error(.checkDfValidity(DataFrame(df[1:2], DataFrame(gc_frac = seqchar), df[4:6])), "expected types")
-  expect_error(.checkDfValidity(DataFrame(df[1:3], DataFrame(gc_bin = seqchar), df[5:6])), "expected types")
-  expect_error(.checkDfValidity(DataFrame(df[1:4], DataFrame(gc_weight = seqchar), df[6])), "expected types")
-  expect_error(.checkDfValidity(DataFrame(df[1:5], DataFrame(kmer_weight = seqchar))), "expected types")
-  expect_error(.checkDfValidity(df), "attributes: err")
+    seqchar <- c(s1 = "GTGCATGCAT", s2 = "ACGTACGTAC")
+    df <- DataFrame(seqs = DNAStringSet(seqchar),
+                    is_foreground = c(TRUE, FALSE),
+                    gc_frac = NA_real_,
+                    gc_bin = NA_integer_,
+                    gc_weight = NA_real_,
+                    kmer_weight = NA_real_)
+    
+    expect_error(.checkDfValidity("error"), "should be a DataFrame")
+    expect_error(.checkDfValidity(df[1:3]), "has to have columns")
+    expect_error(.checkDfValidity(DataFrame(seqs = seqchar, df[2:6])), "expected types")
+    expect_error(.checkDfValidity(DataFrame(df[1], DataFrame(is_foreground = 1:2), df[3:6])), "expected types")
+    expect_error(.checkDfValidity(DataFrame(df[1:2], DataFrame(gc_frac = seqchar), df[4:6])), "expected types")
+    expect_error(.checkDfValidity(DataFrame(df[1:3], DataFrame(gc_bin = seqchar), df[5:6])), "expected types")
+    expect_error(.checkDfValidity(DataFrame(df[1:4], DataFrame(gc_weight = seqchar), df[6])), "expected types")
+    expect_error(.checkDfValidity(DataFrame(df[1:5], DataFrame(kmer_weight = seqchar))), "expected types")
+    expect_error(.checkDfValidity(df), "attributes: err")
 })
 
 
 test_that(".filterSeqs() works", {
-  seqchar <- c(s1 = "GTGCATGCATACCA", s2 = "ACGNNNGTAC")
-  df <- DataFrame(seqs = DNAStringSet(seqchar),
-                  is_foreground = c(TRUE, FALSE),
-                  gc_frac = NA_real_,
-                  gc_bin = NA_integer_,
-                  gc_weight = NA_real_,
-                  kmer_weight = NA_real_)
-  attr(df, "err") <- 0
-  
-  expect_error(.filterSeqs("error"), "should be a DataFrame")
-  expect_error(.filterSeqs(df, maxFracN = "error"), "numerical scalar")
-  expect_error(.filterSeqs(df, minLength = -1), "non-negative numerical scalar")
-  expect_error(.filterSeqs(df, maxLength = 0), "greater than 'minLength'")
-  expect_error(.filterSeqs(df, verbose = "error"), "either TRUE or FALSE")
-  expect_message(.filterSeqs(df, maxFracN = 0.1, verbose = TRUE))
-  
-  expect_identical(.filterSeqs(df), df)
-  expect_identical(.filterSeqs(df, maxFracN = 0.1, verbose = FALSE), df[1, ])
-  expect_identical(.filterSeqs(df, minLength = 12, verbose = FALSE), df[1, ])
-  expect_identical(.filterSeqs(df, maxLength = 10, verbose = FALSE), df[2, ])
+    seqchar <- c(s1 = "GTGCATGCATACCA", s2 = "ACGNNNGTAC")
+    df <- DataFrame(seqs = DNAStringSet(seqchar),
+                    is_foreground = c(TRUE, FALSE),
+                    gc_frac = NA_real_,
+                    gc_bin = NA_integer_,
+                    gc_weight = NA_real_,
+                    kmer_weight = NA_real_)
+    attr(df, "err") <- 0
+    
+    expect_error(.filterSeqs("error"), "should be a DataFrame")
+    expect_error(.filterSeqs(df, maxFracN = "error"), "numerical scalar")
+    expect_error(.filterSeqs(df, minLength = -1), "non-negative numerical scalar")
+    expect_error(.filterSeqs(df, maxLength = 0), "greater than 'minLength'")
+    expect_error(.filterSeqs(df, verbose = "error"), "either TRUE or FALSE")
+    expect_message(.filterSeqs(df, maxFracN = 0.1, verbose = TRUE))
+    
+    expect_identical(.filterSeqs(df), df)
+    expect_identical(.filterSeqs(df, maxFracN = 0.1, verbose = FALSE), df[1, ])
+    expect_identical(.filterSeqs(df, minLength = 12, verbose = FALSE), df[1, ])
+    expect_identical(.filterSeqs(df, maxLength = 10, verbose = FALSE), df[2, ])
+})
+
+
+test_that(".calculateGCweight() works", {
+    fseq <- c(f1  = "AGGGGGGGGG", f2  = "AAGGGGGGGG", f3  = "AAAGGGGGGG",
+              f4  = "AAAAGGGGGG",                     f6  = "AAAAAAGGGG",
+              f7  = "AAAAAAAGGG", f8  = "AAAAAAAAGG", f9  = "AAAAAAAAAG")
+    bseq <- c(b1  = "AGGGGGGGGG", b2  = "AAGGGGGGGG", b3  = "AAAGGGGGGG",
+              b4  = "AAAAGGGGGG", b5  = "AAAAAGGGGG", b6  = "AAAAAAGGGG",
+              b7  = "AAAAAAAGGG", b8  = "AAAAAAAAGG", b9  = "AAAAAAAAAG",
+              b2b = "AAGGGGGGGG", b4b = "AAAAGGGGGG", b6b = "AAAAAAGGGG")
+    df <- DataFrame(seqs = DNAStringSet(c(fseq, bseq)),
+                    is_foreground = rep(c(TRUE, FALSE), c(length(fseq), length(bseq))),
+                    gc_frac = NA_real_,
+                    gc_bin = NA_integer_,
+                    gc_weight = NA_real_,
+                    kmer_weight = NA_real_)
+    attr(df, "err") <- 0
+    
+    expect_error(.calculateGCweight("error"), "should be a DataFrame")
+    expect_error(.calculateGCweight(df, GCbreaks = "error"), "strictly increasing numerical vector")
+    expect_error(.calculateGCweight(df, verbose = "error"), "either TRUE or FALSE")
+    expect_message(.calculateGCweight(df, verbose = TRUE))
+
+    expect_is(res1 <- .calculateGCweight(df, verbose = FALSE), "DataFrame")
+    expect_identical(df[-13, 1:2], res1[, 1:2])
+    expect_identical(res1$gc_frac, c(9:6,4:1,9:6,4:1,8,6,4) / 10)
+    expect_identical(res1[res1$is_foreground, "gc_weight"],
+                     rep(1.0, sum(res1$is_foreground)))
+    expect_identical(res1[!res1$is_foreground, "gc_weight"],
+                     rep(c(1.03125, 0.68750, 1.37500, 1.03125, 0.68750), c(3, 2, 3, 1, 2)))
 })
 
 
