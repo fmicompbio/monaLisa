@@ -409,11 +409,11 @@
 
     # run .normForKmers
     res <- .normForKmers(kmer_freq = kmer_freq,
-                              g_oligos = g_oligos,
-                              kmer_seq_rc = kmer_seq_rc,
-                              kmer_weight = cur_weight,
-                              is_foreground = df$is_foreground,
-                              minimum_seq_weight = minimum_seq_weight)
+                         g_oligos = g_oligos,
+                         kmer_seq_rc = kmer_seq_rc,
+                         kmer_weight = cur_weight,
+                         is_foreground = df$is_foreground,
+                         minimum_seq_weight = minimum_seq_weight)
 
     # if current error is bigger than the last one, stop
     if (res$err >= last_error) {

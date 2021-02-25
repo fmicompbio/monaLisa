@@ -74,6 +74,41 @@ test_that(".calculateGCweight() works", {
 })
 
 
+test_that(".iterativeNormForKmers() works", {
+    fseq <- c(f1  = "AGGGGGGGGG", f2  = "AAGGGGGGGG", f3  = "AAAGGGGGGG",
+              f4  = "AAAAGGGGGG",                     f6  = "AAAAAAGGGG",
+              f7  = "AAAAAAAGGG", f8  = "AAAAAAAAGG", f9  = "AAAAAAAAAG")
+    bseq <- c(b1  = "AGGGGGGGGG", b2  = "AAGGGGGGGG", b3  = "AAAGGGGGGG",
+              b4  = "AAAAGGGGGG", b5  = "AAAAAGGGGG", b6  = "AAAAAAGGGG",
+              b7  = "AAAAAAAGGG", b8  = "AAAAAAAAGG", b9  = "AAAAAAAAAG",
+              b2b = "AAGGGGGGGG", b4b = "AAAAGGGGGG", b6b = "AAAAAAGGGG")
+    df <- DataFrame(seqs = DNAStringSet(c(fseq, bseq)),
+                    is_foreground = rep(c(TRUE, FALSE), c(length(fseq), length(bseq))),
+                    gc_frac = NA_real_,
+                    gc_bin = NA_integer_,
+                    gc_weight = NA_real_,
+                    kmer_weight = NA_real_)
+    attr(df, "err") <- 0
+    df <- .calculateGCweight(df)
+    
+    expect_error(.iterativeNormForKmers("error"))
+    expect_error(.iterativeNormForKmers(df, max_kmer_size = "error"), "integer scalar greater than zero")
+    expect_error(.iterativeNormForKmers(df, minimum_seq_weight = -1, "numeric scalar greater than zero"))
+    expect_error(.iterativeNormForKmers(df, max_autonorm_iters = "error", "integer scalar greater than zero"))
+    expect_error(.iterativeNormForKmers(df, verbose = "error"), "either TRUE or FALSE")
+    
+    expect_message(res1 <- .iterativeNormForKmers(df, verbose = TRUE))
+    expect_is(res1, "DataFrame")
+    expect_identical(round(attr(res1, "err"), 6), 0.954395)
+    attr(df, "err") <- attr(res1, "err")
+    expect_identical(dim(res1), dim(df))
+    expect_identical(res1[1:5], df[1:5])
+    expect_identical(round(res1[!res1$is_foreground, "kmer_weight"], 3),
+                     c(1.251, 0.887, 0.913, 0.675, 0.7, 1.344, 1.347,
+                       1.347, 0.887, 0.675, 0.7))
+})
+
+
 test_that("get_binned_motif_enrichment() works in default mode", {
 
     library(GenomicRanges)
