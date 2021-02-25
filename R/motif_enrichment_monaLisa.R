@@ -563,7 +563,7 @@
   } else if (method == "fisher") {
     
       if (verbose) {
-          message("using fisher's exact test (two-sided) to calculate log(p-values) for motif enrichments")
+          message("using fisher's exact test (one-sided) to calculate log(p-values) for motif enrichments")
       }
       
       # index
