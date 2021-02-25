@@ -214,23 +214,16 @@ test_that("get_binned_motif_enrichment() works in default mode", {
     pwms <- toPWM(pfms)
     
     ## bins
-    b <- monaLisa::bin(x = 1:length(seqs),
-                       binmode = "breaks",
-                       breaks = c(0, (length(gr_RBPJ)), (length(seqs) + 1)))
+    b <- bin(x = 1:length(seqs), binmode = "breaks",
+             breaks = c(0, (length(gr_RBPJ)), (length(seqs) + 1)))
     
     ## Binned motif enrichment with monaLisa
-    enr_res <- monaLisa::get_binned_motif_enrichment(seqs = seqs,
-                                                     bins = b,
-                                                     pwmL = pwms,
-                                                     genome = genome)
+    enr_res <- get_binned_motif_enrichment(seqs = seqs,
+                                           bins = b,
+                                           pwmL = pwms,
+                                           genome = genome)
   
     ## Tests
-    # ... expected results on dataset
-    expect_true(base::inherits(enr_res, "SummarizedExperiment"))
-    expect_true(all(rownames(enr_res) == c("MA0081.1", "MA1116.1")))
-    expect_true(all(round(assay(enr_res, 3)) == matrix(c(-2,4,2,-2), ncol = 2, byrow = TRUE)))
-    expect_true(all(round(assay(enr_res, 4)) == matrix(c(0,1,0,-1), ncol = 2, byrow = TRUE)))
-
     # ... missing arguments or wrong classes
     expect_error(get_binned_motif_enrichment(bins = b, pwmL = pwms, genome = genome))
     expect_error(get_binned_motif_enrichment(seqs = as.character(seqs), bins = b, pwmL = pwms, genome = genome))
@@ -241,5 +234,13 @@ test_that("get_binned_motif_enrichment() works in default mode", {
     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwms))
     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwms, genome = "mm10"))
  
+    # ... expected results on dataset
+    expect_is(enr_res, "SummarizedExperiment")
+    expect_identical(rownames(enr_res), c("MA0081.1", "MA1116.1"))
+    expect_identical(unname(round(assay(enr_res, 3))),
+                     matrix(c(-2,4,2,-2), ncol = 2, byrow = TRUE))
+    expect_identical(unname(round(assay(enr_res, 4))),
+                     matrix(c(0,1,0,-1), ncol = 2, byrow = TRUE))
+
 })
 
