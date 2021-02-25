@@ -9,7 +9,7 @@
   max_kmer_size = 3L,
   minimum_seq_weight = 0.001,
   max_autonorm_iters = 160L,
-  verbose = TRUE
+  verbose = FALSE
 )
 }
 \arguments{

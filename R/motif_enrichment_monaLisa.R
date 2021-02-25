@@ -362,7 +362,7 @@
                                    max_kmer_size = 3L,
                                    minimum_seq_weight = 0.001,
                                    max_autonorm_iters = 160L,
-                                   verbose = TRUE) {
+                                   verbose = FALSE) {
 
   .checkDfValidity(df)
   if (!is.integer(max_kmer_size) ||
@@ -481,29 +481,27 @@
 #'   }
 #' 
 #' @importFrom stats pbinom fisher.test
-.calcMotifEnrichment <- function(motif_matrix = NULL, 
-                                 df = NULL, 
+.calcMotifEnrichment <- function(motif_matrix, 
+                                 df, 
                                  test = c("binomial", "fisher"), 
                                  verbose = FALSE){
   
   # checks
-  if (!nrow(motif_matrix) == nrow(df)) {
-    stop("'motif_matrix' and 'df' must have the same number of rows")
-  }
-  if (!all(rownames(motif_matrix) == rownames(df))) {
-    stop("'motif_matrix' and 'df' must have matching names (same order)")
-  }
-  if (is.null(motif_matrix) | is.null(df)) {
-    stop("'motif_matrix' and 'df' have to be provided")
-  }
   if (!is.matrix(motif_matrix)) {
-    stop("'motif_matrix' has to be a matrix")
+      stop("'motif_matrix' has to be a matrix")
+  }
+  if (!nrow(motif_matrix) == nrow(df)) {
+      stop("'motif_matrix' and 'df' must have the same number of rows")
+  }
+  if (!is.null(rownames(motif_matrix)) && !is.null(rownames(df)) &&
+      !identical(rownames(motif_matrix), rownames(df))) {
+      stop("'motif_matrix' and 'df' must have identical rownames")
   }
   .checkDfValidity(df)
-  if (!is.logical(verbose) || length(verbose) != 1L) {
-    stop("'verbose' has to be either TRUE or FALSE")
-  }
   method <- match.arg(test)
+  if (!is.logical(verbose) || length(verbose) != 1L) {
+      stop("'verbose' has to be either TRUE or FALSE")
+  }
 
   # calculate sum of sequence weights for fg and bg per TF (for seqs with hits)
   total_foreground <- sum(df$kmer_weight[df$is_foreground])

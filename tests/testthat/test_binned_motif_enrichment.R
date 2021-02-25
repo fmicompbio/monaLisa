@@ -109,6 +109,43 @@ test_that(".iterativeNormForKmers() works", {
 })
 
 
+test_that(".calcMotifEnrichment works", {
+    fseq <- c(f1  = "AGGGGGGGGG", f3  = "AAAGGGGGGG", f4  = "AAAAGGGGGG",
+              f6  = "AAAAAAGGGG", f8  = "AAAAAAAAGG")
+    bseq <- c(b1  = "AGGGGGGGGG", b2  = "AAGGGGGGGG", b3  = "AAAGGGGGGG",
+              b4  = "AAAAGGGGGG", b5  = "AAAAAGGGGG")
+    df <- DataFrame(seqs = DNAStringSet(c(fseq, bseq)),
+                    is_foreground = rep(c(TRUE, FALSE), c(length(fseq), length(bseq))),
+                    gc_frac = NA_real_,
+                    gc_bin = NA_integer_,
+                    gc_weight = NA_real_,
+                    kmer_weight = NA_real_)
+    attr(df, "err") <- 0
+    df <- .calculateGCweight(df)
+    df <- .iterativeNormForKmers(df)
+    mhits <- cbind(m1 = c(1, 1, 0, 0, 0, 0, 1),
+                   m2 = c(0, 0, 1, 1, 1, 1, 0),
+                   m3 = c(1, 1, 1, 1, 1, 1, 1),
+                   m4 = c(0, 0, 0, 0, 0, 0, 0))
+    
+    expect_error(.calcMotifEnrichment("error", df), "has to be a matrix")
+    expect_error(.calcMotifEnrichment(mhits, df[1:3, ]), "same number of rows")
+    mhits2 <- mhits
+    rownames(mhits2) <- as.character(seq.int(nrow(mhits2)))
+    expect_error(.calcMotifEnrichment(mhits2, df), "identical rownames")
+    expect_error(.calcMotifEnrichment(mhits, df[1:3]), "has to have columns")
+    expect_error(.calcMotifEnrichment(mhits, df, test = "error"), "should be one of")
+    expect_error(.calcMotifEnrichment(mhits, df, verbose = "error"), "either TRUE or FALSE")
+
+    expect_warning(res1 <- .calcMotifEnrichment(motif_matrix = mhits, df = df))
+    expect_is(res1, "data.frame")
+    expect_identical(rownames(res1), colnames(mhits))
+    expect_identical(round(res1$log_p_value, 3), c(-1.341, -0.038, -0.844, 0))
+    expect_is(res2 <- .calcMotifEnrichment(motif_matrix = mhits, df = df, test = "fisher"), "data.frame")
+    expect_identical(res1[, -2], res2[, -2])
+    expect_identical(round(res2$log_p_value, 3), c(-0.99, -0.029, 0, 0))
+})
+
 test_that("get_binned_motif_enrichment() works in default mode", {
 
     library(GenomicRanges)

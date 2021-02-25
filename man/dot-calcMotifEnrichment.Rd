@@ -5,8 +5,8 @@
 \title{Calculate motif enrichment}
 \usage{
 .calcMotifEnrichment(
-  motif_matrix = NULL,
-  df = NULL,
+  motif_matrix,
+  df,
   test = c("binomial", "fisher"),
   verbose = FALSE
 )
