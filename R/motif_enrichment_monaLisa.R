@@ -486,127 +486,105 @@
                                  test = c("binomial", "fisher"), 
                                  verbose = FALSE){
   
-  # checks
-  if (!is.matrix(motif_matrix)) {
-      stop("'motif_matrix' has to be a matrix")
-  }
-  if (!nrow(motif_matrix) == nrow(df)) {
-      stop("'motif_matrix' and 'df' must have the same number of rows")
-  }
-  if (!is.null(rownames(motif_matrix)) && !is.null(rownames(df)) &&
-      !identical(rownames(motif_matrix), rownames(df))) {
-      stop("'motif_matrix' and 'df' must have identical rownames")
-  }
-  .checkDfValidity(df)
-  method <- match.arg(test)
-  if (!is.logical(verbose) || length(verbose) != 1L) {
-      stop("'verbose' has to be either TRUE or FALSE")
-  }
-
-  # calculate sum of sequence weights for fg and bg per TF (for seqs with hits)
-  total_foreground <- sum(df$kmer_weight[df$is_foreground])
-  total_background <- sum(df$kmer_weight[!df$is_foreground])
-  
-  tf_foreground <- apply(X = motif_matrix, 
-                         MARGIN = 2, 
-                         FUN = function(x){
-                           sum(df$kmer_weight[df$is_foreground & x == 1])
-                         })
-  
-  tf_background <- apply(X = motif_matrix, 
-                         MARGIN = 2, 
-                         FUN = function(x){
-                           sum(df$kmer_weight[!df$is_foreground & x == 1])
-                         })
-
-  # calculate motif enrichment
-  if (method == "binomial") {
-  
-    # follow Homer in terms of setting upper and lower limits for the 
-    # prob value in pbinom (see logbinomial function in statistics.cpp file
-    # and scoreEnrichmentBinomial function in Motif2.cpp file)
-    
-    if (verbose) {
-        message("using the binomial test to calculate log(p-values) for motif enrichments")
+    # checks
+    if (!is.matrix(motif_matrix)) {
+        stop("'motif_matrix' has to be a matrix")
     }
-   
-    # limits
-    lower_prob_limit <- 1 / total_background
-    upper_prob_limit <- (total_background - 1) / total_background
-    
-    # prob
-    prob <- tf_background / total_background
-    
-    # print warnings if necessary
-    if (sum(prob < lower_prob_limit) > 0) {
-        warning("some probabilities (TF_bgSum/total_bgSum) have a ",
-                "value less than lower_prob_limit (example when TF_bgSum=0) ",
-                "and will be given a value of lower_prob_limit=1/total_bgSum")
+    if (!nrow(motif_matrix) == nrow(df)) {
+        stop("'motif_matrix' and 'df' must have the same number of rows")
     }
-    if (sum(prob > upper_prob_limit) > 0) {
-      warning("some probabilities (TF_bgSum/total_bgSum) have a ",
-              "value greater than upper_prob_limit and will be given ",
-              "a value of upper_prob_limit=(total_bgSum-1)/total_bgSum")
+    if (!is.null(rownames(motif_matrix)) && !is.null(rownames(df)) &&
+        !identical(rownames(motif_matrix), rownames(df))) {
+        stop("'motif_matrix' and 'df' must have identical rownames")
     }
+    .checkDfValidity(df)
+    method <- match.arg(test)
+    if (!is.logical(verbose) || length(verbose) != 1L) {
+        stop("'verbose' has to be either TRUE or FALSE")
+    }
+  
+    # total sum of sequence weights for fg and bg
+    total_wgt_fg <- sum(df$kmer_weight[df$is_foreground])
+    total_wgt_bg <- sum(df$kmer_weight[!df$is_foreground])
     
-    # update prob if necessary
-    prob[prob < lower_prob_limit] <- lower_prob_limit
-    prob[prob > upper_prob_limit] <- upper_prob_limit
+    # sum of sequence weights for fg and bg per TF (for seqs with hits)
+    tf_wgt_fg <- apply(X = motif_matrix, MARGIN = 2,
+                       FUN = function(x) {
+                          sum((df$kmer_weight * x)[df$is_foreground])
+                       })
     
-    
-    # enrichment
-    enrichment_log_p_value <- pbinom(q = tf_foreground - 1,
-                                     size = total_foreground,
-                                     prob = prob,
-                                     lower.tail = FALSE, log.p = TRUE)
-    
-  } else if (method == "fisher") {
+    tf_wgt_bg <- apply(X = motif_matrix, 
+                           MARGIN = 2, 
+                           FUN = function(x){
+                             sum((df$kmer_weight * x)[!df$is_foreground])
+                           })
+  
+    # calculate motif enrichment
+    if (method == "binomial") {
     
       if (verbose) {
-          message("using fisher's exact test (one-sided) to calculate log(p-values) for motif enrichments")
+          message("using binomial test to calculate ",
+                  "log(p-values) for motif enrichments")
+      }
+     
+      # follow Homer in terms of setting upper and lower limits for the 
+      # prob value in pbinom (see logbinomial function in statistics.cpp file
+      # and scoreEnrichmentBinomial function in Motif2.cpp file)
+      
+      # limits
+      lower_prob_limit <- 1 / total_wgt_bg
+      upper_prob_limit <- (total_wgt_bg - 1) / total_wgt_bg
+      
+      # prob
+      prob <- tf_wgt_bg / total_wgt_bg
+      
+      if (any(i <- (prob < lower_prob_limit))) {
+          warning("some probabilities (TF_bgSum/total_bgSum) have a ",
+                  "value less than lower_prob_limit (example when TF_bgSum=0) ",
+                  "and will be given a value of lower_prob_limit=1/total_bgSum")
+          prob[i] <- lower_prob_limit
+      }
+      if (any(i <- (prob > upper_prob_limit))) {
+          warning("some probabilities (TF_bgSum/total_bgSum) have a ",
+                  "value greater than upper_prob_limit and will be given ",
+                  "a value of upper_prob_limit=(total_bgSum-1)/total_bgSum")
+          prob[i] <- upper_prob_limit
       }
       
-      # index
-      ind <- 1:length(tf_foreground)
-      names(ind) <- names(tf_foreground)
+      enr_logp <- pbinom(q = tf_wgt_fg - 1,
+                         size = total_wgt_fg,
+                         prob = prob,
+                         lower.tail = FALSE, log.p = TRUE)
       
-      # contingency table per motif for fisher's exact test
-      # (x, y, z and w are rounded to the nearest integer):
-      #          TF_hit  not_TF_hit
-      #   is_fg     x         y
-      #   is_bg     z         w
-      #
-      enrichment_log_p_value <- log(vapply(ind, function(i) {
+    } else if (method == "fisher") {
+      
+        if (verbose) {
+            message("using fisher's exact test (one-sided) to calculate ",
+                    "log(p-values) for motif enrichments")
+        }
         
-          # contingency table
-          cont_table <-  matrix(data = c(tf_foreground[i],
-                                         (total_foreground - tf_foreground[i]), 
-                                         tf_background[i],
-                                         (total_background - tf_background[i])), 
-                                ncol = 2, 
-                                byrow = TRUE)
-          
-          # round to integer for fisher's exact test
-          cont_table <- round(cont_table)
-          
-          # fisher's exact test: get p-value
-          fisher.test(x = cont_table, alternative = "greater")$p.value
-      }, FUN.VALUE = numeric(1)))
+        # contingency table per motif for fisher's exact test (rounded to integer):
+        #          TF_hit  not_TF_hit
+        #   is_fg     x         y
+        #   is_bg     z         w
+        #
+        enr_logp <- log(vapply(structure(seq_along(tf_wgt_fg),
+                                         names = names(tf_wgt_fg)),
+                               function(i) {
+            cont_table <- rbind(c(tf_wgt_fg[i], total_wgt_fg - tf_wgt_fg[i]),
+                                c(tf_wgt_bg[i], total_wgt_bg - tf_wgt_bg[i]))
+            cont_table <- round(cont_table)
+            fisher.test(x = cont_table, alternative = "greater")$p.value
+        }, FUN.VALUE = numeric(1)))
+      
+    }
     
-  }
-  
-  # # sort
-  # o <- order(enrichment_log_p_value)
-  o <- 1:length(enrichment_log_p_value)
-
-  # return sorted log-pvalues and what was used to calculate them per motif
-  data.frame(motif_name=names(enrichment_log_p_value)[o], 
-             log_p_value=enrichment_log_p_value[o], 
-             fg_weight_sum=tf_foreground[o], 
-             bg_weight_sum=tf_background[o], 
-             fg_weight_sum_total=rep(total_foreground, length(o)), 
-             bg_weight_sum_total=rep(total_background, length(o)))
-  
+    return(data.frame(motif_name = names(enr_logp), 
+                      log_p_value = enr_logp, 
+                      fg_weight_sum = tf_wgt_fg, 
+                      bg_weight_sum = tf_wgt_bg, 
+                      fg_weight_sum_total = total_wgt_fg, 
+                      bg_weight_sum_total = total_wgt_bg))
 }
 
 
