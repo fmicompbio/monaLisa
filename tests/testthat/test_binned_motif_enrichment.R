@@ -93,8 +93,8 @@ test_that(".iterativeNormForKmers() works", {
     
     expect_error(.iterativeNormForKmers("error"))
     expect_error(.iterativeNormForKmers(df, max_kmer_size = "error"), "integer scalar greater than zero")
-    expect_error(.iterativeNormForKmers(df, minimum_seq_weight = -1, "numeric scalar greater than zero"))
-    expect_error(.iterativeNormForKmers(df, max_autonorm_iters = "error", "integer scalar greater than zero"))
+    expect_error(.iterativeNormForKmers(df, minimum_seq_weight = -1), "numeric scalar greater than zero")
+    expect_error(.iterativeNormForKmers(df, max_autonorm_iters = "error"), "integer scalar greater than zero")
     expect_error(.iterativeNormForKmers(df, verbose = "error"), "either TRUE or FALSE")
     
     expect_message(res1 <- .iterativeNormForKmers(df, verbose = TRUE))
