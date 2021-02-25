@@ -665,7 +665,8 @@
 #' }
 #'  
 #' @importFrom TFBSTools ID name
-#' @importFrom SummarizedExperiment SummarizedExperiment rowData metadata
+#' @importFrom SummarizedExperiment SummarizedExperiment rowData
+#' @importFrom S4Vectors metadata
 #'
 #' @export
 get_binned_motif_enrichment <- function(seqs, 
@@ -696,14 +697,11 @@ get_binned_motif_enrichment <- function(seqs,
     if (!is(pwmL, "PWMatrixList")) {
         stop("'pwmL' must be of class 'PWMatrixList'")
     }
-    if (!is(maxKmerSize, "integer")) {
-        stop("'maxKmerSize' must be of class 'integer'")
+    if (!is(Ncpu, "integer") || length(Ncpu) != 1L || Ncpu <= 0L) {
+        stop("'Ncpu' must be an integer scalar greater than zero")
     }
-    if (!is(Ncpu, "integer")) {
-        stop("'Ncpu' must be of class 'integer'")
-    }
-    if (!is(verbose, "logical")) {
-      stop("'verbose' must be of class 'logical'")
+    if (!is.logical(verbose) || length(verbose) != 1L) {
+        stop("'verbose' has to be either TRUE or FALSE")
     }
     # ... supply/check for names
     if (is.null(names(seqs))) {

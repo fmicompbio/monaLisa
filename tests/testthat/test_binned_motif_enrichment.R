@@ -302,6 +302,9 @@ test_that("get_binned_motif_enrichment() works in default mode", {
     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b[-1]), "must be of equal length")
     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = "error"), "PWMatrixList")
     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwms, maxFracN = "error"), "numerical scalar")
+    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwms, maxKmerSize = "error"), "integer scalar")
+    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwms, Ncpu = "error"), "integer scalar")
+    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwms, verbose = "error"), "TRUE or FALSE")
     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = as.matrix(pwms[[1]])))
 
     # ... expected results on dataset
