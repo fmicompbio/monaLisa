@@ -147,6 +147,7 @@ test_that(".calcMotifEnrichment works", {
     expect_identical(round(res2$log_p_value, 3), c(-0.99, -0.029, 0, 0))
 })
 
+
 test_that("get_binned_motif_enrichment() works in default mode", {
 
     library(GenomicRanges)
@@ -155,8 +156,6 @@ test_that("get_binned_motif_enrichment() works in default mode", {
     library(TFBSTools)
     library(Biostrings)
     library(SummarizedExperiment)
-  
-    genome <- BSgenome.Mmusculus.UCSC.mm10
   
     ## We use pre-selected regions and motifs that we 
     ## ... know will be enriched in one set of regions vs the other
@@ -278,7 +277,7 @@ test_that("get_binned_motif_enrichment() works in default mode", {
                        strand = "*")
     gr <- c(gr_RBPJ, gr_SPIB)
     names(gr) <- paste0("peak_", 1:length(gr))
-    seqs <- getSeq(genome, gr)
+    seqs <- getSeq(BSgenome.Mmusculus.UCSC.mm10, gr)
     
     ## PWMs
     pfms <- getMatrixSet(JASPAR2018, list(matrixtype = "PFM",
@@ -297,22 +296,20 @@ test_that("get_binned_motif_enrichment() works in default mode", {
   
     ## Tests
     # ... missing arguments or wrong classes
-    expect_error(get_binned_motif_enrichment(bins = b, pwmL = pwms, genome = genome))
-    expect_error(get_binned_motif_enrichment(seqs = as.character(seqs), bins = b, pwmL = pwms, genome = genome))
-    expect_error(get_binned_motif_enrichment(seqs = seqs, pwmL = pwms, genome = genome))
-    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = as.character(b), pwmL = pwms, genome = genome))
-    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, genome = genome))
-    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = as.matrix(pwms[[1]]), genome = genome))
-    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwms))
-    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwms, genome = "mm10"))
- 
+    expect_error(get_binned_motif_enrichment(bins = b, pwmL = pwms))
+    expect_error(get_binned_motif_enrichment(seqs = as.character(seqs), bins = b, pwmL = pwms))
+    expect_error(get_binned_motif_enrichment(seqs = seqs, pwmL = pwms))
+    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = as.character(b), pwmL = pwms))
+    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b))
+    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = as.matrix(pwms[[1]])))
+
     # ... expected results on dataset
     expect_is(enr_res, "SummarizedExperiment")
     expect_identical(rownames(enr_res), c("MA0081.1", "MA1116.1"))
-    expect_identical(unname(round(assay(enr_res, 3))),
-                     matrix(c(-2,4,2,-2), ncol = 2, byrow = TRUE))
-    expect_identical(unname(round(assay(enr_res, 4))),
-                     matrix(c(0,1,0,-1), ncol = 2, byrow = TRUE))
+    expect_identical(unname(round(assay(enr_res, 3), 3)),
+                     matrix(c(-1.930, 2.367, 3.550, -2.238), ncol = 2))
+    expect_identical(unname(round(assay(enr_res, 4), 3)),
+                     matrix(c(-0.436, 0.375, 0.656, -0.729), ncol = 2))
 
 })
 
