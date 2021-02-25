@@ -154,14 +154,14 @@
     if (!is.logical(verbose) || length(verbose) != 1L) {
         stop("'verbose' has to be either TRUE or FALSE")
     }
-    
+
     # calculate GC fraction for each sequence
     fmono <- oligonucleotideFrequency(df$seqs, width = 1, as.prob = TRUE)
     df$gc_frac <- fmono[, "G"] + fmono[, "C"]
-  
+
     # assign sequences to a GC bin
     df$gc_bin <- findInterval(x = df$gc_frac, vec = GCbreaks, all.inside = TRUE)
-  
+
     # keep bins that have at least 1 foreground and 1 background sequence
     # and filter out sequences from unused bins
     used_bins <- sort(intersect(df$gc_bin[df$is_foreground],
@@ -175,16 +175,16 @@
                 "%) filtered out from unused GC-bins.")
     }
     df <- df[keep, ]
-  
+
     # total number of foreground and background sequences
     total_fg <- sum(df$is_foreground)
     total_bg <- sum(!df$is_foreground)
-  
+
     # calculate GC weight per bin
     n_fg_b <- table(df$gc_bin[df$is_foreground])
     n_bg_b <- table(df$gc_bin[!df$is_foreground])
     weight_per_bin <- (n_fg_b / n_bg_b) * (total_bg / total_fg)
-  
+
     # assign calculated GC weight to each background sequence
     # (foreground sequences get a weight of 1)
     df$gc_weight <- ifelse(df$is_foreground,
@@ -240,83 +240,83 @@
 
     # set starting error
     err <- 0
-  
+
     # iterate over the k-mer sizes
     for (k in seq_along(kmer_freq)) {
-  
+
         # divide the current weight of each sequence by its g_oligos
         div_weight <- kmer_weight / g_oligos[[k]]
-    
+
         # for each sequence multiply the frequency of each oligo by its div_weight
         # (distributing the weights of each sequence to its oligos)
         oligo_weights_per_seq <- kmer_freq[[k]] * div_weight
-    
+
         # sum weights per oligo over foreground (foreground_levels) and background
         # (background_levels) sequences
         foreground_levels <- colSums(oligo_weights_per_seq[is_foreground, ])
         background_levels <- colSums(oligo_weights_per_seq[!is_foreground, ])
-    
+
         # sum weights in foreground_levels and background_levels
         total_foreground <- sum(foreground_levels)
         total_background <- sum(background_levels)
-    
+
         # min values as used by Homer
         min_foreground_levels <- 0.5 / total_foreground
         min_background_levels <- 0.5 / total_background
-    
+
         # Average the weight of a k-mer with its reverse complement
         f_level <- (foreground_levels + foreground_levels[kmer_seq_rc[[k]]]) / 2
         b_level <- (background_levels + background_levels[kmer_seq_rc[[k]]]) / 2
-    
+
         # check if less than set minimum
         f_level[f_level < min_foreground_levels] <- min_foreground_levels
         b_level[b_level < min_background_levels] <- min_background_levels
-    
+
         # Calculate normFactor (to be used to correct background sequences)
         norm_factors <- (f_level / b_level) * (total_background / total_foreground)
-    
+
         # update error
         err <- err + sum((norm_factors - 1)^2 / length(foreground_levels))
-    
+
         # calculate new weights for background sequences
-    
+
         # ... sum the norm_factors of all k-mers per background sequence
         bg_new_score <- rowSums(sweep(x = kmer_freq[[k]][!is_foreground, ],
                                       MARGIN = 2, STATS = norm_factors, FUN = "*"))
-    
+
         # ... Homer check: if number of good oligos is > 0.5
         bg_g_oligos <- g_oligos[[k]][!is_foreground]
         g <- bg_g_oligos > 0.5
         bg_new_score[g] <- bg_new_score[g] / bg_g_oligos[g]
-    
+
         # ... new weight for each background sequence
         # ... ... newWeight = newScore*currentWeight
         bg_cur_weight <- kmer_weight[!is_foreground]
         bg_new_weight <- bg_new_score * bg_cur_weight
-    
+
         # ... Homer's minimum and maximum weight cutoffs
         bg_new_weight[bg_new_weight < minimum_seq_weight] <- minimum_seq_weight
         bg_new_weight[bg_new_weight > maximum_seq_weight] <- maximum_seq_weight
-    
+
         # ... penalty (as used by Homer)
         bg_penalty <- bg_new_weight
         g <- bg_penalty < 1
         bg_penalty[g] <- 1 / bg_penalty[g]
         bg_penalty <- bg_penalty^2
-    
+
         # ... delta (as used by Homer)
         bg_delta <-  bg_new_weight - bg_cur_weight
-    
+
         # ... bg_new_weight1 (as used by Homer)
         bg_new_weight1 <- bg_cur_weight + bg_delta
         g <- bg_penalty > 1 & ((bg_delta > 0 & bg_new_weight > 1) |
                                  (bg_delta < 0 & bg_new_weight < 1))
         bg_new_weight1[g] <- bg_cur_weight[g] + bg_delta[g] / bg_penalty[g]
-    
+
         # ... update kmer_weight with bg_new_weight1
         kmer_weight[!is_foreground] <- bg_new_weight1
     }
-  
+
     # return new kmer_weight and error
     list(kmer_weight = kmer_weight, err = err)
 }
@@ -383,7 +383,7 @@
   if (!is.logical(verbose) || length(verbose) != 1L) {
     stop("'verbose' has to be either TRUE or FALSE")
   }
-  
+
   # initialize kmer_weight using gc_weight
   last_error <- Inf
   cur_weight <- df$gc_weight
@@ -446,24 +446,24 @@
 #'   weights for a set of sequences, calculate the enrichment of each motif
 #'   in foreground compared to background. This function is called by
 #'   \code{get_binned_motif_enrichment()} for each bin.
-#'   
+#'
 #'   The defaults type of test is \code{"binomial"}, which is also what
 #'   \code{Homer} uses by default. Alternatively, Fisher's exact test can be
 #'   used by \code{test = "fisher"}, which has the advantage that special cases
 #'   such as zero background counts are handled without ad-hoc adjustments to
 #'   the frequencies.
-#'   
+#'
 #'   For \code{test = "fisher"}, \code{fisher.test} is used with
 #'   \code{alternative = "greater"}, making it a one-sided test for enrichment,
 #'   as is the case with the binomial test.
 #'
-#' @param motif_matrix matrix with 0 and 1 entries for absence or presence of 
+#' @param motif_matrix matrix with 0 and 1 entries for absence or presence of
 #'   motif hits in each sequence.
 #' @param df a \code{DataFrame} with sequence information as returned by
 #'   \code{.iterativeNormForKmers()}.
-#' @param test type of motif enrichment test to perform. 
+#' @param test type of motif enrichment test to perform.
 #' @param verbose A logical scalar. If \code{TRUE}, report on progress.
-#' 
+#'
 #' @return a \code{data.frame} containing the motifs as rows and the columns:
 #'   \itemize{
 #'     \item{motif_name}{: the motif name}
@@ -479,13 +479,13 @@
 #'     \item{bg_weight_sum_total}{: the total sum of weights of background
 #'        sequences.}
 #'   }
-#' 
+#'
 #' @importFrom stats pbinom fisher.test
-.calcMotifEnrichment <- function(motif_matrix, 
-                                 df, 
-                                 test = c("binomial", "fisher"), 
+.calcMotifEnrichment <- function(motif_matrix,
+                                 df,
+                                 test = c("binomial", "fisher"),
                                  verbose = FALSE){
-  
+
     # checks
     if (!is.matrix(motif_matrix)) {
         stop("'motif_matrix' has to be a matrix")
@@ -502,42 +502,42 @@
     if (!is.logical(verbose) || length(verbose) != 1L) {
         stop("'verbose' has to be either TRUE or FALSE")
     }
-  
+
     # total sum of sequence weights for fg and bg
     total_wgt_fg <- sum(df$kmer_weight[df$is_foreground])
     total_wgt_bg <- sum(df$kmer_weight[!df$is_foreground])
-    
+
     # sum of sequence weights for fg and bg per TF (for seqs with hits)
     tf_wgt_fg <- apply(X = motif_matrix, MARGIN = 2,
                        FUN = function(x) {
                           sum((df$kmer_weight * x)[df$is_foreground])
                        })
-    
-    tf_wgt_bg <- apply(X = motif_matrix, 
-                           MARGIN = 2, 
-                           FUN = function(x){
+
+    tf_wgt_bg <- apply(X = motif_matrix,
+                           MARGIN = 2,
+                           FUN = function(x) {
                              sum((df$kmer_weight * x)[!df$is_foreground])
                            })
-  
+
     # calculate motif enrichment
     if (method == "binomial") {
-    
+
       if (verbose) {
           message("using binomial test to calculate ",
                   "log(p-values) for motif enrichments")
       }
-     
-      # follow Homer in terms of setting upper and lower limits for the 
+
+      # follow Homer in terms of setting upper and lower limits for the
       # prob value in pbinom (see logbinomial function in statistics.cpp file
       # and scoreEnrichmentBinomial function in Motif2.cpp file)
-      
+
       # limits
       lower_prob_limit <- 1 / total_wgt_bg
       upper_prob_limit <- (total_wgt_bg - 1) / total_wgt_bg
-      
+
       # prob
       prob <- tf_wgt_bg / total_wgt_bg
-      
+
       if (any(i <- (prob < lower_prob_limit))) {
           warning("some probabilities (TF_bgSum/total_bgSum) have a ",
                   "value less than lower_prob_limit (example when TF_bgSum=0) ",
@@ -550,19 +550,19 @@
                   "a value of upper_prob_limit=(total_bgSum-1)/total_bgSum")
           prob[i] <- upper_prob_limit
       }
-      
+
       enr_logp <- pbinom(q = tf_wgt_fg - 1,
                          size = total_wgt_fg,
                          prob = prob,
                          lower.tail = FALSE, log.p = TRUE)
-      
+
     } else if (method == "fisher") {
-      
+
         if (verbose) {
             message("using fisher's exact test (one-sided) to calculate ",
                     "log(p-values) for motif enrichments")
         }
-        
+
         # contingency table per motif for fisher's exact test (rounded to integer):
         #          TF_hit  not_TF_hit
         #   is_fg     x         y
@@ -576,14 +576,13 @@
             cont_table <- round(cont_table)
             fisher.test(x = cont_table, alternative = "greater")$p.value
         }, FUN.VALUE = numeric(1)))
-      
     }
-    
-    return(data.frame(motif_name = names(enr_logp), 
-                      log_p_value = enr_logp, 
-                      fg_weight_sum = tf_wgt_fg, 
-                      bg_weight_sum = tf_wgt_bg, 
-                      fg_weight_sum_total = total_wgt_fg, 
+
+    return(data.frame(motif_name = names(enr_logp),
+                      log_p_value = enr_logp,
+                      fg_weight_sum = tf_wgt_fg,
+                      bg_weight_sum = tf_wgt_bg,
+                      fg_weight_sum_total = total_wgt_fg,
                       bg_weight_sum_total = total_wgt_bg))
 }
 
@@ -593,28 +592,28 @@
 #' @description This function performs a motif enrichment analysis on bins of
 #'   sequences. For each bin, the sequences in all other bins are used as
 #'   background.
-#' 
+#'
 #' @param seqs DNAStringSet object with sequences to test
 #' @param bins factor of the same length and order as \code{seqs}, indicating
 #'   the bin for each sequence. Typically the return value of
-#'   \code{\link[monaLisa]{bin}}. 
+#'   \code{\link[monaLisa]{bin}}.
 #' @param pwmL PWMatrixList with motifs for which to calculate enrichments.
 #' @param test A \code{character} scalar specifying the type of enrichment test
 #'   to perform. One of \code{"binomial"} (default) or \code{"fisher"}. The
 #'   enrichment test is one-sided (enriched in foreground).
-#' @param maxFracN A numeric scalar with the maximal fraction of N bases allowed 
+#' @param maxFracN A numeric scalar with the maximal fraction of N bases allowed
 #'   in a sequence (defaults to 0.7). Sequences with higher fractions are
 #'   excluded from the analysis.
 #' @param maxKmerSize the maximum k-mer size to consider, when adjusting
 #'   background sequence weights for k-mer composition compared to the
 #'   foreground sequences. The default value (3) will correct for mono-, di-
 #'   and tri-mer composition.
-#' @param min.score the minimal score for motif hits, used in 
+#' @param min.score the minimal score for motif hits, used in
 #'   \code{\link[monaLisa]{findMotifHits}}.
 #' @param matchMethod the method used to scan for motif hits, passed to the
 #'   \code{method} parameter in \code{\link[monaLisa]{findMotifHits}}.
 #' @param Ncpu Number of CPUs to use for parts of the analysis that can run
-#'   in parallel (e.g. the scanning for motif hits). 
+#'   in parallel (e.g. the scanning for motif hits).
 #' @param verbose A logical scalar. If \code{TRUE}, print progress messages.
 #' @param ... Additional arguments for  \code{\link[monaLisa]{findMotifHits}}.
 #'
@@ -626,14 +625,14 @@
 #'   and gives very similar results. As in the \code{Homer} tool, sequences are
 #'   weighted to correct for GC and k-mer composition differences between fore-
 #'   and background sets.
-#'   
+#'
 #'   Motif hits are predicted using \code{\link[monaLisa]{findMotifHits}} and
 #'   multiple hits per sequence are counted as just one hit (ZOOPS mode). For
 #'   each motif, the weights of sequences that have a hit are summed separately
 #'   for foreground (\code{fg_weight_sum}) and background (\code{bg_weight_sum}).
 #'   The total foreground  (\code{fg_weight_sum_total}) and background
 #'   (\code{bg_weight_sum_total}) sum of sequence weights is also calculated.
-#'   
+#'
 #'   To statistical tests for the calculation of enrichment log p-value are
 #'   available: \code{test = "binomial"} (default) to perform binomial test
 #'   like \code{Homer}, or \code{test = "fisher"} to perform Fisher's exact
@@ -656,33 +655,33 @@
 #'                - change the names of the assays in the SE or return the p-values and FDR (not -log10)
 #'                - have a look again at using motif IDs and not names, but keeping both information
 #'
-#' @return A \code{SummarizedExperiment} object where the rows are the motifs and the columns are bins. The
-#'   four assays are: \itemize{
+#' @return A \code{SummarizedExperiment} object where the rows are the motifs
+#'   and the columns are bins. The four assays are: \itemize{
 #'   \item{p}{: -log10 P values}
 #'   \item{FDR}{: -log10 false discovery rates}
 #'   \item{enr}{: motif enrichments as Pearson residuals}
 #'   \item{log2enr}{: motif enrichments as log2 ratios}
 #' }
-#'  
+#'
 #' @importFrom TFBSTools ID name
 #' @importFrom SummarizedExperiment SummarizedExperiment rowData
 #' @importFrom S4Vectors metadata
 #'
 #' @export
-get_binned_motif_enrichment <- function(seqs, 
-                                        bins, 
-                                        pwmL, 
-                                        test = c("binomial", "fisher"), 
-                                        maxFracN = 0.7, 
-                                        maxKmerSize = 3L, 
-                                        min.score = 10, 
+get_binned_motif_enrichment <- function(seqs,
+                                        bins,
+                                        pwmL,
+                                        test = c("binomial", "fisher"),
+                                        maxFracN = 0.7,
+                                        maxKmerSize = 3L,
+                                        min.score = 10,
                                         matchMethod = "matchPWM.concat",
-                                        Ncpu = 1L, 
-                                        verbose = FALSE, 
+                                        Ncpu = 1L,
+                                        verbose = FALSE,
                                         ...) {
-  
+
     ### Questions: - do `seqs` have to have names?
-    
+
     # checks
     # ... correct classes
     if (!is(seqs, "DNAStringSet")) {
@@ -711,17 +710,18 @@ get_binned_motif_enrichment <- function(seqs,
         names(seqs) <- paste0("seq_", seq_along(seqs))
     }
     if (is.null(names(pwmL))) {
-        stop("names(pwmL) is NULL, please name the PWMs, preferably with their unique ID.")
+        stop("names(pwmL) is NULL, please name the PWMs, preferably ",
+             "with their unique ID.")
     }
-    
+
     # create data.frame of motif names and symbols
-    TF_df <- data.frame(motif_ID = TFBSTools::ID(pwmL), 
+    TF_df <- data.frame(motif_ID = TFBSTools::ID(pwmL),
                         motif_symbol = TFBSTools::name(pwmL))
-    
+
     # create list of DataFrames, one for each bin
     bin_levels <- levels(bins)
     DF_list <- list()
-    for (i in 1:length(bin_levels)) {
+    for (i in seq_len(bin_levels)) {
         is_foreground <- logical(length = length(seqs))
         is_foreground[bins == bin_levels[i]] <- TRUE
         df <- DataFrame(seqs = seqs,
@@ -731,31 +731,31 @@ get_binned_motif_enrichment <- function(seqs,
                         gc_weight = NA_real_,
                         kmer_weight = NA_real_)
         attr(df, "err") <- NA
-        
+
         DF_list[[i]] <- df
         names(DF_list)[i] <- bin_levels[i]
     }
-    
+
     # filter 'bad' sequences per bin (can be done only once for all seqs--> need to change filtering function)
     if (verbose) {
         message("filtering out bad sequences ...")
     }
-    DF_list <- lapply(DF_list, function(x){.filterSeqs(df = x, maxFracN = maxFracN, verbose = verbose)})
-    
-    # calculate weight to adjust for GC differences between foreground and background per bin 
+    DF_list <- lapply(DF_list, function(x) {.filterSeqs(df = x, maxFracN = maxFracN, verbose = verbose)})
+
+    # calculate weight to adjust for GC differences between foreground and background per bin
     # ... in this step, sequences may be filtered out (if a GC bin contains one sequence only, that sequence is filtered out).
     # ... Since the kept seqs may differ per bin, we select the kept seqs at the enrichment per bin.
     if (verbose) {
         message("Correcting for GC differences to the background sequences per bin ...")
     }
-    DF_list <- lapply(DF_list, function(x){.calculateGCweight(df = x, verbose = verbose)})
-    
+    DF_list <- lapply(DF_list, function(x) {.calculateGCweight(df = x, verbose = verbose)})
+
     # update weight to in addition adjust for kmer composition differences between foreground and background per bin
     if (verbose) {
         message("Correcting for kmer differences to the background sequences per bin ...")
     }
-    DF_list <- lapply(DF_list, function(x){.iterativeNormForKmers(df = x, max_kmer_size = maxKmerSize, verbose = verbose)})
-    
+    DF_list <- lapply(DF_list, function(x) {.iterativeNormForKmers(df = x, max_kmer_size = maxKmerSize, verbose = verbose)})
+
     # get motif hits matrix in ZOOPS mode for all seqs
     if (verbose) {
         message("Scanning sequences for motif hits...")
@@ -776,7 +776,7 @@ get_binned_motif_enrichment <- function(seqs,
     # ... ZOOPS mode
     w <- complete_hit_mat > 1
     complete_hit_mat[w] <- 1
-    
+
     # get log(p-values) for motif enrichment
     if (verbose) {
         message("Calculating motif enrichment per bin ...")
@@ -785,51 +785,50 @@ get_binned_motif_enrichment <- function(seqs,
         .calcMotifEnrichment(motif_matrix = complete_hit_mat[rownames(x), , drop = FALSE],
                              df = x, test = test, verbose = verbose)
     })
-    
+
     # summarize results to return as SE
-  
-    # -log10(p-value)
+
+    # - log10 of p-value
     P <- do.call(cbind, lapply(enrich_list, function(bin_res) {
         D <- bin_res[, "log_p_value"]
         logpVals <- -D / log(10)
         names(logpVals) <- bin_res[, "motif_name"]
         logpVals
-        # logpVals[order(names(logpVals))]
     }))
-    
-    # -log10(FDR)
+
+    # - log10 of FDR
     tmp <-  as.vector(10**(-P))
     fdr <- matrix(-log10(p.adjust(tmp, method = "BH")), nrow = nrow(P)) # add as parameter? the method of choice for multiple testing correction?
     dimnames(fdr) <- dimnames(P)
     fdr[which(fdr == Inf, arr.ind = TRUE)] <- max(fdr[is.finite(fdr)])
-    
+
     # enrTF (Pearson residuals)
     enrTF <- do.call(cbind, lapply(enrich_list, function(bin_res) {
         D <- as.matrix(
             data.frame(
-              fg_weight_sum = bin_res[, "fg_weight_sum"], 
-              frac_fg_seq_with_motif = (bin_res[, "fg_weight_sum"] / bin_res[, "fg_weight_sum_total"]), 
+              fg_weight_sum = bin_res[, "fg_weight_sum"],
+              frac_fg_seq_with_motif = (bin_res[, "fg_weight_sum"] / bin_res[, "fg_weight_sum_total"]),
               frac_bg_seq_with_motif = (bin_res[, "bg_weight_sum"] / bin_res[, "bg_weight_sum_total"]))
         )
         rownames(D) <-  bin_res[, "motif_name"]
         obsTF <- D[, "fg_weight_sum"]
-        expTF <- D[, "fg_weight_sum"] / (D[, "frac_fg_seq_with_motif"] + 0.001) * (D[, "frac_bg_seq_with_motif"] + 0.001) # keep pseudo count fixed or make parameter? exp = numb_fg_total*bg_frac 
+        expTF <- D[, "fg_weight_sum"] / (D[, "frac_fg_seq_with_motif"] + 0.001) * (D[, "frac_bg_seq_with_motif"] + 0.001) # keep pseudo count fixed or make parameter? exp = numb_fg_total*bg_frac
         enr <- (obsTF - expTF) / sqrt(expTF)
         enr[ is.na(enr) ] <- 0
         enr
     }))
-    
+
     # log2enr
     log2enr <- do.call(cbind, lapply(enrich_list, function(bin_res) {
         D <- bin_res[, c("fg_weight_sum", "bg_weight_sum")]
         nTot <- c(bin_res[1, "fg_weight_sum_total"], bin_res[1, "bg_weight_sum_total"]) # Do I round the bg total to the nearest integer?
-        D.norm <- t(min(nTot)*t(D)/nTot) # scale to smaller number (usually number of target sequences) # 
+        D.norm <- t(min(nTot) * t(D) / nTot) # scale to smaller number (usually number of target sequences) #
         DL <- log2(D.norm + 8) # keep pseudo count fixed? --> yes
         log2enr <- DL[, 1] - DL[, 2]
         names(log2enr) <- bin_res[, "motif_name"]
         log2enr
     }))
-                       
+
     # return SummarizedExperiment
     se <- SummarizedExperiment(assays = list(p = P, FDR = fdr, enr = enrTF,
                                              log2enr = log2enr)) # better names? P and fdr are -log10(p-value), yes or transform into p-values
@@ -840,8 +839,6 @@ get_binned_motif_enrichment <- function(seqs,
                                        min.score = min.score,
                                        matchMethod = matchMethod,
                                        Ncpu = Ncpu, verbose = verbose))
-    
-    # ?order by p-value or enrichment in the future?
+
     return(se)
 }
-
