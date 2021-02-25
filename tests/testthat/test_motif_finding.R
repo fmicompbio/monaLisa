@@ -1,7 +1,10 @@
 context("motif finding")
 
 test_that("findMotifHits() works properly", {
-    homerbin <- findHomer("homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin")
+    homerbin <- findHomer("homer2", dirs = NULL)
+    if (is.na(homerbin)) {
+        homerbin <- findHomer("homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.11/bin")
+    }
 
     seq1 <- Biostrings::DNAString("CCCCCAAACCCCC")
     seqs <- Biostrings::DNAStringSet(c(seq1 = "CCCCCAAACCCCC", seq2 = "AAAGGGGGAAA"))
