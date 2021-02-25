@@ -16,7 +16,7 @@ get_motif_enrichment(
 motif hits per sequence.}
 
 \item{df}{a \code{DataFrame} with sequence information as returned by
-\code{iterate_norm_for_kmer_comp()}.}
+\code{.iterativeNormForKmers()}.}
 
 \item{test}{type of test to do for the motif enrichment. By default it is the binomial, which 
 is what \code{Homer} uses by default. Fisher's exact test is another 
