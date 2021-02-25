@@ -8,14 +8,13 @@ get_binned_motif_enrichment(
   seqs,
   bins,
   pwmL,
-  genome = NULL,
   enrichment_test = c("binomial", "fisher"),
   frac_N_allowed = 0.7,
   max_kmer_size = 3L,
   min.score = 10,
   match_method = "matchPWM.concat",
   Ncpu = 1L,
-  verbose = TRUE,
+  verbose = FALSE,
   ...
 )
 }
@@ -26,9 +25,6 @@ get_binned_motif_enrichment(
 each sequence belongs to. See the \code{\link[monaLisa]{bin}} function.}
 
 \item{pwmL}{PWMatrixList object with PWMs of motifs.}
-
-\item{genome}{a BSgenome object indicating the genome to which the \code{seqs} 
-belong to, and which will be scanned for motif matches.}
 
 \item{enrichment_test}{A \code{character} scalar specifying the type of
 enrichment test to perform. One of \code{"binomial"} (default) or

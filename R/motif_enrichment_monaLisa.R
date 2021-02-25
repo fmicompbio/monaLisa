@@ -622,8 +622,6 @@
 #' @param bins factor vector of the same length and order as \code{seqs}, indicating the bin
 #'   each sequence belongs to. See the \code{\link[monaLisa]{bin}} function. 
 #' @param pwmL PWMatrixList object with PWMs of motifs.
-#' @param genome a BSgenome object indicating the genome to which the \code{seqs} 
-#'   belong to, and which will be scanned for motif matches.
 #' @param enrichment_test A \code{character} scalar specifying the type of
 #'   enrichment test to perform. One of \code{"binomial"} (default) or
 #'   \code{"fisher"}. The enrichment test is one-sided (enriched in foreground).
@@ -685,18 +683,16 @@
 get_binned_motif_enrichment <- function(seqs, 
                                         bins, 
                                         pwmL, 
-                                        genome = NULL, 
                                         enrichment_test = c("binomial", "fisher"), 
                                         frac_N_allowed = 0.7, 
                                         max_kmer_size = 3L, 
                                         min.score = 10, 
                                         match_method = "matchPWM.concat",
                                         Ncpu = 1L, 
-                                        verbose = TRUE, 
+                                        verbose = FALSE, 
                                         ...) {
   
-    ### Questions: - could `seqs` also be a GRanges object? What else is `genome` for?
-    ###            - do `seqs` have to have names?
+    ### Questions: - do `seqs` have to have names?
     
     # checks
     # ... correct classes
@@ -708,9 +704,6 @@ get_binned_motif_enrichment <- function(seqs,
     }
     if (!is(pwmL, "PWMatrixList")) {
         stop("'pwmL' must be of class 'PWMatrixList'")
-    }
-    if (!is(genome, "BSgenome")) {
-        stop("'genome' must be of class 'BSgenome'")
     }
     if (!is(frac_N_allowed, "numeric")) {
         stop("'frac_N_allowed' must be of class 'numeric'")
@@ -785,7 +778,8 @@ get_binned_motif_enrichment <- function(seqs,
     if (verbose) {
         message("Scanning sequences for motif hits...")
     }
-    hits <- findMotifHits(query = pwmL, subject = seqs, min.score = min.score, method = match_method, Ncpu = Ncpu, genome = genome, ...)
+    hits <- findMotifHits(query = pwmL, subject = seqs, min.score = min.score,
+                          method = match_method, Ncpu = Ncpu, ...)
     if (isEmpty(hits)) {
         stop("motif hits matrix is empty")
     }

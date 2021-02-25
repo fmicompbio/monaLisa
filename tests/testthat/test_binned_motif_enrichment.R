@@ -293,8 +293,7 @@ test_that("get_binned_motif_enrichment() works in default mode", {
     ## Binned motif enrichment with monaLisa
     enr_res <- get_binned_motif_enrichment(seqs = seqs,
                                            bins = b,
-                                           pwmL = pwms,
-                                           genome = genome)
+                                           pwmL = pwms)
   
     ## Tests
     # ... missing arguments or wrong classes
