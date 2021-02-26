@@ -6,9 +6,9 @@
 \usage{
 .iterativeNormForKmers(
   df,
-  max_kmer_size = 3L,
-  minimum_seq_weight = 0.001,
-  max_autonorm_iters = 160L,
+  maxKmerSize = 3L,
+  minSeqWgt = 0.001,
+  maxIter = 160L,
   verbose = FALSE
 )
 }
@@ -16,15 +16,15 @@
 \item{df}{a \code{DataFrame} with sequence information as returned by
 \code{.calculateGCweight}.}
 
-\item{max_kmer_size}{Integer scalar giving the maximum k-mer size to
+\item{maxKmerSize}{Integer scalar giving the maximum k-mer size to
 consider. The default is set to 3 (like in \code{HOMER}), meaning that
 k-mers of size 1, 2 and 3 are considered.}
 
-\item{minimum_seq_weight}{Numeric scalar greater than zero giving the
+\item{minSeqWgt}{Numeric scalar greater than zero giving the
 minimal weight of a sequence. The default value (0.001) was also used by
 \code{HOMER} (HOMER_MINIMUM_SEQ_WEIGHT  constant in Motif2.h).}
 
-\item{max_autonorm_iters}{An integer scalar giving the maximum number if
+\item{maxIter}{An integer scalar giving the maximum number if
 times to run \code{.normForKmers}. the default is set to 160 (as in
 \code{HOMER}).}
 

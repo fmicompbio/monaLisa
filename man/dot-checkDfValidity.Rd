@@ -11,13 +11,13 @@
 and columns:
 \itemize{
   \item{\code{seqs}}{: a \code{DNAStringSet} object.}
-  \item{\code{is_foreground}}{ that indicates if a sequence is in the
+  \item{\code{isForeground}}{ that indicates if a sequence is in the
                               foreground group.}
   \item{\code{gc_frac}}{: the fraction of G+C bases per sequence.}
   \item{\code{gc_bin}}{: the GC bin for each sequence.}
-  \item{\code{gc_weight}}{: the sequence weight to adjust for GC
+  \item{\code{GCwgt}}{: the sequence weight to adjust for GC
     differences between foreground and background sequences.}
-  \item{\code{kmer_weight}}{: the sequence weight to adjust for k-mer
+  \item{\code{seqWgt}}{: the sequence weight to adjust for k-mer
     differences between foreground and background sequences.}
 }}
 }

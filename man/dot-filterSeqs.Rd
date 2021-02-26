@@ -5,7 +5,7 @@
 \title{Filter Sequences}
 \usage{
 .filterSeqs(
-  df,
+  seqs,
   maxFracN = 0.7,
   minLength = 5L,
   maxLength = 100000L,
@@ -13,7 +13,7 @@
 )
 }
 \arguments{
-\item{df}{a \code{DataFrame} with sequence information.}
+\item{seqs}{a \code{DNAStringSet} object.}
 
 \item{maxFracN}{A numeric scalar with the maximal fraction of N bases allowed
 in a sequence (defaults to 0.7).}
@@ -27,7 +27,8 @@ Sequences bigger than this will be filtered out.}
 \item{verbose}{A logical scalar. If \code{TRUE}, report on filtering.}
 }
 \value{
-the filtered \code{df}.
+a logical vector of the same length as \code{seqs} with \code{TRUE}
+  indicated to keep the sequence and \code{FALSE} to filter it out.
 }
 \description{
 Filter sequences that are unlikely to be useful for motif

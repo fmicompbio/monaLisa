@@ -1,45 +1,38 @@
 test_that(".checkDfValidity() works", {
     seqchar <- c(s1 = "GTGCATGCAT", s2 = "ACGTACGTAC")
     df <- DataFrame(seqs = DNAStringSet(seqchar),
-                    is_foreground = c(TRUE, FALSE),
+                    isForeground = c(TRUE, FALSE),
                     gc_frac = NA_real_,
                     gc_bin = NA_integer_,
-                    gc_weight = NA_real_,
-                    kmer_weight = NA_real_)
+                    GCwgt = NA_real_,
+                    seqWgt = NA_real_)
     
     expect_error(.checkDfValidity("error"), "should be a DataFrame")
     expect_error(.checkDfValidity(df[1:3]), "has to have columns")
     expect_error(.checkDfValidity(DataFrame(seqs = seqchar, df[2:6])), "expected types")
-    expect_error(.checkDfValidity(DataFrame(df[1], DataFrame(is_foreground = 1:2), df[3:6])), "expected types")
+    expect_error(.checkDfValidity(DataFrame(df[1], DataFrame(isForeground = 1:2), df[3:6])), "expected types")
     expect_error(.checkDfValidity(DataFrame(df[1:2], DataFrame(gc_frac = seqchar), df[4:6])), "expected types")
     expect_error(.checkDfValidity(DataFrame(df[1:3], DataFrame(gc_bin = seqchar), df[5:6])), "expected types")
-    expect_error(.checkDfValidity(DataFrame(df[1:4], DataFrame(gc_weight = seqchar), df[6])), "expected types")
-    expect_error(.checkDfValidity(DataFrame(df[1:5], DataFrame(kmer_weight = seqchar))), "expected types")
+    expect_error(.checkDfValidity(DataFrame(df[1:4], DataFrame(GCwgt = seqchar), df[6])), "expected types")
+    expect_error(.checkDfValidity(DataFrame(df[1:5], DataFrame(seqWgt = seqchar))), "expected types")
     expect_error(.checkDfValidity(df), "attributes: err")
 })
 
 
 test_that(".filterSeqs() works", {
-    seqchar <- c(s1 = "GTGCATGCATACCA", s2 = "ACGNNNGTAC", s3 = "AAA")
-    df <- DataFrame(seqs = DNAStringSet(seqchar),
-                    is_foreground = c(TRUE, FALSE, FALSE),
-                    gc_frac = NA_real_,
-                    gc_bin = NA_integer_,
-                    gc_weight = NA_real_,
-                    kmer_weight = NA_real_)
-    attr(df, "err") <- 0
+    seqs <- DNAStringSet(c(s1 = "GTGCATGCATACCA", s2 = "ACGNNNGTAC", s3 = "AAA"))
+
+    expect_error(.filterSeqs("error"), "DNAStringSet")
+    expect_error(.filterSeqs(seqs, maxFracN = "error"), "numeric")
+    expect_error(.filterSeqs(seqs, minLength = -1), "within \\[0,Inf\\]")
+    expect_error(.filterSeqs(seqs, maxLength = 0), "within \\[5,Inf\\]")
+    expect_error(.filterSeqs(seqs, verbose = "error"), "logical")
+    expect_message(.filterSeqs(seqs, maxFracN = 0.1, verbose = TRUE))
     
-    expect_error(.filterSeqs("error"), "should be a DataFrame")
-    expect_error(.filterSeqs(df, maxFracN = "error"), "numeric")
-    expect_error(.filterSeqs(df, minLength = -1), "within \\[0,Inf\\]")
-    expect_error(.filterSeqs(df, maxLength = 0), "within \\[5,Inf\\]")
-    expect_error(.filterSeqs(df, verbose = "error"), "logical")
-    expect_message(.filterSeqs(df, maxFracN = 0.1, verbose = TRUE))
-    
-    expect_identical(.filterSeqs(df), df[1:2, ])
-    expect_identical(.filterSeqs(df, maxFracN = 0.1, verbose = FALSE), df[1, ])
-    expect_identical(.filterSeqs(df, minLength = 12, verbose = FALSE), df[1, ])
-    expect_identical(.filterSeqs(df, maxLength = 10, verbose = FALSE), df[2, ])
+    expect_identical(.filterSeqs(seqs), c(TRUE, TRUE, FALSE))
+    expect_identical(.filterSeqs(seqs, maxFracN = 0.1, verbose = FALSE), c(TRUE, FALSE, FALSE))
+    expect_identical(.filterSeqs(seqs, minLength = 12, verbose = FALSE), c(TRUE, FALSE, FALSE))
+    expect_identical(.filterSeqs(seqs, maxLength = 10, verbose = FALSE), c(FALSE, TRUE, FALSE))
 })
 
 
@@ -52,11 +45,11 @@ test_that(".calculateGCweight() works", {
               b7  = "AAAAAAAGGG", b8  = "AAAAAAAAGG", b9  = "AAAAAAAAAG",
               b2b = "AAGGGGGGGG", b4b = "AAAAGGGGGG", b6b = "AAAAAAGGGG")
     df <- DataFrame(seqs = DNAStringSet(c(fseq, bseq)),
-                    is_foreground = rep(c(TRUE, FALSE), c(length(fseq), length(bseq))),
+                    isForeground = rep(c(TRUE, FALSE), c(length(fseq), length(bseq))),
                     gc_frac = NA_real_,
                     gc_bin = NA_integer_,
-                    gc_weight = NA_real_,
-                    kmer_weight = NA_real_)
+                    GCwgt = NA_real_,
+                    seqWgt = NA_real_)
     attr(df, "err") <- 0
     
     expect_error(.calculateGCweight("error"), "should be a DataFrame")
@@ -67,10 +60,42 @@ test_that(".calculateGCweight() works", {
     expect_is(res1 <- .calculateGCweight(df, verbose = FALSE), "DataFrame")
     expect_identical(df[-13, 1:2], res1[, 1:2])
     expect_identical(res1$gc_frac, c(9:6,4:1,9:6,4:1,8,6,4) / 10)
-    expect_identical(res1[res1$is_foreground, "gc_weight"],
-                     rep(1.0, sum(res1$is_foreground)))
-    expect_identical(res1[!res1$is_foreground, "gc_weight"],
+    expect_identical(res1[res1$isForeground, "GCwgt"],
+                     rep(1.0, sum(res1$isForeground)))
+    expect_identical(res1[!res1$isForeground, "GCwgt"],
                      rep(c(1.03125, 0.68750, 1.37500, 1.03125, 0.68750), c(3, 2, 3, 1, 2)))
+})
+
+
+test_that(".normForKmers() works", {
+    set.seed(123)
+    len <- 50
+    seqschar <- unlist(lapply(seq.int(150), function(i) {
+      paste(sample(c("A","C","G","T","N"), len, replace = TRUE, prob = c(.24, .24, .24, .24, .04)), collapse = "")
+    }))
+    seqs <- DNAStringSet(seqschar)
+    kmerfreq <- lapply(1:3, function(k) oligonucleotideFrequency(seqs, width = k))
+    gkmers <- lapply(kmerfreq, rowSums)
+    kmerfreq <- lapply(1:3, function(k) kmerfreq[[k]] / gkmers[[k]])
+    kmerseqrc <- lapply(kmerfreq, function(x) as.character(reverseComplement(DNAStringSet(colnames(x)))))
+    seqwgt <- c(rep(1, 75), rnorm(75, mean = 1, sd = 0.1))
+    isfg <- rep(c(TRUE, FALSE), each = 75)
+    
+    res1 <- .normForKmers(kmerfreq, gkmers, kmerseqrc, seqwgt, isfg)
+
+    expect_is(res1, "list")
+    expect_length(res1, 2L)
+    expect_identical(names(res1), c("seqWgt", "err"))
+    expect_identical(round(res1$seqWgt[!isfg], 3),
+                     c(0.856, 1.085, 1.06, 0.965, 1.056, 1.011, 1.046, 0.831, 1.204, 
+                       0.937, 0.787, 1.101, 0.839, 1.017, 0.882, 0.844, 0.964, 1.04, 
+                       0.979, 0.923, 0.967, 1.028, 0.955, 0.92, 1.081, 0.87, 1.064, 
+                       0.935, 0.955, 1.141, 0.94, 0.88, 0.873, 1.041, 0.812, 1.023, 
+                       0.934, 0.843, 0.986, 1.107, 0.806, 0.876, 1.095, 0.895, 0.866, 
+                       0.862, 0.95, 0.987, 0.932, 1.042, 1.049, 1.027, 1.078, 0.98, 
+                       0.986, 1.065, 0.994, 1.079, 0.985, 1.023, 1.039, 0.882, 1.029, 
+                       0.972, 1.178, 0.931, 1.077, 0.767, 0.923, 0.955, 1.113, 0.949, 
+                       0.972, 1.118, 0.989))
 })
 
 
@@ -83,18 +108,18 @@ test_that(".iterativeNormForKmers() works", {
               b7  = "AAAAAAAGGG", b8  = "AAAAAAAAGG", b9  = "AAAAAAAAAG",
               b2b = "AAGGGGGGGG", b4b = "AAAAGGGGGG", b6b = "AAAAAAGGGG")
     df <- DataFrame(seqs = DNAStringSet(c(fseq, bseq)),
-                    is_foreground = rep(c(TRUE, FALSE), c(length(fseq), length(bseq))),
+                    isForeground = rep(c(TRUE, FALSE), c(length(fseq), length(bseq))),
                     gc_frac = NA_real_,
                     gc_bin = NA_integer_,
-                    gc_weight = NA_real_,
-                    kmer_weight = NA_real_)
+                    GCwgt = NA_real_,
+                    seqWgt = NA_real_)
     attr(df, "err") <- 0
     df <- .calculateGCweight(df)
     
     expect_error(.iterativeNormForKmers("error"))
-    expect_error(.iterativeNormForKmers(df, max_kmer_size = "error"), "integer")
-    expect_error(.iterativeNormForKmers(df, minimum_seq_weight = -1), "within \\(0,Inf\\)")
-    expect_error(.iterativeNormForKmers(df, max_autonorm_iters = "error"), "integer")
+    expect_error(.iterativeNormForKmers(df, maxKmerSize = "error"), "integer")
+    expect_error(.iterativeNormForKmers(df, minSeqWgt = -1), "within \\(0,Inf\\)")
+    expect_error(.iterativeNormForKmers(df, maxIter = "error"), "integer")
     expect_error(.iterativeNormForKmers(df, verbose = "error"), "logical")
     
     expect_message(res1 <- .iterativeNormForKmers(df, verbose = TRUE))
@@ -103,7 +128,7 @@ test_that(".iterativeNormForKmers() works", {
     attr(df, "err") <- attr(res1, "err")
     expect_identical(dim(res1), dim(df))
     expect_identical(res1[1:5], df[1:5])
-    expect_identical(round(res1[!res1$is_foreground, "kmer_weight"], 3),
+    expect_identical(round(res1[!res1$isForeground, "seqWgt"], 3),
                      c(1.251, 0.887, 0.913, 0.675, 0.7, 1.344, 1.347,
                        1.347, 0.887, 0.675, 0.7))
 })
@@ -115,11 +140,11 @@ test_that(".calcMotifEnrichment works", {
     bseq <- c(b1  = "AGGGGGGGGG", b2  = "AAGGGGGGGG", b3  = "AAAGGGGGGG",
               b4  = "AAAAGGGGGG", b5  = "AAAAAGGGGG")
     df <- DataFrame(seqs = DNAStringSet(c(fseq, bseq)),
-                    is_foreground = rep(c(TRUE, FALSE), c(length(fseq), length(bseq))),
+                    isForeground = rep(c(TRUE, FALSE), c(length(fseq), length(bseq))),
                     gc_frac = NA_real_,
                     gc_bin = NA_integer_,
-                    gc_weight = NA_real_,
-                    kmer_weight = NA_real_)
+                    GCwgt = NA_real_,
+                    seqWgt = NA_real_)
     attr(df, "err") <- 0
     df <- .calculateGCweight(df)
     df <- .iterativeNormForKmers(df)
@@ -137,14 +162,15 @@ test_that(".calcMotifEnrichment works", {
     expect_error(.calcMotifEnrichment(mhits, df, test = "error"), "should be one of")
     expect_error(.calcMotifEnrichment(mhits, df, verbose = "error"), "logical")
 
-    expect_warning(res1 <- .calcMotifEnrichment(motif_matrix = mhits, df = df))
-    expect_is(res1, "data.frame")
+    # expect_warning(res1 <- .calcMotifEnrichment(motifHitMatrix = mhits, df = df))
+    # expect_is(res1, "data.frame")
+    expect_is(res1 <- .calcMotifEnrichment(motifHitMatrix = mhits, df = df), "data.frame")
     expect_identical(rownames(res1), colnames(mhits))
-    expect_identical(round(res1$log_p_value, 3), c(-1.341, -0.038, -0.844, 0))
-    expect_message(res2 <- .calcMotifEnrichment(motif_matrix = mhits, df = df, test = "fisher", verbose = TRUE))
+    expect_identical(round(res1$logP, 3), c(-1.341, -0.038, -0.844, 0))
+    expect_message(res2 <- .calcMotifEnrichment(motifHitMatrix = mhits, df = df, test = "fisher", verbose = TRUE))
     expect_is(res2, "data.frame")
     expect_identical(res1[, -2], res2[, -2])
-    expect_identical(round(res2$log_p_value, 3), c(-0.99, -0.029, 0, 0))
+    expect_identical(round(res2$logP, 3), c(-0.99, -0.029, 0, 0))
 })
 
 
@@ -342,7 +368,20 @@ test_that("get_binned_motif_enrichment() works (synthetic data)", {
     p2 <- sample(len - 2 * ncol(m2), round(sum(b == 2) * 0.8), replace = TRUE)
     substring(seqschar[b == 2], first = p2, last = p2 + ncol(m2) - 1) <- "ACGTA"
     seqs <- Biostrings::DNAStringSet(seqschar)
-        
+    
+    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwm,
+                                             min.score = 20), "No motif hits")    
+    expect_error(get_binned_motif_enrichment(seqs = "error"), "DNAStringSet")
+    expect_error(get_binned_motif_enrichment(seqs = as.character(seqs)), "DNAStringSet")
+    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = "error"), "factor")
+    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b[-1]), "must be of equal length")
+    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = "error"), "PWMatrixList")
+    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwm, maxFracN = "error"), "numeric")
+    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwm, min.score = 6, maxKmerSize = "error"), "integer")
+    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwm, Ncpu = "error"), "integer")
+    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwm, verbose = "error"), "logical")
+    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = as.matrix(pwm[[1]])), "PWMatrixList")
+
     expect_message(res1 <- get_binned_motif_enrichment(seqs = seqs,
                                                        bins = b,
                                                        pwmL = pwm,
@@ -370,7 +409,7 @@ test_that("get_binned_motif_enrichment() works (synthetic data)", {
     expect_identical(metadata(res1)$params[-1], metadata(res2)$params[-1])
     expect_identical(assayNames(res1), c("p", "FDR", "enr", "log2enr"))
     expect_identical(assayNames(res2), c("p", "FDR", "enr", "log2enr"))
-    expect_identical(colnames(rowData(res1)), c("motif_ID", "motif_symbol"))
+    expect_identical(colnames(rowData(res1)), c("motif.id", "motif.name", "motif.pwm", "motif.percentGC"))
     expect_identical(rowData(res1), rowData(res2))
     expect_identical(dim(colData(res1)), c(3L, 0L))
     expect_identical(colData(res1), colData(res2))

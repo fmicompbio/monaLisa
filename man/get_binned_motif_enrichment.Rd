@@ -80,17 +80,18 @@ This function implements a binned motif enrichment analysis. In each
   Motif hits are predicted using \code{\link[monaLisa]{findMotifHits}} and
   multiple hits per sequence are counted as just one hit (ZOOPS mode). For
   each motif, the weights of sequences that have a hit are summed separately
-  for foreground (\code{fg_weight_sum}) and background (\code{bg_weight_sum}).
-  The total foreground  (\code{fg_weight_sum_total}) and background
-  (\code{bg_weight_sum_total}) sum of sequence weights is also calculated.
+  for foreground (\code{sumForegroundWgtWithHits}) and background
+  (\code{sumBackgroundWgtWithHits}). The total foreground 
+  (\code{totalWgtForeground}) and background (\code{totalWgtBackground})
+  sum of sequence weights is also calculated.
 
   To statistical tests for the calculation of enrichment log p-value are
   available: \code{test = "binomial"} (default) to perform binomial test
   like \code{Homer}, or \code{test = "fisher"} to perform Fisher's exact
   tests, using:
   \itemize{
-    \item{binomial}{: \code{pbinom(q = fg_weight_sum - 1, size =
-      fg_weight_sum_total, prob = bg_weight_sum / bg_weight_sum_total,
+    \item{binomial}{: \code{pbinom(q = sumForegroundWgtWithHits - 1, size =
+      totalWgtForeground, prob = sumBackgroundWgtWithHits / totalWgtBackground,
       lower.tail = FALSE, log.p = TRUE)}}
     \item{fisher}{: \code{fisher.test(x = tab, alternative =
       "greater")}, where \code{tab} is the contingency table with the summed
@@ -98,11 +99,15 @@ This function implements a binned motif enrichment analysis. In each
       or without a hit for a particular motif (columns).}
   }
   
-  TODO: - Use Ncpu to also parallelize across list of DFs (enrichment per bin)
-               - parallellize the other functions using Ncpu..
-               - change functions to do one-time calculations when using in binned mode?
-               - filter seqs: make one-time thing.
-               - think if we want to parametrize some of the pseudo-counts used (leaning towards not)
-               - change the names of the assays in the SE or return the p-values and FDR (not -log10)
-               - have a look again at using motif IDs and not names, but keeping both information
+  TODO:  - Use Ncpu to also parallelize across list of DFs (enrichment per bin)
+         - parallellize the other functions using Ncpu.
+         - change functions to do one-time calculations when using in binned mode?
+         - filter seqs: make one-time thing.
+         - think if we want to parametrize some of the pseudo-counts used (leaning towards not)
+         - change the names of the assays in the SE or return the p-values and FDR (not -log10)
+         - have a look again at using motif IDs and not names, but keeping both information
+         - make test="fisher" the default in .calcMotifEnrichment
+         - better assay names? P and fdr are -log10(...), yes or transform into p-values
+         - add assay with fraction of sequences containing hits for a given motif
+         - add motifs without hits to assays (as NA values)
 }

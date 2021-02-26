@@ -5,14 +5,14 @@
 \title{Calculate motif enrichment}
 \usage{
 .calcMotifEnrichment(
-  motif_matrix,
+  motifHitMatrix,
   df,
   test = c("binomial", "fisher"),
   verbose = FALSE
 )
 }
 \arguments{
-\item{motif_matrix}{matrix with 0 and 1 entries for absence or presence of
+\item{motifHitMatrix}{matrix with 0 and 1 entries for absence or presence of
 motif hits in each sequence.}
 
 \item{df}{a \code{DataFrame} with sequence information as returned by
@@ -25,17 +25,19 @@ motif hits in each sequence.}
 \value{
 a \code{data.frame} containing the motifs as rows and the columns:
   \itemize{
-    \item{motif_name}{: the motif name}
-    \item{log_p_value}{: the log p-value for enrichment (natural logarithm).
+    \item{motifName}{: the motif name}
+    \item{logP}{: the log p-value for enrichment (natural logarithm).
        If \code{test="binomial"} (default), this log p-value is identical to
        the one returned by Homer.}
-    \item{fg_weight_sum}{: the sum of the weights of the foreground sequences
-       that have at least one instance of a specific motif (ZOOPS mode).}
-    \item{bg_weight_sum}{: the sum of the weights of the background sequences
-       that have at least one instance of a specific motif (ZOOPS mode).}
-    \item{fg_weight_sum_total}{: the total sum of weights of foreground
+    \item{sumForegroundWgtWithHits}{: the sum of the weights of the foreground
+       sequences that have at least one instance of a specific motif
+       (ZOOPS mode).}
+    \item{sumBackgroundWgtWithHits}{: the sum of the weights of the background
+       sequences that have at least one instance of a specific motif
+       (ZOOPS mode).}
+    \item{totalWgtForeground}{: the total sum of weights of foreground
        sequences.}
-    \item{bg_weight_sum_total}{: the total sum of weights of background
+    \item{totalWgtBackground}{: the total sum of weights of background
        sequences.}
   }
 }
