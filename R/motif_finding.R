@@ -88,8 +88,9 @@ NULL
 #' @importFrom Biostrings matchPWM DNAStringSet reverseComplement
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom IRanges IRanges
-#' @importFrom S4Vectors Rle
-#' @importFrom BiocGenerics sort
+#' @importFrom S4Vectors Rle queryHits subjectHits mcols
+#' @importFrom BiocGenerics sort strand
+#' @importFrom parallel mclapply
 .matchPWM.concat <- function(pwm, subject, min.score = "80%", mc.cores = 1L) {
     # concatenate subject
     snames <- if (is.null(names(subject))) paste0("s", seq_along(subject)) else names(subject)

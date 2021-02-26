@@ -609,8 +609,9 @@
 #' }
 #'
 #' @importFrom TFBSTools ID name
-#' @importFrom SummarizedExperiment SummarizedExperiment rowData
-#' @importFrom S4Vectors DataFrame metadata
+#' @importFrom SummarizedExperiment SummarizedExperiment
+#' @importFrom S4Vectors DataFrame
+#' @importFrom GenomeInfoDb seqnames seqlevels
 #'
 #' @export
 get_binned_motif_enrichment <- function(seqs,
