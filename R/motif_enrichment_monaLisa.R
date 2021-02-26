@@ -587,17 +587,14 @@
 #'       or without a hit for a particular motif (columns).}
 #'   }
 #'   
-#'   TODO:  - Use Ncpu to also parallelize across list of DFs (enrichment per bin)
-#'          - parallellize the other functions using Ncpu.
-#'          - change functions to do one-time calculations when using in binned mode?
-#'          - filter seqs: make one-time thing.
-#'          - think if we want to parametrize some of the pseudo-counts used (leaning towards not)
+#'   TODO:  - change functions to do one-time calculations when using in binned mode?
+#'          - think if we want to parameterize some of the pseudo-counts used (leaning towards not)
+#'          - parameterize multiple testing correction method?
 #'          - change the names of the assays in the SE or return the p-values and FDR (not -log10)
 #'          - have a look again at using motif IDs and not names, but keeping both information
 #'          - make test="fisher" the default in .calcMotifEnrichment
-#'          - better assay names? P and fdr are -log10(...), yes or transform into p-values
 #'          - add assay with fraction of sequences containing hits for a given motif
-#'          - add motifs without hits to assays (as NA values)
+#'          - add motifs without hits to assays as NA values
 
 #'
 #' @return A \code{SummarizedExperiment} object where the rows are the motifs
@@ -718,42 +715,35 @@ get_binned_motif_enrichment <- function(seqs,
     # summarize results as SE
     # ... log10 of p-value
     P <- do.call(cbind, lapply(enrichL, function(enrich1) {
-        D <- enrich1[, "logP"]
-        logpVals <- -D / log(10)
+        logpVals <- -enrich1[, "logP"] / log(10)
         names(logpVals) <- enrich1[, "motifName"]
         logpVals
     }))
 
     # ... log10 of FDR
-    tmp <-  as.vector(10**(-P))
-    fdr <- matrix(-log10(p.adjust(tmp, method = "BH")), nrow = nrow(P)) # add as parameter? the method of choice for multiple testing correction?
+    fdr <- matrix(-log10(p.adjust(as.vector(10**(-P)), method = "BH")), nrow = nrow(P))
     dimnames(fdr) <- dimnames(P)
     fdr[which(fdr == Inf, arr.ind = TRUE)] <- max(fdr[is.finite(fdr)])
 
     # ... Pearson residuals
     enrTF <- do.call(cbind, lapply(enrichL, function(enrich1) {
-        D <- as.matrix(
-            data.frame(
-              sumForegroundWgtWithHits = enrich1[, "sumForegroundWgtWithHits"],
-              fracForegroundWgtWithHits = (enrich1[, "sumForegroundWgtWithHits"] / enrich1[, "totalWgtForeground"]),
-              fracBackgroundWgtWithHits = (enrich1[, "sumBackgroundWgtWithHits"] / enrich1[, "totalWgtBackground"]))
-        )
-        rownames(D) <-  enrich1[, "motifName"]
-        obsTF <- D[, "sumForegroundWgtWithHits"]
-        expTF <- D[, "sumForegroundWgtWithHits"] / (D[, "fracForegroundWgtWithHits"] + 0.001) * (D[, "fracBackgroundWgtWithHits"] + 0.001)
+        fracForeground <- enrich1[, "sumForegroundWgtWithHits"] / enrich1[, "totalWgtForeground"]
+        fracBackground <- enrich1[, "sumBackgroundWgtWithHits"] / enrich1[, "totalWgtBackground"]
+        obsTF <- enrich1[, "sumForegroundWgtWithHits"]
+        expTF <- obsTF / (fracForeground + 0.001) * (fracBackground + 0.001)
         enr <- (obsTF - expTF) / sqrt(expTF)
         enr[ is.na(enr) ] <- 0
+        names(enr) <- enrich1[, "motifName"]
         enr
     }))
 
     # log2 enrichments
     log2enr <- do.call(cbind, lapply(enrichL, function(enrich1) {
         D <- enrich1[, c("sumForegroundWgtWithHits", "sumBackgroundWgtWithHits")]
-        nTot <- c(enrich1[1, "totalWgtForeground"], enrich1[1, "totalWgtBackground"]) # Do I round the bg total to the nearest integer?
-        D.norm <- t(min(nTot) * t(D) / nTot) # scale to smaller number (usually number of target sequences) #
-        DL <- log2(D.norm + 8) # keep pseudo count fixed? --> yes
+        nTot <- unlist(enrich1[1, c("totalWgtForeground", "totalWgtBackground")])
+        D.norm <- t(t(D) / nTot * min(nTot))
+        DL <- log2(D.norm + 8)
         log2enr <- DL[, 1] - DL[, 2]
-        names(log2enr) <- enrich1[, "motifName"]
         log2enr
     }))
 

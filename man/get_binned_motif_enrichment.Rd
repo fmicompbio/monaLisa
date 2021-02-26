@@ -99,11 +99,9 @@ This function implements a binned motif enrichment analysis. In each
       or without a hit for a particular motif (columns).}
   }
   
-  TODO:  - Use Ncpu to also parallelize across list of DFs (enrichment per bin)
-         - parallellize the other functions using Ncpu.
-         - change functions to do one-time calculations when using in binned mode?
-         - filter seqs: make one-time thing.
-         - think if we want to parametrize some of the pseudo-counts used (leaning towards not)
+  TODO:  - change functions to do one-time calculations when using in binned mode?
+         - think if we want to parameterize some of the pseudo-counts used (leaning towards not)
+         - parameterize multiple testing correction method?
          - change the names of the assays in the SE or return the p-values and FDR (not -log10)
          - have a look again at using motif IDs and not names, but keeping both information
          - make test="fisher" the default in .calcMotifEnrichment
