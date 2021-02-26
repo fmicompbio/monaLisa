@@ -31,7 +31,7 @@ the bin for each sequence. Typically the return value of
 to perform. One of \code{"binomial"} (default) or \code{"fisher"}. The
 enrichment test is one-sided (enriched in foreground).}
 
-\item{maxFracN}{A numeric scalar with the maximal fraction of N bases allowed 
+\item{maxFracN}{A numeric scalar with the maximal fraction of N bases allowed
 in a sequence (defaults to 0.7). Sequences with higher fractions are
 excluded from the analysis.}
 
@@ -40,7 +40,7 @@ background sequence weights for k-mer composition compared to the
 foreground sequences. The default value (3) will correct for mono-, di-
 and tri-mer composition.}
 
-\item{min.score}{the minimal score for motif hits, used in 
+\item{min.score}{the minimal score for motif hits, used in
 \code{\link[monaLisa]{findMotifHits}}.}
 
 \item{matchMethod}{the method used to scan for motif hits, passed to the
@@ -54,8 +54,8 @@ in parallel (e.g. the scanning for motif hits).}
 \item{...}{Additional arguments for  \code{\link[monaLisa]{findMotifHits}}.}
 }
 \value{
-A \code{SummarizedExperiment} object where the rows are the motifs and the columns are bins. The
-  four assays are: \itemize{
+A \code{SummarizedExperiment} object where the rows are the motifs
+  and the columns are bins. The four assays are: \itemize{
   \item{p}{: -log10 P values}
   \item{FDR}{: -log10 false discovery rates}
   \item{enr}{: motif enrichments as Pearson residuals}
@@ -76,14 +76,14 @@ This function implements a binned motif enrichment analysis. In each
   and gives very similar results. As in the \code{Homer} tool, sequences are
   weighted to correct for GC and k-mer composition differences between fore-
   and background sets.
-  
+
   Motif hits are predicted using \code{\link[monaLisa]{findMotifHits}} and
   multiple hits per sequence are counted as just one hit (ZOOPS mode). For
   each motif, the weights of sequences that have a hit are summed separately
   for foreground (\code{fg_weight_sum}) and background (\code{bg_weight_sum}).
   The total foreground  (\code{fg_weight_sum_total}) and background
   (\code{bg_weight_sum_total}) sum of sequence weights is also calculated.
-  
+
   To statistical tests for the calculation of enrichment log p-value are
   available: \code{test = "binomial"} (default) to perform binomial test
   like \code{Homer}, or \code{test = "fisher"} to perform Fisher's exact

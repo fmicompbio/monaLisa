@@ -12,7 +12,7 @@
 )
 }
 \arguments{
-\item{motif_matrix}{matrix with 0 and 1 entries for absence or presence of 
+\item{motif_matrix}{matrix with 0 and 1 entries for absence or presence of
 motif hits in each sequence.}
 
 \item{df}{a \code{DataFrame} with sequence information as returned by
@@ -44,13 +44,13 @@ Given motif counts, foreground/background labels and
   weights for a set of sequences, calculate the enrichment of each motif
   in foreground compared to background. This function is called by
   \code{get_binned_motif_enrichment()} for each bin.
-  
+
   The defaults type of test is \code{"binomial"}, which is also what
   \code{Homer} uses by default. Alternatively, Fisher's exact test can be
   used by \code{test = "fisher"}, which has the advantage that special cases
   such as zero background counts are handled without ad-hoc adjustments to
   the frequencies.
-  
+
   For \code{test = "fisher"}, \code{fisher.test} is used with
   \code{alternative = "greater"}, making it a one-sided test for enrichment,
   as is the case with the binomial test.

@@ -74,19 +74,10 @@
                         maxLength = 100000L, verbose = FALSE) {
 
     .checkDfValidity(df)
-    if (!is.numeric(maxFracN) || length(maxFracN) != 1L || maxFracN < 0 || maxFracN > 1) {
-        stop("'maxFracN' has to be a numerical scalar with a value in [0,1]")
-    }
-    if (!is.numeric(minLength) || length(minLength) != 1L || minLength < 0) {
-        stop("'minLength' has to be a non-negative numerical scalar")
-    }
-    if (!is.numeric(maxLength) || length(maxLength) != 1L || maxLength < max(minLength, 0)) {
-        stop("'maxLength' has to be a non-negative numerical scalar",
-             " greater than 'minLength' (", minLength, ")")
-    }
-    if (!is.logical(verbose) || length(verbose) != 1L) {
-        stop("'verbose' has to be either TRUE or FALSE")
-    }
+    .assertScalar(x = maxFracN,  type = "numeric", rngIncl = c(0, 1))
+    .assertScalar(x = minLength, type = "numeric", rngIncl = c(0, Inf))
+    .assertScalar(x = maxLength, type = "numeric", rngIncl = c(max(minLength, 0), Inf))
+    .assertScalar(x = verbose,   type = "logical")
 
     # fraction of N bases per sequence
     observedFracN <- alphabetFrequency(df$seqs, as.prob = TRUE)[, "N"]
@@ -146,15 +137,13 @@
                                verbose = FALSE) {
 
     .checkDfValidity(df)
-    if (!is.numeric(GCbreaks) || length(GCbreaks) < 2 ||
-        any(diff(GCbreaks) <= 0) || any(GCbreaks < 0 || GCbreaks > 1)) {
-        stop("'GCbreaks' have to be a strictly increasing numerical vector of ",
-             "at least length two and with values in (0, 1).")
+    GCbreaks <- sort(GCbreaks, decreasing = FALSE)
+    .assertVector(x = GCbreaks, type = "numeric", rngIncl = c(0, 1))
+    if (length(GCbreaks) < 2) {
+        stop("'GCbreaks' must be of length 2 or greater")
     }
-    if (!is.logical(verbose) || length(verbose) != 1L) {
-        stop("'verbose' has to be either TRUE or FALSE")
-    }
-
+    .assertScalar(x = verbose,   type = "logical")
+  
     # calculate GC fraction for each sequence
     fmono <- oligonucleotideFrequency(df$seqs, width = 1, as.prob = TRUE)
     df$gc_frac <- fmono[, "G"] + fmono[, "C"]
@@ -365,24 +354,10 @@
                                    verbose = FALSE) {
 
   .checkDfValidity(df)
-  if (!is.integer(max_kmer_size) ||
-      length(max_kmer_size) != 1L ||
-      max_kmer_size < 1) {
-    stop("'max_kmer_size' must be an integer scalar greater than zero")
-  }
-  if (!is.numeric(minimum_seq_weight) ||
-      length(minimum_seq_weight) != 1L ||
-      minimum_seq_weight <= 0) {
-    stop("'minimum_seq_weight' must be a numeric scalar greater than zero")
-  }
-  if (!is.integer(max_autonorm_iters) ||
-      length(max_autonorm_iters) != 1L ||
-      max_autonorm_iters < 1) {
-    stop("'max_autonorm_iters' must be an integer scalar greater than zero")
-  }
-  if (!is.logical(verbose) || length(verbose) != 1L) {
-    stop("'verbose' has to be either TRUE or FALSE")
-  }
+  .assertScalar(x = max_kmer_size, type = "integer", rngIncl = c(1, Inf))
+  .assertScalar(x = minimum_seq_weight, type = "numeric", rngExcl = c(0, Inf))
+  .assertScalar(x = max_autonorm_iters, type = "integer", rngExcl = c(0, Inf))
+  .assertScalar(x = verbose, type = "logical")
 
   # initialize kmer_weight using gc_weight
   last_error <- Inf
@@ -499,9 +474,7 @@
     }
     .checkDfValidity(df)
     method <- match.arg(test)
-    if (!is.logical(verbose) || length(verbose) != 1L) {
-        stop("'verbose' has to be either TRUE or FALSE")
-    }
+    .assertScalar(x = verbose, type = "logical")
 
     # total sum of sequence weights for fg and bg
     total_wgt_fg <- sum(df$kmer_weight[df$is_foreground])
@@ -696,12 +669,8 @@ get_binned_motif_enrichment <- function(seqs,
     if (!is(pwmL, "PWMatrixList")) {
         stop("'pwmL' must be of class 'PWMatrixList'")
     }
-    if (!is(Ncpu, "integer") || length(Ncpu) != 1L || Ncpu <= 0L) {
-        stop("'Ncpu' must be an integer scalar greater than zero")
-    }
-    if (!is.logical(verbose) || length(verbose) != 1L) {
-        stop("'verbose' has to be either TRUE or FALSE")
-    }
+    .assertScalar(x = Ncpu, type = "integer", rngIncl = c(0,Inf))
+    .assertScalar(x = verbose, type = "logical")
     # ... supply/check for names
     if (is.null(names(seqs))) {
         if (verbose) {
@@ -721,7 +690,7 @@ get_binned_motif_enrichment <- function(seqs,
     # create list of DataFrames, one for each bin
     bin_levels <- levels(bins)
     DF_list <- list()
-    for (i in seq_len(bin_levels)) {
+    for (i in seq_along(bin_levels)) {
         is_foreground <- logical(length = length(seqs))
         is_foreground[bins == bin_levels[i]] <- TRUE
         df <- DataFrame(seqs = seqs,

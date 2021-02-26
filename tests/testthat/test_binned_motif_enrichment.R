@@ -30,10 +30,10 @@ test_that(".filterSeqs() works", {
     attr(df, "err") <- 0
     
     expect_error(.filterSeqs("error"), "should be a DataFrame")
-    expect_error(.filterSeqs(df, maxFracN = "error"), "numerical scalar")
-    expect_error(.filterSeqs(df, minLength = -1), "non-negative numerical scalar")
-    expect_error(.filterSeqs(df, maxLength = 0), "greater than 'minLength'")
-    expect_error(.filterSeqs(df, verbose = "error"), "either TRUE or FALSE")
+    expect_error(.filterSeqs(df, maxFracN = "error"), "numeric")
+    expect_error(.filterSeqs(df, minLength = -1), "within \\[0,Inf\\]")
+    expect_error(.filterSeqs(df, maxLength = 0), "within \\[5,Inf\\]")
+    expect_error(.filterSeqs(df, verbose = "error"), "logical")
     expect_message(.filterSeqs(df, maxFracN = 0.1, verbose = TRUE))
     
     expect_identical(.filterSeqs(df), df[1:2, ])
@@ -60,8 +60,8 @@ test_that(".calculateGCweight() works", {
     attr(df, "err") <- 0
     
     expect_error(.calculateGCweight("error"), "should be a DataFrame")
-    expect_error(.calculateGCweight(df, GCbreaks = "error"), "strictly increasing numerical vector")
-    expect_error(.calculateGCweight(df, verbose = "error"), "either TRUE or FALSE")
+    expect_error(.calculateGCweight(df, GCbreaks = "error"), "numeric")
+    expect_error(.calculateGCweight(df, verbose = "error"), "logical")
     expect_message(.calculateGCweight(df, verbose = TRUE))
 
     expect_is(res1 <- .calculateGCweight(df, verbose = FALSE), "DataFrame")
@@ -92,10 +92,10 @@ test_that(".iterativeNormForKmers() works", {
     df <- .calculateGCweight(df)
     
     expect_error(.iterativeNormForKmers("error"))
-    expect_error(.iterativeNormForKmers(df, max_kmer_size = "error"), "integer scalar greater than zero")
-    expect_error(.iterativeNormForKmers(df, minimum_seq_weight = -1), "numeric scalar greater than zero")
-    expect_error(.iterativeNormForKmers(df, max_autonorm_iters = "error"), "integer scalar greater than zero")
-    expect_error(.iterativeNormForKmers(df, verbose = "error"), "either TRUE or FALSE")
+    expect_error(.iterativeNormForKmers(df, max_kmer_size = "error"), "integer")
+    expect_error(.iterativeNormForKmers(df, minimum_seq_weight = -1), "within \\(0,Inf\\)")
+    expect_error(.iterativeNormForKmers(df, max_autonorm_iters = "error"), "integer")
+    expect_error(.iterativeNormForKmers(df, verbose = "error"), "logical")
     
     expect_message(res1 <- .iterativeNormForKmers(df, verbose = TRUE))
     expect_is(res1, "DataFrame")
@@ -135,7 +135,7 @@ test_that(".calcMotifEnrichment works", {
     expect_error(.calcMotifEnrichment(mhits2, df), "identical rownames")
     expect_error(.calcMotifEnrichment(mhits, df[1:3]), "has to have columns")
     expect_error(.calcMotifEnrichment(mhits, df, test = "error"), "should be one of")
-    expect_error(.calcMotifEnrichment(mhits, df, verbose = "error"), "either TRUE or FALSE")
+    expect_error(.calcMotifEnrichment(mhits, df, verbose = "error"), "logical")
 
     expect_warning(res1 <- .calcMotifEnrichment(motif_matrix = mhits, df = df))
     expect_is(res1, "data.frame")
@@ -301,10 +301,10 @@ test_that("get_binned_motif_enrichment() works in default mode", {
     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = "error"), "factor")
     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b[-1]), "must be of equal length")
     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = "error"), "PWMatrixList")
-    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwms, maxFracN = "error"), "numerical scalar")
-    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwms, maxKmerSize = "error"), "integer scalar")
-    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwms, Ncpu = "error"), "integer scalar")
-    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwms, verbose = "error"), "TRUE or FALSE")
+    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwms, maxFracN = "error"), "numeric")
+    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwms, maxKmerSize = "error"), "integer")
+    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwms, Ncpu = "error"), "integer")
+    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwms, verbose = "error"), "logical")
     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = as.matrix(pwms[[1]])))
 
     # ... expected results on dataset
