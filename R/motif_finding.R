@@ -84,11 +84,17 @@ NULL
 #      * returns a GRanges object with hits
 # - concatenates the subject sequences for efficiency
 # - intended to be used via findMotifHits
+#' @importFrom TFBSTools ID name
+#' @importFrom Biostrings matchPWM DNAStringSet reverseComplement
+#' @importFrom GenomicRanges GRanges findOverlaps
+#' @importFrom IRanges IRanges
+#' @importFrom S4Vectors Rle
+#' @importFrom BiocGenerics sort
 .matchPWM.concat <- function(pwm, subject, min.score = "80%", mc.cores = 1L) {
     # concatenate subject
     snames <- if (is.null(names(subject))) paste0("s", seq_along(subject)) else names(subject)
-    pwmids <- ID(pwm)
-    pwmnames <- unlist(lapply(pwm, name))
+    pwmids <- TFBSTools::ID(pwm)
+    pwmnames <- TFBSTools::name(pwm)
     pwmnames <- if (is.null(pwmnames)) paste0("m", seq_along(pwm)) else pwmnames
     concatsubject <- unlist(subject)
 
