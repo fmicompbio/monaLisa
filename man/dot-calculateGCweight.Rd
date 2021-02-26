@@ -21,7 +21,7 @@ calculation.}
 }
 \value{
 a \code{DataFrame} of the same dimensions as the input \code{df},
-  with the columns \code{gc_frac}, \code{gc_bin} and \code{GCwgt}
+  with the columns \code{GCfrac}, \code{GCbin} and \code{GCwgt}
   filled in with the sequence GC content, assigned GC bins and weights to
   correct differences in GC distributions between foreground and background
   sequences.

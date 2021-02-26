@@ -2,8 +2,8 @@ test_that(".checkDfValidity() works", {
     seqchar <- c(s1 = "GTGCATGCAT", s2 = "ACGTACGTAC")
     df <- DataFrame(seqs = DNAStringSet(seqchar),
                     isForeground = c(TRUE, FALSE),
-                    gc_frac = NA_real_,
-                    gc_bin = NA_integer_,
+                    GCfrac = NA_real_,
+                    GCbin = NA_integer_,
                     GCwgt = NA_real_,
                     seqWgt = NA_real_)
     
@@ -11,8 +11,8 @@ test_that(".checkDfValidity() works", {
     expect_error(.checkDfValidity(df[1:3]), "has to have columns")
     expect_error(.checkDfValidity(DataFrame(seqs = seqchar, df[2:6])), "expected types")
     expect_error(.checkDfValidity(DataFrame(df[1], DataFrame(isForeground = 1:2), df[3:6])), "expected types")
-    expect_error(.checkDfValidity(DataFrame(df[1:2], DataFrame(gc_frac = seqchar), df[4:6])), "expected types")
-    expect_error(.checkDfValidity(DataFrame(df[1:3], DataFrame(gc_bin = seqchar), df[5:6])), "expected types")
+    expect_error(.checkDfValidity(DataFrame(df[1:2], DataFrame(GCfrac = seqchar), df[4:6])), "expected types")
+    expect_error(.checkDfValidity(DataFrame(df[1:3], DataFrame(GCbin = seqchar), df[5:6])), "expected types")
     expect_error(.checkDfValidity(DataFrame(df[1:4], DataFrame(GCwgt = seqchar), df[6])), "expected types")
     expect_error(.checkDfValidity(DataFrame(df[1:5], DataFrame(seqWgt = seqchar))), "expected types")
     expect_error(.checkDfValidity(df), "attributes: err")
@@ -46,8 +46,8 @@ test_that(".calculateGCweight() works", {
               b2b = "AAGGGGGGGG", b4b = "AAAAGGGGGG", b6b = "AAAAAAGGGG")
     df <- DataFrame(seqs = DNAStringSet(c(fseq, bseq)),
                     isForeground = rep(c(TRUE, FALSE), c(length(fseq), length(bseq))),
-                    gc_frac = NA_real_,
-                    gc_bin = NA_integer_,
+                    GCfrac = NA_real_,
+                    GCbin = NA_integer_,
                     GCwgt = NA_real_,
                     seqWgt = NA_real_)
     attr(df, "err") <- 0
@@ -60,7 +60,7 @@ test_that(".calculateGCweight() works", {
 
     expect_is(res1 <- .calculateGCweight(df, verbose = FALSE), "DataFrame")
     expect_identical(df[-13, 1:2], res1[, 1:2])
-    expect_identical(res1$gc_frac, c(9:6,4:1,9:6,4:1,8,6,4) / 10)
+    expect_identical(res1$GCfrac, c(9:6,4:1,9:6,4:1,8,6,4) / 10)
     expect_identical(res1[res1$isForeground, "GCwgt"],
                      rep(1.0, sum(res1$isForeground)))
     expect_identical(res1[!res1$isForeground, "GCwgt"],
@@ -110,8 +110,8 @@ test_that(".iterativeNormForKmers() works", {
               b2b = "AAGGGGGGGG", b4b = "AAAAGGGGGG", b6b = "AAAAAAGGGG")
     df <- DataFrame(seqs = DNAStringSet(c(fseq, bseq)),
                     isForeground = rep(c(TRUE, FALSE), c(length(fseq), length(bseq))),
-                    gc_frac = NA_real_,
-                    gc_bin = NA_integer_,
+                    GCfrac = NA_real_,
+                    GCbin = NA_integer_,
                     GCwgt = NA_real_,
                     seqWgt = NA_real_)
     attr(df, "err") <- 0
@@ -142,8 +142,8 @@ test_that(".calcMotifEnrichment works", {
               b4  = "AAAAGGGGGG", b5  = "AAAAAGGGGG")
     df <- DataFrame(seqs = DNAStringSet(c(fseq, bseq)),
                     isForeground = rep(c(TRUE, FALSE), c(length(fseq), length(bseq))),
-                    gc_frac = NA_real_,
-                    gc_bin = NA_integer_,
+                    GCfrac = NA_real_,
+                    GCbin = NA_integer_,
                     GCwgt = NA_real_,
                     seqWgt = NA_real_)
     attr(df, "err") <- 0

@@ -10,8 +10,8 @@
 #'     \item{\code{seqs}}{: a \code{DNAStringSet} object.}
 #'     \item{\code{isForeground}}{ that indicates if a sequence is in the
 #'                                 foreground group.}
-#'     \item{\code{gc_frac}}{: the fraction of G+C bases per sequence.}
-#'     \item{\code{gc_bin}}{: the GC bin for each sequence.}
+#'     \item{\code{GCfrac}}{: the fraction of G+C bases per sequence.}
+#'     \item{\code{GCbin}}{: the GC bin for each sequence.}
 #'     \item{\code{GCwgt}}{: the sequence weight to adjust for GC
 #'       differences between foreground and background sequences.}
 #'     \item{\code{seqWgt}}{: the sequence weight to adjust for k-mer
@@ -22,7 +22,7 @@
 #'   raises an exception using \code{stop()}
 .checkDfValidity <- function(df) {
     expected_cols <- c("seqs", "isForeground",
-                       "gc_frac", "gc_bin", "GCwgt", "seqWgt")
+                       "GCfrac", "GCbin", "GCwgt", "seqWgt")
     expected_types <- c("DNAStringSet", "logical",
                         "numeric", "numeric", "numeric", "numeric")
     expected_attrs <- c("err")
@@ -125,7 +125,7 @@
 #'   calculation.
 #'
 #' @return a \code{DataFrame} of the same dimensions as the input \code{df},
-#'   with the columns \code{gc_frac}, \code{gc_bin} and \code{GCwgt}
+#'   with the columns \code{GCfrac}, \code{GCbin} and \code{GCwgt}
 #'   filled in with the sequence GC content, assigned GC bins and weights to
 #'   correct differences in GC distributions between foreground and background
 #'   sequences.
@@ -147,16 +147,16 @@
   
     # calculate GC fraction for each sequence
     fmono <- oligonucleotideFrequency(df$seqs, width = 1, as.prob = TRUE)
-    df$gc_frac <- fmono[, "G"] + fmono[, "C"]
+    df$GCfrac <- fmono[, "G"] + fmono[, "C"]
 
     # assign sequences to a GC bin
-    df$gc_bin <- findInterval(x = df$gc_frac, vec = GCbreaks, all.inside = TRUE)
+    df$GCbin <- findInterval(x = df$GCfrac, vec = GCbreaks, all.inside = TRUE)
 
     # keep bins that have at least 1 foreground and 1 background sequence
     # and filter out sequences from unused bins
-    used_bins <- sort(intersect(df$gc_bin[df$isForeground],
-                                df$gc_bin[!df$isForeground]))
-    keep <- df$gc_bin %in% used_bins
+    used_bins <- sort(intersect(df$GCbin[df$isForeground],
+                                df$GCbin[!df$isForeground]))
+    keep <- df$GCbin %in% used_bins
     if (verbose) {
         message("  ", length(used_bins), " of ", length(GCbreaks) - 1,
                 " GC-bins used (have both fore- and background sequences)\n",
@@ -171,15 +171,15 @@
     total_bg <- sum(!df$isForeground)
 
     # calculate GC weight per bin
-    n_fg_b <- table(df$gc_bin[df$isForeground])
-    n_bg_b <- table(df$gc_bin[!df$isForeground])
+    n_fg_b <- table(df$GCbin[df$isForeground])
+    n_bg_b <- table(df$GCbin[!df$isForeground])
     weight_per_bin <- (n_fg_b / n_bg_b) * (total_bg / total_fg)
 
     # assign calculated GC weight to each background sequence
     # (foreground sequences get a weight of 1)
     df$GCwgt <- ifelse(df$isForeground,
                        1.0,
-                       weight_per_bin[as.character(df$gc_bin)])
+                       weight_per_bin[as.character(df$GCbin)])
 
     return(df)
 }
@@ -501,9 +501,9 @@
         }
 
         # contingency table per motif for fisher's exact test (rounded to integer):
-        #          TF_hit  not_TF_hit
-        #   is_fg     x         y
-        #   is_bg     z         w
+        #              withHit  noHit
+        #   foreground    x       y
+        #   background    z       w
         #
         logP <- log(vapply(structure(seq_along(TFmatchedSeqCountForeground),
                                      names = names(TFmatchedSeqCountForeground)),
@@ -612,6 +612,7 @@
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom S4Vectors DataFrame
 #' @importFrom GenomeInfoDb seqnames seqlevels
+#' @importFrom parallel mclapply
 #'
 #' @export
 get_binned_motif_enrichment <- function(seqs,
@@ -645,13 +646,15 @@ get_binned_motif_enrichment <- function(seqs,
         names(seqs) <- paste0("s", seq_along(seqs))
     }
 
+
     # filter sequences
     if (verbose) {
         message("Filtering sequences ...")
     }
     keep <- .filterSeqs(seqs, maxFracN = maxFracN, verbose = verbose)
     seqs <- seqs[keep]
-    
+
+
     # scan sequences with motif
     if (verbose) {
         message("Scanning sequences for motif hits...")
@@ -661,94 +664,96 @@ get_binned_motif_enrichment <- function(seqs,
     if (isEmpty(hits)) {
         stop("No motif hits found in any of the sequences - aborting.")
     }
-    
+
+
     # create motif hit matrix
     hitmatrix <- unclass(table(factor(seqnames(hits), levels = seqlevels(hits)),
                                factor(hits$pwmid, levels = TFBSTools::ID(pwmL))))
     # zoops (zero or one per sequence) mode
     hitmatrix[hitmatrix > 0] <- 1
 
-    # create list of DataFrames, one for each bin
-    bin_levels <- levels(bins)
-    DF_list <- list()
-    for (i in seq_along(bin_levels)) {
-        isForeground <- logical(length = length(seqs))
-        isForeground[bins == bin_levels[i]] <- TRUE
+    # iterate over bins
+    enrichL <- mclapply(structure(seq.int(nlevels(bins)), names = levels(bins)),
+                        function(i) {
+
+        if (verbose)
+            message("starting analysis of bin ", levels(bins)[i])
+        verbose1 <- verbose && Ncpu == 1L
+
+        # create sequence info data frame
         df <- DataFrame(seqs = seqs,
-                        isForeground = isForeground,
-                        gc_frac = NA_real_,
-                        gc_bin = NA_integer_,
+                        isForeground = (as.integer(bins) == i),
+                        GCfrac = NA_real_,
+                        GCbin = NA_integer_,
                         GCwgt = NA_real_,
                         seqWgt = NA_real_)
         attr(df, "err") <- NA
 
-        DF_list[[i]] <- df
-        names(DF_list)[i] <- bin_levels[i]
-    }
+        # calculate initial background sequence weights based on G+C composition
+        if (verbose1) {
+            message("Correcting for GC differences to the background sequences...")
+        }
+        df <- .calculateGCweight(df = df,
+                                 verbose = verbose1)
 
-    # calculate weight to adjust for GC differences between foreground and background per bin
-    # ... in this step, sequences may be filtered out (if a GC bin contains one sequence only, that sequence is filtered out).
-    # ... Since the kept seqs may differ per bin, we select the kept seqs at the enrichment per bin.
-    if (verbose) {
-        message("Correcting for GC differences to the background sequences per bin ...")
-    }
-    DF_list <- lapply(DF_list, function(x) {.calculateGCweight(df = x, verbose = verbose)})
+        # update background sequence weights based on k-mer composition
+        if (verbose1) {
+            message("Correcting for k-mer differences between fore- and background sequences...")
+        }
+        df <- .iterativeNormForKmers(df = df,
+                                     maxKmerSize = maxKmerSize,
+                                     verbose = verbose1)
 
-    # update weight to in addition adjust for kmer composition differences between foreground and background per bin
-    if (verbose) {
-        message("Correcting for kmer differences to the background sequences per bin ...")
-    }
-    DF_list <- lapply(DF_list, function(x) {.iterativeNormForKmers(df = x, maxKmerSize = maxKmerSize, verbose = verbose)})
+        # calculate motif enrichments
+        if (verbose1) {
+            message("Calculating motif enrichment...")
+        }
+        enrich1 <- .calcMotifEnrichment(motifHitMatrix = hitmatrix[rownames(df), , drop = FALSE],
+                                        df = df, test = test, verbose = verbose1)
+        return(enrich1)
 
-    # get log(p-values) for motif enrichment
-    if (verbose) {
-        message("Calculating motif enrichment per bin ...")
-    }
-    enrich_list <- lapply(DF_list, function(x) {
-        .calcMotifEnrichment(motifHitMatrix = hitmatrix[rownames(x), , drop = FALSE],
-                             df = x, test = test, verbose = verbose)
-    })
+    }, mc.cores = Ncpu)
 
-    # summarize results to return as SE
 
-    # - log10 of p-value
-    P <- do.call(cbind, lapply(enrich_list, function(bin_res) {
-        D <- bin_res[, "logP"]
+    # summarize results as SE
+    # ... log10 of p-value
+    P <- do.call(cbind, lapply(enrichL, function(enrich1) {
+        D <- enrich1[, "logP"]
         logpVals <- -D / log(10)
-        names(logpVals) <- bin_res[, "motifName"]
+        names(logpVals) <- enrich1[, "motifName"]
         logpVals
     }))
 
-    # - log10 of FDR
+    # ... log10 of FDR
     tmp <-  as.vector(10**(-P))
     fdr <- matrix(-log10(p.adjust(tmp, method = "BH")), nrow = nrow(P)) # add as parameter? the method of choice for multiple testing correction?
     dimnames(fdr) <- dimnames(P)
     fdr[which(fdr == Inf, arr.ind = TRUE)] <- max(fdr[is.finite(fdr)])
 
-    # enrTF (Pearson residuals)
-    enrTF <- do.call(cbind, lapply(enrich_list, function(bin_res) {
+    # ... Pearson residuals
+    enrTF <- do.call(cbind, lapply(enrichL, function(enrich1) {
         D <- as.matrix(
             data.frame(
-              sumForegroundWgtWithHits = bin_res[, "sumForegroundWgtWithHits"],
-              frac_fg_seq_with_motif = (bin_res[, "sumForegroundWgtWithHits"] / bin_res[, "totalWgtForeground"]),
-              frac_bg_seq_with_motif = (bin_res[, "sumBackgroundWgtWithHits"] / bin_res[, "totalWgtBackground"]))
+              sumForegroundWgtWithHits = enrich1[, "sumForegroundWgtWithHits"],
+              fracForegroundWgtWithHits = (enrich1[, "sumForegroundWgtWithHits"] / enrich1[, "totalWgtForeground"]),
+              fracBackgroundWgtWithHits = (enrich1[, "sumBackgroundWgtWithHits"] / enrich1[, "totalWgtBackground"]))
         )
-        rownames(D) <-  bin_res[, "motifName"]
+        rownames(D) <-  enrich1[, "motifName"]
         obsTF <- D[, "sumForegroundWgtWithHits"]
-        expTF <- D[, "sumForegroundWgtWithHits"] / (D[, "frac_fg_seq_with_motif"] + 0.001) * (D[, "frac_bg_seq_with_motif"] + 0.001) # keep pseudo count fixed or make parameter? exp = numb_fg_total*bg_frac
+        expTF <- D[, "sumForegroundWgtWithHits"] / (D[, "fracForegroundWgtWithHits"] + 0.001) * (D[, "fracBackgroundWgtWithHits"] + 0.001)
         enr <- (obsTF - expTF) / sqrt(expTF)
         enr[ is.na(enr) ] <- 0
         enr
     }))
 
-    # log2enr
-    log2enr <- do.call(cbind, lapply(enrich_list, function(bin_res) {
-        D <- bin_res[, c("sumForegroundWgtWithHits", "sumBackgroundWgtWithHits")]
-        nTot <- c(bin_res[1, "totalWgtForeground"], bin_res[1, "totalWgtBackground"]) # Do I round the bg total to the nearest integer?
+    # log2 enrichments
+    log2enr <- do.call(cbind, lapply(enrichL, function(enrich1) {
+        D <- enrich1[, c("sumForegroundWgtWithHits", "sumBackgroundWgtWithHits")]
+        nTot <- c(enrich1[1, "totalWgtForeground"], enrich1[1, "totalWgtBackground"]) # Do I round the bg total to the nearest integer?
         D.norm <- t(min(nTot) * t(D) / nTot) # scale to smaller number (usually number of target sequences) #
         DL <- log2(D.norm + 8) # keep pseudo count fixed? --> yes
         log2enr <- DL[, 1] - DL[, 2]
-        names(log2enr) <- bin_res[, "motifName"]
+        names(log2enr) <- enrich1[, "motifName"]
         log2enr
     }))
 

@@ -13,8 +13,8 @@ and columns:
   \item{\code{seqs}}{: a \code{DNAStringSet} object.}
   \item{\code{isForeground}}{ that indicates if a sequence is in the
                               foreground group.}
-  \item{\code{gc_frac}}{: the fraction of G+C bases per sequence.}
-  \item{\code{gc_bin}}{: the GC bin for each sequence.}
+  \item{\code{GCfrac}}{: the fraction of G+C bases per sequence.}
+  \item{\code{GCbin}}{: the GC bin for each sequence.}
   \item{\code{GCwgt}}{: the sequence weight to adjust for GC
     differences between foreground and background sequences.}
   \item{\code{seqWgt}}{: the sequence weight to adjust for k-mer
