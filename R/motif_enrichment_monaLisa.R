@@ -753,22 +753,23 @@ get_binned_motif_enrichment <- function(seqs,
     }))
 
     # return SummarizedExperiment
-    se <- SummarizedExperiment(assays = list(p = P, FDR = fdr, enr = enrTF,
-                                             log2enr = log2enr))
     percentGC <- unlist(lapply(pwmL, function(x) {
       m <- TFBSTools::Matrix(x)
       m <- 2^m * 0.25
       100 * sum(m[c("C","G"), ]) / sum(m)
     }), use.names = FALSE)
-    rowData(se) <- S4Vectors::DataFrame(motif.id = TFBSTools::ID(pwmL),
-                                        motif.name = TFBSTools::name(pwmL),
-                                        motif.pwm = pwmL,
-                                        motif.percentGC = percentGC)
-    metadata(se) <- list(params = list(test = test, maxFracN = maxFracN,
-                                       maxKmerSize = maxKmerSize,
-                                       min.score = min.score,
-                                       matchMethod = matchMethod,
-                                       Ncpu = Ncpu, verbose = verbose))
+    rdat <- S4Vectors::DataFrame(motif.id = TFBSTools::ID(pwmL),
+                                 motif.name = TFBSTools::name(pwmL),
+                                 motif.pwm = pwmL,
+                                 motif.percentGC = percentGC)
+    mdat <- list(params = list(test = test, maxFracN = maxFracN,
+                               maxKmerSize = maxKmerSize,
+                               min.score = min.score,
+                               matchMethod = matchMethod,
+                               Ncpu = Ncpu, verbose = verbose))
+    se <- SummarizedExperiment(assays = list(p = P, FDR = fdr, enr = enrTF,
+                                             log2enr = log2enr),
+                               rowData = rdat, metadata = mdat)
 
     return(se)
 }
