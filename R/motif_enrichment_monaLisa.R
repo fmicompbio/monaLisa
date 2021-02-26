@@ -661,17 +661,12 @@ get_binned_motif_enrichment <- function(seqs,
     if (isEmpty(hits)) {
         stop("No motif hits found in any of the sequences - aborting.")
     }
-    mat <- as.matrix(as.data.frame.matrix(table(seqnames(hits), as.character(hits$pwmid))))
-    # ... add missing rows (sequences that had no hit)
-    missing_row_names <- names(seqs)[!names(seqs) %in% rownames(mat)]
-    missing_mat <- matrix(data = 0, nrow = length(missing_row_names), ncol = ncol(mat))
-    rownames(missing_mat) <- missing_row_names
-    colnames(missing_mat) <- colnames(mat)
-    complete_hit_mat <- rbind(mat, missing_mat)
-    complete_hit_mat <- complete_hit_mat[names(seqs), , drop = FALSE]
-    # ... ZOOPS mode
-    w <- complete_hit_mat > 1
-    complete_hit_mat[w] <- 1
+    
+    # create motif hit matrix
+    hitmatrix <- unclass(table(factor(seqnames(hits), levels = seqlevels(hits)),
+                               factor(hits$pwmid, levels = TFBSTools::ID(pwmL))))
+    # zoops (zero or one per sequence) mode
+    hitmatrix[hitmatrix > 0] <- 1
 
     # create list of DataFrames, one for each bin
     bin_levels <- levels(bins)
@@ -710,7 +705,7 @@ get_binned_motif_enrichment <- function(seqs,
         message("Calculating motif enrichment per bin ...")
     }
     enrich_list <- lapply(DF_list, function(x) {
-        .calcMotifEnrichment(motifHitMatrix = complete_hit_mat[rownames(x), , drop = FALSE],
+        .calcMotifEnrichment(motifHitMatrix = hitmatrix[rownames(x), , drop = FALSE],
                              df = x, test = test, verbose = verbose)
     })
 
