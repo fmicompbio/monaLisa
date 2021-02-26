@@ -644,14 +644,10 @@ get_binned_motif_enrichment <- function(seqs,
     if (is.null(names(seqs))) {
         names(seqs) <- paste0("s", seq_along(seqs))
     }
-    if (is.null(names(pwmL))) {
-        stop("names(pwmL) is NULL, please name the PWMs, preferably ",
-             "with their unique ID.")
-    }
 
     # filter sequences
     if (verbose) {
-        message("filtering out bad sequences ...")
+        message("Filtering sequences ...")
     }
     keep <- .filterSeqs(seqs, maxFracN = maxFracN, verbose = verbose)
     seqs <- seqs[keep]
