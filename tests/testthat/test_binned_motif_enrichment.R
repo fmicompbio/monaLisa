@@ -380,7 +380,7 @@ test_that("get_binned_motif_enrichment() works (synthetic data)", {
     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwm, min.score = 6, maxKmerSize = "error"), "integer")
     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwm, Ncpu = "error"), "integer")
     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwm, verbose = "error"), "logical")
-    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = as.matrix(pwm[[1]])), "PWMatrixList")
+    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = TFBSTools::Matrix(pwm[[1]])), "PWMatrixList")
 
     expect_message(res1 <- get_binned_motif_enrichment(seqs = seqs,
                                                        bins = b,
