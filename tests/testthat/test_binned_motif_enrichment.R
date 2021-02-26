@@ -54,6 +54,7 @@ test_that(".calculateGCweight() works", {
     
     expect_error(.calculateGCweight("error"), "should be a DataFrame")
     expect_error(.calculateGCweight(df, GCbreaks = "error"), "numeric")
+    expect_error(.calculateGCweight(df, GCbreaks = 0.2), "length 2 or greater")
     expect_error(.calculateGCweight(df, verbose = "error"), "logical")
     expect_message(.calculateGCweight(df, verbose = TRUE))
 
