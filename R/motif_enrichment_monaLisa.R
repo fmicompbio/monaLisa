@@ -762,13 +762,20 @@ get_binned_motif_enrichment <- function(seqs,
     }))
 
     # return SummarizedExperiment
-    percentGC <- unlist(lapply(pwmL, function(x) {
-      m <- TFBSTools::Matrix(x)
-      m <- 2^m * 0.25
-      100 * sum(m[c("C","G"), ]) / sum(m)
+    pfmL <- do.call(TFBSTools::PFMatrixList, lapply(pwmL, function(x) {
+        m <- TFBSTools::Matrix(x)
+        m <- 2^m * 0.25 # assuming uniform background and no pseudocounts
+        PFMatrix(ID = TFBSTools::ID(x),
+                 name = TFBSTools::name(x),
+                 profileMatrix = m * 100)
+    }))
+    percentGC <- unlist(lapply(pfmL, function(x) {
+        x <- TFBSTools::Matrix(x)
+        100 * sum(x[c("C","G"), ]) / sum(x)
     }), use.names = FALSE)
     rdat <- S4Vectors::DataFrame(motif.id = TFBSTools::ID(pwmL),
                                  motif.name = TFBSTools::name(pwmL),
+                                 motif.pfm = pfmL,
                                  motif.pwm = pwmL,
                                  motif.percentGC = percentGC)
     mdat <- list(sequences = seqs,
