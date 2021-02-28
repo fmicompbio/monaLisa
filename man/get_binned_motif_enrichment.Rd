@@ -105,7 +105,6 @@ This function implements a binned motif enrichment analysis. In each
          - change the names of the assays in the SE or return the p-values and FDR (not -log10)
          - have a look again at using motif IDs and not names, but keeping both information
          - make test="fisher" the default in .calcMotifEnrichment
-         - better assay names? P and fdr are -log10(...), yes or transform into p-values
          - add assay with fraction of sequences containing hits for a given motif
-         - add motifs without hits to assays (as NA values)
+         - add motifs without hits to assays as NA values
 }
