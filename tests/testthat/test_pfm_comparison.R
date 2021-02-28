@@ -105,7 +105,7 @@ test_that("motifKmerSimilarity works as expected", {
 
     expect_message(res1 <- motifKmerSimilarity(x = pfmL, kmerLen = 4))
     expect_is(res1, "matrix")
-    expect_is(res2 <- motifKmerSimilarity(x = tmpf, kmerLen = 4L, Ncpu = 2L, verbose = TRUE), "matrix")
+    expect_is(res2 <- motifKmerSimilarity(x = tmpf, kmerLen = 4L, BPPARAM = BiocParallel::MulticoreParam(2), verbose = TRUE), "matrix")
     expect_identical(res1, res2)
     expect_identical(dim(res1), c(3L, 256L))
     expect_identical(dimnames(res1), list(name(pfmL), FourMers))
