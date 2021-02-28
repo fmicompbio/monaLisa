@@ -4,59 +4,67 @@
 \alias{randomized_stabsel}
 \title{Randomized Lasso Stability Selection}
 \usage{
-randomized_stabsel(x = x, y = y, weakness = 0.8, cutoff = 0.8, PFER = 2, ...)
+randomized_stabsel(
+  x = NULL,
+  y = NULL,
+  weakness = 0.8,
+  cutoff = 0.8,
+  PFER = 2,
+  ...
+)
 }
 \arguments{
 \item{x}{the predictor matrix.}
 
 \item{y}{the response vector.}
 
-\item{weakness}{parameter that can take a value between 0 and 1. It affects how strict the method will be in
-selecting predictors. It is set to 0.8 by default. The closer it goes to 0 the more stringent the selection. A
-weakness value of 1 is identical to performing lasso stability selection (not the randomized version).}
+\item{weakness}{value between 0 and 1 (default = 0.8). 
+It affects how strict the method will be in selecting predictors. The closer it is to 0, 
+the more stringent the selection. A weakness value of 1 is identical to performing 
+lasso stability selection (not the randomized version).}
 
-\item{cutoff}{value between 0 and 1 which is the cutoff for the selection probability. Any variable
-with a selection probability that is higher than the set cutoff will be selected. It is set to 0.8 by default.}
+\item{cutoff}{value between 0 and 1 (default = 0.8) which is the cutoff for the selection probability. 
+Any variable with a selection probability that is higher than the set cutoff will be selected.}
 
-\item{PFER}{the absolute number of false positives that we allow for in the final list of
-selected variables. For details see Meinshausen and Bühlmann (2010).}
+\item{PFER}{integer (default = 2) representing the absolute number of false positives that we 
+allow for in the final list of selected variables. For details see Meinshausen and Bühlmann (2010).}
 
-\item{...}{additional parameters for \code{glmnet}.}
+\item{...}{additional parameters that can be passed on to \code{\link[glmnet]{glmnet}}.}
 }
 \value{
-a \code{stabsel} object. It contains the following:
-\itemize{
- \item phat - a matrix containing selection probabilities, where columns are regularization steps and rows
- are predictors.
- \item selected - a vector containing the selected predictors.
- \item max - maximum of selection probabilities.
- \item cutoff - the selection probability cutoff.
- \item q - average number of selected variables used.
- \item PFER - the realized upper bound for the per-family error rate (number of falsely selected predictors among the group of selected predictors).
- \item specifiedPFER - the set upper bound for the per-family error rate (number of falsely selected predictors among the group of selected predictors).
- \item p - the total number of predictors.
- \item B - the number of subsamples.
- \item sampling.type - sampling type used for stability selection.
- \item assumption - assumptions made on the selection probabilities.
- \item call - the call.
-}
+A \code{SummarizedExperiment} object where the rows are the 
+  predictors and the columns are the different 
+  regularization steps. The object consists of: \itemize{
+     \item{assay}{:  \itemize{
+       \item{selProb}{: the selection probabilities of the predictors 
+       across the different regularization steps.}
+       }
+     }
+     \item{metadata}{: list with: \itemize{
+       \item{stabselParams}{: }
+       \item{randStabselParams}{: }
+       }
+     }
+  }
 }
 \description{
 This function runs randomized lasso stability selection as presented by Meinshausen
-and Bühlmann (2010) and with the improved error bounds introduced by Shah and Samworth (2013). The function
-uses the \code{stabsel} function from the \code{stabs} package, but implements the randomized lasso version.
+  and Bühlmann (2010) and with the improved error bounds introduced by Shah and Samworth (2013). The function
+  uses the \code{\link[stabs]{stabsel}} function from the \code{stabs} package, but implements the randomized lasso version.
 }
 \details{
-Randomized lasso stability selection runs randomized lasso several times on subsamples of
-the response variable and predictor matrix (stability selection). N/2 elements from the response variable are
-randomly chosen, where N is the length of the vector. Their corresponsing section of the predictor matrix is
-also chosen, and the \code{glmnet.randomized_lasso} function is applied. This is done multiple times, and
-results in selection probabilities for each predictor. The probability of a specific predictor is the number of
-times it was selected divided by the total number of subsamples that were done (total number of times the
-regression was performed).
+Randomized lasso stability selection runs a randomized lasso regression 
+  several times on subsamples of the response variable and predictor matrix. 
+  N/2 elements from the response variable are randomly chosen in each regression, 
+  where N is the length of the vector. The corresponsing section of the predictor matrix is
+  also chosen, and the \code{\link[monaLisa]{glmnet.randomized_lasso}} function is applied. 
+  Stability selection results in selection probabilities for each predictor. 
+  The probability of a specific predictor is the number of
+  times it was selected divided by the total number of subsamples that were done 
+  (total number of times the regression was performed).
 
-We make use of the \code{stabs} package that implements lasso stability selection, and adapt it to run the
-randomized lasso stability selection. The output is an object of type \code{stabsel}.
+  We made use of the \code{stabs} package that implements lasso stability selection, 
+  and adapted it to run randomized lasso stability selection.
 }
 \references{
 N. Meinshausen and P. Bühlmann (2010), Stability Selection, \emph{Journal of the Royal Statistical Society: Series B (Statistical Methodology)}, \strong{72}, 417–73. \cr

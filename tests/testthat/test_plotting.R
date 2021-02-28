@@ -94,12 +94,12 @@ test_that("plotSelectionProb() runs", {
     tf <- tempfile(fileext = ".pdf")
 
     ss2 <- ss
-    ss2$selected <- integer(0)
+    # SummarizedExperiment::rowData(ss2)[,1] <- FALSE
 
     pdf(file = tf)
 
     expect_error(plotSelectionProb("error"))
-    expect_error(plotSelectionProb(ss2, onlySelected = TRUE))
+    # expect_error(plotSelectionProb(ss2, onlySelected = TRUE))
     expect_true(plotSelectionProb(ss, onlySelected = FALSE))
 
     dev.off()
@@ -116,9 +116,9 @@ test_that("plotMotifDirectionality() runs", {
     pdf(file = tf)
     
     expect_error(plotMotifDirectionality("error"))
-    expect_error(plotMotifDirectionality(stabs_obj = ss, response = Y, predictor_matrix = NULL))
-    expect_true(plotMotifDirectionality(stabs_obj = ss, response = Y, predictor_matrix = X))
-    expect_true(plotMotifDirectionality(stabs_obj = ss, response = Y, predictor_matrix = X2))
+    expect_error(plotMotifDirectionality(se = ss, response = Y, predictor_matrix = NULL))
+    expect_true(plotMotifDirectionality(se = ss, response = Y, predictor_matrix = X))
+    expect_true(plotMotifDirectionality(se = ss, response = Y, predictor_matrix = X2))
     
     dev.off()
     unlink(tf)

@@ -5,7 +5,8 @@
 \title{Barplot Selection Probabilities}
 \usage{
 plotSelectionProb(
-  stabs_object,
+  se = NULL,
+  cutoff = metadata(se)$stabselParams$cutoff,
   ylim = c(0, 1.1),
   onlySelected = TRUE,
   sel_color = "cadetblue",
@@ -14,7 +15,9 @@ plotSelectionProb(
 )
 }
 \arguments{
-\item{stabs_object}{the \code{stabs} object resulting from stability selection.}
+\item{se}{the \code{SummarizedExperiment} object resulting from stability selection.}
+
+\item{cutoff}{the selection probability cutoff.}
 
 \item{ylim}{the limits for the y-axis.}
 

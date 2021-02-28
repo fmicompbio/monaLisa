@@ -355,153 +355,178 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
 }
 
 
-#'@title Plot Stability Paths
+#' @title Plot Stability Paths
 #'
-#'@description Plot the stability paths of each variable (predictor), showing the selection probability
-#'as a function of the regularization step.
+#' @description Plot the stability paths of each variable (predictor), showing the selection probability
+#'   as a function of the regularization step.
 #'
-#'@param stabs_object the \code{stabs} object resulting from stability selection.
-#'@param cols color vector for the varaiables from the predictor matrix. By default, it's set to NULL
-#'and the function colors the variables by whether or not they were selected.
-#'@param lwd line width (default 1).
-#'@param lty line type (default 1).
-#'@param ylim limits for y-axis (default c(0,1.1)).
-#'@param ... additional parameters to pass on to \code{matplot}.
+#' @param se the \code{SummarizedExperiment} object resulting from stability selection, 
+#'   by running \code{\link[monaLisa]{randomized_stabsel}}.
+#' @param cutoff the selection probability cutoff.
+#' @param lwd line width (default = 1).
+#' @param lty line type (default = 1).
+#' @param ylim limits for y-axis (default = c(0,1.1)).
+#' @param ... additional parameters to pass on to \code{matplot}.
 #'
-#'@return plot of stability paths.
+#' @return plot of stability paths.
 #'
-#'@seealso \code{\link[stabs]{stabsel}} and \code{\link[graphics]{matplot}}
+#' @seealso \code{\link[stabs]{stabsel}} and \code{\link[graphics]{matplot}}
 #'
-#'@export
-plotStabilityPaths <- function(stabs_object, cols=NULL, lwd = 1, lty=1, ylim=c(0,1.1), ...) {
+#' @importFrom SummarizedExperiment assay rowData
+#'
+#' @export
+plotStabilityPaths <- function(se=NULL, cutoff = metadata(se)$stabselParams$cutoff, 
+                               lwd = 1, lty=1, ylim=c(0,1.1), ...) {
 
-    # ... checks
-    if (!base::inherits(stabs_object, what = "stabsel")) {
-        stop("stabs_object must be of class 'stabsel', the resulting object ",
-             "from running stability selection with the `stabs` package")
+    # checks
+    if(is.null(se)){
+        stop("'se' must not be NULL")
     }
-    
+    if(!is(se, "SummarizedExperiment")){
+        stop("'se' must be a SummarizedExperiment")
+    }
+
+   
     # set plot parameters
-    mat <- t(stabs_object$phat)
-    if (is.null(cols)) {
-        cols <- rep("black", ncol(mat))
-        names(cols) <- rep("Not Selected", length(cols))
-        cols[stabs_object$selected] <- "cadetblue"
-        names(cols)[stabs_object$selected] <- "Selected"
-    }
-
+    mat <- t(SummarizedExperiment::assay(se, "selProb"))
+    cols <- rep("black", ncol(mat))
+    sel <- SummarizedExperiment::rowData(se)[, paste0("SelProbCutoff", cutoff)]
+    cols[sel] <- "cadetblue"
+  
+  
     # plot stability paths
     matplot(mat, col = cols, type = "l", lty = lty,
             ylab = "Selection Probability", xlab = "Regularization Step",
             ylim = ylim, lwd = lwd, ...)
-    abline(h = stabs_object$cutoff, lty = 5, col = "red", lwd = lwd)
-    legend("topleft", legend = c(unique(names(cols)), "cutoff"),
-           col = c(unique(cols), "red"), lty = c(1, 1, 5), bty = "n", lwd = lwd)
+    abline(h = cutoff, lty = 5, col = "red", lwd = lwd)
+    legend("topleft", legend = c("not selected", "selected", "cutoff"),
+           col = c("black", "cadetblue", "red"), lty = c(1, 1, 5), bty = "n", lwd = lwd)
+    
+    
+    # return TRUE
     invisible(TRUE)
 }
 
 
-#'@title Barplot Selection Probabilities
+#' @title Barplot Selection Probabilities
 #'
-#'@description Create a bar plot of the selection probabilities in descending order.
+#' @description Create a bar plot of the selection probabilities in descending order.
 #'
-#'@param stabs_object the \code{stabs} object resulting from stability selection.
-#'@param ylim the limits for the y-axis.
-#'@param onlySelected logical (default=TRUE) indicating if only selected predictors' selection probabilities
-#'    should be plotted.
-#'@param sel_color color of the selected predictors.
-#'@param las (2 by default) plot labels vertically or horizontally.
-#'@param ... additional parameters for the \code{barplot} function.
+#' @param se the \code{SummarizedExperiment} object resulting from stability selection.
+#' @param cutoff the selection probability cutoff.
+#' @param ylim the limits for the y-axis.
+#' @param onlySelected logical (default=TRUE) indicating if only selected predictors' selection probabilities
+#'   should be plotted.
+#' @param sel_color color of the selected predictors.
+#' @param las (2 by default) plot labels vertically or horizontally.
+#' @param ... additional parameters for the \code{barplot} function.
 #'
-#'@seealso \code{\link[graphics]{barplot}}
+#' @seealso \code{\link[graphics]{barplot}}
 #'
-#'@return barplot of selection probabilities.
-#'@export
-plotSelectionProb <- function(stabs_object, ylim = c(0,1.1), onlySelected = TRUE, sel_color="cadetblue", las = 2, ...) {
+#' @return barplot of selection probabilities.
+#'
+#' @importFrom SummarizedExperiment assay rowData
+#' @importFrom graphics barplot
+#'
+#' @export
+plotSelectionProb <- function(se=NULL, cutoff = metadata(se)$stabselParams$cutoff, 
+                              ylim = c(0,1.1), onlySelected = TRUE, sel_color="cadetblue", las = 2, ...) {
 
-    # ... checks
-    if (!base::inherits(stabs_object, what = "stabsel")) {
-        stop("stabs_object must be of class 'stabsel', the resulting object ",
-             "from running stability selection with the `stabs` package")
+    # checks
+    if(is.null(se)){
+        stop("'se' must not be NULL")
     }
-
-    phat <- t(stabs_object$phat)
-    TF_prob <- phat[nrow(phat), ]
-    cols <- rep("grey", length(TF_prob))
-    cols[stabs_object$selected] <- sel_color
+    if(!is(se, "SummarizedExperiment")){
+        stop("'se' must be a SummarizedExperiment")
+    }
+  
+    # get selection probabilities (last column; ie last regularization step in assay)
+    probs  <- SummarizedExperiment::assay(se, "selProb")[, ncol(se)]
+    sel <- SummarizedExperiment::rowData(se)[, paste0("SelProbCutoff", cutoff)]
+    cols <- rep("grey", length(probs))
+    cols[sel] <- sel_color
     
+    
+    # if onlySelected, only keep selected predictors
     if (onlySelected) {
-        TF_prob <- TF_prob[stabs_object$selected]
-        cols <- cols[stabs_object$selected]
+        probs <- probs[sel]
+        cols <- cols[sel]
     }
     
-    # check if empty
-    if (S4Vectors::isEmpty(TF_prob)) {stop("The input for the barplot is empty")}
     
-    # order
-    TF_prob <- TF_prob[order(TF_prob, decreasing = TRUE)]
+    # order by selection probability
+    probs <- sort(probs, decreasing = TRUE)
+    
     
     # plot
-    graphics::barplot(TF_prob, ylim = ylim, ylab = "Selection Probability",
+    graphics::barplot(probs, ylim = ylim, ylab = "Selection Probability",
                       las = las, col = cols, border = NA, ...)
-    abline(h = stabs_object$cutoff, lty = 5, col = "red")
+    abline(h = cutoff, lty = 5, col = "red")
     legend("topright", legend = "cutoff", lty = 5, col = "red", bty = "n")
+    
+    
+    # return TRUE
     invisible(TRUE)
 }
 
 
-#'@title Plot Directionality of Predictor Effect
+#' @title Plot Directionality of Predictor Effect
 #'
-#'@description This function plots the selectiong probabilities of the chosen predictors (for example the selected motifs)
-#'and assigns a + or - sign to these probabilities to give a sense of directionality of the effect. The assumption is that 
-#'the response vector on which stability selection was performed is a measure of fold-change. The correlation (pearson by default)
-#'of each predictor to the response vector is calculated. The selection probabilities of the chosen predictors multiplied by the 
-#'sign of the correlation is plotted to indicate the directionality.
+#' @description This function plots the selectiong probabilities of the chosen predictors (for example the selected motifs)
+#'  and assigns a + or - sign to these probabilities to give a sense of directionality of the effect. The assumption is that 
+#'  the response vector on which stability selection was performed is a measure of fold-change. The correlation (pearson by default)
+#'  of each predictor to the response vector is calculated. The selection probabilities of the chosen predictors multiplied by the 
+#'  sign of the correlation is plotted to indicate the directionality.
 #'
-#'@param stabs_obj the \code{stabs} object resulting from stability selection.
-#'@param response the response vector that was used for the stability selection (like the log-fold change of a measure of interest).
-#'@param predictor_matrix the predictor matrix that was used for the stability selection (like the number of predicted TFBS of all motifs across the regions of interest).
-#'@param sel_color the color for the selected predictors from stability selection.
-#'@param min_sel_prob predictors with a selection probability greater than or equal to this are included in the plot.
-#'@param cor_method the correlation method to be used.
-#'@param ... additional parameters for the \code{barplot} function.
+#' @param se the \code{SummarizedExperiment} object resulting from stability selection.
+#' @param response the response vector that was used for the stability selection (like the log-fold change of a measure of interest).
+#' @param predictor_matrix the predictor matrix that was used for the stability selection (like the number of predicted TFBS of all motifs across the regions of interest).
+#' @param sel_color the color for the selected predictors from stability selection.
+#' @param min_sel_prob predictors with a selection probability greater than or equal to this are included in the plot.
+#' @param cor_method the correlation method to be used.
+#' @param ... additional parameters for the \code{barplot} function.
 #'
-#'@seealso \code{\link[graphics]{barplot}}
+#' @seealso \code{\link[graphics]{barplot}}
 #'
-#'@return a barplot indicating the directionality of the motifs with respect to the correlation to the response vector.
+#' @return a barplot indicating the directionality of the motifs with respect to the correlation to the response vector.
 #'
-#'@export
-plotMotifDirectionality <- function(stabs_obj, response, predictor_matrix,
+#' @importFrom SummarizedExperiment rowData assay
+#' @importFrom stats cor
+#'
+#' @export
+plotMotifDirectionality <- function(se=NULL, cutoff=metadata(se)$stabselParams$cutoff, response=NULL, 
+                                    predictor_matrix=NULL,
                                     sel_color="cadetblue", min_sel_prob=0.4, cor_method="pearson", ...) {
     
     # checks
     # ... class checks
     stopifnot(exprs = {
-        is(stabs_obj, "stabsel")
+        is(se, "SummarizedExperiment")
         is(response, "numeric")
         any(is(predictor_matrix, "matrix"))
     })
     # ... compatibility checks
     stopifnot(length(response) == nrow(predictor_matrix))
     if (!is.null(colnames(predictor_matrix)) && !is.null(names(response))) {
-        stopifnot(all(rownames(stabs_obj$phat) == colnames(predictor_matrix)))
+        stopifnot(all(rownames(se) == colnames(predictor_matrix)))
     }
     
     # correlation 
     cor <- as.vector(stats::cor(x = response, y = predictor_matrix, method = cor_method))
     cols <- rep("grey", ncol(predictor_matrix))
-    cols[stabs_obj$selected] <- sel_color
+    sel <- SummarizedExperiment::rowData(se)[, paste0("SelProbCutoff", cutoff)]
+    cols[sel] <- sel_color
     if (!is.null(colnames(predictor_matrix))) {
         tf_names <- colnames(predictor_matrix)
     } else {
         tf_names <- paste0("pred", 1:ncol(predictor_matrix))
     }
     # probabilities with directionality
-    probs <- stabs_obj$phat[, ncol(stabs_obj$phat)]
+    probs <- SummarizedExperiment::assay(se, "selProb")[, ncol(se)]
     probs <- probs*sign(cor)
 
     # kept and ordered
-    keep <- stabs_obj$phat[,ncol(stabs_obj$phat)] >= min_sel_prob
+    keep <- SummarizedExperiment::assay(se, "selProb")[, ncol(se)] >= min_sel_prob
     cor <- cor[keep]
     cols <- cols[keep]
     tf_names <- tf_names[keep]
