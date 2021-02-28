@@ -5,9 +5,10 @@
 \title{Plot Directionality of Predictor Effect}
 \usage{
 plotMotifDirectionality(
-  stabs_obj,
-  response,
-  predictor_matrix,
+  se = NULL,
+  cutoff = metadata(se)$stabselParams$cutoff,
+  response = NULL,
+  predictor_matrix = NULL,
   sel_color = "cadetblue",
   min_sel_prob = 0.4,
   cor_method = "pearson",
@@ -15,7 +16,7 @@ plotMotifDirectionality(
 )
 }
 \arguments{
-\item{stabs_obj}{the \code{stabs} object resulting from stability selection.}
+\item{se}{the \code{SummarizedExperiment} object resulting from stability selection.}
 
 \item{response}{the response vector that was used for the stability selection (like the log-fold change of a measure of interest).}
 
@@ -34,10 +35,10 @@ a barplot indicating the directionality of the motifs with respect to the correl
 }
 \description{
 This function plots the selectiong probabilities of the chosen predictors (for example the selected motifs)
-and assigns a + or - sign to these probabilities to give a sense of directionality of the effect. The assumption is that 
-the response vector on which stability selection was performed is a measure of fold-change. The correlation (pearson by default)
-of each predictor to the response vector is calculated. The selection probabilities of the chosen predictors multiplied by the 
-sign of the correlation is plotted to indicate the directionality.
+ and assigns a + or - sign to these probabilities to give a sense of directionality of the effect. The assumption is that 
+ the response vector on which stability selection was performed is a measure of fold-change. The correlation (pearson by default)
+ of each predictor to the response vector is calculated. The selection probabilities of the chosen predictors multiplied by the 
+ sign of the correlation is plotted to indicate the directionality.
 }
 \seealso{
 \code{\link[graphics]{barplot}}
