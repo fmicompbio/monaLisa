@@ -186,3 +186,21 @@ test_that("convertKmersToMotifs works as expected", {
     expect_identical(a1, a2)
     expect_equal(rowSums(assay(a1, "enr")), c("m1:::m1" = 42.263710609719, "m2:::m2" = 0.537892231292))
 })
+
+test_that("extractOverlappingKmerFrequecies works as expected", {
+    seqs <- Biostrings::DNAStringSet(c(s1 = "AAAAACCGTTAAAAAAAAAAAAAAAAACCGTTAAAAAAAAAAAAAA",
+                                       s2 = "AAAAAAAAAAAAAAAAACCGTTAAAAAAAAAAATAACGGAAAAAAA",
+                                       s3 = "ATAACGGAAAACCGTTCCGTTAAAAAAAAAAAAAAAAAAAAAAAAA"))
+    kmers <- c("CCGT", "CGTT", "GTTA")
+    
+    expect_error(extractOverlappingKmerFrequecies(seqs = "error", x = kmers), "DNAStringSet")
+    expect_error(extractOverlappingKmerFrequecies(seqs, x = "error"), "\\[ACGT\\]")
+    expect_error(extractOverlappingKmerFrequecies(seqs, kmers, BPPARAM = "error"), "BiocParallelParam")
+
+    res1 <- extractOverlappingKmerFrequecies(seqs, kmers)
+    res2 <- extractOverlappingKmerFrequecies(seqs, kmers, BPPARAM = BiocParallel::MulticoreParam(2L))
+    
+    expect_is(res1, "integer")
+    expect_identical(res1, c(CCGTTA = 3L, TAACGG = 2L, CCGTTCCGTTA = 1L))
+    expect_identical(res1, res2)
+})

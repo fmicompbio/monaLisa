@@ -584,49 +584,68 @@ convertKmersToMotifs <- function(x, m, BPPARAM = SerialParam(), verbose = TRUE) 
 }
 
 
-#' @title Match a set of kmers to input sequences and determine frequencies of overlapping matches.
+#' @title Match a set of k-mers to input sequences and determine frequencies of overlapping matches.
 #'
-#' @description Using a set of kmers, search input sequences for matches and retrieve
-#'      the frequencies of sequences overlapping with 1 or more overlapping kmers.
+#' @description Using a set of k-mers, search input sequences for matches and retrieve
+#'      the frequencies of sequences overlapping with 1 or more overlapping k-mers.
 #'
 #' @param seqs Set of sequences, either a \code{character} vector or a
 #'    \code{\link{DNAStringSet}}.
 #'   
-#' @param x A \code{character} vector of enriched kmers.
+#' @param x A \code{character} vector of enriched k-mers.
 #'
 #' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
 #'     instance determining the parallel back-end to be used during evaluation.
 #'
+#' @return A named integer vector with the number of observed occurrences of
+#'   sequences overlapping enriched k-mers. The sequences are given as the
+#'   names, and the elements are sorted by decreasing frequency.
+#'
 #' @seealso \code{\link{kmerEnrichments}} for performing a k-mer enrichment
 #'     analysis, \code{\link[BiocParallel]{bplapply}} used for parallelization. 
 #'
-#' @importFrom Biostrings vmatchPattern
+#' @importFrom Biostrings matchPDict reverseComplement DNAStringSet
 #' @importFrom BiocParallel bplapply SerialParam bpnworkers
+#' @importFrom IRanges reduce
 #' 
 #' @export
 extractOverlappingKmerFrequecies <- function(seqs, x, BPPARAM = SerialParam()) {
     ## pre-flight checks
+    x <- toupper(x)
     stopifnot(exprs = {
         is(seqs, "DNAStringSet")
         is(x, "character")
+        all(grepl("^[ACGT]+$", x))
         is(BPPARAM, "BiocParallelParam")
     })
     #also include reverse complements
-    enriched.kmers <- unique(c(x, as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(x)))))
-    tmp <- unlist(bplapply(seq_along(seq), function(i) {
-        tmp.range <- IRanges::reduce(do.call(c, lapply(enriched.kmers, function(kmer) {
-            vmatchPattern(kmer, seq[i])[[1]]
-        })))
-        tmp.range
-        res <- NULL
-        if (length(tmp.range) > 0) {
-            res <- as.character(do.call(c, lapply(1:length(tmp.range), function(ii){
-                subseq(seq[i], start = start(tmp.range)[ii], end = end(tmp.range)[ii])
-            })))
+    # enriched.kmers <- unique(c(x, as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(x)))))
+    # tmp <- unlist(bplapply(seq_along(seqs), function(i) {
+    #     tmp.range <- IRanges::reduce(do.call(c, lapply(enriched.kmers, function(kmer) {
+    #         Biostrings::vmatchPattern(kmer, seqs[i])[[1]]
+    #     })))
+    #     tmp.range
+    #     res <- NULL
+    #     if (length(tmp.range) > 0) {
+    #         res <- as.character(do.call(c, lapply(seq_along(tmp.range), function(ii) {
+    #             subseq(seqs[i], start = start(tmp.range)[ii], end = end(tmp.range)[ii])
+    #         })))
+    #     }
+    #     res
+    # }, BPPARAM = BPPARAM))
+    xx <- Biostrings::DNAStringSet(x)
+    xxrc <- unique(c(xx, Biostrings::reverseComplement(xx)))
+    xxdict <- Biostrings::PDict(xxrc)
+    tmp <- unlist(bplapply(seq_along(seqs), function(i) {
+        hitranges <- IRanges::reduce(unlist(matchPDict(pdict = xxdict, subject = seqs[[i]])))
+        if (length(hitranges)) {
+            substring(as.character(seqs[[i]]), first = start(hitranges), last = end(hitranges))
+        } else {
+            character(0)
         }
-        res
     }, BPPARAM = BPPARAM))
-    extended.seqs <- table(tmp)
+    ttmp <- table(tmp)
+    extended.seqs <- structure(as.vector(ttmp), names = names(ttmp))
     extended.seqs[order(extended.seqs, decreasing = TRUE)]
 }
 
