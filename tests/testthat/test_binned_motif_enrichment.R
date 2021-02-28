@@ -351,6 +351,7 @@ test_that("get_binned_motif_enrichment() works (synthetic data)", {
         paste(sample(c("A","C","G","T"), len, replace = TRUE), collapse = "")
     }))
     b <- factor(rep(c(1, 2, 3), each = 50))
+    attr(b, "bin0") <- NA
     m1 <- rbind(A = c(7, 7, 7, 7, 7), # AAAAA
                 C = c(1, 1, 1, 1, 1),
                 G = c(1, 1, 1, 1, 1),
@@ -401,13 +402,14 @@ test_that("get_binned_motif_enrichment() works (synthetic data)", {
     expect_identical(dim(res1), dim(res1))
     expect_identical(dimnames(res1), list(names(pwm), levels(b)))
     expect_identical(dimnames(res1), dimnames(res1))
-    expect_identical(names(metadata(res1)$params),
-                     c("test", "maxFracN", "maxKmerSize",
-                       "min.score", "matchMethod", 
-                       "BPPARAM.class", "BPARAM.bpnworkers", "verbose"))
-    expect_identical(metadata(res1)$params$test, "binom")
-    expect_identical(metadata(res2)$params$test, "fisher")
-    expect_identical(metadata(res1)$params[-1], metadata(res2)$params[-1])
+    expect_identical(names(metadata(res1)),
+                     c("sequences", "bins", "bins.binmode", "bins.breaks", "bins.bin0", 
+                       "param.test", "param.maxFracN", "param.maxKmerSize", "param.min.score", 
+                       "param.matchMethod", "param.BPPARAM.class", "param.BPARAM.bpnworkers", 
+                       "param.verbose"))
+    expect_identical(metadata(res1)$param.test, "binom")
+    expect_identical(metadata(res2)$param.test, "fisher")
+    expect_identical(metadata(res1)[-6], metadata(res2)[-6])
     expect_identical(assayNames(res1), c("p", "FDR", "enr", "log2enr"))
     expect_identical(assayNames(res2), c("p", "FDR", "enr", "log2enr"))
     expect_identical(colnames(rowData(res1)), c("motif.id", "motif.name", "motif.pwm", "motif.percentGC"))
