@@ -59,18 +59,14 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
         seqs <- DNAStringSet(seqs)
     stopifnot(exprs = {
         is(seqs, "DNAStringSet")
-        is.numeric(kmerLen)
-        length(kmerLen) == 1L
         round(kmerLen, 0L) == kmerLen
-        is.numeric(MMorder)
-        length(MMorder) == 1L
         round(MMorder, 0L) == MMorder
-        MMorder > 0
-        MMorder < kmerLen - 1L
-        is.logical(zoops)
-        length(zoops) == 1L
         length(strata) == length(seqs) || (is.numeric(strata) && length(strata) == 1L)
     })
+    .assertScalar(x = kmerLen, type = "numeric", rngIncl = c(1, Inf))
+    .assertScalar(x = MMorder, type = "numeric", rngExcl = c(0, kmerLen - 1L))
+    .assertScalar(x = pseudoCount, type = "numeric", rngIncl = c(0, Inf))
+    .assertScalar(x = zoops, type = "logical")
 
     ## split sequences into strata
     CpGoe <- NA
@@ -130,7 +126,7 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
 
     ## return results
     list(freq.obs = kmerFreq, freq.exp = kmerFreqMM,
-         log2enr = lenr, sqrtDelta=sDelta, z = z, p = p, FDR = padj,
+         log2enr = lenr, sqrtDelta = sDelta, z = z, p = p, FDR = padj,
          strata = strata, freq.strata = res.strata, CpGoe = CpGoe)
 }
 
@@ -233,18 +229,13 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
         is(x, "character")
         all(nchar(x) == nchar(x[1]))
         all(grepl("^[ACGT]+$", x))
-        is(allowReverseComplement, "logical")
-        length(allowReverseComplement) == 1L
     })
+    .assertScalar(x = allowReverseComplement, type = "logical")
     kmerLen <- nchar(x[1])
     if (method == "cooccurrence") {
-        stopifnot(exprs = {
-            is(seqs, "DNAStringSet")
-            is(zoops, "logical")
-            length(zoops) == 1L
-            is(n, "numeric")
-            length(n) == 1L
-        })
+        stopifnot(is(seqs, "DNAStringSet"))
+        .assertScalar(x = zoops, type = "logical")
+        .assertScalar(x = n, type = "numeric", rngIncl = c(1, Inf))
         if (n >= kmerLen)
             warning("Using n > k (n = ", n, ", k = ", kmerLen,
                     ") will count co-occurrences of non-overlapping k-mers.")
@@ -254,19 +245,11 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
         if (is.null(maxShift)) {
             maxShift <- kmerLen - 2L
         }
-        stopifnot(exprs = {
-            is(maxShift, "numeric")
-            length(maxShift) == 1L
-            maxShift >= 0 && maxShift < kmerLen
-        })
+        .assertScalar(x = maxShift, type = "numeric", rngIncl = c(0, kmerLen - 1))
         if (is.null(minSim)) {
             minSim <- kmerLen - maxShift + 1
         }
-        stopifnot(exprs = {
-            is(minSim, "numeric")
-            length(minSim) == 1L
-            minSim >= 1 && minSim <= (kmerLen - 1L)
-        })
+        .assertScalar(x = minSim, type = "numeric", rngIncl = c(1, kmerLen - 1))
         message("clustering ", length(x), " ", kmerLen,
                 "-mers (similarity-based, maxShift: ", maxShift, ", minSim: ", minSim, ")")
     }
@@ -407,10 +390,7 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5,
                             BPPARAM = SerialParam(), verbose = TRUE) {
     ## pre-flight checks
     background <- match.arg(background)
-    stopifnot(exprs = {
-        is.logical(verbose)
-        length(verbose) == 1L
-    })
+    .assertScalar(x = verbose, type = "logical")
     if (is.character(x)) {
         if (!all(grepl("^[ACGTNacgtn]+$", x))) {
             stop("'x' must contain only A, C, G, T or N letters")
@@ -440,14 +420,10 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5,
         }
         b <- factor(b, levels = unique(b))
     }
-    stopifnot(exprs = {
-        length(x) == length(b)
-        is.numeric(pseudoCount)
-        length(pseudoCount) == 1L
-        is.logical(zoops)
-        length(zoops) == 1L
-        is(BPPARAM, "BiocParallelParam")
-    })
+    .assertVector(x = b, len = length(x))
+    .assertScalar(x = pseudoCount, type = "numeric", rngIncl = c(0, Inf))
+    .assertScalar(x = zoops, type = "logical")
+    stopifnot(is(BPPARAM, "BiocParallelParam"))
     
     ## identify enriched k-mers in each bin
     if (verbose) {
@@ -560,7 +536,7 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5,
 #' @export
 convertKmersToMotifs <- function(x, m, BPPARAM = SerialParam(), verbose = TRUE) {
     ## pre-flight checks
-    stopifnot(is.logical(verbose) && length(verbose) == 1L)
+    .assertScalar(x = verbose, type = "logical")
     if (is.character(m) && length(m) == 1L && file.exists(m)) {
         if (verbose) {
             message("reading motifs from ", basename(m))

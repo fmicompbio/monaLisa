@@ -5,9 +5,9 @@
 \title{Plot Directionality of Predictor Effect}
 \usage{
 plotMotifDirectionality(
-  stabs_obj = NULL,
-  response = NULL,
-  predictor_matrix = NULL,
+  stabs_obj,
+  response,
+  predictor_matrix,
   sel_color = "cadetblue",
   min_sel_prob = 0.4,
   cor_method = "pearson",

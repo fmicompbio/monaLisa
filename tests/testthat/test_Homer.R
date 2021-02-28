@@ -78,7 +78,7 @@ test_that("prepareHomer() works properly", {
     expect_error(prepareHomer(gr = gr, b = bF, genomedir = "genomedir", outdir = tmp2,
                               motifFile = "error", homerfile = fname, regionsize = "given", Ncpu = 2))
 
-    expect_identical(prepareHomer(gr = gr, b = bF, genomedir = "genomedir", outdir = tmp2,
+    expect_identical(prepareHomer(gr = gr, b = bF, genomedir = ".", outdir = tmp2,
                                   motifFile = fname, homerfile = fname, regionsize = "given", Ncpu = 2),
                      file.path(tmp2, "run.sh"))
 

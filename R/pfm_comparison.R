@@ -259,19 +259,17 @@ motifKmerSimilarity <- function(x,
                                 BPPARAM = SerialParam(),
                                 verbose = TRUE) {
     ## pre-flight checks
-    stopifnot(is.logical(verbose) && length(verbose) == 1L)
+    .assertScalar(x = verbose, type = "logical")
     if (is.character(x) && length(x) == 1L && file.exists(x)) {
         if (verbose) {
             message("reading motifs from ", basename(x))
         }
         x <- homerToPFMatrixList(x)
     }
+    .assertScalar(x = kmerLen, type = "numeric", rngExcl = c(0, Inf))
     stopifnot(exprs = {
         is(x, "PFMatrixList")
-        is.numeric(kmerLen)
-        length(kmerLen) == 1L
         round(kmerLen, 0L) == kmerLen
-        kmerLen > 0
         is(BPPARAM, "BiocParallelParam")
     })
 

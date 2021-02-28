@@ -73,9 +73,9 @@ getColsByBin <- function(b,
 plotBinHist <- function(x, b, breaks = 10 * nlevels(b),
                         xlab = deparse(substitute(x)), ylab = "Frequency",
                         main = "", legend = "topright", legend.cex = 1.0, ...) {
-    stopifnot(length(x) == length(b))
-    stopifnot(exprs = { is.factor(b); "breaks" %in% names(attributes(b)) })
-    stopifnot(exprs = { is.numeric(legend.cex); length(legend.cex) == 1 })
+    .assertVector(x = b, type = "factor", len = length(x))
+    stopifnot("breaks" %in% names(attributes(b)))
+    .assertScalar(x = legend.cex, type = "numeric", rngExcl = c(0, Inf))
     cols <- getColsByBin(b, ...)
     binbreaks <- attr(b, "breaks")
     bincols <- attr(cols, "cols")
@@ -83,8 +83,10 @@ plotBinHist <- function(x, b, breaks = 10 * nlevels(b),
     par(mar = c(5, 4, 4 - if (main == "") 3 else 0, 2) + 0.1, cex = 1.25)
     ret <- hist(x, breaks = breaks, col = bincols[findInterval(h$mids, binbreaks, all.inside = TRUE)],
                 xlab = xlab, ylab = ylab, main = main)
-    pusr <- par('usr'); segments(x0=pusr[c(1,1)], y0=pusr[c(4,3)], x1=pusr[c(1,2)], y1=pusr[c(3,3)])
-    rug(binbreaks, col="black")
+    pusr <- par('usr')
+    segments(x0 = pusr[c(1,1)], y0 = pusr[c(4,3)],
+             x1 = pusr[c(1,2)], y1 = pusr[c(3,3)])
+    rug(binbreaks, col = "black")
     if (!is.null(legend) && legend[1] != FALSE)
         legend(x = legend, legend = sprintf("%s : %d", levels(b), table(b)),
                fill = bincols, bty = "n", cex = legend.cex)
@@ -115,9 +117,9 @@ plotBinHist <- function(x, b, breaks = 10 * nlevels(b),
 plotBinDensity <- function(x, b,
                            xlab = deparse(substitute(x)), ylab = "Density",
                            main = "", legend = "topright", legend.cex = 1.0, ...) {
-    stopifnot(length(x) == length(b))
-    stopifnot(exprs = { is.factor(b); "breaks" %in% names(attributes(b)) })
-    stopifnot(exprs = { is.numeric(legend.cex); length(legend.cex) == 1 })
+    .assertVector(x = b, type = "factor", len = length(x))
+    stopifnot("breaks" %in% names(attributes(b)))
+    .assertScalar(x = legend.cex, type = "numeric", rngExcl = c(0, Inf))
     cols <- getColsByBin(b, ...)
     binbreaks <- attr(b, "breaks")
     bincols <- attr(cols, "cols")
@@ -127,8 +129,9 @@ plotBinDensity <- function(x, b,
     axis(1)
     axis(2)
     pusr <- par('usr')
-    segments(x0=pusr[c(1,1)], y0=pusr[c(4,3)], x1=pusr[c(1,2)], y1=pusr[c(3,3)])
-    rug(binbreaks, col="black")
+    segments(x0 = pusr[c(1,1)], y0 = pusr[c(4,3)],
+             x1 = pusr[c(1,2)], y1 = pusr[c(3,3)])
+    rug(binbreaks, col = "black")
     dx <- diff(ret$x[1:2]) / 2
     rect(xleft = ret$x - dx, ybottom = 0, xright = ret$x + dx, ytop = ret$y,
          col = bincols[findInterval(ret$x, binbreaks, all.inside = TRUE)], border = NA)
@@ -169,9 +172,9 @@ plotBinScatter <- function(x, y, b,
                            xlab = deparse(substitute(x)),
                            ylab = deparse(substitute(y)),
                            main = "", legend = "topright", legend.cex = 1.0, ...) {
-    stopifnot(length(x) == length(y))
-    stopifnot(length(x) == length(b))
-    stopifnot(exprs = { is.numeric(legend.cex); length(legend.cex) == 1 })
+    .assertVector(x = y, len = length(x))
+    .assertVector(x = b, len = length(x))
+    .assertScalar(x = legend.cex, type = "numeric", rngExcl = c(0, Inf))
     if (length(cols) == 1L)
         cols <- rep(cols, length(x))
     stopifnot(length(x) == length(cols))
@@ -181,7 +184,8 @@ plotBinScatter <- function(x, y, b,
     axis(1)
     axis(2)
     pusr <- par('usr')
-    segments(x0=pusr[c(1,1)], y0=pusr[c(4,3)], x1=pusr[c(1,2)], y1=pusr[c(3,3)])
+    segments(x0 = pusr[c(1,1)], y0 = pusr[c(4,3)],
+             x1 = pusr[c(1,2)], y1 = pusr[c(3,3)])
     if (!is.null(legend) && legend[1] != FALSE) {
         stopifnot("cols" %in% names(attributes(cols)))
         bincols <- attr(cols, "cols")
@@ -259,24 +263,16 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
 	    (!show_motif_GC || "motif.percentGC" %in% colnames(rowData(x)))
 	})
 	b <- metadata(x)$bins
+	.assertScalar(x = width, type = "numeric", rngExcl = c(0, Inf))
+	.assertScalar(x = show_dendrogram, type = "logical")
+	.assertScalar(x = show_motif_GC, type = "logical")
+	.assertScalar(x = show_seqlogo, type = "logical")
+	.assertScalar(x = width.seqlogo, type = "numeric", rngExcl = c(0, Inf))
+	.assertScalar(x = use_raster, type = "logical")
 	stopifnot(exprs = {
 	    ncol(x) == nlevels(b)
 	    all(which.plots %in% c("p", "FDR", "enr", "log2enr"))
-	    is.numeric(width)
-	    length(width) == 1
-	    width > 0
 	    is.null(highlight) || (is.logical(highlight) && length(highlight) == nrow(x))
-	    is.logical(show_dendrogram)
-	    length(show_dendrogram) == 1L
-	    is.logical(show_motif_GC)
-	    length(show_motif_GC) == 1L
-	    is.logical(show_seqlogo)
-	    length(show_seqlogo) == 1L
-	    is.numeric(width.seqlogo)
-	    length(width.seqlogo) == 1
-	    width.seqlogo > 0
-	    is.logical(use_raster)
-	    length(use_raster) == 1
 	})
 	bincols <- attr(getColsByBin(b), "cols")
 	if (is.logical(cluster) && length(cluster) == 1 && cluster[1] == TRUE) {
@@ -288,7 +284,7 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
 	} else {
 	    stop("'cluster' must be either TRUE, FALSE or an hclust-object.")
 	}
-	hmBin <- ComplexHeatmap::HeatmapAnnotation(df = data.frame(bin = colnames(x)), name="bin",
+	hmBin <- ComplexHeatmap::HeatmapAnnotation(df = data.frame(bin = colnames(x)), name = "bin",
 											   col = list(bin = bincols),
 											   show_annotation_name = FALSE,
 											   which = "column", width = grid::unit(width,"inch"),
@@ -314,9 +310,9 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
 										show_column_names = FALSE, show_heatmap_legend = FALSE,
 										left_annotation = hmSeqlogo)
 
-	assayNameMap1 <- c(p="P value", FDR="FDR", enr="enrichment", log2enr="log2 enrichment")
+	assayNameMap1 <- c(p = "P value", FDR = "FDR", enr = "enrichment", log2enr = "log2 enrichment")
 	assayNameMap2 <- c(p = "P value (-log10)", FDR = "FDR (-log10)",
-	                   enr = "enrichment (o-e)/sqrt(e)", log2enr="enrichment (log2)")
+	                   enr = "enrichment (o-e)/sqrt(e)", log2enr = "enrichment (log2)")
 	L <- list(labels = hmMotifs)
 	if (show_motif_GC) {
 	    tmp <- as.matrix(SummarizedExperiment::rowData(x)[, "motif.percentGC", drop = FALSE])
@@ -327,7 +323,7 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
 	                                                                      colors = colorRampPalette(gccols)(256)),
 	                                           cluster_rows = FALSE, cluster_columns = FALSE,
 	                                           show_row_names = FALSE, show_column_names = FALSE,
-	                                           show_heatmap_legend = TRUE, heatmap_legend_param = list(color_bar="continuous"),
+	                                           show_heatmap_legend = TRUE, heatmap_legend_param = list(color_bar = "continuous"),
 	                                           use_raster = use_raster)
 	    L <- c(L, list("percentGC" = hmPercentGC))
 	}
@@ -346,10 +342,10 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
 		                              column_title = assayNameMap2[w],
 		                              col = circlize::colorRamp2(breaks = seq(rng[1], rng[2], length.out = 256),
 		                                                         colors = colorRampPalette(cols)(256)),
-		                              cluster_rows = FALSE, cluster_columns=FALSE, show_row_names=FALSE, show_column_names=FALSE,
+		                              cluster_rows = FALSE, cluster_columns = FALSE, show_row_names = FALSE, show_column_names = FALSE,
 		                              ##column_names_side = "bottom", column_names_max_height = grid::unit(1.5,"inch"),
 		                              top_annotation = hmBin,
-		                              show_heatmap_legend = TRUE, heatmap_legend_param = list(color_bar="continuous"),
+		                              show_heatmap_legend = TRUE, heatmap_legend_param = list(color_bar = "continuous"),
 		                              use_raster = use_raster)
 		hm
 	}))
@@ -379,24 +375,29 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
 #'@export
 plotStabilityPaths <- function(stabs_object, cols=NULL, lwd = 1, lty=1, ylim=c(0,1.1), ...) {
 
-  # ... checks
-  if (!base::inherits(stabs_object, what="stabsel")){stop("stabs_object must be of class 'stabsel', the resulting object from running stability selection with the `stabs` package")}
+    # ... checks
+    if (!base::inherits(stabs_object, what = "stabsel")) {
+        stop("stabs_object must be of class 'stabsel', the resulting object ",
+             "from running stability selection with the `stabs` package")
+    }
+    
+    # set plot parameters
+    mat <- t(stabs_object$phat)
+    if (is.null(cols)) {
+        cols <- rep("black", ncol(mat))
+        names(cols) <- rep("Not Selected", length(cols))
+        cols[stabs_object$selected] <- "cadetblue"
+        names(cols)[stabs_object$selected] <- "Selected"
+    }
 
-  # set plot parameters
-  mat <- t(stabs_object$phat)
-  if(is.null(cols)){
-    cols <- rep("black", ncol(mat))
-    names(cols) <- rep("Not Selected", length(cols))
-    cols[stabs_object$selected] <- "cadetblue"
-    names(cols)[stabs_object$selected] <- "Selected"
-  }
-
-  # plot stability paths
-  matplot(mat, col = cols, type = "l", lty = lty, ylab = "Selection Probability", xlab = "Regularization Step", ylim = ylim, lwd = lwd, ...)
-  abline(h = stabs_object$cutoff, lty = 5, col = "red", lwd = lwd)
-  legend("topleft", legend = c(unique(names(cols)), "cutoff"), col = c(unique(cols), "red"), lty = c(1, 1, 5), bty = "n", lwd = lwd)
-  invisible(TRUE)
-
+    # plot stability paths
+    matplot(mat, col = cols, type = "l", lty = lty,
+            ylab = "Selection Probability", xlab = "Regularization Step",
+            ylim = ylim, lwd = lwd, ...)
+    abline(h = stabs_object$cutoff, lty = 5, col = "red", lwd = lwd)
+    legend("topleft", legend = c(unique(names(cols)), "cutoff"),
+           col = c(unique(cols), "red"), lty = c(1, 1, 5), bty = "n", lwd = lwd)
+    invisible(TRUE)
 }
 
 
@@ -418,31 +419,34 @@ plotStabilityPaths <- function(stabs_object, cols=NULL, lwd = 1, lty=1, ylim=c(0
 #'@export
 plotSelectionProb <- function(stabs_object, ylim = c(0,1.1), onlySelected = TRUE, sel_color="cadetblue", las = 2, ...) {
 
-  # ... checks
-  if (!base::inherits(stabs_object, what="stabsel")) {stop("stabs_object must be of class 'stabsel', the resulting object from running stability selection with the `stabs` package")}
+    # ... checks
+    if (!base::inherits(stabs_object, what = "stabsel")) {
+        stop("stabs_object must be of class 'stabsel', the resulting object ",
+             "from running stability selection with the `stabs` package")
+    }
 
-  phat <- t(stabs_object$phat)
-  TF_prob <- phat[nrow(phat), ]
-  cols <- rep("grey", length(TF_prob))
-  cols[stabs_object$selected] <- sel_color
-
-  if (onlySelected) {
-    TF_prob <- TF_prob[stabs_object$selected]
-    cols <- cols[stabs_object$selected]
-  }
-
-  # check if empty
-  if (S4Vectors::isEmpty(TF_prob)) {stop("The input for the barplot is empty")}
-
-  # order
-  TF_prob <- TF_prob[order(TF_prob, decreasing = TRUE)]
-
-  # plot
-  graphics::barplot(TF_prob, ylim = ylim, ylab = "Selection Probability", las = las, col = cols, border = NA, ...)
-  abline(h = stabs_object$cutoff, lty = 5, col = "red")
-  legend("topright", legend = "cutoff", lty = 5, col = "red", bty = "n")
-  invisible(TRUE)
-
+    phat <- t(stabs_object$phat)
+    TF_prob <- phat[nrow(phat), ]
+    cols <- rep("grey", length(TF_prob))
+    cols[stabs_object$selected] <- sel_color
+    
+    if (onlySelected) {
+        TF_prob <- TF_prob[stabs_object$selected]
+        cols <- cols[stabs_object$selected]
+    }
+    
+    # check if empty
+    if (S4Vectors::isEmpty(TF_prob)) {stop("The input for the barplot is empty")}
+    
+    # order
+    TF_prob <- TF_prob[order(TF_prob, decreasing = TRUE)]
+    
+    # plot
+    graphics::barplot(TF_prob, ylim = ylim, ylab = "Selection Probability",
+                      las = las, col = cols, border = NA, ...)
+    abline(h = stabs_object$cutoff, lty = 5, col = "red")
+    legend("topright", legend = "cutoff", lty = 5, col = "red", bty = "n")
+    invisible(TRUE)
 }
 
 
@@ -467,28 +471,27 @@ plotSelectionProb <- function(stabs_object, ylim = c(0,1.1), onlySelected = TRUE
 #'@return a barplot indicating the directionality of the motifs with respect to the correlation to the response vector.
 #'
 #'@export
-plotMotifDirectionality <- function(stabs_obj = NULL, response = NULL, predictor_matrix = NULL, sel_color="cadetblue", min_sel_prob=0.4, cor_method="pearson", ...) {
+plotMotifDirectionality <- function(stabs_obj, response, predictor_matrix,
+                                    sel_color="cadetblue", min_sel_prob=0.4, cor_method="pearson", ...) {
     
     # checks
-    # ... NULL checks
-    stopifnot(!is.null(stabs_obj))
-    stopifnot(!is.null(response))
-    stopifnot(!is.null(predictor_matrix))
     # ... class checks
-    stopifnot(class(stabs_obj)=="stabsel")
-    stopifnot(class(response)=="numeric")
-    stopifnot(any(class(predictor_matrix)=="matrix"))
+    stopifnot(exprs = {
+        is(stabs_obj, "stabsel")
+        is(response, "numeric")
+        any(is(predictor_matrix, "matrix"))
+    })
     # ... compatibility checks
-    stopifnot(length(response)==nrow(predictor_matrix))
-    if(!is.null(colnames(predictor_matrix))&!is.null(names(response))){
-        stopifnot(all(rownames(stabs_obj$phat)==colnames(predictor_matrix)))
+    stopifnot(length(response) == nrow(predictor_matrix))
+    if (!is.null(colnames(predictor_matrix)) && !is.null(names(response))) {
+        stopifnot(all(rownames(stabs_obj$phat) == colnames(predictor_matrix)))
     }
     
     # correlation 
     cor <- as.vector(stats::cor(x = response, y = predictor_matrix, method = cor_method))
     cols <- rep("grey", ncol(predictor_matrix))
     cols[stabs_obj$selected] <- sel_color
-    if(!is.null(colnames(predictor_matrix))) {
+    if (!is.null(colnames(predictor_matrix))) {
         tf_names <- colnames(predictor_matrix)
     } else {
         tf_names <- paste0("pred", 1:ncol(predictor_matrix))
@@ -496,9 +499,9 @@ plotMotifDirectionality <- function(stabs_obj = NULL, response = NULL, predictor
     # probabilities with directionality
     probs <- stabs_obj$phat[, ncol(stabs_obj$phat)]
     probs <- probs*sign(cor)
-    
+
     # kept and ordered
-    keep <- stabs_obj$phat[,ncol(stabs_obj$phat)]>=min_sel_prob
+    keep <- stabs_obj$phat[,ncol(stabs_obj$phat)] >= min_sel_prob
     cor <- cor[keep]
     cols <- cols[keep]
     tf_names <- tf_names[keep]
@@ -508,22 +511,27 @@ plotMotifDirectionality <- function(stabs_obj = NULL, response = NULL, predictor
     cols <- cols[o]
     tf_names <- tf_names[o]
     probs <- probs[o]
-    up <- probs>0
-    
+    up <- probs > 0
+
     # plot
-    bar <- graphics::barplot(probs, col = cols, border = NA, ylab = "Sel Prob * sign(cor to response)", names.arg = NA, 
-                             ylim = c(min(0, range(probs)[1]-abs(0.3*range(probs)[1])), max(1, range(probs[2]+abs(0.3*range(probs)[2])))), ...)
-    legend("topright", bty = "n", lty = 1, legend = c("selected", "not selected"), col = c(sel_color, "grey"))
+    bar <- graphics::barplot(probs, col = cols, border = NA,
+                             ylab = "Sel Prob * sign(cor to response)",
+                             names.arg = NA, 
+                             ylim = c(min(0, range(probs)[1] - abs(0.3*range(probs)[1])),
+                                      max(1, range(probs)[2] + abs(0.3*range(probs)[2]))), ...)
+    legend("topright", bty = "n", lty = 1,
+           legend = c("selected", "not selected"), col = c(sel_color, "grey"))
     
-    if(!(sum(up)==0)&!isEmpty(probs[up])){
-      graphics::text(x = bar[up], y = probs[up], labels = tf_names[up], col = cols[up], xpd = TRUE, srt=90, adj = 0)
+    if (!(sum(up) == 0) && !isEmpty(probs[up])) {
+        graphics::text(x = bar[up], y = probs[up], labels = tf_names[up],
+                       col = cols[up], xpd = TRUE, srt = 90, adj = 0)
     }
-    if(!(sum(!up)==0)&!isEmpty(probs[!up])){
-      graphics::text(x = bar[!up], y = probs[!up], labels = tf_names[!up], col = cols[!up], xpd = TRUE, srt=90, adj = 1)
+    if (!(sum(!up) == 0) && !isEmpty(probs[!up])) {
+        graphics::text(x = bar[!up], y = probs[!up], labels = tf_names[!up],
+                       col = cols[!up], xpd = TRUE, srt = 90, adj = 1)
     }
-    
+
     invisible(TRUE)
-    
 }
 
 

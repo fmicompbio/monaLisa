@@ -62,13 +62,9 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 dumpJaspar <- function(filename, pkg = "JASPAR2018",
                        opts = list(tax_group = "vertebrates"),
                        relScoreCutoff = 0.8) {
+    .assertScalar(x = filename, type = "character")
     stopifnot(!file.exists(filename))
-    stopifnot(exprs = {
-      is.numeric(relScoreCutoff)
-      length(relScoreCutoff) == 1
-      relScoreCutoff >= 0.0
-      relScoreCutoff <= 1.0
-      })
+    .assertScalar(x = relScoreCutoff, type = "numeric", rngIncl = c(0, 1))
     if ("matrixtype" %in% names(opts) && opts[["matrixtype"]] != "PFM") {
       stop("opts[['matrixtype']] must be set to 'PFM'")
     } else {
@@ -77,7 +73,7 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018",
 
     # load PFMs and convert to HOMER format (base probabilties)
     requireNamespace(pkg)
-    mdb <- utils::getFromNamespace(pkg, ns=pkg)
+    mdb <- utils::getFromNamespace(pkg, ns = pkg)
     siteList <- TFBSTools::getMatrixSet(mdb, opts)
     message("extracted ",length(siteList)," motifs from ",pkg)
 
@@ -110,7 +106,7 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018",
         }
         wm.name <- gsub("\\(PBM\\)", "", wm.name)
         wm.name.conv <- make.names(wm.name)
-        if (!(wm.name == wm.name.conv)){
+        if (!(wm.name == wm.name.conv)) {
           warning("Weight matrix name ", wm.name, " converted to ", wm.name.conv)
         }
         wm.name <- wm.name.conv
@@ -150,31 +146,28 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018",
 #'
 #' @export
 homerToPFMatrixList <- function(filename, n = 100L) {
-  stopifnot(file.exists(filename))
-  stopifnot(exprs = {
-    is.numeric(n)
-    length(n) == 1
-    n > 0
-  })
+    .assertScalar(x = filename, type = "character")
+    stopifnot(file.exists(filename))
+    .assertScalar(x = n, type = "numeric", rngExcl = c(0, Inf))
 
-  # parse HOMER motif file
-  tmp <- readLines(filename)
-  g <- grep(">", tmp)
-  tmp[g] <- sub("^>","",tmp[g])
-  fields <- strsplit(tmp[g], "\t", fixed = TRUE)
-  L <- lapply(seq_along(g), function(i) {
-    cons <- fields[[i]][1]
-    nm <- fields[[i]][2]
-    log2cut <- round(as.numeric(fields[[i]][3]) / log(2), 2)
-    s <- g[i] + 1L
-    e <- if (i == length(g)) length(tmp) else g[i + 1L] - 1L
-    m <- round(n * do.call(cbind, lapply(strsplit(tmp[s:e], "\t", fixed = TRUE), as.numeric)), 0)
-    rownames(m) <- c("A", "C", "G", "T")
-    TFBSTools::PFMatrix(ID = nm, name = nm, profileMatrix = m,
-                        tags = list(log2cut = log2cut, comment = "imported from HOMER motif file"))
-  })
+    # parse HOMER motif file
+    tmp <- readLines(filename)
+    g <- grep(">", tmp)
+    tmp[g] <- sub("^>","",tmp[g])
+    fields <- strsplit(tmp[g], "\t", fixed = TRUE)
+    L <- lapply(seq_along(g), function(i) {
+        cons <- fields[[i]][1]
+        nm <- fields[[i]][2]
+        log2cut <- round(as.numeric(fields[[i]][3]) / log(2), 2)
+        s <- g[i] + 1L
+        e <- if (i == length(g)) length(tmp) else g[i + 1L] - 1L
+        m <- round(n * do.call(cbind, lapply(strsplit(tmp[s:e], "\t", fixed = TRUE), as.numeric)), 0)
+        rownames(m) <- c("A", "C", "G", "T")
+        TFBSTools::PFMatrix(ID = nm, name = nm, profileMatrix = m,
+                            tags = list(log2cut = log2cut, comment = "imported from HOMER motif file"))
+    })
 
-  do.call(PFMatrixList, c(L, list(use.names = TRUE)))
+    do.call(PFMatrixList, c(L, list(use.names = TRUE)))
 }
 
 
@@ -213,17 +206,17 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHo
     if (!inherits(gr, "GRanges"))
         as(gr, "GRanges")
     if (!is.factor(b))
-        b <- factor(b, levels=unique(b))
+        b <- factor(b, levels = unique(b))
+    .assertVector(x = b, type = "factor", len = length(gr))
+    .assertScalar(x = genomedir, type = "character")
+    .assertScalar(x = outdir, type = "character")
+    .assertScalar(x = motifFile, type = "character")
+    .assertScalar(x = homerfile, type = "character")
     stopifnot(exprs = {
-      length(b) == length(gr)
-      is.character(outdir)
-      length(outdir) == 1L
-      is.character(motifFile)
-      length(motifFile) == 1L
-      file.exists(motifFile)
-      is.character(homerfile)
-      length(homerfile) == 1L
-      file.exists(homerfile)
+        file.exists(genomedir)
+        file.exists(motifFile)
+        file.exists(homerfile)
+        regionsize == "given" || (is.numeric(regionsize) && length(regionsize) == 1L && regionsize > 0)
     })
 
     if (file.exists(outdir))
@@ -234,7 +227,7 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHo
     fh <- file(homerFile, "w")
 
     message("creating foreground/background region files for HOMER")
-    for(i in 1:nlevels(b)) {
+    for (i in 1:nlevels(b)) {
         bn <- levels(b)[i]
         message("  bin ",bn)
 
@@ -243,20 +236,20 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHo
         outputf <- sprintf("%s/bin_%03d_output", outdir, i)
 
         tmp.gr <- gr[b == bn]
-        write.table(file=fgfile,
+        write.table(file = fgfile,
                     data.frame(1:length(tmp.gr), as.character(seqnames(tmp.gr)),
-                               start(tmp.gr)-1, end(tmp.gr), "+"),
-                    sep="\t", quote=FALSE, col.names=FALSE, row.names=FALSE)
+                               start(tmp.gr) - 1, end(tmp.gr), "+"),
+                    sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
 
         tmp.gr <- gr[b != bn]
-        write.table(file=bgfile,
+        write.table(file = bgfile,
                     data.frame(1:length(tmp.gr), as.character(seqnames(tmp.gr)),
-                               start(tmp.gr)-1, end(tmp.gr), "+"),
-                    sep="\t", quote=FALSE, col.names=FALSE, row.names=FALSE)
+                               start(tmp.gr) - 1, end(tmp.gr), "+"),
+                    sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
 
         cat(sprintf("%s %s %s %s -bg %s -nomotif -p %d -size %s -mknown %s\n",
                     homerfile, fgfile, genomedir, outputf, bgfile, Ncpu,
-                    as.character(regionsize), motifFile), file=fh, append=TRUE)
+                    as.character(regionsize), motifFile), file = fh, append = TRUE)
     }
     close(fh)
 
@@ -279,7 +272,7 @@ parseHomerOutput <- function(infiles) {
     stopifnot(all(file.exists(infiles)))
 
     tabL <- lapply(infiles, read.delim)
-    names(tabL) <- if(is.null(names(infiles))) infiles else names(infiles)
+    names(tabL) <- if (is.null(names(infiles))) infiles else names(infiles)
     P <- lapply(tabL, function(tab) {
         D <- tab[, c(1, 4)]
         logpVals <- -D[, 2]/log(10)
@@ -311,12 +304,12 @@ parseHomerOutput <- function(infiles) {
     enrTF <- do.call(cbind, enrTF)
     log2enr <- do.call(cbind, log2enr)
     tmp <-  as.vector(10**(-P))
-    fdr <- matrix(-log10(p.adjust(tmp, method="BH")), nrow=nrow(P))
+    fdr <- matrix(-log10(p.adjust(tmp, method = "BH")), nrow = nrow(P))
     dimnames(fdr) <- dimnames(P)
 
     fdr[which(fdr == Inf, arr.ind = TRUE)] <- max(fdr[is.finite(fdr)])
 
-    return(list(p=P, FDR=fdr, enr=enrTF, log2enr=log2enr))
+    return(list(p = P, FDR = fdr, enr = enrTF, log2enr = log2enr))
 }
 
 # internal function:  Check if all the HOMER output files already exist and if the run was successful.
@@ -328,10 +321,11 @@ parseHomerOutput <- function(infiles) {
   # --> check resultsfile is a txt file
 
   # get knownResults.txt files
-  out_files <- dir(path = outdir, pattern = "knownResults.txt", full.names = TRUE, recursive = TRUE, ignore.case = FALSE)
+  out_files <- dir(path = outdir, pattern = "knownResults.txt",
+                   full.names = TRUE, recursive = TRUE, ignore.case = FALSE)
 
   # case 1: out_files is empty, so return FALSE
-  if(isEmpty(out_files)){
+  if (isEmpty(out_files)) {
     return(FALSE)
   }
 
@@ -342,10 +336,10 @@ parseHomerOutput <- function(infiles) {
       motifs_motifFile <- unlist(lapply(strsplit(lns[grep("^>", lns)], "\t"), "[", 2))
 
       # get motif names from resultsfile
-      df_list <- lapply(as.list(out_files), function(f){read.table(f, header=FALSE, sep = "\t", skip = 1)}) # skip the column names
+      df_list <- lapply(as.list(out_files), function(f){read.table(f, header = FALSE, sep = "\t", skip = 1)}) # skip the column names
       motifs_outdir_list <- lapply(df_list, function(df){ as.character(df[ ,1]) })
       # check the completeness of the run and that the number of output files equals number of bins
-      all(sapply(motifs_outdir_list, function(x){all(motifs_motifFile%in%x)})) & (length(out_files)==nbins)
+      all(sapply(motifs_outdir_list, function(x){all(motifs_motifFile %in% x)})) & (length(out_files) == nbins)
 
 }
 
@@ -391,6 +385,22 @@ parseHomerOutput <- function(infiles) {
 #' @export
 runHomer <- function(gr, b, genomedir, outdir, motifFile,
                      homerfile = findHomer(), regionsize = "given", Ncpu = 2L) {
+    if (!inherits(gr, "GRanges"))
+        as(gr, "GRanges")
+    if (!is.factor(b))
+        b <- factor(b, levels = unique(b))
+    .assertVector(x = b, type = "factor", len = length(gr))
+    .assertScalar(x = genomedir, type = "character")
+    .assertScalar(x = outdir, type = "character")
+    .assertScalar(x = motifFile, type = "character")
+    .assertScalar(x = homerfile, type = "character")
+    stopifnot(exprs = {
+        file.exists(genomedir)
+        file.exists(motifFile)
+        file.exists(homerfile)
+        regionsize == "given" || (is.numeric(regionsize) && length(regionsize) == 1L && regionsize > 0)
+    })
+    .assertScalar(x = Ncpu, type = "numeric", rngIncl = c(1, Inf))
 
     ## ... check if the HOMER output is already there for all bins and if it ran completely:
     ## ... ... If yes, go to the 'parse output step', otherwise run homer and check again
@@ -405,8 +415,10 @@ runHomer <- function(gr, b, genomedir, outdir, motifFile,
           any(file.exists(dir(path = outdir, pattern = "knownResults.txt",
                               full.names = TRUE, recursive = TRUE, ignore.case = FALSE)))) {
 
-        stop("\nThere are existing 'knownResults.txt' file(s) in outdir. There may be missing 'knownResults.txt' files for some bins and/or the existing files
-             are incomplete (cases where the HOMER run failed). Please delete these files and rerun 'runHomer'.")
+        stop("\nThere are existing 'knownResults.txt' file(s) in outdir. ",
+             "There may be missing 'knownResults.txt' files for some bins ",
+             "and/or the existing files are incomplete (cases where the HOMER ",
+             "run failed). Please delete these files and rerun 'runHomer'.")
 
       }
 
