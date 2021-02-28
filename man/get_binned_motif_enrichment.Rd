@@ -6,6 +6,7 @@
 \usage{
 get_binned_motif_enrichment(
   seqs,
+  genome = NULL,
   bins,
   pwmL,
   test = c("binomial", "fisher"),
@@ -19,11 +20,15 @@ get_binned_motif_enrichment(
 )
 }
 \arguments{
-\item{seqs}{DNAStringSet object with sequences to test}
+\item{seqs}{DNAStringSet or GRanges object with sequences to test}
 
-\item{bins}{factor of the same length and order as \code{seqs}, indicating
-the bin for each sequence. Typically the return value of
-\code{\link[monaLisa]{bin}}.}
+\item{genome}{the genome to use to extract the sequences if \code{seqs} is of 
+class 'GRanges'.}
+
+\item{bins}{factor of the 
+same length and order as \code{seqs}, indicating
+  the bin for each sequence. Typically the return value of
+  \code{\link[monaLisa]{bin}}.}
 
 \item{pwmL}{PWMatrixList with motifs for which to calculate enrichments.}
 
