@@ -4,7 +4,7 @@
 \alias{extractOverlappingKmerFrequecies}
 \title{Match a set of kmers to input sequences and determine frequencies of overlapping matches.}
 \usage{
-extractOverlappingKmerFrequecies(seqs, x, Ncpu = 1L)
+extractOverlappingKmerFrequecies(seqs, x, BPPARAM = SerialParam())
 }
 \arguments{
 \item{seqs}{Set of sequences, either a \code{character} vector or a
@@ -12,13 +12,14 @@ extractOverlappingKmerFrequecies(seqs, x, Ncpu = 1L)
 
 \item{x}{A \code{character} vector of enriched kmers.}
 
-\item{Ncpu}{The number of CPU cores to used. \code{\link[parallel]{mclapply}} is used.}
+\item{BPPARAM}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
+instance determining the parallel back-end to be used during evaluation.}
 }
 \description{
 Using a set of kmers, search input sequences for matches and retrieve
-   the frequencies of sequences overlapping with 1 or more overlapping kmers.
+     the frequencies of sequences overlapping with 1 or more overlapping kmers.
 }
 \seealso{
 \code{\link{kmerEnrichments}} for performing a k-mer enrichment
-  analysis, \code{\link[parallel]{mclapply}} for how parallelization is done.
+    analysis, \code{\link[BiocParallel]{bplapply}} used for parallelization.
 }

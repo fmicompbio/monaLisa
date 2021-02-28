@@ -4,7 +4,7 @@
 \alias{convertKmersToMotifs}
 \title{Transform k-mer enrichments to motif enrichments.}
 \usage{
-convertKmersToMotifs(x, m, Ncpu = 1L, verbose = TRUE)
+convertKmersToMotifs(x, m, BPPARAM = SerialParam(), verbose = TRUE)
 }
 \arguments{
 \item{x}{A \code{\link[SummarizedExperiment]{SummarizedExperiment}} with the
@@ -16,8 +16,8 @@ scalar with a file containing motifs in HOMER format (loaded into a
 \code{\link[TFBSTools]{PFMatrixList}} by
 \code{\link{homerToPFMatrixList}}).}
 
-\item{Ncpu}{The number of CPU cores to use when calculating similarities
-between motifs and k-mers. This uses \code{\link[parallel]{mclapply}}.}
+\item{BPPARAM}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
+instance determining the parallel back-end to be used during evaluation.}
 
 \item{verbose}{A logical scalar. If \code{TRUE}, report on progress.}
 }
@@ -28,5 +28,5 @@ Using a set of know motifs and the result of a k-mer enrichment
 }
 \seealso{
 \code{\link{kmerEnrichments}} for performing a k-mer enrichment
-  analysis, \code{\link[parallel]{mclapply}} for how parallelization is done.
+  analysis, \code{\link[BiocParallel]{bplapply}} used for parallelization.
 }

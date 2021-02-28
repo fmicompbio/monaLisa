@@ -8,7 +8,10 @@ test_that("findMotifHits() works properly", {
 
     seq1 <- Biostrings::DNAString("CCCCCAAACCCCC")
     seqs <- Biostrings::DNAStringSet(c(seq1 = "CCCCCAAACCCCC", seq2 = "AAAGGGGGAAA"))
-    gr <- GenomicRanges::GRanges("chr1", IRanges::IRanges(start = c(15927933, 3261215), end = c(15927945, 3261225), names = c("seq1", "seq2")), strand = "+")
+    gr <- GenomicRanges::GRanges("chr1", IRanges::IRanges(start = c(15927933, 3261215),
+                                                          end = c(15927945, 3261225),
+                                                          names = c("seq1", "seq2")),
+                                 strand = "+")
 
     sf <- tempfile(fileext = ".fa")
     Biostrings::writeXStringSet(x = seqs, filepath = sf)

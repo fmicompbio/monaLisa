@@ -389,18 +389,21 @@ parseHomerOutput <- function(infiles) {
 #' @importFrom S4Vectors DataFrame
 #'
 #' @export
-runHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(), regionsize = "given", Ncpu=2L) {
+runHomer <- function(gr, b, genomedir, outdir, motifFile,
+                     homerfile = findHomer(), regionsize = "given", Ncpu = 2L) {
 
     ## ... check if the HOMER output is already there for all bins and if it ran completely:
     ## ... ... If yes, go to the 'parse output step', otherwise run homer and check again
-    if(.checkHomerRun(motifFile = motifFile, outdir = outdir, nbins = nlevels(b))) {
+    if (.checkHomerRun(motifFile = motifFile, outdir = outdir, nbins = nlevels(b))) {
 
       message("\nHOMER output files already exist, using existing files...")
 
     } else {
 
       ## ... case: all/some files exist and/or HOMER didn't run correctly: warn the User to remove all existing files and rerun
-      if(!.checkHomerRun(motifFile = motifFile, outdir = outdir, nbins = nlevels(b)) & any(file.exists(dir(path = outdir, pattern = "knownResults.txt", full.names = TRUE, recursive = TRUE, ignore.case = FALSE)))) {
+      if (!.checkHomerRun(motifFile = motifFile, outdir = outdir, nbins = nlevels(b)) &&
+          any(file.exists(dir(path = outdir, pattern = "knownResults.txt",
+                              full.names = TRUE, recursive = TRUE, ignore.case = FALSE)))) {
 
         stop("\nThere are existing 'knownResults.txt' file(s) in outdir. There may be missing 'knownResults.txt' files for some bins and/or the existing files
              are incomplete (cases where the HOMER run failed). Please delete these files and rerun 'runHomer'.")
@@ -418,8 +421,8 @@ runHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(
       system2(command = "sh", args = runfile, env = paste0("PATH=",dirname(homerfile),":",Sys.getenv("PATH"),";"))
 
       ## ... check HOMER ran correctly
-      if(!.checkHomerRun(motifFile = motifFile, outdir = outdir, nbins = length(levels(b)))){
-        stop("HOMER output wasn't complete. Try running again.")
+      if (!.checkHomerRun(motifFile = motifFile, outdir = outdir, nbins = length(levels(b)))) {
+          stop("HOMER output wasn't complete. Try running again.")
       }
 
     }
@@ -431,7 +434,7 @@ runHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(
 
     ## ... create SummarizedExperiment
     cdat <- S4Vectors::DataFrame(bin.names = levels(b),
-                                 bin.lower = attr(b, "breaks")[-(nlevels(b)+1)],
+                                 bin.lower = attr(b, "breaks")[-(nlevels(b) + 1)],
                                  bin.upper = attr(b, "breaks")[-1],
                                  bin.nochange = seq.int(nlevels(b)) %in% attr(b, "bin0"))
     cdat <- cdat[match(colnames(resL[[1]]), levels(b)), ]

@@ -554,8 +554,8 @@
 #'   \code{\link[monaLisa]{findMotifHits}}.
 #' @param matchMethod the method used to scan for motif hits, passed to the
 #'   \code{method} parameter in \code{\link[monaLisa]{findMotifHits}}.
-#' @param Ncpu Number of CPUs to use for parts of the analysis that can run
-#'   in parallel (e.g. the scanning for motif hits).
+#' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
+#'     instance determining the parallel back-end to be used during evaluation.
 #' @param verbose A logical scalar. If \code{TRUE}, print progress messages.
 #' @param ... Additional arguments for  \code{\link[monaLisa]{findMotifHits}}.
 #'
@@ -598,6 +598,7 @@
 #'          - make test="fisher" the default in .calcMotifEnrichment
 #'          - add assay with fraction of sequences containing hits for a given motif
 #'          - add motifs without hits to assays as NA values
+#'          - add unit test for GRanges seqs and BSgenome genome
 
 #'
 #' @return A \code{SummarizedExperiment} object where the rows are the motifs
@@ -612,7 +613,7 @@
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom S4Vectors DataFrame
 #' @importFrom GenomeInfoDb seqnames seqlevels
-#' @importFrom parallel mclapply
+#' @importFrom BiocParallel bplapply SerialParam bpnworkers
 #' @importFrom BSgenome getSeq
 #'
 #' @export
@@ -625,7 +626,7 @@ get_binned_motif_enrichment <- function(seqs,
                                         maxKmerSize = 3L,
                                         min.score = 10,
                                         matchMethod = "matchPWM.concat",
-                                        Ncpu = 1L,
+                                        BPPARAM = SerialParam(),
                                         verbose = FALSE,
                                         ...) {
 
@@ -633,11 +634,11 @@ get_binned_motif_enrichment <- function(seqs,
     if (!is(seqs, "DNAStringSet") & !is(seqs, "GRanges")) {
         stop("class of 'seqs' must be DNAStringSet or GRanges")
     }
-    if(is(seqs, "GRanges")){
-      if (is.null(genome) | !is(genome, "BSgenome")) {
-        stop("'genome' of class 'BSgenome' must be provided for a GRanges 'seqs'.")
-      }
-      seqs <- BSgenome::getSeq(genome, seqs)
+    if (is(seqs, "GRanges")) {
+        if (is.null(genome) || !is(genome, "BSgenome")) {
+            stop("'genome' of class 'BSgenome' must be provided for a GRanges 'seqs'.")
+        }
+        seqs <- BSgenome::getSeq(genome, seqs)
     }
     if (!is(bins, "factor")) {
         stop("'bins' must be of class 'factor'")
@@ -648,7 +649,9 @@ get_binned_motif_enrichment <- function(seqs,
     if (!is(pwmL, "PWMatrixList")) {
         stop("'pwmL' must be of class 'PWMatrixList'")
     }
-    .assertScalar(x = Ncpu, type = "integer", rngIncl = c(0,Inf))
+    if (!is(BPPARAM, "BiocParallelParam")) {
+        stop("'BPPARAM' must be of class 'BiocParallelParam'")
+    }
     .assertScalar(x = verbose, type = "logical")
     if (is.null(names(seqs))) {
         names(seqs) <- paste0("s", seq_along(seqs))
@@ -668,7 +671,7 @@ get_binned_motif_enrichment <- function(seqs,
         message("Scanning sequences for motif hits...")
     }
     hits <- findMotifHits(query = pwmL, subject = seqs, min.score = min.score,
-                          method = matchMethod, Ncpu = Ncpu, ...)
+                          method = matchMethod, BPPARAM = BPPARAM, ...)
     if (isEmpty(hits)) {
         stop("No motif hits found in any of the sequences - aborting.")
     }
@@ -681,12 +684,12 @@ get_binned_motif_enrichment <- function(seqs,
     hitmatrix[hitmatrix > 0] <- 1
 
     # iterate over bins
-    enrichL <- mclapply(structure(seq.int(nlevels(bins)), names = levels(bins)),
+    enrichL <- bplapply(structure(seq.int(nlevels(bins)), names = levels(bins)),
                         function(i) {
 
         if (verbose)
             message("starting analysis of bin ", levels(bins)[i])
-        verbose1 <- verbose && Ncpu == 1L
+        verbose1 <- verbose && bpnworkers(BPPARAM) == 1L
 
         # create sequence info data frame
         df <- DataFrame(seqs = seqs,
@@ -720,7 +723,7 @@ get_binned_motif_enrichment <- function(seqs,
                                         df = df, test = test, verbose = verbose1)
         return(enrich1)
 
-    }, mc.cores = Ncpu)
+    }, BPPARAM = BPPARAM)
 
 
     # summarize results as SE
@@ -772,7 +775,9 @@ get_binned_motif_enrichment <- function(seqs,
                                maxKmerSize = maxKmerSize,
                                min.score = min.score,
                                matchMethod = matchMethod,
-                               Ncpu = Ncpu, verbose = verbose))
+                               BPPARAM.class = class(BPPARAM),
+                               BPARAM.bpnworkers = bpnworkers(BPPARAM),
+                               verbose = verbose))
     se <- SummarizedExperiment(assays = list(p = P, FDR = fdr, enr = enrTF,
                                              log2enr = log2enr),
                                rowData = rdat, metadata = mdat)

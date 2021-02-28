@@ -6,7 +6,7 @@
 #' @importFrom utils strcapture
 #' @importFrom S4Vectors Rle queryHits subjectHits mcols
 #' @importFrom BSgenome getSeq
-#' @importFrom parallel mclapply
+#' @importFrom BiocParallel bplapply SerialParam bpnworkers
 NULL
 
 # internal function:  dump PWMatrixList to file in homer2 format
@@ -80,7 +80,7 @@ NULL
 #      * without arguments "with.score" and "..."
 #      * "pwm" of class PWMatrixList (as opposed to matrix)
 #      * "subject" of class DNAStringSet (as opposed to DNAString)
-#      * new "mc.cores" argument (parallelize over motifs in "pwm")
+#      * new "BPPARAM" argument (parallelize over motifs in "pwm")
 #      * returns a GRanges object with hits
 # - concatenates the subject sequences for efficiency
 # - intended to be used via findMotifHits
@@ -90,8 +90,8 @@ NULL
 #' @importFrom IRanges IRanges
 #' @importFrom S4Vectors Rle queryHits subjectHits mcols
 #' @importFrom BiocGenerics sort strand
-#' @importFrom parallel mclapply
-.matchPWM.concat <- function(pwm, subject, min.score = "80%", mc.cores = 1L) {
+#' @importFrom BiocParallel bplapply SerialParam
+.matchPWM.concat <- function(pwm, subject, min.score = "80%", BPPARAM = SerialParam()) {
     # concatenate subject
     snames <- if (is.null(names(subject))) paste0("s", seq_along(subject)) else names(subject)
     pwmids <- TFBSTools::ID(pwm)
@@ -100,7 +100,7 @@ NULL
     concatsubject <- unlist(subject)
 
     # search pwm on both strands
-    gr <- do.call(c, mclapply(seq_along(pwm), function(pi) {
+    gr <- do.call(c, bplapply(seq_along(pwm), function(pi) {
         pwm1 <- Matrix(pwm[[pi]])
         pos <- matchPWM(pwm1, concatsubject,
                         min.score = min.score, with.score = TRUE)
@@ -129,7 +129,7 @@ NULL
                 strand = strand(matches)[queryHits(ov)],
                 mcols(matches)[queryHits(ov), , drop = FALSE],
                 seqlengths = structure(width(subject), names = snames))
-    }, mc.cores = mc.cores))
+    }, BPPARAM = BPPARAM))
 
     # order by subject
     return(sort(gr))
@@ -178,8 +178,9 @@ NULL
 #'
 #' @param homerfile Path and file name of the \code{homer2} binary.
 #'
-#' @param Ncpu Number of parallel threads (only for \code{method="homer2"},
-#'     default: 1).
+#' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
+#'     instance determining the parallel back-end to be used during evaluation
+#'     (only for \code{method="matchPWM.concat"} or \code{method="homer2"}).
 #'
 #' @param genome \code{BSgenome} object that is the reference genome of the
 #'     subject. This argument is set to NULL by default and only used by the
@@ -232,7 +233,9 @@ NULL
 setGeneric(name = "findMotifHits",
            def = function(query, subject, min.score,
                           method = c("matchPWM.concat", "homer2", "matchPWM"),
-                          homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
+                          homerfile = findHomer("homer2"),
+                          BPPARAM = SerialParam(),
+                          genome = NULL) {
                standardGeneric("findMotifHits")
            },
            valueClass = "GRanges")
@@ -258,7 +261,9 @@ setMethod("findMotifHits",
           c("character", "character"),
           function(query, subject, min.score,
                    method = c("matchPWM.concat", "homer2", "matchPWM"),
-                   homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
+                   homerfile = findHomer("homer2"),
+                   BPPARAM = SerialParam(),
+                   genome = NULL) {
               method <- match.arg(method)
               stopifnot(method == "matchPWM.concat" || method == "matchPWM" ||
                         (method == "homer2" && is.character(homerfile) &&
@@ -270,7 +275,7 @@ setMethod("findMotifHits",
                   seqs <- Biostrings::readDNAStringSet(filepath = subject)
                   findMotifHits(query = pwmL, subject = seqs,
                                 min.score = min.score, method = method,
-                                Ncpu = Ncpu, genome = genome)
+                                BPPARAM = BPPARAM, genome = genome)
 
               } else if (method == "homer2") {
 
@@ -298,7 +303,7 @@ setMethod("findMotifHits",
 
                   # run homer2
                   args <- sprintf("find -i %s -m %s -offset 1 -strand both -p %d",
-                                  subject, query, Ncpu)
+                                  subject, query, bpnworkers(BPPARAM))
                   res <- system2(command = homerfile, args = args,
                                  stdout = TRUE, stderr = "", wait = TRUE)
 
@@ -309,7 +314,7 @@ setMethod("findMotifHits",
                     warning(sum(!ok), " of ", length(ok), " hits reported by",
                             " Homer are malformed and will be ignored.",
                             " To ensure complete and correct results,",
-                            " re-run Homer using Ncpu = 1.")
+                            " re-run Homer using 'BPPARAM = SerialParam()'.")
 
                   # parse output
                   con <- textConnection(res[ok])
@@ -347,11 +352,13 @@ setMethod("findMotifHits",
           c("character", "DNAString"),
           function(query, subject, min.score,
                    method = c("matchPWM.concat", "homer2", "matchPWM"),
-                   homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
+                   homerfile = findHomer("homer2"),
+                   BPPARAM = SerialParam(),
+                   genome = NULL) {
               subjectSet <- Biostrings::DNAStringSet(subject)
               names(subjectSet) <- if (is.null(names(subject))) "DNAString" else names(subject)
               findMotifHits(query, subjectSet, min.score,
-                            method, homerfile, Ncpu, genome)
+                            method, homerfile, BPPARAM, genome)
           })
 
 # 3.
@@ -361,7 +368,9 @@ setMethod("findMotifHits",
           c("character", "DNAStringSet"),
           function(query, subject, min.score,
                    method = c("matchPWM.concat", "homer2", "matchPWM"),
-                   homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
+                   homerfile = findHomer("homer2"),
+                   BPPARAM = SerialParam(),
+                   genome = NULL) {
               method <- match.arg(method)
               
               if (method == "matchPWM.concat" || method == "matchPWM") {
@@ -370,7 +379,7 @@ setMethod("findMotifHits",
                   findMotifHits(query = pwmL, subject = subject,
                                 min.score = min.score,
                                 method = method, homerfile = homerfile,
-                                Ncpu = Ncpu, genome = genome)
+                                BPPARAM = BPPARAM, genome = genome)
 
               } else if (method == "homer2") {
                   
@@ -382,7 +391,7 @@ setMethod("findMotifHits",
                   res <- findMotifHits(query = query, subject = tmpf,
                                        min.score = min.score,
                                        method = method, homerfile = homerfile,
-                                       Ncpu = Ncpu, genome = genome)
+                                       BPPARAM = BPPARAM, genome = genome)
                   unlink(tmpf)
                   return(res)
               }
@@ -395,11 +404,13 @@ setMethod("findMotifHits",
           c("PWMatrix", "character"),
           function(query, subject,
                    min.score, method = c("matchPWM.concat", "homer2", "matchPWM"),
-                   homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
+                   homerfile = findHomer("homer2"),
+                   BPPARAM = SerialParam(),
+                   genome = NULL) {
               queryList <- TFBSTools::PWMatrixList(query)
               names(queryList) <- name(query)
               findMotifHits(queryList, subject, min.score,
-                            method, homerfile, Ncpu, genome)
+                            method, homerfile, BPPARAM, genome)
           })
 
 # 5.
@@ -409,13 +420,15 @@ setMethod("findMotifHits",
           c("PWMatrix", "DNAString"),
           function(query, subject, min.score,
                    method = c("matchPWM.concat", "homer2", "matchPWM"),
-                   homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
+                   homerfile = findHomer("homer2"),
+                   BPPARAM = SerialParam(),
+                   genome = NULL) {
               queryList <- TFBSTools::PWMatrixList(query)
               names(queryList) <- name(query)
               subjectSet <- Biostrings::DNAStringSet(subject)
               names(subjectSet) <- if (is.null(names(subject))) "DNAString" else names(subject)
               findMotifHits(queryList, subjectSet,
-                            min.score, method, homerfile, Ncpu, genome)
+                            min.score, method, homerfile, BPPARAM, genome)
           })
 
 # 6.
@@ -425,11 +438,13 @@ setMethod("findMotifHits",
           c("PWMatrix", "DNAStringSet"),
           function(query, subject, min.score,
                    method = c("matchPWM.concat", "homer2", "matchPWM"),
-                   homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
+                   homerfile = findHomer("homer2"),
+                   BPPARAM = SerialParam(),
+                   genome = NULL) {
               queryList <- TFBSTools::PWMatrixList(query)
               names(queryList) <- name(query)
               findMotifHits(queryList, subject, min.score,
-                            method, homerfile, Ncpu, genome)
+                            method, homerfile, BPPARAM, genome)
           })
 
 # 7.
@@ -439,7 +454,9 @@ setMethod("findMotifHits",
           c("PWMatrixList", "character"),
           function(query, subject, min.score,
                    method = c("matchPWM.concat", "homer2", "matchPWM"),
-                   homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
+                   homerfile = findHomer("homer2"),
+                   BPPARAM = SerialParam(),
+                   genome = NULL) {
               method <- match.arg(method)
               
               if (method == "matchPWM.concat" || method == "matchPWM") {
@@ -448,7 +465,7 @@ setMethod("findMotifHits",
                   findMotifHits(query = query, subject = seqs,
                                 min.score = min.score,
                                 method = method, homerfile = homerfile,
-                                Ncpu = Ncpu, genome = genome)
+                                BPPARAM = BPPARAM, genome = genome)
 
               } else if (method == "homer2") {
                   
@@ -468,7 +485,7 @@ setMethod("findMotifHits",
                   res <- findMotifHits(query = tmpf, subject = subject,
                                        min.score = min.score,
                                        method = method, homerfile = homerfile,
-                                       Ncpu = Ncpu, genome = genome)
+                                       BPPARAM = BPPARAM, genome = genome)
                   unlink(tmpf)
                   return(res)
               }
@@ -481,11 +498,13 @@ setMethod("findMotifHits",
           c("PWMatrixList", "DNAString"),
           function(query, subject, min.score,
                    method = c("matchPWM.concat", "homer2", "matchPWM"),
-                   homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
+                   homerfile = findHomer("homer2"),
+                   BPPARAM = SerialParam(),
+                   genome = NULL) {
               subjectSet <- Biostrings::DNAStringSet(subject)
               names(subjectSet) <- if (is.null(names(subject))) "DNAString" else names(subject)
               findMotifHits(query, subjectSet, min.score,
-                            method, homerfile, Ncpu, genome)
+                            method, homerfile, BPPARAM, genome)
           })
 
 # 9.
@@ -495,23 +514,26 @@ setMethod("findMotifHits",
           c("PWMatrixList", "DNAStringSet"),
           function(query, subject, min.score,
                    method = c("matchPWM.concat", "homer2", "matchPWM"),
-                   homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
+                   homerfile = findHomer("homer2"),
+                   BPPARAM = SerialParam(),
+                   genome = NULL) {
               method <- match.arg(method)
               
               if (method == "matchPWM.concat") {
 
                   gr <- .matchPWM.concat(pwm = query, subject = subject,
-                                         min.score = min.score, mc.cores = Ncpu)
+                                         min.score = min.score, BPPARAM = BPPARAM)
                   return(gr)
 
               } else if (method == "matchPWM") {
 
                   # TFBSTools::searchSeq uses matchPWM internally, but has a nicer interface
+                  # it does not support BiocParallel (no parallel evaluation under Windows)
                   if (is.character(min.score) &&
                       grepl(pattern = "^[0-9.]+[%]$", x = min.score)) {
                       tmp <- TFBSTools::searchSeq(x = query, subject = subject,
                                                   min.score = min.score,
-                                                  mc.cores = Ncpu)
+                                                  mc.cores = bpnworkers(BPPARAM))
                       df <- as(tmp[lengths(tmp) > 0], "DataFrame")
 
                   } else if (is.numeric(min.score)) {
@@ -522,7 +544,7 @@ setMethod("findMotifHits",
                               "Use method='matchPWM.concat' instead.")
                       tmp <- TFBSTools::searchSeq(x = query, subject = subject,
                                                   min.score = "70%",
-                                                  mc.cores = Ncpu)
+                                                  mc.cores = bpnworkers(BPPARAM))
                       df <- as(tmp, "DataFrame")
                       df <- df[df[, "absScore"] > min.score, ]
 
@@ -563,7 +585,7 @@ setMethod("findMotifHits",
                   # call next method
                   res <- findMotifHits(query = tmpf1, subject = tmpf2,
                                        min.score = min.score, method = method,
-                                       homerfile = homerfile, Ncpu = Ncpu,
+                                       homerfile = homerfile, BPPARAM = BPPARAM,
                                        genome = genome)
                   unlink(c(tmpf1, tmpf2))
                   return(res)
@@ -578,11 +600,13 @@ setMethod("findMotifHits",
           c("PWMatrix", "GRanges"),
           function(query, subject, min.score,
                    method = c("matchPWM.concat", "homer2", "matchPWM"),
-                   homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
+                   homerfile = findHomer("homer2"),
+                   BPPARAM = SerialParam(),
+                   genome = NULL) {
               queryList <- TFBSTools::PWMatrixList(query)
               names(queryList) <- name(query)
               findMotifHits(queryList, subject, min.score,
-                            method, homerfile, Ncpu, genome)
+                            method, homerfile, BPPARAM, genome)
           })
 
 
@@ -593,7 +617,9 @@ setMethod("findMotifHits",
           c("PWMatrixList", "GRanges"),
           function(query, subject, min.score,
                    method = c("matchPWM.concat", "homer2", "matchPWM"),
-                   homerfile = findHomer("homer2"), Ncpu = 1L, genome = NULL) {
+                   homerfile = findHomer("homer2"),
+                   BPPARAM = SerialParam(),
+                   genome = NULL) {
 
             if (is.null(genome)) {
                 stop("'genome' must be provided for a GRanges 'subject'.")
@@ -606,5 +632,5 @@ setMethod("findMotifHits",
             names(seqs) <- if (is.null(names(subject))) paste0("r", seq_along(subject)) else names(subject)
 
             findMotifHits(query, seqs, min.score,
-                          method, homerfile, Ncpu, genome = NULL)
+                          method, homerfile, BPPARAM, genome = NULL)
           })

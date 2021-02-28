@@ -116,10 +116,8 @@ test_that("kmerEnrichments works as expected", {
     expect_error(suppressWarnings(kmerEnrichments(gr, b, genomepkg = "not-exising")))
     expect_error(kmerEnrichments(seqs, b[1:20]))
     expect_error(kmerEnrichments(seqs, b, background = "error"))
-    expect_error(kmerEnrichments(seqs, b, Ncpu = "error"))
-    expect_error(kmerEnrichments(seqs, b, Ncpu = 1:2))
-    expect_error(kmerEnrichments(seqs, b, Ncpu = -1))
-
+    expect_error(kmerEnrichments(seqs, b, BPPARAM = "error"))
+    
     expect_message(res1 <- kmerEnrichments(as.character(seqs), b, verbose = TRUE))
     res2 <- kmerEnrichments(gr, b, genomepkg = "BSgenome.Hsapiens.UCSC.hg19", verbose = TRUE)
     res3 <- kmerEnrichments(seqs, b, verbose = FALSE)

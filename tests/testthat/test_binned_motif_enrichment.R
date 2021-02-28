@@ -208,7 +208,7 @@ test_that(".calcMotifEnrichment works", {
 #     ## gr <- tileGenome(seq_info, tilewidth = 100, cut.last.tile.in.chrom = TRUE)
 #     ## seqs <- getSeq(genome, gr)
 #     ## 
-#     ## hits <- findMotifHits(query = pwms, subject = seqs, min.score = 10, method = "matchPWM.concat", Ncpu = 10)
+#     ## hits <- findMotifHits(query = pwms, subject = seqs, min.score = 10, method = "matchPWM.concat", BPPARAM = MulticoreParam(10))
 #     ## 
 #     ## ## Select 2 TFs and the regions (bins) where they have unique hits
 #     ## 
@@ -379,7 +379,7 @@ test_that("get_binned_motif_enrichment() works (synthetic data)", {
     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = "error"), "PWMatrixList")
     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwm, maxFracN = "error"), "numeric")
     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwm, min.score = 6, maxKmerSize = "error"), "integer")
-    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwm, Ncpu = "error"), "integer")
+    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwm, BPPARAM = "error"), "BiocParallelParam")
     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwm, verbose = "error"), "logical")
     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = TFBSTools::Matrix(pwm[[1]])), "PWMatrixList")
 
@@ -404,7 +404,7 @@ test_that("get_binned_motif_enrichment() works (synthetic data)", {
     expect_identical(names(metadata(res1)$params),
                      c("test", "maxFracN", "maxKmerSize",
                        "min.score", "matchMethod", 
-                       "Ncpu", "verbose"))
+                       "BPPARAM.class", "BPARAM.bpnworkers", "verbose"))
     expect_identical(metadata(res1)$params$test, "binom")
     expect_identical(metadata(res2)$params$test, "fisher")
     expect_identical(metadata(res1)$params[-1], metadata(res2)$params[-1])

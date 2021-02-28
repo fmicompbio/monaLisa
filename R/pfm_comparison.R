@@ -118,31 +118,35 @@ compareMotifKmer <- function(m, kmers) {
 #' @param method A character scalar specifying the method for similarity
 #'   calculations. Either \code{"R"} (pure R implementation) or \code{"HOMER"}
 #'   (will call the \code{compareMotifs.pl} script from HOMER). Results are
-#'   identical (appart from rounding errors), and the R implementation is
-#'   usually faster and can be parallelized (\code{Ncpu} argument).
+#'   identical (apart from rounding errors), and the R implementation is
+#'   usually faster and can be parallelized (\code{BPPARAM} argument).
 #' @param homerfile Path to the HOMER script \code{compareMotifs.pl} (only used
 #'   for \code{method = "HOMER"}.
 #' @param homerOutfile A character scalar giving the file to save the similarity
 #'   scores (only for \code{metho = "HOMER"}). If \code{NULL}, scores will be
 #'   stored into a temporary file.
-#' @param Ncpu The number of CPU cores to use when calculating similarities.
-#'   This uses \code{\link[parallel]{mclapply}} and only works for \code{method
-#'   = "R"}.
+#' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
+#'     instance determining the parallel back-end to be used during evaluation
+#'     (only used for \code{method = "R"}).
 #' @param verbose A logical scalar. If \code{TRUE}, report on progress.
 #'
 #' @return A matrix of Pearson's correlation coefficients for each pair of
 #'   motifs.
 #'
-#' @seealso \code{\link[parallel]{mclapply}} for how parallelization is done,
+#' @seealso \code{\link[BiocParallel]{bplapply}} used for parallelization for
+#'   \code{method = "R"},
 #'   documentation of HOMER's \code{compareMotifs.pl} for details on
 #'   \code{method = "HOMER"}.
 #'
+#' @importFrom BiocParallel bplapply SerialParam bpnworkers
+#' 
 #' @export
 motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
                             homerfile = findHomer("compareMotifs.pl"),
-                            homerOutfile = NULL, Ncpu = 1L, verbose = TRUE) {
+                            homerOutfile = NULL, BPPARAM = SerialParam(),
+                            verbose = TRUE) {
     ## branch by method
-    stopifnot(exprs = { is.logical(verbose); length(verbose) == 1L })
+    stopifnot(exprs = {is.logical(verbose); length(verbose) == 1L})
     method <- match.arg(method)
     if (method == "R") {
         ## pre-flight checks for "R"
@@ -155,12 +159,10 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
         stopifnot(exprs = {
             is(x, "PFMatrixList")
             is.null(y) || is(y, "PFMatrixList")
-            is.numeric(Ncpu)
-            length(Ncpu) == 1
-            Ncpu > 0
+            is(BPPARAM, "BiocParallelParam")
         })
 
-        if (Ncpu > 2 && is.null(y)) {
+        if (bpnworkers(BPPARAM) > 2 && is.null(y)) {
             y <- x
         }
 
@@ -180,16 +182,18 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
             if (verbose) {
                 message("done")
             }
-        } else {         # compare x to y, n*m comparisons
+        } else {#           compare x to y, n*m comparisons
             ym <- lapply(TFBSTools::Matrix(y), function(x) sweep(x, 2, colSums(x), "/"))
             if (verbose) {
-                message("calculating ", length(xm) * length(ym), " similarities using ",
-                        Ncpu, if (Ncpu > 1) " cores..." else " core...", appendLF = FALSE)
+                message("calculating ", length(xm) * length(ym),
+                        " similarities using ", bpnworkers(BPPARAM),
+                        if (bpnworkers(BPPARAM) > 1) " cores..." else " core...",
+                        appendLF = FALSE)
             }
-            if (Ncpu > 1) {
-                M <- do.call(rbind, parallel::mclapply(seq_along(xm), function(i) {
+            if (bpnworkers(BPPARAM) > 1) {
+                M <- do.call(rbind, bplapply(seq_along(xm), function(i) {
                     unlist(lapply(seq_along(ym), function(j) compareMotifPair(xm[[i]], ym[[j]])$bestScore))
-                }, mc.cores = Ncpu))
+                }, BPPARAM = BPPARAM))
                 dimnames(M) <- list(name(x), name(y))
             } else {
                 M <- matrix(NA, nrow = length(xm), ncol = length(ym), dimnames = list(name(x), name(y)))
@@ -206,18 +210,18 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
 
     } else if (method == "HOMER") {
         ## pre-flight checks for "HOMER"
-        stopifnot(exprs = { is.character(x); length(x) == 1L; file.exists(x) })
-        stopifnot(exprs = { !is.na(homerfile); is.character(homerfile); length(homerfile) == 1L; file.exists(homerfile) })
+        stopifnot(exprs = {is.character(x); length(x) == 1L; file.exists(x)})
+        stopifnot(exprs = {!is.na(homerfile); is.character(homerfile); length(homerfile) == 1L; file.exists(homerfile)})
         if (is.null(homerOutfile)) {
             homerOutfile <- tempfile(fileext = ".simmat")
         }
-        stopifnot(exprs = { is.character(homerOutfile); length(homerOutfile) == 1L; !file.exists(homerOutfile) })
+        stopifnot(exprs = {is.character(homerOutfile); length(homerOutfile) == 1L; !file.exists(homerOutfile)})
 
         ## run
         if (verbose) {
             message("running compareMotifs.pl...")
         }
-        system(sprintf("%s %s test -matrix %s", homerfile, x, homerOutfile), intern=TRUE)
+        system(sprintf("%s %s test -matrix %s", homerfile, x, homerOutfile), intern = TRUE)
         M <- as.matrix(read.delim(homerOutfile, row.names = 1))
     }
     return(M)
@@ -239,16 +243,21 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
 #'   \code{\link[TFBSTools]{PFMatrixList}} by \code{\link{homerToPFMatrixList}}
 #'   for \code{method = "R"}).
 #' @param kmerLen A \code{numeric} scalar giving the k-mer length.
-#' @param Ncpu The number of CPU cores to use when calculating similarities.
-#'   This uses \code{\link[parallel]{mclapply}}.
+#' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
+#'     instance determining the parallel back-end to be used during evaluation.
 #' @param verbose A logical scalar. If \code{TRUE}, report on progress.
 #'
 #' @return A matrix of probabilties for each motif - k-mer pair.
 #'
-#' @seealso \code{\link[parallel]{mclapply}} for how parallelization is done.
+#' @seealso \code{\link[BiocParallel]{bplapply}} used for parallelization.
 #'
+#' @importFrom BiocParallel bplapply SerialParam bpnworkers
+#' 
 #' @export
-motifKmerSimilarity <- function(x, kmerLen = 5, Ncpu = 1L, verbose = TRUE) {
+motifKmerSimilarity <- function(x,
+                                kmerLen = 5,
+                                BPPARAM = SerialParam(),
+                                verbose = TRUE) {
     ## pre-flight checks
     stopifnot(is.logical(verbose) && length(verbose) == 1L)
     if (is.character(x) && length(x) == 1L && file.exists(x)) {
@@ -263,20 +272,20 @@ motifKmerSimilarity <- function(x, kmerLen = 5, Ncpu = 1L, verbose = TRUE) {
         length(kmerLen) == 1L
         round(kmerLen, 0L) == kmerLen
         kmerLen > 0
-        is.numeric(Ncpu)
-        length(Ncpu) == 1
-        Ncpu > 0
+        is(BPPARAM, "BiocParallelParam")
     })
 
     xm <- lapply(TFBSTools::Matrix(x), function(x) sweep(x, 2, colSums(x), "/"))
     kmers <- Biostrings::mkAllStrings(c("A","C","G","T"), kmerLen)
 
     if (verbose) {
-        message("calculating ", length(xm) * length(kmers), " similarities using ",
-                Ncpu, if (Ncpu > 1) " cores..." else " core...", appendLF = FALSE)
+        message("calculating ", length(xm) * length(kmers),
+                " similarities using ", bpnworkers(BPPARAM),
+                if (bpnworkers(BPPARAM) > 1) " cores..." else " core...",
+                appendLF = FALSE)
     }
-    M <- do.call(rbind, parallel::mclapply(xm, function(m) compareMotifKmer(m = m, kmers = kmers)$bestScore,
-                                           mc.cores = Ncpu))
+    M <- do.call(rbind, bplapply(xm, function(m) compareMotifKmer(m = m, kmers = kmers)$bestScore,
+                                 BPPARAM = BPPARAM))
     dimnames(M) <- list(name(x), kmers)
     if (verbose) {
         message("done")

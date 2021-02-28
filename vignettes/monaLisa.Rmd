@@ -232,7 +232,7 @@ plotMotifHeatmaps(x = seSel, which.plots = c("log2enr","FDR"), width = 2.0,
 As the Jaspar database contains many similar motifs, it is helpful to show the enrichment heatmap clustered by motif similarity. To this end, we first need to calculate all pairwise motif similarities (measured as maximum Pearson correlation of all possible shifted alignments). As this step may take a while, you can also skip this line of code and load the results using the next line of code. 
 
 ```{r wmclustering, eval=FALSE}
-SimMat <- motifSimilarity(rowData(se)$motif.pfm, Ncpu = 20L)
+SimMat <- motifSimilarity(rowData(se)$motif.pfm, BPPARAM = BiocParallel::MulticoreParam(20))
 ```
 ```{r getclusteringresults}
 SimMat <- readRDS(system.file("extdata", "SimMat.rds", package = "monaLisa"))
@@ -355,7 +355,8 @@ homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/H
 if (!is.na(homerfile)) {
     # use homer2 if available
     hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "homer2",
-                          homerfile = homerfile, genome = genome, Ncpu = 2)
+                          homerfile = homerfile, genome = genome,
+                          BPPARAM = BiocParallel::MulticoreParam(2))
 } else {
     # otherwise, use matchPWM
     hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "matchPWM",
@@ -434,7 +435,8 @@ plotSelectionProb(stabs)
 
 # ... and the directionality of the motifs with respect to the response vector
 par(mfrow = c(1,1), mar = c(5,4,4,2) + 3)
-plotMotifDirectionality(stabs_obj=stabs, response=response, predictor_matrix=predictor_matrix)
+plotMotifDirectionality(stabs_obj = stabs, response = response,
+                        predictor_matrix = predictor_matrix)
 
 
 # plot correlation on TFBS matrix of selected TFs

@@ -22,7 +22,7 @@ findMotifHits(
   min.score,
   method = c("matchPWM.concat", "homer2", "matchPWM"),
   homerfile = findHomer("homer2"),
-  Ncpu = 1L,
+  BPPARAM = SerialParam(),
   genome = NULL
 )
 
@@ -32,7 +32,7 @@ findMotifHits(
   min.score,
   method = c("matchPWM.concat", "homer2", "matchPWM"),
   homerfile = findHomer("homer2"),
-  Ncpu = 1L,
+  BPPARAM = SerialParam(),
   genome = NULL
 )
 
@@ -42,7 +42,7 @@ findMotifHits(
   min.score,
   method = c("matchPWM.concat", "homer2", "matchPWM"),
   homerfile = findHomer("homer2"),
-  Ncpu = 1L,
+  BPPARAM = SerialParam(),
   genome = NULL
 )
 
@@ -52,7 +52,7 @@ findMotifHits(
   min.score,
   method = c("matchPWM.concat", "homer2", "matchPWM"),
   homerfile = findHomer("homer2"),
-  Ncpu = 1L,
+  BPPARAM = SerialParam(),
   genome = NULL
 )
 
@@ -62,7 +62,7 @@ findMotifHits(
   min.score,
   method = c("matchPWM.concat", "homer2", "matchPWM"),
   homerfile = findHomer("homer2"),
-  Ncpu = 1L,
+  BPPARAM = SerialParam(),
   genome = NULL
 )
 
@@ -72,7 +72,7 @@ findMotifHits(
   min.score,
   method = c("matchPWM.concat", "homer2", "matchPWM"),
   homerfile = findHomer("homer2"),
-  Ncpu = 1L,
+  BPPARAM = SerialParam(),
   genome = NULL
 )
 
@@ -82,7 +82,7 @@ findMotifHits(
   min.score,
   method = c("matchPWM.concat", "homer2", "matchPWM"),
   homerfile = findHomer("homer2"),
-  Ncpu = 1L,
+  BPPARAM = SerialParam(),
   genome = NULL
 )
 
@@ -92,7 +92,7 @@ findMotifHits(
   min.score,
   method = c("matchPWM.concat", "homer2", "matchPWM"),
   homerfile = findHomer("homer2"),
-  Ncpu = 1L,
+  BPPARAM = SerialParam(),
   genome = NULL
 )
 
@@ -102,7 +102,7 @@ findMotifHits(
   min.score,
   method = c("matchPWM.concat", "homer2", "matchPWM"),
   homerfile = findHomer("homer2"),
-  Ncpu = 1L,
+  BPPARAM = SerialParam(),
   genome = NULL
 )
 
@@ -112,7 +112,7 @@ findMotifHits(
   min.score,
   method = c("matchPWM.concat", "homer2", "matchPWM"),
   homerfile = findHomer("homer2"),
-  Ncpu = 1L,
+  BPPARAM = SerialParam(),
   genome = NULL
 )
 
@@ -122,7 +122,7 @@ findMotifHits(
   min.score,
   method = c("matchPWM.concat", "homer2", "matchPWM"),
   homerfile = findHomer("homer2"),
-  Ncpu = 1L,
+  BPPARAM = SerialParam(),
   genome = NULL
 )
 
@@ -132,7 +132,7 @@ findMotifHits(
   min.score,
   method = c("matchPWM.concat", "homer2", "matchPWM"),
   homerfile = findHomer("homer2"),
-  Ncpu = 1L,
+  BPPARAM = SerialParam(),
   genome = NULL
 )
 }
@@ -172,8 +172,9 @@ Please note that the two methods might give slightly different results
 
 \item{homerfile}{Path and file name of the \code{homer2} binary.}
 
-\item{Ncpu}{Number of parallel threads (only for \code{method="homer2"},
-default: 1).}
+\item{BPPARAM}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
+instance determining the parallel back-end to be used during evaluation
+(only for \code{method="matchPWM.concat"} or \code{method="homer2"}).}
 
 \item{genome}{\code{BSgenome} object that is the reference genome of the
 subject. This argument is set to NULL by default and only used by the

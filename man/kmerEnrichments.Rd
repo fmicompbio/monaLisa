@@ -13,7 +13,7 @@ kmerEnrichments(
   MMorder = 1,
   zoops = TRUE,
   pseudoCount = 1,
-  Ncpu = 2L,
+  BPPARAM = SerialParam(),
   verbose = TRUE
 )
 }
@@ -47,7 +47,8 @@ to reduce the impact of simple sequence repeats occurring in few sequences.}
 \item{pseudoCount}{A \code{numeric} scalar - will be added to the observed
 counts for each k-mer to avoid zero values.}
 
-\item{Ncpu}{Number of parallel threads to use.}
+\item{BPPARAM}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
+instance determining the parallel back-end to be used during evaluation.}
 
 \item{verbose}{A \code{logical} scalar. If \code{TRUE}, report on progress.}
 }
@@ -71,6 +72,6 @@ Given a set of sequences and corresponding bins, identify
 \code{\link{getKmerFreq}} used to calculate k-mer enrichments;
   \code{\link[BSgenome]{getSeq,BSgenome-method}} which is used to extract
   sequences from \code{genomepkg} if \code{x} is a \code{GRanges} object;
-  \code{\link[parallel]{mclapply}} that is used for parallelization;
+  \code{\link[BiocParallel]{bplapply}} that is used for parallelization;
   \code{\link{bin}} for binning of regions
 }

@@ -14,7 +14,7 @@ get_binned_motif_enrichment(
   maxKmerSize = 3L,
   min.score = 10,
   matchMethod = "matchPWM.concat",
-  Ncpu = 1L,
+  BPPARAM = SerialParam(),
   verbose = FALSE,
   ...
 )
@@ -51,8 +51,8 @@ and tri-mer composition.}
 \item{matchMethod}{the method used to scan for motif hits, passed to the
 \code{method} parameter in \code{\link[monaLisa]{findMotifHits}}.}
 
-\item{Ncpu}{Number of CPUs to use for parts of the analysis that can run
-in parallel (e.g. the scanning for motif hits).}
+\item{BPPARAM}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
+instance determining the parallel back-end to be used during evaluation.}
 
 \item{verbose}{A logical scalar. If \code{TRUE}, print progress messages.}
 
@@ -112,4 +112,5 @@ This function implements a binned motif enrichment analysis. In each
          - make test="fisher" the default in .calcMotifEnrichment
          - add assay with fraction of sequences containing hits for a given motif
          - add motifs without hits to assays as NA values
+         - add unit test for GRanges seqs and BSgenome genome
 }

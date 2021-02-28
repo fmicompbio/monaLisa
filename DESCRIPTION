@@ -26,6 +26,7 @@ Imports:
     glmnet,
     S4Vectors,
     SummarizedExperiment,
+    BiocParallel,
     grid,
     circlize,
     ComplexHeatmap (>= 2.0.0),
