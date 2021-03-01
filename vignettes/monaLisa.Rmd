@@ -448,13 +448,13 @@ plotMotifDirectionality(se = stabs, response = response,
 # plot correlation on TFBS matrix of selected TFs
 # ... select predictors for selected TFs and calculate correlation
 cutoff <- metadata(stabs)$stabselParams$cutoff
-selected <- rowData(se)[, paste0("SelProbCutoff", cutoff)]
+selected <- rowData(stabs)[, paste0("SelProbCutoff", cutoff)]
 sel_matrix <- predictor_matrix[, selected]
 sel_cor <- cor(sel_matrix, method = "pearson")
 
 # ... prepare sequence logos
 pfms <- getMatrixSet(JASPAR2018, list(matrixtype = "PFM", tax_group = "vertebrates")) # for seq-logos
-pwms <- toPWM(pfms) # for searching
+pwms <- TFBSTools::toPWM(pfms) # for searching
 pfmsSel <- pfms[match(rownames(sel_cor), name(pfms))]
 maxwidth <- max(sapply(TFBSTools::Matrix(pfmsSel), ncol))
 seqlogoGrobs <- lapply(pfmsSel, seqLogoGrob, xmax = maxwidth)
