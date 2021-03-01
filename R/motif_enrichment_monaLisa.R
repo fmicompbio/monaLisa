@@ -625,7 +625,7 @@ get_binned_motif_enrichment <- function(seqs,
                                         maxFracN = 0.7,
                                         maxKmerSize = 3L,
                                         min.score = 10,
-                                        matchMethod = "matchPWM.concat",
+                                        matchMethod = "matchPWM",
                                         BPPARAM = SerialParam(),
                                         verbose = FALSE,
                                         ...) {

@@ -20,7 +20,7 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("matchPWM.concat", "homer2", "matchPWM"),
+  method = c("matchPWM", "homer2"),
   homerfile = findHomer("homer2"),
   BPPARAM = SerialParam(),
   genome = NULL
@@ -30,7 +30,7 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("matchPWM.concat", "homer2", "matchPWM"),
+  method = c("matchPWM", "homer2"),
   homerfile = findHomer("homer2"),
   BPPARAM = SerialParam(),
   genome = NULL
@@ -40,7 +40,7 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("matchPWM.concat", "homer2", "matchPWM"),
+  method = c("matchPWM", "homer2"),
   homerfile = findHomer("homer2"),
   BPPARAM = SerialParam(),
   genome = NULL
@@ -50,7 +50,7 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("matchPWM.concat", "homer2", "matchPWM"),
+  method = c("matchPWM", "homer2"),
   homerfile = findHomer("homer2"),
   BPPARAM = SerialParam(),
   genome = NULL
@@ -60,7 +60,7 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("matchPWM.concat", "homer2", "matchPWM"),
+  method = c("matchPWM", "homer2"),
   homerfile = findHomer("homer2"),
   BPPARAM = SerialParam(),
   genome = NULL
@@ -70,7 +70,7 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("matchPWM.concat", "homer2", "matchPWM"),
+  method = c("matchPWM", "homer2"),
   homerfile = findHomer("homer2"),
   BPPARAM = SerialParam(),
   genome = NULL
@@ -80,7 +80,7 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("matchPWM.concat", "homer2", "matchPWM"),
+  method = c("matchPWM", "homer2"),
   homerfile = findHomer("homer2"),
   BPPARAM = SerialParam(),
   genome = NULL
@@ -90,7 +90,7 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("matchPWM.concat", "homer2", "matchPWM"),
+  method = c("matchPWM", "homer2"),
   homerfile = findHomer("homer2"),
   BPPARAM = SerialParam(),
   genome = NULL
@@ -100,7 +100,7 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("matchPWM.concat", "homer2", "matchPWM"),
+  method = c("matchPWM", "homer2"),
   homerfile = findHomer("homer2"),
   BPPARAM = SerialParam(),
   genome = NULL
@@ -110,7 +110,7 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("matchPWM.concat", "homer2", "matchPWM"),
+  method = c("matchPWM", "homer2"),
   homerfile = findHomer("homer2"),
   BPPARAM = SerialParam(),
   genome = NULL
@@ -120,7 +120,7 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("matchPWM.concat", "homer2", "matchPWM"),
+  method = c("matchPWM", "homer2"),
   homerfile = findHomer("homer2"),
   BPPARAM = SerialParam(),
   genome = NULL
@@ -130,7 +130,7 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("matchPWM.concat", "homer2", "matchPWM"),
+  method = c("matchPWM", "homer2"),
   homerfile = findHomer("homer2"),
   BPPARAM = SerialParam(),
   genome = NULL
@@ -157,15 +157,13 @@ findMotifHits(
 }}
 
 \item{min.score}{The minimum score for counting a match. Can be given as
-a character string containing a percentage (e.g. "85%") of the quantile
-between the lowest and the highest possible score or as a single number
-(log2-odds score).}
+a character string containing a percentage (e.g. "85%") of  of the
+highest possible score or as a single number.}
 
 \item{method}{The internal method to use for motif searching. One of
 \itemize{
-    \item{\code{"matchPWM.concat"}}{ using Biostrings::matchPWM (optimized)}
+    \item{\code{"matchPWM"}}{ using Biostrings::matchPWM (optimized)}
     \item{\code{"homer2"}}{ call to the homer2 binary}
-    \item{\code{"matchPWM"}}{ using Biostrings::matchPWM}
 }
 Please note that the two methods might give slightly different results
 (see details).}
@@ -173,8 +171,7 @@ Please note that the two methods might give slightly different results
 \item{homerfile}{Path and file name of the \code{homer2} binary.}
 
 \item{BPPARAM}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
-instance determining the parallel back-end to be used during evaluation
-(only for \code{method="matchPWM.concat"} or \code{method="homer2"}).}
+instance determining the parallel back-end to be used during evaluation.}
 
 \item{genome}{\code{BSgenome} object that is the reference genome of the
 subject. This argument is set to NULL by default and only used by the
@@ -192,14 +189,11 @@ as a file, an R object or genomic coordinates)  for matches to
 positional weight matrices (provided as a file or as R objects)
 }
 \details{
-The implemented methods (\code{matchPWM.concat}, \code{matchPWM} and
-    \code{homer2}) are there for convenience (\code{matchPWM} is available
-    from the Biostrings package and does not have any software dependencies
-    outside of R, \code{matchPWM.concat} overcomes some of the limitations of
-    the \code{Biostrings::matchPWM} function) and for efficiency (
-    \code{homer2} is typically faster than \code{matchPWM} and similar in
-    run-time as \code{matchPWM.concat}, but requires a separate installation
-    of Homer).
+The implemented methods (\code{matchPWM} and \code{homer2}) are
+    there for convenience (\code{method="matchPWM"} calls
+    \code{Biostrings::matchPWM} internally in an optimized fashion, and
+    \code{method = "homer2"} calls the command line tool from Homer and
+    therefore requires an installation of Homer).
 
     In general, running \code{findMotifHits} with the same parameters using
     any of the methods generates identical results. Some minor differences
@@ -223,8 +217,4 @@ The implemented methods (\code{matchPWM.concat}, \code{matchPWM} and
 \dontrun{
 findMotifHits(pwm, "sequences.fa")
 }
-}
-\seealso{
-\code{\link[Biostrings]{matchPWM}},
-    \code{\link[TFBSTools]{searchSeq}}
 }

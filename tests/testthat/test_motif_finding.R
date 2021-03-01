@@ -32,63 +32,20 @@ test_that("findMotifHits() works properly", {
     ############################################################################
     expect_error(findMotifHits(pwmL, sf,   min.score = TRUE, method = "matchPWM"))
     expect_error(findMotifHits(pwmL, seqs, min.score = TRUE, method = "matchPWM"))
-
-    res1  <- findMotifHits(tf,   sf,   min.score = "90%", method = "matchPWM") # character,character
-    res2  <- findMotifHits(tf,   seq1, min.score = "90%", method = "matchPWM") # character,DNAString
-    res3  <- findMotifHits(tf,   seqs, min.score = "90%", method = "matchPWM") # character,DNAStringSet
-    res4  <- findMotifHits(pwm,  sf,   min.score = "90%", method = "matchPWM") # PWMatrix,character
-    res5  <- findMotifHits(pwm,  seq1, min.score = "90%", method = "matchPWM") # PWMatrix,DNAString
-    res6  <- findMotifHits(pwm,  seqs, min.score = "90%", method = "matchPWM") # PWMatrix,DNAStringSet
-    res7  <- findMotifHits(pwmL, sf,   min.score = "90%", method = "matchPWM") # PWMatrixList,character
-    expect_warning(res7b <- findMotifHits(pwmL, sf,   min.score = 4.456, method = "matchPWM")) # PWMatrixList,character
-    res8  <- findMotifHits(pwmL, seq1, min.score = "90%", method = "matchPWM") # PWMatrixList,DNAString
-    res9  <- findMotifHits(pwmL, seqs, min.score = "90%", method = "matchPWM") # PWMatrixList,DNAStringSet
-    expect_warning(res9b <- findMotifHits(pwmL, seqs, min.score = 4.456, method = "matchPWM")) # PWMatrixList,DNAStringSet
-    res10 <- findMotifHits(pwm,  gr,   min.score = "90%", method = "matchPWM", genome = BSgenome.Mmusculus.UCSC.mm10::BSgenome.Mmusculus.UCSC.mm10) # PWMatrix,GRanges
-    res11 <- findMotifHits(pwmL, gr,   min.score = "90%", method = "matchPWM", genome = BSgenome.Mmusculus.UCSC.mm10::BSgenome.Mmusculus.UCSC.mm10) # PWMatrixList,GRanges
-
-    # correctness
-    expect_true(inherits(res1, "GRanges"))
-    expect_length(res1, 3L)
-    expect_equal(as.character(res1$pwmname), rep("mypwm",3))
-    expect_equal(GenomicRanges::start(res1), c(6, 1, 9))
-
-    expect_true(inherits(res2, "GRanges"))
-    expect_length(res2, 1L)
-    expect_equal(as.character(res2$pwmname), "mypwm")
-    expect_equal(GenomicRanges::start(res2), 6L)
-
-    # consistency between methods
-    expect_equal(res1, res3)
-    expect_equal(res1, res4)
-    expect_equal(res2, res5)
-    expect_equal(res1, res6)
-    expect_equal(res1, res7)
-    expect_equal(res1, res7b)
-    expect_equal(res2, res8)
-    expect_equal(res1, res9)
-    expect_equal(res1, res9b)
-    expect_equal(res1, res10)
-    expect_equal(res1, res11)
-
-    # method = "matchPWM.concat"
-    ############################################################################
-    expect_error(findMotifHits(pwmL, sf,   min.score = TRUE, method = "matchPWM.concat"))
-    expect_error(findMotifHits(pwmL, seqs, min.score = TRUE, method = "matchPWM.concat"))
     
-    res1c  <- findMotifHits(tf,   sf,   min.score = "90%", method = "matchPWM.concat") # character,character
-    res2c  <- findMotifHits(tf,   seq1, min.score = "90%", method = "matchPWM.concat") # character,DNAString
-    res3c  <- findMotifHits(tf,   seqs, min.score = "90%", method = "matchPWM.concat") # character,DNAStringSet
-    res4c  <- findMotifHits(pwm,  sf,   min.score = "90%", method = "matchPWM.concat") # PWMatrix,character
-    res5c  <- findMotifHits(pwm,  seq1, min.score = "90%", method = "matchPWM.concat") # PWMatrix,DNAString
-    res6c  <- findMotifHits(pwm,  seqs, min.score = "90%", method = "matchPWM.concat") # PWMatrix,DNAStringSet
-    res7c  <- findMotifHits(pwmL, sf,   min.score = "90%", method = "matchPWM.concat") # PWMatrixList,character
-    res7cb <- findMotifHits(pwmL, sf,   min.score = 4.456, method = "matchPWM.concat") # PWMatrixList,character
-    res8c  <- findMotifHits(pwmL, seq1, min.score = "90%", method = "matchPWM.concat") # PWMatrixList,DNAString
-    res9c  <- findMotifHits(pwmL, seqs, min.score = "90%", method = "matchPWM.concat") # PWMatrixList,DNAStringSet
-    res9cb <- findMotifHits(pwmL, seqs, min.score = 4.456, method = "matchPWM.concat") # PWMatrixList,DNAStringSet
-    res10c <- findMotifHits(pwm,  gr,   min.score = "90%", method = "matchPWM.concat", genome = BSgenome.Mmusculus.UCSC.mm10::BSgenome.Mmusculus.UCSC.mm10) # PWMatrix,GRanges
-    res11c <- findMotifHits(pwmL, gr,   min.score = "90%", method = "matchPWM.concat", genome = BSgenome.Mmusculus.UCSC.mm10::BSgenome.Mmusculus.UCSC.mm10) # PWMatrixList,GRanges
+    res1c  <- findMotifHits(tf,   sf,   min.score = "90%", method = "matchPWM") # character,character
+    res2c  <- findMotifHits(tf,   seq1, min.score = "90%", method = "matchPWM") # character,DNAString
+    res3c  <- findMotifHits(tf,   seqs, min.score = "90%", method = "matchPWM") # character,DNAStringSet
+    res4c  <- findMotifHits(pwm,  sf,   min.score = "90%", method = "matchPWM") # PWMatrix,character
+    res5c  <- findMotifHits(pwm,  seq1, min.score = "90%", method = "matchPWM") # PWMatrix,DNAString
+    res6c  <- findMotifHits(pwm,  seqs, min.score = "90%", method = "matchPWM") # PWMatrix,DNAStringSet
+    res7c  <- findMotifHits(pwmL, sf,   min.score = "90%", method = "matchPWM") # PWMatrixList,character
+    res7cb <- findMotifHits(pwmL, sf,   min.score = 4.456, method = "matchPWM") # PWMatrixList,character
+    res8c  <- findMotifHits(pwmL, seq1, min.score = "90%", method = "matchPWM") # PWMatrixList,DNAString
+    res9c  <- findMotifHits(pwmL, seqs, min.score = "90%", method = "matchPWM") # PWMatrixList,DNAStringSet
+    res9cb <- findMotifHits(pwmL, seqs, min.score = 4.456, method = "matchPWM") # PWMatrixList,DNAStringSet
+    res10c <- findMotifHits(pwm,  gr,   min.score = "90%", method = "matchPWM", genome = BSgenome.Mmusculus.UCSC.mm10::BSgenome.Mmusculus.UCSC.mm10) # PWMatrix,GRanges
+    res11c <- findMotifHits(pwmL, gr,   min.score = "90%", method = "matchPWM", genome = BSgenome.Mmusculus.UCSC.mm10::BSgenome.Mmusculus.UCSC.mm10) # PWMatrixList,GRanges
     
     # correctness
     expect_true(inherits(res1c, "GRanges"))
@@ -100,10 +57,6 @@ test_that("findMotifHits() works properly", {
     expect_length(res2c, 1L)
     expect_equal(as.character(res2c$pwmname), "mypwm")
     expect_equal(GenomicRanges::start(res2c), 6L)
-    
-    # consistency between "matchPWM" and "matchPWM.concat"
-    expect_equivalent(res1, res1c)
-    expect_equivalent(res2, res2c)
     
     # consistency between methods
     expect_equal(res1c, res3c)
@@ -146,8 +99,8 @@ test_that("findMotifHits() works properly", {
         res11h <- findMotifHits(pwmL, gr,   min.score = "90%", method = "homer2", homerfile = homerbin, genome = BSgenome.Mmusculus.UCSC.mm10::BSgenome.Mmusculus.UCSC.mm10) # PWMatrixList,GRanges
 
         # consistency between "matchPWM" and "homer2"
-        expect_equivalent(res1, res1h)
-        expect_equivalent(res2, res2h)
+        expect_equivalent(res1c, res1h)
+        expect_equivalent(res2c, res2h)
 
         # consistency between methods
         expect_equal(res1h, res3h)

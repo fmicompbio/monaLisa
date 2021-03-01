@@ -284,7 +284,7 @@ pwms
 res <- findMotifHits(query = pwms,
                      subject = seqs,
                      min.score = 6.0,
-                     method = "matchPWM.concat",
+                     method = "matchPWM",
                      BPPARAM = BiocParallel::MulticoreParam(2))
 res
 
@@ -295,9 +295,9 @@ if (!is.na(homerfile)) {
     res2 <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0,
                           method = "homer2", homerfile = homerfile)
 } else {
-    # otherwise, use matchPWM.concat
+    # otherwise, use matchPWM
     res2 <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0,
-                          method = "matchPWM.concat")
+                          method = "matchPWM")
 }
 res2
 
@@ -363,7 +363,7 @@ pwms <- toPWM(pfms) # for searching
 
 # Get TFBS on given GRanges
 hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0,
-                      method = "matchPWM.concat", genome = genome,
+                      method = "matchPWM", genome = genome,
                       BPPARAM = BiocParallel::MulticoreParam(2))
 
 # Get predictor matrix

@@ -5,7 +5,7 @@
 \title{Plot Stability Paths}
 \usage{
 plotStabilityPaths(
-  se = NULL,
+  se,
   cutoff = metadata(se)$stabselParams$cutoff,
   lwd = 1,
   lty = 1,

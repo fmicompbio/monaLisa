@@ -5,7 +5,7 @@
 \title{Barplot Selection Probabilities}
 \usage{
 plotSelectionProb(
-  se = NULL,
+  se,
   cutoff = metadata(se)$stabselParams$cutoff,
   ylim = c(0, 1.1),
   onlySelected = TRUE,
