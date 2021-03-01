@@ -193,8 +193,9 @@ test_that("extractOverlappingKmerFrequecies works as expected", {
                                        s3 = "ATAACGGAAAACCGTTCCGTTAAAAAAAAAAAAAAAAAAAAAAAAA"))
     kmers <- c("CCGT", "CGTT", "GTTA")
     
-    expect_error(extractOverlappingKmerFrequecies(seqs = "error", x = kmers), "DNAStringSet")
-    expect_error(extractOverlappingKmerFrequecies(seqs, x = "error"), "\\[ACGT\\]")
+    expect_error(extractOverlappingKmerFrequecies(seqs = "error", x = kmers))
+    expect_error(extractOverlappingKmerFrequecies(seqs, x = "error"))
+    expect_error(extractOverlappingKmerFrequecies(seqs, kmers, BPPARAM = "error"))
 
     res1 <- extractOverlappingKmerFrequecies(seqs, kmers)
     res2 <- extractOverlappingKmerFrequecies(seqs, kmers, BPPARAM = BiocParallel::MulticoreParam(2L))
