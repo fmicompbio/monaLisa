@@ -347,7 +347,7 @@ which in our case is the ATAC-seq peaks. A predictor matrix which contains the n
 The code below takes some time to run, so the result of stability selection in the form of a 'stabsel' object can be loaded.
 
 
-```{r predictor, eval=FALSE}
+```{r predictor, eval=TRUE}
 
 library(JASPAR2018)
 library(TFBSTools)
@@ -407,7 +407,7 @@ predictor_matrix[1:6, 1:6]
 We can now run randomized lasso stability selection to select TFs that are likely to explain the log-fold changes in accessibility (response vector). We can appreciate that some selected TFs are correlated to each other and were chosen toegther to explain the observed changes in accessibility.
 
 
-```{r run_stability, eval=FALSE}
+```{r run_stability, eval=TRUE}
 stabs <- randomized_stabsel(x = predictor_matrix, y = response,
                             weakness = 0.8, cutoff = 0.7, PFER = 2,
                             mc.cores = 2)
@@ -427,9 +427,9 @@ library(circlize) # used for color specification
 library(JASPAR2018)
 
 # load processed data
-stabs <- readRDS(system.file("extdata", "stabs.rds", package = "monaLisa"))
-predictor_matrix <- readRDS(system.file("extdata", "stabs_predictor.rds", package = "monaLisa"))
-response <- readRDS(system.file("extdata", "stabs_response.rds", package = "monaLisa"))
+# stabs <- readRDS(system.file("extdata", "stabs.rds", package = "monaLisa"))
+# predictor_matrix <- readRDS(system.file("extdata", "stabs_predictor.rds", package = "monaLisa"))
+# response <- readRDS(system.file("extdata", "stabs_response.rds", package = "monaLisa"))
 
 
 # plot stability paths ...
@@ -441,20 +441,16 @@ plotSelectionProb(stabs)
 
 # ... and the directionality of the motifs with respect to the response vector
 par(mfrow = c(1, 1), mar = c(5, 4, 4, 2) + 3)
-plotMotifDirectionality(se = stabs, response = response,
-                        predictor_matrix = predictor_matrix)
-
+plotMotifDirectionality(se = stabs)
 
 # plot correlation on TFBS matrix of selected TFs
 # ... select predictors for selected TFs and calculate correlation
-cutoff <- metadata(stabs)$stabselParams$cutoff
-selected <- rowData(stabs)[, paste0("SelProbCutoff", cutoff)]
+cutoff <- metadata(stabs)$stabsel.params.cutoff
+selected <- stabs$selProbCutoff0.7
 sel_matrix <- predictor_matrix[, selected]
 sel_cor <- cor(sel_matrix, method = "pearson")
 
 # ... prepare sequence logos
-pfms <- getMatrixSet(JASPAR2018, list(matrixtype = "PFM", tax_group = "vertebrates")) # for seq-logos
-pwms <- TFBSTools::toPWM(pfms) # for searching
 pfmsSel <- pfms[match(rownames(sel_cor), name(pfms))]
 maxwidth <- max(sapply(TFBSTools::Matrix(pfmsSel), ncol))
 seqlogoGrobs <- lapply(pfmsSel, seqLogoGrob, xmax = maxwidth)
