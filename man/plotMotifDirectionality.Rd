@@ -2,31 +2,43 @@
 % Please edit documentation in R/plotting.R
 \name{plotMotifDirectionality}
 \alias{plotMotifDirectionality}
-\title{Plot Directionality of Predictor Effect}
+\title{Plot Directionality of Predictor Effects}
 \usage{
 plotMotifDirectionality(
-  se = NULL,
-  cutoff = metadata(se)$stabselParams$cutoff,
-  response = NULL,
-  predictor_matrix = NULL,
-  sel_color = "cadetblue",
-  min_sel_prob = 0.4,
-  cor_method = "pearson",
+  se,
+  response,
+  predictor_matrix,
+  selProbMin = metadata(se)$stabselParams$cutoff,
+  selProbMinPlot = 0.4,
+  col = "cadetblue",
+  method = c("pearson", "kendall", "spearman"),
   ...
 )
 }
 \arguments{
-\item{se}{the \code{SummarizedExperiment} object resulting from stability selection.}
+\item{se}{The \code{SummarizedExperiment} object with the results from
+stability selection (typically a call to \code{\link{randomized_stabsel}}.}
 
-\item{response}{the response vector that was used for the stability selection (like the log-fold change of a measure of interest).}
+\item{response}{The response vector that was used for the stability selection
+(for example the log2-fold change of a measure of interest).}
 
-\item{predictor_matrix}{the predictor matrix that was used for the stability selection (like the number of predicted TFBS of all motifs across the regions of interest).}
+\item{predictor_matrix}{the predictor matrix that was used for the stability
+selection (for example the number of predicted TFBS of all motifs across
+the regions of interest).}
 
-\item{sel_color}{the color for the selected predictors from stability selection.}
+\item{selProbMin}{A numerical scalar in [0,1]. Predictors with a selection
+probability greater than \code{selProbMin} are shown as colored bars. The
+color is defined by the \code{col} argument.}
 
-\item{min_sel_prob}{predictors with a selection probability greater than or equal to this are included in the plot.}
+\item{selProbMinPlot}{A numerical scalar in [0,1] less than \code{selProbMin}.
+Predictors with a selection probability greater than \code{selProbMinPlot}
+are shown as gray bars, in addition to the colored ones with probabilities
+greater than \code{selProbMin}.}
 
-\item{cor_method}{the correlation method to be used.}
+\item{col}{the color for the selected predictors from stability selection.}
+
+\item{method}{A character scalar with the correlation method to use.
+One of "pearson", "kendall" or "spearman" (see \code{\link[stats]{cor}}).}
 
 \item{...}{additional parameters for the \code{barplot} function.}
 }
@@ -34,11 +46,11 @@ plotMotifDirectionality(
 a barplot indicating the directionality of the motifs with respect to the correlation to the response vector.
 }
 \description{
-This function plots the selectiong probabilities of the chosen predictors (for example the selected motifs)
- and assigns a + or - sign to these probabilities to give a sense of directionality of the effect. The assumption is that 
- the response vector on which stability selection was performed is a measure of fold-change. The correlation (pearson by default)
- of each predictor to the response vector is calculated. The selection probabilities of the chosen predictors multiplied by the 
- sign of the correlation is plotted to indicate the directionality.
+This function plots the selection probabilities of predictors
+  (for example the selected motifs) multiplied with either +1 or -1 to give a
+  sense of both the strength and the directionality of the associated effects.
+  The directionality is estimated from the sign of the correlation coefficient
+  between each predictor and the response vector.
 }
 \seealso{
 \code{\link[graphics]{barplot}}

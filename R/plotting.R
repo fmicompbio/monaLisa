@@ -414,7 +414,7 @@ plotStabilityPaths <- function(se, cutoff = metadata(se)$stabselParams$cutoff,
 #' @param ylim the limits for the y-axis.
 #' @param onlySelected logical (default=TRUE) indicating if only selected predictors' selection probabilities
 #'   should be plotted.
-#' @param sel_color color of the selected predictors.
+#' @param col color of the selected predictors.
 #' @param las (2 by default) plot labels vertically or horizontally.
 #' @param ... additional parameters for the \code{barplot} function.
 #'
@@ -428,7 +428,7 @@ plotStabilityPaths <- function(se, cutoff = metadata(se)$stabselParams$cutoff,
 #' @export
 plotSelectionProb <- function(se, cutoff = metadata(se)$stabselParams$cutoff, 
                               ylim = c(0, 1.1), onlySelected = TRUE,
-                              sel_color = "cadetblue", las = 2, ...) {
+                              col = "cadetblue", las = 2, ...) {
 
     # checks
     if (!is(se, "SummarizedExperiment")) {
@@ -439,7 +439,7 @@ plotSelectionProb <- function(se, cutoff = metadata(se)$stabselParams$cutoff,
     probs  <- SummarizedExperiment::assay(se, "selProb")[, ncol(se)]
     sel <- SummarizedExperiment::rowData(se)[, paste0("SelProbCutoff", cutoff)]
     cols <- rep("grey", length(probs))
-    cols[sel] <- sel_color
+    cols[sel] <- col
     
     
     # if onlySelected, only keep selected predictors
@@ -465,20 +465,31 @@ plotSelectionProb <- function(se, cutoff = metadata(se)$stabselParams$cutoff,
 }
 
 
-#' @title Plot Directionality of Predictor Effect
+#' @title Plot Directionality of Predictor Effects
 #'
-#' @description This function plots the selectiong probabilities of the chosen predictors (for example the selected motifs)
-#'  and assigns a + or - sign to these probabilities to give a sense of directionality of the effect. The assumption is that 
-#'  the response vector on which stability selection was performed is a measure of fold-change. The correlation (pearson by default)
-#'  of each predictor to the response vector is calculated. The selection probabilities of the chosen predictors multiplied by the 
-#'  sign of the correlation is plotted to indicate the directionality.
+#' @description This function plots the selection probabilities of predictors
+#'   (for example the selected motifs) multiplied with either +1 or -1 to give a
+#'   sense of both the strength and the directionality of the associated effects.
+#'   The directionality is estimated from the sign of the correlation coefficient
+#'   between each predictor and the response vector.
 #'
-#' @param se the \code{SummarizedExperiment} object resulting from stability selection.
-#' @param response the response vector that was used for the stability selection (like the log-fold change of a measure of interest).
-#' @param predictor_matrix the predictor matrix that was used for the stability selection (like the number of predicted TFBS of all motifs across the regions of interest).
-#' @param sel_color the color for the selected predictors from stability selection.
-#' @param min_sel_prob predictors with a selection probability greater than or equal to this are included in the plot.
-#' @param cor_method the correlation method to be used.
+#' @param se The \code{SummarizedExperiment} object with the results from
+#'   stability selection (typically a call to \code{\link{randomized_stabsel}}.
+#' @param response The response vector that was used for the stability selection
+#'   (for example the log2-fold change of a measure of interest).
+#' @param predictor_matrix the predictor matrix that was used for the stability
+#'   selection (for example the number of predicted TFBS of all motifs across
+#'   the regions of interest).
+#' @param selProbMin A numerical scalar in [0,1]. Predictors with a selection
+#'   probability greater than \code{selProbMin} are shown as colored bars. The
+#'   color is defined by the \code{col} argument.
+#' @param selProbMinPlot A numerical scalar in [0,1] less than \code{selProbMin}.
+#'   Predictors with a selection probability greater than \code{selProbMinPlot}
+#'   are shown as gray bars, in addition to the colored ones with probabilities
+#'   greater than \code{selProbMin}.
+#' @param col the color for the selected predictors from stability selection.
+#' @param method A character scalar with the correlation method to use.
+#'   One of "pearson", "kendall" or "spearman" (see \code{\link[stats]{cor}}).
 #' @param ... additional parameters for the \code{barplot} function.
 #'
 #' @seealso \code{\link[graphics]{barplot}}
@@ -486,51 +497,53 @@ plotSelectionProb <- function(se, cutoff = metadata(se)$stabselParams$cutoff,
 #' @return a barplot indicating the directionality of the motifs with respect to the correlation to the response vector.
 #'
 #' @importFrom SummarizedExperiment rowData assay
+#' @importFrom S4Vectors metadata isEmpty
 #' @importFrom stats cor
 #'
 #' @export
-plotMotifDirectionality <- function(se=NULL, cutoff=metadata(se)$stabselParams$cutoff, response=NULL, 
-                                    predictor_matrix=NULL,
-                                    sel_color="cadetblue", min_sel_prob=0.4, cor_method="pearson", ...) {
+plotMotifDirectionality <- function(se,
+                                    response, # TODO: take from se?
+                                    predictor_matrix, # TODO: take from se?
+                                    selProbMin = metadata(se)$stabselParams$cutoff, 
+                                    selProbMinPlot = 0.4,
+                                    col = "cadetblue",
+                                    method = c("pearson", "kendall", "spearman"),
+                                    ...) {
     
     # checks
     # ... class checks
+    .assertScalar(x = selProbMin, type = "numeric", rngIncl = c(0, 1))
+    .assertScalar(x = selProbMinPlot, type = "numeric", rngIncl = c(0, 1))
     stopifnot(exprs = {
         is(se, "SummarizedExperiment")
         is(response, "numeric")
-        any(is(predictor_matrix, "matrix"))
+        is(predictor_matrix, "matrix")
+        selProbMin > selProbMinPlot
     })
     # ... compatibility checks
     stopifnot(length(response) == nrow(predictor_matrix))
     if (!is.null(colnames(predictor_matrix)) && !is.null(names(response))) {
         stopifnot(all(rownames(se) == colnames(predictor_matrix)))
     }
+    method <- match.arg(method)
     
-    # correlation 
-    cor <- as.vector(stats::cor(x = response, y = predictor_matrix, method = cor_method))
-    cols <- rep("grey", ncol(predictor_matrix))
-    sel <- SummarizedExperiment::rowData(se)[, paste0("SelProbCutoff", cutoff)]
-    cols[sel] <- sel_color
-    if (!is.null(colnames(predictor_matrix))) {
-        tf_names <- colnames(predictor_matrix)
-    } else {
-        tf_names <- paste0("pred", 1:ncol(predictor_matrix))
-    }
-    # probabilities with directionality
     probs <- SummarizedExperiment::assay(se, "selProb")[, ncol(se)]
-    probs <- probs*sign(cor)
+    corcoef <- as.vector(cor(x = response, y = predictor_matrix, method = method))
+    cols <- ifelse(probs > selProbMin, col, "grey")
+    if (!is.null(colnames(predictor_matrix))) {
+        predNames <- colnames(predictor_matrix)
+    } else {
+        predNames <- paste0("pred", 1:ncol(predictor_matrix))
+    }
+    probs <- probs * sign(corcoef)
 
     # kept and ordered
-    keep <- SummarizedExperiment::assay(se, "selProb")[, ncol(se)] >= min_sel_prob
-    cor <- cor[keep]
+    keep <- which(abs(probs) >= selProbMinPlot)
+    keep <- keep[order(probs[keep], decreasing = TRUE)]
+    corcoef <- corcoef[keep]
     cols <- cols[keep]
-    tf_names <- tf_names[keep]
+    predNames <- predNames[keep]
     probs <- probs[keep]
-    o <- order(probs, decreasing = TRUE)
-    cor <- cor[o]
-    cols <- cols[o]
-    tf_names <- tf_names[o]
-    probs <- probs[o]
     up <- probs > 0
 
     # plot
@@ -540,14 +553,14 @@ plotMotifDirectionality <- function(se=NULL, cutoff=metadata(se)$stabselParams$c
                              ylim = c(min(0, range(probs)[1] - abs(0.3*range(probs)[1])),
                                       max(1, range(probs)[2] + abs(0.3*range(probs)[2]))), ...)
     legend("topright", bty = "n", lty = 1,
-           legend = c("selected", "not selected"), col = c(sel_color, "grey"))
+           legend = c("selected", "not selected"), col = c(col, "grey"))
     
     if (!(sum(up) == 0) && !isEmpty(probs[up])) {
-        graphics::text(x = bar[up], y = probs[up], labels = tf_names[up],
+        graphics::text(x = bar[up], y = probs[up], labels = predNames[up],
                        col = cols[up], xpd = TRUE, srt = 90, adj = 0)
     }
     if (!(sum(!up) == 0) && !isEmpty(probs[!up])) {
-        graphics::text(x = bar[!up], y = probs[!up], labels = tf_names[!up],
+        graphics::text(x = bar[!up], y = probs[!up], labels = predNames[!up],
                        col = cols[!up], xpd = TRUE, srt = 90, adj = 1)
     }
 
