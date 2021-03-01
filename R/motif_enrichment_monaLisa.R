@@ -778,6 +778,9 @@ get_binned_motif_enrichment <- function(seqs,
                                  motif.pfm = pfmL,
                                  motif.pwm = pwmL,
                                  motif.percentGC = percentGC)
+    cdat <- S4Vectors::DataFrame(
+        totalWgtForeground = do.call(rbind, lapply(enrichL, function(x){x$totalWgtForeground[1]})), 
+        totalWgtBackground = do.call(rbind, lapply(enrichL, function(x){x$totalWgtBackground[1]})))
     mdat <- list(sequences = seqs,
                  bins = bins,
                  bins.binmode = attr(bins, "binmode"),
@@ -791,9 +794,15 @@ get_binned_motif_enrichment <- function(seqs,
                  param.BPPARAM.class = class(BPPARAM),
                  param.BPARAM.bpnworkers = bpnworkers(BPPARAM),
                  param.verbose = verbose)
-    se <- SummarizedExperiment(assays = list(p = P, FDR = fdr, enr = enrTF,
-                                             log2enr = log2enr),
-                               rowData = rdat, metadata = mdat)
+    assaySumForegroundWgtWithHits <- do.call(cbind, lapply(enrichL, function(x){x$sumForegroundWgtWithHits}))
+    assaySumBackgroundWgtWithHits <- do.call(cbind, lapply(enrichL, function(x){x$sumBackgroundWgtWithHits}))
+    se <- SummarizedExperiment(assays = list(p = P, 
+                                             FDR = fdr, 
+                                             enr = enrTF,
+                                             log2enr = log2enr, 
+                                             sumForegroundWgtWithHits = assaySumForegroundWgtWithHits, 
+                                             sumBackgroundWgtWithHits = assaySumBackgroundWgtWithHits),
+                               rowData = rdat, colData = cdat, metadata = mdat)
 
     return(se)
 }

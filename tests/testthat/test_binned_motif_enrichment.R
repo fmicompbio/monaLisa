@@ -410,11 +410,11 @@ test_that("get_binned_motif_enrichment() works (synthetic data)", {
     expect_identical(metadata(res1)$param.test, "binom")
     expect_identical(metadata(res2)$param.test, "fisher")
     expect_identical(metadata(res1)[-6], metadata(res2)[-6])
-    expect_identical(assayNames(res1), c("p", "FDR", "enr", "log2enr"))
-    expect_identical(assayNames(res2), c("p", "FDR", "enr", "log2enr"))
+    expect_identical(assayNames(res1), c("p", "FDR", "enr", "log2enr", "sumForegroundWgtWithHits", "sumBackgroundWgtWithHits"))
+    expect_identical(assayNames(res2), c("p", "FDR", "enr", "log2enr", "sumForegroundWgtWithHits", "sumBackgroundWgtWithHits"))
     expect_identical(colnames(rowData(res1)), c("motif.id", "motif.name", "motif.pfm", "motif.pwm", "motif.percentGC"))
     expect_identical(rowData(res1), rowData(res2))
-    expect_identical(dim(colData(res1)), c(3L, 0L))
+    expect_identical(dim(colData(res1)), c(3L, 2L))
     expect_identical(colData(res1), colData(res2))
     expect_identical(round(assay(res1, "p"), 3),
                      structure(c(25.893, 0, 0, 34.537, 0, 0),
