@@ -20,7 +20,7 @@ test_that("randomized_stabsel() works properly", {
   # tests
   expect_true(is(ss, "SummarizedExperiment"))
   expect_true(all(rowData(ss)$y == Y))
-  expect_identical(ss$selProb, ss$regStep39)
+  expect_identical(ss$selProb, colData(ss)[, ncol(colData(ss))])
   expect_true(all(s_cols %in% metadata(ss)$stabsel.params.selected))
   expect_identical(dim(ss), c(500L, 50L))
   expect_identical(length(Y), nrow(ss))
