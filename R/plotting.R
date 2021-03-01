@@ -375,14 +375,11 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
 #' @importFrom SummarizedExperiment assay rowData
 #'
 #' @export
-plotStabilityPaths <- function(se=NULL, cutoff = metadata(se)$stabselParams$cutoff, 
-                               lwd = 1, lty=1, ylim=c(0,1.1), ...) {
+plotStabilityPaths <- function(se, cutoff = metadata(se)$stabselParams$cutoff, 
+                               lwd = 1, lty = 1, ylim = c(0, 1.1), ...) {
 
     # checks
-    if(is.null(se)){
-        stop("'se' must not be NULL")
-    }
-    if(!is(se, "SummarizedExperiment")){
+    if (!is(se, "SummarizedExperiment")) {
         stop("'se' must be a SummarizedExperiment")
     }
 
@@ -429,14 +426,12 @@ plotStabilityPaths <- function(se=NULL, cutoff = metadata(se)$stabselParams$cuto
 #' @importFrom graphics barplot
 #'
 #' @export
-plotSelectionProb <- function(se=NULL, cutoff = metadata(se)$stabselParams$cutoff, 
-                              ylim = c(0,1.1), onlySelected = TRUE, sel_color="cadetblue", las = 2, ...) {
+plotSelectionProb <- function(se, cutoff = metadata(se)$stabselParams$cutoff, 
+                              ylim = c(0, 1.1), onlySelected = TRUE,
+                              sel_color = "cadetblue", las = 2, ...) {
 
     # checks
-    if(is.null(se)){
-        stop("'se' must not be NULL")
-    }
-    if(!is(se, "SummarizedExperiment")){
+    if (!is(se, "SummarizedExperiment")) {
         stop("'se' must be a SummarizedExperiment")
     }
   

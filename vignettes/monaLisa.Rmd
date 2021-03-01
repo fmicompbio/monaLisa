@@ -171,7 +171,7 @@ dumpJaspar(motiffile, pkg = "JASPAR2018")
 Next we need to know where Homer is installed (you may have to adjust the `dirs`
 argument below according to your environment):  
 ```{r homerscript}
-homerfile <- findHomer(dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
+homerfile <- findHomer(dirs = "/work/gbioinfo/Appz/Homer/Homer-4.11/bin/")
 ```
 
 ## Run motif enrichment analysis
@@ -188,7 +188,7 @@ se <- runHomer(gr = lmrsel, b = bins, genomedir = "/work/gbioinfo/DB/genomes/mm9
 ```
 
 <!--
-saveRDS(se, "/work/gbioinfo/stadler/development/R/compbio-lisa/inst/extdata/se.rds")
+saveRDS(se, "/tungstenfs/groups/gbioinfo/stadler/development/R/monaLisa/inst/extdata/se.rds")
 -->
 
 In case you did not run the above code, let's now read in the results:  
@@ -234,6 +234,11 @@ As the Jaspar database contains many similar motifs, it is helpful to show the e
 ```{r wmclustering, eval=FALSE}
 SimMat <- motifSimilarity(rowData(se)$motif.pfm, BPPARAM = BiocParallel::MulticoreParam(20))
 ```
+
+<!--
+saveRDS(SimMat, "/tungstenfs/groups/gbioinfo/stadler/development/R/monaLisa/inst/extdata/SimMat.rds")
+-->
+
 ```{r getclusteringresults}
 SimMat <- readRDS(system.file("extdata", "SimMat.rds", package = "monaLisa"))
 ```
@@ -244,10 +249,10 @@ all(rownames(SimMat) == rownames(se))
 Using this matrix, we can create an *hclust* object for clustering and plot the clustered heatmap. The plotting of the dendogram is controlled by the parameter *show_dendrogram*. 
 ```{r plottfsclustered}
 # create hclust object, similarity defined by 1 - Pearson correlation
-hcl <- hclust(as.dist(1 - SimMat[sel, sel]), method="average")
+hcl <- hclust(as.dist(1 - SimMat[sel, sel]), method = "average")
 plotMotifHeatmaps(x = seSel, which.plots = c("log2enr","FDR"), width = 1.2,
                   cluster = hcl, maxEnr = 2, maxSig = 10,
-                  show_dendrogram=TRUE, show_seqlogo = TRUE,
+                  show_dendrogram = TRUE, show_seqlogo = TRUE,
                   width.seqlogo = 1.2)
 ```
 
@@ -275,17 +280,23 @@ pwms <- pwms[c("MA0885.1","MA0099.3","MA0033.2","MA0037.3","MA0158.1")]
 pwms
 
 # predict hits in sequences
-res <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0, method = "matchPWM")
+res <- findMotifHits(query = pwms,
+                     subject = seqs,
+                     min.score = 6.0,
+                     method = "matchPWM.concat",
+                     BPPARAM = BiocParallel::MulticoreParam(2))
 res
 
 # ... or using method = "homer2"
-homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
+homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.11/bin/")
 if (!is.na(homerfile)) {
     # use homer2 if available
-    res2 <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0, method = "homer2", homerfile = homerfile)
+    res2 <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0,
+                          method = "homer2", homerfile = homerfile)
 } else {
-    # otherwise, use matchPWM
-    res2 <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0, method = "matchPWM")
+    # otherwise, use matchPWM.concat
+    res2 <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0,
+                          method = "matchPWM.concat")
 }
 res2
 
@@ -332,7 +343,6 @@ The `findMotifHits` function can be used to get the predicted binding sites of e
 which in our case is the ATAC-seq peaks. A predictor matrix which contains the number of TFBS each TF has across the given set of peaks is subsequently generated. Note that peaks that have 0 TFBS with all TFs will not be present in the resulting matrix. One can also make use of phylogenetic information of TFs and incorporate that in the predictor matrix. With ATAC-seq, we didn't want to restrict ourselves to conserved motif sequences. One can also add any additional property of the genomic regions in the response vector to compete against the TFs for selection. We added GC content and the ratio of observed-over-expected CpG (oeCpG) content.
 
 
-\ 
 The code below takes some time to run, so the result of stability selection in the form of a 'stabsel' object can be loaded.
 
 
@@ -351,32 +361,26 @@ pfms <- getMatrixSet(JASPAR2018, list(matrixtype = "PFM", tax_group = "vertebrat
 pwms <- toPWM(pfms) # for searching
 
 # Get TFBS on given GRanges
-homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
-if (!is.na(homerfile)) {
-    # use homer2 if available
-    hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "homer2",
-                          homerfile = homerfile, genome = genome,
-                          BPPARAM = BiocParallel::MulticoreParam(2))
-} else {
-    # otherwise, use matchPWM
-    hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "matchPWM",
-                          genome = genome)
-}
+hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0,
+                      method = "matchPWM.concat", genome = genome,
+                      BPPARAM = BiocParallel::MulticoreParam(2))
 
 # Get predictor matrix
-predictor_matrix <- as.matrix(as.data.frame.matrix(table(seqnames(hits), as.character(hits$pwmname))))
+predictor_matrix <- unclass(table(factor(seqnames(hits), levels = seqlevels(hits)),
+                                  factor(hits$pwmname, levels = TFBSTools::name(pwms))))
 predictor_matrix[1:6, 1:6]
+
 
 # remove peaks that do not have any hits (also from the response vector) 
 # and check all peaks in predictor_matrix are in same order as in the 
 # peaks variable
-w <- names(peaks)[!(names(peaks)%in%rownames(predictor_matrix))]
-if(length(w)>0){
-  peaks <- peaks[-w]
-  response <- response[-w]
+w <- names(peaks)[rowSums(predictor_matrix) == 0]
+if (length(w) > 0) {
+    peaks <- peaks[-w]
+    response <- response[-w]
 }
-all(rownames(predictor_matrix)==names(peaks))
-all(rownames(predictor_matrix)==names(response))
+all(rownames(predictor_matrix) == names(peaks))
+all(rownames(predictor_matrix) == names(response))
 
 # Note that in this case all peaks have at least one TFBS for any of the TFs. 
 # However, that may not always be the case. If a given set of peaks does 
@@ -394,8 +398,6 @@ oeCpG <- (fDi[,"CG"] + 0.01) / (fMono[,"G"] * fMono[,"C"] + 0.01)
 predictor_matrix <- cbind(percGC, predictor_matrix)
 predictor_matrix <- cbind(oeCpG, predictor_matrix)
 predictor_matrix[1:6, 1:6]
-
-
 ```
 
 
@@ -405,13 +407,16 @@ We can now run randomized lasso stability selection to select TFs that are likel
 
 
 ```{r run_stability, eval=FALSE}
-
 stabs <- randomized_stabsel(x = predictor_matrix, y = response,
-                            weakness = 0.8, cutoff = 0.7, PFER = 2, mc.cores = 2)
-
-
+                            weakness = 0.8, cutoff = 0.7, PFER = 2,
+                            mc.cores = 2)
 ```
 
+<!--
+saveRDS(predictor_matrix, "/tungstenfs/groups/gbioinfo/stadler/development/R/monaLisa/inst/extdata/stabs_predictor.rds")
+saveRDS(response, "/tungstenfs/groups/gbioinfo/stadler/development/R/monaLisa/inst/extdata/stabs_response.rds")
+saveRDS(stabs, "/tungstenfs/groups/gbioinfo/stadler/development/R/monaLisa/inst/extdata/stabs.rds")
+-->
 
 
 ```{r plot_stabSel_results}
@@ -430,25 +435,27 @@ response <- readRDS(system.file("extdata", "stabs_response.rds", package = "mona
 plotStabilityPaths(stabs)
 
 # ... and selection probabilities
-par(mfrow = c(1,1), mar = c(5,4,4,2) + 3)
+par(mfrow = c(1, 1), mar = c(5, 4, 4, 2) + 3)
 plotSelectionProb(stabs)
 
 # ... and the directionality of the motifs with respect to the response vector
-par(mfrow = c(1,1), mar = c(5,4,4,2) + 3)
-plotMotifDirectionality(stabs_obj = stabs, response = response,
+par(mfrow = c(1, 1), mar = c(5, 4, 4, 2) + 3)
+plotMotifDirectionality(se = stabs, response = response,
                         predictor_matrix = predictor_matrix)
 
 
 # plot correlation on TFBS matrix of selected TFs
 # ... select predictors for selected TFs and calculate correlation
-sel_matrix <- predictor_matrix[, stabs$selected]
+cutoff <- metadata(stabs)$stabselParams$cutoff
+selected <- rowData(se)[, paste0("SelProbCutoff", cutoff)]
+sel_matrix <- predictor_matrix[, selected]
 sel_cor <- cor(sel_matrix, method = "pearson")
 
 # ... prepare sequence logos
 pfms <- getMatrixSet(JASPAR2018, list(matrixtype = "PFM", tax_group = "vertebrates")) # for seq-logos
 pwms <- toPWM(pfms) # for searching
 pfmsSel <- pfms[match(rownames(sel_cor), name(pfms))]
-maxwidth <- max(sapply(Matrix(pfmsSel), ncol))
+maxwidth <- max(sapply(TFBSTools::Matrix(pfmsSel), ncol))
 seqlogoGrobs <- lapply(pfmsSel, seqLogoGrob, xmax = maxwidth)
 hmSeqlogo <- rowAnnotation(logo = anno_seqlogo(seqlogoGrobs, which = "row"),
                            annotation_width = unit(1.5, "inch"),
@@ -470,7 +477,7 @@ under the Creative Commons attribution - non-commercial 3.0 license: https://cre
 
 This vignette was built using:  
 ```{r, session}
-sessionInfo(package = "monaLisa")
+sessionInfo()
 ```
 
 # References
