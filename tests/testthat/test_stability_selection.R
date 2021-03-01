@@ -19,13 +19,12 @@ test_that("randomized_stabsel() works properly", {
 
   # tests
   expect_true(is(ss, "SummarizedExperiment"))
-  expect_true(all(rowData(ss)$SelProbCutoff0.8[s_cols]))
-  expect_false(all(rowData(ss)$SelProbCutoff0.8[-s_cols]))
-  expect_true(length(SummarizedExperiment::assays(ss)) == 1)
-  expect_identical(ncol(X), nrow(ss))
-  # expect_true(all(c("phat", "selected", "cutoff", "PFER") %in% names(ss))) # this is crucial because they are accessed in other functions in monaLisa
+  expect_true(all(rowData(ss)$y == Y))
+  expect_true(all(ss$selProb == ss$regStep38))
+  expect_true(all(s_cols %in% metadata(ss)$stabsel.params.selected))
+  expect_identical(dim(ss), c(500L, 50L))
+  expect_identical(length(Y), nrow(ss))
   expect_true(!is.null(SummarizedExperiment::assay(ss)))
-
 })
 
 

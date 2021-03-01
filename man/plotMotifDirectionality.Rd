@@ -6,9 +6,7 @@
 \usage{
 plotMotifDirectionality(
   se,
-  response,
-  predictor_matrix,
-  selProbMin = metadata(se)$stabselParams$cutoff,
+  selProbMin = metadata(se)$stabsel.params.cutoff,
   selProbMinPlot = 0.4,
   col = "cadetblue",
   method = c("pearson", "kendall", "spearman"),
@@ -17,14 +15,7 @@ plotMotifDirectionality(
 }
 \arguments{
 \item{se}{The \code{SummarizedExperiment} object with the results from
-stability selection (typically a call to \code{\link{randomized_stabsel}}.}
-
-\item{response}{The response vector that was used for the stability selection
-(for example the log2-fold change of a measure of interest).}
-
-\item{predictor_matrix}{the predictor matrix that was used for the stability
-selection (for example the number of predicted TFBS of all motifs across
-the regions of interest).}
+stability selection (typically a call to \code{\link{randomized_stabsel}}).}
 
 \item{selProbMin}{A numerical scalar in [0,1]. Predictors with a selection
 probability greater than \code{selProbMin} are shown as colored bars. The
@@ -43,7 +34,7 @@ One of "pearson", "kendall" or "spearman" (see \code{\link[stats]{cor}}).}
 \item{...}{additional parameters for the \code{barplot} function.}
 }
 \value{
-a barplot indicating the directionality of the motifs with respect to the correlation to the response vector.
+a barplot indicating the directionality of the predictors (motifs) with respect to the correlation to the response vector.
 }
 \description{
 This function plots the selection probabilities of predictors

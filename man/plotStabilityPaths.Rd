@@ -6,7 +6,8 @@
 \usage{
 plotStabilityPaths(
   se,
-  cutoff = metadata(se)$stabselParams$cutoff,
+  selProbMin = metadata(se)$stabsel.params.cutoff,
+  col = "cadetblue",
   lwd = 1,
   lty = 1,
   ylim = c(0, 1.1),
@@ -17,7 +18,11 @@ plotStabilityPaths(
 \item{se}{the \code{SummarizedExperiment} object resulting from stability selection, 
 by running \code{\link[monaLisa]{randomized_stabsel}}.}
 
-\item{cutoff}{the selection probability cutoff.}
+\item{selProbMin}{A numerical scalar in [0,1]. Predictors with a selection
+probability greater than \code{selProbMin} are shown as colored lines. The
+color is defined by the \code{col} argument.}
+
+\item{col}{color of the selected predictors.}
 
 \item{lwd}{line width (default = 1).}
 

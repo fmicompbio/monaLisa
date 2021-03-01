@@ -93,32 +93,52 @@ glmnet.randomized_lasso <- function(x, y, q, weakness=1, type = c("conservative"
 #'   We made use of the \code{stabs} package that implements lasso stability selection, 
 #'   and adapted it to run randomized lasso stability selection. 
 #'
-#' @return  A \code{SummarizedExperiment} object where the rows are the 
-#'   predictors and the columns are the different 
-#'   regularization steps. The object consists of: \itemize{
-#'      \item{assay}{:  \itemize{
-#'        \item{selProb}{: the selection probabilities of the predictors 
-#'        across the different regularization steps.}
-#'        }
-#'      }
-#'      \item{metadata}{: list with: \itemize{
-#'        \item{stabselParams}{: }
-#'        \item{randStabselParams}{: }
-#'        }
-#'      }
+#' @return  A \code{SummarizedExperiment} object where the rows are the observations
+#'   and the columns the predictors (same dimnames as the predictor matrix \code{x}). 
+#'   It contains: \itemize{
+#'     \item{assays}{: \itemize{
+#'       \item{x}{: the predictor matrix.}
+#'       }
+#'     }
+#'     \item{rowData}{: a DataFrame with columns: \itemize{
+#'       \item{y}{: the response vector.}
+#'       }
+#'     }
+#'     \item{colData}{: a DataFrame with columns: \itemize{
+#'       \item{selProb}{: the final selection probabilities for the predictors (from the last regularization step).}
+#'       \item{selProbCutoff'\code{cutoff}'}{: logical indicating the predictors that made teh selection with the specified cutoff.}
+#'       \item{reg\code{i}}{: columns containing the selection probabilities for regularization step i. }
+#'       }
+#'     }
+#'     \item{metadata}{: a list of output returned from \code{\link[stabs]{stabsel}} and \code{randomized_stabsel}: \itemize{
+#'       \item{stabsel.params.cutoff}{: probability cutoff set for selection of predictors (see \code{\link[stabs]{stabsel}}).}
+#'       \item{stabsel.params.selected}{: elements with maximal selection probability greater \code{cutoff} (see \code{\link[stabs]{stabsel}}). }
+#'       \item{stabsel.params.max}{: maximum of selection probabilities (see \code{\link[stabs]{stabsel}}).}
+#'       \item{stabsel.params.q}{: average number of selected variables used (see \code{\link[stabs]{stabsel}}).}
+#'       \item{stabsel.params.PFER}{: (realized) upper bound for the per-family error rate (see \code{\link[stabs]{stabsel}}).}
+#'       \item{stabsel.params.specifiedPFER}{: specified upper bound for the per-family error rate (see \code{\link[stabs]{stabsel}}).}
+#'       \item{stabsel.params.p}{: the number of effects subject to selection (see \code{\link[stabs]{stabsel}}).}
+#'       \item{stabsel.params.B}{: the number of subsamples (see \code{\link[stabs]{stabsel}}).}
+#'       \item{stabsel.params.sampling.type}{: the sampling type used for stability selection (see \code{\link[stabs]{stabsel}}).}
+#'       \item{stabsel.params.assumption}{: the assumptions made on the selection probabilities (see \code{\link[stabs]{stabsel}}).}
+#'       \item{stabsel.params.call}{: \code{\link[stabs]{stabsel}} the call.}
+#'       \item{randStabsel.params.weakness}{: the weakness parameter in the randomized lasso stability selection.}
+#'       }
+#'     }
+#'   
 #'   }
 #'
 #'@seealso \code{\link[stabs]{stabsel}}
 #'
-#'@references N. Meinshausen and P. Bühlmann (2010), Stability Selection, \emph{Journal of the Royal Statistical Society: Series B (Statistical Methodology)}, \strong{72}, 417–73. \cr
-#'R.D. Shah and R.J. Samworth (2013), Variable Selection with Error Control: Another Look at Stability Selection, \emph{Journal of the Royal Statistical Society: Series B (Statistical Methodology)}, \strong{75}, 55–80. \cr
-#'B. Hofner, L. Boccuto, and M. Göker (2015), Controlling False Discoveries in High-Dimensional Situations: Boosting with Stability Selection, \emph{BMC Bioinformatics}, \strong{16} 144.
+#' @references N. Meinshausen and P. Bühlmann (2010), Stability Selection, \emph{Journal of the Royal Statistical Society: Series B (Statistical Methodology)}, \strong{72}, 417–73. \cr
+#'   R.D. Shah and R.J. Samworth (2013), Variable Selection with Error Control: Another Look at Stability Selection, \emph{Journal of the Royal Statistical Society: Series B (Statistical Methodology)}, \strong{75}, 55–80. \cr
+#'   B. Hofner, L. Boccuto, and M. Göker (2015), Controlling False Discoveries in High-Dimensional Situations: Boosting with Stability Selection, \emph{BMC Bioinformatics}, \strong{16} 144.
 #'
 #' @importFrom stabs stabsel
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #'
 #'@export
-randomized_stabsel <- function(x=NULL, y=NULL, weakness=0.8, cutoff=0.8, PFER=2, ...) {
+randomized_stabsel <- function(x, y, weakness=0.8, cutoff=0.8, PFER=2, ...) {
   
     # checks
     if(!is(x, "matrix")) {
@@ -147,26 +167,37 @@ randomized_stabsel <- function(x=NULL, y=NULL, weakness=0.8, cutoff=0.8, PFER=2,
 
     
     # restructure as SummarizedExperiment object
-    mdat <- list(stabselParams = list(cutoff = ss$cutoff, 
-                                      selected = ss$selected, 
-                                      max = ss$max, 
-                                      q = ss$q, 
-                                      PFER = ss$PFER, 
-                                      specifiedPFER = ss$specifiedPFER, 
-                                      p = ss$p, 
-                                      B = ss$B, 
-                                      sampling.type = ss$sampling.type, 
-                                      assumption = ss$assumption, 
-                                      call = ss$call), 
-                 randStabselParams = list(weakness = weakness)
-    )
+    mdat <- list(stabsel.params.cutoff = ss$cutoff, 
+                 stabsel.params.selected = ss$selected, 
+                 stabsel.params.max = ss$max, 
+                 stabsel.params.q = ss$q, 
+                 stabsel.params.PFER = ss$PFER, 
+                 stabsel.params.specifiedPFER = ss$specifiedPFER, 
+                 stabsel.params.p = ss$p, 
+                 stabsel.params.B = ss$B, 
+                 stabsel.params.sampling.type = ss$sampling.type, 
+                 stabsel.params.assumption = ss$assumption,
+                 stabsel.params.call = ss$call,
+                 randStabsel.params.weakness = weakness
+                 )
+    
+    probMat <- ss$phat
+    colnames(probMat) <- paste0("regStep", 1:ncol(probMat))
+    probMat <- as(probMat, "DFrame")
+    selProb <- probMat[, ncol(probMat)]
     sel <- logical(length = ncol(x))
     sel[ss$selected] <- TRUE
-    rdat <- DataFrame(sel)
-    colnames(rdat) <- paste0("SelProbCutoff", cutoff) 
-    se <- SummarizedExperiment::SummarizedExperiment(assays = list(selProb = ss$phat), 
+    DF <- S4Vectors::DataFrame(selProb = selProb, sel = sel)
+    colnames(DF)[2] <- paste0("selProbCutoff", cutoff) 
+    cdat <- cbind(DF, probMat)
+    
+    rdat <- S4Vectors::DataFrame(y = y)
+    
+    se <- SummarizedExperiment::SummarizedExperiment(assays = list(x = x), 
                                                      rowData = rdat, 
+                                                     colData = cdat, 
                                                      metadata = mdat)
+    
    
     # return
     return(se)

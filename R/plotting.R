@@ -362,7 +362,10 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
 #'
 #' @param se the \code{SummarizedExperiment} object resulting from stability selection, 
 #'   by running \code{\link[monaLisa]{randomized_stabsel}}.
-#' @param cutoff the selection probability cutoff.
+#' @param selProbMin A numerical scalar in [0,1]. Predictors with a selection
+#'   probability greater than \code{selProbMin} are shown as colored lines. The
+#'   color is defined by the \code{col} argument.
+#' @param col color of the selected predictors.
 #' @param lwd line width (default = 1).
 #' @param lty line type (default = 1).
 #' @param ylim limits for y-axis (default = c(0,1.1)).
@@ -373,9 +376,10 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
 #' @seealso \code{\link[stabs]{stabsel}} and \code{\link[graphics]{matplot}}
 #'
 #' @importFrom SummarizedExperiment assay rowData
+#' @importFrom graphics matplot
 #'
 #' @export
-plotStabilityPaths <- function(se, cutoff = metadata(se)$stabselParams$cutoff, 
+plotStabilityPaths <- function(se, selProbMin = metadata(se)$stabsel.params.cutoff, col = "cadetblue", 
                                lwd = 1, lty = 1, ylim = c(0, 1.1), ...) {
 
     # checks
@@ -385,19 +389,20 @@ plotStabilityPaths <- function(se, cutoff = metadata(se)$stabselParams$cutoff,
 
    
     # set plot parameters
-    mat <- t(SummarizedExperiment::assay(se, "selProb"))
+    mat <- as.matrix(colData(se))
+    mat <- t(mat[, grep(pattern = "^regStep", x = colnames(mat))])
     cols <- rep("black", ncol(mat))
-    sel <- SummarizedExperiment::rowData(se)[, paste0("SelProbCutoff", cutoff)]
+    sel <- se$selProb > selProbMin
     cols[sel] <- "cadetblue"
   
   
     # plot stability paths
-    matplot(mat, col = cols, type = "l", lty = lty,
+    graphics::matplot(mat, col = cols, type = "l", lty = lty,
             ylab = "Selection Probability", xlab = "Regularization Step",
             ylim = ylim, lwd = lwd, ...)
-    abline(h = cutoff, lty = 5, col = "red", lwd = lwd)
-    legend("topleft", legend = c("not selected", "selected", "cutoff"),
-           col = c("black", "cadetblue", "red"), lty = c(1, 1, 5), bty = "n", lwd = lwd)
+    abline(h = selProbMin, lty = 5, col = "red", lwd = lwd)
+    legend("topleft", legend = c("not selected", "selected", "selProbMin"),
+           col = c("black", col, "red"), lty = c(1, 1, 5), bty = "n", lwd = lwd)
     
     
     # return TRUE
@@ -409,8 +414,11 @@ plotStabilityPaths <- function(se, cutoff = metadata(se)$stabselParams$cutoff,
 #'
 #' @description Create a bar plot of the selection probabilities in descending order.
 #'
-#' @param se the \code{SummarizedExperiment} object resulting from stability selection.
-#' @param cutoff the selection probability cutoff.
+#' @param se the \code{SummarizedExperiment} object resulting from stability selection 
+#'   (typically a call to \code{\link{randomized_stabsel}}).
+#' @param selProbMin A numerical scalar in [0,1]. Predictors with a selection
+#'   probability greater than \code{selProbMin} are shown as colored bars. The
+#'   color is defined by the \code{col} argument.
 #' @param ylim the limits for the y-axis.
 #' @param onlySelected logical (default=TRUE) indicating if only selected predictors' selection probabilities
 #'   should be plotted.
@@ -426,7 +434,7 @@ plotStabilityPaths <- function(se, cutoff = metadata(se)$stabselParams$cutoff,
 #' @importFrom graphics barplot
 #'
 #' @export
-plotSelectionProb <- function(se, cutoff = metadata(se)$stabselParams$cutoff, 
+plotSelectionProb <- function(se, selProbMin = metadata(se)$stabsel.params.cutoff, 
                               ylim = c(0, 1.1), onlySelected = TRUE,
                               col = "cadetblue", las = 2, ...) {
 
@@ -436,8 +444,9 @@ plotSelectionProb <- function(se, cutoff = metadata(se)$stabselParams$cutoff,
     }
   
     # get selection probabilities (last column; ie last regularization step in assay)
-    probs  <- SummarizedExperiment::assay(se, "selProb")[, ncol(se)]
-    sel <- SummarizedExperiment::rowData(se)[, paste0("SelProbCutoff", cutoff)]
+    probs  <- se$selProb
+    names(probs) <- colnames(se)
+    sel <- probs > selProbMin
     cols <- rep("grey", length(probs))
     cols[sel] <- col
     
@@ -456,8 +465,8 @@ plotSelectionProb <- function(se, cutoff = metadata(se)$stabselParams$cutoff,
     # plot
     graphics::barplot(probs, ylim = ylim, ylab = "Selection Probability",
                       las = las, col = cols, border = NA, ...)
-    abline(h = cutoff, lty = 5, col = "red")
-    legend("topright", legend = "cutoff", lty = 5, col = "red", bty = "n")
+    abline(h = selProbMin, lty = 5, col = "red")
+    legend("topright", legend = "selProbMin", lty = 5, col = "red", bty = "n")
     
     
     # return TRUE
@@ -474,12 +483,7 @@ plotSelectionProb <- function(se, cutoff = metadata(se)$stabselParams$cutoff,
 #'   between each predictor and the response vector.
 #'
 #' @param se The \code{SummarizedExperiment} object with the results from
-#'   stability selection (typically a call to \code{\link{randomized_stabsel}}.
-#' @param response The response vector that was used for the stability selection
-#'   (for example the log2-fold change of a measure of interest).
-#' @param predictor_matrix the predictor matrix that was used for the stability
-#'   selection (for example the number of predicted TFBS of all motifs across
-#'   the regions of interest).
+#'   stability selection (typically a call to \code{\link{randomized_stabsel}}).
 #' @param selProbMin A numerical scalar in [0,1]. Predictors with a selection
 #'   probability greater than \code{selProbMin} are shown as colored bars. The
 #'   color is defined by the \code{col} argument.
@@ -494,7 +498,7 @@ plotSelectionProb <- function(se, cutoff = metadata(se)$stabselParams$cutoff,
 #'
 #' @seealso \code{\link[graphics]{barplot}}
 #'
-#' @return a barplot indicating the directionality of the motifs with respect to the correlation to the response vector.
+#' @return a barplot indicating the directionality of the predictors (motifs) with respect to the correlation to the response vector.
 #'
 #' @importFrom SummarizedExperiment rowData assay
 #' @importFrom S4Vectors metadata isEmpty
@@ -502,39 +506,28 @@ plotSelectionProb <- function(se, cutoff = metadata(se)$stabselParams$cutoff,
 #'
 #' @export
 plotMotifDirectionality <- function(se,
-                                    response, # TODO: take from se?
-                                    predictor_matrix, # TODO: take from se?
-                                    selProbMin = metadata(se)$stabselParams$cutoff, 
+                                    selProbMin = metadata(se)$stabsel.params.cutoff, 
                                     selProbMinPlot = 0.4,
                                     col = "cadetblue",
                                     method = c("pearson", "kendall", "spearman"),
                                     ...) {
     
     # checks
-    # ... class checks
     .assertScalar(x = selProbMin, type = "numeric", rngIncl = c(0, 1))
     .assertScalar(x = selProbMinPlot, type = "numeric", rngIncl = c(0, 1))
     stopifnot(exprs = {
         is(se, "SummarizedExperiment")
-        is(response, "numeric")
-        is(predictor_matrix, "matrix")
         selProbMin > selProbMinPlot
     })
-    # ... compatibility checks
-    stopifnot(length(response) == nrow(predictor_matrix))
-    if (!is.null(colnames(predictor_matrix)) && !is.null(names(response))) {
-        stopifnot(all(rownames(se) == colnames(predictor_matrix)))
-    }
     method <- match.arg(method)
-    
-    probs <- SummarizedExperiment::assay(se, "selProb")[, ncol(se)]
-    corcoef <- as.vector(cor(x = response, y = predictor_matrix, method = method))
-    cols <- ifelse(probs > selProbMin, col, "grey")
-    if (!is.null(colnames(predictor_matrix))) {
-        predNames <- colnames(predictor_matrix)
-    } else {
-        predNames <- paste0("pred", 1:ncol(predictor_matrix))
+    if(selProbMin != metadata(se)$stabsel.params.cutoff){
+      
     }
+    
+    # selection probabilities * sign(correlation to y)
+    probs <- se$selProb
+    corcoef <- as.vector(cor(x = SummarizedExperiment::rowData(se)$y, y = SummarizedExperiment::assay(se, "x"), method = method))
+    cols <- ifelse(probs > selProbMin, col, "grey")
     probs <- probs * sign(corcoef)
 
     # kept and ordered
@@ -542,7 +535,7 @@ plotMotifDirectionality <- function(se,
     keep <- keep[order(probs[keep], decreasing = TRUE)]
     corcoef <- corcoef[keep]
     cols <- cols[keep]
-    predNames <- predNames[keep]
+    predNames <- colnames(se)[keep]
     probs <- probs[keep]
     up <- probs > 0
 

@@ -101,6 +101,7 @@ test_that("plotSelectionProb() runs", {
     expect_error(plotSelectionProb("error"))
     # expect_error(plotSelectionProb(ss2, onlySelected = TRUE))
     expect_true(plotSelectionProb(ss, onlySelected = FALSE))
+    expect_true(plotSelectionProb(ss, onlySelected = TRUE))
 
     dev.off()
     unlink(tf)
@@ -116,9 +117,8 @@ test_that("plotMotifDirectionality() runs", {
     pdf(file = tf)
     
     expect_error(plotMotifDirectionality("error"))
-    expect_error(plotMotifDirectionality(se = ss, response = Y, predictor_matrix = NULL))
-    expect_true(plotMotifDirectionality(se = ss, response = Y, predictor_matrix = X))
-    expect_true(plotMotifDirectionality(se = ss, response = Y, predictor_matrix = X2))
+    expect_error(plotMotifDirectionality(se = NULL))
+    expect_true(plotMotifDirectionality(se = ss))
     
     dev.off()
     unlink(tf)

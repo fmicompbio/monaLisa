@@ -4,14 +4,7 @@
 \alias{randomized_stabsel}
 \title{Randomized Lasso Stability Selection}
 \usage{
-randomized_stabsel(
-  x = NULL,
-  y = NULL,
-  weakness = 0.8,
-  cutoff = 0.8,
-  PFER = 2,
-  ...
-)
+randomized_stabsel(x, y, weakness = 0.8, cutoff = 0.8, PFER = 2, ...)
 }
 \arguments{
 \item{x}{the predictor matrix.}
@@ -32,19 +25,39 @@ allow for in the final list of selected variables. For details see Meinshausen a
 \item{...}{additional parameters that can be passed on to \code{\link[glmnet]{glmnet}}.}
 }
 \value{
-A \code{SummarizedExperiment} object where the rows are the 
-  predictors and the columns are the different 
-  regularization steps. The object consists of: \itemize{
-     \item{assay}{:  \itemize{
-       \item{selProb}{: the selection probabilities of the predictors 
-       across the different regularization steps.}
-       }
-     }
-     \item{metadata}{: list with: \itemize{
-       \item{stabselParams}{: }
-       \item{randStabselParams}{: }
-       }
-     }
+A \code{SummarizedExperiment} object where the rows are the observations
+  and the columns the predictors (same dimnames as the predictor matrix \code{x}). 
+  It contains: \itemize{
+    \item{assays}{: \itemize{
+      \item{x}{: the predictor matrix.}
+      }
+    }
+    \item{rowData}{: a DataFrame with columns: \itemize{
+      \item{y}{: the response vector.}
+      }
+    }
+    \item{colData}{: a DataFrame with columns: \itemize{
+      \item{selProb}{: the final selection probabilities for the predictors (from the last regularization step).}
+      \item{selProbCutoff'\code{cutoff}'}{: logical indicating the predictors that made teh selection with the specified cutoff.}
+      \item{reg\code{i}}{: columns containing the selection probabilities for regularization step i. }
+      }
+    }
+    \item{metadata}{: a list of output returned from \code{\link[stabs]{stabsel}} and \code{randomized_stabsel}: \itemize{
+      \item{stabsel.params.cutoff}{: probability cutoff set for selection of predictors (see \code{\link[stabs]{stabsel}}).}
+      \item{stabsel.params.selected}{: elements with maximal selection probability greater \code{cutoff} (see \code{\link[stabs]{stabsel}}). }
+      \item{stabsel.params.max}{: maximum of selection probabilities (see \code{\link[stabs]{stabsel}}).}
+      \item{stabsel.params.q}{: average number of selected variables used (see \code{\link[stabs]{stabsel}}).}
+      \item{stabsel.params.PFER}{: (realized) upper bound for the per-family error rate (see \code{\link[stabs]{stabsel}}).}
+      \item{stabsel.params.specifiedPFER}{: specified upper bound for the per-family error rate (see \code{\link[stabs]{stabsel}}).}
+      \item{stabsel.params.p}{: the number of effects subject to selection (see \code{\link[stabs]{stabsel}}).}
+      \item{stabsel.params.B}{: the number of subsamples (see \code{\link[stabs]{stabsel}}).}
+      \item{stabsel.params.sampling.type}{: the sampling type used for stability selection (see \code{\link[stabs]{stabsel}}).}
+      \item{stabsel.params.assumption}{: the assumptions made on the selection probabilities (see \code{\link[stabs]{stabsel}}).}
+      \item{stabsel.params.call}{: \code{\link[stabs]{stabsel}} the call.}
+      \item{randStabsel.params.weakness}{: the weakness parameter in the randomized lasso stability selection.}
+      }
+    }
+  
   }
 }
 \description{
@@ -68,8 +81,8 @@ Randomized lasso stability selection runs a randomized lasso regression
 }
 \references{
 N. Meinshausen and P. Bühlmann (2010), Stability Selection, \emph{Journal of the Royal Statistical Society: Series B (Statistical Methodology)}, \strong{72}, 417–73. \cr
-R.D. Shah and R.J. Samworth (2013), Variable Selection with Error Control: Another Look at Stability Selection, \emph{Journal of the Royal Statistical Society: Series B (Statistical Methodology)}, \strong{75}, 55–80. \cr
-B. Hofner, L. Boccuto, and M. Göker (2015), Controlling False Discoveries in High-Dimensional Situations: Boosting with Stability Selection, \emph{BMC Bioinformatics}, \strong{16} 144.
+  R.D. Shah and R.J. Samworth (2013), Variable Selection with Error Control: Another Look at Stability Selection, \emph{Journal of the Royal Statistical Society: Series B (Statistical Methodology)}, \strong{75}, 55–80. \cr
+  B. Hofner, L. Boccuto, and M. Göker (2015), Controlling False Discoveries in High-Dimensional Situations: Boosting with Stability Selection, \emph{BMC Bioinformatics}, \strong{16} 144.
 }
 \seealso{
 \code{\link[stabs]{stabsel}}
