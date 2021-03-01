@@ -616,7 +616,7 @@ extractOverlappingKmerFrequecies <- function(seqs, x, BPPARAM = SerialParam()) {
         is(seqs, "DNAStringSet")
         is(x, "character")
         all(grepl("^[ACGT]+$", x))
-        inherits(BPPARAM, "BiocParallelParam")
+        is(BPPARAM, "BiocParallelParam")
     })
     #also include reverse complements
     # enriched.kmers <- unique(c(x, as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(x)))))
