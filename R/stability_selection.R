@@ -86,8 +86,8 @@ NULL
 #' @details Randomized lasso stability selection runs a randomized lasso regression 
 #'   several times on subsamples of the response variable and predictor matrix. 
 #'   N/2 elements from the response variable are randomly chosen in each regression, 
-#'   where N is the length of the vector. The corresponsing section of the predictor matrix is
-#'   also chosen, and the \code{\link[monaLisa]{.glmnetRandomizedLasso}} function is applied. 
+#'   where N is the length of the vector. The corresponding section of the predictor matrix is
+#'   also chosen, and the internal \code{.glmnetRandomizedLasso} function is applied. 
 #'   Stability selection results in selection probabilities for each predictor. 
 #'   The probability of a specific predictor is the number of
 #'   times it was selected divided by the total number of subsamples that were done 
