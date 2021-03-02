@@ -312,7 +312,7 @@ m
 
 One can also select for meaningful transcription factors (TFs) in a regression based approach with predictors consisting of the TFs, and the response vector being the observed log-fold changes across a set of regions. In `monaLisa`, we implement the randomized lasso stability selection proposed by Meinshausen and Bühlmann [@StabSel] with the improved error bounds introduced by Shah and Samworth [@compStabs]. We have modified the `stabsel` function from the `stabs` package to implement the randomized lasso version of stability selection. 
 
-Lasso stability selection implements the lasso regression multiple times on subsamples of the data. With the randomized lasso, a weakness parameter is additionally used to randomly vary the lambda parameter of the lasso regression. Although the main appeal of stability selection is in cases where the number of predictors exceeds the number of observations, it also performs better in the variable selection in noisy data [@StabSel].
+Lasso stability selection implements the lasso regression multiple times on subsamples of the data, and returns a selection probability for each predictor (number of times selected divided by number of regressions done). With the randomized lasso, a weakness parameter is additionally used to randomly vary the lambda parameter of the lasso regression. Although the main appeal of stability selection is in cases where the number of predictors exceeds the number of observations, it also performs better variable selection with noisy data [@StabSel].
 
 With this approach, all TFs compete against each other to explain all observations, with the flexibility of adding other things like GC content to compete against the TFs for selection as well.
 
@@ -332,94 +332,87 @@ Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promot
 
 ## Load Data
 
+We load the ATAC-seq log2-fold changes across the enhancers (ATAC peaks). This will be our response vector in the regression framework.
 
-```{r load_data}
-
-library(monaLisa)
-
-# Path to extdata 
-peaks_path <- system.file("extdata", "Liver_vs_Lung_ATAC_peaks.rds", package = "monaLisa")
-response_path <- system.file("extdata", "Liver_vs_Lung_ATAC_logFC.rds", package = "monaLisa")
-
-# Load response vector and peaks GRanges
-response <- readRDS(response_path)
-peaks <- readRDS(peaks_path)
-
+```{r libs}
+suppressPackageStartupMessages({
+  library(monaLisa)
+  library(JASPAR2018)
+  library(TFBSTools)
+  library("BSgenome.Mmusculus.UCSC.mm10")
+  library(Biostrings)
+  library(SummarizedExperiment)
+  library(ComplexHeatmap) # heatmap drawing
+  library(circlize) # used for color specification
+})
 ```
 
-## Get predictor matrix showing number of TFBS per motif across the peaks
 
-The `findMotifHits` function can be used to get the predicted binding sites of each transcription factor across a given set of genomic regions, 
-which in our case is the ATAC-seq peaks. A predictor matrix which contains the number of TFBS each TF has across the given set of peaks is subsequently generated. Note that peaks that have 0 TFBS with all TFs will not be present in the resulting matrix. One can also make use of phylogenetic information of TFs and incorporate that in the predictor matrix. With ATAC-seq, we didn't want to restrict ourselves to conserved motif sequences. One can also add any additional property of the genomic regions in the response vector to compete against the TFs for selection. We added GC content and the ratio of observed-over-expected CpG (oeCpG) content.
+```{r loadData}
+# load logFC vector and peaks
+peaks_path <- system.file("extdata", "Liver_vs_Lung_ATAC_peaks.rds", package = "monaLisa")
+response_path <- system.file("extdata", "Liver_vs_Lung_ATAC_logFC.rds", package = "monaLisa")
+logFC <- readRDS(response_path)
+peaks <- readRDS(peaks_path)
 
+# examine data
+head(logFC)
+head(peaks)
+```
 
-The code below takes some time to run, so the result of stability selection in the form of a 'stabsel' object can be loaded.
+## Get TFBS per Motif Across the Peaks
 
+We will now construct the transcription factor binding site (TFBS) matrix for all motifs (from a database like JASPAR) across the peak regions. We use the `findMotifHits` function to get the TF hits. This matrix will be the predictor matrix in our regression.
 
-```{r predictor, eval=TRUE}
+As mentioned, this framework offers the flexibility to add other predictors to compete against the TFs for selection. Here, we add GC and observed/expected CpG content.
 
-library(JASPAR2018)
-library(TFBSTools)
-library("BSgenome.Mmusculus.UCSC.mm10")
-library(Biostrings)
-
-# Genome
+```{r predictorMatrix}
+# genome
 genome <- BSgenome.Mmusculus.UCSC.mm10
 
-# Get PWMs
+# get PWMs
 pfms <- getMatrixSet(JASPAR2018, list(matrixtype = "PFM", tax_group = "vertebrates")) # for seq-logos
 pwms <- toPWM(pfms) # for searching
 
-# Get TFBS on given GRanges
+# get TFBS on given GRanges (peaks)
 hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0,
                       method = "matchPWM", genome = genome,
                       BPPARAM = BiocParallel::MulticoreParam(2))
 
-# Get predictor matrix
-predictor_matrix <- unclass(table(factor(seqnames(hits), levels = seqlevels(hits)),
+# get TFBS matrix
+TFBSmatrix <- unclass(table(factor(seqnames(hits), levels = seqlevels(hits)),
                                   factor(hits$pwmname, levels = TFBSTools::name(pwms))))
-predictor_matrix[1:6, 1:6]
+TFBSmatrix[1:6, 1:6]
 
-
-# remove peaks that do not have any hits (also from the response vector) 
-# and check all peaks in predictor_matrix are in same order as in the 
-# peaks variable
-w <- names(peaks)[rowSums(predictor_matrix) == 0]
-if (length(w) > 0) {
-    peaks <- peaks[-w]
-    response <- response[-w]
-}
-all(rownames(predictor_matrix) == names(peaks))
-all(rownames(predictor_matrix) == names(response))
-
-# Note that in this case all peaks have at least one TFBS for any of the TFs. 
-# However, that may not always be the case. If a given set of peaks does 
-# not appear in the hits variable one must be careful and remove the missing 
-# peaks from the peaks variable before doing the GC content calculations below.
+# check order
+all(rownames(TFBSmatrix) == names(peaks))
+all(rownames(TFBSmatrix) == names(logFC))
 
 # calculate GC and oeCpG content
 peakSeq <- BSgenome::getSeq(genome, peaks)
 fMono <- oligonucleotideFrequency(peakSeq, width = 1L, as.prob = TRUE)
 fDi <- oligonucleotideFrequency(peakSeq, width = 2L, as.prob = TRUE)
-percGC <- fMono[,"G"] + fMono[,"C"]
+fracGC <- fMono[,"G"] + fMono[,"C"]
 oeCpG <- (fDi[,"CG"] + 0.01) / (fMono[,"G"] * fMono[,"C"] + 0.01)
 
 # add GC and oeCpG to predictor matrix
-predictor_matrix <- cbind(percGC, predictor_matrix)
-predictor_matrix <- cbind(oeCpG, predictor_matrix)
-predictor_matrix[1:6, 1:6]
+TFBSmatrix <- cbind(oeCpG, TFBSmatrix)
+TFBSmatrix[1:6, 1:6]
 ```
 
 
-## Run randomized lasso stability selection
+## Select TFs
 
-We can now run randomized lasso stability selection to select TFs that are likely to explain the log-fold changes in accessibility (response vector). We can appreciate that some selected TFs are correlated to each other and were chosen toegther to explain the observed changes in accessibility.
+We can now run randomized lasso stability selection to select TFs that are likely to explain the log-fold changes in accessibility. 
 
+```{r stabSelTFs}
+# select TFs
+set.seed(123)
+se <- randLassoStabSel(x = TFBSmatrix, y = logFC, mc.cores = 2)
+se
 
-```{r run_stability, eval=TRUE}
-stabs <- randLassoStabSel(x = predictor_matrix, y = response,
-                            weakness = 0.8, cutoff = 0.7, PFER = 2,
-                            mc.cores = 2)
+# number of selected TFs
+sum(se$selProbCutoff0.8)
 ```
 
 <!--
@@ -429,52 +422,48 @@ saveRDS(stabs, "/tungstenfs/groups/gbioinfo/stadler/development/R/monaLisa/inst/
 -->
 
 
-```{r plot_stabSel_results}
+```{r plotStabilityPaths}
+# plot stability paths 
+plotStabilityPaths(se)
+```
 
-library(ComplexHeatmap) # heatmap drawing
-library(circlize) # used for color specification
-library(JASPAR2018)
+Each line corresponds to a TF, and we can see the selection probabilities as a function of the regularization step (lambda parameter in lasso). The TF selection happens at the last step, given the specified minimum probability.
 
-# load processed data
-# stabs <- readRDS(system.file("extdata", "stabs.rds", package = "monaLisa"))
-# predictor_matrix <- readRDS(system.file("extdata", "stabs_predictor.rds", package = "monaLisa"))
-# response <- readRDS(system.file("extdata", "stabs_response.rds", package = "monaLisa"))
+We can also visualize the selection probabilities of the selected TFs, as well as the selection probability multiplied by the sign of the correlation to the logFC vector (response vector), to know how the TF relates to the logFC.
+
+```{r plotSelProbs, fig.width=15, fig.height=7}
+par(mfrow = c(1, 2), mar = c(5, 4, 4, 2) + 3)
+plotSelectionProb(se)
+plotMotifDirectionality(se, selProbMinPlot = 0.7)
+```
 
 
-# plot stability paths ...
-plotStabilityPaths(stabs)
+Next, we visualize the correlation structure of the TFBS matrix. We can see that the selected TFs have a similar correlation structure as the whole TFBS matrix.
 
-# ... and selection probabilities
-par(mfrow = c(1, 1), mar = c(5, 4, 4, 2) + 3)
-plotSelectionProb(stabs)
+```{r TFBScor}
+# correlation matrix (excluding oeCpG and fracGC)
+excl <- colnames(TFBSmatrix) %in% c("oeCpG", "fracGC")
+TFBSmatrixCor <- cor(TFBSmatrix[, !excl], method = "pearson")
+sel <- colnames(se)[se$selProbCutoff0.8]
+TFBSmatrixCorSel <- TFBSmatrixCor[sel, sel]
 
-# ... and the directionality of the motifs with respect to the response vector
-par(mfrow = c(1, 1), mar = c(5, 4, 4, 2) + 3)
-plotMotifDirectionality(se = stabs)
+# heatmap
+colF = colorRamp2(c(-1, 0, 1), c("blue", "white", "red"))
 
-# plot correlation on TFBS matrix of selected TFs
-# ... select predictors for selected TFs and calculate correlation
-cutoff <- metadata(stabs)$stabsel.params.cutoff
-selected <- stabs$selProbCutoff0.7
-sel_matrix <- predictor_matrix[, selected]
-sel_cor <- cor(sel_matrix, method = "pearson")
+Heatmap(TFBSmatrixCor, show_row_names = FALSE, show_column_names = FALSE, 
+        name = "Pear. Cor.", column_title = "All TFs", col = colF)
 
-# ... prepare sequence logos
-pfmsSel <- pfms[match(rownames(sel_cor), name(pfms))]
+pfmsSel <- pfms[match(sel, name(pfms))]
 maxwidth <- max(sapply(TFBSTools::Matrix(pfmsSel), ncol))
 seqlogoGrobs <- lapply(pfmsSel, seqLogoGrob, xmax = maxwidth)
 hmSeqlogo <- rowAnnotation(logo = anno_seqlogo(seqlogoGrobs, which = "row"),
                            annotation_width = unit(1.5, "inch"),
                            show_legend = FALSE, show_annotation_name = FALSE)
 
-# ... draw heatmap
-Heatmap(matrix = sel_cor, name = "Pear. Cor.",
-        col = colorRamp2(c(-1, 0, 1), c("blue", "white", "red")),
+Heatmap(TFBSmatrixCorSel, show_row_names = TRUE, show_column_names = TRUE, 
+        name = "Pear. Cor.", column_title = "Selected TFs", col = colF, 
         right_annotation = hmSeqlogo)
-
 ```
-
-
 
 
 # Session info and logo
