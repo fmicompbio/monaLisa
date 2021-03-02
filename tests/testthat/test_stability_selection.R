@@ -12,6 +12,12 @@ test_that("randLassoStabSel() works properly", {
     X[ ,s_cols[i]] <- X[ ,s_cols[i]] + Y
   }
 
+  X2 <- X
+  Y2 <- Y
+  rownames(X2) <- paste0("peak", 1:nrow(X2))
+  colnames(X2) <- paste0("motif", 1:ncol(X2))
+  names(Y2) <- paste0("peak", 1:length(Y2))
+
   # randomized lasso stability selection
   ss <- monaLisa::randLassoStabSel(x = X, y = Y)
 
@@ -23,6 +29,8 @@ test_that("randLassoStabSel() works properly", {
   expect_identical(dim(ss), c(500L, 50L))
   expect_identical(length(Y), nrow(ss))
   expect_true(!is.null(SummarizedExperiment::assay(ss)))
+  expect_error(randLassoStabSel(x = as.data.frame(X), y = Y))
+  expect_error(randLassoStabSel(x = X2[1:100, ], y = Y2[2:101]))
 })
 
 
