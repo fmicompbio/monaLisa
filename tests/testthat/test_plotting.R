@@ -14,7 +14,7 @@ Y <- rnorm(n = 100, mean = 2, sd = 1)
 X <- matrix(data = runif(n = 20 * 100, min = 0, max = 3), nrow = length(Y), ncol = 20)
 for (i in sample(x = 1:ncol(X), size = 10, replace = FALSE))
     X[ ,i] <- X[ ,i] + Y
-ss <- monaLisa::randomized_stabsel(x = X, y = Y)
+ss <- monaLisa::randLassoStabSel(x = X, y = Y)
 
 
 test_that("getColsByBin() works properly", {

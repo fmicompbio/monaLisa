@@ -113,7 +113,7 @@ NULL
 #'       \item{reg'\code{i}'}{: columns containing the selection probabilities for regularization step i. }
 #'       }
 #'     }
-#'     \item{metadata}{: a list of output returned from \code{\link[stabs]{stabsel}} and \code{randomized_stabsel}: \itemize{
+#'     \item{metadata}{: a list of output returned from \code{\link[stabs]{stabsel}} and \code{randLassoStabSel}: \itemize{
 #'       \item{stabsel.params.cutoff}{: probability cutoff set for selection of predictors (see \code{\link[stabs]{stabsel}}).}
 #'       \item{stabsel.params.selected}{: elements with maximal selection probability greater \code{cutoff} (see \code{\link[stabs]{stabsel}}). }
 #'       \item{stabsel.params.max}{: maximum of selection probabilities (see \code{\link[stabs]{stabsel}}).}

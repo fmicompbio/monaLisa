@@ -16,7 +16,7 @@ plotSelectionProb(
 }
 \arguments{
 \item{se}{the \code{SummarizedExperiment} object resulting from stability selection 
-(typically a call to \code{\link{randomized_stabsel}}).}
+(typically a call to \code{\link{randLassoStabSel}}).}
 
 \item{selProbMin}{A numerical scalar in [0,1]. Predictors with a selection
 probability greater than \code{selProbMin} are shown as colored bars. The

@@ -16,7 +16,7 @@ plotStabilityPaths(
 }
 \arguments{
 \item{se}{the \code{SummarizedExperiment} object resulting from stability selection, 
-by running \code{\link[monaLisa]{randomized_stabsel}}.}
+by running \code{\link[monaLisa]{randLassoStabSel}}.}
 
 \item{selProbMin}{A numerical scalar in [0,1]. Predictors with a selection
 probability greater than \code{selProbMin} are shown as colored lines. The

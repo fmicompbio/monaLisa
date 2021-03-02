@@ -361,7 +361,7 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
 #'   as a function of the regularization step.
 #'
 #' @param se the \code{SummarizedExperiment} object resulting from stability selection, 
-#'   by running \code{\link[monaLisa]{randomized_stabsel}}.
+#'   by running \code{\link[monaLisa]{randLassoStabSel}}.
 #' @param selProbMin A numerical scalar in [0,1]. Predictors with a selection
 #'   probability greater than \code{selProbMin} are shown as colored lines. The
 #'   color is defined by the \code{col} argument.
@@ -415,7 +415,7 @@ plotStabilityPaths <- function(se, selProbMin = metadata(se)$stabsel.params.cuto
 #' @description Create a bar plot of the selection probabilities in descending order.
 #'
 #' @param se the \code{SummarizedExperiment} object resulting from stability selection 
-#'   (typically a call to \code{\link{randomized_stabsel}}).
+#'   (typically a call to \code{\link{randLassoStabSel}}).
 #' @param selProbMin A numerical scalar in [0,1]. Predictors with a selection
 #'   probability greater than \code{selProbMin} are shown as colored bars. The
 #'   color is defined by the \code{col} argument.
@@ -483,7 +483,7 @@ plotSelectionProb <- function(se, selProbMin = metadata(se)$stabsel.params.cutof
 #'   between each predictor and the response vector.
 #'
 #' @param se The \code{SummarizedExperiment} object with the results from
-#'   stability selection (typically a call to \code{\link{randomized_stabsel}}).
+#'   stability selection (typically a call to \code{\link{randLassoStabSel}}).
 #' @param selProbMin A numerical scalar in [0,1]. Predictors with a selection
 #'   probability greater than \code{selProbMin} are shown as colored bars. The
 #'   color is defined by the \code{col} argument.

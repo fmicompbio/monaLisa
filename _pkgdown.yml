@@ -49,7 +49,7 @@ reference:
 - title: Identify predictive motifs using stability selection
   desc: "Functions for selecting motifs that explain observed changes using Stability Selection."
   contents:
-    - '`randomized_stabsel`'
+    - '`randLassoStabSel`'
     - '`plotMotifDirectionality`'
     - '`plotSelectionProb`'
     - '`plotStabilityPaths`'

@@ -15,7 +15,7 @@ plotMotifDirectionality(
 }
 \arguments{
 \item{se}{The \code{SummarizedExperiment} object with the results from
-stability selection (typically a call to \code{\link{randomized_stabsel}}).}
+stability selection (typically a call to \code{\link{randLassoStabSel}}).}
 
 \item{selProbMin}{A numerical scalar in [0,1]. Predictors with a selection
 probability greater than \code{selProbMin} are shown as colored bars. The
