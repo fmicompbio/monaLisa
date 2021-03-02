@@ -1,6 +1,4 @@
-context("stability selection")
-
-test_that("randomized_stabsel() works properly", {
+test_that("randLassoStabSel() works properly", {
 
   # create data set
   set.seed(555)
@@ -15,7 +13,7 @@ test_that("randomized_stabsel() works properly", {
   }
 
   # randomized lasso stability selection
-  ss <- monaLisa::randomized_stabsel(x = X, y = Y)
+  ss <- monaLisa::randLassoStabSel(x = X, y = Y)
 
   # tests
   expect_true(is(ss, "SummarizedExperiment"))
@@ -28,7 +26,7 @@ test_that("randomized_stabsel() works properly", {
 })
 
 
-test_that("glmnet.randomized_lasso() works properly", {
+test_that(".glmnetRandomizedLasso() works properly", {
 
   # create data set
   set.seed(555)
@@ -45,13 +43,13 @@ test_that("glmnet.randomized_lasso() works properly", {
   # tests
 
   # ... x as data.frame
-  expect_message(monaLisa::glmnet.randomized_lasso(x = as.data.frame(X), y = Y, q=11), "coerced to a model matrix without intercept")
+  expect_message(.glmnetRandomizedLasso(x = as.data.frame(X), y = Y, q=11), "coerced to a model matrix without intercept")
 
   # ... with type="anticonservative"
-  rl <- monaLisa::glmnet.randomized_lasso(x = X, y = Y, q=11, type="anticonservative")
+  rl <- .glmnetRandomizedLasso(x = X, y = Y, q=11, type="anticonservative")
 
   # ... with specific lambda
-  expect_error(monaLisa::glmnet.randomized_lasso(x = X, y = Y, q=11, lambda=5))
+  expect_error(.glmnetRandomizedLasso(x = X, y = Y, q=11, lambda=5))
 
   # ... expect_true
   expect_true(base::inherits(rl, "list"))

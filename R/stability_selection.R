@@ -4,52 +4,55 @@
 #' @importFrom stats model.matrix runif
 NULL
 
-#'@title Randomized Lasso
+#' @title Randomized Lasso
 #'
-#'@description This function performs randomized lasso using the \code{glmnet} package. The
-#'function present in the \code{stabs} package that runs the lasso version was adapted for
-#'the randomized lasso here. Randmized lasso stability selection uses this function repeatedly
-#'to select predictors.
+#' @description This function performs randomized lasso using the \code{glmnet} package. The
+#'   function present in the \code{stabs} package that runs the lasso version was adapted for
+#'   the randomized lasso here. Ranodmized lasso stability selection uses this function repeatedly
+#'   to select predictors.
+#'
+#' @param x the predictor matrix.
+#' @param y the response vector.
+#' @param q the average number of selected variables.
+#' @param weakness parameter used randomized lasso (see details).
+#' @param type parameter from \code{lars.lasso} function in \code{stabs}. It is a character vector specifying
+#'   how much the PFER should be controlled. If type is "conservative" then the number of selected variables per
+#'   subsample is <= q. If type is "anticonservative" then the number of selected variables per subsample is >= q.
+#'   By default the conservative type is chosen.
+#' @param ... additional parameters for \code{glmnet}.
+#'
+#' @return the regression output which consists of a list of length 2. The list contains the following:
+#'   \itemize{
+#'   \item selected - a logical vector of length equal to the total number of predictors. The predictors that were chosen have a value of TRUE.
+#'   \item path - a logical matrix containing the regularization steps as columns and the predictors as rows. An entry of TRUE indicates selection.
+#'   }
 #'
 #'
-#'@param x the predictor matrix.
-#'@param y the response vector.
-#'@param q the average number of selected variables.
-#'@param weakness parameter used randomized lasso (see details).
-#'@param type parameter from \code{lars.lasso} function in \code{stabs}. It is a character vector specifying
-#'how much the PFER should be controlled. If type is "conservative" then the number of selected variables per
-#'subsample is <= q. If type is "anticonservative" then the number of selected variables per subsample is >= q.
-#'By default the conservative type is chosen.
-#'@param ... additional parameters for \code{glmnet}.
+#' @details This function is identical to \code{glmnet.lasso} from the \code{stabs} package. The only 
+#'   addition/modification is the weakness parameter which has been added when calling the 
+#'   \code{glmnet} function by setting penalty.factor = 1/runif(ncol(x), weakness, 1), 
+#'   where ncol(x) is the number of predictors.
 #'
-#'@return the regression output which consists of a list of length 2. The list contains the following:
-#'\itemize{
-#'  \item selected - a logical vector of length equal to the total number of predictors. The predictors that were chosen have a value of TRUE.
-#'  \item path - a logical matrix containing the regularization steps as columns and the predictors as rows. An entry of TRUE indicates selection.
-#'}
+#' @seealso \code{\link[stabs]{glmnet.lasso}} and \code{\link[glmnet]{glmnet}}
 #'
-#'
-#'@details This function is identical to \code{glmnet.lasso} from the \code{stabs} package. The only addition is the weakness parameter
-#'which has been added when calling the \code{glmnet} function by setting penalty.factor = 1/runif(ncol(x), weakness, 1)
-#'where ncol(x) is the number of predictors.
-#'
-#'@seealso \code{\link[stabs]{glmnet.lasso}} and \code{\link[glmnet]{glmnet}}
-#'
-#'@export
-glmnet.randomized_lasso <- function(x, y, q, weakness=1, type = c("conservative", "anticonservative"), ...) {
+#' @importFrom glmnet glmnet predict.glmnet
+#' @importFrom stats model.matrix runif
+.glmnetRandomizedLasso <- function(x, y, q, weakness=1, type = c("conservative", "anticonservative"), ...) {
   if (is.data.frame(x)) {
     message("Note: ", sQuote("x"), " is coerced to a model matrix without intercept")
-    x <- model.matrix(~. - 1, x)
+    x <- stats::model.matrix(~. - 1, x)
   }
   if ("lambda" %in% names(list(...)))
     stop("It is not permitted to specify the penalty parameter ",
          sQuote("lambda"), " for lasso when used with stability selection.")
   type <- match.arg(type)
-  # modify the function here to make it a randomized-lasso
+  
+  # modify the function here to make it a randomized-lasso using the weakness parameter
   if (type == "conservative")
-    fit <- suppressWarnings(glmnet::glmnet(x, y, pmax = q, penalty.factor = 1/runif(ncol(x), weakness,  1),  ...))
+    fit <- suppressWarnings(glmnet::glmnet(x, y, pmax = q, penalty.factor = 1/stats::runif(ncol(x), weakness,  1),  ...))
   if (type == "anticonservative")
-    fit <- glmnet::glmnet(x, y, dfmax = q - 1, penalty.factor = 1/runif(ncol(x), weakness,  1), ...)
+    fit <- glmnet::glmnet(x, y, dfmax = q - 1, penalty.factor = 1/stats::runif(ncol(x), weakness,  1), ...)
+  
   selected <- glmnet::predict.glmnet(fit, type = "nonzero")
   selected <- selected[[length(selected)]]
   ret <- logical(ncol(x))
@@ -84,7 +87,7 @@ glmnet.randomized_lasso <- function(x, y, q, weakness=1, type = c("conservative"
 #'   several times on subsamples of the response variable and predictor matrix. 
 #'   N/2 elements from the response variable are randomly chosen in each regression, 
 #'   where N is the length of the vector. The corresponsing section of the predictor matrix is
-#'   also chosen, and the \code{\link[monaLisa]{glmnet.randomized_lasso}} function is applied. 
+#'   also chosen, and the \code{\link[monaLisa]{glmnetRandomizedLasso}} function is applied. 
 #'   Stability selection results in selection probabilities for each predictor. 
 #'   The probability of a specific predictor is the number of
 #'   times it was selected divided by the total number of subsamples that were done 
@@ -106,8 +109,8 @@ glmnet.randomized_lasso <- function(x, y, q, weakness=1, type = c("conservative"
 #'     }
 #'     \item{colData}{: a DataFrame with columns: \itemize{
 #'       \item{selProb}{: the final selection probabilities for the predictors (from the last regularization step).}
-#'       \item{selProbCutoff'\code{cutoff}'}{: logical indicating the predictors that made teh selection with the specified cutoff.}
-#'       \item{reg\code{i}}{: columns containing the selection probabilities for regularization step i. }
+#'       \item{selProbCutoff'\code{cutoff}'}{: logical indicating the predictors that made the selection with the specified cutoff.}
+#'       \item{reg'\code{i}'}{: columns containing the selection probabilities for regularization step i. }
 #'       }
 #'     }
 #'     \item{metadata}{: a list of output returned from \code{\link[stabs]{stabsel}} and \code{randomized_stabsel}: \itemize{
@@ -138,7 +141,7 @@ glmnet.randomized_lasso <- function(x, y, q, weakness=1, type = c("conservative"
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #'
 #'@export
-randomized_stabsel <- function(x, y, weakness=0.8, cutoff=0.8, PFER=2, ...) {
+randLassoStabSel <- function(x, y, weakness=0.8, cutoff=0.8, PFER=2, ...) {
   
     # checks
     if(!is(x, "matrix")) {
@@ -154,15 +157,15 @@ randomized_stabsel <- function(x, y, weakness=0.8, cutoff=0.8, PFER=2, ...) {
            identical and that the orders match.")
     }
     if(is.null(rownames(x))) {
-        rownames(x) <- paste0("row_", 1:nrow(x))
+        rownames(x) <- paste0("obs", 1:nrow(x))
     }
     if(is.null(colnames(x))) {
-        colnames(x) <- paste0("col_", 1:ncol(x))
+        colnames(x) <- paste0("pred", 1:ncol(x))
     }
   
     
     # run randomized lasso stability selection
-    ss <- stabs::stabsel(x = x, y = y, fitfun = glmnet.randomized_lasso, 
+    ss <- stabs::stabsel(x = x, y = y, fitfun = .glmnetRandomizedLasso, 
                          args.fitfun = list(weakness = weakness), cutoff = cutoff, PFER = PFER, ...)
 
     
