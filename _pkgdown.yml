@@ -34,6 +34,7 @@ reference:
   contents:
     - '`bin`'
     - '`runHomer`'
+    - '`get_binned_motif_enrichment`'
     - '`plotBinDensity`'
     - '`plotBinHist`'
     - '`plotBinScatter`'
@@ -46,6 +47,7 @@ reference:
     - '`kmerEnrichments`'
     - '`convertKmersToMotifs`'
     - '`clusterKmers`'
+    - '`extractOverlappingKmerFrequecies`'
 - title: Identify predictive motifs using stability selection
   desc: "Functions for selecting motifs that explain observed changes using Stability Selection."
   contents:
@@ -68,6 +70,7 @@ reference:
     - '`motifSimilarity`'
     - '`motifKmerSimilarity`'
     - '`seqLogoGrob`'
+    - '`sample_random_regions`'
 
 template:
   params:
