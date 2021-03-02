@@ -464,6 +464,17 @@ Heatmap(TFBSmatrixCorSel, show_row_names = TRUE, show_column_names = TRUE,
         name = "Pear. Cor.", column_title = "Selected TFs", col = colF, 
         right_annotation = hmSeqlogo)
 ```
+We examine the peaks that have hits for a selected TF of interest, ordered by the biggest absolute logFC values.
+
+```{r topPeaks}
+TF <- sel[1]
+TF
+
+i <- which(assay(se, "x")[, TF] > 0)
+nm <- names(sort(abs(logFC[i]), decreasing = TRUE))
+
+head(peaks[nm])
+```
 
 
 # Session info and logo
