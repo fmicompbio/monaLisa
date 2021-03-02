@@ -308,7 +308,19 @@ m
 
 
 
-# Selecting Transcription Factors Likely to Explain Changes in Chromatin Accessibility Using Stability Selection
+# Motif Selection with Randomized Lasso Stability Selection
+
+One can also select for meaningful transcription factors (TFs) in a regression based approach with predictors consisting of the TFs, and the response vector being the observed log-fold changes across a set of regions. In `monaLisa`, we implement the randomized lasso stability selection proposed by Meinshausen and Bühlmann [@StabSel] with the improved error bounds introduced by Shah and Samworth [@compStabs]. We have modified the `stabsel` function from the `stabs` package to implement the randomized lasso version of stability selection. 
+
+Lasso stability selection implements the lasso regression multiple times on subsamples of the data. With the randomized lasso, a weakness parameter is additionally used to randomly vary the lambda parameter of the lasso regression. Although the main appeal of stability selection is in cases where the number of predictors exceeds the number of observations, it also performs better in the variable selection in noisy data [@StabSel].
+
+With this approach, all TFs compete against each other to explain all observations, with the flexibility of adding other things like GC content to compete against the TFs for selection as well.
+
+In the example below, we select for TFs explaining log-fold changes in chromatin accessibility (ATAC-seq) across the enhancers between mouse liver and lung tissue at P0, but this can be applied to other data types as well (ChIP-seq, RNA-seq, methylation etc.).
+
+<!--
+
+Selecting Transcription Factors Likely to Explain Changes in Chromatin Accessibility Using Stability Selection
 
 Randomized Lasso stability selection proposed by Meinshausen and Bühlmann [@StabSel] applies the lasso regression on several subsamples of the data using a weakness parameter that adds additional variation to the lambda parameter and allows for more correlated variables to be selected together. Although the main appeal of stability selection is that it allows for selection of predictors when the number of predictors exceeds the number of observations, the authors also argue for this as a way of slightly overcoming the problem of lasso only selecting variables that are not correlated, and performing better in a noisy dataset depending on how strongly one sets the weakness parameter. Shah and Samworth [@compStabs] have further improved error control for stability selection using complementary pairs stability selection. The R `stabs` package [@stabs] implements the Shah and Samworth version of stability selection. `monaLisa` uses a modified version of the `stabsel` function in `stabs` that performs randomized lasso stability selection.
 
@@ -316,7 +328,7 @@ Here we demonstrate the use of randomized lasso stability selection to select tr
 
 Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promoter peaks tend not to change so much in accessibility, and we are interested in selecting TFs that likely explain logFC in enhancer regions. The `.rds` files used in monaLisa's example dataset consist of peaks that had an absolute logFC greater than 2 and less than 2.2. This was done to reduce the number of peaks and speed up runtime to demonstrate the functions used in `monaLisa` that apply randomized lasso stability selection [@StabSel].
 
-
+-->
 
 ## Load Data
 
@@ -405,7 +417,7 @@ We can now run randomized lasso stability selection to select TFs that are likel
 
 
 ```{r run_stability, eval=TRUE}
-stabs <- randomized_stabsel(x = predictor_matrix, y = response,
+stabs <- randLassoStabSel(x = predictor_matrix, y = response,
                             weakness = 0.8, cutoff = 0.7, PFER = 2,
                             mc.cores = 2)
 ```
