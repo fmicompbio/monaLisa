@@ -6,7 +6,6 @@
 \usage{
 get_binned_motif_enrichment(
   seqs,
-  genome = NULL,
   bins,
   pwmL,
   test = c("binomial", "fisher"),
@@ -20,10 +19,7 @@ get_binned_motif_enrichment(
 )
 }
 \arguments{
-\item{seqs}{DNAStringSet or GRanges object with sequences to test}
-
-\item{genome}{the genome to use to extract the sequences if \code{seqs} is of 
-class 'GRanges'.}
+\item{seqs}{DNAStringSet object with sequences to test}
 
 \item{bins}{factor of the 
 same length and order as \code{seqs}, indicating
@@ -112,5 +108,4 @@ This function implements a binned motif enrichment analysis. In each
          - make test="fisher" the default in .calcMotifEnrichment
          - add assay with fraction of sequences containing hits for a given motif
          - add motifs without hits to assays as NA values
-         - add unit test for GRanges seqs and BSgenome genome
 }

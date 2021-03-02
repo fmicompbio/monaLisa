@@ -532,9 +532,7 @@
 #'   sequences. For each bin, the sequences in all other bins are used as
 #'   background.
 #'
-#' @param seqs DNAStringSet or GRanges object with sequences to test
-#' @param genome the genome to use to extract the sequences if \code{seqs} is of 
-#'   class 'GRanges'.
+#' @param seqs DNAStringSet object with sequences to test
 #' @param bins factor of the 
 #' same length and order as \code{seqs}, indicating
 #'   the bin for each sequence. Typically the return value of
@@ -598,8 +596,6 @@
 #'          - make test="fisher" the default in .calcMotifEnrichment
 #'          - add assay with fraction of sequences containing hits for a given motif
 #'          - add motifs without hits to assays as NA values
-#'          - add unit test for GRanges seqs and BSgenome genome
-
 #'
 #' @return A \code{SummarizedExperiment} object where the rows are the motifs
 #'   and the columns are bins. The four assays are: \itemize{
@@ -614,11 +610,9 @@
 #' @importFrom S4Vectors DataFrame
 #' @importFrom GenomeInfoDb seqnames seqlevels
 #' @importFrom BiocParallel bplapply SerialParam bpnworkers
-#' @importFrom BSgenome getSeq
 #'
 #' @export
 get_binned_motif_enrichment <- function(seqs,
-                                        genome = NULL,
                                         bins,
                                         pwmL,
                                         test = c("binomial", "fisher"),
@@ -631,14 +625,8 @@ get_binned_motif_enrichment <- function(seqs,
                                         ...) {
 
     # checks
-    if (!is(seqs, "DNAStringSet") & !is(seqs, "GRanges")) {
-        stop("class of 'seqs' must be DNAStringSet or GRanges")
-    }
-    if (is(seqs, "GRanges")) {
-        if (is.null(genome) || !is(genome, "BSgenome")) {
-            stop("'genome' of class 'BSgenome' must be provided for a GRanges 'seqs'.")
-        }
-        seqs <- BSgenome::getSeq(genome, seqs)
+    if (!is(seqs, "DNAStringSet")) {
+        stop("class of 'seqs' must be DNAStringSet")
     }
     if (!is(bins, "factor")) {
         stop("'bins' must be of class 'factor'")
