@@ -55,9 +55,8 @@ test_that("getKmerFreq works as expected", {
 })
 
 test_that("countKmerPairs works as expected", {
-    library(Biostrings)
 
-    seqs <- DNAStringSet(c("AAAAAAN","ATATAT","ACGTAC","N"))
+    seqs <- Biostrings::DNAStringSet(c("AAAAAAN","ATATAT","ACGTAC","N"))
 
     expect_error(countKmerPairs(x = "error"))
     expect_error(countKmerPairs(x = seqs, k = 0))
@@ -71,6 +70,14 @@ test_that("countKmerPairs works as expected", {
                        c(1,  2,  4, 7, 12, 13, 13)))
     expect_identical(sum(res1), 12)
     expect_identical(sum(res2), 7)
+    
+    seqs2 <- Biostrings::DNAStringSet(c("AAANAANAANAAN"))
+    expect_is(res3 <- countKmerPairs(x = seqs2, k = 2, n = 1, zoops = TRUE), "matrix")
+    expect_is(res4 <- countKmerPairs(x = seqs2, k = 2, n = 1, zoops = FALSE), "matrix")
+    expect_identical(res3[1,1], 1)
+    expect_true(all(as.vector(res3[-1]) == 0))
+    expect_identical(dim(res3), c(16L, 16L))
+    expect_identical(res3, res4)
 })
 
 test_that("clusterKmers works as expected", {
