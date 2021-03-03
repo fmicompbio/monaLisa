@@ -23,18 +23,21 @@ color is defined by the \code{col} argument.}
 
 \item{selProbMinPlot}{A numerical scalar in [0,1] less than \code{selProbMin}.
 Predictors with a selection probability greater than \code{selProbMinPlot}
-are shown as gray bars, in addition to the colored ones with probabilities
-greater than \code{selProbMin}.}
+but less than \code{selProbMin} are shown as gray bars. \code{selProbMinPlot}
+is useful to include additional predictors in the plot that were not
+selected according to \code{selProbMin} but may be close to that cutoff.}
 
 \item{col}{the color for the selected predictors from stability selection.}
 
 \item{method}{A character scalar with the correlation method to use.
 One of "pearson", "kendall" or "spearman" (see \code{\link[stats]{cor}}).}
 
-\item{...}{additional parameters for the \code{barplot} function.}
+\item{...}{additional parameters for the \code{\link[graphics]{barplot}} function.}
 }
 \value{
-a barplot indicating the directionality of the predictors (motifs) with respect to the correlation to the response vector.
+\code{TRUE} (invisible). The function is called to create a barplot
+  indicating the selection probability and directionality of the predictors
+  (motifs).
 }
 \description{
 This function plots the selection probabilities of predictors
@@ -42,7 +45,4 @@ This function plots the selection probabilities of predictors
   sense of both the strength and the directionality of the associated effects.
   The directionality is estimated from the sign of the correlation coefficient
   between each predictor and the response vector.
-}
-\seealso{
-\code{\link[graphics]{barplot}}
 }

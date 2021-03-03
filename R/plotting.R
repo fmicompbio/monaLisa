@@ -379,7 +379,8 @@ plotMotifHeatmaps <- function(x, which.plots = c("p", "enr", "FDR", "log2enr"), 
 #' @importFrom graphics matplot
 #'
 #' @export
-plotStabilityPaths <- function(se, selProbMin = metadata(se)$stabsel.params.cutoff, col = "cadetblue", 
+plotStabilityPaths <- function(se, selProbMin = metadata(se)$stabsel.params.cutoff,
+                               col = "cadetblue", 
                                lwd = 1, lty = 1, ylim = c(0, 1.1), ...) {
 
     # checks
@@ -393,7 +394,7 @@ plotStabilityPaths <- function(se, selProbMin = metadata(se)$stabsel.params.cuto
     mat <- t(mat[, grep(pattern = "^regStep", x = colnames(mat))])
     cols <- rep("black", ncol(mat))
     sel <- se$selProb > selProbMin
-    cols[sel] <- "cadetblue"
+    cols[sel] <- col
   
   
     # plot stability paths
@@ -489,20 +490,22 @@ plotSelectionProb <- function(se, selProbMin = metadata(se)$stabsel.params.cutof
 #'   color is defined by the \code{col} argument.
 #' @param selProbMinPlot A numerical scalar in [0,1] less than \code{selProbMin}.
 #'   Predictors with a selection probability greater than \code{selProbMinPlot}
-#'   are shown as gray bars, in addition to the colored ones with probabilities
-#'   greater than \code{selProbMin}.
+#'   but less than \code{selProbMin} are shown as gray bars. \code{selProbMinPlot}
+#'   is useful to include additional predictors in the plot that were not
+#'   selected according to \code{selProbMin} but may be close to that cutoff.
 #' @param col the color for the selected predictors from stability selection.
 #' @param method A character scalar with the correlation method to use.
 #'   One of "pearson", "kendall" or "spearman" (see \code{\link[stats]{cor}}).
-#' @param ... additional parameters for the \code{barplot} function.
+#' @param ... additional parameters for the \code{\link[graphics]{barplot}} function.
 #'
-#' @seealso \code{\link[graphics]{barplot}}
-#'
-#' @return a barplot indicating the directionality of the predictors (motifs) with respect to the correlation to the response vector.
+#' @return \code{TRUE} (invisible). The function is called to create a barplot
+#'   indicating the selection probability and directionality of the predictors
+#'   (motifs).
 #'
 #' @importFrom SummarizedExperiment rowData assay
-#' @importFrom S4Vectors metadata isEmpty
+#' @importFrom S4Vectors metadata
 #' @importFrom stats cor
+#' @importFrom graphics barplot text
 #'
 #' @export
 plotMotifDirectionality <- function(se,
@@ -520,13 +523,12 @@ plotMotifDirectionality <- function(se,
         selProbMin > selProbMinPlot
     })
     method <- match.arg(method)
-    if(selProbMin != metadata(se)$stabsel.params.cutoff){
-      
-    }
-    
+
     # selection probabilities * sign(correlation to y)
     probs <- se$selProb
-    corcoef <- as.vector(cor(x = SummarizedExperiment::rowData(se)$y, y = SummarizedExperiment::assay(se, "x"), method = method))
+    corcoef <- as.vector(cor(x = SummarizedExperiment::rowData(se)$y,
+                             y = SummarizedExperiment::assay(se, "x"),
+                             method = method))
     cols <- ifelse(probs > selProbMin, col, "grey")
     probs <- probs * sign(corcoef)
 
@@ -540,21 +542,24 @@ plotMotifDirectionality <- function(se,
     up <- probs > 0
 
     # plot
-    bar <- graphics::barplot(probs, col = cols, border = NA,
-                             ylab = "Sel Prob * sign(cor to response)",
-                             names.arg = NA, 
-                             ylim = c(min(0, range(probs)[1] - abs(0.3*range(probs)[1])),
-                                      max(1, range(probs)[2] + abs(0.3*range(probs)[2]))), ...)
-    legend("topright", bty = "n", lty = 1,
-           legend = c("selected", "not selected"), col = c(col, "grey"))
-    
-    if (!(sum(up) == 0) && !isEmpty(probs[up])) {
-        graphics::text(x = bar[up], y = probs[up], labels = predNames[up],
-                       col = cols[up], xpd = TRUE, srt = 90, adj = 0)
-    }
-    if (!(sum(!up) == 0) && !isEmpty(probs[!up])) {
-        graphics::text(x = bar[!up], y = probs[!up], labels = predNames[!up],
-                       col = cols[!up], xpd = TRUE, srt = 90, adj = 1)
+    if (any(keep)) {
+        bar <- graphics::barplot(probs, col = cols, border = NA,
+                                 ylab = "Sel Prob * sign(cor to response)",
+                                 names.arg = NA, 
+                                 ylim = c(min(0, range(probs)[1] - abs(0.3*range(probs)[1])),
+                                          max(1, range(probs)[2] + abs(0.3*range(probs)[2]))), ...)
+        legend("topright", bty = "n", lty = 1,
+               legend = c("selected", "not selected"), col = c(col, "grey"))
+        if (any(up)) {
+            graphics::text(x = bar[up], y = probs[up] + par("cxy")[2] / 3,
+                           labels = predNames[up], col = cols[up],
+                           xpd = TRUE, srt = 90, adj = c(0, 0.5))
+        }
+        if (any(!up)) {
+            graphics::text(x = bar[!up], y = probs[!up] - par("cxy")[2] / 3,
+                           labels = predNames[!up], col = cols[!up],
+                           xpd = TRUE, srt = 90, adj = c(1, 0.5))
+        }
     }
 
     invisible(TRUE)
