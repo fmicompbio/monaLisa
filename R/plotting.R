@@ -556,6 +556,7 @@ plotSelectionProb <- function(se,
 
     # plot
     if (any(keep)) {
+        # TODO: use graphics::strwidth to define ylim?
         bar <- graphics::barplot(probs, col = cols, border = NA,
                                  ylab = "Sel Prob * sign(cor to response)",
                                  names.arg = NA, 

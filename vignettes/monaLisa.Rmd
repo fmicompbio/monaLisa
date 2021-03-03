@@ -429,12 +429,10 @@ plotStabilityPaths(se)
 
 Each line corresponds to a TF, and we can see the selection probabilities as a function of the regularization step (lambda parameter in lasso). The TF selection happens at the last step, given the specified minimum probability.
 
-We can also visualize the selection probabilities of the selected TFs, as well as the selection probability multiplied by the sign of the correlation to the logFC vector (response vector), to know how the TF relates to the logFC.
+We can also visualize the selection probabilities of the selected TFs, optionally multiplied by the sign of the correlation to the logFC vector (response vector), to know how the TF relates to the logFC (`directional` parameter).
 
 ```{r plotSelProbs, fig.width=15, fig.height=7}
-par(mfrow = c(1, 2), mar = c(5, 4, 4, 2) + 3)
-plotSelectionProb(se)
-plotMotifDirectionality(se, selProbMinPlot = 0.7)
+plotSelectionProb(se, directional = TRUE, selProbMinPlot = 0.7)
 ```
 
 
