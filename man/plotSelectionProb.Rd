@@ -9,6 +9,7 @@ plotSelectionProb(
   directional = TRUE,
   selProbMin = metadata(se)$stabsel.params.cutoff,
   selProbMinPlot = 0.4,
+  showSelProbMin = TRUE,
   col = c("cadetblue", "grey", "red"),
   method = c("pearson", "kendall", "spearman"),
   ...
@@ -24,15 +25,19 @@ and the response.}
 
 \item{selProbMin}{A numerical scalar in [0,1]. Predictors with a selection
 probability greater than \code{selProbMin} are shown as colored bars. The
-color is defined by the \code{col} argument. By default this value is
+color is defined by \code{col[1]}. By default, \code{selProbMin} is
 extracted from the parameters stored in \code{se}.}
 
 \item{selProbMinPlot}{A numerical scalar in [0,1] less than \code{selProbMin}.
 Predictors with a selection probability greater than \code{selProbMinPlot}
-but less than \code{selProbMin} are shown as gray bars. \code{selProbMinPlot}
-is useful to include additional predictors in the plot that were not
-selected according to \code{selProbMin} but may be close to that cutoff.
-Setting \code{selProbMinPlot=0} will create a plot including all predictors.}
+but less than \code{selProbMin} are shown as bars with color \code{col[2]}.
+\code{selProbMinPlot} is useful to include additional predictors in the plot
+that were not selected according to \code{selProbMin} but may be close to
+that cutoff. Setting \code{selProbMinPlot = 0} will create a plot including
+all predictors.}
+
+\item{showSelProbMin}{A logical scalar. If \code{TRUE}, the value of
+\code{selProbMin} is shown by a horizontal dashed line of color \code{col[3]}.}
 
 \item{col}{A color vector giving the three colors used for predictors with
 selection probability greater than \code{selProbMin}, additional predictors

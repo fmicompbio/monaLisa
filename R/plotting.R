@@ -490,14 +490,17 @@ plotStabilityPaths <- function(se, selProbMin = metadata(se)$stabsel.params.cuto
 #'   and the response.
 #' @param selProbMin A numerical scalar in [0,1]. Predictors with a selection
 #'   probability greater than \code{selProbMin} are shown as colored bars. The
-#'   color is defined by the \code{col} argument. By default this value is
+#'   color is defined by \code{col[1]}. By default, \code{selProbMin} is
 #'   extracted from the parameters stored in \code{se}.
 #' @param selProbMinPlot A numerical scalar in [0,1] less than \code{selProbMin}.
 #'   Predictors with a selection probability greater than \code{selProbMinPlot}
-#'   but less than \code{selProbMin} are shown as gray bars. \code{selProbMinPlot}
-#'   is useful to include additional predictors in the plot that were not
-#'   selected according to \code{selProbMin} but may be close to that cutoff.
-#'   Setting \code{selProbMinPlot=0} will create a plot including all predictors.
+#'   but less than \code{selProbMin} are shown as bars with color \code{col[2]}.
+#'   \code{selProbMinPlot} is useful to include additional predictors in the plot
+#'   that were not selected according to \code{selProbMin} but may be close to
+#'   that cutoff. Setting \code{selProbMinPlot = 0} will create a plot including
+#'   all predictors.
+#' @param showSelProbMin A logical scalar. If \code{TRUE}, the value of
+#'   \code{selProbMin} is shown by a horizontal dashed line of color \code{col[3]}.
 #' @param col A color vector giving the three colors used for predictors with
 #'   selection probability greater than \code{selProbMin}, additional predictors
 #'   with selection probability greater than \code{selProbMinPlot}, and the
@@ -521,6 +524,7 @@ plotSelectionProb <- function(se,
                               directional = TRUE,
                               selProbMin = metadata(se)$stabsel.params.cutoff, 
                               selProbMinPlot = 0.4,
+                              showSelProbMin = TRUE,
                               col = c("cadetblue", "grey", "red"),
                               method = c("pearson", "kendall", "spearman"),
                               ...) {
@@ -529,6 +533,7 @@ plotSelectionProb <- function(se,
     .assertScalar(x = directional, type = "logical")
     .assertScalar(x = selProbMin, type = "numeric", rngIncl = c(0, 1))
     .assertScalar(x = selProbMinPlot, type = "numeric", rngIncl = c(0, 1))
+    .assertScalar(x = showSelProbMin, type = "logical")
     stopifnot(exprs = {
         is(se, "SummarizedExperiment")
         selProbMin > selProbMinPlot
@@ -562,7 +567,10 @@ plotSelectionProb <- function(se,
                                  names.arg = NA, 
                                  ylim = c(min(0, range(probs)[1] - abs(0.3*range(probs)[1])),
                                           max(1, range(probs)[2] + abs(0.3*range(probs)[2]))), ...)
-        graphics::abline(h = selProbMin, lty = 5, col = col[3])
+        if (showSelProbMin) {
+            hval <- if (directional) c(-1, 1) * selProbMin else selProbMin
+            graphics::abline(h = hval, lty = 5, col = col[3])
+        }
         graphics::legend("topright", bty = "n", fill = col[1:2], border = NA,
                          legend = c("selected", "not selected"))
         if (any(up)) {
