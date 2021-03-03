@@ -75,7 +75,7 @@ test_that("motifSimilarity works as expected", {
     expect_identical(res1, res5)
     
     homerfile <- findHomer("compareMotifs.pl", dirs = "/Users/runner/work/monaLisa/monaLisa/homer/bin")
-    if (is.na(homerbin)) {
+    if (is.na(homerfile)) {
         homerfile <- findHomer("compareMotifs.pl", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.11/bin")
     }
     if (!is.na(homerfile)) { # only test at home
