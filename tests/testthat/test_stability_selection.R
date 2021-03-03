@@ -31,6 +31,7 @@ test_that("randLassoStabSel() works properly", {
   expect_true(!is.null(SummarizedExperiment::assay(ss)))
   expect_error(randLassoStabSel(x = as.data.frame(X), y = Y))
   expect_error(randLassoStabSel(x = X2[1:100, ], y = Y2[2:101]))
+  expect_error(randLassoStabSel(x = X2[1:100, ], y = Y2[2:100]))
 })
 
 
