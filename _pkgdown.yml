@@ -52,7 +52,6 @@ reference:
   desc: "Functions for selecting motifs that explain observed changes using Stability Selection."
   contents:
     - '`randLassoStabSel`'
-    - '`plotMotifDirectionality`'
     - '`plotSelectionProb`'
     - '`plotStabilityPaths`'
 - title: Miscellaneous

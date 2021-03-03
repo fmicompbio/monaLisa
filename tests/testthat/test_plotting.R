@@ -93,35 +93,20 @@ test_that("plotStabilityPaths() runs", {
 test_that("plotSelectionProb() runs", {
     tf <- tempfile(fileext = ".pdf")
 
-    ss2 <- ss
-    # SummarizedExperiment::rowData(ss2)[,1] <- FALSE
-
     pdf(file = tf)
 
-    expect_error(plotSelectionProb("error"))
-    # expect_error(plotSelectionProb(ss2, onlySelected = TRUE))
-    expect_true(plotSelectionProb(ss, onlySelected = FALSE))
-    expect_true(plotSelectionProb(ss, onlySelected = TRUE))
+    expect_error(plotSelectionProb(se = "error", selProbMin = 0.5), "SummarizedExperiment")
+    expect_error(plotSelectionProb(se = ss, directional = "error"), "logical")
+    expect_error(plotSelectionProb(se = ss, directional = TRUE, selProbMin = 2.0), "within")
+    expect_error(plotSelectionProb(se = ss, selProbMinPlot = "error"), "numeric")
+    expect_error(plotSelectionProb(se = ss, selProbMin = 0.5, selProbMinPlot = 0.6), " > ")
+    expect_error(plotSelectionProb(se = ss, col = "error"), "length 3")
+    expect_error(plotSelectionProb(se = ss, method = "error"), "should be one of")
 
-    dev.off()
-    unlink(tf)
-})
-
-
-test_that("plotMotifDirectionality() runs", {
-    tf <- tempfile(fileext = ".pdf")
-    
-    X2 <- X
-    colnames(X2) <- paste0("pred", 1:ncol(X2))
-    
-    pdf(file = tf)
-    
-    expect_error(plotMotifDirectionality("error"))
-    expect_error(plotMotifDirectionality(se = NULL))
-    expect_true(plotMotifDirectionality(se = ss))
+    expect_true(plotSelectionProb(ss, selProbMin = 1.0, selProbMinPlot = 0.99))
+    expect_true(plotSelectionProb(ss))
+    expect_true(plotSelectionProb(ss, FALSE))
     
     dev.off()
     unlink(tf)
 })
-
-
