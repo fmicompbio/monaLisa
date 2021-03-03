@@ -95,11 +95,11 @@ test_that("plotSelectionProb() runs", {
 
     pdf(file = tf)
 
-    expect_error(plotSelectionProb(se = "error", selProbMin = 0.5), "SummarizedExperiment")
+    expect_error(plotSelectionProb(se = "error", selProbMin = 0.5))
     expect_error(plotSelectionProb(se = ss, directional = "error"), "logical")
     expect_error(plotSelectionProb(se = ss, directional = TRUE, selProbMin = 2.0), "within")
     expect_error(plotSelectionProb(se = ss, selProbMinPlot = "error"), "numeric")
-    expect_error(plotSelectionProb(se = ss, selProbMin = 0.5, selProbMinPlot = 0.6), " > ")
+    expect_error(plotSelectionProb(se = ss, selProbMin = 0.5, selProbMinPlot = 0.6))
     expect_error(plotSelectionProb(se = ss, col = "error"), "length 3")
     expect_error(plotSelectionProb(se = ss, method = "error"), "should be one of")
 
