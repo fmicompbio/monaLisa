@@ -13,7 +13,7 @@ se <- readRDS(system.file("extdata", "se.rds", package = "monaLisa"))[1:10, 1:8]
 Y <- rnorm(n = 100, mean = 2, sd = 1)
 X <- matrix(data = runif(n = 20 * 100, min = 0, max = 3), nrow = length(Y), ncol = 20)
 for (i in sample(x = 1:ncol(X), size = 10, replace = FALSE))
-    X[ ,i] <- X[ ,i] + Y
+    X[ ,i] <- X[ ,i] + Y * c(1, -1)[(i %% 2) + 1]
 ss <- monaLisa::randLassoStabSel(x = X, y = Y)
 
 
