@@ -109,7 +109,7 @@ NULL
 #'     }
 #'     \item{colData}{: a DataFrame with columns: \itemize{
 #'       \item{selProb}{: the final selection probabilities for the predictors (from the last regularization step).}
-#'       \item{selProbCutoff'\code{cutoff}'}{: logical indicating the predictors that made the selection with the specified cutoff.}
+#'       \item{selected}{: logical indicating the predictors that made the selection with the specified cutoff.}
 #'       \item{reg'\code{i}'}{: columns containing the selection probabilities for regularization step i. }
 #'       }
 #'     }
@@ -144,29 +144,30 @@ NULL
 randLassoStabSel <- function(x, y, weakness=0.8, cutoff=0.8, PFER=2, ...) {
   
     # checks
-    if(!is(x, "matrix")) {
+    if (!is(x, "matrix")) {
         stop("'x' must be a matrix")
     }
     .assertVector(y, type = "numeric")
-    if(nrow(x) != length(y)) {
-      stop("nrow of 'x' and length of 'y' are not equal. The rows of 
-           x must be the same length and order as the elements in 'y'.")
+    if (nrow(x) != length(y)) {
+        stop("nrow of 'x' and length of 'y' are not equal. The rows of 
+             x must be the same length and order as the elements in 'y'.")
     }
-    if(!is.null(names(y)) && !is.null(rownames(x)) && names(y)!=rownames(x)) {
-      stop("'x' and 'y' have different names. Make sure that the names are 
-           identical and that the orders match.")
+    if (!is.null(names(y)) && !is.null(rownames(x)) && names(y) != rownames(x)) {
+        stop("'x' and 'y' have different names. Make sure that the names are 
+             identical and that the orders match.")
     }
-    if(is.null(rownames(x))) {
+    if (is.null(rownames(x))) {
         rownames(x) <- paste0("obs", 1:nrow(x))
     }
-    if(is.null(colnames(x))) {
+    if (is.null(colnames(x))) {
         colnames(x) <- paste0("pred", 1:ncol(x))
     }
   
     
     # run randomized lasso stability selection
     ss <- stabs::stabsel(x = x, y = y, fitfun = .glmnetRandomizedLasso, 
-                         args.fitfun = list(weakness = weakness), cutoff = cutoff, PFER = PFER, ...)
+                         args.fitfun = list(weakness = weakness),
+                         cutoff = cutoff, PFER = PFER, ...)
 
     
     # restructure as SummarizedExperiment object
@@ -184,16 +185,11 @@ randLassoStabSel <- function(x, y, weakness=0.8, cutoff=0.8, PFER=2, ...) {
                  randStabsel.params.weakness = weakness
                  )
     
-    probMat <- ss$phat
+    probMat <- as(ss$phat, "DataFrame")
     colnames(probMat) <- paste0("regStep", 1:ncol(probMat))
-    probMat <- as(probMat, "DFrame")
-    selProb <- probMat[, ncol(probMat)]
-    sel <- logical(length = ncol(x))
-    sel[ss$selected] <- TRUE
-    DF <- S4Vectors::DataFrame(selProb = selProb, sel = sel)
-    colnames(DF)[2] <- paste0("selProbCutoff", cutoff) 
-    cdat <- cbind(DF, probMat)
-    
+    cdat <- S4Vectors::DataFrame(selProb = probMat[, ncol(probMat)],
+                                 selected = seq.int(ncol(x)) %in% ss$selected,
+                                 probMat)
     rdat <- S4Vectors::DataFrame(y = y)
     
     se <- SummarizedExperiment::SummarizedExperiment(assays = list(x = x), 

@@ -38,7 +38,7 @@ A \code{SummarizedExperiment} object where the rows are the observations
     }
     \item{colData}{: a DataFrame with columns: \itemize{
       \item{selProb}{: the final selection probabilities for the predictors (from the last regularization step).}
-      \item{selProbCutoff'\code{cutoff}'}{: logical indicating the predictors that made the selection with the specified cutoff.}
+      \item{selected}{: logical indicating the predictors that made the selection with the specified cutoff.}
       \item{reg'\code{i}'}{: columns containing the selection probabilities for regularization step i. }
       }
     }
