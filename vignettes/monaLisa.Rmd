@@ -362,21 +362,23 @@ head(peaks)
 
 ## Get TFBS per Motif Across the Peaks
 
-We will now construct the transcription factor binding site (TFBS) matrix for all motifs (from a database like JASPAR) across the peak regions. We use the `findMotifHits` function to get the TF hits. This matrix will be the predictor matrix in our regression.
+We will now construct the transcription factor binding site (TFBS) matrix for known motifs (from a database like JASPAR) across the peak regions. We use the `findMotifHits` function to get the TF hits. This matrix will be the predictor matrix in our regression.
 
-As mentioned, this framework offers the flexibility to add other predictors to compete against the TFs for selection. Here, we add GC and observed/expected CpG content.
+As mentioned, this framework offers the flexibility to add additional predictors to compete against the TFs for selection. Here, we add the fraction of G+C and CpG observed/expected ratio as predictors, to ensure that selected TFs are not just detecting a simple trend in GC or CpG composition.
 
 ```{r predictorMatrix}
-# genome
-genome <- BSgenome.Mmusculus.UCSC.mm10
-
-# get PWMs
+# get PWMs (random subset of 150 vertebrate TFs from Jaspar)
 pfms <- getMatrixSet(JASPAR2018, list(matrixtype = "PFM", tax_group = "vertebrates")) # for seq-logos
+set.seed(6698)
+pfms <- pfms[sort(sample(length(pfms), size = 150), decreasing = FALSE)]
 pwms <- toPWM(pfms) # for searching
 
+
+
 # get TFBS on given GRanges (peaks)
-hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0,
-                      method = "matchPWM", genome = genome,
+peakSeq <- BSgenome::getSeq(BSgenome.Mmusculus.UCSC.mm10, peaks)
+hits <- findMotifHits(query = pwms, subject = peakSeq, min.score = 6.0,
+                      method = "matchPWM",
                       BPPARAM = BiocParallel::MulticoreParam(2))
 
 # get TFBS matrix
@@ -389,7 +391,6 @@ all(rownames(TFBSmatrix) == names(peaks))
 all(rownames(TFBSmatrix) == names(logFC))
 
 # calculate GC and oeCpG content
-peakSeq <- BSgenome::getSeq(genome, peaks)
 fMono <- oligonucleotideFrequency(peakSeq, width = 1L, as.prob = TRUE)
 fDi <- oligonucleotideFrequency(peakSeq, width = 2L, as.prob = TRUE)
 fracGC <- fMono[,"G"] + fMono[,"C"]
@@ -401,18 +402,19 @@ TFBSmatrix[1:6, 1:6]
 ```
 
 
-## Select TFs
+## Identify important TFs
 
-We can now run randomized lasso stability selection to select TFs that are likely to explain the log-fold changes in accessibility. 
+We can now run randomized lasso stability selection to identify TFs that are likely to explain the log-fold changes in accessibility. 
 
 ```{r stabSelTFs}
 # select TFs
 set.seed(123)
-se <- randLassoStabSel(x = TFBSmatrix, y = logFC, mc.cores = 2)
+se <- randLassoStabSel(x = TFBSmatrix, y = logFC,
+                       cutoff = 0.8, mc.cores = 2)
 se
 
-# number of selected TFs
-sum(se$selProbCutoff0.8)
+# selected TFs
+colnames(se)[se$selected]
 ```
 
 <!--
@@ -432,7 +434,7 @@ Each line corresponds to a TF, and we can see the selection probabilities as a f
 We can also visualize the selection probabilities of the selected TFs, optionally multiplied by the sign of the correlation to the logFC vector (response vector), to know how the TF relates to the logFC (`directional` parameter).
 
 ```{r plotSelProbs, fig.width=15, fig.height=7}
-plotSelectionProb(se, directional = TRUE, selProbMinPlot = 0.7)
+plotSelectionProb(se, directional = TRUE, selProbMinPlot = 0.6)
 ```
 
 
@@ -442,16 +444,17 @@ Next, we visualize the correlation structure of the TFBS matrix. We can see that
 # correlation matrix (excluding oeCpG and fracGC)
 excl <- colnames(TFBSmatrix) %in% c("oeCpG", "fracGC")
 TFBSmatrixCor <- cor(TFBSmatrix[, !excl], method = "pearson")
-sel <- colnames(se)[se$selProbCutoff0.8]
+sel <- colnames(se)[se$selected]
 TFBSmatrixCorSel <- TFBSmatrixCor[sel, sel]
 
 # heatmap
-colF = colorRamp2(c(-1, 0, 1), c("blue", "white", "red"))
+Heatmap(TFBSmatrixCor,
+        show_row_names = FALSE, show_column_names = FALSE, 
+        name = "Pear. Cor.", column_title = "All TFs",
+        col = colorRamp2(c(-1, 0, 1), c("blue", "white", "red")),
+        use_raster = TRUE)
 
-Heatmap(TFBSmatrixCor, show_row_names = FALSE, show_column_names = FALSE, 
-        name = "Pear. Cor.", column_title = "All TFs", col = colF)
-
-pfmsSel <- pfms[match(sel, name(pfms))]
+pfmsSel <- pfms[match(colnames(TFBSmatrixCorSel), name(pfms))]
 maxwidth <- max(sapply(TFBSTools::Matrix(pfmsSel), ncol))
 seqlogoGrobs <- lapply(pfmsSel, seqLogoGrob, xmax = maxwidth)
 hmSeqlogo <- rowAnnotation(logo = anno_seqlogo(seqlogoGrobs, which = "row"),
@@ -459,17 +462,19 @@ hmSeqlogo <- rowAnnotation(logo = anno_seqlogo(seqlogoGrobs, which = "row"),
                            show_legend = FALSE, show_annotation_name = FALSE)
 
 Heatmap(TFBSmatrixCorSel, show_row_names = TRUE, show_column_names = TRUE, 
-        name = "Pear. Cor.", column_title = "Selected TFs", col = colF, 
+        name = "Pear. Cor.", column_title = "Selected TFs",
+        col = colorRamp2(c(-1, 0, 1), c("blue", "white", "red")), 
         right_annotation = hmSeqlogo)
 ```
-We examine the peaks that have hits for a selected TF of interest, ordered by the biggest absolute logFC values.
+
+We can examine the peaks that have hits for a selected TF of interest, ordered by absolute logFC values.
 
 ```{r topPeaks}
-TF <- sel[1]
+TF <- sel[2]
 TF
 
-i <- which(assay(se, "x")[, TF] > 0)
-nm <- names(sort(abs(logFC[i]), decreasing = TRUE))
+i <- which(assay(se, "x")[, TF] > 0) # peaks that contain TF hits...
+nm <- names(sort(abs(logFC[i]), decreasing = TRUE)) # ... order by |logFC|
 
 head(peaks[nm])
 ```
