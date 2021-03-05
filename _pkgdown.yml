@@ -64,8 +64,6 @@ reference:
     - '`findHomer`'
     - '`prepareHomer`'
     - '`parseHomerOutput`'
-    - '`getColsByBin`'
-    - '`glmnet.randomized_lasso`'
     - '`motifSimilarity`'
     - '`motifKmerSimilarity`'
     - '`seqLogoGrob`'
