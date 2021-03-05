@@ -67,6 +67,7 @@ reference:
     - '`motifSimilarity`'
     - '`motifKmerSimilarity`'
     - '`seqLogoGrob`'
+    - '`getColsByBin`'
     - '`sample_random_regions`'
 
 template:
