@@ -588,15 +588,6 @@
 #'       or without a hit for a particular motif (columns).}
 #'   }
 #'   
-#'   TODO:  - change functions to do one-time calculations when using in binned mode?
-#'          - think if we want to parameterize some of the pseudo-counts used (leaning towards not)
-#'          - parameterize multiple testing correction method?
-#'          - change the names of the assays in the SE or return the p-values and FDR (not -log10)
-#'          - have a look again at using motif IDs and not names, but keeping both information
-#'          - make test="fisher" the default in .calcMotifEnrichment
-#'          - add assay with fraction of sequences containing hits for a given motif
-#'          - add motifs without hits to assays as NA values
-#'
 #' @return A \code{SummarizedExperiment} object where the rows are the motifs
 #'   and the columns are bins. The four assays are: \itemize{
 #'   \item{p}{: -log10 P values}
