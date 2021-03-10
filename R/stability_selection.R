@@ -110,6 +110,7 @@ NULL
 #'     \item{colData}{: a DataFrame with columns: \itemize{
 #'       \item{selProb}{: the final selection probabilities for the predictors (from the last regularization step).}
 #'       \item{selected}{: logical indicating the predictors that made the selection with the specified cutoff.}
+#'       \item{selAUC}{: the normalized area under the seletion curve (mean of selection probabilities over regulatization steps).}
 #'       \item{reg'\code{i}'}{: columns containing the selection probabilities for regularization step i. }
 #'       }
 #'     }
@@ -189,6 +190,7 @@ randLassoStabSel <- function(x, y, weakness=0.8, cutoff=0.8, PFER=2, ...) {
     colnames(probMat) <- paste0("regStep", 1:ncol(probMat))
     cdat <- S4Vectors::DataFrame(selProb = probMat[, ncol(probMat)],
                                  selected = seq.int(ncol(x)) %in% ss$selected,
+                                 selAUC = rowMeans(as.matrix(probMat)),
                                  probMat)
     rdat <- S4Vectors::DataFrame(y = y)
     

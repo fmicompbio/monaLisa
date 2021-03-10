@@ -23,8 +23,12 @@ test_that("randLassoStabSel() works properly", {
 
     # tests
     expect_true(is(ss, "SummarizedExperiment"))
-    expect_true(all(rowData(ss)$y == Y))
+    expect_identical(rowData(ss)$y, Y)
     expect_identical(ss$selProb, colData(ss)[, ncol(colData(ss))])
+    expect_identical(ss$selAUC,
+                     rowMeans(as.matrix(colData(ss)[, grep("^regStep", colnames(colData(ss)))])))
+    expect_true(all(ss$selProb >= 0 & ss$selProb <= 1))
+    expect_true(all(ss$selAUC >= 0 & ss$selAUC <= 1))
     expect_true(all(s_cols %in% metadata(ss)$stabsel.params.selected))
     expect_identical(dim(ss), c(500L, 50L))
     expect_identical(length(Y), nrow(ss))
