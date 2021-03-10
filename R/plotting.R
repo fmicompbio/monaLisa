@@ -508,6 +508,9 @@ plotStabilityPaths <- function(se, selProbMin = metadata(se)$stabsel.params.cuto
 #' @param method A character scalar with the correlation method to use in the
 #'   calculation of predictor-response marginal correlations. One of "pearson",
 #'   "kendall" or "spearman" (see \code{\link[stats]{cor}}).
+#' @param ylimext A numeric scalar defining how much the y axis limits should be
+#'   expanded beyond the plotted probabilities to allow for space for the
+#'   bar labels.
 #' @param ... additional parameters passed to \code{\link[graphics]{barplot}}.
 #'
 #' @return \code{TRUE} (invisible). The function is called to create a barplot
@@ -517,7 +520,7 @@ plotStabilityPaths <- function(se, selProbMin = metadata(se)$stabsel.params.cuto
 #' @importFrom SummarizedExperiment rowData assay
 #' @importFrom S4Vectors metadata
 #' @importFrom stats cor
-#' @importFrom graphics barplot abline legend text
+#' @importFrom graphics barplot abline legend text axis
 #'
 #' @export
 plotSelectionProb <- function(se,
@@ -527,6 +530,7 @@ plotSelectionProb <- function(se,
                               showSelProbMin = TRUE,
                               col = c("cadetblue", "grey", "red"),
                               method = c("pearson", "kendall", "spearman"),
+                              ylimext = 0.25,
                               ...) {
     
     # checks
@@ -540,6 +544,7 @@ plotSelectionProb <- function(se,
     })
     .assertVector(x = col, len = 3L)
     method <- match.arg(method)
+    .assertScalar(x = ylimext, type = "numeric", rngIncl = c(0, Inf))
 
     # selection probabilities * sign(correlation to y)
     probs <- se$selProb
@@ -561,12 +566,16 @@ plotSelectionProb <- function(se,
 
     # plot
     if (any(keep)) {
-        # TODO: use graphics::strwidth to define ylim?
         bar <- graphics::barplot(probs, col = cols, border = NA,
-                                 ylab = "Sel Prob * sign(cor to response)",
-                                 names.arg = NA, 
-                                 ylim = c(min(0, range(probs)[1] - abs(0.3*range(probs)[1])),
-                                          max(1, range(probs)[2] + abs(0.3*range(probs)[2]))), ...)
+                                 ylab = ifelse(directional,
+                                               "Directional selection probability",
+                                               "Selection probability"),
+                                 names.arg = NA, axes = FALSE,
+                                 ylim = c(min(probs) - ylimext,
+                                          max(probs) + ylimext),
+                                 ...)
+        ys <- pretty(x = c(0, probs))
+        graphics::axis(side = 2, at = ys)
         if (showSelProbMin) {
             hval <- if (directional) c(-1, 1) * selProbMin else selProbMin
             graphics::abline(h = hval, lty = 5, col = col[3])

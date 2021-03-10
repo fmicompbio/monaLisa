@@ -12,6 +12,7 @@ plotSelectionProb(
   showSelProbMin = TRUE,
   col = c("cadetblue", "grey", "red"),
   method = c("pearson", "kendall", "spearman"),
+  ylimext = 0.25,
   ...
 )
 }
@@ -47,6 +48,10 @@ selection probability cutoff line.}
 \item{method}{A character scalar with the correlation method to use in the
 calculation of predictor-response marginal correlations. One of "pearson",
 "kendall" or "spearman" (see \code{\link[stats]{cor}}).}
+
+\item{ylimext}{A numeric scalar defining how much the y axis limits should be
+expanded beyond the plotted probabilities to allow for space for the
+bar labels.}
 
 \item{...}{additional parameters passed to \code{\link[graphics]{barplot}}.}
 }
