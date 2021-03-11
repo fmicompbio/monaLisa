@@ -10,8 +10,10 @@ plotMotifHeatmaps(
   width = 4,
   col.enr = c("#053061", "#2166AC", "#4393C3", "#92C5DE", "#D1E5F0", "#F7F7F7",
     "#FDDBC7", "#F4A582", "#D6604D", "#B2182B", "#67001F"),
-  col.sig = c("#FFF5EB", "#FEE6CE", "#FDD0A2", "#FDAE6B", "#FD8D3C", "#F16913",
-    "#D94801", "#A63603", "#7F2704"),
+  col.sig = c("#FFFFFF", "#F0F0F0", "#D9D9D9", "#BDBDBD", "#969696", "#737373",
+    "#525252", "#252525", "#000000"),
+  col.gc = c("#F7FCF5", "#E5F5E0", "#C7E9C0", "#A1D99B", "#74C476", "#41AB5D",
+    "#238B45", "#006D2C", "#00441B"),
   maxEnr = NULL,
   maxSig = NULL,
   highlight = NULL,
@@ -36,6 +38,8 @@ of \code{\link{runHomer}}.}
 \item{col.enr}{Colors used for enrichment heatmap.}
 
 \item{col.sig}{Colors used for significance hetmaps (P values and FDR).}
+
+\item{col.gc}{Colors used for motif GC content (for \code{show_motif_GC = TRUE}).}
 
 \item{maxEnr}{Cap color mapping at enrichment = \code{maxEnr} (default: 99.5th percentile).}
 
@@ -71,8 +75,8 @@ A list of \code{ComplexHeatmap::Heatmap} objects.
 Plot motif enrichments (e.g. significance or magnitude) as a heatmap.
 }
 \details{
-The heatmaps are plotted side-by-side and are created internally using
-    the \pkg{ComplexHeatmap} package.
+The heatmaps are created using the \pkg{ComplexHeatmap} package
+    and plotted side-by-side.
 
     Each heatmap will be \code{width} inches wide, so the total plot needs a
     graphics device with a width of at least \code{length(which.plots) * width}
