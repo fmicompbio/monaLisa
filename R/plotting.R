@@ -226,6 +226,8 @@ plotBinScatter <- function(x, y, b,
 #'     logos are drawn to scale).
 #' @param use_raster \code{TRUE} or \code{FALSE} (default). Passed to \code{use_raster}
 #'     of \code{\link[ComplexHeatmap]{Heatmap}}.
+#' @param ... Further arguments passed to \code{\link[ComplexHeatmap]{Heatmap}}
+#'     when creating the main heatmaps selected by \code{which.plots}. 
 #'
 #' @details The heatmaps are created using the \pkg{ComplexHeatmap} package
 #'     and plotted side-by-side.
@@ -259,9 +261,8 @@ plotMotifHeatmaps <- function(x,
                               col.enr = c("#053061","#2166AC","#4393C3","#92C5DE",
                                           "#D1E5F0","#F7F7F7","#FDDBC7","#F4A582",
                                           "#D6604D","#B2182B","#67001F"),
-                              col.sig = c("#FFFFFF","#F0F0F0","#D9D9D9","#BDBDBD",
-                                          "#969696","#737373","#525252","#252525",
-                                          "#000000"),
+                              col.sig = c("#F0F0F0","#D9D9D9","#BDBDBD","#969696",
+                                          "#737373","#525252","#252525","#000000"),
                               col.gc = c("#F7FCF5","#E5F5E0","#C7E9C0","#A1D99B",
                                          "#74C476","#41AB5D","#238B45","#006D2C",
                                          "#00441B"),
@@ -273,7 +274,8 @@ plotMotifHeatmaps <- function(x,
                               show_motif_GC = FALSE,
                               show_seqlogo = FALSE,
                               width.seqlogo = 1.5,
-                              use_raster = FALSE) {
+                              use_raster = FALSE,
+                              ...) {
 	stopifnot(exprs = {
 	    is(x, "SummarizedExperiment")
 	    all(assayNames(x) == c("p", "FDR", "enr", "log2enr"))
@@ -357,20 +359,19 @@ plotMotifHeatmaps <- function(x,
 			rng <- c(0, if (is.null(maxSig)) quantile(dat, .995) else maxSig)
 			cols <- col.sig
 		}
-		hm <- Heatmap(matrix = dat,
-		              name = assayNameMap1[w],
-		              width = unit(width,"inch"),
-		              column_title = assayNameMap2[w],
-		              col = colorRamp2(breaks = seq(rng[1], rng[2], length.out = 256),
-		                               colors = colorRampPalette(cols)(256)),
-		              cluster_rows = FALSE, cluster_columns = FALSE,
-		              show_row_names = FALSE, show_column_names = FALSE,
-		              ##column_names_side = "bottom", column_names_max_height = unit(1.5,"inch"),
-		              top_annotation = hmBin,
-		              show_heatmap_legend = TRUE,
-		              heatmap_legend_param = list(color_bar = "continuous"),
-		              use_raster = use_raster)
-		hm
+		Heatmap(matrix = dat,
+		        name = assayNameMap1[w],
+		        width = unit(width,"inch"),
+		        column_title = assayNameMap2[w],
+		        col = colorRamp2(breaks = seq(rng[1], rng[2], length.out = 256),
+		                         colors = colorRampPalette(cols)(256)),
+		        cluster_rows = FALSE, cluster_columns = FALSE,
+		        show_row_names = FALSE, show_column_names = FALSE,
+		        ##column_names_side = "bottom", column_names_max_height = unit(1.5,"inch"),
+		        top_annotation = hmBin, show_heatmap_legend = TRUE,
+		        heatmap_legend_param = list(color_bar = "continuous"),
+		        use_raster = use_raster,
+		        ...)
 	}))
 	names(ret)[seq(length(ret) - length(which.plots) + 1L, length(ret))] <- which.plots
 	show(Reduce(ComplexHeatmap::add_heatmap, ret))

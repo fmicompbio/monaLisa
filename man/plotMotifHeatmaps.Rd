@@ -10,8 +10,8 @@ plotMotifHeatmaps(
   width = 4,
   col.enr = c("#053061", "#2166AC", "#4393C3", "#92C5DE", "#D1E5F0", "#F7F7F7",
     "#FDDBC7", "#F4A582", "#D6604D", "#B2182B", "#67001F"),
-  col.sig = c("#FFFFFF", "#F0F0F0", "#D9D9D9", "#BDBDBD", "#969696", "#737373",
-    "#525252", "#252525", "#000000"),
+  col.sig = c("#F0F0F0", "#D9D9D9", "#BDBDBD", "#969696", "#737373", "#525252",
+    "#252525", "#000000"),
   col.gc = c("#F7FCF5", "#E5F5E0", "#C7E9C0", "#A1D99B", "#74C476", "#41AB5D",
     "#238B45", "#006D2C", "#00441B"),
   maxEnr = NULL,
@@ -22,7 +22,8 @@ plotMotifHeatmaps(
   show_motif_GC = FALSE,
   show_seqlogo = FALSE,
   width.seqlogo = 1.5,
-  use_raster = FALSE
+  use_raster = FALSE,
+  ...
 )
 }
 \arguments{
@@ -67,6 +68,9 @@ logos are drawn to scale).}
 
 \item{use_raster}{\code{TRUE} or \code{FALSE} (default). Passed to \code{use_raster}
 of \code{\link[ComplexHeatmap]{Heatmap}}.}
+
+\item{...}{Further arguments passed to \code{\link[ComplexHeatmap]{Heatmap}}
+when creating the main heatmaps selected by \code{which.plots}.}
 }
 \value{
 A list of \code{ComplexHeatmap::Heatmap} objects.
