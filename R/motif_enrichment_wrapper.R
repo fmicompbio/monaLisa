@@ -22,12 +22,12 @@
 #'   \code{method = "Homer"} a numeric scalar.
 #' @param verbose A logical scalar. If \code{TRUE}, print progress messages.
 #' @param ... Additional arguments for passed to
-#'   \code{\link{calcBinnedMotifEnrR()}} or
-#'   \code{\link{calcBinnedMotifEnrHomer()}}.
+#'   \code{\link{calcBinnedMotifEnrR}} or
+#'   \code{\link{calcBinnedMotifEnrHomer}}.
 #'
 #' @details This function is a wrapper for
-#'   \code{\link{calcBinnedMotifEnrR()}} or
-#'   \code{\link{calcBinnedMotifEnrHomer()}}. For additional supported arguments
+#'   \code{\link{calcBinnedMotifEnrR}} or
+#'   \code{\link{calcBinnedMotifEnrHomer}}. For additional supported arguments
 #'   (via \code{...}) please see the help pages of these functions.
 #'   
 #' @return A \code{SummarizedExperiment} object with motifs in rows and bins
@@ -43,8 +43,8 @@
 #' }
 #'
 #' @seealso \code{\link{bin}} for binning of sequences;
-#'   \code{\link{calcBinnedMotifEnrR()}} that is used for
-#'   \code{method = "R"} and \code{\link{calcBinnedMotifEnrHomer()}} used
+#'   \code{\link{calcBinnedMotifEnrR}} that is used for
+#'   \code{method = "R"} and \code{\link{calcBinnedMotifEnrHomer}} used
 #'   for \code{method = "Homer"}.
 #' 
 #' @importFrom methods is

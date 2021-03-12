@@ -38,8 +38,8 @@ processing. Either a \code{\link[BiocParallel]{SerialParam}} or a
 \item{verbose}{A logical scalar. If \code{TRUE}, print progress messages.}
 
 \item{...}{Additional arguments for passed to
-\code{\link{calcBinnedMotifEnrR()}} or
-\code{\link{calcBinnedMotifEnrHomer()}}.}
+\code{\link{calcBinnedMotifEnrR}} or
+\code{\link{calcBinnedMotifEnrHomer}}.}
 }
 \value{
 A \code{SummarizedExperiment} object with motifs in rows and bins
@@ -62,13 +62,13 @@ Calculate motif enrichment analysis on bins of sequences.
 }
 \details{
 This function is a wrapper for
-  \code{\link{calcBinnedMotifEnrR()}} or
-  \code{\link{calcBinnedMotifEnrHomer()}}. For additional supported arguments
+  \code{\link{calcBinnedMotifEnrR}} or
+  \code{\link{calcBinnedMotifEnrHomer}}. For additional supported arguments
   (via \code{...}) please see the help pages of these functions.
 }
 \seealso{
 \code{\link{bin}} for binning of sequences;
-  \code{\link{calcBinnedMotifEnrR()}} that is used for
-  \code{method = "R"} and \code{\link{calcBinnedMotifEnrHomer()}} used
+  \code{\link{calcBinnedMotifEnrR}} that is used for
+  \code{method = "R"} and \code{\link{calcBinnedMotifEnrHomer}} used
   for \code{method = "Homer"}.
 }
