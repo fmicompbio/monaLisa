@@ -283,7 +283,7 @@ plotMotifHeatmaps <- function(x,
                               ...) {
 	stopifnot(exprs = {
 	    is(x, "SummarizedExperiment")
-	    all(assayNames(x) == c("p", "FDR", "enr", "log2enr"))
+	    all(which.plots %in% assayNames(x))
 	    "bins" %in% names(metadata(x))
 	    (!show_motif_GC || "motif.percentGC" %in% colnames(rowData(x)))
 	})
