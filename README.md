@@ -44,9 +44,12 @@ homerfile <- findHomer(dirs = "/path/to/look/into")
 
 # run analysis
 # (atac.peaks is a GRanges)
-resL <- runHomer(gr = atac.peaks, b = bins, genomedir = "/work/gbioinfo/DB/genomes/mm10",
-                 outdir = "myresults", motifFile = "jaspar2018.motif", homerfile = homerfile,
-                 regionsize = "given", Ncpu = 4L)
+resL <- calcBinnedMotifEnrHomer(gr = atac.peaks, b = bins,
+                                genomedir = "/work/gbioinfo/DB/genomes/mm10",
+                                outdir = "myresults",
+                                motifFile = "jaspar2018.motif",
+                                homerfile = homerfile,
+                                regionsize = "given", Ncpu = 4L)
 
 ```
 

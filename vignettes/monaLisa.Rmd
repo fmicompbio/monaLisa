@@ -62,9 +62,12 @@ homerfile <- findHomer(dirs = "/path/to/look/into")
 
 # run analysis
 # (atac.peaks is a GRanges)
-se <- runHomer(gr = atac.peaks, b = bins, genomedir = "/work/gbioinfo/DB/genomes/mm10",
-               outdir = "myresults", motifFile = "jaspar2018.motif", homerfile = homerfile,
-               regionsize = "given", Ncpu = 4L)
+se <- calcBinnedMotifEnrHomer(gr = atac.peaks, b = bins,
+                              genomedir = "/work/gbioinfo/DB/genomes/mm10",
+                              outdir = "myresults",
+                              motifFile = "jaspar2018.motif",
+                              homerfile = homerfile,
+                              regionsize = "given", Ncpu = 4L)
 
 ```
 
@@ -183,9 +186,11 @@ take a while, for this reason you do not need to run it, but can just load the
 results as shown below:  
 ```{r runhomer, eval=FALSE}
 outdir <- tempfile(fileext = ".output")
-se <- runHomer(gr = lmrsel, b = bins, genomedir = "/work/gbioinfo/DB/genomes/mm9",
-               outdir = outdir, motifFile = motiffile, homerfile = homerfile,
-               regionsize = "given", Ncpu = 20L)
+se <- calcBinnedMotifEnrHomer(gr = lmrsel, b = bins,
+                              genomedir = "/work/gbioinfo/DB/genomes/mm9",
+                              outdir = outdir, motifFile = motiffile,
+                              homerfile = homerfile,
+                              regionsize = "given", Ncpu = 20L)
 ```
 
 <!--

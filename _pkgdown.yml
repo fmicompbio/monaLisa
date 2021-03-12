@@ -33,7 +33,8 @@ reference:
   desc: "Bin regions of interest and analyse motifs enrichments in bins."
   contents:
     - '`bin`'
-    - '`runHomer`'
+    - '`calcBinnedMotifEnr`'
+    - '`calcBinnedMotifEnrHomer`'
     - '`get_binned_motif_enrichment`'
     - '`plotBinDensity`'
     - '`plotBinHist`'

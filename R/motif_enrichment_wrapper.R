@@ -22,12 +22,13 @@
 #'   \code{method = "Homer"} a numeric scalar.
 #' @param verbose A logical scalar. If \code{TRUE}, print progress messages.
 #' @param ... Additional arguments for passed to
-#'   \code{\link{get_binned_motif_enrichment()}} or \code{\link{runHomer()}}.
+#'   \code{\link{get_binned_motif_enrichment()}} or
+#'   \code{\link{calcBinnedMotifEnrHomer()}}.
 #'
 #' @details This function is a wrapper for
-#'   \code{\link{get_binned_motif_enrichment()}} or \code{\link{runHomer()}}.
-#'   For additional supported arguments please see the help pages of these
-#'   functions.
+#'   \code{\link{get_binned_motif_enrichment()}} or
+#'   \code{\link{calcBinnedMotifEnrHomer()}}. For additional supported arguments
+#'   please see the help pages of these functions.
 #'   
 #' @return A \code{SummarizedExperiment} object with motifs in rows and bins
 #'   in columns, containing six assays: \itemize{
@@ -43,7 +44,7 @@
 #'
 #' @seealso \code{\link{bin}} for binning of sequences;
 #'   \code{\link{get_binned_motif_enrichment()}} that is used for
-#'   \code{method = "R"} and \code{\link{runHomer()}} used
+#'   \code{method = "R"} and \code{\link{calcBinnedMotifEnrHomer()}} used
 #'   for \code{method = "Homer"}.
 #' 
 #' @importFrom methods is
@@ -84,12 +85,12 @@ calcBinnedMotifEnr <- function(seqs,
                  "a SerialParam() or a MulticoreParam() object.")
         }
 
-        se <- runHomer(gr = seqs,
-                       b = bins,
-                       motifFile = motifs,
-                       Ncpu = ncpu,
-                       verbose = verbose,
-                       ...)
+        se <- calcBinnedMotifEnrHomer(gr = seqs,
+                                      b = bins,
+                                      motifFile = motifs,
+                                      Ncpu = ncpu,
+                                      verbose = verbose,
+                                      ...)
     }
     
     return(se)

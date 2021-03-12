@@ -96,7 +96,7 @@ test_that("parseHomerOutput() works properly", {
     expect_equal(sum(res$enr), -914.6696)
 })
 
-test_that("runHomer() works properly", {
+test_that("calcBinnedMotifEnrHomer() works properly", {
     homerbin <- findHomer("findMotifsGenome.pl", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin")
     genomedir <- "/tungstenfs/groups/gbioinfo/DB/genomes/mm10/"
 
@@ -113,9 +113,10 @@ test_that("runHomer() works properly", {
         expect_true(dumpJaspar(filename = mfile, pkg = "JASPAR2018",
                                opts = list(ID = c("MA0139.1", "MA1102.1", "MA0740.1", "MA0493.1", "MA0856.1"))))
 
-        res <- runHomer(gr = gr, b = b, genomedir = genomedir, outdir = outdir,
-                        motifFile = mfile, homerfile = homerbin,
-                        regionsize = "given", Ncpu = 2L)
+        res <- calcBinnedMotifEnrHomer(gr = gr, b = b, genomedir = genomedir,
+                                       outdir = outdir, motifFile = mfile,
+                                       homerfile = homerbin,
+                                       regionsize = "given", Ncpu = 2L)
 
         expect_is(res, "SummarizedExperiment")
         expect_length(SummarizedExperiment::assays(res), 4L)

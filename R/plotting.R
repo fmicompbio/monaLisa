@@ -201,7 +201,7 @@ plotBinScatter <- function(x, y, b,
 #'
 #' @param x A \code{\link[SummarizedExperiment]{SummarizedExperiment}} with numerical matrices
 #'     (motifs-by-bins) in its \code{assays()}, typically the return value
-#'     of \code{\link{runHomer}}.
+#'     of \code{\link{calcBinnedMotifEnr}}.
 #' @param which.plots Selects which heatmaps to plot (one or several from \code{"p"}, \code{"FDR"},
 #'     \code{"enr"} and \code{"log2enr"}).
 #' @param width The width (in inches) of each individual heatmap, without legend.

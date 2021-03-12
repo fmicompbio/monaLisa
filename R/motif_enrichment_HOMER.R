@@ -326,7 +326,7 @@ parseHomerOutput <- function(infiles) {
 }
 
 # internal function:  Check if all the HOMER output files already exist and if the run was successful.
-# - needs the motifFile and outdir inputs to runHomer.
+# - needs the motifFile and outdir inputs to calcBinnedMotifEnrHomer.
 #' @importFrom utils read.table
 .checkHomerRun <- function(motifFile, outdir, nbins){
 
@@ -397,9 +397,11 @@ parseHomerOutput <- function(infiles) {
 #' @importFrom S4Vectors DataFrame
 #'
 #' @export
-runHomer <- function(gr, b, genomedir, outdir, motifFile,
-                     homerfile = findHomer(), regionsize = "given",
-                     Ncpu = 2L, verbose = FALSE) {
+calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
+                                    homerfile = findHomer(),
+                                    regionsize = "given",
+                                    Ncpu = 2L,
+                                    verbose = FALSE) {
     if (!inherits(gr, "GRanges"))
         as(gr, "GRanges")
     if (!is.factor(b))
@@ -435,7 +437,7 @@ runHomer <- function(gr, b, genomedir, outdir, motifFile,
           stop("\nThere are existing 'knownResults.txt' file(s) in outdir. ",
                "There may be missing 'knownResults.txt' files for some bins ",
                "and/or the existing files are incomplete (cases where the HOMER ",
-               "run failed). Please delete these files and rerun 'runHomer'.")
+               "run failed). Please delete these files and rerun 'calcBinnedMotifEnrHomer'.")
 
       }
 
