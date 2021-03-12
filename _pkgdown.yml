@@ -35,7 +35,7 @@ reference:
     - '`bin`'
     - '`calcBinnedMotifEnr`'
     - '`calcBinnedMotifEnrHomer`'
-    - '`get_binned_motif_enrichment`'
+    - '`calcBinnedMotifEnrR`'
     - '`plotBinDensity`'
     - '`plotBinHist`'
     - '`plotBinScatter`'

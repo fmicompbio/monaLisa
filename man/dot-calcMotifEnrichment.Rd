@@ -45,7 +45,7 @@ a \code{data.frame} containing the motifs as rows and the columns:
 Given motif counts, foreground/background labels and
   weights for a set of sequences, calculate the enrichment of each motif
   in foreground compared to background. This function is called by
-  \code{get_binned_motif_enrichment()} for each bin.
+  \code{calcBinnedMotifEnrR()} for each bin.
 
   The defaults type of test is \code{"binomial"}, which is also what
   \code{Homer} uses by default. Alternatively, Fisher's exact test can be

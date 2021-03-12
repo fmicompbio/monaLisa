@@ -22,11 +22,11 @@
 #'   \code{method = "Homer"} a numeric scalar.
 #' @param verbose A logical scalar. If \code{TRUE}, print progress messages.
 #' @param ... Additional arguments for passed to
-#'   \code{\link{get_binned_motif_enrichment()}} or
+#'   \code{\link{calcBinnedMotifEnrR()}} or
 #'   \code{\link{calcBinnedMotifEnrHomer()}}.
 #'
 #' @details This function is a wrapper for
-#'   \code{\link{get_binned_motif_enrichment()}} or
+#'   \code{\link{calcBinnedMotifEnrR()}} or
 #'   \code{\link{calcBinnedMotifEnrHomer()}}. For additional supported arguments
 #'   please see the help pages of these functions.
 #'   
@@ -43,7 +43,7 @@
 #' }
 #'
 #' @seealso \code{\link{bin}} for binning of sequences;
-#'   \code{\link{get_binned_motif_enrichment()}} that is used for
+#'   \code{\link{calcBinnedMotifEnrR()}} that is used for
 #'   \code{method = "R"} and \code{\link{calcBinnedMotifEnrHomer()}} used
 #'   for \code{method = "Homer"}.
 #' 
@@ -64,12 +64,12 @@ calcBinnedMotifEnr <- function(seqs,
         if (verbose)
             message("using R backend for binned motif enrichment analysis")
 
-        se <- get_binned_motif_enrichment(seqs = seqs,
-                                          bins = bins,
-                                          pwmL = motifs,
-                                          BPPARAM = BPPARAM,
-                                          verbose = verbose,
-                                          ...)
+        se <- calcBinnedMotifEnrR(seqs = seqs,
+                                  bins = bins,
+                                  pwmL = motifs,
+                                  BPPARAM = BPPARAM,
+                                  verbose = verbose,
+                                  ...)
 
     } else if (identical(method, "Homer")) {
         

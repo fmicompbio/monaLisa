@@ -399,7 +399,7 @@
 #' @description Given motif counts, foreground/background labels and
 #'   weights for a set of sequences, calculate the enrichment of each motif
 #'   in foreground compared to background. This function is called by
-#'   \code{get_binned_motif_enrichment()} for each bin.
+#'   \code{calcBinnedMotifEnrR()} for each bin.
 #'
 #'   The defaults type of test is \code{"binomial"}, which is also what
 #'   \code{Homer} uses by default. Alternatively, Fisher's exact test can be
@@ -607,17 +607,17 @@
 #' @importFrom BiocParallel bplapply SerialParam bpnworkers
 #'
 #' @export
-get_binned_motif_enrichment <- function(seqs,
-                                        bins,
-                                        pwmL,
-                                        test = c("binomial", "fisher"),
-                                        maxFracN = 0.7,
-                                        maxKmerSize = 3L,
-                                        min.score = 10,
-                                        matchMethod = "matchPWM",
-                                        BPPARAM = SerialParam(),
-                                        verbose = FALSE,
-                                        ...) {
+calcBinnedMotifEnrR <- function(seqs,
+                                bins,
+                                pwmL,
+                                test = c("binomial", "fisher"),
+                                maxFracN = 0.7,
+                                maxKmerSize = 3L,
+                                min.score = 10,
+                                matchMethod = "matchPWM",
+                                BPPARAM = SerialParam(),
+                                verbose = FALSE,
+                                ...) {
 
     # checks
     if (!is(seqs, "DNAStringSet")) {

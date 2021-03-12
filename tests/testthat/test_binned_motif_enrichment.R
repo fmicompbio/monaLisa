@@ -175,7 +175,7 @@ test_that(".calcMotifEnrichment works", {
 })
 
 
-# test_that("get_binned_motif_enrichment() works in default mode", {
+# test_that("calcBinnedMotifEnrR() works in default mode", {
 # 
 #     library(GenomicRanges)
 #     library(BSgenome.Mmusculus.UCSC.mm10)
@@ -317,22 +317,20 @@ test_that(".calcMotifEnrichment works", {
 #              breaks = c(0, (length(gr_RBPJ)), (length(seqs) + 1)))
 #     
 #     ## Binned motif enrichment with monaLisa
-#     enr_res <- get_binned_motif_enrichment(seqs = seqs,
-#                                            bins = b,
-#                                            pwmL = pwms)
+#     enr_res <- calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwms)
 #   
 #     ## Tests
 #     # ... missing arguments or wrong classes
-#     expect_error(get_binned_motif_enrichment(seqs = "error"), "DNAStringSet")
-#     expect_error(get_binned_motif_enrichment(seqs = as.character(seqs)), "DNAStringSet")
-#     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = "error"), "factor")
-#     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b[-1]), "must be of equal length")
-#     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = "error"), "PWMatrixList")
-#     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwms, maxFracN = "error"), "numeric")
-#     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwms, maxKmerSize = "error"), "integer")
-#     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwms, Ncpu = "error"), "integer")
-#     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwms, verbose = "error"), "logical")
-#     expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = as.matrix(pwms[[1]])))
+#     expect_error(calcBinnedMotifEnrR(seqs = "error"), "DNAStringSet")
+#     expect_error(calcBinnedMotifEnrR(seqs = as.character(seqs)), "DNAStringSet")
+#     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = "error"), "factor")
+#     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b[-1]), "must be of equal length")
+#     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = "error"), "PWMatrixList")
+#     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwms, maxFracN = "error"), "numeric")
+#     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwms, maxKmerSize = "error"), "integer")
+#     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwms, Ncpu = "error"), "integer")
+#     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwms, verbose = "error"), "logical")
+#     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = as.matrix(pwms[[1]])))
 # 
 #     # ... expected results on dataset
 #     expect_is(enr_res, "SummarizedExperiment")
@@ -344,7 +342,7 @@ test_that(".calcMotifEnrichment works", {
 # 
 # })
 
-test_that("get_binned_motif_enrichment() works (synthetic data)", {
+test_that("calcBinnedMotifEnrR() works (synthetic data)", {
     set.seed(1)
     len <- 50
     seqschar <- unlist(lapply(seq.int(150), function(i) {
@@ -371,31 +369,31 @@ test_that("get_binned_motif_enrichment() works (synthetic data)", {
     substring(seqschar[b == 2], first = p2, last = p2 + ncol(m2) - 1) <- "ACGTA"
     seqs <- Biostrings::DNAStringSet(seqschar)
     
-    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwm,
-                                             min.score = 20), "No motif hits")    
-    expect_error(get_binned_motif_enrichment(seqs = "error"), "DNAStringSet")
-    expect_error(get_binned_motif_enrichment(seqs = as.character(seqs)), "DNAStringSet")
-    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = "error"), "factor")
-    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b[-1]), "must be of equal length")
-    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = "error"), "PWMatrixList")
-    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwm, maxFracN = "error"), "numeric")
-    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwm, min.score = 6, maxKmerSize = "error"), "integer")
-    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwm, BPPARAM = "error"), "BiocParallelParam")
-    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = pwm, verbose = "error"), "logical")
-    expect_error(get_binned_motif_enrichment(seqs = seqs, bins = b, pwmL = TFBSTools::Matrix(pwm[[1]])), "PWMatrixList")
+    expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm,
+                                     min.score = 20), "No motif hits")    
+    expect_error(calcBinnedMotifEnrR(seqs = "error"), "DNAStringSet")
+    expect_error(calcBinnedMotifEnrR(seqs = as.character(seqs)), "DNAStringSet")
+    expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = "error"), "factor")
+    expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b[-1]), "must be of equal length")
+    expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = "error"), "PWMatrixList")
+    expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm, maxFracN = "error"), "numeric")
+    expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm, min.score = 6, maxKmerSize = "error"), "integer")
+    expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm, BPPARAM = "error"), "BiocParallelParam")
+    expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm, verbose = "error"), "logical")
+    expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = TFBSTools::Matrix(pwm[[1]])), "PWMatrixList")
 
-    expect_message(res1 <- get_binned_motif_enrichment(seqs = seqs,
-                                                       bins = b,
-                                                       pwmL = pwm,
-                                                       min.score = 6,
-                                                       test = "binom",
-                                                       verbose = TRUE))
-    expect_message(res2 <- get_binned_motif_enrichment(seqs = seqs,
-                                                       bins = b,
-                                                       pwmL = pwm,
-                                                       min.score = 6,
-                                                       test = "fisher",
-                                                       verbose = TRUE))
+    expect_message(res1 <- calcBinnedMotifEnrR(seqs = seqs,
+                                               bins = b,
+                                               pwmL = pwm,
+                                               min.score = 6,
+                                               test = "binom",
+                                               verbose = TRUE))
+    expect_message(res2 <- calcBinnedMotifEnrR(seqs = seqs,
+                                               bins = b,
+                                               pwmL = pwm,
+                                               min.score = 6,
+                                               test = "fisher",
+                                               verbose = TRUE))
     expect_is(res1, "SummarizedExperiment")
     expect_is(res2, "SummarizedExperiment")
     expect_identical(dim(res1), c(length(pwm), nlevels(b)))
