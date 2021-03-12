@@ -1,7 +1,7 @@
 Package: monaLisa
 Type: Package
 Title: Binned Motif Enrichment Analysis and Visualization
-Version: 0.1.37
+Version: 0.1.38
 Authors@R: c(
     person("Dania", "Machlab", email = "dania.machlab@fmi.ch", role = c("aut")),
     person("Lukas", "Burger", email = "lukas.burger@fmi.ch", role = c("aut")),
