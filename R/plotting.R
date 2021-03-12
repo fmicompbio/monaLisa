@@ -316,7 +316,7 @@ plotMotifHeatmaps <- function(x,
 	                           annotation_height = unit(width / 16, "inch"),
 	                           show_legend = FALSE)
 	tmp <- matrix(if (!is.null(highlight)) as.character(highlight) else rep(NA, nrow(x)),
-								ncol = 1, dimnames = list(rownames(x), NULL))
+								ncol = 1, dimnames = list(rowData(x)$motif.name, NULL))
 	hmSeqlogo <- NULL
 	if (show_seqlogo) {
 	    pfms <- rowData(x)$motif.pfm
