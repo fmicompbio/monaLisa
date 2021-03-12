@@ -101,8 +101,8 @@
 
     res <- !(f1 | f2)
     if (verbose) {
-        message("  in total filtering out ", sum(res), " of ", length(seqs),
-                " sequences (", round(100 * sum(res) / length(seqs), 1), "%)")
+        message("  in total filtering out ", sum(!res), " of ", length(seqs),
+                " sequences (", round(100 * sum(!res) / length(seqs), 1), "%)")
     }
 
     return(res)
