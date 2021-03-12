@@ -646,7 +646,11 @@ calcBinnedMotifEnrR <- function(seqs,
         message("Filtering sequences ...")
     }
     keep <- .filterSeqs(seqs, maxFracN = maxFracN, verbose = verbose)
+    battr <- attributes(bins) # rescue attributes dropped by subsetting
     bins <- bins[keep]
+    attr(bins, "binmode") <- battr$binmode
+    attr(bins, "breaks") <- battr$breaks
+    attr(bins, "bin0") <- battr$bin0
     seqs <- seqs[keep]
 
 
