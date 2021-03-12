@@ -55,11 +55,11 @@ A \code{\link[SummarizedExperiment]{SummarizedExperiment}} \code{x}
 }
 \description{
 Run complete HOMER motif enrichment analysis, consisting of
-    calls to \code{\link{prepareHomer}}, \code{\link[base]{system}} and
+    calls to \code{\link{prepareHomer}}, \code{\link[base]{system2}} and
     \code{\link{parseHomerOutput}}.
 }
 \seealso{
 The functions that are wrapped: \code{\link{prepareHomer}},
-    \code{\link[base]{system}} and \code{\link{parseHomerOutput}},
+    \code{\link[base]{system2}} and \code{\link{parseHomerOutput}},
     \code{\link{bin}} for binning of regions
 }
