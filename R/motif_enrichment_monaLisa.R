@@ -588,12 +588,16 @@
 #'       or without a hit for a particular motif (columns).}
 #'   }
 #'   
-#' @return A \code{SummarizedExperiment} object where the rows are the motifs
-#'   and the columns are bins. The four assays are: \itemize{
+#' @return A \code{SummarizedExperiment} object with motifs in rows and bins
+#'   in columns, containing six assays: \itemize{
 #'   \item{p}{: -log10 P values}
 #'   \item{FDR}{: -log10 false discovery rates}
 #'   \item{enr}{: motif enrichments as Pearson residuals}
 #'   \item{log2enr}{: motif enrichments as log2 ratios}
+#'   \item{sumForegroundWgtWithHits}{: Sum of foreground sequence weights
+#'     in a bin that have motif hits}
+#'   \item{sumBackgroundWgtWithHits}{: Sum of background sequence weights
+#'     in a bin that have motif hits}
 #' }
 #'
 #' @importFrom TFBSTools ID name
