@@ -469,25 +469,25 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
     ## ... parse output
     resfiles <- sprintf("%s/bin_%03d_output/knownResults.txt", outdir, seq_along(levels(b)))
     names(resfiles) <- levels(b)
-    resL <- parseHomerOutput(resfiles)
+    assayL <- parseHomerOutput(resfiles)
 
     ## ... create SummarizedExperiment
     cdat <- S4Vectors::DataFrame(bin.names = levels(b),
                                  bin.lower = attr(b, "breaks")[-(nlevels(b) + 1)],
                                  bin.upper = attr(b, "breaks")[-1],
                                  bin.nochange = seq.int(nlevels(b)) %in% attr(b, "bin0"))
-    cdat <- cdat[match(colnames(resL[[1]]), levels(b)), ]
+    cdat <- cdat[match(colnames(assayL[[1]]), levels(b)), ]
     pfms <- homerToPFMatrixList(motifFile)
-    pfms <- pfms[match(rownames(resL[[1]]), TFBSTools::name(pfms))]
+    pfms <- pfms[match(rownames(assayL[[1]]), TFBSTools::name(pfms))]
     percentGC <- unlist(lapply(pfms, function(x) {
         m <- TFBSTools::Matrix(x)
         100 * sum(m[c("C","G"), ]) / sum(m)
     }), use.names = FALSE)
-    rdat <- S4Vectors::DataFrame(motif.name = rownames(resL[[1]]),
+    rdat <- S4Vectors::DataFrame(motif.name = rownames(assayL[[1]]),
                                  motif.pfm = pfms,
                                  motif.percentGC = percentGC)
     se <- SummarizedExperiment::SummarizedExperiment(
-      assays = resL, colData = cdat, rowData = rdat,
+      assays = assayL, colData = cdat, rowData = rdat,
       metadata = list(regions = gr,
                       bins = b,
                       bins.binmode = attr(b, "binmode"),
