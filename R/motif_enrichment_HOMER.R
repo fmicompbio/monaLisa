@@ -249,13 +249,15 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
         tmp.gr <- gr[b == bn]
         write.table(file = fgfile,
                     data.frame(1:length(tmp.gr), as.character(seqnames(tmp.gr)),
-                               start(tmp.gr) - 1, end(tmp.gr), "+"),
+                               start(tmp.gr) - 1, end(tmp.gr),
+                               ifelse(as.character(strand(tmp.gr)) == "-", "-", "+")),
                     sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
 
         tmp.gr <- gr[b != bn]
         write.table(file = bgfile,
                     data.frame(1:length(tmp.gr), as.character(seqnames(tmp.gr)),
-                               start(tmp.gr) - 1, end(tmp.gr), "+"),
+                               start(tmp.gr) - 1, end(tmp.gr), 
+                               ifelse(as.character(strand(tmp.gr)) == "-", "-", "+")),
                     sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
 
         cat(sprintf("%s %s %s %s -bg %s -nomotif -p %d -size %s -mknown %s\n",
