@@ -25,6 +25,6 @@ Using a set of k-mers, search input sequences for matches and retrieve
      the frequencies of sequences overlapping with 1 or more overlapping k-mers.
 }
 \seealso{
-\code{\link{kmerEnrichments}} for performing a k-mer enrichment
+\code{\link{calcBinnedKmerEnr}} for performing a k-mer enrichment
     analysis, \code{\link[BiocParallel]{bplapply}} used for parallelization.
 }

@@ -44,7 +44,7 @@ reference:
   contents:
     - '`getKmerFreq`'
     - '`countKmerPairs`'
-    - '`kmerEnrichments`'
+    - '`calcBinnedKmerEnr`'
     - '`convertKmersToMotifs`'
     - '`clusterKmers`'
     - '`extractOverlappingKmerFrequecies`'
