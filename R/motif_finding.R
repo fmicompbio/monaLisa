@@ -295,7 +295,7 @@ setMethod("findMotifHits",
                   args <- sprintf("find -i %s -m %s -offset 1 -strand both -p %d",
                                   subject, query, bpnworkers(BPPARAM))
                   res <- system2(command = homerfile, args = args,
-                                 stdout = TRUE, stderr = "", wait = TRUE)
+                                 stdout = TRUE, stderr = FALSE, wait = TRUE)
 
                   # check homer2 output
                   ok <- grepl("^.+\\t[0-9]+\\t[ACGT]+\\t.+\\t[+-]\\t[0-9.]+$",
