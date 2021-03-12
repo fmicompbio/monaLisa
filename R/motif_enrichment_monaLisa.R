@@ -677,10 +677,10 @@ calcBinnedMotifEnrR <- function(seqs,
         # create sequence info data frame
         df <- DataFrame(seqs = seqs,
                         isForeground = (as.integer(bins) == i),
-                        GCfrac = NA_real_,
-                        GCbin = NA_integer_,
-                        GCwgt = NA_real_,
-                        seqWgt = NA_real_)
+                        GCfrac = rep(NA_real_, length(seqs)),
+                        GCbin = rep(NA_integer_, length(seqs)),
+                        GCwgt = rep(NA_real_, length(seqs)),
+                        seqWgt = rep(NA_real_, length(seqs)))
         attr(df, "err") <- NA
 
         # calculate initial background sequence weights based on G+C composition
