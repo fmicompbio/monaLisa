@@ -39,19 +39,17 @@ region, an integer value will keep only that many bases in the region center).}
 \item{verbose}{A logical scalar. If \code{TRUE}, print progress messages.}
 }
 \value{
-A \code{\link[SummarizedExperiment]{SummarizedExperiment}} \code{x}
-  with
-  \describe{
-    \item{assays(x)}{containing the four components \code{p}, \code{FDR},
-        \code{enr} and \code{log2enr}), each a motif (rows) by bin (columns)
-        matrix with raw -log10 P values, -log10 false discovery rates and motif
-        enrichments as Pearson residuals (\code{enr}) and as log2 ratios
-        (\code{log2enr}).}
-    \item{rowData(x)}{containing information about the motifs.}
-    \item{colData(x)}{containing information about the bins.}
-    \item{metaData(x)}{containing meta data on the object (e.g. parameter
-        values and distances between pairs of motifs).}
-  }
+A \code{SummarizedExperiment} object with motifs in rows and bins
+  in columns, containing six assays: \itemize{
+  \item{p}{: -log10 P values}
+  \item{FDR}{: -log10 false discovery rates}
+  \item{enr}{: motif enrichments as Pearson residuals}
+  \item{log2enr}{: motif enrichments as log2 ratios}
+  \item{sumForegroundWgtWithHits}{: Sum of foreground sequence weights
+    in a bin that have motif hits}
+  \item{sumBackgroundWgtWithHits}{: Sum of background sequence weights
+    in a bin that have motif hits}
+}
 }
 \description{
 Run complete HOMER motif enrichment analysis, consisting of

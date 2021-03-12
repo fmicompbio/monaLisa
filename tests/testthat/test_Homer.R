@@ -89,8 +89,10 @@ test_that("parseHomerOutput() works properly", {
     outfile <- system.file("extdata", "homer_output.txt.gz", package = "monaLisa")
 
     res <- parseHomerOutput(c(outfile, outfile))
-    expect_length(res, 4L)
-    expect_identical(names(res), c("p", "FDR", "enr", "log2enr"))
+    expect_length(res, 6L)
+    expect_identical(names(res), c("p", "FDR", "enr", "log2enr",
+                                   "sumForegroundWgtWithHits",
+                                   "sumBackgroundWgtWithHits"))
     expect_identical(res$p[,1], res$p[,2])
     expect_true(all(sapply(res, dim) == c(519L, 2L)))
     expect_equal(sum(res$enr), -914.6696)
@@ -123,8 +125,10 @@ test_that("calcBinnedMotifEnrHomer() works properly", {
                                   BPPARAM = 2L)
 
         expect_is(res, "SummarizedExperiment")
-        expect_length(SummarizedExperiment::assays(res), 4L)
-        expect_identical(SummarizedExperiment::assayNames(res), c("p", "FDR", "enr", "log2enr"))
+        expect_length(SummarizedExperiment::assays(res), 6L)
+        expect_identical(SummarizedExperiment::assayNames(res),
+                         c("p", "FDR", "enr", "log2enr",
+                           "sumForegroundWgtWithHits", "sumBackgroundWgtWithHits"))
         expect_identical(dim(res), c(5L, 3L))
         expect_identical(rownames(res), SummarizedExperiment::rowData(res)[, "motif.name"])
         expect_identical(rownames(res), TFBSTools::name(SummarizedExperiment::rowData(res)[, "motif.pfm"]))
