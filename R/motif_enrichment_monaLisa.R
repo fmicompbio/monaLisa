@@ -646,6 +646,7 @@ calcBinnedMotifEnrR <- function(seqs,
         message("Filtering sequences ...")
     }
     keep <- .filterSeqs(seqs, maxFracN = maxFracN, verbose = verbose)
+    bins <- bins[keep]
     seqs <- seqs[keep]
 
 
