@@ -3,6 +3,7 @@
 export(anno_seqlogo)
 export(bin)
 export(calcBinnedKmerEnr)
+export(calcBinnedMotifEnr)
 export(clusterKmers)
 export(convertKmersToMotifs)
 export(countKmerPairs)
