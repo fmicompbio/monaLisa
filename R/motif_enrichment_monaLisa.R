@@ -662,6 +662,9 @@ calcBinnedMotifEnrR <- function(seqs,
 
 
     # create motif hit matrix
+    if (verbose) {
+        message("Create motif hit matrix...")
+    }
     hitmatrix <- unclass(table(factor(seqnames(hits), levels = seqlevels(hits)),
                                factor(hits$pwmid, levels = TFBSTools::ID(pwmL))))
     # zoops (zero or one per sequence) mode
