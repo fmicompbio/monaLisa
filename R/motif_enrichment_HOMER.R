@@ -359,7 +359,7 @@ parseHomerOutput <- function(infiles) {
 #' @title Prepare and run HOMER motif enrichment analysis.
 #'
 #' @description Run complete HOMER motif enrichment analysis, consisting of
-#'     calls to \code{\link{prepareHomer}}, \code{\link[base]{system}} and
+#'     calls to \code{\link{prepareHomer}}, \code{\link[base]{system2}} and
 #'     \code{\link{parseHomerOutput}}.
 #'
 #' @param gr A \code{GRanges} object (or an object that can be coerced to one)
@@ -376,7 +376,7 @@ parseHomerOutput <- function(infiles) {
 #' @param verbose A logical scalar. If \code{TRUE}, print progress messages.
 #'
 #' @seealso The functions that are wrapped: \code{\link{prepareHomer}},
-#'     \code{\link[base]{system}} and \code{\link{parseHomerOutput}},
+#'     \code{\link[base]{system2}} and \code{\link{parseHomerOutput}},
 #'     \code{\link{bin}} for binning of regions
 #'
 #' @return A \code{\link[SummarizedExperiment]{SummarizedExperiment}} \code{x}
@@ -451,7 +451,10 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
       ## ... run
       if (verbose)
           message("\nrunning HOMER...")
-      system2(command = "sh", args = runfile, env = paste0("PATH=",dirname(homerfile),":",Sys.getenv("PATH"),";"))
+      system2(command = "sh", args = runfile,
+              stdout = ifelse(verbose, "", FALSE),
+              stderr = ifelse(verbose, "", FALSE),
+              env = paste0("PATH=", dirname(homerfile), ":", Sys.getenv("PATH"), ";"))
 
       ## ... check HOMER ran correctly
       if (!.checkHomerRun(motifFile = motifFile, outdir = outdir, nbins = length(levels(b)))) {
