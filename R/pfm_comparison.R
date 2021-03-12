@@ -221,7 +221,9 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
         if (verbose) {
             message("running compareMotifs.pl...")
         }
-        system(sprintf("%s %s test -matrix %s", homerfile, x, homerOutfile), intern = TRUE)
+        system2(command = homerfile,
+                args = sprintf("%s test -matrix %s", x, homerOutfile),
+                stdout = FALSE, stderr = FALSE)
         M <- as.matrix(read.delim(homerOutfile, row.names = 1))
     }
     return(M)
