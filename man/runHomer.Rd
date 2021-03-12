@@ -12,7 +12,8 @@ runHomer(
   motifFile,
   homerfile = findHomer(),
   regionsize = "given",
-  Ncpu = 2L
+  Ncpu = 2L,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ into bins (typically a factor, such as the one returned by \code{\link{bin}}).}
 region, an integer value will keep only that many bases in the region center).}
 
 \item{Ncpu}{Number of parallel threads that HOMER can use.}
+
+\item{verbose}{A logical scalar. If \code{TRUE}, print progress messages.}
 }
 \value{
 A \code{\link[SummarizedExperiment]{SummarizedExperiment}} \code{x}

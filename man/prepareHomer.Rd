@@ -12,7 +12,8 @@ prepareHomer(
   motifFile,
   homerfile = findHomer(),
   regionsize = "given",
-  Ncpu = 2
+  Ncpu = 2L,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -35,6 +36,8 @@ files per unique value of \code{b}) will be written.}
 region, an integer value will keep only that many bases in the region center).}
 
 \item{Ncpu}{Number of parallel threads that HOMER can use.}
+
+\item{verbose}{A logical scalar. If \code{TRUE}, print progress messages.}
 }
 \value{
 The path and name of the script file to run the HOMER motif enrichment

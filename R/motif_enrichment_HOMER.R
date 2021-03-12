@@ -48,6 +48,7 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 #' @param relScoreCutoff Currently ignored. numeric(1) in [0,1] that sets the default motif
 #'     log-odds score cutof to relScoreCutoff * maximal score for each PWM
 #'     (default: 0.8).
+#' @param verbose A logical scalar. If \code{TRUE}, print progress messages.
 #'
 #' @return \code{TRUE} if successful.
 #'
@@ -61,7 +62,7 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 #' @export
 dumpJaspar <- function(filename, pkg = "JASPAR2018",
                        opts = list(tax_group = "vertebrates"),
-                       relScoreCutoff = 0.8) {
+                       relScoreCutoff = 0.8, verbose = TRUE) {
     .assertScalar(x = filename, type = "character")
     stopifnot(!file.exists(filename))
     .assertScalar(x = relScoreCutoff, type = "numeric", rngIncl = c(0, 1))
@@ -70,12 +71,14 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018",
     } else {
       opts[["matrixtype"]] <- "PFM"
     }
+    .assertScalar(x = verbose, type = "logical")
 
     # load PFMs and convert to HOMER format (base probabilties)
     requireNamespace(pkg)
     mdb <- utils::getFromNamespace(pkg, ns = pkg)
     siteList <- TFBSTools::getMatrixSet(mdb, opts)
-    message("extracted ",length(siteList)," motifs from ",pkg)
+    if (verbose)
+        message("extracted ",length(siteList)," motifs from ",pkg)
 
     # remark: pseudocount of 4 corresponds to adding 1 to each base count
     #         the following are identical:
@@ -83,7 +86,8 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018",
     #wm2 <- Matrix(siteList[[1]])+1 ; wm2 <- t(t(wm2) /colSums(wm2))
     #identical(wm1, wm2)
 
-    message("converting to HOMER format...", appendLF = FALSE)
+    if (verbose)
+        message("converting to HOMER format...", appendLF = FALSE)
     fh <- file(filename, "wb")
     for (i in 1:length(siteList)) {
         pwm <- TFBSTools::Matrix(siteList[[i]]) + 1
@@ -121,7 +125,8 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018",
         flush(fh)
     }
     close(fh)
-    message("done")
+    if (verbose)
+        message("done")
 
     return(TRUE)
 }
@@ -188,6 +193,7 @@ homerToPFMatrixList <- function(filename, n = 100L) {
 #' @param regionsize The peak size to use in HOMER (\code{"given"} keeps the coordinate
 #'     region, an integer value will keep only that many bases in the region center).
 #' @param Ncpu Number of parallel threads that HOMER can use.
+#' @param verbose A logical scalar. If \code{TRUE}, print progress messages.
 #'
 #' @details For each bin (unique value of \code{b}) this functions creates two files
 #'     in \code{outdir} (\code{outdir/bin_N_foreground.tab} and \code{outdir/bin_N_background.tab},
@@ -201,8 +207,11 @@ homerToPFMatrixList <- function(filename, n = 100L) {
 #' @return The path and name of the script file to run the HOMER motif enrichment
 #'     analysis.
 #'
+#' @importFrom GenomicRanges start end strand
 #' @export
-prepareHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(), regionsize = "given", Ncpu=2) {
+prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
+                         homerfile = findHomer(), regionsize = "given",
+                         Ncpu = 2L, verbose = FALSE) {
     if (!inherits(gr, "GRanges"))
         as(gr, "GRanges")
     if (!is.factor(b))
@@ -218,6 +227,7 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHo
         file.exists(homerfile)
         regionsize == "given" || (is.numeric(regionsize) && length(regionsize) == 1L && regionsize > 0)
     })
+    .assertScalar(x = verbose, type = "logical")
 
     if (file.exists(outdir))
         stop(outdir," already exists - will not overwrite existing folder")
@@ -226,7 +236,8 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHo
     homerFile <- file.path(outdir, "run.sh")
     fh <- file(homerFile, "w")
 
-    message("creating foreground/background region files for HOMER")
+    if (verbose)
+        message("creating foreground/background region files for HOMER")
     for (i in 1:nlevels(b)) {
         bn <- levels(b)[i]
         message("  bin ",bn)
@@ -291,13 +302,13 @@ parseHomerOutput <- function(infiles) {
         enr[order(names(enr))]
     })
     log2enr <- lapply(tabL, function(tab){
-    	D <- tab[, c(6, 8)] # number of target seqs and bg seqs with motif
-    	nTot <- as.numeric(gsub("\\S+\\.(\\d+)\\.", "\\1", colnames(D))) #total number of target and background sequences
-    	D.norm <- t(min(nTot)*t(D)/nTot) # scale to smaller number (usually number of target sequences)
-    	DL <- log2(D.norm + 8)
-    	log2enr <- DL[, 1] - DL[, 2]
-    	names(log2enr) <- tab[, 1]
-    	log2enr[order(names(log2enr))]
+      	D <- tab[, c(6, 8)] # number of target seqs and bg seqs with motif
+      	nTot <- as.numeric(gsub("\\S+\\.(\\d+)\\.", "\\1", colnames(D))) #total number of target and background sequences
+      	D.norm <- t(min(nTot)*t(D)/nTot) # scale to smaller number (usually number of target sequences)
+      	DL <- log2(D.norm + 8)
+      	log2enr <- DL[, 1] - DL[, 2]
+      	names(log2enr) <- tab[, 1]
+      	log2enr[order(names(log2enr))]
     })
 
     P <- do.call(cbind, P)
@@ -317,19 +328,19 @@ parseHomerOutput <- function(infiles) {
 #' @importFrom utils read.table
 .checkHomerRun <- function(motifFile, outdir, nbins){
 
-  # Checks
-  # --> check resultsfile is a txt file
+    # Checks
+    # --> check resultsfile is a txt file
 
-  # get knownResults.txt files
-  out_files <- dir(path = outdir, pattern = "knownResults.txt",
-                   full.names = TRUE, recursive = TRUE, ignore.case = FALSE)
+    # get knownResults.txt files
+    out_files <- dir(path = outdir, pattern = "knownResults.txt",
+                     full.names = TRUE, recursive = TRUE, ignore.case = FALSE)
 
-  # case 1: out_files is empty, so return FALSE
-  if (isEmpty(out_files)) {
-    return(FALSE)
-  }
+    # case 1: out_files is empty, so return FALSE
+    if (isEmpty(out_files)) {
+      return(FALSE)
+    }
 
-  # case 2: at least one file exists, so we check HOMER ran correctly and that the number of output files matches the number of bins
+    # case 2: at least one file exists, so we check HOMER ran correctly and that the number of output files matches the number of bins
 
       # get motif names from motifFile
       lns <- readLines(motifFile)
@@ -360,6 +371,7 @@ parseHomerOutput <- function(infiles) {
 #' @param regionsize The peak size to use in HOMER (\code{"given"} keeps the coordinate
 #'     region, an integer value will keep only that many bases in the region center).
 #' @param Ncpu Number of parallel threads that HOMER can use.
+#' @param verbose A logical scalar. If \code{TRUE}, print progress messages.
 #'
 #' @seealso The functions that are wrapped: \code{\link{prepareHomer}},
 #'     \code{\link[base]{system}} and \code{\link{parseHomerOutput}},
@@ -384,7 +396,8 @@ parseHomerOutput <- function(infiles) {
 #'
 #' @export
 runHomer <- function(gr, b, genomedir, outdir, motifFile,
-                     homerfile = findHomer(), regionsize = "given", Ncpu = 2L) {
+                     homerfile = findHomer(), regionsize = "given",
+                     Ncpu = 2L, verbose = FALSE) {
     if (!inherits(gr, "GRanges"))
         as(gr, "GRanges")
     if (!is.factor(b))
@@ -401,12 +414,14 @@ runHomer <- function(gr, b, genomedir, outdir, motifFile,
         regionsize == "given" || (is.numeric(regionsize) && length(regionsize) == 1L && regionsize > 0)
     })
     .assertScalar(x = Ncpu, type = "numeric", rngIncl = c(1, Inf))
+    .assertScalar(x = verbose, type = "logical")
 
     ## ... check if the HOMER output is already there for all bins and if it ran completely:
     ## ... ... If yes, go to the 'parse output step', otherwise run homer and check again
     if (.checkHomerRun(motifFile = motifFile, outdir = outdir, nbins = nlevels(b))) {
 
-      message("\nHOMER output files already exist, using existing files...")
+        if (verbose)
+            message("\nHOMER output files already exist, using existing files...")
 
     } else {
 
@@ -415,21 +430,23 @@ runHomer <- function(gr, b, genomedir, outdir, motifFile,
           any(file.exists(dir(path = outdir, pattern = "knownResults.txt",
                               full.names = TRUE, recursive = TRUE, ignore.case = FALSE)))) {
 
-        stop("\nThere are existing 'knownResults.txt' file(s) in outdir. ",
-             "There may be missing 'knownResults.txt' files for some bins ",
-             "and/or the existing files are incomplete (cases where the HOMER ",
-             "run failed). Please delete these files and rerun 'runHomer'.")
+          stop("\nThere are existing 'knownResults.txt' file(s) in outdir. ",
+               "There may be missing 'knownResults.txt' files for some bins ",
+               "and/or the existing files are incomplete (cases where the HOMER ",
+               "run failed). Please delete these files and rerun 'runHomer'.")
 
       }
 
       ## ... prepare
-      message("\npreparing input files...")
+      if (verbose)
+          message("\npreparing input files...")
       runfile <- prepareHomer(gr = gr, b = b, genomedir = genomedir, outdir = outdir,
                               motifFile = motifFile, homerfile = homerfile,
                               regionsize = regionsize, Ncpu = Ncpu)
 
       ## ... run
-      message("\nrunning HOMER...")
+      if (verbose)
+          message("\nrunning HOMER...")
       system2(command = "sh", args = runfile, env = paste0("PATH=",dirname(homerfile),":",Sys.getenv("PATH"),";"))
 
       ## ... check HOMER ran correctly
