@@ -483,8 +483,10 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
         m <- TFBSTools::Matrix(x)
         100 * sum(m[c("C","G"), ]) / sum(m)
     }), use.names = FALSE)
-    rdat <- S4Vectors::DataFrame(motif.name = rownames(assayL[[1]]),
+    rdat <- S4Vectors::DataFrame(motif.id = rep(NA, length(pfms)),
+                                 motif.name = rownames(assayL[[1]]),
                                  motif.pfm = pfms,
+                                 motif.pwm = rep(NA, length(pfms)),
                                  motif.percentGC = percentGC)
     se <- SummarizedExperiment::SummarizedExperiment(
       assays = assayL, colData = cdat, rowData = rdat,
