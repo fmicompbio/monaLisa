@@ -760,14 +760,14 @@ calcBinnedMotifEnrR <- function(seqs,
         x <- TFBSTools::Matrix(x)
         100 * sum(x[c("C","G"), ]) / sum(x)
     }), use.names = FALSE)
-    rdat <- S4Vectors::DataFrame(motif.id = TFBSTools::ID(pwmL),
-                                 motif.name = TFBSTools::name(pwmL),
-                                 motif.pfm = pfmL,
-                                 motif.pwm = pwmL,
-                                 motif.percentGC = percentGC)
-    cdat <- S4Vectors::DataFrame(
-        totalWgtForeground = do.call(rbind, lapply(enrichL, function(x){x$totalWgtForeground[1]})), 
-        totalWgtBackground = do.call(rbind, lapply(enrichL, function(x){x$totalWgtBackground[1]})))
+    rdat <- DataFrame(motif.id = TFBSTools::ID(pwmL),
+                      motif.name = TFBSTools::name(pwmL),
+                      motif.pfm = pfmL,
+                      motif.pwm = pwmL,
+                      motif.percentGC = percentGC)
+    cdat <- DataFrame(
+        totalWgtForeground = do.call(c, lapply(enrichL, function(x){x$totalWgtForeground[1]})), 
+        totalWgtBackground = do.call(c, lapply(enrichL, function(x){x$totalWgtBackground[1]})))
     mdat <- list(sequences = seqs,
                  bins = bins,
                  bins.binmode = attr(bins, "binmode"),
