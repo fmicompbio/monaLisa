@@ -14,7 +14,7 @@ calcBinnedKmerEnr(
   zoops = TRUE,
   pseudoCount = 1,
   BPPARAM = SerialParam(),
-  verbose = TRUE
+  verbose = FALSE
 )
 }
 \arguments{

@@ -4,7 +4,7 @@
 \alias{convertKmersToMotifs}
 \title{Transform k-mer enrichments to motif enrichments.}
 \usage{
-convertKmersToMotifs(x, m, BPPARAM = SerialParam(), verbose = TRUE)
+convertKmersToMotifs(x, m, BPPARAM = SerialParam(), verbose = FALSE)
 }
 \arguments{
 \item{x}{A \code{\link[SummarizedExperiment]{SummarizedExperiment}} with the

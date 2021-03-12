@@ -4,7 +4,7 @@
 \alias{motifKmerSimilarity}
 \title{Calculate similarities between motifs and k-mers.}
 \usage{
-motifKmerSimilarity(x, kmerLen = 5, BPPARAM = SerialParam(), verbose = TRUE)
+motifKmerSimilarity(x, kmerLen = 5, BPPARAM = SerialParam(), verbose = FALSE)
 }
 \arguments{
 \item{x}{Either a \code{\link[TFBSTools]{PFMatrixList}}, or a character

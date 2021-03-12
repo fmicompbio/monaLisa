@@ -62,7 +62,7 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 #' @export
 dumpJaspar <- function(filename, pkg = "JASPAR2018",
                        opts = list(tax_group = "vertebrates"),
-                       relScoreCutoff = 0.8, verbose = TRUE) {
+                       relScoreCutoff = 0.8, verbose = FALSE) {
     .assertScalar(x = filename, type = "character")
     stopifnot(!file.exists(filename))
     .assertScalar(x = relScoreCutoff, type = "numeric", rngIncl = c(0, 1))

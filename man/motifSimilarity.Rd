@@ -11,7 +11,7 @@ motifSimilarity(
   homerfile = findHomer("compareMotifs.pl"),
   homerOutfile = NULL,
   BPPARAM = SerialParam(),
-  verbose = TRUE
+  verbose = FALSE
 )
 }
 \arguments{

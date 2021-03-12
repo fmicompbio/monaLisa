@@ -144,7 +144,7 @@ compareMotifKmer <- function(m, kmers) {
 motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
                             homerfile = findHomer("compareMotifs.pl"),
                             homerOutfile = NULL, BPPARAM = SerialParam(),
-                            verbose = TRUE) {
+                            verbose = FALSE) {
     ## branch by method
     stopifnot(exprs = {is.logical(verbose); length(verbose) == 1L})
     method <- match.arg(method)
@@ -257,7 +257,7 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
 motifKmerSimilarity <- function(x,
                                 kmerLen = 5,
                                 BPPARAM = SerialParam(),
-                                verbose = TRUE) {
+                                verbose = FALSE) {
     ## pre-flight checks
     .assertScalar(x = verbose, type = "logical")
     if (is.character(x) && length(x) == 1L && file.exists(x)) {

@@ -9,7 +9,7 @@ dumpJaspar(
   pkg = "JASPAR2018",
   opts = list(tax_group = "vertebrates"),
   relScoreCutoff = 0.8,
-  verbose = TRUE
+  verbose = FALSE
 )
 }
 \arguments{

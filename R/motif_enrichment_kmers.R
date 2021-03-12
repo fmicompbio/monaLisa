@@ -387,7 +387,7 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
 calcBinnedKmerEnr <- function(x, b, genomepkg = NULL, kmerLen = 5,
                               background = c("other", "model"), MMorder = 1,
                               zoops = TRUE, pseudoCount = 1,
-                              BPPARAM = SerialParam(), verbose = TRUE) {
+                              BPPARAM = SerialParam(), verbose = FALSE) {
     ## pre-flight checks
     background <- match.arg(background)
     .assertScalar(x = verbose, type = "logical")
@@ -534,7 +534,7 @@ calcBinnedKmerEnr <- function(x, b, genomepkg = NULL, kmerLen = 5,
 #' @importFrom BiocParallel bplapply SerialParam bpnworkers
 #'
 #' @export
-convertKmersToMotifs <- function(x, m, BPPARAM = SerialParam(), verbose = TRUE) {
+convertKmersToMotifs <- function(x, m, BPPARAM = SerialParam(), verbose = FALSE) {
     ## pre-flight checks
     .assertScalar(x = verbose, type = "logical")
     if (is.character(m) && length(m) == 1L && file.exists(m)) {
