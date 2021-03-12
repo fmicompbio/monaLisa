@@ -4,6 +4,7 @@
 #' @importFrom S4Vectors isEmpty
 NULL
 
+
 #' @title Get colors by bin.
 #'
 #' @description Get colors for elements according to their bin.
@@ -27,7 +28,7 @@ getColsByBin <- function(b,
                          col2 = c("#F6E8C3", "#DFC27D", "#BF812D", "#8C510A", "#543005"),
                          col0 = "#F5F5F5") {
     if (!is.factor(b)) {
-        b <- factor(b, levels=unique(b))
+        b <- factor(b, levels = unique(b))
         attr(b, "bin0") <- NA
     }
 
@@ -47,6 +48,7 @@ getColsByBin <- function(b,
     attr(res, "cols") <- cols
     return(res)
 }
+
 
 #' @title Histogram of binned elements.
 #'
@@ -92,6 +94,7 @@ plotBinHist <- function(x, b, breaks = 10 * nlevels(b),
                fill = bincols, bty = "n", cex = legend.cex)
     invisible(ret)
 }
+
 
 #' @title Denstity plot of binned elements.
 #'
@@ -142,6 +145,7 @@ plotBinDensity <- function(x, b,
                fill = bincols, bty = "n", cex = legend.cex)
     invisible(ret)
 }
+
 
 #' @title Scatter plot (xy-plot) of binned elements.
 #'
@@ -194,6 +198,7 @@ plotBinScatter <- function(x, y, b,
     }
     invisible(ret)
 }
+
 
 #' @title Heatmap of motif enrichments.
 #'
@@ -557,20 +562,3 @@ plotSelectionProb <- function(se,
 
     invisible(TRUE)
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

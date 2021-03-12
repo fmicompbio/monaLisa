@@ -112,11 +112,15 @@ test_that("calcBinnedMotifEnrHomer() works properly", {
         mfile <- tempfile(fileext = ".motifs")
         expect_true(dumpJaspar(filename = mfile, pkg = "JASPAR2018",
                                opts = list(ID = c("MA0139.1", "MA1102.1", "MA0740.1", "MA0493.1", "MA0856.1"))))
+        
+        expect_error(calcBinnedMotifEnr(seqs = gr, bins = b, motifs = mfile,
+                                        method = "Homer", BPPARAM = "error"))
 
-        res <- calcBinnedMotifEnrHomer(gr = gr, b = b, genomedir = genomedir,
-                                       outdir = outdir, motifFile = mfile,
-                                       homerfile = homerbin,
-                                       regionsize = "given", Ncpu = 2L)
+        res <- calcBinnedMotifEnr(seqs = gr, bins = b, motifs = mfile,
+                                  method = "Homer",
+                                  genomedir = genomedir, outdir = outdir,
+                                  homerfile = homerbin, regionsize = "given",
+                                  BPPARAM = 2L)
 
         expect_is(res, "SummarizedExperiment")
         expect_length(SummarizedExperiment::assays(res), 4L)

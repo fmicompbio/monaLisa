@@ -64,7 +64,7 @@ Calculate motif enrichment analysis on bins of sequences.
 This function is a wrapper for
   \code{\link{calcBinnedMotifEnrR()}} or
   \code{\link{calcBinnedMotifEnrHomer()}}. For additional supported arguments
-  please see the help pages of these functions.
+  (via \code{...}) please see the help pages of these functions.
 }
 \seealso{
 \code{\link{bin}} for binning of sequences;

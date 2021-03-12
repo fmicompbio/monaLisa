@@ -28,7 +28,7 @@
 #' @details This function is a wrapper for
 #'   \code{\link{calcBinnedMotifEnrR()}} or
 #'   \code{\link{calcBinnedMotifEnrHomer()}}. For additional supported arguments
-#'   please see the help pages of these functions.
+#'   (via \code{...}) please see the help pages of these functions.
 #'   
 #' @return A \code{SummarizedExperiment} object with motifs in rows and bins
 #'   in columns, containing six assays: \itemize{
