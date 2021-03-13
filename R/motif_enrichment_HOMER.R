@@ -315,13 +315,16 @@ parseHomerOutput <- function(infiles) {
 
     sumFgWgt <- do.call(cbind, lapply(tabL, "[", , 6))
     sumBgWgt <- do.call(cbind, lapply(tabL, "[", , 8))
+    rownames(sumFgWgt) <- rownames(sumBgWgt) <- tabL[[1]][, 1]
+    sumFgWgt <- sumFgWgt[order(rownames(sumFgWgt)), ]
+    sumBgWgt <- sumBgWgt[order(rownames(sumBgWgt)), ]
 
     P <- do.call(cbind, P)
     enrTF <- do.call(cbind, enrTF)
     log2enr <- do.call(cbind, log2enr)
     tmp <-  as.vector(10**(-P))
     fdr <- matrix(-log10(p.adjust(tmp, method = "BH")), nrow = nrow(P))
-    dimnames(sumFgWgt) <- dimnames(sumBgWgt) <- dimnames(fdr) <- dimnames(P)
+    dimnames(fdr) <- dimnames(P)
 
     fdr[which(fdr == Inf, arr.ind = TRUE)] <- max(fdr[is.finite(fdr)])
     
