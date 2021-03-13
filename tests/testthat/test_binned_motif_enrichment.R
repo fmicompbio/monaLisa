@@ -417,7 +417,7 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
     expect_identical(dim(colData(res1)), c(3L, 2L))
     expect_identical(colData(res1), colData(res2))
     expect_equal(-pbinom(q = assay(res1, "sumForegroundWgtWithHits")[, 3] - 1,
-                         size = se.monaLisa$totalWgtForeground[3],
+                         size = res1$totalWgtForeground[3],
                          prob = assay(res1, "sumBackgroundWgtWithHits")[, 3] /
                           res1$totalWgtBackground[3], lower.tail = FALSE, log.p = TRUE),
                  assay(res1, "p")[, 3])
