@@ -57,7 +57,7 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 #'     moitfs into a \code{\link[TFBSTools]{PFMatrixList}}.
 #'
 #' @importFrom utils getFromNamespace
-#' @importFrom TFBSTools getMatrixSet Matrix name tags
+#' @importFrom TFBSTools getMatrixSet Matrix ID name
 #'
 #' @export
 dumpJaspar <- function(filename, pkg = "JASPAR2018",
@@ -97,23 +97,24 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018",
         scorecut <- log(2**10) # use constant cutoff for all motifs (ignore relScoreCutoff)
         pwm <- apply(pwm, 2, function(x){sprintf("%.3f", x)})
         rownames(pwm) <- tmp.rn
-        wm.name <- paste(c(TFBSTools::name(siteList[[i]]),
-                           paste(TFBSTools::tags(siteList[[i]])$acc, collapse = "."),
-                           TFBSTools::tags(siteList[[i]])$type), collapse = "_")
-        wm.name <- gsub("::", ".", wm.name)
-        wm.name <- gsub("-", "", wm.name)
-        wm.name <- gsub("\\s+", "", wm.name)
-        if (length(grep("\\(var\\.\\d\\)", wm.name)) > 0) {
-          tmp.num <- gsub("\\S+\\(var\\.(\\d)\\)\\S+", "\\1", wm.name)
-          wm.name <- gsub(sprintf("\\(var\\.%s\\)", tmp.num),
-                          sprintf("var%s", tmp.num), wm.name)
-        }
-        wm.name <- gsub("\\(PBM\\)", "", wm.name)
-        wm.name.conv <- make.names(wm.name)
-        if (!(wm.name == wm.name.conv)) {
-          warning("Weight matrix name ", wm.name, " converted to ", wm.name.conv)
-        }
-        wm.name <- wm.name.conv
+        # wm.name <- paste(c(TFBSTools::name(siteList[[i]]),
+        #                    paste(TFBSTools::tags(siteList[[i]])$acc, collapse = "."),
+        #                    TFBSTools::tags(siteList[[i]])$type), collapse = "_")
+        # wm.name <- gsub("::", ".", wm.name)
+        # wm.name <- gsub("-", "", wm.name)
+        # wm.name <- gsub("\\s+", "", wm.name)
+        # if (length(grep("\\(var\\.\\d\\)", wm.name)) > 0) {
+        #   tmp.num <- gsub("\\S+\\(var\\.(\\d)\\)\\S+", "\\1", wm.name)
+        #   wm.name <- gsub(sprintf("\\(var\\.%s\\)", tmp.num),
+        #                   sprintf("var%s", tmp.num), wm.name)
+        # }
+        # wm.name <- gsub("\\(PBM\\)", "", wm.name)
+        # wm.name.conv <- make.names(wm.name)
+        # if (!(wm.name == wm.name.conv)) {
+        #   warning("Weight matrix name ", wm.name, " converted to ", wm.name.conv)
+        # }
+        # wm.name <- wm.name.conv
+        wm.name <- paste0(TFBSTools::ID(siteList[[i]]), ":::", TFBSTools::name(siteList[[i]]))
 
         #the -10 is added so that the motif file has 4 columns, which is needed to run compareMotifs.pl
         #for weight matrix clustering (4th column not used, bug in compareMotifs.pl, I think)
@@ -240,7 +241,8 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
         message("creating foreground/background region files for HOMER")
     for (i in 1:nlevels(b)) {
         bn <- levels(b)[i]
-        message("  bin ",bn)
+        if (verbose)
+            message("  bin ",bn)
 
         fgfile  <- sprintf("%s/bin_%03d_foreground.tab", outdir, i)
         bgfile  <- sprintf("%s/bin_%03d_background.tab", outdir, i)
@@ -285,48 +287,36 @@ parseHomerOutput <- function(infiles) {
     stopifnot(all(file.exists(infiles)))
 
     tabL <- lapply(infiles, read.delim)
+    mnms <- sort(tabL[[1]][, 1])
     names(tabL) <- if (is.null(names(infiles))) infiles else names(infiles)
-    P <- lapply(tabL, function(tab) {
-        D <- tab[, c(1, 4)]
-        logpVals <- -D[, 2]/log(10)
-        names(logpVals) <- D[, 1]
-        logpVals[order(names(logpVals))]
-    })
-    enrTF <- lapply(tabL, function(tab) {
-        D <- tab[, c(1, 6, 7, 9)] # name, no. and % of target seqs with motif, % of bg seqs with motif
-        D[, 3] <- as.numeric(sub("%$","", D[, 3])) / 100
-        D[, 4] <- as.numeric(sub("%$","", D[, 4])) / 100
-        obsTF <- D[, 2]
-        expTF <- D[, 2] / (D[, 3] + 0.001) * (D[, 4] + 0.001)
+    P <- do.call(cbind, lapply(tabL, function(x) -x[match(mnms, x[, 1]), 4] / log(10)))
+    enrTF <- do.call(cbind, lapply(tabL, function(tab) {
+        fracFgWithMotif <- as.numeric(sub("%$","", tab[, 7])) / 100
+        fracBgWithMotif <- as.numeric(sub("%$","", tab[, 9])) / 100
+        obsTF <- tab[, 6]
+        expTF <- obsTF / (fracFgWithMotif + 0.001) * (fracBgWithMotif + 0.001)
         enr <- (obsTF - expTF) / sqrt(expTF)
         enr[ is.na(enr) ] <- 0
-        names(enr) <- D[, 1]
-        enr[order(names(enr))]
-    })
-    log2enr <- lapply(tabL, function(tab){
-      	D <- tab[, c(6, 8)] # number of target seqs and bg seqs with motif
-      	nTot <- as.numeric(gsub("\\S+\\.(\\d+)\\.", "\\1", colnames(D))) #total number of target and background sequences
-      	D.norm <- t(min(nTot)*t(D)/nTot) # scale to smaller number (usually number of target sequences)
-      	DL <- log2(D.norm + 8)
-      	log2enr <- DL[, 1] - DL[, 2]
-      	names(log2enr) <- tab[, 1]
-      	log2enr[order(names(log2enr))]
-    })
+        enr[match(mnms, tab[, 1])]
+    }))
+    log2enr <- do.call(cbind, lapply(tabL, function(tab){
+      	numFgBgWithHits <- tab[, c(6, 8)] # number of target seqs and bg seqs with motif
+      	nTot <- as.numeric(gsub("\\S+\\.(\\d+)\\.", "\\1", colnames(numFgBgWithHits))) #total number of target and background sequences
+      	numFgBgWithHitsNorm <- t(min(nTot) * t(numFgBgWithHits) / nTot) # scale to smaller number (usually number of target sequences)
+      	numFgBgWithHitsNormLog <- log2(numFgBgWithHitsNorm + 8)
+      	lenr <- numFgBgWithHitsNormLog[, 1] - numFgBgWithHitsNormLog[, 2]
+      	lenr[match(mnms, tab[, 1])]
+    }))
 
-    sumFgWgt <- do.call(cbind, lapply(tabL, "[", , 6))
-    sumBgWgt <- do.call(cbind, lapply(tabL, "[", , 8))
-    rownames(sumFgWgt) <- rownames(sumBgWgt) <- tabL[[1]][, 1]
-    sumFgWgt <- sumFgWgt[order(rownames(sumFgWgt)), ]
-    sumBgWgt <- sumBgWgt[order(rownames(sumBgWgt)), ]
+    sumFgWgt <- do.call(cbind, lapply(tabL, function(tab) tab[match(mnms, tab[, 1]), 6]))
+    sumBgWgt <- do.call(cbind, lapply(tabL, function(tab) tab[match(mnms, tab[, 1]), 8]))
 
-    P <- do.call(cbind, P)
-    enrTF <- do.call(cbind, enrTF)
-    log2enr <- do.call(cbind, log2enr)
-    tmp <-  as.vector(10**(-P))
-    fdr <- matrix(-log10(p.adjust(tmp, method = "BH")), nrow = nrow(P))
-    dimnames(fdr) <- dimnames(P)
-
+    fdr <- matrix(-log10(p.adjust(as.vector(10^(-P)), method = "BH")),
+                  nrow = nrow(P), dimnames = dimnames(P))
     fdr[which(fdr == Inf, arr.ind = TRUE)] <- max(fdr[is.finite(fdr)])
+    
+    rownames(P) <- rownames(fdr) <- rownames(enrTF) <- rownames(log2enr) <-
+        rownames(sumFgWgt) <- rownames(sumBgWgt) <- mnms
     
     return(list(p = P, FDR = fdr, enr = enrTF, log2enr = log2enr,
                 sumForegroundWgtWithHits = sumFgWgt, 
@@ -401,6 +391,7 @@ parseHomerOutput <- function(infiles) {
 #'
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom S4Vectors DataFrame
+#' @importFrom TFBSTools ID name Matrix
 #'
 #' @export
 calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
@@ -475,38 +466,59 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
     assayL <- parseHomerOutput(resfiles)
 
     ## ... create SummarizedExperiment
+    ## ... ... reorder parsed output according to motifs in motifFile
+    pfms <- homerToPFMatrixList(motifFile)
+    morder <- TFBSTools::name(pfms)
+    o <- match(morder, rownames(assayL[[1]]))
+    assayL <- lapply(assayL, function(x) x[o, ])
+    ## ... ... colData
     cdat <- S4Vectors::DataFrame(bin.names = levels(b),
                                  bin.lower = attr(b, "breaks")[-(nlevels(b) + 1)],
                                  bin.upper = attr(b, "breaks")[-1],
                                  bin.nochange = seq.int(nlevels(b)) %in% attr(b, "bin0"))
     cdat <- cdat[match(colnames(assayL[[1]]), levels(b)), ]
-    pfms <- homerToPFMatrixList(motifFile)
-    pfms <- pfms[match(rownames(assayL[[1]]), TFBSTools::name(pfms))]
     percentGC <- unlist(lapply(pfms, function(x) {
         m <- TFBSTools::Matrix(x)
         100 * sum(m[c("C","G"), ]) / sum(m)
     }), use.names = FALSE)
-    rdat <- S4Vectors::DataFrame(motif.id = rep(NA, length(pfms)),
-                                 motif.name = rownames(assayL[[1]]),
+    if (all(grepl(":::", rownames(assayL[[1]])))) {
+        mid <- sub(":::.+$", "", rownames(assayL[[1]]))
+        mnm <- sub("^.+:::", "", rownames(assayL[[1]]))
+        assayL <- lapply(assayL, function(x) {
+            rownames(x) <- sub(":::.+$", "", rownames(x))
+            x
+        })
+        for (i in seq_along(pfms)) {
+            pfms[[i]]@ID <- mid[i]
+            pfms[[i]]@name <- mnm[i]
+        }
+    } else {
+        mid <- rep(NA, length(pfms))
+        mnm <- rownames(assayL[[1]])
+    }
+    ## ... ... rowData
+    rdat <- S4Vectors::DataFrame(motif.id = mid,
+                                 motif.name = mnm,
                                  motif.pfm = pfms,
                                  motif.pwm = rep(NA, length(pfms)),
                                  motif.percentGC = percentGC)
-    se <- SummarizedExperiment::SummarizedExperiment(
+    ## ... ... metadata
+    mdatL <- list(regions = gr,
+                  bins = b,
+                  bins.binmode = attr(b, "binmode"),
+                  bins.breaks = as.vector(attr(b, "breaks")),
+                  bins.bin0 = attr(b, "bin0"),
+                  param.genomedir = genomedir,
+                  param.outdir = outdir,
+                  param.motifFile = motifFile,
+                  param.homerfile = homerfile,
+                  param.regionsize = regionsize,
+                  param.Ncpu = Ncpu,
+                  motif.distances = NULL)
+    ## ... ... return
+    SummarizedExperiment::SummarizedExperiment(
       assays = assayL, colData = cdat, rowData = rdat,
-      metadata = list(regions = gr,
-                      bins = b,
-                      bins.binmode = attr(b, "binmode"),
-                      bins.breaks = as.vector(attr(b, "breaks")),
-                      bins.bin0 = attr(b, "bin0"),
-                      param.genomedir = genomedir,
-                      param.outdir = outdir,
-                      param.motifFile = motifFile,
-                      param.homerfile = homerfile,
-                      param.regionsize = regionsize,
-                      param.Ncpu = Ncpu,
-                      motif.distances = NULL)
-    )
-    return(se)
+      metadata = mdatL)
 }
 
 
