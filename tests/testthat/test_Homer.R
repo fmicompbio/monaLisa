@@ -95,8 +95,8 @@ test_that("parseHomerOutput() works properly", {
                                    "sumBackgroundWgtWithHits"))
     expect_identical(colnames(res[[1]]), c("bin1", "bin2"))
     expect_identical(res$p[,1], res$p[,2])
-    expect_true(all(sapply(res, dim) == c(519L, 2L)))
-    expect_equal(sum(res$enr), -914.6696)
+    expect_true(all(sapply(res, dim) == c(579L, 2L)))
+    expect_equal(sum(res$enr), 5344.75730637349)
 })
 
 test_that("calcBinnedMotifEnrHomer() works properly", {
