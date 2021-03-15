@@ -311,6 +311,12 @@ parseHomerOutput <- function(infiles) {
     sumFgWgt <- do.call(cbind, lapply(tabL, function(tab) tab[match(mnms, tab[, 1]), 6]))
     sumBgWgt <- do.call(cbind, lapply(tabL, function(tab) tab[match(mnms, tab[, 1]), 8]))
 
+    totWgt <- do.call(rbind, lapply(tabL, function(tab) {
+        numFgBgWithHits <- tab[, c(6, 8)] # number of target seqs and bg seqs with motif
+        nTot <- as.numeric(gsub("\\S+\\.(\\d+)\\.", "\\1", colnames(numFgBgWithHits))) #total number of target and background sequences
+        nTot
+    }))
+
     fdr <- matrix(-log10(p.adjust(as.vector(10^(-P)), method = "BH")),
                   nrow = nrow(P), dimnames = dimnames(P))
     fdr[which(fdr == Inf, arr.ind = TRUE)] <- max(fdr[is.finite(fdr)])
@@ -320,7 +326,9 @@ parseHomerOutput <- function(infiles) {
     
     return(list(p = P, FDR = fdr, enr = enrTF, log2enr = log2enr,
                 sumForegroundWgtWithHits = sumFgWgt, 
-                sumBackgroundWgtWithHits = sumBgWgt))
+                sumBackgroundWgtWithHits = sumBgWgt,
+                totalWgtForeground = totWgt[, 1],
+                totalWgtBackground = totWgt[, 2]))
 }
 
 # internal function:  Check if all the HOMER output files already exist and if the run was successful.
@@ -463,20 +471,21 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
     ## ... parse output
     resfiles <- sprintf("%s/bin_%03d_output/knownResults.txt", outdir, seq_along(levels(b)))
     names(resfiles) <- levels(b)
-    assayL <- parseHomerOutput(resfiles)
+    resL <- parseHomerOutput(resfiles)
 
     ## ... create SummarizedExperiment
     ## ... ... reorder parsed output according to motifs in motifFile
     pfms <- homerToPFMatrixList(motifFile)
     morder <- TFBSTools::name(pfms)
-    o <- match(morder, rownames(assayL[[1]]))
-    assayL <- lapply(assayL, function(x) x[o, ])
+    o <- match(morder, rownames(resL[[1]]))
+    assayL <- lapply(resL[1:6], function(x) x[o, ])
     ## ... ... colData
     cdat <- S4Vectors::DataFrame(bin.names = levels(b),
                                  bin.lower = attr(b, "breaks")[-(nlevels(b) + 1)],
                                  bin.upper = attr(b, "breaks")[-1],
-                                 bin.nochange = seq.int(nlevels(b)) %in% attr(b, "bin0"))
-    cdat <- cdat[match(colnames(assayL[[1]]), levels(b)), ]
+                                 bin.nochange = seq.int(nlevels(b)) %in% attr(b, "bin0"),
+                                 totalWgtForeground = resL$totalWgtForeground,
+                                 totalWgtBackground = resL$totalWgtBackground)
     percentGC <- unlist(lapply(pfms, function(x) {
         m <- TFBSTools::Matrix(x)
         100 * sum(m[c("C","G"), ]) / sum(m)

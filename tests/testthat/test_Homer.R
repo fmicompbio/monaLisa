@@ -89,14 +89,19 @@ test_that("parseHomerOutput() works properly", {
     outfile <- system.file("extdata", "homer_output.txt.gz", package = "monaLisa")
 
     res <- parseHomerOutput(structure(c(outfile, outfile), names = c("bin1", "bin2")))
-    expect_length(res, 6L)
+    expect_length(res, 8L)
     expect_identical(names(res), c("p", "FDR", "enr", "log2enr",
                                    "sumForegroundWgtWithHits",
-                                   "sumBackgroundWgtWithHits"))
+                                   "sumBackgroundWgtWithHits",
+                                   "totalWgtForeground",
+                                   "totalWgtBackground"))
     expect_identical(colnames(res[[1]]), c("bin1", "bin2"))
     expect_identical(res$p[,1], res$p[,2])
-    expect_true(all(sapply(res, dim) == c(579L, 2L)))
+    expect_true(all(sapply(res[1:6], dim) == c(579L, 2L)))
+    expect_length(res[[7]], 2L)
+    expect_length(res[[8]], 2L)
     expect_equal(sum(res$enr), 5344.75730637349)
+    expect_identical(res[[8]], c(bin1 = 43339, bin2 = 43339))
 })
 
 test_that("calcBinnedMotifEnrHomer() works properly", {
