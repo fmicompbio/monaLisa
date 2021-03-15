@@ -414,7 +414,7 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
     expect_identical(assayNames(res2), c("p", "FDR", "enr", "log2enr", "sumForegroundWgtWithHits", "sumBackgroundWgtWithHits"))
     expect_identical(colnames(rowData(res1)), c("motif.id", "motif.name", "motif.pfm", "motif.pwm", "motif.percentGC"))
     expect_identical(rowData(res1), rowData(res2))
-    expect_identical(dim(colData(res1)), c(3L, 2L))
+    expect_identical(dim(colData(res1)), c(3L, 6L))
     expect_identical(colData(res1), colData(res2))
     expect_equal(-pbinom(q = assay(res1, "sumForegroundWgtWithHits")[, 3] - 1,
                          size = res1$totalWgtForeground[3],

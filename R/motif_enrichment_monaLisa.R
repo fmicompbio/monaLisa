@@ -769,9 +769,18 @@ calcBinnedMotifEnrR <- function(seqs,
                       motif.pfm = pfmL,
                       motif.pwm = pwmL,
                       motif.percentGC = percentGC)
-    cdat <- DataFrame(
-        totalWgtForeground = do.call(c, lapply(enrichL, function(x){x$totalWgtForeground[1]})), 
-        totalWgtBackground = do.call(c, lapply(enrichL, function(x){x$totalWgtBackground[1]})))
+    if (is.null(attr(bins, "breaks"))) {
+        binL <- binH <- rep(NA, nlevels(bins))
+    } else {
+        binL <- attr(bins, "breaks")[-(nlevels(bins) + 1)]
+        binH <- attr(bins, "breaks")[-1]
+    }
+    cdat <- DataFrame(bin.names = levels(bins),
+                      bin.lower = binL,
+                      bin.upper = binH,
+                      bin.nochange = seq.int(nlevels(bins)) %in% attr(bins, "bin0"),
+                      totalWgtForeground = do.call(c, lapply(enrichL, function(x){x$totalWgtForeground[1]})), 
+                      totalWgtBackground = do.call(c, lapply(enrichL, function(x){x$totalWgtBackground[1]})))
     mdat <- list(sequences = seqs,
                  bins = bins,
                  bins.binmode = attr(bins, "binmode"),
