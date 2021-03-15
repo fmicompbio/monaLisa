@@ -337,7 +337,7 @@ Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promot
 
 ## Load Data
 
-We load the ATAC-seq log2-fold changes across the enhancers (ATAC peaks). This will be our response vector in the regression framework.
+In our example dataset, we have quantified ATAC-seq reads on enhancers in mouse P0 lung and liver tissues. The log2-fold change (our response vector in this example) is for liver vs lung, and we are looking at enhancers that have an absolute log2-fold change > 2.
 
 ```{r libs}
 suppressPackageStartupMessages({
@@ -354,15 +354,9 @@ suppressPackageStartupMessages({
 
 
 ```{r loadData}
-# load logFC vector and peaks
-peaks_path <- system.file("extdata", "Liver_vs_Lung_ATAC_peaks.rds", package = "monaLisa")
-response_path <- system.file("extdata", "Liver_vs_Lung_ATAC_logFC.rds", package = "monaLisa")
-logFC <- readRDS(response_path)
-peaks <- readRDS(peaks_path)
-
-# examine data
-head(logFC)
-head(peaks)
+# load GRanges object with logFC and peaks
+gr_path <- system.file("extdata", "atac_liver_vs_lung.rds", package = "monaLisa")
+gr <- readRDS(gr_path)
 ```
 
 ## Get TFBS per Motif Across the Peaks
@@ -372,17 +366,16 @@ We will now construct the transcription factor binding site (TFBS) matrix for kn
 As mentioned, this framework offers the flexibility to add additional predictors to compete against the TFs for selection. Here, we add the fraction of G+C and CpG observed/expected ratio as predictors, to ensure that selected TFs are not just detecting a simple trend in GC or CpG composition.
 
 ```{r predictorMatrix}
-# get PWMs (random subset of 150 vertebrate TFs from Jaspar)
+# get PWMs (random subset of 100 vertebrate TFs from Jaspar)
 pfms <- getMatrixSet(JASPAR2018, list(matrixtype = "PFM", tax_group = "vertebrates")) # for seq-logos
 set.seed(6698)
-pfms <- pfms[sort(sample(length(pfms), size = 150), decreasing = FALSE)]
+s <- sample(1:length(pfms), size = 100)
+pfms <- pfms[s]
 pwms <- toPWM(pfms) # for searching
 
-
-
 # get TFBS on given GRanges (peaks)
-peakSeq <- BSgenome::getSeq(BSgenome.Mmusculus.UCSC.mm10, peaks)
-hits <- findMotifHits(query = pwms, subject = peakSeq, min.score = 6.0,
+peakSeq <- BSgenome::getSeq(BSgenome.Mmusculus.UCSC.mm10, gr)
+hits <- findMotifHits(query = pwms, subject = peakSeq, min.score = 10.0,
                       method = "matchPWM",
                       BPPARAM = BiocParallel::MulticoreParam(2))
 
@@ -392,8 +385,12 @@ TFBSmatrix <- unclass(table(factor(seqnames(hits), levels = seqlevels(hits)),
 TFBSmatrix[1:6, 1:6]
 
 # check order
-all(rownames(TFBSmatrix) == names(peaks))
-all(rownames(TFBSmatrix) == names(logFC))
+all(rownames(TFBSmatrix) == names(gr))
+
+# remove TFs with 0 binding sites in all regions
+zero_TF <- colSums(TFBSmatrix) == 0
+sum(zero_TF)
+TFBSmatrix <- TFBSmatrix[, !zero_TF]
 
 # calculate GC and oeCpG content
 fMono <- oligonucleotideFrequency(peakSeq, width = 1L, as.prob = TRUE)
@@ -403,6 +400,7 @@ oeCpG <- (fDi[,"CG"] + 0.01) / (fMono[,"G"] * fMono[,"C"] + 0.01)
 
 # add GC and oeCpG to predictor matrix
 TFBSmatrix <- cbind(oeCpG, TFBSmatrix)
+TFBSmatrix <- cbind(fracGC, TFBSmatrix)
 TFBSmatrix[1:6, 1:6]
 ```
 
@@ -414,7 +412,7 @@ We can now run randomized lasso stability selection to identify TFs that are lik
 ```{r stabSelTFs}
 # select TFs
 set.seed(123)
-se <- randLassoStabSel(x = TFBSmatrix, y = logFC,
+se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung,
                        cutoff = 0.8, mc.cores = 2)
 se
 
@@ -450,6 +448,7 @@ Next, we visualize the correlation structure of the TFBS matrix. We can see that
 excl <- colnames(TFBSmatrix) %in% c("oeCpG", "fracGC")
 TFBSmatrixCor <- cor(TFBSmatrix[, !excl], method = "pearson")
 sel <- colnames(se)[se$selected]
+sel <- sel[!sel %in% c("oeCpG", "fracGC")]
 TFBSmatrixCorSel <- TFBSmatrixCor[sel, sel]
 
 # heatmap
@@ -479,9 +478,9 @@ TF <- sel[2]
 TF
 
 i <- which(assay(se, "x")[, TF] > 0) # peaks that contain TF hits...
-nm <- names(sort(abs(logFC[i]), decreasing = TRUE)) # ... order by |logFC|
+nm <- names(sort(abs(gr$logFC_liver_vs_lung[i]), decreasing = TRUE)) # ... order by |logFC|
 
-head(peaks[nm])
+head(gr[nm])
 ```
 
 
