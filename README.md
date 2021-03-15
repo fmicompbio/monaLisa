@@ -8,15 +8,21 @@
 
 ## Overview
 
-`monaLisa` makes use of her father [Homer](http://homer.ucsd.edu/homer/index.html)
-to look for enriched motifs in sets of genomic regions, compared to all other regions.
+`monaLisa` was inspired by her father [Homer](http://homer.ucsd.edu/homer/index.html)
+to look for enriched motifs in sets (bins) of genomic regions, compared to all other
+regions ("binned motif enrichment analysis").
 
-The motifs come from a collection of transcription factor binding site specificities,
-such as `JASPAR2018`. The regions could be for example promoters or accessible regions.
-The regions are grouped into bins according to a numerical value assigned to each
-bin, such as change of expression or accessibility.
+It uses known motifs representing transcription factor binding preferences,
+for example for the `JASPAR2018` Bioconductor package. The regions are for
+example promoters or accessible regions, which are grouped into bins according
+to a numerical value assigned to each region, such as change of expression
+or accessibility. The goal of the analysis is to identify transcription
+factors that are associated to that numerical value and thus candidates
+to be drivers in the underlying biological process.
 
-Finally, `monaLisa` can also be used to look for motifs in sequences.
+In addition to the "binned motif enrichment analysis", `monaLisa` can also be
+used to address the above question using stability selection (a form of linear
+regression), or to look for motif matchess in sequences.
 
 Current contributors include:
 
@@ -26,32 +32,53 @@ Current contributors include:
 
 ## Functionality
 
-A minimal example to run `monaLisa` looks like:
+Here is a minimal example to run a `monaLisa` analysis:
 
 ```
-# load package
 library(monaLisa)
 
-# bin regions
-# (atac.peaks.change is a numberical vector)
-bins <- bin(x = atac.peaks.change, binmode = "equalN", nElement = 400)
+mcparams <- BiocParallel::MulticoreParam(10L)
+se <- calcBinnedMotifEnr(seqs = seqs,   # DNAStringSet (e.g. peak sequences)
+                         bins = bins,   # factor that groups 'seqs'
+                         motifs = pwms, # PWMatrixList (know motifs)
+                         method = "R",
+                         BPPARAM = mcparams,
+                         min.score = 10,
+                         verbose = TRUE)
+```
 
-# dump motifs into file
-motiffile <- dumpJaspar("jaspar2018.motif", pkg = "JASPAR2018")
+The return value `se` is a `SummarizedExperiment` with motifs in rows and bins
+in columns, and multiple assays with significance and magnitude of the enrichments.
 
-# find Homer (findMotifsGenome.pl)
-homerfile <- findHomer(dirs = "/path/to/look/into")
+The inputs for `calcBinnedMotifEnr` can be easily obtained using other
+Bioconductor packages:  
+```
+# get sequences ('atacPeaks' is a GRanges)
+library(Biostrings)
+library(BSgenome.Mmusculus.UCSC.mm10)
+seqs <- getSeq(BSgenome.Mmusculus.UCSC.mm10, atacPeaks)
 
-# run analysis
-# (atac.peaks is a GRanges)
-resL <- calcBinnedMotifEnrHomer(gr = atac.peaks, b = bins,
-                                genomedir = "/work/gbioinfo/DB/genomes/mm10",
-                                outdir = "myresults",
-                                motifFile = "jaspar2018.motif",
-                                homerfile = homerfile,
-                                regionsize = "given", Ncpu = 4L)
+# bin sequences ('atacPeaksChange' is a numberical vector)
+bins <- bin(x = atacPeaksChange, binmode = "equalN", nElement = 400)
+
+# obtain known motifs from Jaspar
+library(JASPAR2018)
+library(TFBSTools)
+pwms <- getMatrixSet(JASPAR2018, list(matrixtype = "PWM", tax_group = "vertebrates"))
+```
+
+The results can be conveniently visualized:
+```
+plotBinDensity(atacPeaksChange, bins, legend = FALSE)
+```
+<img src="vignettes/monaLisa_binning_small.png" align="center" alt="binning" width="412px"/>
 
 ```
+plotMotifHeatmaps(se, cluster = TRUE,
+                  which.plots = c("enr", "FDR"),
+                  show_seqlogo = TRUE)
+```
+<img src="vignettes/monaLisa_heatmaps_small.png" align="center" alt="heatmaps" width="501px"/>
 
 ## Software status
 
