@@ -73,7 +73,8 @@ getColsByBin <- function(b,
 #'
 #' @export
 plotBinHist <- function(x, b, breaks = 10 * nlevels(b),
-                        xlab = deparse(substitute(x)), ylab = "Frequency",
+                        xlab = deparse(substitute(x, env = as.environment(-1))),
+                        ylab = "Frequency",
                         main = "", legend = "topright", legend.cex = 1.0, ...) {
     .assertVector(x = b, type = "factor", len = length(x))
     stopifnot("breaks" %in% names(attributes(b)))
@@ -118,7 +119,8 @@ plotBinHist <- function(x, b, breaks = 10 * nlevels(b),
 #'
 #' @export
 plotBinDensity <- function(x, b,
-                           xlab = deparse(substitute(x)), ylab = "Density",
+                           xlab = deparse(substitute(x, env = as.environment(-1))),
+                           ylab = "Density",
                            main = "", legend = "topright", legend.cex = 1.0, ...) {
     .assertVector(x = b, type = "factor", len = length(x))
     stopifnot("breaks" %in% names(attributes(b)))
@@ -173,8 +175,8 @@ plotBinDensity <- function(x, b,
 #' @export
 plotBinScatter <- function(x, y, b,
                            cols = getColsByBin(b),
-                           xlab = deparse(substitute(x)),
-                           ylab = deparse(substitute(y)),
+                           xlab = deparse(substitute(x, env = as.environment(-1))),
+                           ylab = deparse(substitute(y, env = as.environment(-1))),
                            main = "", legend = "topright", legend.cex = 1.0, ...) {
     .assertVector(x = y, len = length(x))
     .assertVector(x = b, len = length(x))
