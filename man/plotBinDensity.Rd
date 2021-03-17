@@ -7,7 +7,7 @@
 plotBinDensity(
   x,
   b,
-  xlab = deparse(substitute(x)),
+  xlab = deparse(substitute(x, env = as.environment(-1))),
   ylab = "Density",
   main = "",
   legend = "topright",
