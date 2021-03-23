@@ -20,6 +20,7 @@ knitr::opts_chunk$set(
     fig.align = "center",
     crop = NULL # suppress "The magick package is required to crop" issue
 )
+library(BiocStyle)
 ```
 
 <img src="monaLisa_logo_v1.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%; border: 0" />
@@ -58,8 +59,17 @@ for example changes in chromatin accessibility between two conditions. Also
 this approach allows to correct for sequence composition. In addition, similar
 motifs have to "compete" with each other to be selected.
 
+For both approaches, functions that allow visualization of obtained results
+are provided.
 
-# Quick example: Identify enriched motifs{#quick}
+If you prefer to jump right in, you can continue with section \@ref(quick) that
+shows a quick hypothetical example of how to run a binned motif enrichment
+analysis. If you prefer to actually compute enrichments on real data, you can
+find below detailed examples for a binned motif enrichment analysis (section
+\@ref(binned)) and randomized Lasso stability selection (section \@ref(stabsel)).
+
+
+# Quick example: Identify enriched motifs in bins{#quick}
 
 ```{r, quick, eval=FALSE}
 # load package
@@ -104,20 +114,21 @@ and bins, respectively. In `metadata(se)` you can find information about paramet
 values.
 
 
-# Detailed example: Finding TFs enriched in differentially methylated regions{#binned}
+# Binned motif enrichment analysis: Finding TFs enriched in differentially methylated regions{#binned}
 
-The detailed example is based on an in vitro differentiation system, in which
+This example is based on an *in vitro* differentiation system, in which
 mouse embryonic stem (ES) cells are differentiated into neuronal progenitors (NP).
 In an earlier study [@LMRs], we have analyzed the genome-wide CpG methylation patterns
-in these cell types and identified so call *low methylated regions* (LMRs), that
+in these cell types and identified so called *low methylated regions* (LMRs), that
 have reduced methylation levels and correspond to regions bound by transcription
 factors.
 
-We have later published a tool that systematically identifies such regions from
+We also developed a tool that systematically identifies such regions from
 genome-wide methylation data [@MethylSeekR]. Interestingly, a change in methylation
 of LMRs is indicative of altered transcription factor binding. We will therefore
-use these regions to identify TF motifs that are enriched/depleted in LMR regions
-that change their methylation between ES and NP cell states.
+use these regions to identify transcription factor motifs that are enriched
+or depleted in LMR regions that change their methylation between ES and NP cell
+states.
 
 
 ## Load library
@@ -125,8 +136,12 @@ We start by loading the needed libraries:
 ```{r loadlib, message=FALSE}
 library(GenomicRanges)
 library(SummarizedExperiment)
+library(JASPAR2018)
+library(TFBSTools)
+library(BSgenome.Mmusculus.UCSC.mm10)
 library(monaLisa)
 ```
+
 
 ## Genomic regions of interest
 `monaLisa` contains a file with genomic coordinates (mouse mm9 assembly) of LMRs,
@@ -321,7 +336,7 @@ the order in `seqs` and `pwms`.
 
 # Motif Selection with Randomized Lasso Stability Selection{#stabsel}
 
-One can also select for meaningful transcription factor (TF) motifs in a regression based approach with predictors consisting of the TF motif hits, and the response vector being the observed measure of interest, e.g. log-fold changes of accessibility for a set of regions. In `monaLisa`, we implement the randomized lasso stability selection proposed by Meinshausen and Bühlmann [@StabSel] with the improved error bounds introduced by Shah and Samworth [@compStabs]. We have modified the `stabsel` function from the `stabs` package to implement the randomized lasso version of stability selection. 
+One can also select for important transcription factor (TF) motifs in a regression based approach with predictors consisting of the TF motif hits, and the response vector being the observed measure of interest, e.g. log-fold changes of accessibility for a set of regions. In `monaLisa`, we implement the randomized lasso stability selection proposed by Meinshausen and Bühlmann [@StabSel] with the improved error bounds introduced by Shah and Samworth [@compStabs]. We have modified the `stabsel` function from the `stabs` package to implement the randomized lasso version of stability selection. 
 
 Lasso stability selection implements the lasso regression multiple times on subsamples of the data, and returns a selection probability for each predictor (number of times selected divided by number of regressions done). With the randomized lasso, a weakness parameter is additionally used to randomly vary the lambda parameter of the lasso regression. Although the main appeal of stability selection is in cases where the number of predictors exceeds the number of observations, it also performs better variable selection with noisy data [@StabSel].
 
@@ -350,7 +365,7 @@ suppressPackageStartupMessages({
   library(monaLisa)
   library(JASPAR2018)
   library(TFBSTools)
-  library("BSgenome.Mmusculus.UCSC.mm10")
+  library(BSgenome.Mmusculus.UCSC.mm10)
   library(Biostrings)
   library(SummarizedExperiment)
   library(ComplexHeatmap) # heatmap drawing
@@ -365,48 +380,42 @@ gr_path <- system.file("extdata", "atac_liver_vs_lung.rds", package = "monaLisa"
 gr <- readRDS(gr_path)
 ```
 
-## Get TFBS per Motif Across the Peaks
+## Get TFBS per Motif and Peak
 
-We will now construct the transcription factor binding site (TFBS) matrix for known motifs (from a database like JASPAR) across the peak regions. We use the `findMotifHits` function to get the TF hits. This matrix will be the predictor matrix in our regression.
+We will now construct the transcription factor binding site (TFBS) matrix for known motifs (from a database like JASPAR) in peak regions. We use the `findMotifHits` function to scan for TF motif hits. This matrix will be the predictor matrix in our regression.
 
-As mentioned, this framework offers the flexibility to add additional predictors to compete against the TFs for selection. Here, we add the fraction of G+C and CpG observed/expected ratio as predictors, to ensure that selected TFs are not just detecting a simple trend in GC or CpG composition.
+As mentioned, this framework offers the flexibility to add additional predictors to compete against the TF motifs for selection. Here, we add the fraction of G+C and CpG observed/expected ratio as predictors, to ensure that selected TF motifs are not just detecting a simple trend in GC or CpG composition.
 
 ```{r predictorMatrix}
 # get PWMs (random subset of 100 vertebrate TFs from Jaspar)
-pfms <- getMatrixSet(JASPAR2018, list(matrixtype = "PFM", tax_group = "vertebrates")) # for seq-logos
+pfms <- getMatrixSet(JASPAR2018, list(matrixtype = "PFM", tax_group = "vertebrates"))
 set.seed(6698)
-s <- sample(1:length(pfms), size = 100)
-pfms <- pfms[s]
-pwms <- toPWM(pfms) # for searching
+pfms <- pfms[sample(length(pfms), size = 100)]
+pwms <- toPWM(pfms)
 
 # get TFBS on given GRanges (peaks)
-peakSeq <- BSgenome::getSeq(BSgenome.Mmusculus.UCSC.mm10, gr)
+peakSeq <- getSeq(BSgenome.Mmusculus.UCSC.mm10, gr)
 hits <- findMotifHits(query = pwms, subject = peakSeq, min.score = 10.0,
-                      method = "matchPWM",
                       BPPARAM = BiocParallel::MulticoreParam(2))
 
 # get TFBS matrix
 TFBSmatrix <- unclass(table(factor(seqnames(hits), levels = seqlevels(hits)),
-                                  factor(hits$pwmname, levels = TFBSTools::name(pwms))))
+                                  factor(hits$pwmname, levels = name(pwms))))
 TFBSmatrix[1:6, 1:6]
 
-# check order
-all(rownames(TFBSmatrix) == names(gr))
-
-# remove TFs with 0 binding sites in all regions
+# remove TF motifs with 0 binding sites in all regions
 zero_TF <- colSums(TFBSmatrix) == 0
 sum(zero_TF)
 TFBSmatrix <- TFBSmatrix[, !zero_TF]
 
-# calculate GC and oeCpG content
+# calculate G+C and CpG obs/expected
 fMono <- oligonucleotideFrequency(peakSeq, width = 1L, as.prob = TRUE)
 fDi <- oligonucleotideFrequency(peakSeq, width = 2L, as.prob = TRUE)
 fracGC <- fMono[,"G"] + fMono[,"C"]
 oeCpG <- (fDi[,"CG"] + 0.01) / (fMono[,"G"] * fMono[,"C"] + 0.01)
 
 # add GC and oeCpG to predictor matrix
-TFBSmatrix <- cbind(oeCpG, TFBSmatrix)
-TFBSmatrix <- cbind(fracGC, TFBSmatrix)
+TFBSmatrix <- cbind(fracGC, oeCpG, TFBSmatrix)
 TFBSmatrix[1:6, 1:6]
 ```
 
@@ -426,28 +435,22 @@ se
 colnames(se)[se$selected]
 ```
 
-<!--
-saveRDS(predictor_matrix, "/tungstenfs/groups/gbioinfo/stadler/development/R/monaLisa/inst/extdata/stabs_predictor.rds")
-saveRDS(response, "/tungstenfs/groups/gbioinfo/stadler/development/R/monaLisa/inst/extdata/stabs_response.rds")
-saveRDS(stabs, "/tungstenfs/groups/gbioinfo/stadler/development/R/monaLisa/inst/extdata/stabs.rds")
--->
 
-
+The stability paths visualizes how predictors get selected decreasing regularization stringency (from left to right):  
 ```{r plotStabilityPaths}
-# plot stability paths 
 plotStabilityPaths(se)
 ```
 
-Each line corresponds to a TF, and we can see the selection probabilities as a function of the regularization step (lambda parameter in lasso). The TF selection happens at the last step, given the specified minimum probability.
+Each line corresponds to a predictor, and we can see the selection probabilities as a function of the regularization steps, corresponding to decreasing values for the lambda regularization parameter in lasso. The predictor (TF motif) selection happens at the last step, given the specified minimum probability.
 
-We can also visualize the selection probabilities of the selected TFs, optionally multiplied by the sign of the correlation to the logFC vector (response vector), to know how the TF relates to the logFC (`directional` parameter).
+We can also visualize the selection probabilities of the selected TF motifs, optionally multiplied by the sign of the correlation to the response vector, to know how the TF relates to the change of accessibility (`directional` parameter).
 
 ```{r plotSelProbs, fig.width=15, fig.height=7}
 plotSelectionProb(se, directional = TRUE, selProbMinPlot = 0.6)
 ```
 
 
-Next, we visualize the correlation structure of the TFBS matrix. We can see that the selected TFs have a similar correlation structure as the whole TFBS matrix.
+Next, we visualize the correlation structure of the TFBS matrix. We can see that the selected TF motifs have a similar correlation structure as the whole TFBS matrix.
 
 ```{r TFBScor}
 # correlation matrix (excluding oeCpG and fracGC)
@@ -477,7 +480,7 @@ Heatmap(TFBSmatrixCorSel, show_row_names = TRUE, show_column_names = TRUE,
         right_annotation = hmSeqlogo)
 ```
 
-We can examine the peaks that have hits for a selected TF of interest, ordered by absolute logFC values.
+We can examine the peaks that have hits for a selected TF motif of interest, ordered by absolute accessibility changes.
 
 ```{r topPeaks}
 TF <- sel[2]
