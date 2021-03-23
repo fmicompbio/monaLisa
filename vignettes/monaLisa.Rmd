@@ -161,10 +161,6 @@ bins <- bin(x = lmrsel$deltaMeth, binmode = "equalN", nElement = 800, minAbsX = 
 table(bins)
 ```
 
-<!--
-saveRDS(bins, "/work/gbioinfo/stadler/development/R/compbio-lisa/inst/extdata/bins.rds")
--->
-
 Because of the asymmetry of methylation changes, there is only a single bin with LMRs
 that lost methylation and many that gained:  
 ```{r plotbins}
