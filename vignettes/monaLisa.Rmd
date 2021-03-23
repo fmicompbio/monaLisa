@@ -235,21 +235,23 @@ plotMotifHeatmaps(x = seSel, which.plots = c("log2enr","FDR"), width = 2.0,
                   cluster = TRUE, maxEnr = 2, maxSig = 10, show_motif_GC = TRUE)
 ```
 
-As the Jaspar database contains many similar motifs, it is helpful to show the enrichment heatmap clustered by motif similarity. To this end, we first need to calculate all pairwise motif similarities (measured as maximum Pearson correlation of all possible shifted alignments). As this step may take a while, you can also skip this line of code and load the results using the next line of code. 
+As the Jaspar database contains many similar motifs, it is helpful to show the
+enrichment heatmap clustered by motif similarity. To this end, we first need
+to calculate all pairwise motif similarities (measured as maximum Pearson
+correlation of all possible shifted alignments). This can be quickly calculated
+for the selected motifs using the `motifSimilarity` function. For many motifs,
+this step may take a while, and it may be useful to parallelize it using
+the `BPARAM` argument (e.g. to run on `n` parallel threads using the multi-core
+backend, you can use: `motifSimilarity(..., BPPARAM = BiocParallel::MulticoreParam(n))`).
 
-```{r wmclustering, eval=FALSE}
-SimMatSel <- motifSimilarity(rowData(seSel)$motif.pfm, BPPARAM = BiocParallel::MulticoreParam(20))
+```{r wmclustering}
+SimMatSel <- motifSimilarity(rowData(seSel)$motif.pfm)
 ```
 
-<!--
-saveRDS(SimMatSel, "/tungstenfs/groups/gbioinfo/stadler/development/R/monaLisa/inst/extdata/SimMatSel.rds")
--->
-
-```{r getclusteringresults}
-SimMatSel <- readRDS(system.file("extdata", "SimMatSel.rds", package = "monaLisa"))
-```
-The order of the TFs in the resulting matrix is consistent with the elements of `seSel`.
-Using this matrix, we can create an *hclust* object for clustering and plot the clustered heatmap. The plotting of the dendogram is controlled by the parameter *show_dendrogram*. 
+The order of the TFs in the resulting matrix is consistent with the elements of
+`seSel`. Using this matrix, we can create an `hclust` object for clustering and
+plot the clustered heatmap. The plotting of the dendogram is controlled by
+the parameter `show_dendrogram`: 
 ```{r plottfsclustered}
 # create hclust object, similarity defined by 1 - Pearson correlation
 hcl <- hclust(as.dist(1 - SimMatSel), method = "average")
@@ -260,7 +262,7 @@ plotMotifHeatmaps(x = seSel, which.plots = c("log2enr","FDR"), width = 1.2,
 ```
 
 
-# Use `monaLisa` to annotate genomic regions with predicted motifs
+# Use `monaLisa` to annotate genomic regions with predicted motifs{#findhits}
 
 As mentioned `monaLisa` can also be used to scan sequences for motifs. Here is an
 example (just on few sequences/motifs for illustration):
