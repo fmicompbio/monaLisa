@@ -24,76 +24,87 @@ knitr::opts_chunk$set(
 
 <img src="monaLisa_logo_v1.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%; border: 0" />
 
+
 # Introduction
 
-`monaLisa` is a collection of functions for working with biological sequences and motifs
-that represent the binding preferences of transcription factors or nucleic acid binding proteins.
+`monaLisa` is a collection of functions for working with biological sequences
+and motifs that represent the binding preferences of transcription factors or
+nucleic acid binding proteins.
 
-For example, `monaLisa` can make use of her father [Homer](http://homer.ucsd.edu/homer/index.html)
-to look for enriched motifs in sets of genomic regions, compared to all other regions.
+For example, `monaLisa` can be used to conveniently find motif hits in
+sequences (see section \@ref(findhits)), or to identify motifs that are likely
+associated to observed experimental data. This analysis is supposed to
+provide potential answers to the question "Which transcription factors are
+the drivers of my observed changes in expression/methylation/accessiblity?".
 
-The motifs come from a collection of transcription factor binding site specificities,
-such as `JASPAR2018`. The regions could be for example promoters, non-promoters (distal regions)
-or accessible regions. The regions are grouped into bins according to a numerical value
-assigned to each bin, such as change of expression or accessibility.
+You can use known motifs from collections of transcription factor binding 
+specificities such as `JASPAR2018`, also available from Bioconductor. Genomic
+regions could be for example promoters, enhancers or accessible regions for
+which experimental data is available.
 
-`monaLisa` can also be used to look for motifs in sequences.
+Two independent approaches are implemented to identify interesting motifs:
 
-Finally, `monaLisa` can can be used to predict what transcription factors are likely
-to explain observed changes in chromatin accessibility between two conditions.
+- In **binned motif enrichment analysis** (`calcBinnedMotifEnr()`, see
+section \@ref(binned)), genomic regions are grouped into bins according to a
+numerical value assigned to each region, such as change of expression,
+accessibility or methylation. Motif enrichments are then calculated for
+each bin, normalizing for differences in sequence composition very similarly
+as it was originally done by [Homer](http://homer.ucsd.edu/homer/index.html).
+
+- In **randomized Lasso stability selection** (`randLassoStabSel()`, see
+section \@ref(stabsel)), `monaLisa` uses a robust regression approach to predict
+what transcription factors can explain experimental measurements,
+for example changes in chromatin accessibility between two conditions. Also
+this approach allows to correct for sequence composition. In addition, similar
+motifs have to "compete" with each other to be selected.
 
 
-
-# Quick example: Identify enriched motifs
+# Quick example: Identify enriched motifs{#quick}
 
 ```{r, quick, eval=FALSE}
 # load package
 library(monaLisa)
 
 # bin regions
-# (atac.peaks.change is a numerical vector)
-bins <- bin(x = atac.peaks.change, binmode = "equalN", nElement = 400)
+# (peak_change is a numerical vector)
+peak_bins <- bin(x = peak_change, binmode = "equalN", nElement = 400)
 
-# dump motifs into file
-dumpJaspar("jaspar2018.motif", pkg = "JASPAR2018")
-
-# find Homer (findMotifsGenome.pl)
-homerfile <- findHomer(dirs = "/path/to/look/into")
-
-# run analysis
-# (atac.peaks is a GRanges)
-se <- calcBinnedMotifEnrHomer(gr = atac.peaks, b = bins,
-                              genomedir = "/work/gbioinfo/DB/genomes/mm10",
-                              outdir = "myresults",
-                              motifFile = "jaspar2018.motif",
-                              homerfile = homerfile,
-                              regionsize = "given", Ncpu = 4L)
-
+# calculate motif enrichments
+# (peak_seq is a DNAStringSet, pwms is a PWMatrixList)
+se <- calcBinnedMotifEnr(seqs = peaks_seqs,
+                         bins = peaks_bins,
+                         motifs = pwms)
 ```
 
-`se` is a `SummarizedExperiment` with `assays` *p*, *FDR*, *enr* and *log2enr*, each containing a matrix
+`se` is a `SummarizedExperiment` with `assays` *p*, *FDR*, *enr*, *log2enr*,
+*sumForegroundWgtWithHits* and *sumBackgroundWgtWithHits*, each containing a matrix
 with motifs (rows) by bins (columns). The values are:  
 
-- *p*: the raw P value ($-\log_{10} p$) of a given motif enrichment in a given bin,
-  as reported by Homer. Each P value results from a Homer analysis testing each
-  motif occuring within the bin, compared to its occurrences in all other bins
-  as a background.  
+- *p*: the raw P value ($-\log_{10} p$) of a given motif enrichment in a given
+  bin. Each P value results from an enrichment calculation comparing occurrences
+  of each motif in the bin to its occurrences in all other bins as a background.  
 - *FDR*: Same as *p* but adjusted for multiple testing using the method of
   Benjamini and Hochberg, 1995 (`p.adjust(..., method="fdr"`).  
-- *enr*: Motif enrichments, calculated as: $enr = (o - e) / \sqrt e$, where $o$ and
-  $e$ are the observed and expected numbers of regions in the bin containing a
+- *enr*: Motif enrichments, calculated as: $enr = (o - e) / \sqrt e$, where $o$
+  and $e$ are the observed and expected numbers of regions in the bin containing a
   given motif. These enrichments correspond to $z$ values ($z = (z - \mu)/\sigma$),
   assuming that the numbers of regions in a bin that contain a motif are independent
   Poisson random variables with mean and variance $e$.
 - *log2enr*: Motif enrichments, calculated as: $log2enr = log2((o + 8)/(e + 8))$,
   where $o$ and $e$ are the observed and expected numbers of regions in the bin
-  containing a given motif.
+  containing a given motif.  
+- *sumForegroundWgtWithHits* and *sumBackgroundWgtWithHits*: Are the sum of
+  foreground and background sequences that have at least one occurrence of the
+  motif, respectively. The background sequences are weighted in order to
+  adjust for differences in sequence composition between foreground and
+  background.
 
 In addition, `rowData(se)` and `colData(se)` give information about the used motifs
 and bins, respectively. In `metadata(se)` you can find information about parameter
 values.
 
-# Detailed example: Finding TFs enriched in differentially methylated regions
+
+# Detailed example: Finding TFs enriched in differentially methylated regions{#binned}
 
 The detailed example is based on an in vitro differentiation system, in which
 mouse embryonic stem (ES) cells are differentiated into neuronal progenitors (NP).
