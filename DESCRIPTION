@@ -35,8 +35,8 @@ Imports:
     igraph,
     GenomeInfoDb,
     Rcpp
-Suggests: JASPAR2018, BSgenome.Hsapiens.UCSC.hg19, TxDb.Hsapiens.UCSC.hg19.knownGene,
-    knitr, rmarkdown, testthat, BSgenome.Mmusculus.UCSC.mm10, BiocStyle, gridExtra
+Suggests: JASPAR2018, BSgenome.Mmusculus.UCSC.mm10, TxDb.Mmusculus.UCSC.mm10.knownGene,
+    knitr, rmarkdown, testthat, BiocStyle, gridExtra
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

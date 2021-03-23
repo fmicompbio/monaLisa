@@ -277,10 +277,11 @@ example (just on few sequences/motifs for illustration):
 ```{r findMotifs}
 # get sequences of promoters as a DNAStringSet
 # (could also be a single DNAString, or the name of a fasta file)
-library(TxDb.Hsapiens.UCSC.hg19.knownGene)
-gr <- promoters(TxDb.Hsapiens.UCSC.hg19.knownGene, upstream = 1000, downstream = 500)[c(1,4,5,10)]
-library(BSgenome.Hsapiens.UCSC.hg19)
-seqs <- getSeq(BSgenome.Hsapiens.UCSC.hg19, gr)
+library(TxDb.Mmusculus.UCSC.mm10.knownGene)
+gr <- promoters(TxDb.Mmusculus.UCSC.mm10.knownGene,
+                upstream = 1000, downstream = 500)[c(1,4,5,10)]
+library(BSgenome.Mmusculus.UCSC.mm10)
+seqs <- getSeq(BSgenome.Mmusculus.UCSC.mm10, gr)
 seqs
 
 # get motifs as a PWMatrixList
@@ -290,6 +291,7 @@ library(TFBSTools)
 pfms <- getMatrixByID(JASPAR2018, c("MA0885.1","MA0099.3","MA0033.2","MA0037.3","MA0158.1"))
 pwms <- toPWM(pfms)
 pwms
+name(pwms)
 
 # predict hits in sequences
 res <- findMotifHits(query = pwms,
@@ -299,38 +301,29 @@ res <- findMotifHits(query = pwms,
                      BPPARAM = BiocParallel::MulticoreParam(2))
 res
 
-# ... or using method = "homer2"
-homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.11/bin/")
-if (!is.na(homerfile)) {
-    # use homer2 if available
-    res2 <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0,
-                          method = "homer2", homerfile = homerfile)
-} else {
-    # otherwise, use matchPWM
-    res2 <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0,
-                          method = "matchPWM")
-}
-res2
-
-summary(res %in% res2)
-
 # create hit matrix:
-# number of site of each motif per sequence
-m <- table(seqnames(res), as.character(res$pwmname))
+# number of sites of each motif per sequence
+m <- table(factor(seqnames(res), levels = names(seqs)),
+           factor(res$pwmname, levels = name(pwms)))
 m
 ```
 
+The transformation of sequence and PWM names to factors with defined levels
+in the creation of the hit matrix above is not strictly needed, but it ensures
+that even sequences or motifs without any hits are reported in the matrix,
+and that the order of sequences (rows) and motifs (columns) is identical to
+the order in `seqs` and `pwms`.
 
 
-# Motif Selection with Randomized Lasso Stability Selection
+# Motif Selection with Randomized Lasso Stability Selection{#stabsel}
 
-One can also select for meaningful transcription factors (TFs) in a regression based approach with predictors consisting of the TFs, and the response vector being the observed log-fold changes across a set of regions. In `monaLisa`, we implement the randomized lasso stability selection proposed by Meinshausen and Bühlmann [@StabSel] with the improved error bounds introduced by Shah and Samworth [@compStabs]. We have modified the `stabsel` function from the `stabs` package to implement the randomized lasso version of stability selection. 
+One can also select for meaningful transcription factor (TF) motifs in a regression based approach with predictors consisting of the TF motif hits, and the response vector being the observed measure of interest, e.g. log-fold changes of accessibility for a set of regions. In `monaLisa`, we implement the randomized lasso stability selection proposed by Meinshausen and Bühlmann [@StabSel] with the improved error bounds introduced by Shah and Samworth [@compStabs]. We have modified the `stabsel` function from the `stabs` package to implement the randomized lasso version of stability selection. 
 
 Lasso stability selection implements the lasso regression multiple times on subsamples of the data, and returns a selection probability for each predictor (number of times selected divided by number of regressions done). With the randomized lasso, a weakness parameter is additionally used to randomly vary the lambda parameter of the lasso regression. Although the main appeal of stability selection is in cases where the number of predictors exceeds the number of observations, it also performs better variable selection with noisy data [@StabSel].
 
-With this approach, all TFs compete against each other to explain all observations, with the flexibility of adding other things like GC content to compete against the TFs for selection as well.
+With this approach, TF motifs compete against each other to explain observations, and we can also include additional predictors like GC content to compete against the TF motifs for selection. This is especially useful if the response is biased by sequence composition, for example if regions with higher GC content tend to have higher response values. 
 
-In the example below, we select for TFs explaining log-fold changes in chromatin accessibility (ATAC-seq) across the enhancers between mouse liver and lung tissue at P0, but this can be applied to other data types as well (ChIP-seq, RNA-seq, methylation etc.).
+In the example below, we select for TF motifs explaining log-fold changes in chromatin accessibility (ATAC-seq) across the enhancers between mouse liver and lung tissue at P0, but this can be applied to other data types as well (ChIP-seq, RNA-seq, methylation etc.).
 
 <!--
 

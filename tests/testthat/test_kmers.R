@@ -110,12 +110,12 @@ test_that("clusterKmers works as expected", {
 })
 
 test_that("calcBinnedKmerEnr works as expected", {
-    library(BSgenome.Hsapiens.UCSC.hg19)
+    library(BSgenome.Mmusculus.UCSC.mm10)
     library(SummarizedExperiment)
 
     set.seed(1)
-    gr <- GRanges("chr1", IRanges(sample(2e8, 1000), width = 500))
-    seqs <- getSeq(BSgenome.Hsapiens.UCSC.hg19, gr)
+    gr <- GRanges("chr1", IRanges(sample(1.95e8, 1000), width = 500))
+    seqs <- getSeq(BSgenome.Mmusculus.UCSC.mm10, gr)
     b <- bin(rep(1:5, each = 200), binmode = "equalN", nElements = 200)
 
     expect_error(calcBinnedKmerEnr("error"))
@@ -126,7 +126,7 @@ test_that("calcBinnedKmerEnr works as expected", {
     expect_error(calcBinnedKmerEnr(seqs, b, BPPARAM = "error"))
     
     expect_message(res1 <- calcBinnedKmerEnr(as.character(seqs), b, verbose = TRUE))
-    res2 <- calcBinnedKmerEnr(gr, b, genomepkg = "BSgenome.Hsapiens.UCSC.hg19", verbose = TRUE)
+    res2 <- calcBinnedKmerEnr(gr, b, genomepkg = "BSgenome.Mmusculus.UCSC.mm10", verbose = TRUE)
     res3 <- calcBinnedKmerEnr(seqs, b, verbose = FALSE)
     res4 <- calcBinnedKmerEnr(seqs, as.numeric(b), verbose = TRUE)
     res5 <- calcBinnedKmerEnr(seqs, b, background = "model")
@@ -144,8 +144,9 @@ test_that("calcBinnedKmerEnr works as expected", {
     expect_identical(assayNames(res1), c("p", "FDR", "enr", "log2enr"))
     expect_identical(dim(assay(res1, "log2enr")), c(1024L, 5L))
     expect_equal(diag(cor(assay(res1, "enr"), assay(res5, "enr"))),
-                 c(0.4145643727,0.4332920692,0.4948244256,0.3836038418,0.3833744606),
-                 check.attributes = FALSE)
+                 c(`[1,1.8]` = 0.489330664583753, `(1.8,2.6]` = 0.548030716046016,
+                   `(2.6,3.4]` = 0.479902775647403, `(3.4,4.2]` = 0.526336153099691,
+                   `(4.2,5]` = 0.568191209285844))
 })
 
 test_that("convertKmersToMotifs works as expected", {
