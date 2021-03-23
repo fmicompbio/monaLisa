@@ -278,8 +278,8 @@ seqs
 # (could also be a single PWMatrix, or the name of a motif file)
 library(JASPAR2018)
 library(TFBSTools)
-pwms <- getMatrixSet(JASPAR2018, list(matrixtype = "PWM", tax_group = "vertebrates"))
-pwms <- pwms[c("MA0885.1","MA0099.3","MA0033.2","MA0037.3","MA0158.1")]
+pfms <- getMatrixByID(JASPAR2018, c("MA0885.1","MA0099.3","MA0033.2","MA0037.3","MA0158.1"))
+pwms <- toPWM(pfms)
 pwms
 
 # predict hits in sequences
