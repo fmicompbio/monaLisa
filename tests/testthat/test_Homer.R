@@ -143,8 +143,8 @@ test_that("calcBinnedMotifEnrHomer() works properly", {
         expect_identical(dim(res), c(5L, 3L))
         expect_identical(rownames(res), SummarizedExperiment::rowData(res)[, "motif.id"])
         expect_identical(rownames(res), TFBSTools::ID(SummarizedExperiment::rowData(res)[, "motif.pfm"]))
-        expect_equal(sum(SummarizedExperiment::assay(res, "p")), 10.7424234072)
-        expect_equal(sum(SummarizedExperiment::assay(res, "enr")), 2.0460826730)
+        expect_equal(sum(SummarizedExperiment::assay(res, "p")), 113.333158367961)
+        expect_equal(sum(SummarizedExperiment::assay(res, "enr")), 12.6281779389433)
 
         unlink(c(mfile, outdir), recursive = TRUE, force = TRUE)
     }
