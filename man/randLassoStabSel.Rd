@@ -22,7 +22,7 @@ Any variable with a selection probability that is higher than the set cutoff wil
 \item{PFER}{integer (default = 2) representing the absolute number of false positives that we 
 allow for in the final list of selected variables. For details see Meinshausen and Bühlmann (2010).}
 
-\item{...}{additional parameters that can be passed on to \code{\link[glmnet]{glmnet}}.}
+\item{...}{additional parameters that can be passed on to \code{\link[stabsel]{stabs}}.}
 }
 \value{
 A \code{SummarizedExperiment} object where the rows are the observations
