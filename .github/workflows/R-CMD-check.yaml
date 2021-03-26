@@ -42,6 +42,7 @@ jobs:
           r-version: ${{  matrix.config.r  }}
           
       - name: Install Homer 
+        if: runner.os != 'Windows'
         run: | 
           mkdir homer && pushd homer
           wget http://homer.ucsd.edu/homer/configureHomer.pl
