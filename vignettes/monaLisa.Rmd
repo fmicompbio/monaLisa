@@ -431,7 +431,7 @@ se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung,
                        cutoff = 0.8, mc.cores = 1)
 se
 
-# if using windows, parallelize using parLapply (see stabs::stabsel for more details)
+## if using a Windows machine, parallelize using parLapply (see stabs::stabsel for more details)
 # library(parallel)
 # cl <- makeCluster(2)
 # se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung,
@@ -455,30 +455,31 @@ We can also visualize the selection probabilities of the selected TF motifs, opt
 plotSelectionProb(se, directional = TRUE, selProbMinPlot = 0.6)
 ```
 
-
-Next, we visualize the correlation structure of the TFBS matrix. We can see that the selected TF motifs have a similar correlation structure as the whole TFBS matrix.
+Next, we visualize the correlation structure of the TFBS matrix using selected TFs. We can see that some TFs have similar binding sites across the genomic regions. 
 
 ```{r TFBScor}
-# correlation matrix (excluding oeCpG and fracGC)
-excl <- colnames(TFBSmatrix) %in% c("oeCpG", "fracGC")
-TFBSmatrixCor <- cor(TFBSmatrix[, !excl], method = "pearson")
+# subset the selected TFs
 sel <- colnames(se)[se$selected]
-sel <- sel[!sel %in% c("oeCpG", "fracGC")]
-TFBSmatrixCorSel <- TFBSmatrixCor[sel, sel]
+se_sub <- se[, sel]
+
+# exclude oeCpG and fracGC
+excl <- colnames(se_sub) %in% c("oeCpG", "fracGC")
+se_sub <- se_sub[, !excl]
+
+# correlation matrix 
+TFBSmatrixCorSel <- cor(TFBSmatrix[, colnames(se_sub)], method = "pearson")
 
 # heatmap
-Heatmap(TFBSmatrixCor,
-        show_row_names = FALSE, show_column_names = FALSE, 
-        name = "Pear. Cor.", column_title = "All TFs",
-        col = colorRamp2(c(-1, 0, 1), c("blue", "white", "red")),
-        use_raster = TRUE)
-
 pfmsSel <- pfms[match(colnames(TFBSmatrixCorSel), name(pfms))]
 maxwidth <- max(sapply(TFBSTools::Matrix(pfmsSel), ncol))
 seqlogoGrobs <- lapply(pfmsSel, seqLogoGrob, xmax = maxwidth)
+
 hmSeqlogo <- rowAnnotation(logo = anno_seqlogo(seqlogoGrobs, which = "row"),
-                           annotation_width = unit(1.5, "inch"),
-                           show_legend = FALSE, show_annotation_name = FALSE)
+                           annotation_width = c(unit(3.5, "inch"), unit(0.5, "inch"), unit(0.5, "inch")),
+                           AUC = se_sub$selAUC, selProb = se_sub$selProb,
+                           show_legend = TRUE, show_annotation_name = FALSE,
+                           col = list(AUC = colorRamp2(c(0, 1), c("white", "brown")),
+                                      selProb = colorRamp2(c(0, 1), c("white", "forestgreen"))))
 
 Heatmap(TFBSmatrixCorSel, show_row_names = TRUE, show_column_names = TRUE, 
         name = "Pear. Cor.", column_title = "Selected TFs",
