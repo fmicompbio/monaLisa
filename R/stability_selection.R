@@ -81,7 +81,7 @@ NULL
 #'   Any variable with a selection probability that is higher than the set cutoff will be selected.
 #' @param PFER integer (default = 2) representing the absolute number of false positives that we 
 #'   allow for in the final list of selected variables. For details see Meinshausen and Bühlmann (2010).
-#' @param ... additional parameters that can be passed on to \code{\link[stabsel]{stabs}}.
+#' @param ... additional parameters that can be passed on to \code{\link[stabs]{stabsel}}.
 #'
 #' @details Randomized lasso stability selection runs a randomized lasso regression 
 #'   several times on subsamples of the response variable and predictor matrix. 

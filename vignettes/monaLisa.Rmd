@@ -432,10 +432,10 @@ se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung,
 se
 
 # if using windows, parallelize using parLapply (see stabs::stabsel for more details)
-library(parallel)
-cl <- makeCluster(2)
-se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung,
-                       cutoff = 0.8, papply = parLapply, cl = cl)
+# library(parallel)
+# cl <- makeCluster(2)
+# se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung,
+#                        cutoff = 0.8, papply = parLapply, cl = cl)
   
 # selected TFs
 colnames(se)[se$selected]
