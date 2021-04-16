@@ -48,6 +48,7 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 #' @param relScoreCutoff Currently ignored. numeric(1) in [0,1] that sets the default motif
 #'     log-odds score cutof to relScoreCutoff * maximal score for each PWM
 #'     (default: 0.8).
+#' @param verbose A logical scalar. If \code{TRUE}, print progress messages.
 #'
 #' @return \code{TRUE} if successful.
 #'
@@ -56,30 +57,28 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 #'     moitfs into a \code{\link[TFBSTools]{PFMatrixList}}.
 #'
 #' @importFrom utils getFromNamespace
-#' @importFrom TFBSTools getMatrixSet Matrix name tags
+#' @importFrom TFBSTools getMatrixSet Matrix ID name
 #'
 #' @export
 dumpJaspar <- function(filename, pkg = "JASPAR2018",
                        opts = list(tax_group = "vertebrates"),
-                       relScoreCutoff = 0.8) {
+                       relScoreCutoff = 0.8, verbose = FALSE) {
+    .assertScalar(x = filename, type = "character")
     stopifnot(!file.exists(filename))
-    stopifnot(exprs = {
-      is.numeric(relScoreCutoff)
-      length(relScoreCutoff) == 1
-      relScoreCutoff >= 0.0
-      relScoreCutoff <= 1.0
-      })
+    .assertScalar(x = relScoreCutoff, type = "numeric", rngIncl = c(0, 1))
     if ("matrixtype" %in% names(opts) && opts[["matrixtype"]] != "PFM") {
       stop("opts[['matrixtype']] must be set to 'PFM'")
     } else {
       opts[["matrixtype"]] <- "PFM"
     }
+    .assertScalar(x = verbose, type = "logical")
 
     # load PFMs and convert to HOMER format (base probabilties)
     requireNamespace(pkg)
-    mdb <- utils::getFromNamespace(pkg, ns=pkg)
+    mdb <- utils::getFromNamespace(pkg, ns = pkg)
     siteList <- TFBSTools::getMatrixSet(mdb, opts)
-    message("extracted ",length(siteList)," motifs from ",pkg)
+    if (verbose)
+        message("extracted ",length(siteList)," motifs from ",pkg)
 
     # remark: pseudocount of 4 corresponds to adding 1 to each base count
     #         the following are identical:
@@ -87,7 +86,8 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018",
     #wm2 <- Matrix(siteList[[1]])+1 ; wm2 <- t(t(wm2) /colSums(wm2))
     #identical(wm1, wm2)
 
-    message("converting to HOMER format...", appendLF = FALSE)
+    if (verbose)
+        message("converting to HOMER format...", appendLF = FALSE)
     fh <- file(filename, "wb")
     for (i in 1:length(siteList)) {
         pwm <- TFBSTools::Matrix(siteList[[i]]) + 1
@@ -97,23 +97,24 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018",
         scorecut <- log(2**10) # use constant cutoff for all motifs (ignore relScoreCutoff)
         pwm <- apply(pwm, 2, function(x){sprintf("%.3f", x)})
         rownames(pwm) <- tmp.rn
-        wm.name <- paste(c(TFBSTools::name(siteList[[i]]),
-                           paste(TFBSTools::tags(siteList[[i]])$acc, collapse = "."),
-                           TFBSTools::tags(siteList[[i]])$type), collapse = "_")
-        wm.name <- gsub("::", ".", wm.name)
-        wm.name <- gsub("-", "", wm.name)
-        wm.name <- gsub("\\s+", "", wm.name)
-        if (length(grep("\\(var\\.\\d\\)", wm.name)) > 0) {
-          tmp.num <- gsub("\\S+\\(var\\.(\\d)\\)\\S+", "\\1", wm.name)
-          wm.name <- gsub(sprintf("\\(var\\.%s\\)", tmp.num),
-                          sprintf("var%s", tmp.num), wm.name)
-        }
-        wm.name <- gsub("\\(PBM\\)", "", wm.name)
-        wm.name.conv <- make.names(wm.name)
-        if (!(wm.name == wm.name.conv)){
-          warning("Weight matrix name ", wm.name, " converted to ", wm.name.conv)
-        }
-        wm.name <- wm.name.conv
+        # wm.name <- paste(c(TFBSTools::name(siteList[[i]]),
+        #                    paste(TFBSTools::tags(siteList[[i]])$acc, collapse = "."),
+        #                    TFBSTools::tags(siteList[[i]])$type), collapse = "_")
+        # wm.name <- gsub("::", ".", wm.name)
+        # wm.name <- gsub("-", "", wm.name)
+        # wm.name <- gsub("\\s+", "", wm.name)
+        # if (length(grep("\\(var\\.\\d\\)", wm.name)) > 0) {
+        #   tmp.num <- gsub("\\S+\\(var\\.(\\d)\\)\\S+", "\\1", wm.name)
+        #   wm.name <- gsub(sprintf("\\(var\\.%s\\)", tmp.num),
+        #                   sprintf("var%s", tmp.num), wm.name)
+        # }
+        # wm.name <- gsub("\\(PBM\\)", "", wm.name)
+        # wm.name.conv <- make.names(wm.name)
+        # if (!(wm.name == wm.name.conv)) {
+        #   warning("Weight matrix name ", wm.name, " converted to ", wm.name.conv)
+        # }
+        # wm.name <- wm.name.conv
+        wm.name <- paste0(TFBSTools::ID(siteList[[i]]), ":::", TFBSTools::name(siteList[[i]]))
 
         #the -10 is added so that the motif file has 4 columns, which is needed to run compareMotifs.pl
         #for weight matrix clustering (4th column not used, bug in compareMotifs.pl, I think)
@@ -125,7 +126,8 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018",
         flush(fh)
     }
     close(fh)
-    message("done")
+    if (verbose)
+        message("done")
 
     return(TRUE)
 }
@@ -150,31 +152,28 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018",
 #'
 #' @export
 homerToPFMatrixList <- function(filename, n = 100L) {
-  stopifnot(file.exists(filename))
-  stopifnot(exprs = {
-    is.numeric(n)
-    length(n) == 1
-    n > 0
-  })
+    .assertScalar(x = filename, type = "character")
+    stopifnot(file.exists(filename))
+    .assertScalar(x = n, type = "numeric", rngExcl = c(0, Inf))
 
-  # parse HOMER motif file
-  tmp <- readLines(filename)
-  g <- grep(">", tmp)
-  tmp[g] <- sub("^>","",tmp[g])
-  fields <- strsplit(tmp[g], "\t", fixed = TRUE)
-  L <- lapply(seq_along(g), function(i) {
-    cons <- fields[[i]][1]
-    nm <- fields[[i]][2]
-    log2cut <- round(as.numeric(fields[[i]][3]) / log(2), 2)
-    s <- g[i] + 1L
-    e <- if (i == length(g)) length(tmp) else g[i + 1L] - 1L
-    m <- round(n * do.call(cbind, lapply(strsplit(tmp[s:e], "\t", fixed = TRUE), as.numeric)), 0)
-    rownames(m) <- c("A", "C", "G", "T")
-    TFBSTools::PFMatrix(ID = nm, name = nm, profileMatrix = m,
-                        tags = list(log2cut = log2cut, comment = "imported from HOMER motif file"))
-  })
+    # parse HOMER motif file
+    tmp <- readLines(filename)
+    g <- grep(">", tmp)
+    tmp[g] <- sub("^>","",tmp[g])
+    fields <- strsplit(tmp[g], "\t", fixed = TRUE)
+    L <- lapply(seq_along(g), function(i) {
+        cons <- fields[[i]][1]
+        nm <- fields[[i]][2]
+        log2cut <- round(as.numeric(fields[[i]][3]) / log(2), 2)
+        s <- g[i] + 1L
+        e <- if (i == length(g)) length(tmp) else g[i + 1L] - 1L
+        m <- round(n * do.call(cbind, lapply(strsplit(tmp[s:e], "\t", fixed = TRUE), as.numeric)), 0)
+        rownames(m) <- c("A", "C", "G", "T")
+        TFBSTools::PFMatrix(ID = nm, name = nm, profileMatrix = m,
+                            tags = list(log2cut = log2cut, comment = "imported from HOMER motif file"))
+    })
 
-  do.call(PFMatrixList, c(L, list(use.names = TRUE)))
+    do.call(PFMatrixList, c(L, list(use.names = TRUE)))
 }
 
 
@@ -195,6 +194,7 @@ homerToPFMatrixList <- function(filename, n = 100L) {
 #' @param regionsize The peak size to use in HOMER (\code{"given"} keeps the coordinate
 #'     region, an integer value will keep only that many bases in the region center).
 #' @param Ncpu Number of parallel threads that HOMER can use.
+#' @param verbose A logical scalar. If \code{TRUE}, print progress messages.
 #'
 #' @details For each bin (unique value of \code{b}) this functions creates two files
 #'     in \code{outdir} (\code{outdir/bin_N_foreground.tab} and \code{outdir/bin_N_background.tab},
@@ -208,23 +208,27 @@ homerToPFMatrixList <- function(filename, n = 100L) {
 #' @return The path and name of the script file to run the HOMER motif enrichment
 #'     analysis.
 #'
+#' @importFrom GenomicRanges start end strand
 #' @export
-prepareHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(), regionsize = "given", Ncpu=2) {
+prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
+                         homerfile = findHomer(), regionsize = "given",
+                         Ncpu = 2L, verbose = FALSE) {
     if (!inherits(gr, "GRanges"))
         as(gr, "GRanges")
     if (!is.factor(b))
-        b <- factor(b, levels=unique(b))
+        b <- factor(b, levels = unique(b))
+    .assertVector(x = b, type = "factor", len = length(gr))
+    .assertScalar(x = genomedir, type = "character")
+    .assertScalar(x = outdir, type = "character")
+    .assertScalar(x = motifFile, type = "character")
+    .assertScalar(x = homerfile, type = "character")
     stopifnot(exprs = {
-      length(b) == length(gr)
-      is.character(outdir)
-      length(outdir) == 1L
-      is.character(motifFile)
-      length(motifFile) == 1L
-      file.exists(motifFile)
-      is.character(homerfile)
-      length(homerfile) == 1L
-      file.exists(homerfile)
+        file.exists(genomedir)
+        file.exists(motifFile)
+        file.exists(homerfile)
+        regionsize == "given" || (is.numeric(regionsize) && length(regionsize) == 1L && regionsize > 0)
     })
+    .assertScalar(x = verbose, type = "logical")
 
     if (file.exists(outdir))
         stop(outdir," already exists - will not overwrite existing folder")
@@ -233,30 +237,34 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHo
     homerFile <- file.path(outdir, "run.sh")
     fh <- file(homerFile, "w")
 
-    message("creating foreground/background region files for HOMER")
-    for(i in 1:nlevels(b)) {
+    if (verbose)
+        message("creating foreground/background region files for HOMER")
+    for (i in 1:nlevels(b)) {
         bn <- levels(b)[i]
-        message("  bin ",bn)
+        if (verbose)
+            message("  bin ",bn)
 
         fgfile  <- sprintf("%s/bin_%03d_foreground.tab", outdir, i)
         bgfile  <- sprintf("%s/bin_%03d_background.tab", outdir, i)
         outputf <- sprintf("%s/bin_%03d_output", outdir, i)
 
         tmp.gr <- gr[b == bn]
-        write.table(file=fgfile,
+        write.table(file = fgfile,
                     data.frame(1:length(tmp.gr), as.character(seqnames(tmp.gr)),
-                               start(tmp.gr)-1, end(tmp.gr), "+"),
-                    sep="\t", quote=FALSE, col.names=FALSE, row.names=FALSE)
+                               start(tmp.gr) - 1, end(tmp.gr),
+                               ifelse(as.character(strand(tmp.gr)) == "-", "-", "+")),
+                    sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
 
         tmp.gr <- gr[b != bn]
-        write.table(file=bgfile,
+        write.table(file = bgfile,
                     data.frame(1:length(tmp.gr), as.character(seqnames(tmp.gr)),
-                               start(tmp.gr)-1, end(tmp.gr), "+"),
-                    sep="\t", quote=FALSE, col.names=FALSE, row.names=FALSE)
+                               start(tmp.gr) - 1, end(tmp.gr), 
+                               ifelse(as.character(strand(tmp.gr)) == "-", "-", "+")),
+                    sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
 
         cat(sprintf("%s %s %s %s -bg %s -nomotif -p %d -size %s -mknown %s\n",
                     homerfile, fgfile, genomedir, outputf, bgfile, Ncpu,
-                    as.character(regionsize), motifFile), file=fh, append=TRUE)
+                    as.character(regionsize), motifFile), file = fh, append = TRUE)
     }
     close(fh)
 
@@ -279,80 +287,85 @@ parseHomerOutput <- function(infiles) {
     stopifnot(all(file.exists(infiles)))
 
     tabL <- lapply(infiles, read.delim)
-    names(tabL) <- if(is.null(names(infiles))) infiles else names(infiles)
-    P <- lapply(tabL, function(tab) {
-        D <- tab[, c(1, 4)]
-        logpVals <- -D[, 2]/log(10)
-        names(logpVals) <- D[, 1]
-        logpVals[order(names(logpVals))]
-    })
-    enrTF <- lapply(tabL, function(tab) {
-        D <- tab[, c(1, 6, 7, 9)] # name, no. and % of target seqs with motif, % of bg seqs with motif
-        D[, 3] <- as.numeric(sub("%$","", D[, 3])) / 100
-        D[, 4] <- as.numeric(sub("%$","", D[, 4])) / 100
-        obsTF <- D[, 2]
-        expTF <- D[, 2] / (D[, 3] + 0.001) * (D[, 4] + 0.001)
+    mnms <- sort(tabL[[1]][, 1])
+    names(tabL) <- if (is.null(names(infiles))) infiles else names(infiles)
+    P <- do.call(cbind, lapply(tabL, function(x) -x[match(mnms, x[, 1]), 4] / log(10)))
+    enrTF <- do.call(cbind, lapply(tabL, function(tab) {
+        fracFgWithMotif <- as.numeric(sub("%$","", tab[, 7])) / 100
+        fracBgWithMotif <- as.numeric(sub("%$","", tab[, 9])) / 100
+        obsTF <- tab[, 6]
+        expTF <- obsTF / (fracFgWithMotif + 0.001) * (fracBgWithMotif + 0.001)
         enr <- (obsTF - expTF) / sqrt(expTF)
         enr[ is.na(enr) ] <- 0
-        names(enr) <- D[, 1]
-        enr[order(names(enr))]
-    })
-    log2enr <- lapply(tabL, function(tab){
-    	D <- tab[, c(6, 8)] # number of target seqs and bg seqs with motif
-    	nTot <- as.numeric(gsub("\\S+\\.(\\d+)\\.", "\\1", colnames(D))) #total number of target and background sequences
-    	D.norm <- t(min(nTot)*t(D)/nTot) # scale to smaller number (usually number of target sequences)
-    	DL <- log2(D.norm + 8)
-    	log2enr <- DL[, 1] - DL[, 2]
-    	names(log2enr) <- tab[, 1]
-    	log2enr[order(names(log2enr))]
-    })
+        enr[match(mnms, tab[, 1])]
+    }))
+    log2enr <- do.call(cbind, lapply(tabL, function(tab){
+      	numFgBgWithHits <- tab[, c(6, 8)] # number of target seqs and bg seqs with motif
+      	nTot <- as.numeric(gsub("\\S+\\.(\\d+)\\.", "\\1", colnames(numFgBgWithHits))) #total number of target and background sequences
+      	numFgBgWithHitsNorm <- t(min(nTot) * t(numFgBgWithHits) / nTot) # scale to smaller number (usually number of target sequences)
+      	numFgBgWithHitsNormLog <- log2(numFgBgWithHitsNorm + 8)
+      	lenr <- numFgBgWithHitsNormLog[, 1] - numFgBgWithHitsNormLog[, 2]
+      	lenr[match(mnms, tab[, 1])]
+    }))
 
-    P <- do.call(cbind, P)
-    enrTF <- do.call(cbind, enrTF)
-    log2enr <- do.call(cbind, log2enr)
-    tmp <-  as.vector(10**(-P))
-    fdr <- matrix(-log10(p.adjust(tmp, method="BH")), nrow=nrow(P))
-    dimnames(fdr) <- dimnames(P)
+    sumFgWgt <- do.call(cbind, lapply(tabL, function(tab) tab[match(mnms, tab[, 1]), 6]))
+    sumBgWgt <- do.call(cbind, lapply(tabL, function(tab) tab[match(mnms, tab[, 1]), 8]))
 
+    totWgt <- do.call(rbind, lapply(tabL, function(tab) {
+        numFgBgWithHits <- tab[, c(6, 8)] # number of target seqs and bg seqs with motif
+        nTot <- as.numeric(gsub("\\S+\\.(\\d+)\\.", "\\1", colnames(numFgBgWithHits))) #total number of target and background sequences
+        nTot
+    }))
+
+    fdr <- matrix(-log10(p.adjust(as.vector(10^(-P)), method = "BH")),
+                  nrow = nrow(P), dimnames = dimnames(P))
     fdr[which(fdr == Inf, arr.ind = TRUE)] <- max(fdr[is.finite(fdr)])
-
-    return(list(p=P, FDR=fdr, enr=enrTF, log2enr=log2enr))
+    
+    rownames(P) <- rownames(fdr) <- rownames(enrTF) <- rownames(log2enr) <-
+        rownames(sumFgWgt) <- rownames(sumBgWgt) <- mnms
+    
+    return(list(p = P, FDR = fdr, enr = enrTF, log2enr = log2enr,
+                sumForegroundWgtWithHits = sumFgWgt, 
+                sumBackgroundWgtWithHits = sumBgWgt,
+                totalWgtForeground = totWgt[, 1],
+                totalWgtBackground = totWgt[, 2]))
 }
 
 # internal function:  Check if all the HOMER output files already exist and if the run was successful.
-# - needs the motifFile and outdir inputs to runHomer.
+# - needs the motifFile and outdir inputs to calcBinnedMotifEnrHomer.
 #' @importFrom utils read.table
 .checkHomerRun <- function(motifFile, outdir, nbins){
 
-  # Checks
-  # --> check resultsfile is a txt file
+    # Checks
+    # --> check resultsfile is a txt file
 
-  # get knownResults.txt files
-  out_files <- dir(path = outdir, pattern = "knownResults.txt", full.names = TRUE, recursive = TRUE, ignore.case = FALSE)
+    # get knownResults.txt files
+    out_files <- dir(path = outdir, pattern = "knownResults.txt",
+                     full.names = TRUE, recursive = TRUE, ignore.case = FALSE)
 
-  # case 1: out_files is empty, so return FALSE
-  if(isEmpty(out_files)){
-    return(FALSE)
-  }
+    # case 1: out_files is empty, so return FALSE
+    if (isEmpty(out_files)) {
+      return(FALSE)
+    }
 
-  # case 2: at least one file exists, so we check HOMER ran correctly and that the number of output files matches the number of bins
+    # case 2: at least one file exists, so we check HOMER ran correctly and that the number of output files matches the number of bins
 
       # get motif names from motifFile
       lns <- readLines(motifFile)
       motifs_motifFile <- unlist(lapply(strsplit(lns[grep("^>", lns)], "\t"), "[", 2))
 
       # get motif names from resultsfile
-      df_list <- lapply(as.list(out_files), function(f){read.table(f, header=FALSE, sep = "\t", skip = 1)}) # skip the column names
+      df_list <- lapply(as.list(out_files), function(f){read.table(f, header = FALSE, sep = "\t", skip = 1)}) # skip the column names
       motifs_outdir_list <- lapply(df_list, function(df){ as.character(df[ ,1]) })
       # check the completeness of the run and that the number of output files equals number of bins
-      all(sapply(motifs_outdir_list, function(x){all(motifs_motifFile%in%x)})) & (length(out_files)==nbins)
+      all(sapply(motifs_outdir_list, function(x){all(motifs_motifFile %in% x)})) & (length(out_files) == nbins)
 
 }
 
 #' @title Prepare and run HOMER motif enrichment analysis.
 #'
 #' @description Run complete HOMER motif enrichment analysis, consisting of
-#'     calls to \code{\link{prepareHomer}}, \code{\link[base]{system}} and
+#'     calls to \code{\link{prepareHomer}}, \code{\link[base]{system2}} and
 #'     \code{\link{parseHomerOutput}}.
 #'
 #' @param gr A \code{GRanges} object (or an object that can be coerced to one)
@@ -366,60 +379,91 @@ parseHomerOutput <- function(infiles) {
 #' @param regionsize The peak size to use in HOMER (\code{"given"} keeps the coordinate
 #'     region, an integer value will keep only that many bases in the region center).
 #' @param Ncpu Number of parallel threads that HOMER can use.
+#' @param verbose A logical scalar. If \code{TRUE}, print progress messages.
 #'
 #' @seealso The functions that are wrapped: \code{\link{prepareHomer}},
-#'     \code{\link[base]{system}} and \code{\link{parseHomerOutput}},
+#'     \code{\link[base]{system2}} and \code{\link{parseHomerOutput}},
 #'     \code{\link{bin}} for binning of regions
 #'
-#' @return A \code{\link[SummarizedExperiment]{SummarizedExperiment}} \code{x}
-#'   with
-#'   \describe{
-#'     \item{assays(x)}{containing the four components \code{p}, \code{FDR},
-#'         \code{enr} and \code{log2enr}), each a motif (rows) by bin (columns)
-#'         matrix with raw -log10 P values, -log10 false discovery rates and motif
-#'         enrichments as Pearson residuals (\code{enr}) and as log2 ratios
-#'         (\code{log2enr}).}
-#'     \item{rowData(x)}{containing information about the motifs.}
-#'     \item{colData(x)}{containing information about the bins.}
-#'     \item{metaData(x)}{containing meta data on the object (e.g. parameter
-#'         values and distances between pairs of motifs).}
-#'   }
+#' @return A \code{SummarizedExperiment} object with motifs in rows and bins
+#'   in columns, containing six assays: \itemize{
+#'   \item{p}{: -log10 P values}
+#'   \item{FDR}{: -log10 false discovery rates}
+#'   \item{enr}{: motif enrichments as Pearson residuals}
+#'   \item{log2enr}{: motif enrichments as log2 ratios}
+#'   \item{sumForegroundWgtWithHits}{: Sum of foreground sequence weights
+#'     in a bin that have motif hits}
+#'   \item{sumBackgroundWgtWithHits}{: Sum of background sequence weights
+#'     in a bin that have motif hits}
+#' }
 #'
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom S4Vectors DataFrame
+#' @importFrom TFBSTools ID name Matrix
 #'
 #' @export
-runHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(), regionsize = "given", Ncpu=2L) {
+calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
+                                    homerfile = findHomer(),
+                                    regionsize = "given",
+                                    Ncpu = 2L,
+                                    verbose = FALSE) {
+    if (!inherits(gr, "GRanges"))
+        as(gr, "GRanges")
+    if (!is.factor(b))
+        b <- factor(b, levels = unique(b))
+    .assertVector(x = b, type = "factor", len = length(gr))
+    .assertScalar(x = genomedir, type = "character")
+    .assertScalar(x = outdir, type = "character")
+    .assertScalar(x = motifFile, type = "character")
+    .assertScalar(x = homerfile, type = "character")
+    stopifnot(exprs = {
+        file.exists(genomedir)
+        file.exists(motifFile)
+        file.exists(homerfile)
+        regionsize == "given" || (is.numeric(regionsize) && length(regionsize) == 1L && regionsize > 0)
+    })
+    .assertScalar(x = Ncpu, type = "numeric", rngIncl = c(1, Inf))
+    .assertScalar(x = verbose, type = "logical")
 
     ## ... check if the HOMER output is already there for all bins and if it ran completely:
     ## ... ... If yes, go to the 'parse output step', otherwise run homer and check again
-    if(.checkHomerRun(motifFile = motifFile, outdir = outdir, nbins = nlevels(b))) {
+    if (.checkHomerRun(motifFile = motifFile, outdir = outdir, nbins = nlevels(b))) {
 
-      message("\nHOMER output files already exist, using existing files...")
+        if (verbose)
+            message("\nHOMER output files already exist, using existing files...")
 
     } else {
 
       ## ... case: all/some files exist and/or HOMER didn't run correctly: warn the User to remove all existing files and rerun
-      if(!.checkHomerRun(motifFile = motifFile, outdir = outdir, nbins = nlevels(b)) & any(file.exists(dir(path = outdir, pattern = "knownResults.txt", full.names = TRUE, recursive = TRUE, ignore.case = FALSE)))) {
+      if (!.checkHomerRun(motifFile = motifFile, outdir = outdir, nbins = nlevels(b)) &&
+          any(file.exists(dir(path = outdir, pattern = "knownResults.txt",
+                              full.names = TRUE, recursive = TRUE, ignore.case = FALSE)))) {
 
-        stop("\nThere are existing 'knownResults.txt' file(s) in outdir. There may be missing 'knownResults.txt' files for some bins and/or the existing files
-             are incomplete (cases where the HOMER run failed). Please delete these files and rerun 'runHomer'.")
+          stop("\nThere are existing 'knownResults.txt' file(s) in outdir. ",
+               "There may be missing 'knownResults.txt' files for some bins ",
+               "and/or the existing files are incomplete (cases where the HOMER ",
+               "run failed). Please delete these files and rerun 'calcBinnedMotifEnrHomer'.")
 
       }
 
       ## ... prepare
-      message("\npreparing input files...")
+      if (verbose)
+          message("\npreparing input files...")
       runfile <- prepareHomer(gr = gr, b = b, genomedir = genomedir, outdir = outdir,
                               motifFile = motifFile, homerfile = homerfile,
                               regionsize = regionsize, Ncpu = Ncpu)
 
       ## ... run
-      message("\nrunning HOMER...")
-      system2(command = "sh", args = runfile, env = paste0("PATH=",dirname(homerfile),":",Sys.getenv("PATH"),";"))
+      if (verbose)
+          message("\nrunning HOMER...")
+      system2(command = "sh", args = runfile,
+              stdout = ifelse(verbose, "", FALSE),
+              stderr = ifelse(verbose, "", FALSE),
+              env = paste0("PATH=", dirname(homerfile), ":", Sys.getenv("PATH"), ";"))
 
       ## ... check HOMER ran correctly
-      if(!.checkHomerRun(motifFile = motifFile, outdir = outdir, nbins = length(levels(b)))){
-        stop("HOMER output wasn't complete. Try running again.")
+      if (!.checkHomerRun(motifFile = motifFile, outdir = outdir, nbins = length(levels(b)))) {
+          stop("HOMER output wasn't complete. Try running again.")
       }
 
     }
@@ -430,36 +474,60 @@ runHomer <- function(gr, b, genomedir, outdir, motifFile, homerfile = findHomer(
     resL <- parseHomerOutput(resfiles)
 
     ## ... create SummarizedExperiment
-    cdat <- S4Vectors::DataFrame(bin.names = levels(b),
-                                 bin.lower = attr(b, "breaks")[-(nlevels(b)+1)],
-                                 bin.upper = attr(b, "breaks")[-1],
-                                 bin.nochange = seq.int(nlevels(b)) %in% attr(b, "bin0"))
-    cdat <- cdat[match(colnames(resL[[1]]), levels(b)), ]
+    ## ... ... reorder parsed output according to motifs in motifFile
     pfms <- homerToPFMatrixList(motifFile)
-    pfms <- pfms[match(rownames(resL[[1]]), TFBSTools::name(pfms))]
+    morder <- TFBSTools::name(pfms)
+    o <- match(morder, rownames(resL[[1]]))
+    assayL <- lapply(resL[1:6], function(x) x[o, ])
+    ## ... ... colData
+    cdat <- S4Vectors::DataFrame(bin.names = levels(b),
+                                 bin.lower = attr(b, "breaks")[-(nlevels(b) + 1)],
+                                 bin.upper = attr(b, "breaks")[-1],
+                                 bin.nochange = seq.int(nlevels(b)) %in% attr(b, "bin0"),
+                                 totalWgtForeground = resL$totalWgtForeground,
+                                 totalWgtBackground = resL$totalWgtBackground)
     percentGC <- unlist(lapply(pfms, function(x) {
         m <- TFBSTools::Matrix(x)
         100 * sum(m[c("C","G"), ]) / sum(m)
     }), use.names = FALSE)
-    rdat <- S4Vectors::DataFrame(motif.name = rownames(resL[[1]]),
+    if (all(grepl(":::", rownames(assayL[[1]])))) {
+        mid <- sub(":::.+$", "", rownames(assayL[[1]]))
+        mnm <- sub("^.+:::", "", rownames(assayL[[1]]))
+        assayL <- lapply(assayL, function(x) {
+            rownames(x) <- sub(":::.+$", "", rownames(x))
+            x
+        })
+        for (i in seq_along(pfms)) {
+            pfms[[i]]@ID <- mid[i]
+            pfms[[i]]@name <- mnm[i]
+        }
+    } else {
+        mid <- rep(NA, length(pfms))
+        mnm <- rownames(assayL[[1]])
+    }
+    ## ... ... rowData
+    rdat <- S4Vectors::DataFrame(motif.id = mid,
+                                 motif.name = mnm,
                                  motif.pfm = pfms,
+                                 motif.pwm = rep(NA, length(pfms)),
                                  motif.percentGC = percentGC)
-    se <- SummarizedExperiment::SummarizedExperiment(
-      assays = resL, colData = cdat, rowData = rdat,
-      metadata = list(regions = gr,
-                      bins = b,
-                      bins.binmode = attr(b, "binmode"),
-                      bins.breaks = as.vector(attr(b, "breaks")),
-                      bins.bin0 = attr(b, "bin0"),
-                      param.genomedir = genomedir,
-                      param.outdir = outdir,
-                      param.motifFile = motifFile,
-                      param.homerfile = homerfile,
-                      param.regionsize = regionsize,
-                      param.Ncpu = Ncpu,
-                      motif.distances = NULL)
-    )
-    return(se)
+    ## ... ... metadata
+    mdatL <- list(regions = gr,
+                  bins = b,
+                  bins.binmode = attr(b, "binmode"),
+                  bins.breaks = as.vector(attr(b, "breaks")),
+                  bins.bin0 = attr(b, "bin0"),
+                  param.genomedir = genomedir,
+                  param.outdir = outdir,
+                  param.motifFile = motifFile,
+                  param.homerfile = homerfile,
+                  param.regionsize = regionsize,
+                  param.Ncpu = Ncpu,
+                  motif.distances = NULL)
+    ## ... ... return
+    SummarizedExperiment::SummarizedExperiment(
+      assays = assayL, colData = cdat, rowData = rdat,
+      metadata = mdatL)
 }
 
 

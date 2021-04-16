@@ -8,7 +8,7 @@ plotBinHist(
   x,
   b,
   breaks = 10 * nlevels(b),
-  xlab = deparse(substitute(x)),
+  xlab = deparse(substitute(x, env = as.environment(-1))),
   ylab = "Frequency",
   main = "",
   legend = "topright",

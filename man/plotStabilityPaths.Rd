@@ -5,8 +5,9 @@
 \title{Plot Stability Paths}
 \usage{
 plotStabilityPaths(
-  stabs_object,
-  cols = NULL,
+  se,
+  selProbMin = metadata(se)$stabsel.params.cutoff,
+  col = "cadetblue",
   lwd = 1,
   lty = 1,
   ylim = c(0, 1.1),
@@ -14,16 +15,20 @@ plotStabilityPaths(
 )
 }
 \arguments{
-\item{stabs_object}{the \code{stabs} object resulting from stability selection.}
+\item{se}{the \code{SummarizedExperiment} object resulting from stability selection, 
+by running \code{\link[monaLisa]{randLassoStabSel}}.}
 
-\item{cols}{color vector for the varaiables from the predictor matrix. By default, it's set to NULL
-and the function colors the variables by whether or not they were selected.}
+\item{selProbMin}{A numerical scalar in [0,1]. Predictors with a selection
+probability greater than \code{selProbMin} are shown as colored lines. The
+color is defined by the \code{col} argument.}
 
-\item{lwd}{line width (default 1).}
+\item{col}{color of the selected predictors.}
 
-\item{lty}{line type (default 1).}
+\item{lwd}{line width (default = 1).}
 
-\item{ylim}{limits for y-axis (default c(0,1.1)).}
+\item{lty}{line type (default = 1).}
+
+\item{ylim}{limits for y-axis (default = c(0,1.1)).}
 
 \item{...}{additional parameters to pass on to \code{matplot}.}
 }
@@ -32,7 +37,7 @@ plot of stability paths.
 }
 \description{
 Plot the stability paths of each variable (predictor), showing the selection probability
-as a function of the regularization step.
+  as a function of the regularization step.
 }
 \seealso{
 \code{\link[stabs]{stabsel}} and \code{\link[graphics]{matplot}}

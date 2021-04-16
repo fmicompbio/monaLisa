@@ -2,23 +2,29 @@
 % Please edit documentation in R/motif_enrichment_kmers.R
 \name{extractOverlappingKmerFrequecies}
 \alias{extractOverlappingKmerFrequecies}
-\title{Match a set of kmers to input sequences and determine frequencies of overlapping matches.}
+\title{Match a set of k-mers to input sequences and determine frequencies of overlapping matches.}
 \usage{
-extractOverlappingKmerFrequecies(seqs, x, Ncpu = 1L)
+extractOverlappingKmerFrequecies(seqs, x, BPPARAM = SerialParam())
 }
 \arguments{
 \item{seqs}{Set of sequences, either a \code{character} vector or a
 \code{\link{DNAStringSet}}.}
 
-\item{x}{A \code{character} vector of enriched kmers.}
+\item{x}{A \code{character} vector of enriched k-mers.}
 
-\item{Ncpu}{The number of CPU cores to used. \code{\link[parallel]{mclapply}} is used.}
+\item{BPPARAM}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
+instance determining the parallel back-end to be used during evaluation.}
+}
+\value{
+A named integer vector with the number of observed occurrences of
+  sequences overlapping enriched k-mers. The sequences are given as the
+  names, and the elements are sorted by decreasing frequency.
 }
 \description{
-Using a set of kmers, search input sequences for matches and retrieve
-   the frequencies of sequences overlapping with 1 or more overlapping kmers.
+Using a set of k-mers, search input sequences for matches and retrieve
+     the frequencies of sequences overlapping with 1 or more overlapping k-mers.
 }
 \seealso{
-\code{\link{kmerEnrichments}} for performing a k-mer enrichment
-  analysis, \code{\link[parallel]{mclapply}} for how parallelization is done.
+\code{\link{calcBinnedKmerEnr}} for performing a k-mer enrichment
+    analysis, \code{\link[BiocParallel]{bplapply}} used for parallelization.
 }

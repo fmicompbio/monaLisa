@@ -8,7 +8,7 @@ test_that("motifs can be written to/read from files", {
     names(pwm) <- rep("name",3)
     tmpf1 <- tempfile()
     tmpf2 <- tempfile()
-    tmpstr <- ">CTA\tname\t4.80\n0.1\t0.3\t0.3\t0.3\n0.01\t0.01\t0.01\t0.97\n0.5\t0\t0\t0.5\n"
+    tmpstr <- ">CTA\tCTA:::name\t4.80\n0.1\t0.3\t0.3\t0.3\n0.01\t0.01\t0.01\t0.97\n0.5\t0\t0\t0.5\n"
     cat(tmpstr[c(1,1,1)], file = tmpf1, sep = "")
 
     # read from file
@@ -18,7 +18,7 @@ test_that("motifs can be written to/read from files", {
     # write to file
     monaLisa:::.dumpPWMsToHomer2File(pwmL = pwm, fname = tmpf2, absscore = 6.93)
     lns <- readLines(tmpf2)
-    expect_identical(">CTA\tname\t4.803510", lns[1])
+    expect_identical(">CTA\tCTA:::name\t4.803510", lns[1])
     m.file <- as.matrix(read.delim(tmpf2, header = FALSE, nrows = 3, skip = 1))
     expect_equivalent(m, t(m.file))
 

@@ -10,8 +10,8 @@ motifSimilarity(
   method = c("R", "HOMER"),
   homerfile = findHomer("compareMotifs.pl"),
   homerOutfile = NULL,
-  Ncpu = 1L,
-  verbose = TRUE
+  BPPARAM = SerialParam(),
+  verbose = FALSE
 )
 }
 \arguments{
@@ -30,8 +30,8 @@ pairs of motifs within \code{x}. Otherwise, \code{method} must be
 \item{method}{A character scalar specifying the method for similarity
 calculations. Either \code{"R"} (pure R implementation) or \code{"HOMER"}
 (will call the \code{compareMotifs.pl} script from HOMER). Results are
-identical (appart from rounding errors), and the R implementation is
-usually faster and can be parallelized (\code{Ncpu} argument).}
+identical (apart from rounding errors), and the R implementation is
+usually faster and can be parallelized (\code{BPPARAM} argument).}
 
 \item{homerfile}{Path to the HOMER script \code{compareMotifs.pl} (only used
 for \code{method = "HOMER"}.}
@@ -40,9 +40,9 @@ for \code{method = "HOMER"}.}
 scores (only for \code{metho = "HOMER"}). If \code{NULL}, scores will be
 stored into a temporary file.}
 
-\item{Ncpu}{The number of CPU cores to use when calculating similarities.
-This uses \code{\link[parallel]{mclapply}} and only works for \code{method
-= "R"}.}
+\item{BPPARAM}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
+instance determining the parallel back-end to be used during evaluation
+(only used for \code{method = "R"}).}
 
 \item{verbose}{A logical scalar. If \code{TRUE}, report on progress.}
 }
@@ -59,7 +59,8 @@ For each pair of motifs, calculate the similarity defined as the
   0.25) to enable comparison of all positions in both matrices.
 }
 \seealso{
-\code{\link[parallel]{mclapply}} for how parallelization is done,
+\code{\link[BiocParallel]{bplapply}} used for parallelization for
+  \code{method = "R"},
   documentation of HOMER's \code{compareMotifs.pl} for details on
   \code{method = "HOMER"}.
 }

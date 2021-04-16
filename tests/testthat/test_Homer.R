@@ -56,7 +56,7 @@ test_that("homerToPFMatrixList() works properly", {
     expect_true(all(abs(colSums(do.call(cbind, TFBSTools::Matrix(res))) - 1000) <= 2)) # 2/1000 rounding error
     expect_true(all(sapply(TFBSTools::Matrix(res), nrow) == 4L))
     expect_identical(sapply(TFBSTools::Matrix(res), ncol), c(6L, 17L, 12L, 11L, 14L, 14L))
-    expect_true(all(sub("_.+$","",name(res)) == sub("::", ".", unname(name(pfms)), fixed = TRUE)))
+    expect_identical(TFBSTools::name(res), paste0(TFBSTools::ID(pfms), ":::", TFBSTools::name(pfms)))
 
     unlink(tmp1)
 })
@@ -78,7 +78,7 @@ test_that("prepareHomer() works properly", {
     expect_error(prepareHomer(gr = gr, b = bF, genomedir = "genomedir", outdir = tmp2,
                               motifFile = "error", homerfile = fname, regionsize = "given", Ncpu = 2))
 
-    expect_identical(prepareHomer(gr = gr, b = bF, genomedir = "genomedir", outdir = tmp2,
+    expect_identical(prepareHomer(gr = gr, b = bF, genomedir = ".", outdir = tmp2,
                                   motifFile = fname, homerfile = fname, regionsize = "given", Ncpu = 2),
                      file.path(tmp2, "run.sh"))
 
@@ -88,19 +88,30 @@ test_that("prepareHomer() works properly", {
 test_that("parseHomerOutput() works properly", {
     outfile <- system.file("extdata", "homer_output.txt.gz", package = "monaLisa")
 
-    res <- parseHomerOutput(c(outfile, outfile))
-    expect_length(res, 4L)
-    expect_identical(names(res), c("p", "FDR", "enr", "log2enr"))
+    res <- parseHomerOutput(structure(c(outfile, outfile), names = c("bin1", "bin2")))
+    expect_length(res, 8L)
+    expect_identical(names(res), c("p", "FDR", "enr", "log2enr",
+                                   "sumForegroundWgtWithHits",
+                                   "sumBackgroundWgtWithHits",
+                                   "totalWgtForeground",
+                                   "totalWgtBackground"))
+    expect_identical(colnames(res[[1]]), c("bin1", "bin2"))
     expect_identical(res$p[,1], res$p[,2])
-    expect_true(all(sapply(res, dim) == c(519L, 2L)))
-    expect_equal(sum(res$enr), -914.6696)
+    expect_true(all(sapply(res[1:6], dim) == c(579L, 2L)))
+    expect_length(res[[7]], 2L)
+    expect_length(res[[8]], 2L)
+    expect_equal(sum(res$enr), 5344.75730637349)
+    expect_identical(res[[8]], c(bin1 = 43339, bin2 = 43339))
 })
 
-test_that("runHomer() works properly", {
-    homerbin <- findHomer("findMotifsGenome.pl", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin")
+test_that("calcBinnedMotifEnrHomer() works properly", {
+    homerbin <- findHomer("findMotifsGenome.pl", dirs = "/Users/runner/work/monaLisa/monaLisa/homer/bin")
+    if (is.na(homerbin)) {
+        homerbin <- findHomer("findMotifsGenome.pl", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.11/bin")
+    }
     genomedir <- "/tungstenfs/groups/gbioinfo/DB/genomes/mm10/"
 
-    if (!is.na(homerbin) && file.exists(genomedir) && require("JASPAR2018")) { # only test at home
+    if (!is.na(homerbin) && file.exists(genomedir) && require("JASPAR2018")) {
         gr <- readRDS(system.file("extdata", "LMRsESNPmerged.gr.rds", package = "monaLisa"))
         gr <- gr[seqnames(gr) == "chr1"]
         gr <- c(gr[order(gr$deltaMeth, decreasing = TRUE)[1:200]],
@@ -110,21 +121,30 @@ test_that("runHomer() works properly", {
         b <- bin(gr$deltaMeth, nElements = 200)
         outdir <- tempfile()
         mfile <- tempfile(fileext = ".motifs")
+        selids <- c("MA0139.1", "MA1102.1", "MA0740.1", "MA0493.1", "MA0856.1")
         expect_true(dumpJaspar(filename = mfile, pkg = "JASPAR2018",
-                               opts = list(ID = c("MA0139.1", "MA1102.1", "MA0740.1", "MA0493.1", "MA0856.1"))))
+                               opts = list(ID = selids)))
+        
+        expect_error(calcBinnedMotifEnr(seqs = gr, bins = b, motifs = mfile,
+                                        method = "Homer", BPPARAM = "error"))
 
-        res <- runHomer(gr = gr, b = b, genomedir = genomedir, outdir = outdir,
-                        motifFile = mfile, homerfile = homerbin,
-                        regionsize = "given", Ncpu = 2L)
+        res <- calcBinnedMotifEnr(seqs = gr, bins = b, motifs = mfile,
+                                  method = "Homer",
+                                  genomedir = genomedir, outdir = outdir,
+                                  homerfile = homerbin, regionsize = "given",
+                                  BPPARAM = 2L)
 
         expect_is(res, "SummarizedExperiment")
-        expect_length(SummarizedExperiment::assays(res), 4L)
-        expect_identical(SummarizedExperiment::assayNames(res), c("p", "FDR", "enr", "log2enr"))
+        expect_identical(rownames(res), selids)
+        expect_length(SummarizedExperiment::assays(res), 6L)
+        expect_identical(SummarizedExperiment::assayNames(res),
+                         c("p", "FDR", "enr", "log2enr",
+                           "sumForegroundWgtWithHits", "sumBackgroundWgtWithHits"))
         expect_identical(dim(res), c(5L, 3L))
-        expect_identical(rownames(res), SummarizedExperiment::rowData(res)[, "motif.name"])
-        expect_identical(rownames(res), TFBSTools::name(SummarizedExperiment::rowData(res)[, "motif.pfm"]))
-        expect_equal(sum(SummarizedExperiment::assay(res, "p")), 10.7424234072)
-        expect_equal(sum(SummarizedExperiment::assay(res, "enr")), 2.0460826730)
+        expect_identical(rownames(res), SummarizedExperiment::rowData(res)[, "motif.id"])
+        expect_identical(rownames(res), TFBSTools::ID(SummarizedExperiment::rowData(res)[, "motif.pfm"]))
+        expect_equal(sum(SummarizedExperiment::assay(res, "p")), 113.333158367961)
+        expect_equal(sum(SummarizedExperiment::assay(res, "enr")), 12.6281779389433)
 
         unlink(c(mfile, outdir), recursive = TRUE, force = TRUE)
     }

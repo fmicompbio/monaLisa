@@ -13,8 +13,8 @@ se <- readRDS(system.file("extdata", "se.rds", package = "monaLisa"))[1:10, 1:8]
 Y <- rnorm(n = 100, mean = 2, sd = 1)
 X <- matrix(data = runif(n = 20 * 100, min = 0, max = 3), nrow = length(Y), ncol = 20)
 for (i in sample(x = 1:ncol(X), size = 10, replace = FALSE))
-    X[ ,i] <- X[ ,i] + Y
-ss <- monaLisa::randomized_stabsel(x = X, y = Y)
+    X[ ,i] <- X[ ,i] + Y * c(1, -1)[(i %% 2) + 1]
+ss <- monaLisa::randLassoStabSel(x = X, y = Y)
 
 
 test_that("getColsByBin() works properly", {
@@ -93,35 +93,21 @@ test_that("plotStabilityPaths() runs", {
 test_that("plotSelectionProb() runs", {
     tf <- tempfile(fileext = ".pdf")
 
-    ss2 <- ss
-    ss2$selected <- integer(0)
-
     pdf(file = tf)
 
-    expect_error(plotSelectionProb("error"))
-    expect_error(plotSelectionProb(ss2, onlySelected = TRUE))
-    expect_true(plotSelectionProb(ss, onlySelected = FALSE))
+    expect_error(plotSelectionProb(se = "error", selProbMin = 0.5))
+    expect_error(plotSelectionProb(se = ss, directional = "error"), "logical")
+    expect_error(plotSelectionProb(se = ss, directional = TRUE, selProbMin = 2.0), "within")
+    expect_error(plotSelectionProb(se = ss, selProbMinPlot = "error"), "numeric")
+    expect_error(plotSelectionProb(se = ss, selProbMin = 0.5, selProbMinPlot = 0.6))
+    expect_error(plotSelectionProb(se = ss, showSelProbMin = "error"))
+    expect_error(plotSelectionProb(se = ss, col = "error"), "length 3")
+    expect_error(plotSelectionProb(se = ss, method = "error"), "should be one of")
 
-    dev.off()
-    unlink(tf)
-})
-
-
-test_that("plotMotifDirectionality() runs", {
-    tf <- tempfile(fileext = ".pdf")
-    
-    X2 <- X
-    colnames(X2) <- paste0("pred", 1:ncol(X2))
-    
-    pdf(file = tf)
-    
-    expect_error(plotMotifDirectionality("error"))
-    expect_error(plotMotifDirectionality(stabs_obj = ss, response = Y, predictor_matrix = NULL))
-    expect_true(plotMotifDirectionality(stabs_obj = ss, response = Y, predictor_matrix = X))
-    expect_true(plotMotifDirectionality(stabs_obj = ss, response = Y, predictor_matrix = X2))
+    expect_true(plotSelectionProb(ss, selProbMin = 1.0, selProbMinPlot = 0.99))
+    expect_true(plotSelectionProb(ss))
+    expect_true(plotSelectionProb(ss, FALSE))
     
     dev.off()
     unlink(tf)
 })
-
-

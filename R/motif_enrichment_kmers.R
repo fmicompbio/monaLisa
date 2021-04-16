@@ -59,18 +59,14 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
         seqs <- DNAStringSet(seqs)
     stopifnot(exprs = {
         is(seqs, "DNAStringSet")
-        is.numeric(kmerLen)
-        length(kmerLen) == 1L
         round(kmerLen, 0L) == kmerLen
-        is.numeric(MMorder)
-        length(MMorder) == 1L
         round(MMorder, 0L) == MMorder
-        MMorder > 0
-        MMorder < kmerLen - 1L
-        is.logical(zoops)
-        length(zoops) == 1L
         length(strata) == length(seqs) || (is.numeric(strata) && length(strata) == 1L)
     })
+    .assertScalar(x = kmerLen, type = "numeric", rngIncl = c(1, Inf))
+    .assertScalar(x = MMorder, type = "numeric", rngExcl = c(0, kmerLen - 1L))
+    .assertScalar(x = pseudoCount, type = "numeric", rngIncl = c(0, Inf))
+    .assertScalar(x = zoops, type = "logical")
 
     ## split sequences into strata
     CpGoe <- NA
@@ -130,7 +126,7 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
 
     ## return results
     list(freq.obs = kmerFreq, freq.exp = kmerFreqMM,
-         log2enr = lenr, sqrtDelta=sDelta, z = z, p = p, FDR = padj,
+         log2enr = lenr, sqrtDelta = sDelta, z = z, p = p, FDR = padj,
          strata = strata, freq.strata = res.strata, CpGoe = CpGoe)
 }
 
@@ -233,18 +229,13 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
         is(x, "character")
         all(nchar(x) == nchar(x[1]))
         all(grepl("^[ACGT]+$", x))
-        is(allowReverseComplement, "logical")
-        length(allowReverseComplement) == 1L
     })
+    .assertScalar(x = allowReverseComplement, type = "logical")
     kmerLen <- nchar(x[1])
     if (method == "cooccurrence") {
-        stopifnot(exprs = {
-            is(seqs, "DNAStringSet")
-            is(zoops, "logical")
-            length(zoops) == 1L
-            is(n, "numeric")
-            length(n) == 1L
-        })
+        stopifnot(is(seqs, "DNAStringSet"))
+        .assertScalar(x = zoops, type = "logical")
+        .assertScalar(x = n, type = "numeric", rngIncl = c(1, Inf))
         if (n >= kmerLen)
             warning("Using n > k (n = ", n, ", k = ", kmerLen,
                     ") will count co-occurrences of non-overlapping k-mers.")
@@ -254,19 +245,11 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
         if (is.null(maxShift)) {
             maxShift <- kmerLen - 2L
         }
-        stopifnot(exprs = {
-            is(maxShift, "numeric")
-            length(maxShift) == 1L
-            maxShift >= 0 && maxShift < kmerLen
-        })
+        .assertScalar(x = maxShift, type = "numeric", rngIncl = c(0, kmerLen - 1))
         if (is.null(minSim)) {
             minSim <- kmerLen - maxShift + 1
         }
-        stopifnot(exprs = {
-            is(minSim, "numeric")
-            length(minSim) == 1L
-            minSim >= 1 && minSim <= (kmerLen - 1L)
-        })
+        .assertScalar(x = minSim, type = "numeric", rngIncl = c(1, kmerLen - 1))
         message("clustering ", length(x), " ", kmerLen,
                 "-mers (similarity-based, maxShift: ", maxShift, ", minSim: ", minSim, ")")
     }
@@ -288,7 +271,7 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
         comm <- igraph::cluster_louvain(G)
         res <- igraph::membership(comm)
         attr(res, "graph") <- G
-
+        
     } else if (method == "similarity") {
         ## calculate pairwise k-mer distances
         ## distance metric: "hamming + shifts"
@@ -325,7 +308,7 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
                 d[useRC, ] <- drc[useRC, ]
             }
         }
-    
+        
         ## construct and prune k-mer graph (adjacency matrix)
         ## ... convert the distance into a similarity (adjacency) matrix
         a <- kmerLen - d
@@ -333,7 +316,7 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
         a[a < minSim] <- 0
         diag(a) <- 0
         G <- igraph::graph_from_adjacency_matrix(a, mode = "undirected", weighted = TRUE)
-
+        
         ## find communities
         #comm <- igraph::cluster_louvain(G)
         comm <- igraph::clusters(G)
@@ -346,7 +329,7 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
 }
 
 
-#' @title Run a k-mer enrichment analysis.
+#' @title Calculate k-mer enrichment in bins of sequences.
 #'
 #' @description Given a set of sequences and corresponding bins, identify
 #'   enriched k-mers (n-grams) in each bin. The sequences can be given either
@@ -373,13 +356,14 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
 #'   to reduce the impact of simple sequence repeats occurring in few sequences.
 #' @param pseudoCount A \code{numeric} scalar - will be added to the observed
 #'   counts for each k-mer to avoid zero values.
-#' @param Ncpu Number of parallel threads to use.
+#' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
+#'     instance determining the parallel back-end to be used during evaluation.
 #' @param verbose A \code{logical} scalar. If \code{TRUE}, report on progress.
 #'
 #' @seealso \code{\link{getKmerFreq}} used to calculate k-mer enrichments;
 #'   \code{\link[BSgenome]{getSeq,BSgenome-method}} which is used to extract
 #'   sequences from \code{genomepkg} if \code{x} is a \code{GRanges} object;
-#'   \code{\link[parallel]{mclapply}} that is used for parallelization;
+#'   \code{\link[BiocParallel]{bplapply}} that is used for parallelization;
 #'   \code{\link{bin}} for binning of regions
 #'
 #' @return A \code{\link[SummarizedExperiment]{SummarizedExperiment}} \code{y}
@@ -394,22 +378,19 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
 #'
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom S4Vectors DataFrame split
-#' @importFrom parallel mclapply
 #' @importFrom BSgenome getSeq
 #' @importFrom TFBSTools PFMatrix PFMatrixList
 #' @importFrom stats ppois p.adjust
+#' @importFrom BiocParallel bplapply SerialParam bpnworkers
 #'
 #' @export
-kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5,
-                            background = c("other", "model"), MMorder = 1,
-                            zoops = TRUE, pseudoCount = 1,
-                            Ncpu = 2L, verbose = TRUE) {
+calcBinnedKmerEnr <- function(x, b, genomepkg = NULL, kmerLen = 5,
+                              background = c("other", "model"), MMorder = 1,
+                              zoops = TRUE, pseudoCount = 1,
+                              BPPARAM = SerialParam(), verbose = FALSE) {
     ## pre-flight checks
     background <- match.arg(background)
-    stopifnot(exprs = {
-        is.logical(verbose)
-        length(verbose) == 1L
-    })
+    .assertScalar(x = verbose, type = "logical")
     if (is.character(x)) {
         if (!all(grepl("^[ACGTNacgtn]+$", x))) {
             stop("'x' must contain only A, C, G, T or N letters")
@@ -418,7 +399,7 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5,
             message("converting 'x' to 'DNAStringSet'")
         }
         x <- DNAStringSet(x)
-
+        
     } else if (is(x, "GRanges"))  {
         if (is.null(genomepkg) || !is.character(genomepkg) ||
             length(genomepkg) != 1L || !require(genomepkg, character.only = TRUE)) {
@@ -429,7 +410,7 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5,
             message("extracting sequences for regions in 'x' from '", genomepkg, "'")
         }
         x <- getSeq(get(genomepkg), x)
-
+        
     } else if (!is(x, "DNAStringSet")) {
         stop("'x' needs to be either a 'character', 'GRanges' or 'DNAStringSet'")
     }
@@ -437,34 +418,29 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5,
         if (verbose) {
             message("converting 'b' to a 'factor'")
         }
-        b <- factor(b, levels=unique(b))
+        b <- factor(b, levels = unique(b))
     }
-    stopifnot(exprs = {
-        length(x) == length(b)
-        is.numeric(pseudoCount)
-        length(pseudoCount) == 1L
-        is.logical(zoops)
-        length(zoops) == 1L
-        is.numeric(Ncpu)
-        length(Ncpu) == 1L
-        Ncpu > 0
-    })
-
+    .assertVector(x = b, len = length(x))
+    .assertScalar(x = pseudoCount, type = "numeric", rngIncl = c(0, Inf))
+    .assertScalar(x = zoops, type = "logical")
+    stopifnot(is(BPPARAM, "BiocParallelParam"))
+    
     ## identify enriched k-mers in each bin
     if (verbose) {
         message("searching for enriched ", kmerLen, "-mers in ", nlevels(b),
-                " bins using ", Ncpu, if (Ncpu > 1) " cores" else " core",
+                " bins using ", bpnworkers(BPPARAM),
+                if (bpnworkers(BPPARAM) > 1) " cores" else " core",
                 " (background: ", c("other" = "sequences in other bins",
                                     "model" = paste0("Markov model of order ", MMorder))[background],
                 ")...", appendLF = FALSE)
     }
-    resL <- parallel::mclapply(split(x, b)[levels(b)], getKmerFreq, kmerLen = kmerLen,
-                               MMorder = MMorder, pseudoCount = pseudoCount,
-                               zoops = zoops, mc.cores = Ncpu)
+    resL <- bplapply(split(x, b)[levels(b)], getKmerFreq, kmerLen = kmerLen,
+                     MMorder = MMorder, pseudoCount = pseudoCount,
+                     zoops = zoops, BPPARAM = BPPARAM)
     if (verbose) {
         message("done")
     }
-
+    
     ## calculate motif enrichments
     if (background == "other") {
         f.obs <- do.call(cbind, lapply(resL, "[[", "freq.obs"))
@@ -479,12 +455,12 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5,
         lenr <- log2((f.obs + pseudoCount) / (f.exp + pseudoCount))
         z <- (f.obs - f.exp) / sqrt(f.exp)
         p <- ppois(q = f.obs, lambda = f.exp, lower.tail = FALSE)
-        padj <- matrix(p.adjust(p, method="fdr"), nrow = nrow(p), dimnames = dimnames(p))
+        padj <- matrix(p.adjust(p, method = "fdr"), nrow = nrow(p), dimnames = dimnames(p))
         assayL <- list(p = -log10(p), FDR = -log10(padj), enr = z, log2enr = lenr)
-
+        
     } else if (background == "model") {
         p <- do.call(cbind, lapply(resL, "[[", "p"))
-        padj <- matrix(p.adjust(p, method="fdr"), nrow = nrow(p), dimnames = dimnames(p))
+        padj <- matrix(p.adjust(p, method = "fdr"), nrow = nrow(p), dimnames = dimnames(p))
         assayL <- list(p = -log10(p), FDR = -log10(padj),
                        enr = do.call(cbind, lapply(resL, "[[", "z")),
                        log2enr = do.call(cbind, lapply(resL, "[[", "log2enr")))
@@ -496,7 +472,7 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5,
         brks <- rep(NA, nlevels(b) + 1L)
     }
     cdat <- S4Vectors::DataFrame(bin.names = levels(b),
-                                 bin.lower = brks[-(nlevels(b)+1)],
+                                 bin.lower = brks[-(nlevels(b) + 1)],
                                  bin.upper = brks[-1],
                                  bin.nochange = seq.int(nlevels(b)) %in% attr(b, "bin0"))
     kmers <- names(resL[[1]][[1]])
@@ -525,7 +501,7 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5,
                         param.MMorder = MMorder,
                         param.pseudoCount = pseudoCount,
                         param.zoops = zoops,
-                        param.Ncpu = Ncpu,
+                        param.Ncpu = bpnworkers(BPPARAM),
                         motif.distances = NULL)
     )
     rownames(se) <- kmers
@@ -540,26 +516,27 @@ kmerEnrichments <- function(x, b, genomepkg = NULL, kmerLen = 5,
 #'
 #' @param x A \code{\link[SummarizedExperiment]{SummarizedExperiment}} with the
 #'   results of a k-mer enrichment analysis (typically generated by
-#'   \code{\link{kmerEnrichments}}).
+#'   \code{\link{calcBinnedKmerEnr}}).
 #' @param m Either a \code{\link[TFBSTools]{PFMatrixList}}, or a character
 #'   scalar with a file containing motifs in HOMER format (loaded into a
 #'   \code{\link[TFBSTools]{PFMatrixList}} by
 #'   \code{\link{homerToPFMatrixList}}).
-#' @param Ncpu The number of CPU cores to use when calculating similarities
-#'   between motifs and k-mers. This uses \code{\link[parallel]{mclapply}}.
+#' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
+#'     instance determining the parallel back-end to be used during evaluation.
 #' @param verbose A logical scalar. If \code{TRUE}, report on progress.
 #'
-#' @seealso \code{\link{kmerEnrichments}} for performing a k-mer enrichment
-#'   analysis, \code{\link[parallel]{mclapply}} for how parallelization is done.
+#' @seealso \code{\link{calcBinnedKmerEnr}} for performing a k-mer enrichment
+#'   analysis, \code{\link[BiocParallel]{bplapply}} used for parallelization.
 #'
 #' @importFrom SummarizedExperiment assayNames assay SummarizedExperiment
 #'   colData
 #' @importFrom S4Vectors DataFrame metadata
+#' @importFrom BiocParallel bplapply SerialParam bpnworkers
 #'
 #' @export
-convertKmersToMotifs <- function(x, m, Ncpu = 1L, verbose = TRUE) {
+convertKmersToMotifs <- function(x, m, BPPARAM = SerialParam(), verbose = FALSE) {
     ## pre-flight checks
-    stopifnot(is.logical(verbose) && length(verbose) == 1L)
+    .assertScalar(x = verbose, type = "logical")
     if (is.character(m) && length(m) == 1L && file.exists(m)) {
         if (verbose) {
             message("reading motifs from ", basename(m))
@@ -572,19 +549,17 @@ convertKmersToMotifs <- function(x, m, Ncpu = 1L, verbose = TRUE) {
         nrow(x) == 4^metadata(x)$param.kmerLen
         all(c("enr","log2enr") %in% assayNames(x))
         is(m, "PFMatrixList")
-        is.numeric(Ncpu)
-        length(Ncpu) == 1
-        Ncpu > 0
+        is(BPPARAM, "BiocParallelParam")
     })
-
+    
     ## calculate motif-by-kmer matrix (probabilities)
     m.k <- motifKmerSimilarity(m, kmerLen = metadata(x)$param.kmerLen,
-                               Ncpu = Ncpu, verbose = verbose)
-
+                               BPPARAM = BPPARAM, verbose = verbose)
+    
     ## calculate motif-by-bin = motif-by-kmer %*% kmer-by-bin
     m.b.enr <- m.k %*% assay(x, "enr")
     m.b.log2enr <- m.k %*% assay(x, "log2enr")
-
+    
     ## create and return new SummarizedExperiment object
     percentGC <- unlist(lapply(m, function(x) {
         m <- TFBSTools::Matrix(x)
@@ -594,7 +569,7 @@ convertKmersToMotifs <- function(x, m, Ncpu = 1L, verbose = TRUE) {
                       motif.pfm = m,
                       motif.percentGC = percentGC)
     mdat <- metadata(x)
-    mdat[["param.Ncpu"]] <- Ncpu
+    mdat[["param.Ncpu"]] <- bpnworkers(BPPARAM)
     mzero <- matrix(0, nrow = nrow(m.b.enr), ncol = ncol(m.b.enr),
                     dimnames = dimnames(m.b.enr))
     se <- SummarizedExperiment(
@@ -609,45 +584,69 @@ convertKmersToMotifs <- function(x, m, Ncpu = 1L, verbose = TRUE) {
 }
 
 
-#' @title Match a set of kmers to input sequences and determine frequencies of overlapping matches.
+#' @title Match a set of k-mers to input sequences and determine frequencies of overlapping matches.
 #'
-#' @description Using a set of kmers, search input sequences for matches and retrieve
-#'    the frequencies of sequences overlapping with 1 or more overlapping kmers.
+#' @description Using a set of k-mers, search input sequences for matches and retrieve
+#'      the frequencies of sequences overlapping with 1 or more overlapping k-mers.
 #'
-#'@param seqs Set of sequences, either a \code{character} vector or a
-#'   \code{\link{DNAStringSet}}.
+#' @param seqs Set of sequences, either a \code{character} vector or a
+#'    \code{\link{DNAStringSet}}.
 #'   
-#' @param x A \code{character} vector of enriched kmers.
+#' @param x A \code{character} vector of enriched k-mers.
 #'
-#' @param Ncpu The number of CPU cores to used. \code{\link[parallel]{mclapply}} is used.
+#' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
+#'     instance determining the parallel back-end to be used during evaluation.
 #'
-#' @seealso \code{\link{kmerEnrichments}} for performing a k-mer enrichment
-#'   analysis, \code{\link[parallel]{mclapply}} for how parallelization is done. 
+#' @return A named integer vector with the number of observed occurrences of
+#'   sequences overlapping enriched k-mers. The sequences are given as the
+#'   names, and the elements are sorted by decreasing frequency.
 #'
+#' @seealso \code{\link{calcBinnedKmerEnr}} for performing a k-mer enrichment
+#'     analysis, \code{\link[BiocParallel]{bplapply}} used for parallelization. 
+#'
+#' @importFrom Biostrings matchPDict reverseComplement DNAStringSet
+#' @importFrom BiocParallel bplapply SerialParam bpnworkers
+#' @importFrom IRanges reduce
+#' 
 #' @export
-extractOverlappingKmerFrequecies <- function(seqs, x, Ncpu = 1L) {
+extractOverlappingKmerFrequecies <- function(seqs, x, BPPARAM = SerialParam()) {
     ## pre-flight checks
+    x <- toupper(x)
     stopifnot(exprs = {
-        class(seqs) == "DNAStringSet"
-        class(x) == "character"
+        is(seqs, "DNAStringSet")
+        is(x, "character")
+        all(grepl("^[ACGT]+$", x))
+        is(BPPARAM, "BiocParallelParam")
     })
     #also include reverse complements
-    enriched.kmers <- unique(c(x, as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(x)))))
-    tmp <- unlist(parallel::mclapply(seq_along(seq), function(i){
-        tmp.range <- IRanges::reduce(do.call(c, lapply(enriched.kmers, function(kmer){
-            vmatchPattern(kmer, seq[i])[[1]]
-        })))
-        tmp.range
-        res <- NULL
-        if(length(tmp.range) > 0){
-            res <- as.character(do.call(c, lapply(1:length(tmp.range), function(ii){
-                subseq(seq[i], start=start(tmp.range)[ii], end=end(tmp.range)[ii])
-            })))
+    # enriched.kmers <- unique(c(x, as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(x)))))
+    # tmp <- unlist(bplapply(seq_along(seqs), function(i) {
+    #     tmp.range <- IRanges::reduce(do.call(c, lapply(enriched.kmers, function(kmer) {
+    #         Biostrings::vmatchPattern(kmer, seqs[i])[[1]]
+    #     })))
+    #     tmp.range
+    #     res <- NULL
+    #     if (length(tmp.range) > 0) {
+    #         res <- as.character(do.call(c, lapply(seq_along(tmp.range), function(ii) {
+    #             subseq(seqs[i], start = start(tmp.range)[ii], end = end(tmp.range)[ii])
+    #         })))
+    #     }
+    #     res
+    # }, BPPARAM = BPPARAM))
+    xx <- Biostrings::DNAStringSet(x)
+    xxrc <- unique(c(xx, Biostrings::reverseComplement(xx)))
+    xxdict <- Biostrings::PDict(xxrc)
+    tmp <- unlist(bplapply(seq_along(seqs), function(i) {
+        hitranges <- IRanges::reduce(unlist(matchPDict(pdict = xxdict, subject = seqs[[i]])))
+        if (length(hitranges)) {
+            substring(as.character(seqs[[i]]), first = start(hitranges), last = end(hitranges))
+        } else {
+            character(0)
         }
-        res
-    }, mc.cores=Ncpu))
-    extended.seqs <- table(tmp)
-    extended.seqs[order(extended.seqs, decreasing=TRUE)]
+    }, BPPARAM = BPPARAM))
+    ttmp <- table(tmp)
+    extended.seqs <- structure(as.vector(ttmp), names = names(ttmp))
+    extended.seqs[order(extended.seqs, decreasing = TRUE)]
 }
 
 

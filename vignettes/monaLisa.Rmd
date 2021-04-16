@@ -12,97 +12,123 @@ vignette: >
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.width = 7,
-  fig.height = 5,
-  out.width = "80%",
-  fig.align = "center"
+    collapse = TRUE,
+    comment = "#>",
+    fig.width = 7,
+    fig.height = 5,
+    out.width = "80%",
+    fig.align = "center",
+    crop = NULL # suppress "The magick package is required to crop" issue
 )
+library(BiocStyle)
 ```
 
 <img src="monaLisa_logo_v1.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%; border: 0" />
 
+
 # Introduction
 
-`monaLisa` is a collection of functions for working with biological sequences and motifs
-that represent the binding preferences of transcription factors or nucleic acid binding proteins.
+`monaLisa` is a collection of functions for working with biological sequences
+and motifs that represent the binding preferences of transcription factors or
+nucleic acid binding proteins.
 
-For example, `monaLisa` can make use of her father [Homer](http://homer.ucsd.edu/homer/index.html)
-to look for enriched motifs in sets of genomic regions, compared to all other regions.
+For example, `monaLisa` can be used to conveniently find motif hits in
+sequences (see section \@ref(findhits)), or to identify motifs that are likely
+associated to observed experimental data. This analysis is supposed to
+provide potential answers to the question "Which transcription factors are
+the drivers of my observed changes in expression/methylation/accessiblity?".
 
-The motifs come from a collection of transcription factor binding site specificities,
-such as `JASPAR2018`. The regions could be for example promoters, non-promoters (distal regions)
-or accessible regions. The regions are grouped into bins according to a numerical value
-assigned to each bin, such as change of expression or accessibility.
+You can use known motifs from collections of transcription factor binding 
+specificities such as `JASPAR2018`, also available from Bioconductor. Genomic
+regions could be for example promoters, enhancers or accessible regions for
+which experimental data is available.
 
-`monaLisa` can also be used to look for motifs in sequences.
+Two independent approaches are implemented to identify interesting motifs:
 
-Finally, `monaLisa` can can be used to predict what transcription factors are likely
-to explain observed changes in chromatin accessibility between two conditions.
+- In **binned motif enrichment analysis** (`calcBinnedMotifEnr()`, see
+section \@ref(binned)), genomic regions are grouped into bins according to a
+numerical value assigned to each region, such as change of expression,
+accessibility or methylation. Motif enrichments are then calculated for
+each bin, normalizing for differences in sequence composition very similarly
+as it was originally done by [Homer](http://homer.ucsd.edu/homer/index.html).
+
+- In **randomized Lasso stability selection** (`randLassoStabSel()`, see
+section \@ref(stabsel)), `monaLisa` uses a robust regression approach to predict
+what transcription factors can explain experimental measurements,
+for example changes in chromatin accessibility between two conditions. Also
+this approach allows to correct for sequence composition. In addition, similar
+motifs have to "compete" with each other to be selected.
+
+For both approaches, functions that allow visualization of obtained results
+are provided.
+
+If you prefer to jump right in, you can continue with section \@ref(quick) that
+shows a quick hypothetical example of how to run a binned motif enrichment
+analysis. If you prefer to actually compute enrichments on real data, you can
+find below detailed examples for a binned motif enrichment analysis (section
+\@ref(binned)) and randomized Lasso stability selection (section \@ref(stabsel)).
 
 
-
-# Quick example: Identify enriched motifs
+# Quick example: Identify enriched motifs in bins{#quick}
 
 ```{r, quick, eval=FALSE}
 # load package
 library(monaLisa)
 
 # bin regions
-# (atac.peaks.change is a numerical vector)
-bins <- bin(x = atac.peaks.change, binmode = "equalN", nElement = 400)
+# (peak_change is a numerical vector)
+peak_bins <- bin(x = peak_change, binmode = "equalN", nElement = 400)
 
-# dump motifs into file
-dumpJaspar("jaspar2018.motif", pkg = "JASPAR2018")
-
-# find Homer (findMotifsGenome.pl)
-homerfile <- findHomer(dirs = "/path/to/look/into")
-
-# run analysis
-# (atac.peaks is a GRanges)
-se <- runHomer(gr = atac.peaks, b = bins, genomedir = "/work/gbioinfo/DB/genomes/mm10",
-               outdir = "myresults", motifFile = "jaspar2018.motif", homerfile = homerfile,
-               regionsize = "given", Ncpu = 4L)
-
+# calculate motif enrichments
+# (peak_seq is a DNAStringSet, pwms is a PWMatrixList)
+se <- calcBinnedMotifEnr(seqs = peaks_seqs,
+                         bins = peaks_bins,
+                         motifs = pwms)
 ```
 
-`se` is a `SummarizedExperiment` with `assays` *p*, *FDR*, *enr* and *log2enr*, each containing a matrix
+`se` is a `SummarizedExperiment` with `assays` *p*, *FDR*, *enr*, *log2enr*,
+*sumForegroundWgtWithHits* and *sumBackgroundWgtWithHits*, each containing a matrix
 with motifs (rows) by bins (columns). The values are:  
 
-- *p*: the raw P value ($-\log_{10} p$) of a given motif enrichment in a given bin,
-  as reported by Homer. Each P value results from a Homer analysis testing each
-  motif occuring within the bin, compared to its occurrences in all other bins
-  as a background.  
+- *p*: the raw P value ($-\log_{10} p$) of a given motif enrichment in a given
+  bin. Each P value results from an enrichment calculation comparing occurrences
+  of each motif in the bin to its occurrences in all other bins as a background.  
 - *FDR*: Same as *p* but adjusted for multiple testing using the method of
   Benjamini and Hochberg, 1995 (`p.adjust(..., method="fdr"`).  
-- *enr*: Motif enrichments, calculated as: $enr = (o - e) / \sqrt e$, where $o$ and
-  $e$ are the observed and expected numbers of regions in the bin containing a
+- *enr*: Motif enrichments, calculated as: $enr = (o - e) / \sqrt e$, where $o$
+  and $e$ are the observed and expected numbers of regions in the bin containing a
   given motif. These enrichments correspond to $z$ values ($z = (z - \mu)/\sigma$),
   assuming that the numbers of regions in a bin that contain a motif are independent
   Poisson random variables with mean and variance $e$.
 - *log2enr*: Motif enrichments, calculated as: $log2enr = log2((o + 8)/(e + 8))$,
   where $o$ and $e$ are the observed and expected numbers of regions in the bin
-  containing a given motif.
+  containing a given motif.  
+- *sumForegroundWgtWithHits* and *sumBackgroundWgtWithHits*: Are the sum of
+  foreground and background sequences that have at least one occurrence of the
+  motif, respectively. The background sequences are weighted in order to
+  adjust for differences in sequence composition between foreground and
+  background.
 
 In addition, `rowData(se)` and `colData(se)` give information about the used motifs
 and bins, respectively. In `metadata(se)` you can find information about parameter
 values.
 
-# Detailed example: Finding TFs enriched in differentially methylated regions
 
-The detailed example is based on an in vitro differentiation system, in which
+# Binned motif enrichment analysis: Finding TFs enriched in differentially methylated regions{#binned}
+
+This example is based on an *in vitro* differentiation system, in which
 mouse embryonic stem (ES) cells are differentiated into neuronal progenitors (NP).
 In an earlier study [@LMRs], we have analyzed the genome-wide CpG methylation patterns
-in these cell types and identified so call *low methylated regions* (LMRs), that
+in these cell types and identified so called *low methylated regions* (LMRs), that
 have reduced methylation levels and correspond to regions bound by transcription
 factors.
 
-We have later published a tool that systematically identifies such regions from
+We also developed a tool that systematically identifies such regions from
 genome-wide methylation data [@MethylSeekR]. Interestingly, a change in methylation
 of LMRs is indicative of altered transcription factor binding. We will therefore
-use these regions to identify TF motifs that are enriched/depleted in LMR regions
-that change their methylation between ES and NP cell states.
+use these regions to identify transcription factor motifs that are enriched
+or depleted in LMR regions that change their methylation between ES and NP cell
+states.
 
 
 ## Load library
@@ -110,8 +136,12 @@ We start by loading the needed libraries:
 ```{r loadlib, message=FALSE}
 library(GenomicRanges)
 library(SummarizedExperiment)
+library(JASPAR2018)
+library(TFBSTools)
+library(BSgenome.Mmusculus.UCSC.mm10)
 library(monaLisa)
 ```
+
 
 ## Genomic regions of interest
 `monaLisa` contains a file with genomic coordinates (mouse mm9 assembly) of LMRs,
@@ -146,10 +176,6 @@ bins <- bin(x = lmrsel$deltaMeth, binmode = "equalN", nElement = 800, minAbsX = 
 table(bins)
 ```
 
-<!--
-saveRDS(bins, "/work/gbioinfo/stadler/development/R/compbio-lisa/inst/extdata/bins.rds")
--->
-
 Because of the asymmetry of methylation changes, there is only a single bin with LMRs
 that lost methylation and many that gained:  
 ```{r plotbins}
@@ -159,37 +185,35 @@ plotBinDensity(lmrsel$deltaMeth, bins, legend = "topleft")
 Note that the bin-breaks around the *no-change* bin are not exactly -0.3 to 0.3.
 They have been adjusted to have the required 800 LMRs per bin.
 
+
 ## Prepare motif enrichment analysis
-Next we prepare the Homer-based motif enrichment analysis. We first need to create
-a file with the motifs that we are interested in. A simple way is to dump the vertebrate
-motifs from the `JASPAR2018` package into a file:  
-```{r dumpjaspar}
-motiffile <- tempfile(fileext = ".motif")
-dumpJaspar(motiffile, pkg = "JASPAR2018")
+Next we prepare the motif enrichment analysis. We first need known motifs
+representing transcription factor binding site preferences. We extract all
+vertebrate motifs from the `r Biocpkg("JASPAR2018")` package as positional
+weight matrices (PWMs):  
+```{r getmotifs}
+pwms <- getMatrixSet(JASPAR2018,
+                     opts = list(matrixtype = "PWM",
+                                 tax_group = "vertebrates"))
 ```
 
-Next we need to know where Homer is installed (you may have to adjust the `dirs`
-argument below according to your environment):  
-```{r homerscript}
-homerfile <- findHomer(dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
+Furthermore, we need the sequences corresponding to our LMR regions, which
+we directly extract from the `r Biocpkg("BSgenome.Mmusculus.UCSC.mm10")`
+package:  
+```{r getseqs}
+lmrseqs <- getSeq(BSgenome.Mmusculus.UCSC.mm10, lmrsel)
 ```
+
 
 ## Run motif enrichment analysis
-Finally, we run the analysis. Again, you may have to adjust the `genomedir`.
+Finally, we run the binned motif enrichment analysis.
 
-This step requires that you have Homer installed on your system. Also, it may
-take a while, for this reason you do not need to run it, but can just load the
-results as shown below:  
-```{r runhomer, eval=FALSE}
-outdir <- tempfile(fileext = ".output")
-se <- runHomer(gr = lmrsel, b = bins, genomedir = "/work/gbioinfo/DB/genomes/mm9",
-               outdir = outdir, motifFile = motiffile, homerfile = homerfile,
-               regionsize = "given", Ncpu = 20L)
+This step will take a while, and typically you would use the `BPPARAM`
+argument to run it with parallelization. For this example however, you can just
+load the pre-computed results as shown below.  
+```{r runbinned, eval=FALSE}
+se <- calcBinnedMotifEnr(seqs = lmrseqs, bins = bins, motifs = pwms)
 ```
-
-<!--
-saveRDS(se, "/work/gbioinfo/stadler/development/R/compbio-lisa/inst/extdata/se.rds")
--->
 
 In case you did not run the above code, let's now read in the results:  
 ```{r gethomerresults}
@@ -216,43 +240,55 @@ assayNames(se)
 assay(se, "log2enr")[1:5, 1:3]
 ```
 
-We can plot the results using the `plotMotifHeatmaps` function, e.g. selecting all factors that have an absolute log2 enrichment of at least 1.0 in any bin:  
+We can plot the results using the `plotMotifHeatmaps` function, e.g. selecting all
+transcription factor motifs that have an $-log_{10} FDR$ of at least 8.0 in any bin
+(corresponding to an $FDR < 10^{-8}$):  
 ```{r plottfs}
-# select strongly enriched TFs
-sel <- apply(assay(se, "log2enr"), 1, function(x) max(abs(x))) > 1.0
+# select strongly enriched motifs
+sel <- apply(assay(se, "FDR"), 1, function(x) max(abs(x))) > 8.0
 sum(sel)
 seSel <- se[sel, ]
-# shorten names
-rownames(seSel) <- sub("\\_.*$","",rownames(seSel))
+
 # plot
 plotMotifHeatmaps(x = seSel, which.plots = c("log2enr","FDR"), width = 2.0,
                   cluster = TRUE, maxEnr = 2, maxSig = 10, show_motif_GC = TRUE)
 ```
 
-As the Jaspar database contains many similar motifs, it is helpful to show the enrichment heatmap clustered by motif similarity. To this end, we first need to calculate all pairwise motif similarities (measured as maximum Pearson correlation of all possible shifted alignments). As this step may take a while, you can also skip this line of code and load the results using the next line of code. 
+Setting `cluster = TRUE` has re-ordered the rows using hierarchical clustering
+of the `"enr"` assay. As many transcription factor binding motifs are similar to
+each other, it is also helpful to show the enrichment heatmap clustered by
+motif similarity. To this end, we first calculate all pairwise motif similarities
+(measured as maximum Pearson correlation of all possible shifted alignments).
+This can be quickly calculated for the few selected motifs using the `motifSimilarity`
+function. For many motifs, this step may take a while, and it may be useful to
+parallelize it using the `BPARAM` argument (e.g. to run on `n` parallel threads
+using the multi-core backend, you can use:
+`motifSimilarity(..., BPPARAM = BiocParallel::MulticoreParam(n))`).
 
-```{r wmclustering, eval=FALSE}
-SimMat <- motifSimilarity(rowData(se)$motif.pfm, Ncpu = 20L)
+```{r wmclustering}
+SimMatSel <- motifSimilarity(rowData(seSel)$motif.pfm)
+range(SimMatSel)
 ```
-```{r getclusteringresults}
-SimMat <- readRDS(system.file("extdata", "SimMat.rds", package = "monaLisa"))
-```
-The order of the TFs in the resulting matrix is consistent with the elements of `se`
-```{r checkmatrixorder}
-all(rownames(SimMat) == rownames(se))
-```
-Using this matrix, we can create an *hclust* object for clustering and plot the clustered heatmap. The plotting of the dendogram is controlled by the parameter *show_dendrogram*. 
+
+The order of the TFs in the resulting matrix is consistent with the elements of
+`seSel`, and the maximal similarity between any pair of motifs is 1.0. By
+subtracting these similarities from 1.0, we obtain distances that we use
+to perform a hierarchical clustering with the `hclust` function. The returned
+object is then passed to the `cluster` argument to define the order of the rows
+in the heatmap. The plotting of the dendogram is controlled by the parameter
+`show_dendrogram`, and we also display the motifs as sequence logos using
+`show_seqlogo`: 
 ```{r plottfsclustered}
 # create hclust object, similarity defined by 1 - Pearson correlation
-hcl <- hclust(as.dist(1 - SimMat[sel, sel]), method="average")
+hcl <- hclust(as.dist(1 - SimMatSel), method = "average")
 plotMotifHeatmaps(x = seSel, which.plots = c("log2enr","FDR"), width = 1.2,
                   cluster = hcl, maxEnr = 2, maxSig = 10,
-                  show_dendrogram=TRUE, show_seqlogo = TRUE,
+                  show_dendrogram = TRUE, show_seqlogo = TRUE,
                   width.seqlogo = 1.2)
 ```
 
 
-# Use `monaLisa` to annotate genomic regions with predicted motifs
+# Use `monaLisa` to annotate genomic regions with predicted motifs{#findhits}
 
 As mentioned `monaLisa` can also be used to scan sequences for motifs. Here is an
 example (just on few sequences/motifs for illustration):
@@ -260,46 +296,57 @@ example (just on few sequences/motifs for illustration):
 ```{r findMotifs}
 # get sequences of promoters as a DNAStringSet
 # (could also be a single DNAString, or the name of a fasta file)
-library(TxDb.Hsapiens.UCSC.hg19.knownGene)
-gr <- promoters(TxDb.Hsapiens.UCSC.hg19.knownGene, upstream = 1000, downstream = 500)[c(1,4,5,10)]
-library(BSgenome.Hsapiens.UCSC.hg19)
-seqs <- getSeq(BSgenome.Hsapiens.UCSC.hg19, gr)
+library(TxDb.Mmusculus.UCSC.mm10.knownGene)
+gr <- promoters(TxDb.Mmusculus.UCSC.mm10.knownGene,
+                upstream = 1000, downstream = 500)[c(1,4,5,10)]
+library(BSgenome.Mmusculus.UCSC.mm10)
+seqs <- getSeq(BSgenome.Mmusculus.UCSC.mm10, gr)
 seqs
 
 # get motifs as a PWMatrixList
 # (could also be a single PWMatrix, or the name of a motif file)
 library(JASPAR2018)
 library(TFBSTools)
-pwms <- getMatrixSet(JASPAR2018, list(matrixtype = "PWM", tax_group = "vertebrates"))
-pwms <- pwms[c("MA0885.1","MA0099.3","MA0033.2","MA0037.3","MA0158.1")]
+pfms <- getMatrixByID(JASPAR2018, c("MA0885.1","MA0099.3","MA0033.2","MA0037.3","MA0158.1"))
+pwms <- toPWM(pfms)
 pwms
+name(pwms)
 
 # predict hits in sequences
-res <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0, method = "matchPWM")
+res <- findMotifHits(query = pwms,
+                     subject = seqs,
+                     min.score = 6.0,
+                     method = "matchPWM",
+                     BPPARAM = BiocParallel::MulticoreParam(2))
 res
 
-# ... or using method = "homer2"
-homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
-if (!is.na(homerfile)) {
-    # use homer2 if available
-    res2 <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0, method = "homer2", homerfile = homerfile)
-} else {
-    # otherwise, use matchPWM
-    res2 <- findMotifHits(query = pwms, subject = seqs, min.score = 6.0, method = "matchPWM")
-}
-res2
-
-summary(res %in% res2)
-
 # create hit matrix:
-# number of site of each motif per sequence
-m <- table(seqnames(res), as.character(res$pwmname))
+# number of sites of each motif per sequence
+m <- table(factor(seqnames(res), levels = names(seqs)),
+           factor(res$pwmname, levels = name(pwms)))
 m
 ```
 
+The transformation of sequence and PWM names to factors with defined levels
+in the creation of the hit matrix above is not strictly needed, but it ensures
+that even sequences or motifs without any hits are reported in the matrix,
+and that the order of sequences (rows) and motifs (columns) is identical to
+the order in `seqs` and `pwms`.
 
 
-# Selecting Transcription Factors Likely to Explain Changes in Chromatin Accessibility Using Stability Selection
+# Motif Selection with Randomized Lasso Stability Selection{#stabsel}
+
+One can also select for important transcription factor (TF) motifs in a regression based approach with predictors consisting of the TF motif hits, and the response vector being the observed measure of interest, e.g. log-fold changes of accessibility for a set of regions. In `monaLisa`, we implement the randomized lasso stability selection proposed by Meinshausen and Bühlmann [@StabSel] with the improved error bounds introduced by Shah and Samworth [@compStabs]. We have modified the `stabsel` function from the `stabs` package to implement the randomized lasso version of stability selection. 
+
+Lasso stability selection implements the lasso regression multiple times on subsamples of the data, and returns a selection probability for each predictor (number of times selected divided by number of regressions done). With the randomized lasso, a weakness parameter is additionally used to randomly vary the lambda parameter of the lasso regression. Although the main appeal of stability selection is in cases where the number of predictors exceeds the number of observations, it also performs better variable selection with noisy data [@StabSel].
+
+With this approach, TF motifs compete against each other to explain observations, and we can also include additional predictors like GC content to compete against the TF motifs for selection. This is especially useful if the response is biased by sequence composition, for example if regions with higher GC content tend to have higher response values. 
+
+In the example below, we select for TF motifs explaining log-fold changes in chromatin accessibility (ATAC-seq) across the enhancers between mouse liver and lung tissue at P0, but this can be applied to other data types as well (ChIP-seq, RNA-seq, methylation etc.).
+
+<!--
+
+Selecting Transcription Factors Likely to Explain Changes in Chromatin Accessibility Using Stability Selection
 
 Randomized Lasso stability selection proposed by Meinshausen and Bühlmann [@StabSel] applies the lasso regression on several subsamples of the data using a weakness parameter that adds additional variation to the lambda parameter and allows for more correlated variables to be selected together. Although the main appeal of stability selection is that it allows for selection of predictors when the number of predictors exceeds the number of observations, the authors also argue for this as a way of slightly overcoming the problem of lasso only selecting variables that are not correlated, and performing better in a noisy dataset depending on how strongly one sets the weakness parameter. Shah and Samworth [@compStabs] have further improved error control for stability selection using complementary pairs stability selection. The R `stabs` package [@stabs] implements the Shah and Samworth version of stability selection. `monaLisa` uses a modified version of the `stabsel` function in `stabs` that performs randomized lasso stability selection.
 
@@ -307,159 +354,150 @@ Here we demonstrate the use of randomized lasso stability selection to select tr
 
 Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promoter peaks tend not to change so much in accessibility, and we are interested in selecting TFs that likely explain logFC in enhancer regions. The `.rds` files used in monaLisa's example dataset consist of peaks that had an absolute logFC greater than 2 and less than 2.2. This was done to reduce the number of peaks and speed up runtime to demonstrate the functions used in `monaLisa` that apply randomized lasso stability selection [@StabSel].
 
-
+-->
 
 ## Load Data
 
+In our example dataset, we have quantified ATAC-seq reads on enhancers in mouse P0 lung and liver tissues. The log2-fold change (our response vector in this example) is for liver vs lung, and we are looking at enhancers that have an absolute log2-fold change > 2.
 
-```{r load_data}
-
-library(monaLisa)
-
-# Path to extdata 
-peaks_path <- system.file("extdata", "Liver_vs_Lung_ATAC_peaks.rds", package = "monaLisa")
-response_path <- system.file("extdata", "Liver_vs_Lung_ATAC_logFC.rds", package = "monaLisa")
-
-# Load response vector and peaks GRanges
-response <- readRDS(response_path)
-peaks <- readRDS(peaks_path)
-
+```{r libs}
+suppressPackageStartupMessages({
+  library(monaLisa)
+  library(JASPAR2018)
+  library(TFBSTools)
+  library(BSgenome.Mmusculus.UCSC.mm10)
+  library(Biostrings)
+  library(SummarizedExperiment)
+  library(ComplexHeatmap) # heatmap drawing
+  library(circlize) # used for color specification
+})
 ```
 
-## Get predictor matrix showing number of TFBS per motif across the peaks
 
-The `findMotifHits` function can be used to get the predicted binding sites of each transcription factor across a given set of genomic regions, 
-which in our case is the ATAC-seq peaks. A predictor matrix which contains the number of TFBS each TF has across the given set of peaks is subsequently generated. Note that peaks that have 0 TFBS with all TFs will not be present in the resulting matrix. One can also make use of phylogenetic information of TFs and incorporate that in the predictor matrix. With ATAC-seq, we didn't want to restrict ourselves to conserved motif sequences. One can also add any additional property of the genomic regions in the response vector to compete against the TFs for selection. We added GC content and the ratio of observed-over-expected CpG (oeCpG) content.
+```{r loadData}
+# load GRanges object with logFC and peaks
+gr_path <- system.file("extdata", "atac_liver_vs_lung.rds", package = "monaLisa")
+gr <- readRDS(gr_path)
+```
 
+## Get TFBS per Motif and Peak
 
-\ 
-The code below takes some time to run, so the result of stability selection in the form of a 'stabsel' object can be loaded.
+We will now construct the transcription factor binding site (TFBS) matrix for known motifs (from a database like JASPAR) in peak regions. We use the `findMotifHits` function to scan for TF motif hits. This matrix will be the predictor matrix in our regression.
 
+As mentioned, this framework offers the flexibility to add additional predictors to compete against the TF motifs for selection. Here, we add the fraction of G+C and CpG observed/expected ratio as predictors, to ensure that selected TF motifs are not just detecting a simple trend in GC or CpG composition.
 
-```{r predictor, eval=FALSE}
+```{r predictorMatrix}
+# get PWMs (random subset of 100 vertebrate TFs from Jaspar)
+pfms <- getMatrixSet(JASPAR2018, list(matrixtype = "PFM", tax_group = "vertebrates"))
+set.seed(6698)
+pfms <- pfms[sample(length(pfms), size = 100)]
+pwms <- toPWM(pfms)
 
-library(JASPAR2018)
-library(TFBSTools)
-library("BSgenome.Mmusculus.UCSC.mm10")
-library(Biostrings)
+# get TFBS on given GRanges (peaks)
+peakSeq <- getSeq(BSgenome.Mmusculus.UCSC.mm10, gr)
+hits <- findMotifHits(query = pwms, subject = peakSeq, min.score = 10.0,
+                      BPPARAM = BiocParallel::MulticoreParam(2))
 
-# Genome
-genome <- BSgenome.Mmusculus.UCSC.mm10
+# get TFBS matrix
+TFBSmatrix <- unclass(table(factor(seqnames(hits), levels = seqlevels(hits)),
+                                  factor(hits$pwmname, levels = name(pwms))))
+TFBSmatrix[1:6, 1:6]
 
-# Get PWMs
-pfms <- getMatrixSet(JASPAR2018, list(matrixtype = "PFM", tax_group = "vertebrates")) # for seq-logos
-pwms <- toPWM(pfms) # for searching
+# remove TF motifs with 0 binding sites in all regions
+zero_TF <- colSums(TFBSmatrix) == 0
+sum(zero_TF)
+TFBSmatrix <- TFBSmatrix[, !zero_TF]
 
-# Get TFBS on given GRanges
-homerfile <- findHomer(homerfile = "homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/")
-if (!is.na(homerfile)) {
-    # use homer2 if available
-    hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "homer2",
-                          homerfile = homerfile, genome = genome, Ncpu = 2)
-} else {
-    # otherwise, use matchPWM
-    hits <- findMotifHits(query = pwms, subject = peaks, min.score = 6.0, method = "matchPWM",
-                          genome = genome)
-}
-
-# Get predictor matrix
-predictor_matrix <- as.matrix(as.data.frame.matrix(table(seqnames(hits), as.character(hits$pwmname))))
-predictor_matrix[1:6, 1:6]
-
-# remove peaks that do not have any hits (also from the response vector) 
-# and check all peaks in predictor_matrix are in same order as in the 
-# peaks variable
-w <- names(peaks)[!(names(peaks)%in%rownames(predictor_matrix))]
-if(length(w)>0){
-  peaks <- peaks[-w]
-  response <- response[-w]
-}
-all(rownames(predictor_matrix)==names(peaks))
-all(rownames(predictor_matrix)==names(response))
-
-# Note that in this case all peaks have at least one TFBS for any of the TFs. 
-# However, that may not always be the case. If a given set of peaks does 
-# not appear in the hits variable one must be careful and remove the missing 
-# peaks from the peaks variable before doing the GC content calculations below.
-
-# calculate GC and oeCpG content
-peakSeq <- BSgenome::getSeq(genome, peaks)
+# calculate G+C and CpG obs/expected
 fMono <- oligonucleotideFrequency(peakSeq, width = 1L, as.prob = TRUE)
 fDi <- oligonucleotideFrequency(peakSeq, width = 2L, as.prob = TRUE)
-percGC <- fMono[,"G"] + fMono[,"C"]
+fracGC <- fMono[,"G"] + fMono[,"C"]
 oeCpG <- (fDi[,"CG"] + 0.01) / (fMono[,"G"] * fMono[,"C"] + 0.01)
 
 # add GC and oeCpG to predictor matrix
-predictor_matrix <- cbind(percGC, predictor_matrix)
-predictor_matrix <- cbind(oeCpG, predictor_matrix)
-predictor_matrix[1:6, 1:6]
-
-
+TFBSmatrix <- cbind(fracGC, oeCpG, TFBSmatrix)
+TFBSmatrix[1:6, 1:6]
 ```
 
 
-## Run randomized lasso stability selection
+## Identify important TFs
 
-We can now run randomized lasso stability selection to select TFs that are likely to explain the log-fold changes in accessibility (response vector). We can appreciate that some selected TFs are correlated to each other and were chosen toegther to explain the observed changes in accessibility.
+We can now run randomized lasso stability selection to identify TFs that are likely to explain the log-fold changes in accessibility. 
 
+```{r stabSelTFs}
+# select TFs
+set.seed(123)
+se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung,
+                       cutoff = 0.8, mc.cores = 1)
+se
 
-```{r run_stability, eval=FALSE}
-
-stabs <- randomized_stabsel(x = predictor_matrix, y = response,
-                            weakness = 0.8, cutoff = 0.7, PFER = 2, mc.cores = 2)
-
-
+## if using a Windows machine, parallelize using parLapply (see stabs::stabsel for more details)
+# library(parallel)
+# cl <- makeCluster(2)
+# se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung,
+#                        cutoff = 0.8, papply = parLapply, cl = cl)
+  
+# selected TFs
+colnames(se)[se$selected]
 ```
 
 
+The stability paths visualizes how predictors get selected decreasing regularization stringency (from left to right):  
+```{r plotStabilityPaths}
+plotStabilityPaths(se)
+```
 
-```{r plot_stabSel_results}
+Each line corresponds to a predictor, and we can see the selection probabilities as a function of the regularization steps, corresponding to decreasing values for the lambda regularization parameter in lasso. The predictor (TF motif) selection happens at the last step, given the specified minimum probability.
 
-library(ComplexHeatmap) # heatmap drawing
-library(circlize) # used for color specification
-library(JASPAR2018)
+We can also visualize the selection probabilities of the selected TF motifs, optionally multiplied by the sign of the correlation to the response vector, to know how the TF relates to the change of accessibility (`directional` parameter).
 
-# load processed data
-stabs <- readRDS(system.file("extdata", "stabs.rds", package = "monaLisa"))
-predictor_matrix <- readRDS(system.file("extdata", "stabs_predictor.rds", package = "monaLisa"))
-response <- readRDS(system.file("extdata", "stabs_response.rds", package = "monaLisa"))
+```{r plotSelProbs, fig.width=15, fig.height=7}
+plotSelectionProb(se, directional = TRUE, selProbMinPlot = 0.6)
+```
 
+Next, we visualize the correlation structure of the TFBS matrix using selected TFs. We can see that some TFs have similar binding sites across the genomic regions. 
 
-# plot stability paths ...
-plotStabilityPaths(stabs)
+```{r TFBScor}
+# subset the selected TFs
+sel <- colnames(se)[se$selected]
+se_sub <- se[, sel]
 
-# ... and selection probabilities
-par(mfrow = c(1,1), mar = c(5,4,4,2) + 3)
-plotSelectionProb(stabs)
+# exclude oeCpG and fracGC
+excl <- colnames(se_sub) %in% c("oeCpG", "fracGC")
+se_sub <- se_sub[, !excl]
 
-# ... and the directionality of the motifs with respect to the response vector
-par(mfrow = c(1,1), mar = c(5,4,4,2) + 3)
-plotMotifDirectionality(stabs_obj=stabs, response=response, predictor_matrix=predictor_matrix)
+# correlation matrix 
+TFBSmatrixCorSel <- cor(TFBSmatrix[, colnames(se_sub)], method = "pearson")
 
-
-# plot correlation on TFBS matrix of selected TFs
-# ... select predictors for selected TFs and calculate correlation
-sel_matrix <- predictor_matrix[, stabs$selected]
-sel_cor <- cor(sel_matrix, method = "pearson")
-
-# ... prepare sequence logos
-pfms <- getMatrixSet(JASPAR2018, list(matrixtype = "PFM", tax_group = "vertebrates")) # for seq-logos
-pwms <- toPWM(pfms) # for searching
-pfmsSel <- pfms[match(rownames(sel_cor), name(pfms))]
-maxwidth <- max(sapply(Matrix(pfmsSel), ncol))
+# heatmap
+pfmsSel <- pfms[match(colnames(TFBSmatrixCorSel), name(pfms))]
+maxwidth <- max(sapply(TFBSTools::Matrix(pfmsSel), ncol))
 seqlogoGrobs <- lapply(pfmsSel, seqLogoGrob, xmax = maxwidth)
+
 hmSeqlogo <- rowAnnotation(logo = anno_seqlogo(seqlogoGrobs, which = "row"),
-                           annotation_width = unit(1.5, "inch"),
-                           show_legend = FALSE, show_annotation_name = FALSE)
+                           annotation_width = c(unit(3.5, "inch"), unit(0.5, "inch"), unit(0.5, "inch")),
+                           AUC = se_sub$selAUC, selProb = se_sub$selProb,
+                           show_legend = TRUE, show_annotation_name = FALSE,
+                           col = list(AUC = colorRamp2(c(0, 1), c("white", "brown")),
+                                      selProb = colorRamp2(c(0, 1), c("white", "forestgreen"))))
 
-# ... draw heatmap
-Heatmap(matrix = sel_cor, name = "Pear. Cor.",
-        col = colorRamp2(c(-1, 0, 1), c("blue", "white", "red")),
+Heatmap(TFBSmatrixCorSel, show_row_names = TRUE, show_column_names = TRUE, 
+        name = "Pear. Cor.", column_title = "Selected TFs",
+        col = colorRamp2(c(-1, 0, 1), c("blue", "white", "red")), 
         right_annotation = hmSeqlogo)
-
 ```
 
+We can examine the peaks that have hits for a selected TF motif of interest, ordered by absolute accessibility changes.
 
+```{r topPeaks}
+TF <- sel[2]
+TF
+
+i <- which(assay(se, "x")[, TF] > 0) # peaks that contain TF hits...
+nm <- names(sort(abs(gr$logFC_liver_vs_lung[i]), decreasing = TRUE)) # ... order by |logFC|
+
+head(gr[nm])
+```
 
 
 # Session info and logo
@@ -468,7 +506,7 @@ under the Creative Commons attribution - non-commercial 3.0 license: https://cre
 
 This vignette was built using:  
 ```{r, session}
-sessionInfo(package = "monaLisa")
+sessionInfo()
 ```
 
 # References

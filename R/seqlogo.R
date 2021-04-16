@@ -148,7 +148,7 @@ pfm2ic <- function (pfm) {
 #'
 #' @export
 seqLogoGrob <- function(x, xmax = NULL, ymax = 2.0, xjust = c("left", "center", 'right')) {
-    stopifnot(exprs = { is(x, "PFMatrix"); !is(x, "PWMatrix") })
+    stopifnot(is(x, "PFMatrix"))
     stopifnot(is.null(xmax) || (is.numeric(xmax) && length(xmax) == 1L && xmax > 0))
     stopifnot(is.null(ymax) || (is.numeric(ymax) && length(ymax) == 1L && ymax > 0))
     xjust <- match.arg(xjust)
@@ -223,7 +223,7 @@ anno_seqlogo <- function(grobL, which = c("column", "row"),
     stopifnot(is(grobL, "list"))
     stopifnot(all(sapply(grobL, function(x) is(x, "grob"))))
 
-    .recycle_gp <- function (gp, n = 1) {
+    .recycle_gp <- function(gp, n = 1) {
         for (i in seq_along(gp)) {
             x <- gp[[i]]
             gp[[i]] <- c(rep(x, floor(n / length(x))), x[seq_len(n %% length(x))])
@@ -235,10 +235,10 @@ anno_seqlogo <- function(grobL, which = c("column", "row"),
     which <- match.arg(which)[1]
     space <- space[1]
     anno_size <- switch(which,
-                        column = list(height= if (is.null(height)) unit(1, "cm")  else height,
-                                      width = if (is.null(width))  unit(1, "npc") else width),
-                        row    = list(height= if (is.null(height)) unit(1, "npc") else height,
-                                      width = if (is.null(width))  unit(1, "cm")  else width))
+                        column = list(height = if (is.null(height)) unit(1, "cm")  else height,
+                                      width  = if (is.null(width))  unit(1, "npc") else width),
+                        row    = list(height = if (is.null(height)) unit(1, "npc") else height,
+                                      width  = if (is.null(width))  unit(1, "cm")  else width))
     gp = .recycle_gp(gp, n_seqlogo)
     column_fun <- function(index) {
         n <- length(index)

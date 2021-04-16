@@ -20,9 +20,9 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("homer2", "matchPWM"),
+  method = c("matchPWM", "homer2"),
   homerfile = findHomer("homer2"),
-  Ncpu = 1L,
+  BPPARAM = SerialParam(),
   genome = NULL
 )
 
@@ -30,9 +30,9 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("homer2", "matchPWM"),
+  method = c("matchPWM", "homer2"),
   homerfile = findHomer("homer2"),
-  Ncpu = 1L,
+  BPPARAM = SerialParam(),
   genome = NULL
 )
 
@@ -40,9 +40,9 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("homer2", "matchPWM"),
+  method = c("matchPWM", "homer2"),
   homerfile = findHomer("homer2"),
-  Ncpu = 1L,
+  BPPARAM = SerialParam(),
   genome = NULL
 )
 
@@ -50,9 +50,9 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("homer2", "matchPWM"),
+  method = c("matchPWM", "homer2"),
   homerfile = findHomer("homer2"),
-  Ncpu = 1L,
+  BPPARAM = SerialParam(),
   genome = NULL
 )
 
@@ -60,9 +60,9 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("homer2", "matchPWM"),
+  method = c("matchPWM", "homer2"),
   homerfile = findHomer("homer2"),
-  Ncpu = 1L,
+  BPPARAM = SerialParam(),
   genome = NULL
 )
 
@@ -70,9 +70,9 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("homer2", "matchPWM"),
+  method = c("matchPWM", "homer2"),
   homerfile = findHomer("homer2"),
-  Ncpu = 1L,
+  BPPARAM = SerialParam(),
   genome = NULL
 )
 
@@ -80,9 +80,9 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("homer2", "matchPWM"),
+  method = c("matchPWM", "homer2"),
   homerfile = findHomer("homer2"),
-  Ncpu = 1L,
+  BPPARAM = SerialParam(),
   genome = NULL
 )
 
@@ -90,9 +90,9 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("homer2", "matchPWM"),
+  method = c("matchPWM", "homer2"),
   homerfile = findHomer("homer2"),
-  Ncpu = 1L,
+  BPPARAM = SerialParam(),
   genome = NULL
 )
 
@@ -100,9 +100,9 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("homer2", "matchPWM"),
+  method = c("matchPWM", "homer2"),
   homerfile = findHomer("homer2"),
-  Ncpu = 1L,
+  BPPARAM = SerialParam(),
   genome = NULL
 )
 
@@ -110,9 +110,9 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("homer2", "matchPWM"),
+  method = c("matchPWM", "homer2"),
   homerfile = findHomer("homer2"),
-  Ncpu = 1L,
+  BPPARAM = SerialParam(),
   genome = NULL
 )
 
@@ -120,9 +120,9 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("homer2", "matchPWM"),
+  method = c("matchPWM", "homer2"),
   homerfile = findHomer("homer2"),
-  Ncpu = 1L,
+  BPPARAM = SerialParam(),
   genome = NULL
 )
 
@@ -130,9 +130,9 @@ findMotifHits(
   query,
   subject,
   min.score,
-  method = c("homer2", "matchPWM"),
+  method = c("matchPWM", "homer2"),
   homerfile = findHomer("homer2"),
-  Ncpu = 1L,
+  BPPARAM = SerialParam(),
   genome = NULL
 )
 }
@@ -157,28 +157,31 @@ findMotifHits(
 }}
 
 \item{min.score}{The minimum score for counting a match. Can be given as
-a character string containing a percentage (e.g. "85%") of the quantile
-between the lowest and the highest possible score or as a single number
-(log2-odds score).}
+a character string containing a percentage (e.g. "85%") of  of the
+highest possible score or as a single number.}
 
 \item{method}{The internal method to use for motif searching. One of
 \itemize{
+    \item{\code{"matchPWM"}}{ using Biostrings::matchPWM (optimized)}
     \item{\code{"homer2"}}{ call to the homer2 binary}
-    \item{\code{"matchPWM"}}{ using Biostrings::matchPWM}
 }
-Please note that the two methods might give slightly different results (see details).}
+Please note that the two methods might give slightly different results
+(see details).}
 
 \item{homerfile}{Path and file name of the \code{homer2} binary.}
 
-\item{Ncpu}{Number of parallel threads (only for \code{method="homer2"}, default: 1).}
+\item{BPPARAM}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
+instance determining the parallel back-end to be used during evaluation.}
 
-\item{genome}{\code{BSgenome} object that is the reference genome of the subject. This
-argument is set to NULL by default and only used by the function when the subject is
-a \code{GRanges} object. It is then necessary to specify the genome so that the function
-can internally convert the genomic regions into a \code{DNAStringSet} object.}
+\item{genome}{\code{BSgenome} object that is the reference genome of the
+subject. This argument is set to NULL by default and only used by the
+function when the subject is a \code{GRanges} object. It is then
+necessary to specify the genome so that the function can internally
+convert the genomic regions into a \code{DNAStringSet} object.}
 }
 \value{
-A \code{GRanges} object with the matches to \code{query} in \code{subject}.
+A \code{GRanges} object with the matches to \code{query} in
+    \code{subject}.
 }
 \description{
 \code{findMotifHits} scans sequences (either provided
@@ -186,25 +189,32 @@ as a file, an R object or genomic coordinates)  for matches to
 positional weight matrices (provided as a file or as R objects)
 }
 \details{
-The two implemented methods (\code{matchPWM} and \code{homer2}) are there
-    for convenience (\code{matchPWM} is available as an R package and does not
-    have any software dependencies outside of R) and for efficiency (\code{homer2}
-    is typically faster but requires a separate installation of Homer).
+The implemented methods (\code{matchPWM} and \code{homer2}) are
+    there for convenience (\code{method="matchPWM"} calls
+    \code{Biostrings::matchPWM} internally in an optimized fashion, and
+    \code{method = "homer2"} calls the command line tool from Homer and
+    therefore requires an installation of Homer).
 
-    In general, running \code{findMotifHits} with the same parameters using the two
-    methods generates identical results. Some minor differences could occur and result
-    from rounding errors during the necessary conversion of PWMs (log2-odd scores) to
-    the probability matrices needed by Homer, and the conversion of score from and to
-    the natural log scale used by Homer. These conversions are implemented transparently
-    for the user, so that the arguments of \code{findMotifHits} do not have to be
-    adjusted (e.g. the PWMs shold always contain log2-odd scores, and \code{min.score}
-    is always on the log2 scale).
+    In general, running \code{findMotifHits} with the same parameters using
+    any of the methods generates identical results. Some minor differences
+    could occur that result from rounding errors during the necessary
+    conversion of PWMs (log2-odd scores) to the probability matrices needed
+    by Homer, and the conversion of scores from and to the natural log scale
+    used by Homer. These conversions are implemented transparently for the
+    user, so that the arguments of \code{findMotifHits} do not have to be
+    adjusted (e.g. the PWMs should always contain log2-odd scores, and
+    \code{min.score} is always on the log2 scale).
+
+    If there are bases with frequencies of less than 0.001 in a motif, Homer
+    will set them to 0.001 and adjust the other frequencies at that motif
+    position accordingly so that they sum to 1.0. This may differ from the
+    adjustment used when scanning a PWM with \code{matchPWM} (e.g. the
+    \code{pseudocounts} argument in the \code{\link[TFBSTools]{toPWM}}
+    function), and thus can give rise to differences in reported motif hits
+    and hit scores (typically only low-scoring hits).
 }
 \examples{
 \dontrun{
 findMotifHits(pwm, "sequences.fa")
 }
-}
-\seealso{
-\code{\link[Biostrings]{matchPWM}}, \code{\link[TFBSTools]{searchSeq}}
 }

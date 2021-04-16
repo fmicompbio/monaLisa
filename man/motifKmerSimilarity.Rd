@@ -4,7 +4,7 @@
 \alias{motifKmerSimilarity}
 \title{Calculate similarities between motifs and k-mers.}
 \usage{
-motifKmerSimilarity(x, kmerLen = 5, Ncpu = 1L, verbose = TRUE)
+motifKmerSimilarity(x, kmerLen = 5, BPPARAM = SerialParam(), verbose = FALSE)
 }
 \arguments{
 \item{x}{Either a \code{\link[TFBSTools]{PFMatrixList}}, or a character
@@ -15,8 +15,8 @@ for \code{method = "R"}).}
 
 \item{kmerLen}{A \code{numeric} scalar giving the k-mer length.}
 
-\item{Ncpu}{The number of CPU cores to use when calculating similarities.
-This uses \code{\link[parallel]{mclapply}}.}
+\item{BPPARAM}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
+instance determining the parallel back-end to be used during evaluation.}
 
 \item{verbose}{A logical scalar. If \code{TRUE}, report on progress.}
 }
@@ -32,5 +32,5 @@ For each motif, calculate it's similarity to all k-mers of
   all bases to have a frequency of 0.25).
 }
 \seealso{
-\code{\link[parallel]{mclapply}} for how parallelization is done.
+\code{\link[BiocParallel]{bplapply}} used for parallelization.
 }

@@ -33,7 +33,9 @@ reference:
   desc: "Bin regions of interest and analyse motifs enrichments in bins."
   contents:
     - '`bin`'
-    - '`runHomer`'
+    - '`calcBinnedMotifEnr`'
+    - '`calcBinnedMotifEnrHomer`'
+    - '`calcBinnedMotifEnrR`'
     - '`plotBinDensity`'
     - '`plotBinHist`'
     - '`plotBinScatter`'
@@ -43,14 +45,14 @@ reference:
   contents:
     - '`getKmerFreq`'
     - '`countKmerPairs`'
-    - '`kmerEnrichments`'
+    - '`calcBinnedKmerEnr`'
     - '`convertKmersToMotifs`'
     - '`clusterKmers`'
+    - '`extractOverlappingKmerFrequecies`'
 - title: Identify predictive motifs using stability selection
   desc: "Functions for selecting motifs that explain observed changes using Stability Selection."
   contents:
-    - '`randomized_stabsel`'
-    - '`plotMotifDirectionality`'
+    - '`randLassoStabSel`'
     - '`plotSelectionProb`'
     - '`plotStabilityPaths`'
 - title: Miscellaneous
@@ -63,11 +65,11 @@ reference:
     - '`findHomer`'
     - '`prepareHomer`'
     - '`parseHomerOutput`'
-    - '`getColsByBin`'
-    - '`glmnet.randomized_lasso`'
     - '`motifSimilarity`'
     - '`motifKmerSimilarity`'
     - '`seqLogoGrob`'
+    - '`getColsByBin`'
+    - '`sample_random_regions`'
 
 template:
   params:

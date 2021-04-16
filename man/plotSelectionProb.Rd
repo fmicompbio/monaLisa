@@ -2,37 +2,68 @@
 % Please edit documentation in R/plotting.R
 \name{plotSelectionProb}
 \alias{plotSelectionProb}
-\title{Barplot Selection Probabilities}
+\title{Plot selection probabilities of predictors}
 \usage{
 plotSelectionProb(
-  stabs_object,
-  ylim = c(0, 1.1),
-  onlySelected = TRUE,
-  sel_color = "cadetblue",
-  las = 2,
+  se,
+  directional = TRUE,
+  selProbMin = metadata(se)$stabsel.params.cutoff,
+  selProbMinPlot = 0.4,
+  showSelProbMin = TRUE,
+  col = c("cadetblue", "grey", "red"),
+  method = c("pearson", "kendall", "spearman"),
+  ylimext = 0.25,
   ...
 )
 }
 \arguments{
-\item{stabs_object}{the \code{stabs} object resulting from stability selection.}
+\item{se}{The \code{SummarizedExperiment} object with the results from
+stability selection (typically returned by \code{\link{randLassoStabSel}}).}
 
-\item{ylim}{the limits for the y-axis.}
+\item{directional}{A logical scalar. If \code{TRUE}, selection probabilities
+are plotted with the sign of the marginal correlation between a predictor
+and the response.}
 
-\item{onlySelected}{logical (default=TRUE) indicating if only selected predictors' selection probabilities
-should be plotted.}
+\item{selProbMin}{A numerical scalar in [0,1]. Predictors with a selection
+probability greater than \code{selProbMin} are shown as colored bars. The
+color is defined by \code{col[1]}. By default, \code{selProbMin} is
+extracted from the parameters stored in \code{se}.}
 
-\item{sel_color}{color of the selected predictors.}
+\item{selProbMinPlot}{A numerical scalar in [0,1] less than \code{selProbMin}.
+Predictors with a selection probability greater than \code{selProbMinPlot}
+but less than \code{selProbMin} are shown as bars with color \code{col[2]}.
+\code{selProbMinPlot} is useful to include additional predictors in the plot
+that were not selected according to \code{selProbMin} but may be close to
+that cutoff. Setting \code{selProbMinPlot = 0} will create a plot including
+all predictors.}
 
-\item{las}{(2 by default) plot labels vertically or horizontally.}
+\item{showSelProbMin}{A logical scalar. If \code{TRUE}, the value of
+\code{selProbMin} is shown by a horizontal dashed line of color \code{col[3]}.}
 
-\item{...}{additional parameters for the \code{barplot} function.}
+\item{col}{A color vector giving the three colors used for predictors with
+selection probability greater than \code{selProbMin}, additional predictors
+with selection probability greater than \code{selProbMinPlot}, and the
+selection probability cutoff line.}
+
+\item{method}{A character scalar with the correlation method to use in the
+calculation of predictor-response marginal correlations. One of "pearson",
+"kendall" or "spearman" (see \code{\link[stats]{cor}}).}
+
+\item{ylimext}{A numeric scalar defining how much the y axis limits should be
+expanded beyond the plotted probabilities to allow for space for the
+bar labels.}
+
+\item{...}{additional parameters passed to \code{\link[graphics]{barplot}}.}
 }
 \value{
-barplot of selection probabilities.
+\code{TRUE} (invisible). The function is called to create a barplot
+  indicating the selection probability and optionally directionality of the
+  predictors (motifs).
 }
 \description{
-Create a bar plot of the selection probabilities in descending order.
-}
-\seealso{
-\code{\link[graphics]{barplot}}
+This function plots the selection probabilities of predictors
+  (for example the selected motifs), optionally multiplied with either +1 or
+  -1 to give a sense of both the strength and the directionality of the
+  associated effects. The directionality is estimated from the sign of the
+  correlation coefficient between each predictor and the response vector.
 }

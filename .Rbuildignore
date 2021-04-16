@@ -3,3 +3,4 @@
 ^.ls$
 ^.travis.yml$
 ^vignettes\/figure$
+^.github$

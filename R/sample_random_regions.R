@@ -20,19 +20,16 @@
 #'
 #' @export
 sample_random_regions <- function(allowedRegions = NULL, N = 100L,
-																	regWidth = 200L, seed = 123){
+                                  regWidth = 200L, seed = 123){
 
+    .assertScalar(x = N, type = "numeric")
+    .assertScalar(x = regWidth, type = "numeric")
+    .assertScalar(x = seed, type = "numeric")
 	stopifnot(exprs = {
-		length(N) == 1
-		is.numeric(N)
-		length(regWidth) == 1
-		is.numeric(regWidth)
-		class(allowedRegions) == "GRanges"
+		is(allowedRegions, "GRanges")
 		length(allowedRegions) > 0
 		sum(width(allowedRegions) >= regWidth) > 0
-		unique(strand(allowedRegions)) == "*"
-		length(seed) == 1
-		is.numeric(seed)
+		all(strand(allowedRegions) == "*")
 	})
 
 	#in case these parameters are not integers, round to integer

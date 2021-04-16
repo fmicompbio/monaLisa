@@ -6,9 +6,9 @@
 \usage{
 getColsByBin(
   b,
-  col1 = c("#3F007D", "#54278F", "#6A51A3", "#807DBA", "#9E9AC8", "#BCBDDC", "#DADAEB"),
-  col2 = c("#FDD0A2", "#FDAE6B", "#FD8D3C", "#F16913", "#D94801", "#A63603", "#7F2704"),
-  col0 = "AAAAAA33"
+  col1 = c("#003C30", "#01665E", "#35978F", "#80CDC1", "#C7EAE5"),
+  col2 = c("#F6E8C3", "#DFC27D", "#BF812D", "#8C510A", "#543005"),
+  col0 = "#F5F5F5"
 )
 }
 \arguments{

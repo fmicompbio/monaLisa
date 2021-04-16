@@ -8,15 +8,21 @@
 
 ## Overview
 
-`monaLisa` makes use of her father [Homer](http://homer.ucsd.edu/homer/index.html)
-to look for enriched motifs in sets of genomic regions, compared to all other regions.
+`monaLisa` was inspired by her father [Homer](http://homer.ucsd.edu/homer/index.html)
+to look for enriched motifs in sets (bins) of genomic regions, compared to all other
+regions ("binned motif enrichment analysis").
 
-The motifs come from a collection of transcription factor binding site specificities,
-such as `JASPAR2018`. The regions could be for example promoters or accessible regions.
-The regions are grouped into bins according to a numerical value assigned to each
-bin, such as change of expression or accessibility.
+It uses known motifs representing transcription factor binding preferences,
+for example for the `JASPAR2018` Bioconductor package. The regions are for
+example promoters or accessible regions, which are grouped into bins according
+to a numerical value assigned to each region, such as change of expression
+or accessibility. The goal of the analysis is to identify transcription
+factors that are associated to that numerical value and thus candidates
+to be drivers in the underlying biological process.
 
-Finally, `monaLisa` can also be used to look for motifs in sequences.
+In addition to the "binned motif enrichment analysis", `monaLisa` can also be
+used to address the above question using stability selection (a form of linear
+regression), or to look for motif matchess in sequences.
 
 Current contributors include:
 
@@ -26,52 +32,55 @@ Current contributors include:
 
 ## Functionality
 
-A minimal example to run `monaLisa` looks like:
+Here is a minimal example to run a `monaLisa` analysis:
 
 ```
-# load package
 library(monaLisa)
 
-# bin regions
-# (atac.peaks.change is a numberical vector)
-bins <- bin(x = atac.peaks.change, binmode = "equalN", nElement = 400)
-
-# dump motifs into file
-motiffile <- dumpJaspar("jaspar2018.motif", pkg = "JASPAR2018")
-
-# find Homer (findMotifsGenome.pl)
-homerfile <- findHomer(dirs = "/path/to/look/into")
-
-# run analysis
-# (atac.peaks is a GRanges)
-resL <- runHomer(gr = atac.peaks, b = bins, genomedir = "/work/gbioinfo/DB/genomes/mm10",
-                 outdir = "myresults", motifFile = "jaspar2018.motif", homerfile = homerfile,
-                 regionsize = "given", Ncpu = 4L)
-
+mcparams <- BiocParallel::MulticoreParam(10L)
+se <- calcBinnedMotifEnr(seqs = seqs,   # DNAStringSet (e.g. peak sequences)
+                         bins = bins,   # factor that groups 'seqs'
+                         motifs = pwms, # PWMatrixList (know motifs)
+                         method = "R",
+                         BPPARAM = mcparams,
+                         min.score = 10,
+                         verbose = TRUE)
 ```
 
+The return value `se` is a `SummarizedExperiment` with motifs in rows and bins
+in columns, and multiple assays with significance and magnitude of the enrichments.
+
+The inputs for `calcBinnedMotifEnr` can be easily obtained using other
+Bioconductor packages:  
+```
+# get sequences ('atacPeaks' is a GRanges)
+library(Biostrings)
+library(BSgenome.Mmusculus.UCSC.mm10)
+seqs <- getSeq(BSgenome.Mmusculus.UCSC.mm10, atacPeaks)
+
+# bin sequences ('atacPeaksChange' is a numberical vector)
+bins <- bin(x = atacPeaksChange, binmode = "equalN", nElement = 400)
+
+# obtain known motifs from Jaspar
+library(JASPAR2018)
+library(TFBSTools)
+pwms <- getMatrixSet(JASPAR2018, list(matrixtype = "PWM", tax_group = "vertebrates"))
+```
+
+The results can be conveniently visualized:
+```
+plotBinDensity(atacPeaksChange, bins, legend = FALSE)
+```
+<img src="vignettes/monaLisa_binning_small.png" align="center" alt="binning" width="412px"/>
+
+```
+plotMotifHeatmaps(se, cluster = TRUE,
+                  which.plots = c("enr", "FDR"),
+                  show_seqlogo = TRUE)
+```
+<img src="vignettes/monaLisa_heatmaps_small.png" align="center" alt="heatmaps" width="501px"/>
+
 ## Software status
 
-Travis CI (Linux): [![Travis CI build status](https://travis-ci.com/fmicompbio/monaLisa.svg?branch=master)](https://travis-ci.com/fmicompbio/monaLisa) [![Codecov.io coverage status](https://codecov.io/github/fmicompbio/monaLisa/coverage.svg?branch=master)](https://codecov.io/github/fmicompbio/monaLisa)
+Github Actions (multiple OS): [![R build status](https://github.com/fmicompbio/monaLisa/workflows/R-CMD-check/badge.svg)](https://github.com/fmicompbio/monaLisa/actions) [![Codecov.io coverage status](https://codecov.io/github/fmicompbio/monaLisa/coverage.svg?branch=master)](https://codecov.io/github/fmicompbio/monaLisa)
 
-<!--
-## Reference
-`EISA` has been described in:  
-
-"Analysis of intronic and exonic reads in RNA-seq data characterizes
-transcriptional and post-transcriptional regulation."  
-Gaidatzis D., Burger L., Florescu M. and Stadler, M.B.  
-*Nat Biotechnol.* **2015**; 33(7):722-9.
-[PubMed: 26098447](https://www.ncbi.nlm.nih.gov/pubmed/26098447), [doi: 10.1038/nbt.3269](https://doi.org/10.1038/nbt.3269)
-
-## Download from Bioconductor
-[QuasR download page](https://bioconductor.org/packages/QuasR/)
-
-## Software status
-
-| Platforms |  OS  | R CMD check | Coverage | 
-|:----------------:|:----------------:|:----------------:|:----------------:|
-| Travis CI | Linux | [![Travis CI build status](https://travis-ci.com/fmicompbio/QuasR.svg?branch=master)](https://travis-ci.com/fmicompbio/QuasR) | [![Codecov.io coverage status](https://codecov.io/github/fmicompbio/QuasR/coverage.svg?branch=master)](https://codecov.io/github/fmicompbio/QuasR) |
-| Bioc ([_devel_](http://bioconductor.org/packages/devel/bioc/html/QuasR.html)) | Multiple | [![Bioconductor-devel Build Status](http://bioconductor.org/shields/build/devel/bioc/QuasR.svg)](http://bioconductor.org/checkResults/devel/bioc-LATEST/QuasR) | `NA` |
-| Bioc ([_release_](http://bioconductor.org/packages/release/bioc/html/QuasR.html)) | Multiple | [![Bioconductor-release Build Status](http://bioconductor.org/shields/build/release/bioc/QuasR.svg)](http://bioconductor.org/checkResults/release/bioc-LATEST/QuasR) | `NA` |
--->

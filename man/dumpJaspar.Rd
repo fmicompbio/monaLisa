@@ -8,7 +8,8 @@ dumpJaspar(
   filename,
   pkg = "JASPAR2018",
   opts = list(tax_group = "vertebrates"),
-  relScoreCutoff = 0.8
+  relScoreCutoff = 0.8,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -21,6 +22,8 @@ dumpJaspar(
 \item{relScoreCutoff}{Currently ignored. numeric(1) in [0,1] that sets the default motif
 log-odds score cutof to relScoreCutoff * maximal score for each PWM
 (default: 0.8).}
+
+\item{verbose}{A logical scalar. If \code{TRUE}, print progress messages.}
 }
 \value{
 \code{TRUE} if successful.

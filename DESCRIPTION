@@ -1,7 +1,7 @@
 Package: monaLisa
 Type: Package
 Title: Binned Motif Enrichment Analysis and Visualization
-Version: 0.1.30
+Version: 0.1.41
 Authors@R: c(
     person("Dania", "Machlab", email = "dania.machlab@fmi.ch", role = c("aut")),
     person("Lukas", "Burger", email = "lukas.burger@fmi.ch", role = c("aut")),
@@ -16,6 +16,7 @@ Imports:
     utils,
     grDevices,
     graphics,
+    BiocGenerics,
     GenomicRanges,
     TFBSTools,
     Biostrings,
@@ -25,6 +26,7 @@ Imports:
     glmnet,
     S4Vectors,
     SummarizedExperiment,
+    BiocParallel,
     grid,
     circlize,
     ComplexHeatmap (>= 2.0.0),
@@ -33,12 +35,12 @@ Imports:
     igraph,
     GenomeInfoDb,
     Rcpp
-Suggests: JASPAR2018, BSgenome.Hsapiens.UCSC.hg19, TxDb.Hsapiens.UCSC.hg19.knownGene,
-    knitr, rmarkdown, testthat, BSgenome.Mmusculus.UCSC.mm10, BiocStyle, gridExtra
+Suggests: JASPAR2018, BSgenome.Mmusculus.UCSC.mm10, TxDb.Mmusculus.UCSC.mm10.knownGene,
+    knitr, rmarkdown, testthat, BiocStyle, gridExtra
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 VignetteBuilder: knitr
 LinkingTo: 
     Rcpp,
