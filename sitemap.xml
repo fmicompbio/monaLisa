@@ -10,6 +10,18 @@
     <loc>https://fmicompbio.github.io/monaLisa/reference/bin.html</loc>
   </url>
   <url>
+    <loc>https://fmicompbio.github.io/monaLisa/reference/calcBinnedKmerEnr.html</loc>
+  </url>
+  <url>
+    <loc>https://fmicompbio.github.io/monaLisa/reference/calcBinnedMotifEnr.html</loc>
+  </url>
+  <url>
+    <loc>https://fmicompbio.github.io/monaLisa/reference/calcBinnedMotifEnrHomer.html</loc>
+  </url>
+  <url>
+    <loc>https://fmicompbio.github.io/monaLisa/reference/calcBinnedMotifEnrR.html</loc>
+  </url>
+  <url>
     <loc>https://fmicompbio.github.io/monaLisa/reference/clusterKmers.html</loc>
   </url>
   <url>
@@ -17,6 +29,27 @@
   </url>
   <url>
     <loc>https://fmicompbio.github.io/monaLisa/reference/countKmerPairs.html</loc>
+  </url>
+  <url>
+    <loc>https://fmicompbio.github.io/monaLisa/reference/dot-calcMotifEnrichment.html</loc>
+  </url>
+  <url>
+    <loc>https://fmicompbio.github.io/monaLisa/reference/dot-calculateGCweight.html</loc>
+  </url>
+  <url>
+    <loc>https://fmicompbio.github.io/monaLisa/reference/dot-checkDfValidity.html</loc>
+  </url>
+  <url>
+    <loc>https://fmicompbio.github.io/monaLisa/reference/dot-filterSeqs.html</loc>
+  </url>
+  <url>
+    <loc>https://fmicompbio.github.io/monaLisa/reference/dot-glmnetRandomizedLasso.html</loc>
+  </url>
+  <url>
+    <loc>https://fmicompbio.github.io/monaLisa/reference/dot-iterativeNormForKmers.html</loc>
+  </url>
+  <url>
+    <loc>https://fmicompbio.github.io/monaLisa/reference/dot-normForKmers.html</loc>
   </url>
   <url>
     <loc>https://fmicompbio.github.io/monaLisa/reference/dumpJaspar.html</loc>
@@ -37,13 +70,7 @@
     <loc>https://fmicompbio.github.io/monaLisa/reference/getKmerFreq.html</loc>
   </url>
   <url>
-    <loc>https://fmicompbio.github.io/monaLisa/reference/glmnet.randomized_lasso.html</loc>
-  </url>
-  <url>
     <loc>https://fmicompbio.github.io/monaLisa/reference/homerToPFMatrixList.html</loc>
-  </url>
-  <url>
-    <loc>https://fmicompbio.github.io/monaLisa/reference/kmerEnrichments.html</loc>
   </url>
   <url>
     <loc>https://fmicompbio.github.io/monaLisa/reference/monaLisa-package.html</loc>
@@ -67,9 +94,6 @@
     <loc>https://fmicompbio.github.io/monaLisa/reference/plotBinScatter.html</loc>
   </url>
   <url>
-    <loc>https://fmicompbio.github.io/monaLisa/reference/plotMotifDirectionality.html</loc>
-  </url>
-  <url>
     <loc>https://fmicompbio.github.io/monaLisa/reference/plotMotifHeatmaps.html</loc>
   </url>
   <url>
@@ -82,10 +106,7 @@
     <loc>https://fmicompbio.github.io/monaLisa/reference/prepareHomer.html</loc>
   </url>
   <url>
-    <loc>https://fmicompbio.github.io/monaLisa/reference/randomized_stabsel.html</loc>
-  </url>
-  <url>
-    <loc>https://fmicompbio.github.io/monaLisa/reference/runHomer.html</loc>
+    <loc>https://fmicompbio.github.io/monaLisa/reference/randLassoStabSel.html</loc>
   </url>
   <url>
     <loc>https://fmicompbio.github.io/monaLisa/reference/sample_random_regions.html</loc>

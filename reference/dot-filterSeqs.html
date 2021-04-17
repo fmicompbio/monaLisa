@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get colors by bin. — getColsByBin • monaLisa</title>
+<title>Filter Sequences — .filterSeqs • monaLisa</title>
 
 
 <!-- jquery -->
@@ -39,11 +39,9 @@
 
 
 
-<meta property="og:title" content="Get colors by bin. — getColsByBin" />
-<meta property="og:description" content="Get colors for elements according to their bin.
-    Colors are assigned to bins forming a gradient from col1
-    to col2 in the order of levels{b}. col0 is assigned
-    to the neutral bin (attribute &quot;&quot;) if available." />
+<meta property="og:title" content="Filter Sequences — .filterSeqs" />
+<meta property="og:description" content="Filter sequences that are unlikely to be useful for motif
+  enrichment analysis. The current defaults are based on HOMER (version 4.11)." />
 
 
 
@@ -129,53 +127,59 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get colors by bin.</h1>
+    <h1>Filter Sequences</h1>
     
-    <div class="hidden name"><code>getColsByBin.Rd</code></div>
+    <div class="hidden name"><code>dot-filterSeqs.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Get colors for elements according to their bin.
-    Colors are assigned to bins forming a gradient from <code>col1</code>
-    to <code>col2</code> in the order of <code>levels{b}</code>. <code>col0</code> is assigned
-    to the neutral bin (attribute <code>""</code>) if available.</p>
+    <p>Filter sequences that are unlikely to be useful for motif
+  enrichment analysis. The current defaults are based on HOMER (version 4.11).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getColsByBin</span><span class='op'>(</span>
-  <span class='va'>b</span>,
-  col1 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"#003C30"</span>, <span class='st'>"#01665E"</span>, <span class='st'>"#35978F"</span>, <span class='st'>"#80CDC1"</span>, <span class='st'>"#C7EAE5"</span><span class='op'>)</span>,
-  col2 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"#F6E8C3"</span>, <span class='st'>"#DFC27D"</span>, <span class='st'>"#BF812D"</span>, <span class='st'>"#8C510A"</span>, <span class='st'>"#543005"</span><span class='op'>)</span>,
-  col0 <span class='op'>=</span> <span class='st'>"#F5F5F5"</span>
+    <pre class="usage"><span class='fu'><a href='dot-filterSeqs.html'>.filterSeqs</a></span><span class='op'>(</span>
+  <span class='va'>seqs</span>,
+  maxFracN <span class='op'>=</span> <span class='fl'>0.7</span>,
+  minLength <span class='op'>=</span> <span class='fl'>5L</span>,
+  maxLength <span class='op'>=</span> <span class='fl'>100000L</span>,
+  verbose <span class='op'>=</span> <span class='cn'>FALSE</span>
 <span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>b</th>
-      <td><p>A factor that groups elements into bins (typically the output of
-<code><a href='bin.html'>bin</a></code>).</p></td>
+      <th>seqs</th>
+      <td><p>a <code>DNAStringSet</code> object.</p></td>
     </tr>
     <tr>
-      <th>col1</th>
-      <td><p>First color.</p></td>
+      <th>maxFracN</th>
+      <td><p>A numeric scalar with the maximal fraction of N bases allowed
+in a sequence (defaults to 0.7).</p></td>
     </tr>
     <tr>
-      <th>col2</th>
-      <td><p>Second color.</p></td>
+      <th>minLength</th>
+      <td><p>The minimum sequence length (default from Homer).
+Sequences shorter than this will be filtered out.</p></td>
     </tr>
     <tr>
-      <th>col0</th>
-      <td><p>Neutral color.</p></td>
+      <th>maxLength</th>
+      <td><p>The maximum sequence length (default from Homer).
+Sequences bigger than this will be filtered out.</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>A logical scalar. If <code>TRUE</code>, report on filtering.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A character vector with colors for the elements in <code>b</code>.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+    <p>a logical vector of the same length as <code>seqs</code> with <code>TRUE</code>
+  indicated to keep the sequence and <code>FALSE</code> to filter it out.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <div class='dont-index'><p><code><a href='bin.html'>bin</a></code>.</p></div>
+    <p>The filtering logic is based on <code>removePoorSeq.pl</code> from Homer.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

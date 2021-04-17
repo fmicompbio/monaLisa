@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Match a set of kmers to input sequences and determine frequencies of overlapping matches. — extractOverlappingKmerFrequecies • monaLisa</title>
+<title>Match a set of k-mers to input sequences and determine frequencies of overlapping matches. — extractOverlappingKmerFrequecies • monaLisa</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,11 @@
 
 
 
-<meta property="og:title" content="Match a set of kmers to input sequences and determine frequencies of overlapping matches. — extractOverlappingKmerFrequecies" />
-<meta property="og:description" content="Using a set of kmers, search input sequences for matches and retrieve
-   the frequencies of sequences overlapping with 1 or more overlapping kmers." />
+<meta property="og:title" content="Match a set of k-mers to input sequences and determine frequencies of overlapping matches. — extractOverlappingKmerFrequecies" />
+<meta property="og:description" content="Using a set of k-mers, search input sequences for matches and retrieve
+     the frequencies of sequences overlapping with 1 or more overlapping k-mers." />
+
+
 
 
 
@@ -57,9 +59,16 @@
 
 
 
+
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -73,19 +82,13 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.30</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.42</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/monaLisa.html">Get started</a>
 </li>
 <li>
@@ -107,7 +110,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/fmicompbio/monaLisa">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fas fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -124,17 +127,17 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Match a set of kmers to input sequences and determine frequencies of overlapping matches.</h1>
+    <h1>Match a set of k-mers to input sequences and determine frequencies of overlapping matches.</h1>
     
     <div class="hidden name"><code>extractOverlappingKmerFrequecies.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Using a set of kmers, search input sequences for matches and retrieve
-   the frequencies of sequences overlapping with 1 or more overlapping kmers.</p>
+    <p>Using a set of k-mers, search input sequences for matches and retrieve
+     the frequencies of sequences overlapping with 1 or more overlapping k-mers.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>extractOverlappingKmerFrequecies</span>(<span class='no'>seqs</span>, <span class='no'>x</span>, <span class='kw'>Ncpu</span> <span class='kw'>=</span> <span class='fl'>1L</span>)</pre>
+    <pre class="usage"><span class='fu'>extractOverlappingKmerFrequecies</span><span class='op'>(</span><span class='va'>seqs</span>, <span class='va'>x</span>, BPPARAM <span class='op'>=</span> <span class='fu'>SerialParam</span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -146,18 +149,24 @@
     </tr>
     <tr>
       <th>x</th>
-      <td><p>A <code>character</code> vector of enriched kmers.</p></td>
+      <td><p>A <code>character</code> vector of enriched k-mers.</p></td>
     </tr>
     <tr>
-      <th>Ncpu</th>
-      <td><p>The number of CPU cores to used. <code><a href='https://rdrr.io/r/parallel/mclapply.html'>mclapply</a></code> is used.</p></td>
+      <th>BPPARAM</th>
+      <td><p>An optional <code><a href='https://rdrr.io/pkg/BiocParallel/man/BiocParallelParam-class.html'>BiocParallelParam</a></code>
+instance determining the parallel back-end to be used during evaluation.</p></td>
     </tr>
     </table>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>A named integer vector with the number of observed occurrences of
+  sequences overlapping enriched k-mers. The sequences are given as the
+  names, and the elements are sorted by decreasing frequency.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='kmerEnrichments.html'>kmerEnrichments</a></code> for performing a k-mer enrichment
-  analysis, <code><a href='https://rdrr.io/r/parallel/mclapply.html'>mclapply</a></code> for how parallelization is done.</p></div>
+    <div class='dont-index'><p><code><a href='calcBinnedKmerEnr.html'>calcBinnedKmerEnr</a></code> for performing a k-mer enrichment
+    analysis, <code><a href='https://rdrr.io/pkg/BiocParallel/man/bplapply.html'>bplapply</a></code> used for parallelization.</p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -170,11 +179,11 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://github.com/machlabd'>Dania Machlab</a>, <a href='https://github.com/LukasBurger'>Lukas Burger</a>, <a href='https://github.com/mbstadler'>Michael Stadler</a>.</p>
+  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
 </div>
 
       </footer>
@@ -182,6 +191,8 @@
 
   
 
+
+  
 
   </body>
 </html>

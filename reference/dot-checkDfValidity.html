@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get colors by bin. — getColsByBin • monaLisa</title>
+<title>Check if seqinfo DataFrame is valid — .checkDfValidity • monaLisa</title>
 
 
 <!-- jquery -->
@@ -39,11 +39,10 @@
 
 
 
-<meta property="og:title" content="Get colors by bin. — getColsByBin" />
-<meta property="og:description" content="Get colors for elements according to their bin.
-    Colors are assigned to bins forming a gradient from col1
-    to col2 in the order of levels{b}. col0 is assigned
-    to the neutral bin (attribute &quot;&quot;) if available." />
+<meta property="og:title" content="Check if seqinfo DataFrame is valid — .checkDfValidity" />
+<meta property="og:description" content="Check if the DataFrame with sequence information is valid,
+  i.e. is of the correct object type (DataFrame) and has all expected
+  columns and attributes." />
 
 
 
@@ -129,53 +128,43 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get colors by bin.</h1>
+    <h1>Check if seqinfo DataFrame is valid</h1>
     
-    <div class="hidden name"><code>getColsByBin.Rd</code></div>
+    <div class="hidden name"><code>dot-checkDfValidity.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Get colors for elements according to their bin.
-    Colors are assigned to bins forming a gradient from <code>col1</code>
-    to <code>col2</code> in the order of <code>levels{b}</code>. <code>col0</code> is assigned
-    to the neutral bin (attribute <code>""</code>) if available.</p>
+    <p>Check if the DataFrame with sequence information is valid,
+  i.e. is of the correct object type (DataFrame) and has all expected
+  columns and attributes.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getColsByBin</span><span class='op'>(</span>
-  <span class='va'>b</span>,
-  col1 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"#003C30"</span>, <span class='st'>"#01665E"</span>, <span class='st'>"#35978F"</span>, <span class='st'>"#80CDC1"</span>, <span class='st'>"#C7EAE5"</span><span class='op'>)</span>,
-  col2 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"#F6E8C3"</span>, <span class='st'>"#DFC27D"</span>, <span class='st'>"#BF812D"</span>, <span class='st'>"#8C510A"</span>, <span class='st'>"#543005"</span><span class='op'>)</span>,
-  col0 <span class='op'>=</span> <span class='st'>"#F5F5F5"</span>
-<span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'><a href='dot-checkDfValidity.html'>.checkDfValidity</a></span><span class='op'>(</span><span class='va'>df</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>b</th>
-      <td><p>A factor that groups elements into bins (typically the output of
-<code><a href='bin.html'>bin</a></code>).</p></td>
-    </tr>
-    <tr>
-      <th>col1</th>
-      <td><p>First color.</p></td>
-    </tr>
-    <tr>
-      <th>col2</th>
-      <td><p>Second color.</p></td>
-    </tr>
-    <tr>
-      <th>col0</th>
-      <td><p>Neutral color.</p></td>
+      <th>df</th>
+      <td><p>Input object to be checked. It should have an attribute <code>err</code>
+and columns:</p><ul>
+<li><p><code>seqs</code>: a <code>DNAStringSet</code> object.</p></li>
+<li><p><code>isForeground</code> that indicates if a sequence is in the
+                              foreground group.</p></li>
+<li><p><code>GCfrac</code>: the fraction of G+C bases per sequence.</p></li>
+<li><p><code>GCbin</code>: the GC bin for each sequence.</p></li>
+<li><p><code>GCwgt</code>: the sequence weight to adjust for GC
+    differences between foreground and background sequences.</p></li>
+<li><p><code>seqWgt</code>: the sequence weight to adjust for k-mer
+    differences between foreground and background sequences.</p></li>
+</ul></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A character vector with colors for the elements in <code>b</code>.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p><code><a href='bin.html'>bin</a></code>.</p></div>
+    <p><code>TRUE</code> (invisibly) if <code>df</code> is valid, otherwise it
+  raises an exception using <code><a href='https://rdrr.io/r/base/stop.html'>stop()</a></code></p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

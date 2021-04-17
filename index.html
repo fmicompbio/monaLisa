@@ -21,6 +21,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -33,18 +35,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.30</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.42</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="articles/monaLisa.html">Get started</a>
 </li>
@@ -67,7 +63,7 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/fmicompbio/monaLisa">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fas fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -93,65 +89,56 @@
 <div id="overview" class="section level2">
 <h2 class="hasAnchor">
 <a href="#overview" class="anchor"></a>Overview</h2>
-<p><code>monaLisa</code> makes use of her father <a href="http://homer.ucsd.edu/homer/index.html">Homer</a> to look for enriched motifs in sets of genomic regions, compared to all other regions.</p>
-<p>The motifs come from a collection of transcription factor binding site specificities, such as <code>JASPAR2018</code>. The regions could be for example promoters or accessible regions. The regions are grouped into bins according to a numerical value assigned to each bin, such as change of expression or accessibility.</p>
-<p>Finally, <code>monaLisa</code> can also be used to look for motifs in sequences.</p>
+<p><code>monaLisa</code> was inspired by her father <a href="http://homer.ucsd.edu/homer/index.html" class="external-link">Homer</a> to look for enriched motifs in sets (bins) of genomic regions, compared to all other regions (“binned motif enrichment analysis”).</p>
+<p>It uses known motifs representing transcription factor binding preferences, for example for the <code>JASPAR2018</code> Bioconductor package. The regions are for example promoters or accessible regions, which are grouped into bins according to a numerical value assigned to each region, such as change of expression or accessibility. The goal of the analysis is to identify transcription factors that are associated to that numerical value and thus candidates to be drivers in the underlying biological process.</p>
+<p>In addition to the “binned motif enrichment analysis”, <code>monaLisa</code> can also be used to address the above question using stability selection (a form of linear regression), or to look for motif matchess in sequences.</p>
 <p>Current contributors include:</p>
 <ul>
-<li><a href="https://github.com/mbstadler">Michael Stadler</a></li>
-<li><a href="https://github.com/machlabd">Dania Machlab</a></li>
-<li><a href="https://github.com/LukasBurger">Lukas Burger</a></li>
+<li><a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a></li>
+<li><a href="https://github.com/machlabd" class="external-link">Dania Machlab</a></li>
+<li><a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a></li>
 </ul>
 </div>
 <div id="functionality" class="section level2">
 <h2 class="hasAnchor">
 <a href="#functionality" class="anchor"></a>Functionality</h2>
-<p>A minimal example to run <code>monaLisa</code> looks like:</p>
-<pre><code><a href="https://rdrr.io/pkg/monaLisa/man"># load package
-library(monaLisa)
+<p>Here is a minimal example to run a <code>monaLisa</code> analysis:</p>
+<pre><code><a href="https://rdrr.io/r/base/library.html" class="external-link">library(monaLisa)
 
-# bin regions
-# (atac.peaks.change is a numberical vector)
-bins &lt;- bin(x = atac.peaks.change, binmode = "equalN", nElement = 400)
+mcparams &lt;- BiocParallel::MulticoreParam(10L)
+se &lt;- calcBinnedMotifEnr(seqs = seqs,   # DNAStringSet (e.g. peak sequences)
+                         bins = bins,   # factor that groups 'seqs'
+                         motifs = pwms, # PWMatrixList (know motifs)
+                         method = "R",
+                         BPPARAM = mcparams,
+                         min.score = 10,
+                         verbose = TRUE)</a></code></pre>
+<p>The return value <code>se</code> is a <code>SummarizedExperiment</code> with motifs in rows and bins in columns, and multiple assays with significance and magnitude of the enrichments.</p>
+<p>The inputs for <code>calcBinnedMotifEnr</code> can be easily obtained using other Bioconductor packages:</p>
+<pre><code><a href="https://bioconductor.org/packages/Biostrings" class="external-link"># get sequences ('atacPeaks' is a GRanges)
+library(Biostrings)
+library(BSgenome.Mmusculus.UCSC.mm10)
+seqs &lt;- getSeq(BSgenome.Mmusculus.UCSC.mm10, atacPeaks)
 
-# dump motifs into file
-motiffile &lt;- dumpJaspar("jaspar2018.motif", pkg = "JASPAR2018")
+# bin sequences ('atacPeaksChange' is a numberical vector)
+bins &lt;- bin(x = atacPeaksChange, binmode = "equalN", nElement = 400)
 
-# find Homer (findMotifsGenome.pl)
-homerfile &lt;- findHomer(dirs = "/path/to/look/into")
-
-# run analysis
-# (atac.peaks is a GRanges)
-resL &lt;- runHomer(gr = atac.peaks, b = bins, genomedir = "/work/gbioinfo/DB/genomes/mm10",
-                 outdir = "myresults", motifFile = "jaspar2018.motif", homerfile = homerfile,
-                 regionsize = "given", Ncpu = 4L)
-</a></code></pre>
+# obtain known motifs from Jaspar
+library(JASPAR2018)
+library(TFBSTools)
+pwms &lt;- getMatrixSet(JASPAR2018, list(matrixtype = "PWM", tax_group = "vertebrates"))</a></code></pre>
+<p>The results can be conveniently visualized:</p>
+<pre><code><a href="reference/plotBinDensity.html">plotBinDensity(atacPeaksChange, bins, legend = FALSE)</a></code></pre>
+<p><img src="articles/monaLisa_binning_small.png" align="center" alt="binning" width="412px"></p>
+<pre><code><a href="reference/plotMotifHeatmaps.html">plotMotifHeatmaps(se, cluster = TRUE,
+                  which.plots = c("enr", "FDR"),
+                  show_seqlogo = TRUE)</a></code></pre>
+<p><img src="articles/monaLisa_heatmaps_small.png" align="center" alt="heatmaps" width="501px"></p>
 </div>
 <div id="software-status" class="section level2">
 <h2 class="hasAnchor">
 <a href="#software-status" class="anchor"></a>Software status</h2>
-<p>Travis CI (Linux): <a href="https://travis-ci.com/fmicompbio/monaLisa"><img src="https://travis-ci.com/fmicompbio/monaLisa.svg?branch=master" alt="Travis CI build status"></a> <a href="https://codecov.io/github/fmicompbio/monaLisa"><img src="https://codecov.io/github/fmicompbio/monaLisa/coverage.svg?branch=master" alt="Codecov.io coverage status"></a></p>
-<!--
-## Reference
-`EISA` has been described in:  
-
-"Analysis of intronic and exonic reads in RNA-seq data characterizes
-transcriptional and post-transcriptional regulation."  
-Gaidatzis D., Burger L., Florescu M. and Stadler, M.B.  
-*Nat Biotechnol.* **2015**; 33(7):722-9.
-[PubMed: 26098447](https://www.ncbi.nlm.nih.gov/pubmed/26098447), [doi: 10.1038/nbt.3269](https://doi.org/10.1038/nbt.3269)
-
-## Download from Bioconductor
-[QuasR download page](https://bioconductor.org/packages/QuasR/)
-
-## Software status
-
-| Platforms |  OS  | R CMD check | Coverage | 
-|:----------------:|:----------------:|:----------------:|:----------------:|
-| Travis CI | Linux | [![Travis CI build status](https://travis-ci.com/fmicompbio/QuasR.svg?branch=master)](https://travis-ci.com/fmicompbio/QuasR) | [![Codecov.io coverage status](https://codecov.io/github/fmicompbio/QuasR/coverage.svg?branch=master)](https://codecov.io/github/fmicompbio/QuasR) |
-| Bioc ([_devel_](http://bioconductor.org/packages/devel/bioc/html/QuasR.html)) | Multiple | [![Bioconductor-devel Build Status](http://bioconductor.org/shields/build/devel/bioc/QuasR.svg)](http://bioconductor.org/checkResults/devel/bioc-LATEST/QuasR) | `NA` |
-| Bioc ([_release_](http://bioconductor.org/packages/release/bioc/html/QuasR.html)) | Multiple | [![Bioconductor-release Build Status](http://bioconductor.org/shields/build/release/bioc/QuasR.svg)](http://bioconductor.org/checkResults/release/bioc-LATEST/QuasR) | `NA` |
--->
+<p>Github Actions (multiple OS): <a href="https://github.com/fmicompbio/monaLisa/actions" class="external-link"><img src="https://github.com/fmicompbio/monaLisa/workflows/R-CMD-check/badge.svg" alt="R build status"></a> <a href="https://codecov.io/github/fmicompbio/monaLisa" class="external-link"><img src="https://codecov.io/github/fmicompbio/monaLisa/coverage.svg?branch=master" alt="Codecov.io coverage status"></a></p>
 </div>
 </div>
 
@@ -159,13 +146,15 @@ Gaidatzis D., Burger L., Florescu M. and Stadler, M.B.
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="license">
-<h2>License</h2>
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li><a href="https://www.r-project.org/Licenses/GPL-3">GPL-3</a></li>
 </ul>
 </div>
+
+
 <div class="developers">
-<h2>Developers</h2>
+<h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>
 <a href="https://github.com/machlabd">Dania Machlab</a> <br><small class="roles"> Author </small>  </li>
@@ -176,16 +165,20 @@ Gaidatzis D., Burger L., Florescu M. and Stadler, M.B.
 </ul>
 </div>
 
+
+
   </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by <a href="https://github.com/machlabd">Dania Machlab</a>, <a href="https://github.com/LukasBurger">Lukas Burger</a>, <a href="https://github.com/mbstadler">Michael Stadler</a>.</p>
+  <p></p>
+<p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p>
 </div>
 
       </footer>
@@ -193,6 +186,8 @@ Gaidatzis D., Burger L., Florescu M. and Stadler, M.B.
 
   
 
+
+  
 
   </body>
 </html>

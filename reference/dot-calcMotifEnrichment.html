@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get colors by bin. — getColsByBin • monaLisa</title>
+<title>Calculate motif enrichment — .calcMotifEnrichment • monaLisa</title>
 
 
 <!-- jquery -->
@@ -39,11 +39,19 @@
 
 
 
-<meta property="og:title" content="Get colors by bin. — getColsByBin" />
-<meta property="og:description" content="Get colors for elements according to their bin.
-    Colors are assigned to bins forming a gradient from col1
-    to col2 in the order of levels{b}. col0 is assigned
-    to the neutral bin (attribute &quot;&quot;) if available." />
+<meta property="og:title" content="Calculate motif enrichment — .calcMotifEnrichment" />
+<meta property="og:description" content="Given motif counts, foreground/background labels and
+  weights for a set of sequences, calculate the enrichment of each motif
+  in foreground compared to background. This function is called by
+  calcBinnedMotifEnrR() for each bin.
+The defaults type of test is &quot;binomial&quot;, which is also what
+  Homer uses by default. Alternatively, Fisher's exact test can be
+  used by test = &quot;fisher&quot;, which has the advantage that special cases
+  such as zero background counts are handled without ad-hoc adjustments to
+  the frequencies.
+For test = &quot;fisher&quot;, fisher.test is used with
+  alternative = &quot;greater&quot;, making it a one-sided test for enrichment,
+  as is the case with the binomial test." />
 
 
 
@@ -129,53 +137,75 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get colors by bin.</h1>
+    <h1>Calculate motif enrichment</h1>
     
-    <div class="hidden name"><code>getColsByBin.Rd</code></div>
+    <div class="hidden name"><code>dot-calcMotifEnrichment.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Get colors for elements according to their bin.
-    Colors are assigned to bins forming a gradient from <code>col1</code>
-    to <code>col2</code> in the order of <code>levels{b}</code>. <code>col0</code> is assigned
-    to the neutral bin (attribute <code>""</code>) if available.</p>
+    <p>Given motif counts, foreground/background labels and
+  weights for a set of sequences, calculate the enrichment of each motif
+  in foreground compared to background. This function is called by
+  <code><a href='calcBinnedMotifEnrR.html'>calcBinnedMotifEnrR()</a></code> for each bin.</p>
+<p>The defaults type of test is <code>"binomial"</code>, which is also what
+  <code>Homer</code> uses by default. Alternatively, Fisher's exact test can be
+  used by <code>test = "fisher"</code>, which has the advantage that special cases
+  such as zero background counts are handled without ad-hoc adjustments to
+  the frequencies.</p>
+<p>For <code>test = "fisher"</code>, <code>fisher.test</code> is used with
+  <code>alternative = "greater"</code>, making it a one-sided test for enrichment,
+  as is the case with the binomial test.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getColsByBin</span><span class='op'>(</span>
-  <span class='va'>b</span>,
-  col1 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"#003C30"</span>, <span class='st'>"#01665E"</span>, <span class='st'>"#35978F"</span>, <span class='st'>"#80CDC1"</span>, <span class='st'>"#C7EAE5"</span><span class='op'>)</span>,
-  col2 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"#F6E8C3"</span>, <span class='st'>"#DFC27D"</span>, <span class='st'>"#BF812D"</span>, <span class='st'>"#8C510A"</span>, <span class='st'>"#543005"</span><span class='op'>)</span>,
-  col0 <span class='op'>=</span> <span class='st'>"#F5F5F5"</span>
+    <pre class="usage"><span class='fu'><a href='dot-calcMotifEnrichment.html'>.calcMotifEnrichment</a></span><span class='op'>(</span>
+  <span class='va'>motifHitMatrix</span>,
+  <span class='va'>df</span>,
+  test <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"binomial"</span>, <span class='st'>"fisher"</span><span class='op'>)</span>,
+  verbose <span class='op'>=</span> <span class='cn'>FALSE</span>
 <span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>b</th>
-      <td><p>A factor that groups elements into bins (typically the output of
-<code><a href='bin.html'>bin</a></code>).</p></td>
+      <th>motifHitMatrix</th>
+      <td><p>matrix with 0 and 1 entries for absence or presence of
+motif hits in each sequence.</p></td>
     </tr>
     <tr>
-      <th>col1</th>
-      <td><p>First color.</p></td>
+      <th>df</th>
+      <td><p>a <code>DataFrame</code> with sequence information as returned by
+<code><a href='dot-iterativeNormForKmers.html'>.iterativeNormForKmers()</a></code>.</p></td>
     </tr>
     <tr>
-      <th>col2</th>
-      <td><p>Second color.</p></td>
+      <th>test</th>
+      <td><p>type of motif enrichment test to perform.</p></td>
     </tr>
     <tr>
-      <th>col0</th>
-      <td><p>Neutral color.</p></td>
+      <th>verbose</th>
+      <td><p>A logical scalar. If <code>TRUE</code>, report on progress.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A character vector with colors for the elements in <code>b</code>.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+    <p>a <code>data.frame</code> containing the motifs as rows and the columns:</p><ul>
+<li><p>motifName: the motif name</p></li>
+<li><p>logP: the log p-value for enrichment (natural logarithm).
+       If <code>test="binomial"</code> (default), this log p-value is identical to
+       the one returned by Homer.</p></li>
+<li><p>sumForegroundWgtWithHits: the sum of the weights of the foreground
+       sequences that have at least one instance of a specific motif
+       (ZOOPS mode).</p></li>
+<li><p>sumBackgroundWgtWithHits: the sum of the weights of the background
+       sequences that have at least one instance of a specific motif
+       (ZOOPS mode).</p></li>
+<li><p>totalWgtForeground: the total sum of weights of foreground
+       sequences.</p></li>
+<li><p>totalWgtBackground: the total sum of weights of background
+       sequences.</p></li>
+</ul>
 
-    <div class='dont-index'><p><code><a href='bin.html'>bin</a></code>.</p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

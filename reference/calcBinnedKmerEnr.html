@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get colors by bin. — getColsByBin • monaLisa</title>
+<title>Calculate k-mer enrichment in bins of sequences. — calcBinnedKmerEnr • monaLisa</title>
 
 
 <!-- jquery -->
@@ -39,11 +39,10 @@
 
 
 
-<meta property="og:title" content="Get colors by bin. — getColsByBin" />
-<meta property="og:description" content="Get colors for elements according to their bin.
-    Colors are assigned to bins forming a gradient from col1
-    to col2 in the order of levels{b}. col0 is assigned
-    to the neutral bin (attribute &quot;&quot;) if available." />
+<meta property="og:title" content="Calculate k-mer enrichment in bins of sequences. — calcBinnedKmerEnr" />
+<meta property="og:description" content="Given a set of sequences and corresponding bins, identify
+  enriched k-mers (n-grams) in each bin. The sequences can be given either
+  directly or as genomic coordinates." />
 
 
 
@@ -129,53 +128,110 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get colors by bin.</h1>
+    <h1>Calculate k-mer enrichment in bins of sequences.</h1>
     
-    <div class="hidden name"><code>getColsByBin.Rd</code></div>
+    <div class="hidden name"><code>calcBinnedKmerEnr.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Get colors for elements according to their bin.
-    Colors are assigned to bins forming a gradient from <code>col1</code>
-    to <code>col2</code> in the order of <code>levels{b}</code>. <code>col0</code> is assigned
-    to the neutral bin (attribute <code>""</code>) if available.</p>
+    <p>Given a set of sequences and corresponding bins, identify
+  enriched k-mers (n-grams) in each bin. The sequences can be given either
+  directly or as genomic coordinates.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getColsByBin</span><span class='op'>(</span>
+    <pre class="usage"><span class='fu'>calcBinnedKmerEnr</span><span class='op'>(</span>
+  <span class='va'>x</span>,
   <span class='va'>b</span>,
-  col1 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"#003C30"</span>, <span class='st'>"#01665E"</span>, <span class='st'>"#35978F"</span>, <span class='st'>"#80CDC1"</span>, <span class='st'>"#C7EAE5"</span><span class='op'>)</span>,
-  col2 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"#F6E8C3"</span>, <span class='st'>"#DFC27D"</span>, <span class='st'>"#BF812D"</span>, <span class='st'>"#8C510A"</span>, <span class='st'>"#543005"</span><span class='op'>)</span>,
-  col0 <span class='op'>=</span> <span class='st'>"#F5F5F5"</span>
+  genomepkg <span class='op'>=</span> <span class='cn'>NULL</span>,
+  kmerLen <span class='op'>=</span> <span class='fl'>5</span>,
+  background <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"other"</span>, <span class='st'>"model"</span><span class='op'>)</span>,
+  MMorder <span class='op'>=</span> <span class='fl'>1</span>,
+  zoops <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  pseudoCount <span class='op'>=</span> <span class='fl'>1</span>,
+  BPPARAM <span class='op'>=</span> <span class='fu'>SerialParam</span><span class='op'>(</span><span class='op'>)</span>,
+  verbose <span class='op'>=</span> <span class='cn'>FALSE</span>
 <span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
+      <th>x</th>
+      <td><p>A <code>character</code> vector, <code><a href='https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html'>DNAStringSet</a></code> or
+a <code><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></code> object with the sequences to
+analyze.</p></td>
+    </tr>
+    <tr>
       <th>b</th>
-      <td><p>A factor that groups elements into bins (typically the output of
+      <td><p>A vector of the same length as <code>x</code> that groups its elements
+into bins (typically a factor, such as the one returned by
 <code><a href='bin.html'>bin</a></code>).</p></td>
     </tr>
     <tr>
-      <th>col1</th>
-      <td><p>First color.</p></td>
+      <th>genomepkg</th>
+      <td><p>Only used if <code>x</code> is a <code>GRanges</code> object: A
+<code>character</code> scalar with the name of a <code>BSgenome</code> package from
+which to extract the sequences.</p></td>
     </tr>
     <tr>
-      <th>col2</th>
-      <td><p>Second color.</p></td>
+      <th>kmerLen</th>
+      <td><p>A <code>numeric</code> scalar giving the k-mer length.</p></td>
     </tr>
     <tr>
-      <th>col0</th>
-      <td><p>Neutral color.</p></td>
+      <th>background</th>
+      <td><p>A <code>character</code> scalar. If <code>"other"</code> (the default),
+the enrichments in a bin are calculated compared to the sequences in all
+other bins. If <code>"model"</code>, the enrichments are relative to the expected
+frequencies obtained from a Markov model of order <code>MMorder</code>.</p></td>
+    </tr>
+    <tr>
+      <th>MMorder</th>
+      <td><p>A <code>numeric</code> scalar giving the order of the Markov model
+used to calculate the expected frequencies for <code>background = "model"</code>.</p></td>
+    </tr>
+    <tr>
+      <th>zoops</th>
+      <td><p>A <code>logical</code> scalar. If <code>TRUE</code> (the default), only one
+or zero occurences of a k-mer are considered per sequence. This is helpful
+to reduce the impact of simple sequence repeats occurring in few sequences.</p></td>
+    </tr>
+    <tr>
+      <th>pseudoCount</th>
+      <td><p>A <code>numeric</code> scalar - will be added to the observed
+counts for each k-mer to avoid zero values.</p></td>
+    </tr>
+    <tr>
+      <th>BPPARAM</th>
+      <td><p>An optional <code><a href='https://rdrr.io/pkg/BiocParallel/man/BiocParallelParam-class.html'>BiocParallelParam</a></code>
+instance determining the parallel back-end to be used during evaluation.</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>A <code>logical</code> scalar. If <code>TRUE</code>, report on progress.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A character vector with colors for the elements in <code>b</code>.</p>
+    <p>A <code><a href='https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html'>SummarizedExperiment</a></code> <code>y</code>
+  with</p><dl>
+<dt>assays(y)</dt><dd><p>containing the four components <code>p</code>,
+  <code>FDR</code>, <code>enr</code> and <code>log2enr</code>), each a k-mer (rows) by bin
+  (columns) matrix with raw -log10 P values, -log10 false discovery rates and
+  k-mer enrichments as Pearson residuals (<code>enr</code>) and as log2 ratios
+  (<code>log2enr</code>).</p></dd> <dt>rowData(x)</dt><dd><p>containing information about the
+  k-mers.</p></dd> <dt>colData(x)</dt><dd><p>containing information about the bins.</p></dd>
+  <dt>metaData(x)</dt><dd><p>containing meta data on the object (e.g. parameter
+  values).</p></dd> 
+</dl>
+
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='bin.html'>bin</a></code>.</p></div>
+    <div class='dont-index'><p><code><a href='getKmerFreq.html'>getKmerFreq</a></code> used to calculate k-mer enrichments;
+  <code><a href='https://rdrr.io/pkg/BSgenome/man/getSeq-methods.html'>getSeq,BSgenome-method</a></code> which is used to extract
+  sequences from <code>genomepkg</code> if <code>x</code> is a <code>GRanges</code> object;
+  <code><a href='https://rdrr.io/pkg/BiocParallel/man/bplapply.html'>bplapply</a></code> that is used for parallelization;
+  <code><a href='bin.html'>bin</a></code> for binning of regions</p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get colors by bin. — getColsByBin • monaLisa</title>
+<title>Binned motif enrichment analysis. — calcBinnedMotifEnr • monaLisa</title>
 
 
 <!-- jquery -->
@@ -39,11 +39,11 @@
 
 
 
-<meta property="og:title" content="Get colors by bin. — getColsByBin" />
-<meta property="og:description" content="Get colors for elements according to their bin.
-    Colors are assigned to bins forming a gradient from col1
-    to col2 in the order of levels{b}. col0 is assigned
-    to the neutral bin (attribute &quot;&quot;) if available." />
+<meta property="og:title" content="Binned motif enrichment analysis. — calcBinnedMotifEnr" />
+<meta property="og:description" content="Calculate motif enrichment analysis on bins of sequences.
+  Motif occurrences in each bin are contrasted to the motif occurrences
+  in a background set of sequences (by default the sequences in all other
+  bins)." />
 
 
 
@@ -129,53 +129,99 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get colors by bin.</h1>
+    <h1>Binned motif enrichment analysis.</h1>
     
-    <div class="hidden name"><code>getColsByBin.Rd</code></div>
+    <div class="hidden name"><code>calcBinnedMotifEnr.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Get colors for elements according to their bin.
-    Colors are assigned to bins forming a gradient from <code>col1</code>
-    to <code>col2</code> in the order of <code>levels{b}</code>. <code>col0</code> is assigned
-    to the neutral bin (attribute <code>""</code>) if available.</p>
+    <p>Calculate motif enrichment analysis on bins of sequences.
+  Motif occurrences in each bin are contrasted to the motif occurrences
+  in a background set of sequences (by default the sequences in all other
+  bins).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getColsByBin</span><span class='op'>(</span>
-  <span class='va'>b</span>,
-  col1 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"#003C30"</span>, <span class='st'>"#01665E"</span>, <span class='st'>"#35978F"</span>, <span class='st'>"#80CDC1"</span>, <span class='st'>"#C7EAE5"</span><span class='op'>)</span>,
-  col2 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"#F6E8C3"</span>, <span class='st'>"#DFC27D"</span>, <span class='st'>"#BF812D"</span>, <span class='st'>"#8C510A"</span>, <span class='st'>"#543005"</span><span class='op'>)</span>,
-  col0 <span class='op'>=</span> <span class='st'>"#F5F5F5"</span>
+    <pre class="usage"><span class='fu'>calcBinnedMotifEnr</span><span class='op'>(</span>
+  <span class='va'>seqs</span>,
+  <span class='va'>bins</span>,
+  <span class='va'>motifs</span>,
+  method <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"R"</span>, <span class='st'>"Homer"</span><span class='op'>)</span>,
+  BPPARAM <span class='op'>=</span> <span class='fu'>SerialParam</span><span class='op'>(</span><span class='op'>)</span>,
+  verbose <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  <span class='va'>...</span>
 <span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>b</th>
-      <td><p>A factor that groups elements into bins (typically the output of
-<code><a href='bin.html'>bin</a></code>).</p></td>
+      <th>seqs</th>
+      <td><p>The sequences to analyze. Either a <code>DNAStringSet</code> (for
+<code>method = "R"</code>) or a <code>GRanges</code> object defining the genomic
+regions from which to extract the sequences (for <code>method = "Homer"</code>).</p></td>
     </tr>
     <tr>
-      <th>col1</th>
-      <td><p>First color.</p></td>
+      <th>bins</th>
+      <td><p>Factor of the same length and order as <code>seqs</code>, indicating
+the bin for each sequence or genomic region. Typically the return value of
+<code><a href='bin.html'>bin</a></code>.</p></td>
     </tr>
     <tr>
-      <th>col2</th>
-      <td><p>Second color.</p></td>
+      <th>motifs</th>
+      <td><p>The motifs for which to calculate enrichments. Either a
+<code>PWMatrixList</code> (for <code>method = "R"</code>) or a file with motifs in
+Homer format (for <code>method = "Homer"</code>).</p></td>
     </tr>
     <tr>
-      <th>col0</th>
-      <td><p>Neutral color.</p></td>
+      <th>method</th>
+      <td><p>A <code>character</code> scalar specifying the backend to use for
+enrichment calculations. One of <code>"R"</code> (default) or <code>"Homer"</code>.</p></td>
+    </tr>
+    <tr>
+      <th>BPPARAM</th>
+      <td><p>Specifies the number of CPU cores to use for parallel
+processing. Either a <code><a href='https://rdrr.io/pkg/BiocParallel/man/SerialParam-class.html'>SerialParam</a></code> or a
+<code><a href='https://rdrr.io/pkg/BiocParallel/man/MulticoreParam-class.html'>MulticoreParam</a></code> object instance, or for
+<code>method = "Homer"</code> a numeric scalar.</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>A logical scalar. If <code>TRUE</code>, print progress messages.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Additional arguments for passed to
+<code><a href='calcBinnedMotifEnrR.html'>calcBinnedMotifEnrR</a></code> or
+<code><a href='calcBinnedMotifEnrHomer.html'>calcBinnedMotifEnrHomer</a></code>.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A character vector with colors for the elements in <code>b</code>.</p>
+    <p>A <code>SummarizedExperiment</code> object with motifs in rows and bins
+  in columns, containing six assays:</p><ul>
+<li><p>p: -log10 P values</p></li>
+<li><p>FDR: -log10 false discovery rates</p></li>
+<li><p>enr: motif enrichments as Pearson residuals</p></li>
+<li><p>log2enr: motif enrichments as log2 ratios</p></li>
+<li><p>sumForegroundWgtWithHits: Sum of foreground sequence weights
+    in a bin that have motif hits</p></li>
+<li><p>sumBackgroundWgtWithHits: Sum of background sequence weights
+    in a bin that have motif hits</p></li>
+</ul>
+
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>This function is a wrapper for
+  <code><a href='calcBinnedMotifEnrR.html'>calcBinnedMotifEnrR</a></code> or
+  <code><a href='calcBinnedMotifEnrHomer.html'>calcBinnedMotifEnrHomer</a></code>. For additional supported arguments
+  (via <code>...</code>) please see the help pages of these functions.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='bin.html'>bin</a></code>.</p></div>
+    <div class='dont-index'><p><code><a href='bin.html'>bin</a></code> for binning of sequences;
+  <code><a href='calcBinnedMotifEnrR.html'>calcBinnedMotifEnrR</a></code> that is used for
+  <code>method = "R"</code> and <code><a href='calcBinnedMotifEnrHomer.html'>calcBinnedMotifEnrHomer</a></code> used
+  for <code>method = "Homer"</code>.</p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

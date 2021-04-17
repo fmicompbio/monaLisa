@@ -47,6 +47,8 @@
 
 
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -58,9 +60,16 @@
 
 
 
+
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -74,19 +83,13 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.30</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.42</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/monaLisa.html">Get started</a>
 </li>
 <li>
@@ -108,7 +111,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/fmicompbio/monaLisa">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fas fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -136,17 +139,17 @@
   that are likely to originate from the same motif.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>clusterKmers</span>(
-  <span class='no'>x</span>,
-  <span class='kw'>method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"cooccurrence"</span>, <span class='st'>"similarity"</span>),
-  <span class='kw'>allowReverseComplement</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>nKmers</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>maxShift</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>minSim</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>seqs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>zoops</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>1L</span>
-)</pre>
+    <pre class="usage"><span class='fu'>clusterKmers</span><span class='op'>(</span>
+  <span class='va'>x</span>,
+  method <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"cooccurrence"</span>, <span class='st'>"similarity"</span><span class='op'>)</span>,
+  allowReverseComplement <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  nKmers <span class='op'>=</span> <span class='cn'>NULL</span>,
+  maxShift <span class='op'>=</span> <span class='cn'>NULL</span>,
+  minSim <span class='op'>=</span> <span class='cn'>NULL</span>,
+  seqs <span class='op'>=</span> <span class='cn'>NULL</span>,
+  zoops <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  n <span class='op'>=</span> <span class='fl'>1L</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -260,11 +263,11 @@ start position of the first k-mer (default: <code>n = NULL</code>).</p></td>
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://github.com/machlabd'>Dania Machlab</a>, <a href='https://github.com/LukasBurger'>Lukas Burger</a>, <a href='https://github.com/mbstadler'>Michael Stadler</a>.</p>
+  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
 </div>
 
       </footer>
@@ -272,6 +275,8 @@ start position of the first k-mer (default: <code>n = NULL</code>).</p></td>
 
   
 
+
+  
 
   </body>
 </html>

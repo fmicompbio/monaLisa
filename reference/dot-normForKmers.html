@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get colors by bin. — getColsByBin • monaLisa</title>
+<title>Adjust for k-mer composition (single iteration) — .normForKmers • monaLisa</title>
 
 
 <!-- jquery -->
@@ -39,11 +39,14 @@
 
 
 
-<meta property="og:title" content="Get colors by bin. — getColsByBin" />
-<meta property="og:description" content="Get colors for elements according to their bin.
-    Colors are assigned to bins forming a gradient from col1
-    to col2 in the order of levels{b}. col0 is assigned
-    to the neutral bin (attribute &quot;&quot;) if available." />
+<meta property="og:title" content="Adjust for k-mer composition (single iteration) — .normForKmers" />
+<meta property="og:description" content="Adjust background sequence weights for differences in k-mer
+  composition compared to the foreground sequences. This function
+  implements a single iteration, and is called iteratively by
+  .iterativeNormForKmers to get to the final set of adjusted
+  weights, which will be the result of adjusting for GC and k-mer
+  composition. The logic is based on Homer's
+  normalizeSequenceIteration() function found in Motif2.cpp." />
 
 
 
@@ -129,53 +132,82 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get colors by bin.</h1>
+    <h1>Adjust for k-mer composition (single iteration)</h1>
     
-    <div class="hidden name"><code>getColsByBin.Rd</code></div>
+    <div class="hidden name"><code>dot-normForKmers.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Get colors for elements according to their bin.
-    Colors are assigned to bins forming a gradient from <code>col1</code>
-    to <code>col2</code> in the order of <code>levels{b}</code>. <code>col0</code> is assigned
-    to the neutral bin (attribute <code>""</code>) if available.</p>
+    <p>Adjust background sequence weights for differences in k-mer
+  composition compared to the foreground sequences. This function
+  implements a single iteration, and is called iteratively by
+  <code>.iterativeNormForKmers</code> to get to the final set of adjusted
+  weights, which will be the result of adjusting for GC and k-mer
+  composition. The logic is based on Homer's
+  <code>normalizeSequenceIteration()</code> function found in <code>Motif2.cpp</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getColsByBin</span><span class='op'>(</span>
-  <span class='va'>b</span>,
-  col1 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"#003C30"</span>, <span class='st'>"#01665E"</span>, <span class='st'>"#35978F"</span>, <span class='st'>"#80CDC1"</span>, <span class='st'>"#C7EAE5"</span><span class='op'>)</span>,
-  col2 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"#F6E8C3"</span>, <span class='st'>"#DFC27D"</span>, <span class='st'>"#BF812D"</span>, <span class='st'>"#8C510A"</span>, <span class='st'>"#543005"</span><span class='op'>)</span>,
-  col0 <span class='op'>=</span> <span class='st'>"#F5F5F5"</span>
+    <pre class="usage"><span class='fu'><a href='dot-normForKmers.html'>.normForKmers</a></span><span class='op'>(</span>
+  <span class='va'>kmerFreq</span>,
+  <span class='va'>goodKmers</span>,
+  <span class='va'>kmerRC</span>,
+  <span class='va'>seqWgt</span>,
+  <span class='va'>isForeground</span>,
+  minSeqWgt <span class='op'>=</span> <span class='fl'>0.001</span>,
+  maxSeqWgt <span class='op'>=</span> <span class='fl'>1000</span>
 <span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>b</th>
-      <td><p>A factor that groups elements into bins (typically the output of
-<code><a href='bin.html'>bin</a></code>).</p></td>
+      <th>kmerFreq</th>
+      <td><p>a <code>list</code> with of matrices. The matrix at index <code>i</code>
+in the list contains the probability of k-mers of length <code>i</code>, for each
+k-mer (columns) and sequence (rows).</p></td>
     </tr>
     <tr>
-      <th>col1</th>
-      <td><p>First color.</p></td>
+      <th>goodKmers</th>
+      <td><p>a <code>list</code> of <code>numeric</code> vectors; the element at index
+<code>i</code> contains the number of good (non-N-containing) k-mers of length
+<code>i</code> for each sequence.</p></td>
     </tr>
     <tr>
-      <th>col2</th>
-      <td><p>Second color.</p></td>
+      <th>kmerRC</th>
+      <td><p>a <code>list</code> of character vectors; the element at index
+<code>i</code> contains the reverse complement sequences of all k-mers of length
+<code>i</code>.</p></td>
     </tr>
     <tr>
-      <th>col0</th>
-      <td><p>Neutral color.</p></td>
+      <th>seqWgt</th>
+      <td><p>a <code>numeric</code> vector with starting sequence weights
+at the beginning of the iteration.</p></td>
+    </tr>
+    <tr>
+      <th>isForeground</th>
+      <td><p>logical vector of the same length as <code>seqs</code>.
+<code>TRUE</code> indicates that the sequence is from the foreground,
+<code>FALSE</code> that it is a background sequence.</p></td>
+    </tr>
+    <tr>
+      <th>minSeqWgt</th>
+      <td><p>Numeric scalar greater than zero giving the
+minimal weight of a sequence. The default value (0.001) is based on
+<code>Homer</code> (HOMER_MINIMUM_SEQ_WEIGHT constant in Motif2.h).</p></td>
+    </tr>
+    <tr>
+      <th>maxSeqWgt</th>
+      <td><p>Numeric scalar greater than zero giving the
+maximal weight of a sequence. The default value (1000) is based on
+<code>HOMER</code> (1 / HOMER_MINIMUM_SEQ_WEIGHT constant in Motif2.h).</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A character vector with colors for the elements in <code>b</code>.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p><code><a href='bin.html'>bin</a></code>.</p></div>
+    <p>a named <code>list</code> with elements <code>seqWgt</code> (updated
+  weights) and <code>err</code> (error measuring difference of foreground
+  and weighted background sequence compositions).</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,18 +33,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.30</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.42</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../articles/monaLisa.html">Get started</a>
 </li>
@@ -64,8 +60,8 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/fmicompbio/monaLisa">
-    <span class="fa fa-github fa-lg"></span>
+  <a href="https://github.com/fmicompbio/monaLisa" class="external-link">
+    <span class="fas fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -79,13 +75,13 @@
 
       
 
-      </header><div class="row">
+      </header><script src="monaLisa_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>monaLisa - MOtif aNAlysis with Lisa</h1>
-                        <h4 class="author">Dania Machlab, Lukas Burger, Michael Stadler</h4>
+                        <h4 data-toc-skip class="author">Dania Machlab, Lukas Burger, Michael Stadler</h4>
             
-            <h4 class="date">2020-06-23</h4>
+            <h4 data-toc-skip class="date">2021-04-17</h4>
       
       
       <div class="hidden name"><code>monaLisa.Rmd</code></div>
@@ -99,36 +95,36 @@
 <h1 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h1>
 <p><code>monaLisa</code> is a collection of functions for working with biological sequences and motifs that represent the binding preferences of transcription factors or nucleic acid binding proteins.</p>
-<p>For example, <code>monaLisa</code> can make use of her father <a href="http://homer.ucsd.edu/homer/index.html">Homer</a> to look for enriched motifs in sets of genomic regions, compared to all other regions.</p>
-<p>The motifs come from a collection of transcription factor binding site specificities, such as <code>JASPAR2018</code>. The regions could be for example promoters, non-promoters (distal regions) or accessible regions. The regions are grouped into bins according to a numerical value assigned to each bin, such as change of expression or accessibility.</p>
-<p><code>monaLisa</code> can also be used to look for motifs in sequences.</p>
-<p>Finally, <code>monaLisa</code> can can be used to predict what transcription factors are likely to explain observed changes in chromatin accessibility between two conditions.</p>
+<p>For example, <code>monaLisa</code> can be used to conveniently find motif hits in sequences (see section @ref(findhits)), or to identify motifs that are likely associated to observed experimental data. This analysis is supposed to provide potential answers to the question “Which transcription factors are the drivers of my observed changes in expression/methylation/accessiblity?”.</p>
+<p>You can use known motifs from collections of transcription factor binding specificities such as <code>JASPAR2018</code>, also available from Bioconductor. Genomic regions could be for example promoters, enhancers or accessible regions for which experimental data is available.</p>
+<p>Two independent approaches are implemented to identify interesting motifs:</p>
+<ul>
+<li><p>In <strong>binned motif enrichment analysis</strong> (<code><a href="../reference/calcBinnedMotifEnr.html">calcBinnedMotifEnr()</a></code>, see section @ref(binned)), genomic regions are grouped into bins according to a numerical value assigned to each region, such as change of expression, accessibility or methylation. Motif enrichments are then calculated for each bin, normalizing for differences in sequence composition very similarly as it was originally done by <a href="http://homer.ucsd.edu/homer/index.html" class="external-link">Homer</a>.</p></li>
+<li><p>In <strong>randomized Lasso stability selection</strong> (<code><a href="../reference/randLassoStabSel.html">randLassoStabSel()</a></code>, see section @ref(stabsel)), <code>monaLisa</code> uses a robust regression approach to predict what transcription factors can explain experimental measurements, for example changes in chromatin accessibility between two conditions. Also this approach allows to correct for sequence composition. In addition, similar motifs have to “compete” with each other to be selected.</p></li>
+</ul>
+<p>For both approaches, functions that allow visualization of obtained results are provided.</p>
+<p>If you prefer to jump right in, you can continue with section @ref(quick) that shows a quick hypothetical example of how to run a binned motif enrichment analysis. If you prefer to actually compute enrichments on real data, you can find below detailed examples for a binned motif enrichment analysis (section @ref(binned)) and randomized Lasso stability selection (section @ref(stabsel)).</p>
 </div>
-<div id="quick-example-identify-enriched-motifs" class="section level1">
+<div id="quick" class="section level1">
 <h1 class="hasAnchor">
-<a href="#quick-example-identify-enriched-motifs" class="anchor"></a>Quick example: Identify enriched motifs</h1>
-<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="co"># load package</span>
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">monaLisa</span>)
+<a href="#quick" class="anchor"></a>Quick example: Identify enriched motifs in bins</h1>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># load package</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">monaLisa</span><span class="op">)</span>
 
 <span class="co"># bin regions</span>
-<span class="co"># (atac.peaks.change is a numerical vector)</span>
-<span class="no">bins</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/bin.html">bin</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">atac.peaks.change</span>, <span class="kw">binmode</span> <span class="kw">=</span> <span class="st">"equalN"</span>, <span class="kw">nElement</span> <span class="kw">=</span> <span class="fl">400</span>)
+<span class="co"># (peak_change is a numerical vector)</span>
+<span class="va">peak_bins</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bin.html">bin</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">peak_change</span>, binmode <span class="op">=</span> <span class="st">"equalN"</span>, nElement <span class="op">=</span> <span class="fl">400</span><span class="op">)</span>
 
-<span class="co"># dump motifs into file</span>
-<span class="fu"><a href="../reference/dumpJaspar.html">dumpJaspar</a></span>(<span class="st">"jaspar2018.motif"</span>, <span class="kw">pkg</span> <span class="kw">=</span> <span class="st">"JASPAR2018"</span>)
-
-<span class="co"># find Homer (findMotifsGenome.pl)</span>
-<span class="no">homerfile</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/findHomer.html">findHomer</a></span>(<span class="kw">dirs</span> <span class="kw">=</span> <span class="st">"/path/to/look/into"</span>)
-
-<span class="co"># run analysis</span>
-<span class="co"># (atac.peaks is a GRanges)</span>
-<span class="no">se</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/runHomer.html">runHomer</a></span>(<span class="kw">gr</span> <span class="kw">=</span> <span class="no">atac.peaks</span>, <span class="kw">b</span> <span class="kw">=</span> <span class="no">bins</span>, <span class="kw">genomedir</span> <span class="kw">=</span> <span class="st">"/work/gbioinfo/DB/genomes/mm10"</span>,
-               <span class="kw">outdir</span> <span class="kw">=</span> <span class="st">"myresults"</span>, <span class="kw">motifFile</span> <span class="kw">=</span> <span class="st">"jaspar2018.motif"</span>, <span class="kw">homerfile</span> <span class="kw">=</span> <span class="no">homerfile</span>,
-               <span class="kw">regionsize</span> <span class="kw">=</span> <span class="st">"given"</span>, <span class="kw">Ncpu</span> <span class="kw">=</span> <span class="fl">4L</span>)</pre></body></html></div>
-<p><code>se</code> is a <code>SummarizedExperiment</code> with <code>assays</code> <em>p</em>, <em>FDR</em>, <em>enr</em> and <em>log2enr</em>, each containing a matrix with motifs (rows) by bins (columns). The values are:</p>
+<span class="co"># calculate motif enrichments</span>
+<span class="co"># (peak_seq is a DNAStringSet, pwms is a PWMatrixList)</span>
+<span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calcBinnedMotifEnr.html">calcBinnedMotifEnr</a></span><span class="op">(</span>seqs <span class="op">=</span> <span class="va">peaks_seqs</span>,
+                         bins <span class="op">=</span> <span class="va">peaks_bins</span>,
+                         motifs <span class="op">=</span> <span class="va">pwms</span><span class="op">)</span></code></pre></div>
+<p><code>se</code> is a <code>SummarizedExperiment</code> with <code>assays</code> <em>p</em>, <em>FDR</em>, <em>enr</em>, <em>log2enr</em>, <em>sumForegroundWgtWithHits</em> and <em>sumBackgroundWgtWithHits</em>, each containing a matrix with motifs (rows) by bins (columns). The values are:</p>
 <ul>
 <li>
-<em>p</em>: the raw P value (<span class="math inline">\(-\log_{10} p\)</span>) of a given motif enrichment in a given bin, as reported by Homer. Each P value results from a Homer analysis testing each motif occuring within the bin, compared to its occurrences in all other bins as a background.<br>
+<em>p</em>: the raw P value (<span class="math inline">\(-\log_{10} p\)</span>) of a given motif enrichment in a given bin. Each P value results from an enrichment calculation comparing occurrences of each motif in the bin to its occurrences in all other bins as a background.<br>
 </li>
 <li>
 <em>FDR</em>: Same as <em>p</em> but adjusted for multiple testing using the method of Benjamini and Hochberg, 1995 (<code>p.adjust(..., method="fdr"</code>).<br>
@@ -136,699 +132,632 @@
 <li>
 <em>enr</em>: Motif enrichments, calculated as: <span class="math inline">\(enr = (o - e) / \sqrt e\)</span>, where <span class="math inline">\(o\)</span> and <span class="math inline">\(e\)</span> are the observed and expected numbers of regions in the bin containing a given motif. These enrichments correspond to <span class="math inline">\(z\)</span> values (<span class="math inline">\(z = (z - \mu)/\sigma\)</span>), assuming that the numbers of regions in a bin that contain a motif are independent Poisson random variables with mean and variance <span class="math inline">\(e\)</span>.</li>
 <li>
-<em>log2enr</em>: Motif enrichments, calculated as: <span class="math inline">\(log2enr = log2((o + 8)/(e + 8))\)</span>, where <span class="math inline">\(o\)</span> and <span class="math inline">\(e\)</span> are the observed and expected numbers of regions in the bin containing a given motif.</li>
+<em>log2enr</em>: Motif enrichments, calculated as: <span class="math inline">\(log2enr = log2((o + 8)/(e + 8))\)</span>, where <span class="math inline">\(o\)</span> and <span class="math inline">\(e\)</span> are the observed and expected numbers of regions in the bin containing a given motif.<br>
+</li>
+<li>
+<em>sumForegroundWgtWithHits</em> and <em>sumBackgroundWgtWithHits</em>: Are the sum of foreground and background sequences that have at least one occurrence of the motif, respectively. The background sequences are weighted in order to adjust for differences in sequence composition between foreground and background.</li>
 </ul>
-<p>In addition, <code><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">rowData(se)</a></code> and <code><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">colData(se)</a></code> give information about the used motifs and bins, respectively. In <code>metadata(se)</code> you can find information about parameter values.</p>
+<p>In addition, <code><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData(se)</a></code> and <code><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData(se)</a></code> give information about the used motifs and bins, respectively. In <code>metadata(se)</code> you can find information about parameter values.</p>
 </div>
-<div id="detailed-example-finding-tfs-enriched-in-differentially-methylated-regions" class="section level1">
+<div id="binned" class="section level1">
 <h1 class="hasAnchor">
-<a href="#detailed-example-finding-tfs-enriched-in-differentially-methylated-regions" class="anchor"></a>Detailed example: Finding TFs enriched in differentially methylated regions</h1>
-<p>The detailed example is based on an in vitro differentiation system, in which mouse embryonic stem (ES) cells are differentiated into neuronal progenitors (NP). In an earlier study <span class="citation">(Stadler et al. 2011)</span>, we have analyzed the genome-wide CpG methylation patterns in these cell types and identified so call <em>low methylated regions</em> (LMRs), that have reduced methylation levels and correspond to regions bound by transcription factors.</p>
-<p>We have later published a tool that systematically identifies such regions from genome-wide methylation data <span class="citation">(Burger et al. 2013)</span>. Interestingly, a change in methylation of LMRs is indicative of altered transcription factor binding. We will therefore use these regions to identify TF motifs that are enriched/depleted in LMR regions that change their methylation between ES and NP cell states.</p>
+<a href="#binned" class="anchor"></a>Binned motif enrichment analysis: Finding TFs enriched in differentially methylated regions</h1>
+<p>This example is based on an <em>in vitro</em> differentiation system, in which mouse embryonic stem (ES) cells are differentiated into neuronal progenitors (NP). In an earlier study <span class="citation">(Stadler et al. 2011)</span>, we have analyzed the genome-wide CpG methylation patterns in these cell types and identified so called <em>low methylated regions</em> (LMRs), that have reduced methylation levels and correspond to regions bound by transcription factors.</p>
+<p>We also developed a tool that systematically identifies such regions from genome-wide methylation data <span class="citation">(Burger et al. 2013)</span>. Interestingly, a change in methylation of LMRs is indicative of altered transcription factor binding. We will therefore use these regions to identify transcription factor motifs that are enriched or depleted in LMR regions that change their methylation between ES and NP cell states.</p>
 <div id="load-library" class="section level2">
 <h2 class="hasAnchor">
 <a href="#load-library" class="anchor"></a>Load library</h2>
 <p>We start by loading the needed libraries:</p>
-<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">GenomicRanges</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">SummarizedExperiment</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">monaLisa</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/GenomicRanges" class="external-link">GenomicRanges</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/SummarizedExperiment" class="external-link">SummarizedExperiment</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://jaspar.genereg.net/" class="external-link">JASPAR2018</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ge11232002/TFBSTools" class="external-link">TFBSTools</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">BSgenome.Mmusculus.UCSC.mm10</span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">monaLisa</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="genomic-regions-of-interest" class="section level2">
 <h2 class="hasAnchor">
 <a href="#genomic-regions-of-interest" class="anchor"></a>Genomic regions of interest</h2>
 <p><code>monaLisa</code> contains a file with genomic coordinates (mouse mm9 assembly) of LMRs, with the respective changes of methylation:</p>
-<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="no">lmrfile</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"extdata"</span>, <span class="st">"LMRsESNPmerged.gr.rds"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"monaLisa"</span>)
-<span class="no">lmr</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span>(<span class="no">lmrfile</span>)
-<span class="no">lmr</span>
-<span class="co">#&gt; GRanges object with 45425 ranges and 1 metadata column:</span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">lmrfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"LMRsESNPmerged.gr.rds"</span>, package <span class="op">=</span> <span class="st">"monaLisa"</span><span class="op">)</span>
+<span class="va">lmr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="va">lmrfile</span><span class="op">)</span>
+<span class="va">lmr</span>
+<span class="co">#&gt; GRanges object with 45414 ranges and 1 metadata column:</span>
 <span class="co">#&gt;           seqnames          ranges strand |    deltaMeth</span>
 <span class="co">#&gt;              &lt;Rle&gt;       &lt;IRanges&gt;  &lt;Rle&gt; |    &lt;numeric&gt;</span>
-<span class="co">#&gt;       [1]     chr1 3539234-3540282      * |    0.3190299</span>
-<span class="co">#&gt;       [2]     chr1 3670995-3672245      * |    0.0657352</span>
-<span class="co">#&gt;       [3]     chr1 3903396-3904604      * |    0.4803313</span>
-<span class="co">#&gt;       [4]     chr1 3943581-3944238      * |    0.4504727</span>
-<span class="co">#&gt;       [5]     chr1 4140538-4141648      * |    0.5014768</span>
+<span class="co">#&gt;       [1]     chr1 3549153-3550201      * |    0.3190299</span>
+<span class="co">#&gt;       [2]     chr1 3680914-3682164      * |    0.0657352</span>
+<span class="co">#&gt;       [3]     chr1 3913315-3914523      * |    0.4803313</span>
+<span class="co">#&gt;       [4]     chr1 3953500-3954157      * |    0.4504727</span>
+<span class="co">#&gt;       [5]     chr1 4150457-4151567      * |    0.5014768</span>
 <span class="co">#&gt;       ...      ...             ...    ... .          ...</span>
-<span class="co">#&gt;   [45421]     chrY 2887848-2888104      * | -0.020020382</span>
-<span class="co">#&gt;   [45422]     chrY 2890206-2890704      * | -0.102559935</span>
-<span class="co">#&gt;   [45423]     chrY 2891592-2894150      * | -0.031668206</span>
-<span class="co">#&gt;   [45424]     chrY 2895434-2896286      * |  0.130623049</span>
-<span class="co">#&gt;   [45425]     chrY 2901734-2902491      * |  0.000494588</span>
+<span class="co">#&gt;   [45410]     chrY 4196254-4196510      * | -0.020020382</span>
+<span class="co">#&gt;   [45411]     chrY 4193654-4194152      * | -0.102559935</span>
+<span class="co">#&gt;   [45412]     chrY 4190208-4192766      * | -0.031668206</span>
+<span class="co">#&gt;   [45413]     chrY 4188072-4188924      * |  0.130623049</span>
+<span class="co">#&gt;   [45414]     chrY 4181867-4182624      * |  0.000494588</span>
 <span class="co">#&gt;   -------</span>
-<span class="co">#&gt;   seqinfo: 35 sequences from an unspecified genome</span></pre></body></html></div>
-<p>You can see there are 45425 LMRs, most of which gain methylation between ES and NP stages:</p>
-<div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html">hist</a></span>(<span class="no">lmr</span>$<span class="no">deltaMeth</span>, <span class="fl">100</span>, <span class="kw">col</span> <span class="kw">=</span> <span class="st">"gray"</span>, <span class="kw">main</span> <span class="kw">=</span> <span class="st">""</span>,
-     <span class="kw">xlab</span> <span class="kw">=</span> <span class="st">"Change of methylation (NP - ES)"</span>, <span class="kw">ylab</span> <span class="kw">=</span> <span class="st">"Number of LMRs"</span>)</pre></body></html></div>
+<span class="co">#&gt;   seqinfo: 21 sequences from an unspecified genome; no seqlengths</span></code></pre></div>
+<p>You can see there are 45414 LMRs, most of which gain methylation between ES and NP stages:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">lmr</span><span class="op">$</span><span class="va">deltaMeth</span>, <span class="fl">100</span>, col <span class="op">=</span> <span class="st">"gray"</span>, main <span class="op">=</span> <span class="st">""</span>,
+     xlab <span class="op">=</span> <span class="st">"Change of methylation (NP - ES)"</span>, ylab <span class="op">=</span> <span class="st">"Number of LMRs"</span><span class="op">)</span></code></pre></div>
 <p><img src="monaLisa_files/figure-html/deltameth-1.png" width="80%" style="display: block; margin: auto;"></p>
 <p>In order to keep the computation time reasonable, we’ll select 10,000 of the LMRs randomly:</p>
-<div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="fl">1</span>)
-<span class="no">lmrsel</span> <span class="kw">&lt;-</span> <span class="no">lmr</span>[ <span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span>(<span class="no">lmr</span>), <span class="kw">size</span> <span class="kw">=</span> <span class="fl">10000</span>, <span class="kw">replace</span> <span class="kw">=</span> <span class="fl">FALSE</span>) ]</pre></body></html></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
+<span class="va">lmrsel</span> <span class="op">&lt;-</span> <span class="va">lmr</span><span class="op">[</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">lmr</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">10000</span>, replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">]</span></code></pre></div>
 </div>
 <div id="bin-genomic-regions" class="section level2">
 <h2 class="hasAnchor">
 <a href="#bin-genomic-regions" class="anchor"></a>Bin genomic regions</h2>
 <p>Now let’s bin our LMRs by how much they change methylation, using the <code>bin</code> function. We are not interested in small changes of methylation, say less than 0.3, so we’ll use the <code>minAbsX</code> argument to create a <em>no-change</em> bin in [-0.3, 0.3). The remaining LMRs are put into bins of 800 each:</p>
-<div class="sourceCode" id="cb6"><html><body><pre class="r"><span class="no">bins</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/bin.html">bin</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">lmrsel</span>$<span class="no">deltaMeth</span>, <span class="kw">binmode</span> <span class="kw">=</span> <span class="st">"equalN"</span>, <span class="kw">nElement</span> <span class="kw">=</span> <span class="fl">800</span>, <span class="kw">minAbsX</span> <span class="kw">=</span> <span class="fl">0.3</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span>(<span class="no">bins</span>)
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">bins</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bin.html">bin</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">lmrsel</span><span class="op">$</span><span class="va">deltaMeth</span>, binmode <span class="op">=</span> <span class="st">"equalN"</span>, nElement <span class="op">=</span> <span class="fl">800</span>, minAbsX <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">bins</span><span class="op">)</span>
 <span class="co">#&gt; bins</span>
-<span class="co">#&gt; [-0.966,-0.269]  (-0.269,0.323]   (0.323,0.386]   (0.386,0.442]    (0.442,0.49] </span>
+<span class="co">#&gt; [-0.935,-0.242]  (-0.242,0.327]   (0.327,0.388]   (0.388,0.443]   (0.443,0.491] </span>
 <span class="co">#&gt;             800            4400             800             800             800 </span>
-<span class="co">#&gt;    (0.49,0.532]   (0.532,0.582]   (0.582,0.862] </span>
-<span class="co">#&gt;             800             800             800</span></pre></body></html></div>
-<!--
-saveRDS(bins, "/work/gbioinfo/stadler/development/R/compbio-lisa/inst/extdata/bins.rds")
--->
+<span class="co">#&gt;   (0.491,0.536]   (0.536,0.585]   (0.585,0.862] </span>
+<span class="co">#&gt;             800             800             800</span></code></pre></div>
 <p>Because of the asymmetry of methylation changes, there is only a single bin with LMRs that lost methylation and many that gained:</p>
-<div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="fu"><a href="../reference/plotBinDensity.html">plotBinDensity</a></span>(<span class="no">lmrsel</span>$<span class="no">deltaMeth</span>, <span class="no">bins</span>, <span class="kw">legend</span> <span class="kw">=</span> <span class="st">"topleft"</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/plotBinDensity.html">plotBinDensity</a></span><span class="op">(</span><span class="va">lmrsel</span><span class="op">$</span><span class="va">deltaMeth</span>, <span class="va">bins</span>, legend <span class="op">=</span> <span class="st">"topleft"</span><span class="op">)</span></code></pre></div>
 <p><img src="monaLisa_files/figure-html/plotbins-1.png" width="80%" style="display: block; margin: auto;"></p>
 <p>Note that the bin-breaks around the <em>no-change</em> bin are not exactly -0.3 to 0.3. They have been adjusted to have the required 800 LMRs per bin.</p>
 </div>
 <div id="prepare-motif-enrichment-analysis" class="section level2">
 <h2 class="hasAnchor">
 <a href="#prepare-motif-enrichment-analysis" class="anchor"></a>Prepare motif enrichment analysis</h2>
-<p>Next we prepare the Homer-based motif enrichment analysis. We first need to create a file with the motifs that we are interested in. A simple way is to dump the vertebrate motifs from the <code>JASPAR2018</code> package into a file:</p>
-<div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="no">motiffile</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempfile</a></span>(<span class="kw">fileext</span> <span class="kw">=</span> <span class="st">".motif"</span>)
-<span class="fu"><a href="../reference/dumpJaspar.html">dumpJaspar</a></span>(<span class="no">motiffile</span>, <span class="kw">pkg</span> <span class="kw">=</span> <span class="st">"JASPAR2018"</span>)
-<span class="co">#&gt; Loading required namespace: JASPAR2018</span>
-<span class="co">#&gt; extracted 579 motifs from JASPAR2018</span>
-<span class="co">#&gt; converting to HOMER format...done</span>
-<span class="co">#&gt; [1] TRUE</span></pre></body></html></div>
-<p>Next we need to know where Homer is installed (you may have to adjust the <code>dirs</code> argument below according to your environment):</p>
-<div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="no">homerfile</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/findHomer.html">findHomer</a></span>(<span class="kw">dirs</span> <span class="kw">=</span> <span class="st">"/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/"</span>)</pre></body></html></div>
+<p>Next we prepare the motif enrichment analysis. We first need known motifs representing transcription factor binding site preferences. We extract all vertebrate motifs from the <em><a href="https://bioconductor.org/packages/3.12/JASPAR2018" class="external-link">JASPAR2018</a></em> package as positional weight matrices (PWMs):</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">pwms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/getMatrixSet-methods.html" class="external-link">getMatrixSet</a></span><span class="op">(</span><span class="va">JASPAR2018</span>,
+                     opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>matrixtype <span class="op">=</span> <span class="st">"PWM"</span>,
+                                 tax_group <span class="op">=</span> <span class="st">"vertebrates"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<p>Furthermore, we need the sequences corresponding to our LMR regions, which we directly extract from the <em><a href="https://bioconductor.org/packages/3.12/BSgenome.Mmusculus.UCSC.mm10" class="external-link">BSgenome.Mmusculus.UCSC.mm10</a></em> package:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">lmrseqs</span> <span class="op">&lt;-</span> <span class="fu">getSeq</span><span class="op">(</span><span class="va">BSgenome.Mmusculus.UCSC.mm10</span>, <span class="va">lmrsel</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="run-motif-enrichment-analysis" class="section level2">
 <h2 class="hasAnchor">
 <a href="#run-motif-enrichment-analysis" class="anchor"></a>Run motif enrichment analysis</h2>
-<p>Finally, we run the analysis. Again, you may have to adjust the <code>genomedir</code>.</p>
-<p>This step requires that you have Homer installed on your system. Also, it may take a while, for this reason you do not need to run it, but can just load the results as shown below:</p>
-<div class="sourceCode" id="cb10"><html><body><pre class="r"><span class="no">outdir</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempfile</a></span>(<span class="kw">fileext</span> <span class="kw">=</span> <span class="st">".output"</span>)
-<span class="no">se</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/runHomer.html">runHomer</a></span>(<span class="kw">gr</span> <span class="kw">=</span> <span class="no">lmrsel</span>, <span class="kw">b</span> <span class="kw">=</span> <span class="no">bins</span>, <span class="kw">genomedir</span> <span class="kw">=</span> <span class="st">"/work/gbioinfo/DB/genomes/mm9"</span>,
-               <span class="kw">outdir</span> <span class="kw">=</span> <span class="no">outdir</span>, <span class="kw">motifFile</span> <span class="kw">=</span> <span class="no">motiffile</span>, <span class="kw">homerfile</span> <span class="kw">=</span> <span class="no">homerfile</span>,
-               <span class="kw">regionsize</span> <span class="kw">=</span> <span class="st">"given"</span>, <span class="kw">Ncpu</span> <span class="kw">=</span> <span class="fl">20L</span>)</pre></body></html></div>
-<!--
-saveRDS(se, "/work/gbioinfo/stadler/development/R/compbio-lisa/inst/extdata/se.rds")
--->
+<p>Finally, we run the binned motif enrichment analysis.</p>
+<p>This step will take a while, and typically you would use the <code>BPPARAM</code> argument to run it with parallelization. For this example however, you can just load the pre-computed results as shown below.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calcBinnedMotifEnr.html">calcBinnedMotifEnr</a></span><span class="op">(</span>seqs <span class="op">=</span> <span class="va">lmrseqs</span>, bins <span class="op">=</span> <span class="va">bins</span>, motifs <span class="op">=</span> <span class="va">pwms</span><span class="op">)</span></code></pre></div>
 <p>In case you did not run the above code, let’s now read in the results:</p>
-<div class="sourceCode" id="cb11"><html><body><pre class="r"><span class="no">se</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"extdata"</span>, <span class="st">"se.rds"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"monaLisa"</span>))</pre></body></html></div>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"se.rds"</span>, package <span class="op">=</span> <span class="st">"monaLisa"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><code>se</code> is a <code>SummarizedExperiment</code> object which nicely keeps motifs, bins and corresponding metadata together:</p>
-<div class="sourceCode" id="cb12"><html><body><pre class="r"><span class="co"># summary</span>
-<span class="no">se</span>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># summary</span>
+<span class="va">se</span>
 <span class="co">#&gt; class: SummarizedExperiment </span>
 <span class="co">#&gt; dim: 579 8 </span>
-<span class="co">#&gt; metadata(12): regions bins ... param.Ncpu motif.distances</span>
-<span class="co">#&gt; assays(4): p FDR enr log2enr</span>
-<span class="co">#&gt; rownames(579): Ahr.Arnt_P30561.P53762_SELEX</span>
-<span class="co">#&gt;   Alx1_Q8C8B0_universalproteinbindingmicroarray ...</span>
-<span class="co">#&gt;   ZNF740_Q8NDX6_HTSELEX ZSCAN4_Q8NAM6_HTSELEX</span>
-<span class="co">#&gt; rowData names(3): motif.name motif.pfm motif.percentGC</span>
-<span class="co">#&gt; colnames(8): [-0.966,-0.269] (-0.269,0.323] ... (0.532,0.582]</span>
-<span class="co">#&gt;   (0.582,0.862]</span>
-<span class="co">#&gt; colData names(4): bin.names bin.lower bin.upper bin.nochange</span>
-<span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span>(<span class="no">se</span>) <span class="co"># motifs-by-bins</span>
+<span class="co">#&gt; metadata(13): sequences bins ... param.BPARAM.bpnworkers param.verbose</span>
+<span class="co">#&gt; assays(6): p FDR ... sumForegroundWgtWithHits sumBackgroundWgtWithHits</span>
+<span class="co">#&gt; rownames(579): MA0004.1 MA0006.1 ... MA1420.1 MA1421.1</span>
+<span class="co">#&gt; rowData names(5): motif.id motif.name motif.pfm motif.pwm</span>
+<span class="co">#&gt;   motif.percentGC</span>
+<span class="co">#&gt; colnames(8): [-0.935,-0.242] (-0.242,0.327] ... (0.536,0.585]</span>
+<span class="co">#&gt;   (0.585,0.862]</span>
+<span class="co">#&gt; colData names(6): bin.names bin.lower ... totalWgtForeground</span>
+<span class="co">#&gt;   totalWgtBackground</span>
+<span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span> <span class="co"># motifs-by-bins</span>
 <span class="co">#&gt; [1] 579   8</span>
 
 <span class="co"># motif info</span>
-<span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">rowData</a></span>(<span class="no">se</span>)
-<span class="co">#&gt; DataFrame with 579 rows and 3 columns</span>
-<span class="co">#&gt;                                                           motif.name</span>
-<span class="co">#&gt;                                                          &lt;character&gt;</span>
-<span class="co">#&gt; Ahr.Arnt_P30561.P53762_SELEX                  Ahr.Arnt_P30561.P537..</span>
-<span class="co">#&gt; Alx1_Q8C8B0_universalproteinbindingmicroarray Alx1_Q8C8B0_universa..</span>
-<span class="co">#&gt; ALX3_O95076_HTSELEX                              ALX3_O95076_HTSELEX</span>
-<span class="co">#&gt; Alx4_O35137_universalproteinbindingmicroarray Alx4_O35137_universa..</span>
-<span class="co">#&gt; Ar_P19091_HTSELEX                                  Ar_P19091_HTSELEX</span>
+<span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span>
+<span class="co">#&gt; DataFrame with 579 rows and 5 columns</span>
+<span class="co">#&gt;             motif.id   motif.name                       motif.pfm</span>
+<span class="co">#&gt;          &lt;character&gt;  &lt;character&gt;                  &lt;PFMatrixList&gt;</span>
+<span class="co">#&gt; MA0004.1    MA0004.1         Arnt         MA0004.1; Arnt; Unknown</span>
+<span class="co">#&gt; MA0006.1    MA0006.1    Ahr::Arnt    MA0006.1; Ahr::Arnt; Unknown</span>
+<span class="co">#&gt; MA0019.1    MA0019.1 Ddit3::Cebpa MA0019.1; Ddit3::Cebpa; Unknown</span>
+<span class="co">#&gt; MA0025.1    MA0025.1        NFIL3        MA0025.1; NFIL3; Unknown</span>
+<span class="co">#&gt; MA0029.1    MA0029.1        Mecom        MA0029.1; Mecom; Unknown</span>
+<span class="co">#&gt; ...              ...          ...                             ...</span>
+<span class="co">#&gt; MA0162.3    MA0162.3         EGR1         MA0162.3; EGR1; Unknown</span>
+<span class="co">#&gt; MA1418.1    MA1418.1         IRF3         MA1418.1; IRF3; Unknown</span>
+<span class="co">#&gt; MA1419.1    MA1419.1         IRF4         MA1419.1; IRF4; Unknown</span>
+<span class="co">#&gt; MA1420.1    MA1420.1         IRF5         MA1420.1; IRF5; Unknown</span>
+<span class="co">#&gt; MA1421.1    MA1421.1       TCF7L1       MA1421.1; TCF7L1; Unknown</span>
+<span class="co">#&gt;                                                            motif.pwm</span>
+<span class="co">#&gt;                                                       &lt;PWMatrixList&gt;</span>
+<span class="co">#&gt; MA0004.1       MA0004.1; Arnt; Basic helix-loop-helix factors (bHLH)</span>
+<span class="co">#&gt; MA0006.1  MA0006.1; Ahr::Arnt; Basic helix-loop-helix factors (bHLH)</span>
+<span class="co">#&gt; MA0019.1 MA0019.1; Ddit3::Cebpa; Basic leucine zipper factors (bZIP)</span>
+<span class="co">#&gt; MA0025.1        MA0025.1; NFIL3; Basic leucine zipper factors (bZIP)</span>
+<span class="co">#&gt; MA0029.1                   MA0029.1; Mecom; C2H2 zinc finger factors</span>
 <span class="co">#&gt; ...                                                              ...</span>
-<span class="co">#&gt; ZNF384_Q8TF68_ChIPseq                          ZNF384_Q8TF68_ChIPseq</span>
-<span class="co">#&gt; ZNF410_Q86VK4_HTSELEX                          ZNF410_Q86VK4_HTSELEX</span>
-<span class="co">#&gt; Znf423_O08961_SELEX                              Znf423_O08961_SELEX</span>
-<span class="co">#&gt; ZNF740_Q8NDX6_HTSELEX                          ZNF740_Q8NDX6_HTSELEX</span>
-<span class="co">#&gt; ZSCAN4_Q8NAM6_HTSELEX                          ZSCAN4_Q8NAM6_HTSELEX</span>
-<span class="co">#&gt;                                                                                                                                           motif.pfm</span>
-<span class="co">#&gt;                                                                                                                                      &lt;PFMatrixList&gt;</span>
-<span class="co">#&gt; Ahr.Arnt_P30561.P53762_SELEX                                                    Ahr.Arnt_P30561.P53762_SELEX; Ahr.Arnt_P30561.P53762_SELEX; Unknown</span>
-<span class="co">#&gt; Alx1_Q8C8B0_universalproteinbindingmicroarray Alx1_Q8C8B0_universalproteinbindingmicroarray; Alx1_Q8C8B0_universalproteinbindingmicroarray; Unknown</span>
-<span class="co">#&gt; ALX3_O95076_HTSELEX                                                                               ALX3_O95076_HTSELEX; ALX3_O95076_HTSELEX; Unknown</span>
-<span class="co">#&gt; Alx4_O35137_universalproteinbindingmicroarray Alx4_O35137_universalproteinbindingmicroarray; Alx4_O35137_universalproteinbindingmicroarray; Unknown</span>
-<span class="co">#&gt; Ar_P19091_HTSELEX                                                                                     Ar_P19091_HTSELEX; Ar_P19091_HTSELEX; Unknown</span>
-<span class="co">#&gt; ...                                                                                                                                             ...</span>
-<span class="co">#&gt; ZNF384_Q8TF68_ChIPseq                                                                         ZNF384_Q8TF68_ChIPseq; ZNF384_Q8TF68_ChIPseq; Unknown</span>
-<span class="co">#&gt; ZNF410_Q86VK4_HTSELEX                                                                         ZNF410_Q86VK4_HTSELEX; ZNF410_Q86VK4_HTSELEX; Unknown</span>
-<span class="co">#&gt; Znf423_O08961_SELEX                                                                               Znf423_O08961_SELEX; Znf423_O08961_SELEX; Unknown</span>
-<span class="co">#&gt; ZNF740_Q8NDX6_HTSELEX                                                                         ZNF740_Q8NDX6_HTSELEX; ZNF740_Q8NDX6_HTSELEX; Unknown</span>
-<span class="co">#&gt; ZSCAN4_Q8NAM6_HTSELEX                                                                         ZSCAN4_Q8NAM6_HTSELEX; ZSCAN4_Q8NAM6_HTSELEX; Unknown</span>
-<span class="co">#&gt;                                               motif.percentGC</span>
-<span class="co">#&gt;                                                     &lt;numeric&gt;</span>
-<span class="co">#&gt; Ahr.Arnt_P30561.P53762_SELEX                          68.4298</span>
-<span class="co">#&gt; Alx1_Q8C8B0_universalproteinbindingmicroarray         33.9412</span>
-<span class="co">#&gt; ALX3_O95076_HTSELEX                                   27.6723</span>
-<span class="co">#&gt; Alx4_O35137_universalproteinbindingmicroarray         35.4326</span>
-<span class="co">#&gt; Ar_P19091_HTSELEX                                     52.0354</span>
-<span class="co">#&gt; ...                                                       ...</span>
-<span class="co">#&gt; ZNF384_Q8TF68_ChIPseq                                 15.3461</span>
-<span class="co">#&gt; ZNF410_Q86VK4_HTSELEX                                 38.0729</span>
-<span class="co">#&gt; Znf423_O08961_SELEX                                   65.8069</span>
-<span class="co">#&gt; ZNF740_Q8NDX6_HTSELEX                                 81.2813</span>
-<span class="co">#&gt; ZSCAN4_Q8NAM6_HTSELEX                                 47.6604</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(<span class="no">se</span>))
-<span class="co">#&gt; [1] "Ahr.Arnt_P30561.P53762_SELEX"                 </span>
-<span class="co">#&gt; [2] "Alx1_Q8C8B0_universalproteinbindingmicroarray"</span>
-<span class="co">#&gt; [3] "ALX3_O95076_HTSELEX"                          </span>
-<span class="co">#&gt; [4] "Alx4_O35137_universalproteinbindingmicroarray"</span>
-<span class="co">#&gt; [5] "Ar_P19091_HTSELEX"                            </span>
-<span class="co">#&gt; [6] "Arid3a_Q62431_SELEX"</span>
+<span class="co">#&gt; MA0162.3                   MA0162.3; EGR1; C2H2 zinc finger factors </span>
+<span class="co">#&gt; MA1418.1                 MA1418.1; IRF3; Tryptophan cluster factors </span>
+<span class="co">#&gt; MA1419.1                 MA1419.1; IRF4; Tryptophan cluster factors </span>
+<span class="co">#&gt; MA1420.1                 MA1420.1; IRF5; Tryptophan cluster factors </span>
+<span class="co">#&gt; MA1421.1  MA1421.1; TCF7L1; High-mobility group (HMG) domain factors</span>
+<span class="co">#&gt;          motif.percentGC</span>
+<span class="co">#&gt;                &lt;numeric&gt;</span>
+<span class="co">#&gt; MA0004.1         64.0893</span>
+<span class="co">#&gt; MA0006.1         71.5266</span>
+<span class="co">#&gt; MA0019.1         48.3898</span>
+<span class="co">#&gt; MA0025.1         26.6294</span>
+<span class="co">#&gt; MA0029.1         28.0907</span>
+<span class="co">#&gt; ...                  ...</span>
+<span class="co">#&gt; MA0162.3         67.4873</span>
+<span class="co">#&gt; MA1418.1         45.8111</span>
+<span class="co">#&gt; MA1419.1         45.7066</span>
+<span class="co">#&gt; MA1420.1         48.0671</span>
+<span class="co">#&gt; MA1421.1         35.1397</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span><span class="op">)</span>
+<span class="co">#&gt; [1] "MA0004.1" "MA0006.1" "MA0019.1" "MA0025.1" "MA0029.1" "MA0030.1"</span>
 
 <span class="co"># bin info</span>
-<span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">colData</a></span>(<span class="no">se</span>)
-<span class="co">#&gt; DataFrame with 8 rows and 4 columns</span>
+<span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span>
+<span class="co">#&gt; DataFrame with 8 rows and 6 columns</span>
 <span class="co">#&gt;                       bin.names bin.lower bin.upper bin.nochange</span>
 <span class="co">#&gt;                     &lt;character&gt; &lt;numeric&gt; &lt;numeric&gt;    &lt;logical&gt;</span>
-<span class="co">#&gt; [-0.966,-0.269] [-0.966,-0.269] -0.965517 -0.268531        FALSE</span>
-<span class="co">#&gt; (-0.269,0.323]   (-0.269,0.323] -0.268531  0.323299         TRUE</span>
-<span class="co">#&gt; (0.323,0.386]     (0.323,0.386]  0.323299  0.386364        FALSE</span>
-<span class="co">#&gt; (0.386,0.442]     (0.386,0.442]  0.386364  0.441585        FALSE</span>
-<span class="co">#&gt; (0.442,0.49]       (0.442,0.49]  0.441585  0.489649        FALSE</span>
-<span class="co">#&gt; (0.49,0.532]       (0.49,0.532]  0.489649  0.531948        FALSE</span>
-<span class="co">#&gt; (0.532,0.582]     (0.532,0.582]  0.531948  0.581921        FALSE</span>
-<span class="co">#&gt; (0.582,0.862]     (0.582,0.862]  0.581921  0.862443        FALSE</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(<span class="no">se</span>))
-<span class="co">#&gt; [1] "[-0.966,-0.269]" "(-0.269,0.323]"  "(0.323,0.386]"   "(0.386,0.442]"  </span>
-<span class="co">#&gt; [5] "(0.442,0.49]"    "(0.49,0.532]"</span>
+<span class="co">#&gt; [-0.935,-0.242] [-0.935,-0.242] -0.935484 -0.242127        FALSE</span>
+<span class="co">#&gt; (-0.242,0.327]   (-0.242,0.327] -0.242127  0.327369         TRUE</span>
+<span class="co">#&gt; (0.327,0.388]     (0.327,0.388]  0.327369  0.387698        FALSE</span>
+<span class="co">#&gt; (0.388,0.443]     (0.388,0.443]  0.387698  0.443079        FALSE</span>
+<span class="co">#&gt; (0.443,0.491]     (0.443,0.491]  0.443079  0.490691        FALSE</span>
+<span class="co">#&gt; (0.491,0.536]     (0.491,0.536]  0.490691  0.535714        FALSE</span>
+<span class="co">#&gt; (0.536,0.585]     (0.536,0.585]  0.535714  0.584707        FALSE</span>
+<span class="co">#&gt; (0.585,0.862]     (0.585,0.862]  0.584707  0.862443        FALSE</span>
+<span class="co">#&gt;                 totalWgtForeground totalWgtBackground</span>
+<span class="co">#&gt;                          &lt;numeric&gt;          &lt;numeric&gt;</span>
+<span class="co">#&gt; [-0.935,-0.242]                800            7973.50</span>
+<span class="co">#&gt; (-0.242,0.327]                4400            5589.48</span>
+<span class="co">#&gt; (0.327,0.388]                  800            9212.13</span>
+<span class="co">#&gt; (0.388,0.443]                  800            9214.45</span>
+<span class="co">#&gt; (0.443,0.491]                  800            9187.61</span>
+<span class="co">#&gt; (0.491,0.536]                  800            9100.03</span>
+<span class="co">#&gt; (0.536,0.585]                  800            9134.89</span>
+<span class="co">#&gt; (0.585,0.862]                  800            9126.22</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span><span class="op">)</span>
+<span class="co">#&gt; [1] "[-0.935,-0.242]" "(-0.242,0.327]"  "(0.327,0.388]"   "(0.388,0.443]"  </span>
+<span class="co">#&gt; [5] "(0.443,0.491]"   "(0.491,0.536]"</span>
 
 <span class="co"># assays: the motif enrichment results</span>
-<span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assayNames</a></span>(<span class="no">se</span>)
-<span class="co">#&gt; [1] "p"       "FDR"     "enr"     "log2enr"</span>
-<span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assay</a></span>(<span class="no">se</span>, <span class="st">"log2enr"</span>)[<span class="fl">1</span>:<span class="fl">5</span>, <span class="fl">1</span>:<span class="fl">3</span>]
-<span class="co">#&gt;                                               [-0.966,-0.269] (-0.269,0.323]</span>
-<span class="co">#&gt; Ahr.Arnt_P30561.P53762_SELEX                       0.00000000      0.0000000</span>
-<span class="co">#&gt; Alx1_Q8C8B0_universalproteinbindingmicroarray      0.07855834     -0.2877679</span>
-<span class="co">#&gt; ALX3_O95076_HTSELEX                               -0.06867203     -0.3094236</span>
-<span class="co">#&gt; Alx4_O35137_universalproteinbindingmicroarray      0.14191570     -0.3153208</span>
-<span class="co">#&gt; Ar_P19091_HTSELEX                                 -0.89110443     -0.1033845</span>
-<span class="co">#&gt;                                               (0.323,0.386]</span>
-<span class="co">#&gt; Ahr.Arnt_P30561.P53762_SELEX                     0.00000000</span>
-<span class="co">#&gt; Alx1_Q8C8B0_universalproteinbindingmicroarray    0.22911758</span>
-<span class="co">#&gt; ALX3_O95076_HTSELEX                              0.13301082</span>
-<span class="co">#&gt; Alx4_O35137_universalproteinbindingmicroarray    0.08260004</span>
-<span class="co">#&gt; Ar_P19091_HTSELEX                               -0.06326640</span></pre></body></html></div>
-<p>We can plot the results using the <code>plotMotifHeatmaps</code> function, e.g. selecting all factors that have an absolute log2 enrichment of at least 1.0 in any bin:</p>
-<div class="sourceCode" id="cb13"><html><body><pre class="r"><span class="co"># select strongly enriched TFs</span>
-<span class="no">sel</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span>(<span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assay</a></span>(<span class="no">se</span>, <span class="st">"log2enr"</span>), <span class="fl">1</span>, <span class="kw">function</span>(<span class="no">x</span>) <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span>(<span class="no">x</span>))) <span class="kw">&gt;</span> <span class="fl">1.0</span>
-<span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(<span class="no">sel</span>)
-<span class="co">#&gt; [1] 24</span>
-<span class="no">seSel</span> <span class="kw">&lt;-</span> <span class="no">se</span>[<span class="no">sel</span>, ]
-<span class="co"># shorten names</span>
-<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(<span class="no">seSel</span>) <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html">sub</a></span>(<span class="st">"\\_.*$"</span>,<span class="st">""</span>,<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(<span class="no">seSel</span>))
+<span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assayNames</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span>
+<span class="co">#&gt; [1] "p"                        "FDR"                     </span>
+<span class="co">#&gt; [3] "enr"                      "log2enr"                 </span>
+<span class="co">#&gt; [5] "sumForegroundWgtWithHits" "sumBackgroundWgtWithHits"</span>
+<span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">se</span>, <span class="st">"log2enr"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span>
+<span class="co">#&gt;          [-0.935,-0.242] (-0.242,0.327] (0.327,0.388]</span>
+<span class="co">#&gt; MA0004.1      -0.9968708    -0.07583308   -0.22652109</span>
+<span class="co">#&gt; MA0006.1      -0.1608743     0.13836356   -0.15873607</span>
+<span class="co">#&gt; MA0019.1      -0.7132110     0.09184673   -0.12197049</span>
+<span class="co">#&gt; MA0025.1      -0.4894612    -0.27114705   -0.12557419</span>
+<span class="co">#&gt; MA0029.1      -0.3721574    -0.21648466   -0.06075382</span></code></pre></div>
+<p>We can plot the results using the <code>plotMotifHeatmaps</code> function, e.g. selecting all transcription factor motifs that have an <span class="math inline">\(-log_{10} FDR\)</span> of at least 8.0 in any bin (corresponding to an <span class="math inline">\(FDR &lt; 10^{-8}\)</span>):</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># select strongly enriched motifs</span>
+<span class="va">sel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">se</span>, <span class="st">"FDR"</span><span class="op">)</span>, <span class="fl">1</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">8.0</span>
+<span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">sel</span><span class="op">)</span>
+<span class="co">#&gt; [1] 25</span>
+<span class="va">seSel</span> <span class="op">&lt;-</span> <span class="va">se</span><span class="op">[</span><span class="va">sel</span>, <span class="op">]</span>
+
 <span class="co"># plot</span>
-<span class="fu"><a href="../reference/plotMotifHeatmaps.html">plotMotifHeatmaps</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">seSel</span>, <span class="kw">which.plots</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"log2enr"</span>,<span class="st">"FDR"</span>), <span class="kw">width</span> <span class="kw">=</span> <span class="fl">2.0</span>,
-                  <span class="kw">cluster</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="kw">maxEnr</span> <span class="kw">=</span> <span class="fl">2</span>, <span class="kw">maxSig</span> <span class="kw">=</span> <span class="fl">10</span>, <span class="kw">show_motif_GC</span> <span class="kw">=</span> <span class="fl">TRUE</span>)</pre></body></html></div>
+<span class="fu"><a href="../reference/plotMotifHeatmaps.html">plotMotifHeatmaps</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">seSel</span>, which.plots <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log2enr"</span>,<span class="st">"FDR"</span><span class="op">)</span>, width <span class="op">=</span> <span class="fl">2.0</span>,
+                  cluster <span class="op">=</span> <span class="cn">TRUE</span>, maxEnr <span class="op">=</span> <span class="fl">2</span>, maxSig <span class="op">=</span> <span class="fl">10</span>, show_motif_GC <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <p><img src="monaLisa_files/figure-html/plottfs-1.png" width="80%" style="display: block; margin: auto;"></p>
-<p>As the Jaspar database contains many similar motifs, it is helpful to show the enrichment heatmap clustered by motif similarity. To this end, we first need to calculate all pairwise motif similarities (measured as maximum Pearson correlation of all possible shifted alignments). As this step may take a while, you can also skip this line of code and load the results using the next line of code.</p>
-<div class="sourceCode" id="cb14"><html><body><pre class="r"><span class="no">SimMat</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/motifSimilarity.html">motifSimilarity</a></span>(<span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">rowData</a></span>(<span class="no">se</span>)$<span class="no">motif.pfm</span>, <span class="kw">Ncpu</span> <span class="kw">=</span> <span class="fl">20L</span>)</pre></body></html></div>
-<div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="no">SimMat</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"extdata"</span>, <span class="st">"SimMat.rds"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"monaLisa"</span>))</pre></body></html></div>
-<p>The order of the TFs in the resulting matrix is consistent with the elements of <code>se</code></p>
-<div class="sourceCode" id="cb16"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/all.html">all</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(<span class="no">SimMat</span>) <span class="kw">==</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(<span class="no">se</span>))
-<span class="co">#&gt; [1] TRUE</span></pre></body></html></div>
-<p>Using this matrix, we can create an <em>hclust</em> object for clustering and plot the clustered heatmap. The plotting of the dendogram is controlled by the parameter <em>show_dendrogram</em>.</p>
-<div class="sourceCode" id="cb17"><html><body><pre class="r"><span class="co"># create hclust object, similarity defined by 1 - Pearson correlation</span>
-<span class="no">hcl</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/hclust.html">hclust</a></span>(<span class="fu"><a href="https://rdrr.io/r/stats/dist.html">as.dist</a></span>(<span class="fl">1</span> - <span class="no">SimMat</span>[<span class="no">sel</span>, <span class="no">sel</span>]), <span class="kw">method</span><span class="kw">=</span><span class="st">"average"</span>)
-<span class="fu"><a href="../reference/plotMotifHeatmaps.html">plotMotifHeatmaps</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">seSel</span>, <span class="kw">which.plots</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"log2enr"</span>,<span class="st">"FDR"</span>), <span class="kw">width</span> <span class="kw">=</span> <span class="fl">1.2</span>,
-                  <span class="kw">cluster</span> <span class="kw">=</span> <span class="no">hcl</span>, <span class="kw">maxEnr</span> <span class="kw">=</span> <span class="fl">2</span>, <span class="kw">maxSig</span> <span class="kw">=</span> <span class="fl">10</span>,
-                  <span class="kw">show_dendrogram</span><span class="kw">=</span><span class="fl">TRUE</span>, <span class="kw">show_seqlogo</span> <span class="kw">=</span> <span class="fl">TRUE</span>,
-                  <span class="kw">width.seqlogo</span> <span class="kw">=</span> <span class="fl">1.2</span>)</pre></body></html></div>
+<p>Setting <code>cluster = TRUE</code> has re-ordered the rows using hierarchical clustering of the <code>"enr"</code> assay. As many transcription factor binding motifs are similar to each other, it is also helpful to show the enrichment heatmap clustered by motif similarity. To this end, we first calculate all pairwise motif similarities (measured as maximum Pearson correlation of all possible shifted alignments). This can be quickly calculated for the few selected motifs using the <code>motifSimilarity</code> function. For many motifs, this step may take a while, and it may be useful to parallelize it using the <code>BPARAM</code> argument (e.g. to run on <code>n</code> parallel threads using the multi-core backend, you can use: <code><a href="../reference/motifSimilarity.html">motifSimilarity(..., BPPARAM = BiocParallel::MulticoreParam(n))</a></code>).</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">SimMatSel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/motifSimilarity.html">motifSimilarity</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData</a></span><span class="op">(</span><span class="va">seSel</span><span class="op">)</span><span class="op">$</span><span class="va">motif.pfm</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/inter-range-methods.html" class="external-link">range</a></span><span class="op">(</span><span class="va">SimMatSel</span><span class="op">)</span>
+<span class="co">#&gt; [1] 0.07927602 1.00000000</span></code></pre></div>
+<p>The order of the TFs in the resulting matrix is consistent with the elements of <code>seSel</code>, and the maximal similarity between any pair of motifs is 1.0. By subtracting these similarities from 1.0, we obtain distances that we use to perform a hierarchical clustering with the <code>hclust</code> function. The returned object is then passed to the <code>cluster</code> argument to define the order of the rows in the heatmap. The plotting of the dendogram is controlled by the parameter <code>show_dendrogram</code>, and we also display the motifs as sequence logos using <code>show_seqlogo</code>:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># create hclust object, similarity defined by 1 - Pearson correlation</span>
+<span class="va">hcl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/hclust.html" class="external-link">hclust</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/dist.html" class="external-link">as.dist</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">SimMatSel</span><span class="op">)</span>, method <span class="op">=</span> <span class="st">"average"</span><span class="op">)</span>
+<span class="fu"><a href="../reference/plotMotifHeatmaps.html">plotMotifHeatmaps</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">seSel</span>, which.plots <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log2enr"</span>,<span class="st">"FDR"</span><span class="op">)</span>, width <span class="op">=</span> <span class="fl">1.2</span>,
+                  cluster <span class="op">=</span> <span class="va">hcl</span>, maxEnr <span class="op">=</span> <span class="fl">2</span>, maxSig <span class="op">=</span> <span class="fl">10</span>,
+                  show_dendrogram <span class="op">=</span> <span class="cn">TRUE</span>, show_seqlogo <span class="op">=</span> <span class="cn">TRUE</span>,
+                  width.seqlogo <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span></code></pre></div>
 <p><img src="monaLisa_files/figure-html/plottfsclustered-1.png" width="80%" style="display: block; margin: auto;"></p>
 </div>
 </div>
-<div id="use-monalisa-to-annotate-genomic-regions-with-predicted-motifs" class="section level1">
+<div id="findhits" class="section level1">
 <h1 class="hasAnchor">
-<a href="#use-monalisa-to-annotate-genomic-regions-with-predicted-motifs" class="anchor"></a>Use <code>monaLisa</code> to annotate genomic regions with predicted motifs</h1>
+<a href="#findhits" class="anchor"></a>Use <code>monaLisa</code> to annotate genomic regions with predicted motifs</h1>
 <p>As mentioned <code>monaLisa</code> can also be used to scan sequences for motifs. Here is an example (just on few sequences/motifs for illustration):</p>
-<div class="sourceCode" id="cb18"><html><body><pre class="r"><span class="co"># get sequences of promoters as a DNAStringSet</span>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># get sequences of promoters as a DNAStringSet</span>
 <span class="co"># (could also be a single DNAString, or the name of a fasta file)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">TxDb.Hsapiens.UCSC.hg19.knownGene</span>)
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">TxDb.Mmusculus.UCSC.mm10.knownGene</span><span class="op">)</span>
 <span class="co">#&gt; Loading required package: GenomicFeatures</span>
 <span class="co">#&gt; Loading required package: AnnotationDbi</span>
-<span class="no">gr</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/intra-range-methods.html">promoters</a></span>(<span class="no">TxDb.Hsapiens.UCSC.hg19.knownGene</span>, <span class="kw">upstream</span> <span class="kw">=</span> <span class="fl">1000</span>, <span class="kw">downstream</span> <span class="kw">=</span> <span class="fl">500</span>)[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1</span>,<span class="fl">4</span>,<span class="fl">5</span>,<span class="fl">10</span>)]
+<span class="va">gr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/intra-range-methods.html" class="external-link">promoters</a></span><span class="op">(</span><span class="va">TxDb.Mmusculus.UCSC.mm10.knownGene</span>,
+                upstream <span class="op">=</span> <span class="fl">1000</span>, downstream <span class="op">=</span> <span class="fl">500</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">4</span>,<span class="fl">5</span>,<span class="fl">10</span><span class="op">)</span><span class="op">]</span>
 <span class="co">#&gt; Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 1 out-of-bound range located on sequence</span>
-<span class="co">#&gt;   chrUn_gl000223. Note that ranges located on a sequence whose length is</span>
-<span class="co">#&gt;   unknown (NA) or on a circular sequence are not considered out-of-bound</span>
-<span class="co">#&gt;   (use seqlengths() and isCircular() to get the lengths and circularity</span>
-<span class="co">#&gt;   flags of the underlying sequences). You can use trim() to trim these</span>
-<span class="co">#&gt;   ranges. See ?`trim,GenomicRanges-method` for more information.</span>
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">BSgenome.Hsapiens.UCSC.hg19</span>)
-<span class="co">#&gt; Loading required package: BSgenome</span>
-<span class="co">#&gt; Loading required package: Biostrings</span>
-<span class="co">#&gt; Loading required package: XVector</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Attaching package: 'Biostrings'</span>
-<span class="co">#&gt; The following object is masked from 'package:base':</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;     strsplit</span>
-<span class="co">#&gt; Loading required package: rtracklayer</span>
-<span class="no">seqs</span> <span class="kw">&lt;-</span> <span class="fu">getSeq</span>(<span class="no">BSgenome.Hsapiens.UCSC.hg19</span>, <span class="no">gr</span>)
-<span class="no">seqs</span>
+<span class="co">#&gt;   chr4_JH584295_random. Note that ranges located on a sequence whose</span>
+<span class="co">#&gt;   length is unknown (NA) or on a circular sequence are not considered</span>
+<span class="co">#&gt;   out-of-bound (use seqlengths() and isCircular() to get the lengths and</span>
+<span class="co">#&gt;   circularity flags of the underlying sequences). You can use trim() to</span>
+<span class="co">#&gt;   trim these ranges. See ?`trim,GenomicRanges-method` for more</span>
+<span class="co">#&gt;   information.</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">BSgenome.Mmusculus.UCSC.mm10</span><span class="op">)</span>
+<span class="va">seqs</span> <span class="op">&lt;-</span> <span class="fu">getSeq</span><span class="op">(</span><span class="va">BSgenome.Mmusculus.UCSC.mm10</span>, <span class="va">gr</span><span class="op">)</span>
+<span class="va">seqs</span>
 <span class="co">#&gt; DNAStringSet object of length 4:</span>
 <span class="co">#&gt;     width seq                                               names               </span>
-<span class="co">#&gt; [1]  1500 ACACATGCTACCGCGTCCAGGGG...CAGCCGGCTGGAGGGAGGGGCTC uc001aaa.3</span>
-<span class="co">#&gt; [2]  1500 GCTATTATCACCTATATTTTCCA...CTCTTCTGTGGTCCCAATGAGGT uc001aal.1</span>
-<span class="co">#&gt; [3]  1500 ACATGCATGTCACCCATGCCCAG...AGAAGAACTTTTAGTATGTACAT uc001aaq.2</span>
-<span class="co">#&gt; [4]  1500 TTGGCTCAACTCCTGCCCAGCTC...CTCTTTCGGCCCAGCCCAGCTCA uc021oei.1</span>
+<span class="co">#&gt; [1]  1500 CCCTTTTGGATAGATTCTAGGCT...GCTGATTTATGAGTAAGGGATGT ENSMUST00000193812.1</span>
+<span class="co">#&gt; [2]  1500 TGCGGTATGTTCATGTATACATG...ATGAATTTACCAATGCCACACAG ENSMUST00000161581.1</span>
+<span class="co">#&gt; [3]  1500 TGATTAAGAAAATTCCCTGGTGG...CCCTTGGTGTGGTAGTCACGTCC ENSMUST00000192183.1</span>
+<span class="co">#&gt; [4]  1500 TGGAAATGTCTTCCCTCACCCCT...AGGAACCTAGCCTGTCACCCGCA ENSMUST00000195361.1</span>
 
 <span class="co"># get motifs as a PWMatrixList</span>
 <span class="co"># (could also be a single PWMatrix, or the name of a motif file)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">JASPAR2018</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">TFBSTools</span>)
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Attaching package: 'TFBSTools'</span>
-<span class="co">#&gt; The following object is masked from 'package:DelayedArray':</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;     matrixClass</span>
-<span class="co">#&gt; The following object is masked from 'package:Matrix':</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;     Matrix</span>
-<span class="no">pwms</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/getMatrixSet-methods.html">getMatrixSet</a></span>(<span class="no">JASPAR2018</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">matrixtype</span> <span class="kw">=</span> <span class="st">"PWM"</span>, <span class="kw">tax_group</span> <span class="kw">=</span> <span class="st">"vertebrates"</span>))
-<span class="no">pwms</span> <span class="kw">&lt;-</span> <span class="no">pwms</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"MA0885.1"</span>,<span class="st">"MA0099.3"</span>,<span class="st">"MA0033.2"</span>,<span class="st">"MA0037.3"</span>,<span class="st">"MA0158.1"</span>)]
-<span class="no">pwms</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://jaspar.genereg.net/" class="external-link">JASPAR2018</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ge11232002/TFBSTools" class="external-link">TFBSTools</a></span><span class="op">)</span>
+<span class="va">pfms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/getMatrixByID-methods.html" class="external-link">getMatrixByID</a></span><span class="op">(</span><span class="va">JASPAR2018</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MA0885.1"</span>,<span class="st">"MA0099.3"</span>,<span class="st">"MA0033.2"</span>,<span class="st">"MA0037.3"</span>,<span class="st">"MA0158.1"</span><span class="op">)</span><span class="op">)</span>
+<span class="va">pwms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/toPWM-methods.html" class="external-link">toPWM</a></span><span class="op">(</span><span class="va">pfms</span><span class="op">)</span>
+<span class="va">pwms</span>
 <span class="co">#&gt; PWMatrixList of length 5</span>
 <span class="co">#&gt; names(5): MA0885.1 MA0099.3 MA0033.2 MA0037.3 MA0158.1</span>
+<span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html" class="external-link">name</a></span><span class="op">(</span><span class="va">pwms</span><span class="op">)</span>
+<span class="co">#&gt;   MA0885.1   MA0099.3   MA0033.2   MA0037.3   MA0158.1 </span>
+<span class="co">#&gt;     "Dlx2" "FOS::JUN"    "FOXL1"    "GATA3"    "HOXA5"</span>
 
 <span class="co"># predict hits in sequences</span>
-<span class="no">res</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span>(<span class="kw">query</span> <span class="kw">=</span> <span class="no">pwms</span>, <span class="kw">subject</span> <span class="kw">=</span> <span class="no">seqs</span>, <span class="kw">min.score</span> <span class="kw">=</span> <span class="fl">6.0</span>, <span class="kw">method</span> <span class="kw">=</span> <span class="st">"matchPWM"</span>)
-<span class="no">res</span>
-<span class="co">#&gt; GRanges object with 81 ranges and 3 metadata columns:</span>
-<span class="co">#&gt;          seqnames    ranges strand |     matchedSeq  pwmname     score</span>
-<span class="co">#&gt;             &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;DNAStringSet&gt;    &lt;Rle&gt; &lt;numeric&gt;</span>
-<span class="co">#&gt;    [1] uc001aaa.3   268-275      + |       CAGTAATC    HOXA5   7.61262</span>
-<span class="co">#&gt;    [2] uc001aaa.3   673-679      + |        ATAAATA    FOXL1  10.19850</span>
-<span class="co">#&gt;    [3] uc001aaa.3   696-703      + |       TGATTACC    GATA3   6.16846</span>
-<span class="co">#&gt;    [4] uc001aaa.3   908-915      + |       CGCAAATT    HOXA5   9.98186</span>
-<span class="co">#&gt;    [5] uc001aaa.3   315-322      - |       CTGTAGTG    HOXA5   6.51394</span>
-<span class="co">#&gt;    ...        ...       ...    ... .            ...      ...       ...</span>
-<span class="co">#&gt;   [77] uc021oei.1   457-466      + |     TTGCCTCACC FOS::JUN   6.57112</span>
-<span class="co">#&gt;   [78] uc021oei.1   554-563      + |     TTGCCTCACA FOS::JUN   6.05218</span>
-<span class="co">#&gt;   [79] uc021oei.1   939-946      + |       CTTAAGTT    HOXA5   6.20581</span>
-<span class="co">#&gt;   [80] uc021oei.1   262-268      - |        ATCAACA    FOXL1   9.08702</span>
-<span class="co">#&gt;   [81] uc021oei.1   868-874      - |        GCAAACA    FOXL1   8.84244</span>
+<span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span><span class="op">(</span>query <span class="op">=</span> <span class="va">pwms</span>,
+                     subject <span class="op">=</span> <span class="va">seqs</span>,
+                     min.score <span class="op">=</span> <span class="fl">6.0</span>,
+                     method <span class="op">=</span> <span class="st">"matchPWM"</span>,
+                     BPPARAM <span class="op">=</span> <span class="fu">BiocParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocParallel/man/MulticoreParam-class.html" class="external-link">MulticoreParam</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>
+<span class="va">res</span>
+<span class="co">#&gt; GRanges object with 115 ranges and 4 metadata columns:</span>
+<span class="co">#&gt;                     seqnames    ranges strand |     matchedSeq    pwmid pwmname</span>
+<span class="co">#&gt;                        &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;DNAStringSet&gt;    &lt;Rle&gt;   &lt;Rle&gt;</span>
+<span class="co">#&gt;     [1] ENSMUST00000193812.1    93-100      + |       CTCTTATG MA0158.1   HOXA5</span>
+<span class="co">#&gt;     [2] ENSMUST00000193812.1   103-110      + |       AGCTAATT MA0158.1   HOXA5</span>
+<span class="co">#&gt;     [3] ENSMUST00000193812.1   252-259      + |       GTCATTAT MA0885.1    Dlx2</span>
+<span class="co">#&gt;     [4] ENSMUST00000193812.1   355-362      + |       TGATAAAT MA0037.3   GATA3</span>
+<span class="co">#&gt;     [5] ENSMUST00000193812.1   358-365      + |       TAAATTAT MA0885.1    Dlx2</span>
+<span class="co">#&gt;     ...                  ...       ...    ... .            ...      ...     ...</span>
+<span class="co">#&gt;   [111] ENSMUST00000195361.1   742-749      - |       ATGAAATT MA0158.1   HOXA5</span>
+<span class="co">#&gt;   [112] ENSMUST00000195361.1   833-840      - |       ACAATTAT MA0885.1    Dlx2</span>
+<span class="co">#&gt;   [113] ENSMUST00000195361.1   842-849      - |       GTAATTAA MA0885.1    Dlx2</span>
+<span class="co">#&gt;   [114] ENSMUST00000195361.1   844-851      - |       AAGTAATT MA0158.1   HOXA5</span>
+<span class="co">#&gt;   [115] ENSMUST00000195361.1   865-872      - |       ACCATTAT MA0885.1    Dlx2</span>
+<span class="co">#&gt;             score</span>
+<span class="co">#&gt;         &lt;numeric&gt;</span>
+<span class="co">#&gt;     [1]   6.98342</span>
+<span class="co">#&gt;     [2]   7.96626</span>
+<span class="co">#&gt;     [3]   6.64334</span>
+<span class="co">#&gt;     [4]   6.76273</span>
+<span class="co">#&gt;     [5]   6.36851</span>
+<span class="co">#&gt;     ...       ...</span>
+<span class="co">#&gt;   [111]   6.61929</span>
+<span class="co">#&gt;   [112]  10.61685</span>
+<span class="co">#&gt;   [113]  10.97719</span>
+<span class="co">#&gt;   [114]   7.96626</span>
+<span class="co">#&gt;   [115]   6.28806</span>
 <span class="co">#&gt;   -------</span>
 <span class="co">#&gt;   seqinfo: 4 sequences from an unspecified genome</span>
-
-<span class="co"># ... or using method = "homer2"</span>
-<span class="no">homerfile</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/findHomer.html">findHomer</a></span>(<span class="kw">homerfile</span> <span class="kw">=</span> <span class="st">"homer2"</span>, <span class="kw">dirs</span> <span class="kw">=</span> <span class="st">"/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/"</span>)
-<span class="kw">if</span> (!<span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(<span class="no">homerfile</span>)) {
-    <span class="co"># use homer2 if available</span>
-    <span class="no">res2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span>(<span class="kw">query</span> <span class="kw">=</span> <span class="no">pwms</span>, <span class="kw">subject</span> <span class="kw">=</span> <span class="no">seqs</span>, <span class="kw">min.score</span> <span class="kw">=</span> <span class="fl">6.0</span>, <span class="kw">method</span> <span class="kw">=</span> <span class="st">"homer2"</span>, <span class="kw">homerfile</span> <span class="kw">=</span> <span class="no">homerfile</span>)
-} <span class="kw">else</span> {
-    <span class="co"># otherwise, use matchPWM</span>
-    <span class="no">res2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span>(<span class="kw">query</span> <span class="kw">=</span> <span class="no">pwms</span>, <span class="kw">subject</span> <span class="kw">=</span> <span class="no">seqs</span>, <span class="kw">min.score</span> <span class="kw">=</span> <span class="fl">6.0</span>, <span class="kw">method</span> <span class="kw">=</span> <span class="st">"matchPWM"</span>)
-}
-<span class="no">res2</span>
-<span class="co">#&gt; GRanges object with 81 ranges and 3 metadata columns:</span>
-<span class="co">#&gt;          seqnames    ranges strand |     matchedSeq  pwmname     score</span>
-<span class="co">#&gt;             &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;DNAStringSet&gt;    &lt;Rle&gt; &lt;numeric&gt;</span>
-<span class="co">#&gt;    [1] uc001aaa.3   268-275      + |       CAGTAATC    HOXA5   7.61262</span>
-<span class="co">#&gt;    [2] uc001aaa.3   673-679      + |        ATAAATA    FOXL1  10.19850</span>
-<span class="co">#&gt;    [3] uc001aaa.3   696-703      + |       TGATTACC    GATA3   6.16846</span>
-<span class="co">#&gt;    [4] uc001aaa.3   908-915      + |       CGCAAATT    HOXA5   9.98186</span>
-<span class="co">#&gt;    [5] uc001aaa.3   315-322      - |       CACTACAG    HOXA5   6.51394</span>
-<span class="co">#&gt;    ...        ...       ...    ... .            ...      ...       ...</span>
-<span class="co">#&gt;   [77] uc021oei.1   457-466      + |     TTGCCTCACC FOS::JUN   6.57112</span>
-<span class="co">#&gt;   [78] uc021oei.1   554-563      + |     TTGCCTCACA FOS::JUN   6.05219</span>
-<span class="co">#&gt;   [79] uc021oei.1   939-946      + |       CTTAAGTT    HOXA5   6.20581</span>
-<span class="co">#&gt;   [80] uc021oei.1   262-268      - |        TGTTGAT    FOXL1   9.08702</span>
-<span class="co">#&gt;   [81] uc021oei.1   868-874      - |        TGTTTGC    FOXL1   8.84244</span>
-<span class="co">#&gt;   -------</span>
-<span class="co">#&gt;   seqinfo: 4 sequences from an unspecified genome</span>
-
-<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="no">res</span> <span class="kw">%in%</span> <span class="no">res2</span>)
-<span class="co">#&gt;    Mode    TRUE </span>
-<span class="co">#&gt; logical      81</span>
 
 <span class="co"># create hit matrix:</span>
-<span class="co"># number of site of each motif per sequence</span>
-<span class="no">m</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span>(<span class="fu">seqnames</span>(<span class="no">res</span>), <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span>(<span class="no">res</span>$<span class="no">pwmname</span>))
-<span class="no">m</span>
-<span class="co">#&gt;             </span>
-<span class="co">#&gt;              Dlx2 FOS::JUN FOXL1 GATA3 HOXA5</span>
-<span class="co">#&gt;   uc001aaa.3    1        0     4     1     4</span>
-<span class="co">#&gt;   uc001aal.1    8        2     5    10    11</span>
-<span class="co">#&gt;   uc001aaq.2    5        8     3     1    10</span>
-<span class="co">#&gt;   uc021oei.1    0        5     2     0     1</span></pre></body></html></div>
+<span class="co"># number of sites of each motif per sequence</span>
+<span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu">seqnames</span><span class="op">(</span><span class="va">res</span><span class="op">)</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">seqs</span><span class="op">)</span><span class="op">)</span>,
+           <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">pwmname</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html" class="external-link">name</a></span><span class="op">(</span><span class="va">pwms</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<span class="va">m</span>
+<span class="co">#&gt;                       </span>
+<span class="co">#&gt;                        Dlx2 FOS::JUN FOXL1 GATA3 HOXA5</span>
+<span class="co">#&gt;   ENSMUST00000193812.1    4        2    12     7    10</span>
+<span class="co">#&gt;   ENSMUST00000161581.1   10        1     3     5    10</span>
+<span class="co">#&gt;   ENSMUST00000192183.1    4        2     2     3    13</span>
+<span class="co">#&gt;   ENSMUST00000195361.1   11        1     5     0    10</span></code></pre></div>
+<p>The transformation of sequence and PWM names to factors with defined levels in the creation of the hit matrix above is not strictly needed, but it ensures that even sequences or motifs without any hits are reported in the matrix, and that the order of sequences (rows) and motifs (columns) is identical to the order in <code>seqs</code> and <code>pwms</code>.</p>
 </div>
-<div id="selecting-transcription-factors-likely-to-explain-changes-in-chromatin-accessibility-using-stability-selection" class="section level1">
+<div id="stabsel" class="section level1">
 <h1 class="hasAnchor">
-<a href="#selecting-transcription-factors-likely-to-explain-changes-in-chromatin-accessibility-using-stability-selection" class="anchor"></a>Selecting Transcription Factors Likely to Explain Changes in Chromatin Accessibility Using Stability Selection</h1>
-<p>Randomized Lasso stability selection proposed by Meinshausen and Bühlmann <span class="citation">(Meinshausen and Bühlmann 2010)</span> applies the lasso regression on several subsamples of the data using a weakness parameter that adds additional variation to the lambda parameter and allows for more correlated variables to be selected together. Although the main appeal of stability selection is that it allows for selection of predictors when the number of predictors exceeds the number of observations, the authors also argue for this as a way of slightly overcoming the problem of lasso only selecting variables that are not correlated, and performing better in a noisy dataset depending on how strongly one sets the weakness parameter. Shah and Samworth <span class="citation">(Shah and Samworth 2013)</span> have further improved error control for stability selection using complementary pairs stability selection. The R <code>stabs</code> package <span class="citation">(Hofner, Boccuto, and Göker 2015)</span> implements the Shah and Samworth version of stability selection. <code>monaLisa</code> uses a modified version of the <code>stabsel</code> function in <code>stabs</code> that performs randomized lasso stability selection.</p>
-<p>Here we demonstrate the use of randomized lasso stability selection to select transcription factors (TFs) that are likely to explain changes in chromatin accessibility from ATAC-seq data. One can also use stability selection on any other type of data like ChIP-seq of specific histone marks for example. We are given a vector of log-fold changes (logFC) in chromatin accessibility between two conditions that we consider to be our response vector. The predictor matrix will consist of the number of transcription factor binding sites (TFBS) that each TF has across the peaks. The example data set comes from ENCODE <span class="citation">(Davis et al. 2018)</span> and consists of bam files for ATAC-seq from mouse postnatal (P0) liver (identifiers: ENCFF146ZCO, ENCFF109LQF) and lung (identifiers: ENCFF203DOC, ENCFF823PTD) tissues. Each condition had 2 replicates, and the peak calling was done per condition using MACS2 <span class="citation">(Zhang et al. 2008)</span>. The peaks from both conditions were merged and used to calculate ATAC-seq counts for all samples with QuasR <span class="citation">(Gaidatzis et al. 2015)</span>. Counts per million (CPM) were calculated per sample and averaged across replicates. The logFC was calculated as [log2(CPM(Liver)+8) - log2(CPM(Lung)+8)].</p>
-<p>Only distal autosomal peaks (distance &gt; 1kb from any TSS) were kept since promoter peaks tend not to change so much in accessibility, and we are interested in selecting TFs that likely explain logFC in enhancer regions. The <code>.rds</code> files used in monaLisa’s example dataset consist of peaks that had an absolute logFC greater than 2 and less than 2.2. This was done to reduce the number of peaks and speed up runtime to demonstrate the functions used in <code>monaLisa</code> that apply randomized lasso stability selection <span class="citation">(Meinshausen and Bühlmann 2010)</span>.</p>
+<a href="#stabsel" class="anchor"></a>Motif Selection with Randomized Lasso Stability Selection</h1>
+<p>One can also select for important transcription factor (TF) motifs in a regression based approach with predictors consisting of the TF motif hits, and the response vector being the observed measure of interest, e.g. log-fold changes of accessibility for a set of regions. In <code>monaLisa</code>, we implement the randomized lasso stability selection proposed by Meinshausen and Bühlmann <span class="citation">(Meinshausen and Bühlmann 2010)</span> with the improved error bounds introduced by Shah and Samworth <span class="citation">(Shah and Samworth 2013)</span>. We have modified the <code>stabsel</code> function from the <code>stabs</code> package to implement the randomized lasso version of stability selection.</p>
+<p>Lasso stability selection implements the lasso regression multiple times on subsamples of the data, and returns a selection probability for each predictor (number of times selected divided by number of regressions done). With the randomized lasso, a weakness parameter is additionally used to randomly vary the lambda parameter of the lasso regression. Although the main appeal of stability selection is in cases where the number of predictors exceeds the number of observations, it also performs better variable selection with noisy data <span class="citation">(Meinshausen and Bühlmann 2010)</span>.</p>
+<p>With this approach, TF motifs compete against each other to explain observations, and we can also include additional predictors like GC content to compete against the TF motifs for selection. This is especially useful if the response is biased by sequence composition, for example if regions with higher GC content tend to have higher response values.</p>
+<p>In the example below, we select for TF motifs explaining log-fold changes in chromatin accessibility (ATAC-seq) across the enhancers between mouse liver and lung tissue at P0, but this can be applied to other data types as well (ChIP-seq, RNA-seq, methylation etc.).</p>
+<!--
+
+Selecting Transcription Factors Likely to Explain Changes in Chromatin Accessibility Using Stability Selection
+
+Randomized Lasso stability selection proposed by Meinshausen and Bühlmann [@StabSel] applies the lasso regression on several subsamples of the data using a weakness parameter that adds additional variation to the lambda parameter and allows for more correlated variables to be selected together. Although the main appeal of stability selection is that it allows for selection of predictors when the number of predictors exceeds the number of observations, the authors also argue for this as a way of slightly overcoming the problem of lasso only selecting variables that are not correlated, and performing better in a noisy dataset depending on how strongly one sets the weakness parameter. Shah and Samworth [@compStabs] have further improved error control for stability selection using complementary pairs stability selection. The R `stabs` package [@stabs] implements the Shah and Samworth version of stability selection. `monaLisa` uses a modified version of the `stabsel` function in `stabs` that performs randomized lasso stability selection.
+
+Here we demonstrate the use of randomized lasso stability selection to select transcription factors (TFs) that are likely to explain changes in chromatin accessibility from ATAC-seq data. One can also use stability selection on any other type of data like ChIP-seq of specific histone marks for example. We are given a vector of log-fold changes (logFC) in chromatin accessibility between two conditions that we consider to be our response vector. The predictor matrix will consist of the number of transcription factor binding sites (TFBS) that each TF has across the peaks. The example data set comes from ENCODE [@encode] and consists of bam files for ATAC-seq from mouse postnatal (P0) liver (identifiers: ENCFF146ZCO, ENCFF109LQF) and lung (identifiers: ENCFF203DOC, ENCFF823PTD) tissues. Each condition had 2 replicates, and the peak calling was done per condition using MACS2 [@macs]. The peaks from both conditions were merged and used to calculate ATAC-seq counts for all samples with QuasR [@QuasR]. Counts per million (CPM) were calculated per sample and averaged across replicates. The logFC was calculated as [log2(CPM(Liver)+8) - log2(CPM(Lung)+8)].
+
+Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promoter peaks tend not to change so much in accessibility, and we are interested in selecting TFs that likely explain logFC in enhancer regions. The `.rds` files used in monaLisa's example dataset consist of peaks that had an absolute logFC greater than 2 and less than 2.2. This was done to reduce the number of peaks and speed up runtime to demonstrate the functions used in `monaLisa` that apply randomized lasso stability selection [@StabSel].
+
+-->
 <div id="load-data" class="section level2">
 <h2 class="hasAnchor">
 <a href="#load-data" class="anchor"></a>Load Data</h2>
-<div class="sourceCode" id="cb19"><html><body><pre class="r">
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">monaLisa</span>)
-
-<span class="co"># Path to extdata </span>
-<span class="no">peaks_path</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"extdata"</span>, <span class="st">"Liver_vs_Lung_ATAC_peaks.rds"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"monaLisa"</span>)
-<span class="no">response_path</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"extdata"</span>, <span class="st">"Liver_vs_Lung_ATAC_logFC.rds"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"monaLisa"</span>)
-
-<span class="co"># Load response vector and peaks GRanges</span>
-<span class="no">response</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span>(<span class="no">response_path</span>)
-<span class="no">peaks</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span>(<span class="no">peaks_path</span>)</pre></body></html></div>
+<p>In our example dataset, we have quantified ATAC-seq reads on enhancers in mouse P0 lung and liver tissues. The log2-fold change (our response vector in this example) is for liver vs lung, and we are looking at enhancers that have an absolute log2-fold change &gt; 2.</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="op">{</span>
+  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">monaLisa</span><span class="op">)</span>
+  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://jaspar.genereg.net/" class="external-link">JASPAR2018</a></span><span class="op">)</span>
+  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ge11232002/TFBSTools" class="external-link">TFBSTools</a></span><span class="op">)</span>
+  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">BSgenome.Mmusculus.UCSC.mm10</span><span class="op">)</span>
+  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/Biostrings" class="external-link">Biostrings</a></span><span class="op">)</span>
+  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/SummarizedExperiment" class="external-link">SummarizedExperiment</a></span><span class="op">)</span>
+  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/jokergoo/ComplexHeatmap" class="external-link">ComplexHeatmap</a></span><span class="op">)</span> <span class="co"># heatmap drawing</span>
+  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/jokergoo/circlize" class="external-link">circlize</a></span><span class="op">)</span> <span class="co"># used for color specification</span>
+<span class="op">}</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># load GRanges object with logFC and peaks</span>
+<span class="va">gr_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"atac_liver_vs_lung.rds"</span>, package <span class="op">=</span> <span class="st">"monaLisa"</span><span class="op">)</span>
+<span class="va">gr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="va">gr_path</span><span class="op">)</span></code></pre></div>
 </div>
-<div id="get-predictor-matrix-showing-number-of-tfbs-per-motif-across-the-peaks" class="section level2">
+<div id="get-tfbs-per-motif-and-peak" class="section level2">
 <h2 class="hasAnchor">
-<a href="#get-predictor-matrix-showing-number-of-tfbs-per-motif-across-the-peaks" class="anchor"></a>Get predictor matrix showing number of TFBS per motif across the peaks</h2>
-<p>The <code>findMotifHits</code> function can be used to get the predicted binding sites of each transcription factor across a given set of genomic regions, which in our case is the ATAC-seq peaks. A predictor matrix which contains the number of TFBS each TF has across the given set of peaks is subsequently generated. Note that peaks that have 0 TFBS with all TFs will not be present in the resulting matrix. One can also make use of phylogenetic information of TFs and incorporate that in the predictor matrix. With ATAC-seq, we didn’t want to restrict ourselves to conserved motif sequences. One can also add any additional property of the genomic regions in the response vector to compete against the TFs for selection. We added GC content and the ratio of observed-over-expected CpG (oeCpG) content.</p>
-<p>  The code below takes some time to run, so the result of stability selection in the form of a ‘stabsel’ object can be loaded.</p>
-<div class="sourceCode" id="cb20"><html><body><pre class="r">
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">JASPAR2018</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">TFBSTools</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"BSgenome.Mmusculus.UCSC.mm10"</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">Biostrings</span>)
+<a href="#get-tfbs-per-motif-and-peak" class="anchor"></a>Get TFBS per Motif and Peak</h2>
+<p>We will now construct the transcription factor binding site (TFBS) matrix for known motifs (from a database like JASPAR) in peak regions. We use the <code>findMotifHits</code> function to scan for TF motif hits. This matrix will be the predictor matrix in our regression.</p>
+<p>As mentioned, this framework offers the flexibility to add additional predictors to compete against the TF motifs for selection. Here, we add the fraction of G+C and CpG observed/expected ratio as predictors, to ensure that selected TF motifs are not just detecting a simple trend in GC or CpG composition.</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># get PWMs (random subset of 100 vertebrate TFs from Jaspar)</span>
+<span class="va">pfms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/getMatrixSet-methods.html" class="external-link">getMatrixSet</a></span><span class="op">(</span><span class="va">JASPAR2018</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>matrixtype <span class="op">=</span> <span class="st">"PFM"</span>, tax_group <span class="op">=</span> <span class="st">"vertebrates"</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">6698</span><span class="op">)</span>
+<span class="va">pfms</span> <span class="op">&lt;-</span> <span class="va">pfms</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">pfms</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">100</span><span class="op">)</span><span class="op">]</span>
+<span class="va">pwms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/toPWM-methods.html" class="external-link">toPWM</a></span><span class="op">(</span><span class="va">pfms</span><span class="op">)</span>
 
-<span class="co"># Genome</span>
-<span class="no">genome</span> <span class="kw">&lt;-</span> <span class="no">BSgenome.Mmusculus.UCSC.mm10</span>
+<span class="co"># get TFBS on given GRanges (peaks)</span>
+<span class="va">peakSeq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Biostrings/man/getSeq.html" class="external-link">getSeq</a></span><span class="op">(</span><span class="va">BSgenome.Mmusculus.UCSC.mm10</span>, <span class="va">gr</span><span class="op">)</span>
+<span class="va">hits</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span><span class="op">(</span>query <span class="op">=</span> <span class="va">pwms</span>, subject <span class="op">=</span> <span class="va">peakSeq</span>, min.score <span class="op">=</span> <span class="fl">10.0</span>,
+                      BPPARAM <span class="op">=</span> <span class="fu">BiocParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocParallel/man/MulticoreParam-class.html" class="external-link">MulticoreParam</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>
 
-<span class="co"># Get PWMs</span>
-<span class="no">pfms</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/getMatrixSet-methods.html">getMatrixSet</a></span>(<span class="no">JASPAR2018</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">matrixtype</span> <span class="kw">=</span> <span class="st">"PFM"</span>, <span class="kw">tax_group</span> <span class="kw">=</span> <span class="st">"vertebrates"</span>)) <span class="co"># for seq-logos</span>
-<span class="no">pwms</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/toPWM-methods.html">toPWM</a></span>(<span class="no">pfms</span>) <span class="co"># for searching</span>
+<span class="co"># get TFBS matrix</span>
+<span class="va">TFBSmatrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">unclass</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu">seqnames</span><span class="op">(</span><span class="va">hits</span><span class="op">)</span>, levels <span class="op">=</span> <span class="fu">seqlevels</span><span class="op">(</span><span class="va">hits</span><span class="op">)</span><span class="op">)</span>,
+                                  <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">hits</span><span class="op">$</span><span class="va">pwmname</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html" class="external-link">name</a></span><span class="op">(</span><span class="va">pwms</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<span class="va">TFBSmatrix</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>
+<span class="co">#&gt;          </span>
+<span class="co">#&gt;           DLX6 YY1 FLI1 CEBPE ISL2 GCM1</span>
+<span class="co">#&gt;   peak_6     2   1    0     0    0    0</span>
+<span class="co">#&gt;   peak_8     0   0    0     2    0    0</span>
+<span class="co">#&gt;   peak_10    0   0    0     0    0    0</span>
+<span class="co">#&gt;   peak_12    0   0    0     0    1    0</span>
+<span class="co">#&gt;   peak_13    0   0    0     0    0    0</span>
+<span class="co">#&gt;   peak_14    0   0    0     0    0    0</span>
 
-<span class="co"># Get TFBS on given GRanges</span>
-<span class="no">homerfile</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/findHomer.html">findHomer</a></span>(<span class="kw">homerfile</span> <span class="kw">=</span> <span class="st">"homer2"</span>, <span class="kw">dirs</span> <span class="kw">=</span> <span class="st">"/work/gbioinfo/Appz/Homer/Homer-4.10.4/bin/"</span>)
-<span class="kw">if</span> (!<span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(<span class="no">homerfile</span>)) {
-    <span class="co"># use homer2 if available</span>
-    <span class="no">hits</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span>(<span class="kw">query</span> <span class="kw">=</span> <span class="no">pwms</span>, <span class="kw">subject</span> <span class="kw">=</span> <span class="no">peaks</span>, <span class="kw">min.score</span> <span class="kw">=</span> <span class="fl">6.0</span>, <span class="kw">method</span> <span class="kw">=</span> <span class="st">"homer2"</span>,
-                          <span class="kw">homerfile</span> <span class="kw">=</span> <span class="no">homerfile</span>, <span class="kw">genome</span> <span class="kw">=</span> <span class="no">genome</span>, <span class="kw">Ncpu</span> <span class="kw">=</span> <span class="fl">2</span>)
-} <span class="kw">else</span> {
-    <span class="co"># otherwise, use matchPWM</span>
-    <span class="no">hits</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span>(<span class="kw">query</span> <span class="kw">=</span> <span class="no">pwms</span>, <span class="kw">subject</span> <span class="kw">=</span> <span class="no">peaks</span>, <span class="kw">min.score</span> <span class="kw">=</span> <span class="fl">6.0</span>, <span class="kw">method</span> <span class="kw">=</span> <span class="st">"matchPWM"</span>,
-                          <span class="kw">genome</span> <span class="kw">=</span> <span class="no">genome</span>)
-}
+<span class="co"># remove TF motifs with 0 binding sites in all regions</span>
+<span class="va">zero_TF</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="va">TFBSmatrix</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span>
+<span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">zero_TF</span><span class="op">)</span>
+<span class="co">#&gt; [1] 1</span>
+<span class="va">TFBSmatrix</span> <span class="op">&lt;-</span> <span class="va">TFBSmatrix</span><span class="op">[</span>, <span class="op">!</span><span class="va">zero_TF</span><span class="op">]</span>
 
-<span class="co"># Get predictor matrix</span>
-<span class="no">predictor_matrix</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame.matrix</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span>(<span class="fu">seqnames</span>(<span class="no">hits</span>), <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span>(<span class="no">hits</span>$<span class="no">pwmname</span>))))
-<span class="no">predictor_matrix</span>[<span class="fl">1</span>:<span class="fl">6</span>, <span class="fl">1</span>:<span class="fl">6</span>]
-
-<span class="co"># remove peaks that do not have any hits (also from the response vector) </span>
-<span class="co"># and check all peaks in predictor_matrix are in same order as in the </span>
-<span class="co"># peaks variable</span>
-<span class="no">w</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="no">peaks</span>)[!(<span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="no">peaks</span>)<span class="kw">%in%</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(<span class="no">predictor_matrix</span>))]
-<span class="kw">if</span>(<span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span>(<span class="no">w</span>)<span class="kw">&gt;</span><span class="fl">0</span>){
-  <span class="no">peaks</span> <span class="kw">&lt;-</span> <span class="no">peaks</span>[-<span class="no">w</span>]
-  <span class="no">response</span> <span class="kw">&lt;-</span> <span class="no">response</span>[-<span class="no">w</span>]
-}
-<span class="fu"><a href="https://rdrr.io/r/base/all.html">all</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(<span class="no">predictor_matrix</span>)<span class="kw">==</span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="no">peaks</span>))
-<span class="fu"><a href="https://rdrr.io/r/base/all.html">all</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(<span class="no">predictor_matrix</span>)<span class="kw">==</span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="no">response</span>))
-
-<span class="co"># Note that in this case all peaks have at least one TFBS for any of the TFs. </span>
-<span class="co"># However, that may not always be the case. If a given set of peaks does </span>
-<span class="co"># not appear in the hits variable one must be careful and remove the missing </span>
-<span class="co"># peaks from the peaks variable before doing the GC content calculations below.</span>
-
-<span class="co"># calculate GC and oeCpG content</span>
-<span class="no">peakSeq</span> <span class="kw">&lt;-</span> <span class="kw pkg">BSgenome</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/BSgenome/man/getSeq-methods.html">getSeq</a></span>(<span class="no">genome</span>, <span class="no">peaks</span>)
-<span class="no">fMono</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Biostrings/man/nucleotideFrequency.html">oligonucleotideFrequency</a></span>(<span class="no">peakSeq</span>, <span class="kw">width</span> <span class="kw">=</span> <span class="fl">1L</span>, <span class="kw">as.prob</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
-<span class="no">fDi</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Biostrings/man/nucleotideFrequency.html">oligonucleotideFrequency</a></span>(<span class="no">peakSeq</span>, <span class="kw">width</span> <span class="kw">=</span> <span class="fl">2L</span>, <span class="kw">as.prob</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
-<span class="no">percGC</span> <span class="kw">&lt;-</span> <span class="no">fMono</span>[,<span class="st">"G"</span>] + <span class="no">fMono</span>[,<span class="st">"C"</span>]
-<span class="no">oeCpG</span> <span class="kw">&lt;-</span> (<span class="no">fDi</span>[,<span class="st">"CG"</span>] + <span class="fl">0.01</span>) / (<span class="no">fMono</span>[,<span class="st">"G"</span>] * <span class="no">fMono</span>[,<span class="st">"C"</span>] + <span class="fl">0.01</span>)
+<span class="co"># calculate G+C and CpG obs/expected</span>
+<span class="va">fMono</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Biostrings/man/nucleotideFrequency.html" class="external-link">oligonucleotideFrequency</a></span><span class="op">(</span><span class="va">peakSeq</span>, width <span class="op">=</span> <span class="fl">1L</span>, as.prob <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="va">fDi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Biostrings/man/nucleotideFrequency.html" class="external-link">oligonucleotideFrequency</a></span><span class="op">(</span><span class="va">peakSeq</span>, width <span class="op">=</span> <span class="fl">2L</span>, as.prob <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="va">fracGC</span> <span class="op">&lt;-</span> <span class="va">fMono</span><span class="op">[</span>,<span class="st">"G"</span><span class="op">]</span> <span class="op">+</span> <span class="va">fMono</span><span class="op">[</span>,<span class="st">"C"</span><span class="op">]</span>
+<span class="va">oeCpG</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">fDi</span><span class="op">[</span>,<span class="st">"CG"</span><span class="op">]</span> <span class="op">+</span> <span class="fl">0.01</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="va">fMono</span><span class="op">[</span>,<span class="st">"G"</span><span class="op">]</span> <span class="op">*</span> <span class="va">fMono</span><span class="op">[</span>,<span class="st">"C"</span><span class="op">]</span> <span class="op">+</span> <span class="fl">0.01</span><span class="op">)</span>
 
 <span class="co"># add GC and oeCpG to predictor matrix</span>
-<span class="no">predictor_matrix</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span>(<span class="no">percGC</span>, <span class="no">predictor_matrix</span>)
-<span class="no">predictor_matrix</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span>(<span class="no">oeCpG</span>, <span class="no">predictor_matrix</span>)
-<span class="no">predictor_matrix</span>[<span class="fl">1</span>:<span class="fl">6</span>, <span class="fl">1</span>:<span class="fl">6</span>]</pre></body></html></div>
+<span class="va">TFBSmatrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">fracGC</span>, <span class="va">oeCpG</span>, <span class="va">TFBSmatrix</span><span class="op">)</span>
+<span class="va">TFBSmatrix</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>
+<span class="co">#&gt;            fracGC     oeCpG DLX6 YY1 FLI1 CEBPE</span>
+<span class="co">#&gt; peak_6  0.3905997 0.2793090    2   1    0     0</span>
+<span class="co">#&gt; peak_8  0.5169492 0.3269142    0   0    0     2</span>
+<span class="co">#&gt; peak_10 0.5033921 0.3800543    0   0    0     0</span>
+<span class="co">#&gt; peak_12 0.5581395 0.2775807    0   0    0     0</span>
+<span class="co">#&gt; peak_13 0.5072202 0.4070690    0   0    0     0</span>
+<span class="co">#&gt; peak_14 0.4268293 0.4615656    0   0    0     0</span></code></pre></div>
 </div>
-<div id="run-randomized-lasso-stability-selection" class="section level2">
+<div id="identify-important-tfs" class="section level2">
 <h2 class="hasAnchor">
-<a href="#run-randomized-lasso-stability-selection" class="anchor"></a>Run randomized lasso stability selection</h2>
-<p>We can now run randomized lasso stability selection to select TFs that are likely to explain the log-fold changes in accessibility (response vector). We can appreciate that some selected TFs are correlated to each other and were chosen toegther to explain the observed changes in accessibility.</p>
-<div class="sourceCode" id="cb21"><html><body><pre class="r">
-<span class="no">stabs</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/randomized_stabsel.html">randomized_stabsel</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">predictor_matrix</span>, <span class="kw">y</span> <span class="kw">=</span> <span class="no">response</span>,
-                            <span class="kw">weakness</span> <span class="kw">=</span> <span class="fl">0.8</span>, <span class="kw">cutoff</span> <span class="kw">=</span> <span class="fl">0.7</span>, <span class="kw">PFER</span> <span class="kw">=</span> <span class="fl">2</span>, <span class="kw">mc.cores</span> <span class="kw">=</span> <span class="fl">2</span>)</pre></body></html></div>
-<div class="sourceCode" id="cb22"><html><body><pre class="r">
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">ComplexHeatmap</span>) <span class="co"># heatmap drawing</span>
-<span class="co">#&gt; Loading required package: grid</span>
-<span class="co">#&gt; ========================================</span>
-<span class="co">#&gt; ComplexHeatmap version 2.5.3</span>
-<span class="co">#&gt; Bioconductor page: http://bioconductor.org/packages/ComplexHeatmap/</span>
-<span class="co">#&gt; Github page: https://github.com/jokergoo/ComplexHeatmap</span>
-<span class="co">#&gt; Documentation: http://jokergoo.github.io/ComplexHeatmap-reference</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; If you use it in published research, please cite:</span>
-<span class="co">#&gt; Gu, Z. Complex heatmaps reveal patterns and correlations in multidimensional </span>
-<span class="co">#&gt;   genomic data. Bioinformatics 2016.</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; This message can be suppressed by:</span>
-<span class="co">#&gt;   suppressPackageStartupMessages(library(ComplexHeatmap))</span>
-<span class="co">#&gt; ========================================</span>
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">circlize</span>) <span class="co"># used for color specification</span>
-<span class="co">#&gt; ========================================</span>
-<span class="co">#&gt; circlize version 0.4.10</span>
-<span class="co">#&gt; CRAN page: https://cran.r-project.org/package=circlize</span>
-<span class="co">#&gt; Github page: https://github.com/jokergoo/circlize</span>
-<span class="co">#&gt; Documentation: https://jokergoo.github.io/circlize_book/book/</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; If you use it in published research, please cite:</span>
-<span class="co">#&gt; Gu, Z. circlize implements and enhances circular visualization</span>
-<span class="co">#&gt;   in R. Bioinformatics 2014.</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; This message can be suppressed by:</span>
-<span class="co">#&gt;   suppressPackageStartupMessages(library(circlize))</span>
-<span class="co">#&gt; ========================================</span>
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">JASPAR2018</span>)
+<a href="#identify-important-tfs" class="anchor"></a>Identify important TFs</h2>
+<p>We can now run randomized lasso stability selection to identify TFs that are likely to explain the log-fold changes in accessibility.</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># select TFs</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span>
+<span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/randLassoStabSel.html">randLassoStabSel</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">TFBSmatrix</span>, y <span class="op">=</span> <span class="va">gr</span><span class="op">$</span><span class="va">logFC_liver_vs_lung</span>,
+                       cutoff <span class="op">=</span> <span class="fl">0.8</span>, mc.cores <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>
+<span class="va">se</span>
+<span class="co">#&gt; class: SummarizedExperiment </span>
+<span class="co">#&gt; dim: 29805 101 </span>
+<span class="co">#&gt; metadata(12): stabsel.params.cutoff stabsel.params.selected ...</span>
+<span class="co">#&gt;   stabsel.params.call randStabsel.params.weakness</span>
+<span class="co">#&gt; assays(1): x</span>
+<span class="co">#&gt; rownames(29805): peak_6 peak_8 ... peak_125924 peak_125930</span>
+<span class="co">#&gt; rowData names(1): y</span>
+<span class="co">#&gt; colnames(101): fracGC oeCpG ... MYBL2 MEIS2</span>
+<span class="co">#&gt; colData names(20): selProb selected ... regStep16 regStep17</span>
 
-<span class="co"># load processed data</span>
-<span class="no">stabs</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"extdata"</span>, <span class="st">"stabs.rds"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"monaLisa"</span>))
-<span class="no">predictor_matrix</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"extdata"</span>, <span class="st">"stabs_predictor.rds"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"monaLisa"</span>))
-<span class="no">response</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"extdata"</span>, <span class="st">"stabs_response.rds"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"monaLisa"</span>))
+<span class="co">## if using a Windows machine, parallelize using parLapply (see stabs::stabsel for more details)</span>
+<span class="co"># library(parallel)</span>
+<span class="co"># cl &lt;- makeCluster(2)</span>
+<span class="co"># se &lt;- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung,</span>
+<span class="co">#                        cutoff = 0.8, papply = parLapply, cl = cl)</span>
+  
+<span class="co"># selected TFs</span>
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span><span class="op">[</span><span class="va">se</span><span class="op">$</span><span class="va">selected</span><span class="op">]</span>
+<span class="co">#&gt;  [1] "fracGC"        "ISL2"          "ONECUT2"       "GATA1::TAL1"  </span>
+<span class="co">#&gt;  [5] "Nkx2-5(var.2)" "NR2F2"         "Myod1"         "NR4A2::RXRA"  </span>
+<span class="co">#&gt;  [9] "NFATC3"        "HNF4G"         "HNF1A"         "TEAD3"</span></code></pre></div>
+<p>The stability paths visualizes how predictors get selected decreasing regularization stringency (from left to right):</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/plotStabilityPaths.html">plotStabilityPaths</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span></code></pre></div>
+<p><img src="monaLisa_files/figure-html/plotStabilityPaths-1.png" width="80%" style="display: block; margin: auto;"></p>
+<p>Each line corresponds to a predictor, and we can see the selection probabilities as a function of the regularization steps, corresponding to decreasing values for the lambda regularization parameter in lasso. The predictor (TF motif) selection happens at the last step, given the specified minimum probability.</p>
+<p>We can also visualize the selection probabilities of the selected TF motifs, optionally multiplied by the sign of the correlation to the response vector, to know how the TF relates to the change of accessibility (<code>directional</code> parameter).</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/plotSelectionProb.html">plotSelectionProb</a></span><span class="op">(</span><span class="va">se</span>, directional <span class="op">=</span> <span class="cn">TRUE</span>, selProbMinPlot <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span></code></pre></div>
+<p><img src="monaLisa_files/figure-html/plotSelProbs-1.png" width="80%" style="display: block; margin: auto;"></p>
+<p>Next, we visualize the correlation structure of the TFBS matrix using selected TFs. We can see that some TFs have similar binding sites across the genomic regions.</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># subset the selected TFs</span>
+<span class="va">sel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span><span class="op">[</span><span class="va">se</span><span class="op">$</span><span class="va">selected</span><span class="op">]</span>
+<span class="va">se_sub</span> <span class="op">&lt;-</span> <span class="va">se</span><span class="op">[</span>, <span class="va">sel</span><span class="op">]</span>
 
+<span class="co"># exclude oeCpG and fracGC</span>
+<span class="va">excl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">se_sub</span><span class="op">)</span> <span class="op">%in%</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"oeCpG"</span>, <span class="st">"fracGC"</span><span class="op">)</span>
+<span class="va">se_sub</span> <span class="op">&lt;-</span> <span class="va">se_sub</span><span class="op">[</span>, <span class="op">!</span><span class="va">excl</span><span class="op">]</span>
 
-<span class="co"># plot stability paths ...</span>
-<span class="fu"><a href="../reference/plotStabilityPaths.html">plotStabilityPaths</a></span>(<span class="no">stabs</span>)</pre></body></html></div>
-<p><img src="monaLisa_files/figure-html/plot_stabSel_results-1.png" width="80%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb23"><html><body><pre class="r">
-<span class="co"># ... and selection probabilities</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span>(<span class="kw">mfrow</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1</span>,<span class="fl">1</span>), <span class="kw">mar</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">5</span>,<span class="fl">4</span>,<span class="fl">4</span>,<span class="fl">2</span>) + <span class="fl">3</span>)
-<span class="fu"><a href="../reference/plotSelectionProb.html">plotSelectionProb</a></span>(<span class="no">stabs</span>)</pre></body></html></div>
-<p><img src="monaLisa_files/figure-html/plot_stabSel_results-2.png" width="80%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb24"><html><body><pre class="r">
-<span class="co"># ... and the directionality of the motifs with respect to the response vector</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span>(<span class="kw">mfrow</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1</span>,<span class="fl">1</span>), <span class="kw">mar</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">5</span>,<span class="fl">4</span>,<span class="fl">4</span>,<span class="fl">2</span>) + <span class="fl">3</span>)
-<span class="fu"><a href="../reference/plotMotifDirectionality.html">plotMotifDirectionality</a></span>(<span class="kw">stabs_obj</span><span class="kw">=</span><span class="no">stabs</span>, <span class="kw">response</span><span class="kw">=</span><span class="no">response</span>, <span class="kw">predictor_matrix</span><span class="kw">=</span><span class="no">predictor_matrix</span>)</pre></body></html></div>
-<p><img src="monaLisa_files/figure-html/plot_stabSel_results-3.png" width="80%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb25"><html><body><pre class="r">
+<span class="co"># correlation matrix </span>
+<span class="va">TFBSmatrixCorSel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">TFBSmatrix</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">se_sub</span><span class="op">)</span><span class="op">]</span>, method <span class="op">=</span> <span class="st">"pearson"</span><span class="op">)</span>
 
-<span class="co"># plot correlation on TFBS matrix of selected TFs</span>
-<span class="co"># ... select predictors for selected TFs and calculate correlation</span>
-<span class="no">sel_matrix</span> <span class="kw">&lt;-</span> <span class="no">predictor_matrix</span>[, <span class="no">stabs</span>$<span class="no">selected</span>]
-<span class="no">sel_cor</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html">cor</a></span>(<span class="no">sel_matrix</span>, <span class="kw">method</span> <span class="kw">=</span> <span class="st">"pearson"</span>)
+<span class="co"># heatmap</span>
+<span class="va">pfmsSel</span> <span class="op">&lt;-</span> <span class="va">pfms</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/match.html" class="external-link">match</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">TFBSmatrixCorSel</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html" class="external-link">name</a></span><span class="op">(</span><span class="va">pfms</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>
+<span class="va">maxwidth</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fu">TFBSTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html" class="external-link">Matrix</a></span><span class="op">(</span><span class="va">pfmsSel</span><span class="op">)</span>, <span class="va">ncol</span><span class="op">)</span><span class="op">)</span>
+<span class="va">seqlogoGrobs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">pfmsSel</span>, <span class="va">seqLogoGrob</span>, xmax <span class="op">=</span> <span class="va">maxwidth</span><span class="op">)</span>
 
-<span class="co"># ... prepare sequence logos</span>
-<span class="no">pfms</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/getMatrixSet-methods.html">getMatrixSet</a></span>(<span class="no">JASPAR2018</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">matrixtype</span> <span class="kw">=</span> <span class="st">"PFM"</span>, <span class="kw">tax_group</span> <span class="kw">=</span> <span class="st">"vertebrates"</span>)) <span class="co"># for seq-logos</span>
-<span class="no">pwms</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/toPWM-methods.html">toPWM</a></span>(<span class="no">pfms</span>) <span class="co"># for searching</span>
-<span class="no">pfmsSel</span> <span class="kw">&lt;-</span> <span class="no">pfms</span>[<span class="fu"><a href="https://rdrr.io/r/base/match.html">match</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(<span class="no">sel_cor</span>), <span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html">name</a></span>(<span class="no">pfms</span>))]
-<span class="no">maxwidth</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span>(<span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html">Matrix</a></span>(<span class="no">pfmsSel</span>), <span class="no">ncol</span>))
-<span class="no">seqlogoGrobs</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span>(<span class="no">pfmsSel</span>, <span class="no">seqLogoGrob</span>, <span class="kw">xmax</span> <span class="kw">=</span> <span class="no">maxwidth</span>)
-<span class="no">hmSeqlogo</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ComplexHeatmap/man/rowAnnotation.html">rowAnnotation</a></span>(<span class="kw">logo</span> <span class="kw">=</span> <span class="fu"><a href="../reference/anno_seqlogo.html">anno_seqlogo</a></span>(<span class="no">seqlogoGrobs</span>, <span class="kw">which</span> <span class="kw">=</span> <span class="st">"row"</span>),
-                           <span class="kw">annotation_width</span> <span class="kw">=</span> <span class="fu">unit</span>(<span class="fl">1.5</span>, <span class="st">"inch"</span>),
-                           <span class="kw">show_legend</span> <span class="kw">=</span> <span class="fl">FALSE</span>, <span class="kw">show_annotation_name</span> <span class="kw">=</span> <span class="fl">FALSE</span>)
+<span class="va">hmSeqlogo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ComplexHeatmap/man/rowAnnotation.html" class="external-link">rowAnnotation</a></span><span class="op">(</span>logo <span class="op">=</span> <span class="fu"><a href="../reference/anno_seqlogo.html">anno_seqlogo</a></span><span class="op">(</span><span class="va">seqlogoGrobs</span>, which <span class="op">=</span> <span class="st">"row"</span><span class="op">)</span>,
+                           annotation_width <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu">unit</span><span class="op">(</span><span class="fl">3.5</span>, <span class="st">"inch"</span><span class="op">)</span>, <span class="fu">unit</span><span class="op">(</span><span class="fl">0.5</span>, <span class="st">"inch"</span><span class="op">)</span>, <span class="fu">unit</span><span class="op">(</span><span class="fl">0.5</span>, <span class="st">"inch"</span><span class="op">)</span><span class="op">)</span>,
+                           AUC <span class="op">=</span> <span class="va">se_sub</span><span class="op">$</span><span class="va">selAUC</span>, selProb <span class="op">=</span> <span class="va">se_sub</span><span class="op">$</span><span class="va">selProb</span>,
+                           show_legend <span class="op">=</span> <span class="cn">TRUE</span>, show_annotation_name <span class="op">=</span> <span class="cn">FALSE</span>,
+                           col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>AUC <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/circlize/man/colorRamp2.html" class="external-link">colorRamp2</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"white"</span>, <span class="st">"brown"</span><span class="op">)</span><span class="op">)</span>,
+                                      selProb <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/circlize/man/colorRamp2.html" class="external-link">colorRamp2</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"white"</span>, <span class="st">"forestgreen"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
 
-<span class="co"># ... draw heatmap</span>
-<span class="fu"><a href="https://rdrr.io/pkg/ComplexHeatmap/man/Heatmap.html">Heatmap</a></span>(<span class="kw">matrix</span> <span class="kw">=</span> <span class="no">sel_cor</span>, <span class="kw">name</span> <span class="kw">=</span> <span class="st">"Pear. Cor."</span>,
-        <span class="kw">col</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/pkg/circlize/man/colorRamp2.html">colorRamp2</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(-<span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>), <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"blue"</span>, <span class="st">"white"</span>, <span class="st">"red"</span>)),
-        <span class="kw">right_annotation</span> <span class="kw">=</span> <span class="no">hmSeqlogo</span>)</pre></body></html></div>
-<p><img src="monaLisa_files/figure-html/plot_stabSel_results-4.png" width="80%" style="display: block; margin: auto;"></p>
+<span class="fu"><a href="https://rdrr.io/pkg/ComplexHeatmap/man/Heatmap.html" class="external-link">Heatmap</a></span><span class="op">(</span><span class="va">TFBSmatrixCorSel</span>, show_row_names <span class="op">=</span> <span class="cn">TRUE</span>, show_column_names <span class="op">=</span> <span class="cn">TRUE</span>, 
+        name <span class="op">=</span> <span class="st">"Pear. Cor."</span>, column_title <span class="op">=</span> <span class="st">"Selected TFs"</span>,
+        col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/circlize/man/colorRamp2.html" class="external-link">colorRamp2</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"blue"</span>, <span class="st">"white"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span>, 
+        right_annotation <span class="op">=</span> <span class="va">hmSeqlogo</span><span class="op">)</span></code></pre></div>
+<p><img src="monaLisa_files/figure-html/TFBScor-1.png" width="80%" style="display: block; margin: auto;"></p>
+<p>We can examine the peaks that have hits for a selected TF motif of interest, ordered by absolute accessibility changes.</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">TF</span> <span class="op">&lt;-</span> <span class="va">sel</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>
+<span class="va">TF</span>
+<span class="co">#&gt; [1] "ISL2"</span>
+
+<span class="va">i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">se</span>, <span class="st">"x"</span><span class="op">)</span><span class="op">[</span>, <span class="va">TF</span><span class="op">]</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="co"># peaks that contain TF hits...</span>
+<span class="va">nm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">gr</span><span class="op">$</span><span class="va">logFC_liver_vs_lung</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="co"># ... order by |logFC|</span>
+
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">gr</span><span class="op">[</span><span class="va">nm</span><span class="op">]</span><span class="op">)</span>
+<span class="co">#&gt; GRanges object with 6 ranges and 1 metadata column:</span>
+<span class="co">#&gt;               seqnames              ranges strand | logFC_liver_vs_lung</span>
+<span class="co">#&gt;                  &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; |           &lt;numeric&gt;</span>
+<span class="co">#&gt;    peak_67037     chr9   74671278-74672246      * |             6.00494</span>
+<span class="co">#&gt;   peak_108697    chr16   22898213-22900713      * |             5.99728</span>
+<span class="co">#&gt;     peak_9118     chr1 193001515-193002191      * |             5.88732</span>
+<span class="co">#&gt;    peak_74900    chr10   95836333-95837388      * |             5.87761</span>
+<span class="co">#&gt;    peak_59594     chr8   79615686-79616505      * |             5.83592</span>
+<span class="co">#&gt;    peak_24204     chr3 121559211-121560775      * |            -5.78383</span>
+<span class="co">#&gt;   -------</span>
+<span class="co">#&gt;   seqinfo: 19 sequences from an unspecified genome; no seqlengths</span></code></pre></div>
 </div>
 </div>
 <div id="session-info-and-logo" class="section level1">
 <h1 class="hasAnchor">
 <a href="#session-info-and-logo" class="anchor"></a>Session info and logo</h1>
-<p>The monaLisa logo uses a drawing that was obtained from <a href="http://vectorish.com/lisa-simpson.html" class="uri">http://vectorish.com/lisa-simpson.html</a> under the Creative Commons attribution - non-commercial 3.0 license: <a href="https://creativecommons.org/licenses/by-nc/3.0/" class="uri">https://creativecommons.org/licenses/by-nc/3.0/</a>.</p>
+<p>The monaLisa logo uses a drawing that was obtained from <a href="http://vectorish.com/lisa-simpson.html" class="external-link uri">http://vectorish.com/lisa-simpson.html</a> under the Creative Commons attribution - non-commercial 3.0 license: <a href="https://creativecommons.org/licenses/by-nc/3.0/" class="external-link uri">https://creativecommons.org/licenses/by-nc/3.0/</a>.</p>
 <p>This vignette was built using:</p>
-<div class="sourceCode" id="cb26"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>(<span class="kw">package</span> <span class="kw">=</span> <span class="st">"monaLisa"</span>)
-<span class="co">#&gt; R Under development (unstable) (2020-06-23 r78738)</span>
-<span class="co">#&gt; Platform: x86_64-pc-linux-gnu (64-bit)</span>
-<span class="co">#&gt; Running under: Ubuntu 16.04.6 LTS</span>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span>
+<span class="co">#&gt; R version 4.0.5 (2021-03-31)</span>
+<span class="co">#&gt; Platform: x86_64-apple-darwin17.0 (64-bit)</span>
+<span class="co">#&gt; Running under: macOS Catalina 10.15.7</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Matrix products: default</span>
-<span class="co">#&gt; BLAS:   /home/travis/R-bin/lib/R/lib/libRblas.so</span>
-<span class="co">#&gt; LAPACK: /home/travis/R-bin/lib/R/lib/libRlapack.so</span>
+<span class="co">#&gt; BLAS:   /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRblas.dylib</span>
+<span class="co">#&gt; LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; locale:</span>
-<span class="co">#&gt;  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              </span>
-<span class="co">#&gt;  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    </span>
-<span class="co">#&gt;  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   </span>
-<span class="co">#&gt;  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 </span>
-<span class="co">#&gt;  [9] LC_ADDRESS=C               LC_TELEPHONE=C            </span>
-<span class="co">#&gt; [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       </span>
+<span class="co">#&gt; [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; attached base packages:</span>
-<span class="co">#&gt; character(0)</span>
+<span class="co">#&gt;  [1] grid      parallel  stats4    stats     graphics  grDevices utils    </span>
+<span class="co">#&gt;  [8] datasets  methods   base     </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; other attached packages:</span>
-<span class="co">#&gt; [1] monaLisa_0.1.30</span>
+<span class="co">#&gt;  [1] circlize_0.4.12                          </span>
+<span class="co">#&gt;  [2] ComplexHeatmap_2.6.2                     </span>
+<span class="co">#&gt;  [3] TxDb.Mmusculus.UCSC.mm10.knownGene_3.10.0</span>
+<span class="co">#&gt;  [4] GenomicFeatures_1.42.3                   </span>
+<span class="co">#&gt;  [5] AnnotationDbi_1.52.0                     </span>
+<span class="co">#&gt;  [6] monaLisa_0.1.42                          </span>
+<span class="co">#&gt;  [7] BSgenome.Mmusculus.UCSC.mm10_1.4.0       </span>
+<span class="co">#&gt;  [8] BSgenome_1.58.0                          </span>
+<span class="co">#&gt;  [9] rtracklayer_1.50.0                       </span>
+<span class="co">#&gt; [10] Biostrings_2.58.0                        </span>
+<span class="co">#&gt; [11] XVector_0.30.0                           </span>
+<span class="co">#&gt; [12] TFBSTools_1.28.0                         </span>
+<span class="co">#&gt; [13] JASPAR2018_1.1.1                         </span>
+<span class="co">#&gt; [14] SummarizedExperiment_1.20.0              </span>
+<span class="co">#&gt; [15] Biobase_2.50.0                           </span>
+<span class="co">#&gt; [16] MatrixGenerics_1.2.1                     </span>
+<span class="co">#&gt; [17] matrixStats_0.58.0                       </span>
+<span class="co">#&gt; [18] GenomicRanges_1.42.0                     </span>
+<span class="co">#&gt; [19] GenomeInfoDb_1.26.7                      </span>
+<span class="co">#&gt; [20] IRanges_2.24.1                           </span>
+<span class="co">#&gt; [21] S4Vectors_0.28.1                         </span>
+<span class="co">#&gt; [22] BiocGenerics_0.36.0                      </span>
+<span class="co">#&gt; [23] BiocStyle_2.18.1                         </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; loaded via a namespace (and not attached):</span>
-<span class="co">#&gt;   [1] colorspace_1.4-1                       </span>
-<span class="co">#&gt;   [2] rjson_0.2.20                           </span>
-<span class="co">#&gt;   [3] ellipsis_0.3.1                         </span>
-<span class="co">#&gt;   [4] rprojroot_1.3-2                        </span>
-<span class="co">#&gt;   [5] circlize_0.4.10                        </span>
-<span class="co">#&gt;   [6] XVector_0.29.2                         </span>
-<span class="co">#&gt;   [7] GenomicRanges_1.41.5                   </span>
-<span class="co">#&gt;   [8] GlobalOptions_0.1.2                    </span>
-<span class="co">#&gt;   [9] fs_1.4.1                               </span>
-<span class="co">#&gt;  [10] clue_0.3-57                            </span>
-<span class="co">#&gt;  [11] stats_4.1.0                            </span>
-<span class="co">#&gt;  [12] bit64_0.9-7                            </span>
-<span class="co">#&gt;  [13] AnnotationDbi_1.51.0                   </span>
-<span class="co">#&gt;  [14] codetools_0.2-16                       </span>
-<span class="co">#&gt;  [15] splines_4.1.0                          </span>
-<span class="co">#&gt;  [16] R.methodsS3_1.8.0                      </span>
-<span class="co">#&gt;  [17] knitr_1.29                             </span>
-<span class="co">#&gt;  [18] Rsamtools_2.5.2                        </span>
-<span class="co">#&gt;  [19] seqLogo_1.55.5                         </span>
-<span class="co">#&gt;  [20] annotate_1.67.0                        </span>
-<span class="co">#&gt;  [21] base_4.1.0                             </span>
-<span class="co">#&gt;  [22] dbplyr_1.4.4                           </span>
-<span class="co">#&gt;  [23] cluster_2.1.0                          </span>
-<span class="co">#&gt;  [24] GO.db_3.11.4                           </span>
-<span class="co">#&gt;  [25] png_0.1-7                              </span>
-<span class="co">#&gt;  [26] R.oo_1.23.0                            </span>
-<span class="co">#&gt;  [27] BiocManager_1.30.10                    </span>
-<span class="co">#&gt;  [28] readr_1.3.1                            </span>
-<span class="co">#&gt;  [29] compiler_4.1.0                         </span>
-<span class="co">#&gt;  [30] httr_1.4.1                             </span>
-<span class="co">#&gt;  [31] backports_1.1.8                        </span>
-<span class="co">#&gt;  [32] assertthat_0.2.1                       </span>
-<span class="co">#&gt;  [33] Matrix_1.2-18                          </span>
-<span class="co">#&gt;  [34] TxDb.Hsapiens.UCSC.hg19.knownGene_3.2.2</span>
-<span class="co">#&gt;  [35] prettyunits_1.1.1                      </span>
-<span class="co">#&gt;  [36] htmltools_0.5.0                        </span>
-<span class="co">#&gt;  [37] tools_4.1.0                            </span>
-<span class="co">#&gt;  [38] igraph_1.2.5                           </span>
-<span class="co">#&gt;  [39] gtable_0.3.0                           </span>
-<span class="co">#&gt;  [40] glue_1.4.1                             </span>
-<span class="co">#&gt;  [41] TFMPvalue_0.0.8                        </span>
-<span class="co">#&gt;  [42] GenomeInfoDbData_1.2.3                 </span>
-<span class="co">#&gt;  [43] reshape2_1.4.4                         </span>
-<span class="co">#&gt;  [44] dplyr_1.0.0                            </span>
-<span class="co">#&gt;  [45] rappdirs_0.3.1                         </span>
-<span class="co">#&gt;  [46] grDevices_4.1.0                        </span>
-<span class="co">#&gt;  [47] Rcpp_1.0.4.6                           </span>
-<span class="co">#&gt;  [48] Biobase_2.49.0                         </span>
-<span class="co">#&gt;  [49] pkgdown_1.5.1                          </span>
-<span class="co">#&gt;  [50] vctrs_0.3.1                            </span>
-<span class="co">#&gt;  [51] Biostrings_2.57.2                      </span>
-<span class="co">#&gt;  [52] rtracklayer_1.49.3                     </span>
-<span class="co">#&gt;  [53] iterators_1.0.12                       </span>
-<span class="co">#&gt;  [54] xfun_0.15                              </span>
-<span class="co">#&gt;  [55] CNEr_1.25.0                            </span>
-<span class="co">#&gt;  [56] stringr_1.4.0                          </span>
-<span class="co">#&gt;  [57] lifecycle_0.2.0                        </span>
-<span class="co">#&gt;  [58] poweRlaw_0.70.6                        </span>
-<span class="co">#&gt;  [59] gtools_3.8.2                           </span>
-<span class="co">#&gt;  [60] XML_3.99-0.3                           </span>
-<span class="co">#&gt;  [61] stringdist_0.9.5.5                     </span>
-<span class="co">#&gt;  [62] zlibbioc_1.35.0                        </span>
-<span class="co">#&gt;  [63] MASS_7.3-51.6                          </span>
-<span class="co">#&gt;  [64] scales_1.1.1                           </span>
-<span class="co">#&gt;  [65] JASPAR2018_1.1.1                       </span>
-<span class="co">#&gt;  [66] BiocStyle_2.17.0                       </span>
-<span class="co">#&gt;  [67] BSgenome_1.57.0                        </span>
-<span class="co">#&gt;  [68] graphics_4.1.0                         </span>
-<span class="co">#&gt;  [69] hms_0.5.3                              </span>
-<span class="co">#&gt;  [70] parallel_4.1.0                         </span>
-<span class="co">#&gt;  [71] SummarizedExperiment_1.19.5            </span>
-<span class="co">#&gt;  [72] RColorBrewer_1.1-2                     </span>
-<span class="co">#&gt;  [73] utils_4.1.0                            </span>
-<span class="co">#&gt;  [74] curl_4.3                               </span>
-<span class="co">#&gt;  [75] ComplexHeatmap_2.5.3                   </span>
-<span class="co">#&gt;  [76] yaml_2.2.1                             </span>
-<span class="co">#&gt;  [77] memoise_1.1.0                          </span>
-<span class="co">#&gt;  [78] ggplot2_3.3.2                          </span>
-<span class="co">#&gt;  [79] stabs_0.6-3                            </span>
-<span class="co">#&gt;  [80] datasets_4.1.0                         </span>
-<span class="co">#&gt;  [81] biomaRt_2.45.1                         </span>
-<span class="co">#&gt;  [82] stringi_1.4.6                          </span>
-<span class="co">#&gt;  [83] RSQLite_2.2.0                          </span>
-<span class="co">#&gt;  [84] S4Vectors_0.27.12                      </span>
-<span class="co">#&gt;  [85] desc_1.2.0                             </span>
-<span class="co">#&gt;  [86] foreach_1.5.0                          </span>
-<span class="co">#&gt;  [87] GenomicFeatures_1.41.0                 </span>
-<span class="co">#&gt;  [88] caTools_1.18.0                         </span>
-<span class="co">#&gt;  [89] BiocGenerics_0.35.4                    </span>
-<span class="co">#&gt;  [90] BiocParallel_1.23.0                    </span>
-<span class="co">#&gt;  [91] shape_1.4.4                            </span>
-<span class="co">#&gt;  [92] GenomeInfoDb_1.25.2                    </span>
-<span class="co">#&gt;  [93] rlang_0.4.6                            </span>
-<span class="co">#&gt;  [94] pkgconfig_2.0.3                        </span>
-<span class="co">#&gt;  [95] matrixStats_0.56.0                     </span>
-<span class="co">#&gt;  [96] bitops_1.0-6                           </span>
-<span class="co">#&gt;  [97] pracma_2.2.9                           </span>
-<span class="co">#&gt;  [98] evaluate_0.14                          </span>
-<span class="co">#&gt;  [99] lattice_0.20-41                        </span>
-<span class="co">#&gt; [100] purrr_0.3.4                            </span>
-<span class="co">#&gt; [101] GenomicAlignments_1.25.3               </span>
-<span class="co">#&gt; [102] bit_1.1-15.2                           </span>
-<span class="co">#&gt; [103] tidyselect_1.1.0                       </span>
-<span class="co">#&gt; [104] BSgenome.Hsapiens.UCSC.hg19_1.4.3      </span>
-<span class="co">#&gt; [105] plyr_1.8.6                             </span>
-<span class="co">#&gt; [106] magrittr_1.5                           </span>
-<span class="co">#&gt; [107] bookdown_0.19                          </span>
-<span class="co">#&gt; [108] R6_2.4.1                               </span>
-<span class="co">#&gt; [109] IRanges_2.23.10                        </span>
-<span class="co">#&gt; [110] generics_0.0.2                         </span>
-<span class="co">#&gt; [111] DelayedArray_0.15.5                    </span>
-<span class="co">#&gt; [112] DBI_1.1.0                              </span>
-<span class="co">#&gt; [113] pillar_1.4.4                           </span>
-<span class="co">#&gt; [114] survival_3.2-3                         </span>
-<span class="co">#&gt; [115] KEGGREST_1.29.0                        </span>
-<span class="co">#&gt; [116] RCurl_1.98-1.2                         </span>
-<span class="co">#&gt; [117] tibble_3.0.1                           </span>
-<span class="co">#&gt; [118] crayon_1.3.4                           </span>
-<span class="co">#&gt; [119] BiocFileCache_1.13.0                   </span>
-<span class="co">#&gt; [120] rmarkdown_2.3                          </span>
-<span class="co">#&gt; [121] progress_1.2.2                         </span>
-<span class="co">#&gt; [122] GetoptLong_1.0.0                       </span>
-<span class="co">#&gt; [123] TFBSTools_1.27.0                       </span>
-<span class="co">#&gt; [124] grid_4.1.0                             </span>
-<span class="co">#&gt; [125] blob_1.2.1                             </span>
-<span class="co">#&gt; [126] methods_4.1.0                          </span>
-<span class="co">#&gt; [127] digest_0.6.25                          </span>
-<span class="co">#&gt; [128] xtable_1.8-4                           </span>
-<span class="co">#&gt; [129] R.utils_2.9.2                          </span>
-<span class="co">#&gt; [130] openssl_1.4.1                          </span>
-<span class="co">#&gt; [131] stats4_4.1.0                           </span>
-<span class="co">#&gt; [132] munsell_0.5.0                          </span>
-<span class="co">#&gt; [133] glmnet_4.0-2                           </span>
-<span class="co">#&gt; [134] DirichletMultinomial_1.31.0            </span>
-<span class="co">#&gt; [135] askpass_1.1</span></pre></body></html></div>
+<span class="co">#&gt;   [1] colorspace_2.0-0            rjson_0.2.20               </span>
+<span class="co">#&gt;   [3] ellipsis_0.3.1              rprojroot_2.0.2            </span>
+<span class="co">#&gt;   [5] GlobalOptions_0.1.2         fs_1.5.0                   </span>
+<span class="co">#&gt;   [7] clue_0.3-59                 bit64_4.0.5                </span>
+<span class="co">#&gt;   [9] fansi_0.4.2                 xml2_1.3.2                 </span>
+<span class="co">#&gt;  [11] splines_4.0.5               codetools_0.2-18           </span>
+<span class="co">#&gt;  [13] R.methodsS3_1.8.1           cachem_1.0.4               </span>
+<span class="co">#&gt;  [15] knitr_1.32                  jsonlite_1.7.2             </span>
+<span class="co">#&gt;  [17] Rsamtools_2.6.0             Cairo_1.5-12.2             </span>
+<span class="co">#&gt;  [19] seqLogo_1.56.0              annotate_1.68.0            </span>
+<span class="co">#&gt;  [21] dbplyr_2.1.1                cluster_2.1.2              </span>
+<span class="co">#&gt;  [23] GO.db_3.12.1                png_0.1-7                  </span>
+<span class="co">#&gt;  [25] R.oo_1.24.0                 BiocManager_1.30.12        </span>
+<span class="co">#&gt;  [27] readr_1.4.0                 compiler_4.0.5             </span>
+<span class="co">#&gt;  [29] httr_1.4.2                  assertthat_0.2.1           </span>
+<span class="co">#&gt;  [31] Matrix_1.3-2                fastmap_1.1.0              </span>
+<span class="co">#&gt;  [33] prettyunits_1.1.1           htmltools_0.5.1.1          </span>
+<span class="co">#&gt;  [35] tools_4.0.5                 igraph_1.2.6               </span>
+<span class="co">#&gt;  [37] gtable_0.3.0                glue_1.4.2                 </span>
+<span class="co">#&gt;  [39] TFMPvalue_0.0.8             GenomeInfoDbData_1.2.4     </span>
+<span class="co">#&gt;  [41] reshape2_1.4.4              dplyr_1.0.5                </span>
+<span class="co">#&gt;  [43] rappdirs_0.3.3              Rcpp_1.0.6                 </span>
+<span class="co">#&gt;  [45] jquerylib_0.1.3             pkgdown_1.6.1.9001         </span>
+<span class="co">#&gt;  [47] vctrs_0.3.7                 iterators_1.0.13           </span>
+<span class="co">#&gt;  [49] xfun_0.22                   CNEr_1.26.0                </span>
+<span class="co">#&gt;  [51] stringr_1.4.0               lifecycle_1.0.0            </span>
+<span class="co">#&gt;  [53] poweRlaw_0.70.6             gtools_3.8.2               </span>
+<span class="co">#&gt;  [55] stringdist_0.9.6.3          XML_3.99-0.6               </span>
+<span class="co">#&gt;  [57] zlibbioc_1.36.0             scales_1.1.1               </span>
+<span class="co">#&gt;  [59] ragg_1.1.2                  hms_1.0.0                  </span>
+<span class="co">#&gt;  [61] RColorBrewer_1.1-2          curl_4.3                   </span>
+<span class="co">#&gt;  [63] yaml_2.2.1                  memoise_2.0.0              </span>
+<span class="co">#&gt;  [65] ggplot2_3.3.3               stabs_0.6-4                </span>
+<span class="co">#&gt;  [67] sass_0.3.1                  biomaRt_2.46.3             </span>
+<span class="co">#&gt;  [69] stringi_1.5.3               RSQLite_2.2.6              </span>
+<span class="co">#&gt;  [71] highr_0.9                   desc_1.3.0                 </span>
+<span class="co">#&gt;  [73] foreach_1.5.1               caTools_1.18.2             </span>
+<span class="co">#&gt;  [75] BiocParallel_1.24.1         shape_1.4.5                </span>
+<span class="co">#&gt;  [77] rlang_0.4.10                pkgconfig_2.0.3            </span>
+<span class="co">#&gt;  [79] systemfonts_1.0.1           bitops_1.0-6               </span>
+<span class="co">#&gt;  [81] pracma_2.3.3                evaluate_0.14              </span>
+<span class="co">#&gt;  [83] lattice_0.20-41             purrr_0.3.4                </span>
+<span class="co">#&gt;  [85] GenomicAlignments_1.26.0    bit_4.0.4                  </span>
+<span class="co">#&gt;  [87] tidyselect_1.1.0            plyr_1.8.6                 </span>
+<span class="co">#&gt;  [89] magrittr_2.0.1              bookdown_0.21              </span>
+<span class="co">#&gt;  [91] R6_2.5.0                    generics_0.1.0             </span>
+<span class="co">#&gt;  [93] DelayedArray_0.16.3         DBI_1.1.1                  </span>
+<span class="co">#&gt;  [95] pillar_1.6.0                survival_3.2-10            </span>
+<span class="co">#&gt;  [97] KEGGREST_1.30.1             RCurl_1.98-1.3             </span>
+<span class="co">#&gt;  [99] tibble_3.1.0                crayon_1.4.1               </span>
+<span class="co">#&gt; [101] utf8_1.2.1                  BiocFileCache_1.14.0       </span>
+<span class="co">#&gt; [103] rmarkdown_2.7               progress_1.2.2             </span>
+<span class="co">#&gt; [105] GetoptLong_1.0.5            blob_1.2.1                 </span>
+<span class="co">#&gt; [107] digest_0.6.27               xtable_1.8-4               </span>
+<span class="co">#&gt; [109] R.utils_2.10.1              textshaping_0.3.3          </span>
+<span class="co">#&gt; [111] openssl_1.4.3               glmnet_4.1-1               </span>
+<span class="co">#&gt; [113] munsell_0.5.0               DirichletMultinomial_1.32.0</span>
+<span class="co">#&gt; [115] bslib_0.2.4                 askpass_1.1</span></code></pre></div>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1 class="hasAnchor">
 <a href="#references" class="anchor"></a>References</h1>
 <div id="refs" class="references">
 <div id="ref-MethylSeekR">
-<p>Burger, Lukas, Dimos Gaidatzis, Dirk Schuebeler, and Michael B. Stadler. 2013. “Identification of Active Regulatory Regions from DNA Methylation Data.” <em>Nucleic Acids Research</em> 41: e155. <a href="https://doi.org/doi:10.1093/nar/gkt599" class="uri">https://doi.org/doi:10.1093/nar/gkt599</a>.</p>
-</div>
-<div id="ref-encode">
-<p>Davis, Carrie A, Benjamin C Hitz, Cricket A Sloan, Esther T Chan, Jean M Davidson, Idan Gabdank, Jason A Hilton, et al. 2018. “The Encyclopedia of DNA Elements (ENCODE): Data Portal Update.” <em>Nucleic Acids Research</em> 46 (D1): D794–D801. <a href="https://doi.org/doi:10.1093/nar/gkx1081" class="uri">https://doi.org/doi:10.1093/nar/gkx1081</a>.</p>
-</div>
-<div id="ref-QuasR">
-<p>Gaidatzis, Dimos, Anita Lerch, Florian Hahne, and Michael B. Stadler. 2015. “QuasR: Quantification and Annotation of Short Reads in R.” <em>Bioinformatics</em> 31 (7): 1130–2. <a href="https://doi.org/doi:10.1093/bioinformatics/btu781" class="uri">https://doi.org/doi:10.1093/bioinformatics/btu781</a>.</p>
-</div>
-<div id="ref-stabs">
-<p>Hofner, Benjamin, Luigi Boccuto, and Markus Göker. 2015. “Controlling False Discoveries in High-Dimensional Situations: Boosting with Stability Selection.” <em>BMC Bioinformatics</em> 16: 144. <a href="https://doi.org/doi:10.1186/s12859-015-0575-3" class="uri">https://doi.org/doi:10.1186/s12859-015-0575-3</a>.</p>
+<p>Burger, Lukas, Dimos Gaidatzis, Dirk Schuebeler, and Michael B. Stadler. 2013. “Identification of Active Regulatory Regions from DNA Methylation Data.” <em>Nucleic Acids Research</em> 41: e155. <a href="https://doi.org/doi:10.1093/nar/gkt599" class="external-link">https://doi.org/doi:10.1093/nar/gkt599</a>.</p>
 </div>
 <div id="ref-StabSel">
-<p>Meinshausen, Nicolai, and Peter Bühlmann. 2010. “Stability Selection.” <em>Journal of the Royal Statistical Society: Series B (Statistical Methodology)</em> 72 (4): 417–73. <a href="https://doi.org/doi:10.1111/j.1467-9868.2010.00740.x" class="uri">https://doi.org/doi:10.1111/j.1467-9868.2010.00740.x</a>.</p>
+<p>Meinshausen, Nicolai, and Peter Bühlmann. 2010. “Stability Selection.” <em>Journal of the Royal Statistical Society: Series B (Statistical Methodology)</em> 72 (4): 417–73. <a href="https://doi.org/doi:10.1111/j.1467-9868.2010.00740.x" class="external-link">https://doi.org/doi:10.1111/j.1467-9868.2010.00740.x</a>.</p>
 </div>
 <div id="ref-compStabs">
-<p>Shah, Rajen D., and Richard J. Samworth. 2013. “Variable Selection with Error Control: Another Look at Stability Selection.” <em>Journal of the Royal Statistical Society: Series B (Statistical Methodology)</em> 75 (1): 55–80. <a href="https://doi.org/doi:10.1111/j.1467-9868.2011.01034.x" class="uri">https://doi.org/doi:10.1111/j.1467-9868.2011.01034.x</a>.</p>
+<p>Shah, Rajen D., and Richard J. Samworth. 2013. “Variable Selection with Error Control: Another Look at Stability Selection.” <em>Journal of the Royal Statistical Society: Series B (Statistical Methodology)</em> 75 (1): 55–80. <a href="https://doi.org/doi:10.1111/j.1467-9868.2011.01034.x" class="external-link">https://doi.org/doi:10.1111/j.1467-9868.2011.01034.x</a>.</p>
 </div>
 <div id="ref-LMRs">
-<p>Stadler, Michael B., Rabih Murr, Lukas Burger, Robert Ivanek, Florian Lienert, Anne Schöler, Erik van Nimwegen, et al. 2011. “DNA-Binding Factors Shape the Mouse Methylome at Distal Regulatory Regions.” <em>Nature</em> 480: 490–95. <a href="https://doi.org/doi:10.1038/nature10716" class="uri">https://doi.org/doi:10.1038/nature10716</a>.</p>
-</div>
-<div id="ref-macs">
-<p>Zhang, Yong, Tao Liu, Clifford A Meyer, Jérôme Eeckhoute, David S Johnson, Bradley E Bernstein, Chad Nusbaum, et al. 2008. “Model-Based Analysis of Chip-Seq (MACS).” <em>Genome Biology</em> 9 (9): R137. <a href="https://doi.org/doi:10.1186/gb-2008-9-9-r137" class="uri">https://doi.org/doi:10.1186/gb-2008-9-9-r137</a>.</p>
+<p>Stadler, Michael B., Rabih Murr, Lukas Burger, Robert Ivanek, Florian Lienert, Anne Schöler, Erik van Nimwegen, et al. 2011. “DNA-Binding Factors Shape the Mouse Methylome at Distal Regulatory Regions.” <em>Nature</em> 480: 490–95. <a href="https://doi.org/doi:10.1038/nature10716" class="external-link">https://doi.org/doi:10.1038/nature10716</a>.</p>
 </div>
 </div>
 </div>
@@ -845,11 +774,13 @@ saveRDS(se, "/work/gbioinfo/stadler/development/R/compbio-lisa/inst/extdata/se.r
 
 
       <footer><div class="copyright">
-  <p>Developed by <a href="https://github.com/machlabd">Dania Machlab</a>, <a href="https://github.com/LukasBurger">Lukas Burger</a>, <a href="https://github.com/mbstadler">Michael Stadler</a>.</p>
+  <p></p>
+<p>Developed by <a href="https://github.com/machlabd" class="external-link external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link external-link">Lukas Burger</a>, <a href="https://github.com/mbstadler" class="external-link external-link">Michael Stadler</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9001.</p>
 </div>
 
       </footer>
@@ -857,6 +788,8 @@ saveRDS(se, "/work/gbioinfo/stadler/development/R/compbio-lisa/inst/extdata/se.r
 
   
 
+
+  
 
   </body>
 </html>

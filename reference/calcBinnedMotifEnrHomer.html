@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get colors by bin. — getColsByBin • monaLisa</title>
+<title>Prepare and run HOMER motif enrichment analysis. — calcBinnedMotifEnrHomer • monaLisa</title>
 
 
 <!-- jquery -->
@@ -39,11 +39,10 @@
 
 
 
-<meta property="og:title" content="Get colors by bin. — getColsByBin" />
-<meta property="og:description" content="Get colors for elements according to their bin.
-    Colors are assigned to bins forming a gradient from col1
-    to col2 in the order of levels{b}. col0 is assigned
-    to the neutral bin (attribute &quot;&quot;) if available." />
+<meta property="og:title" content="Prepare and run HOMER motif enrichment analysis. — calcBinnedMotifEnrHomer" />
+<meta property="og:description" content="Run complete HOMER motif enrichment analysis, consisting of
+    calls to prepareHomer, system2 and
+    parseHomerOutput." />
 
 
 
@@ -129,53 +128,92 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get colors by bin.</h1>
+    <h1>Prepare and run HOMER motif enrichment analysis.</h1>
     
-    <div class="hidden name"><code>getColsByBin.Rd</code></div>
+    <div class="hidden name"><code>calcBinnedMotifEnrHomer.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Get colors for elements according to their bin.
-    Colors are assigned to bins forming a gradient from <code>col1</code>
-    to <code>col2</code> in the order of <code>levels{b}</code>. <code>col0</code> is assigned
-    to the neutral bin (attribute <code>""</code>) if available.</p>
+    <p>Run complete HOMER motif enrichment analysis, consisting of
+    calls to <code><a href='prepareHomer.html'>prepareHomer</a></code>, <code><a href='https://rdrr.io/r/base/system2.html'>system2</a></code> and
+    <code><a href='parseHomerOutput.html'>parseHomerOutput</a></code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getColsByBin</span><span class='op'>(</span>
+    <pre class="usage"><span class='fu'>calcBinnedMotifEnrHomer</span><span class='op'>(</span>
+  <span class='va'>gr</span>,
   <span class='va'>b</span>,
-  col1 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"#003C30"</span>, <span class='st'>"#01665E"</span>, <span class='st'>"#35978F"</span>, <span class='st'>"#80CDC1"</span>, <span class='st'>"#C7EAE5"</span><span class='op'>)</span>,
-  col2 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"#F6E8C3"</span>, <span class='st'>"#DFC27D"</span>, <span class='st'>"#BF812D"</span>, <span class='st'>"#8C510A"</span>, <span class='st'>"#543005"</span><span class='op'>)</span>,
-  col0 <span class='op'>=</span> <span class='st'>"#F5F5F5"</span>
+  <span class='va'>genomedir</span>,
+  <span class='va'>outdir</span>,
+  <span class='va'>motifFile</span>,
+  homerfile <span class='op'>=</span> <span class='fu'><a href='findHomer.html'>findHomer</a></span><span class='op'>(</span><span class='op'>)</span>,
+  regionsize <span class='op'>=</span> <span class='st'>"given"</span>,
+  Ncpu <span class='op'>=</span> <span class='fl'>2L</span>,
+  verbose <span class='op'>=</span> <span class='cn'>FALSE</span>
 <span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
+      <th>gr</th>
+      <td><p>A <code>GRanges</code> object (or an object that can be coerced to one)
+with the genomic regions to analyze.</p></td>
+    </tr>
+    <tr>
       <th>b</th>
-      <td><p>A factor that groups elements into bins (typically the output of
-<code><a href='bin.html'>bin</a></code>).</p></td>
+      <td><p>A vector of the same length as <code>gr</code> that groups its elements
+into bins (typically a factor, such as the one returned by <code><a href='bin.html'>bin</a></code>).</p></td>
     </tr>
     <tr>
-      <th>col1</th>
-      <td><p>First color.</p></td>
+      <th>genomedir</th>
+      <td><p>Directory containing sequence files in Fasta format (one per chromosome).</p></td>
     </tr>
     <tr>
-      <th>col2</th>
-      <td><p>Second color.</p></td>
+      <th>outdir</th>
+      <td><p>A path specifying the folder into which the output files will be written.</p></td>
     </tr>
     <tr>
-      <th>col0</th>
-      <td><p>Neutral color.</p></td>
+      <th>motifFile</th>
+      <td><p>A file with HOMER formatted PWMs to be used in the enrichment analysis.</p></td>
+    </tr>
+    <tr>
+      <th>homerfile</th>
+      <td><p>Path and file name of the <code>findMotifsGenome.pl</code> HOMER script.</p></td>
+    </tr>
+    <tr>
+      <th>regionsize</th>
+      <td><p>The peak size to use in HOMER (<code>"given"</code> keeps the coordinate
+region, an integer value will keep only that many bases in the region center).</p></td>
+    </tr>
+    <tr>
+      <th>Ncpu</th>
+      <td><p>Number of parallel threads that HOMER can use.</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>A logical scalar. If <code>TRUE</code>, print progress messages.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A character vector with colors for the elements in <code>b</code>.</p>
+    <p>A <code>SummarizedExperiment</code> object with motifs in rows and bins
+  in columns, containing six assays:</p><ul>
+<li><p>p: -log10 P values</p></li>
+<li><p>FDR: -log10 false discovery rates</p></li>
+<li><p>enr: motif enrichments as Pearson residuals</p></li>
+<li><p>log2enr: motif enrichments as log2 ratios</p></li>
+<li><p>sumForegroundWgtWithHits: Sum of foreground sequence weights
+    in a bin that have motif hits</p></li>
+<li><p>sumBackgroundWgtWithHits: Sum of background sequence weights
+    in a bin that have motif hits</p></li>
+</ul>
+
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='bin.html'>bin</a></code>.</p></div>
+    <div class='dont-index'><p>The functions that are wrapped: <code><a href='prepareHomer.html'>prepareHomer</a></code>,
+    <code><a href='https://rdrr.io/r/base/system2.html'>system2</a></code> and <code><a href='parseHomerOutput.html'>parseHomerOutput</a></code>,
+    <code><a href='bin.html'>bin</a></code> for binning of regions</p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

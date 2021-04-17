@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get colors by bin. — getColsByBin • monaLisa</title>
+<title>Adjust for k-mer composition (multiple iterations) — .iterativeNormForKmers • monaLisa</title>
 
 
 <!-- jquery -->
@@ -39,11 +39,14 @@
 
 
 
-<meta property="og:title" content="Get colors by bin. — getColsByBin" />
-<meta property="og:description" content="Get colors for elements according to their bin.
-    Colors are assigned to bins forming a gradient from col1
-    to col2 in the order of levels{b}. col0 is assigned
-    to the neutral bin (attribute &quot;&quot;) if available." />
+<meta property="og:title" content="Adjust for k-mer composition (multiple iterations) — .iterativeNormForKmers" />
+<meta property="og:description" content="Here we run `.normForKmers` multiple times to converge to
+  the final weights that will be used to correct the background
+  sequences for k-mer composition differences compared to the foreground. We
+  closely follow HOMER's normalizeSequence() function found in
+  Motif2.cpp. Note that HOMER runs the
+  normalizeSequence() one last time after going through all iterations
+  or reaching a low error, which we do not do here." />
 
 
 
@@ -129,53 +132,74 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get colors by bin.</h1>
+    <h1>Adjust for k-mer composition (multiple iterations)</h1>
     
-    <div class="hidden name"><code>getColsByBin.Rd</code></div>
+    <div class="hidden name"><code>dot-iterativeNormForKmers.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Get colors for elements according to their bin.
-    Colors are assigned to bins forming a gradient from <code>col1</code>
-    to <code>col2</code> in the order of <code>levels{b}</code>. <code>col0</code> is assigned
-    to the neutral bin (attribute <code>""</code>) if available.</p>
+    <p>Here we run `.normForKmers` multiple times to converge to
+  the final weights that will be used to correct the background
+  sequences for k-mer composition differences compared to the foreground. We
+  closely follow <code>HOMER</code>'s <code>normalizeSequence()</code> function found in
+  <code>Motif2.cpp</code>. Note that <code>HOMER</code> runs the
+  <code>normalizeSequence()</code> one last time after going through all iterations
+  or reaching a low error, which we do not do here.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getColsByBin</span><span class='op'>(</span>
-  <span class='va'>b</span>,
-  col1 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"#003C30"</span>, <span class='st'>"#01665E"</span>, <span class='st'>"#35978F"</span>, <span class='st'>"#80CDC1"</span>, <span class='st'>"#C7EAE5"</span><span class='op'>)</span>,
-  col2 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"#F6E8C3"</span>, <span class='st'>"#DFC27D"</span>, <span class='st'>"#BF812D"</span>, <span class='st'>"#8C510A"</span>, <span class='st'>"#543005"</span><span class='op'>)</span>,
-  col0 <span class='op'>=</span> <span class='st'>"#F5F5F5"</span>
+    <pre class="usage"><span class='fu'><a href='dot-iterativeNormForKmers.html'>.iterativeNormForKmers</a></span><span class='op'>(</span>
+  <span class='va'>df</span>,
+  maxKmerSize <span class='op'>=</span> <span class='fl'>3L</span>,
+  minSeqWgt <span class='op'>=</span> <span class='fl'>0.001</span>,
+  maxIter <span class='op'>=</span> <span class='fl'>160L</span>,
+  verbose <span class='op'>=</span> <span class='cn'>FALSE</span>
 <span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>b</th>
-      <td><p>A factor that groups elements into bins (typically the output of
-<code><a href='bin.html'>bin</a></code>).</p></td>
+      <th>df</th>
+      <td><p>a <code>DataFrame</code> with sequence information as returned by
+<code>.calculateGCweight</code>.</p></td>
     </tr>
     <tr>
-      <th>col1</th>
-      <td><p>First color.</p></td>
+      <th>maxKmerSize</th>
+      <td><p>Integer scalar giving the maximum k-mer size to
+consider. The default is set to 3 (like in <code>HOMER</code>), meaning that
+k-mers of size 1, 2 and 3 are considered.</p></td>
     </tr>
     <tr>
-      <th>col2</th>
-      <td><p>Second color.</p></td>
+      <th>minSeqWgt</th>
+      <td><p>Numeric scalar greater than zero giving the
+minimal weight of a sequence. The default value (0.001) was also used by
+<code>HOMER</code> (HOMER_MINIMUM_SEQ_WEIGHT  constant in Motif2.h).</p></td>
     </tr>
     <tr>
-      <th>col0</th>
-      <td><p>Neutral color.</p></td>
+      <th>maxIter</th>
+      <td><p>An integer scalar giving the maximum number if
+times to run <code>.normForKmers</code>. the default is set to 160 (as in
+<code>HOMER</code>).</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>A logical scalar. If <code>TRUE</code>, report on k-mer composition
+adjustment.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A character vector with colors for the elements in <code>b</code>.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+    <p>a DataFrame containing:</p><ul>
+<li><p>sequenceWeights: a
+  <code>dataframe</code> containing the sequence GC content, GC bins they were
+  assigned to, the weight to correct for GC differences between foreGround
+  and background sequences, the weight to adjust for kmer composition, and
+  the the error term</p></li>
+<li><p>sequenceNucleotides: a <code>DNAStringSet</code>
+  object containing the raw sequences</p></li>
+</ul>
 
-    <div class='dont-index'><p><code><a href='bin.html'>bin</a></code>.</p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

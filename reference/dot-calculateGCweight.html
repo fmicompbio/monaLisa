@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get colors by bin. — getColsByBin • monaLisa</title>
+<title>Get background sequence weights for GC bins — .calculateGCweight • monaLisa</title>
 
 
 <!-- jquery -->
@@ -39,11 +39,13 @@
 
 
 
-<meta property="og:title" content="Get colors by bin. — getColsByBin" />
-<meta property="og:description" content="Get colors for elements according to their bin.
-    Colors are assigned to bins forming a gradient from col1
-    to col2 in the order of levels{b}. col0 is assigned
-    to the neutral bin (attribute &quot;&quot;) if available." />
+<meta property="og:title" content="Get background sequence weights for GC bins — .calculateGCweight" />
+<meta property="og:description" content="The logic is based on Homer (version 4.11). All sequences
+  binned depending on GC content (GCbreaks). The numbers of
+  foreground and background sequences in each bin are counted, and weights
+  for background sequences in bin i are defined as:
+  weight_i = (number_fg_seqs_i / number_bg_seqs_i) * (number_bg_seqs_total /
+  number_fg_seqs_total)" />
 
 
 
@@ -129,53 +131,52 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get colors by bin.</h1>
+    <h1>Get background sequence weights for GC bins</h1>
     
-    <div class="hidden name"><code>getColsByBin.Rd</code></div>
+    <div class="hidden name"><code>dot-calculateGCweight.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Get colors for elements according to their bin.
-    Colors are assigned to bins forming a gradient from <code>col1</code>
-    to <code>col2</code> in the order of <code>levels{b}</code>. <code>col0</code> is assigned
-    to the neutral bin (attribute <code>""</code>) if available.</p>
+    <p>The logic is based on Homer (version 4.11). All sequences
+  binned depending on GC content (<code>GCbreaks</code>). The numbers of
+  foreground and background sequences in each bin are counted, and weights
+  for background sequences in bin i are defined as:
+  weight_i = (number_fg_seqs_i / number_bg_seqs_i) * (number_bg_seqs_total /
+  number_fg_seqs_total)</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getColsByBin</span><span class='op'>(</span>
-  <span class='va'>b</span>,
-  col1 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"#003C30"</span>, <span class='st'>"#01665E"</span>, <span class='st'>"#35978F"</span>, <span class='st'>"#80CDC1"</span>, <span class='st'>"#C7EAE5"</span><span class='op'>)</span>,
-  col2 <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"#F6E8C3"</span>, <span class='st'>"#DFC27D"</span>, <span class='st'>"#BF812D"</span>, <span class='st'>"#8C510A"</span>, <span class='st'>"#543005"</span><span class='op'>)</span>,
-  col0 <span class='op'>=</span> <span class='st'>"#F5F5F5"</span>
+    <pre class="usage"><span class='fu'><a href='dot-calculateGCweight.html'>.calculateGCweight</a></span><span class='op'>(</span>
+  <span class='va'>df</span>,
+  GCbreaks <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.2</span>, <span class='fl'>0.25</span>, <span class='fl'>0.3</span>, <span class='fl'>0.35</span>, <span class='fl'>0.4</span>, <span class='fl'>0.45</span>, <span class='fl'>0.5</span>, <span class='fl'>0.6</span>, <span class='fl'>0.7</span>, <span class='fl'>0.8</span><span class='op'>)</span>,
+  verbose <span class='op'>=</span> <span class='cn'>FALSE</span>
 <span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>b</th>
-      <td><p>A factor that groups elements into bins (typically the output of
-<code><a href='bin.html'>bin</a></code>).</p></td>
+      <th>df</th>
+      <td><p>a <code>DataFrame</code> with sequence information.</p></td>
     </tr>
     <tr>
-      <th>col1</th>
-      <td><p>First color.</p></td>
+      <th>GCbreaks</th>
+      <td><p>The breaks between GC bins. The default value is based on
+the hard-coded bins used in Homer.</p></td>
     </tr>
     <tr>
-      <th>col2</th>
-      <td><p>Second color.</p></td>
-    </tr>
-    <tr>
-      <th>col0</th>
-      <td><p>Neutral color.</p></td>
+      <th>verbose</th>
+      <td><p>A logical scalar. If <code>TRUE</code>, report on GC weight
+calculation.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A character vector with colors for the elements in <code>b</code>.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p><code><a href='bin.html'>bin</a></code>.</p></div>
+    <p>a <code>DataFrame</code> of the same dimensions as the input <code>df</code>,
+  with the columns <code>GCfrac</code>, <code>GCbin</code> and <code>GCwgt</code>
+  filled in with the sequence GC content, assigned GC bins and weights to
+  correct differences in GC distributions between foreground and background
+  sequences.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

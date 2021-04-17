@@ -41,7 +41,9 @@
 
 <meta property="og:title" content="Plot Stability Paths — plotStabilityPaths" />
 <meta property="og:description" content="Plot the stability paths of each variable (predictor), showing the selection probability
-as a function of the regularization step." />
+  as a function of the regularization step." />
+
+
 
 
 
@@ -57,9 +59,16 @@ as a function of the regularization step." />
 
 
 
+
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -73,19 +82,13 @@ as a function of the regularization step." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.30</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.42</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/monaLisa.html">Get started</a>
 </li>
 <li>
@@ -107,7 +110,7 @@ as a function of the regularization step." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/fmicompbio/monaLisa">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fas fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -131,41 +134,48 @@ as a function of the regularization step." />
 
     <div class="ref-description">
     <p>Plot the stability paths of each variable (predictor), showing the selection probability
-as a function of the regularization step.</p>
+  as a function of the regularization step.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plotStabilityPaths</span>(
-  <span class='no'>stabs_object</span>,
-  <span class='kw'>cols</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>lwd</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>lty</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>ylim</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>1.1</span>),
-  <span class='no'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>plotStabilityPaths</span><span class='op'>(</span>
+  <span class='va'>se</span>,
+  selProbMin <span class='op'>=</span> <span class='fu'>metadata</span><span class='op'>(</span><span class='va'>se</span><span class='op'>)</span><span class='op'>$</span><span class='va'>stabsel.params.cutoff</span>,
+  col <span class='op'>=</span> <span class='st'>"cadetblue"</span>,
+  lwd <span class='op'>=</span> <span class='fl'>1</span>,
+  lty <span class='op'>=</span> <span class='fl'>1</span>,
+  ylim <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>1.1</span><span class='op'>)</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>stabs_object</th>
-      <td><p>the <code>stabs</code> object resulting from stability selection.</p></td>
+      <th>se</th>
+      <td><p>the <code>SummarizedExperiment</code> object resulting from stability selection, 
+by running <code><a href='randLassoStabSel.html'>randLassoStabSel</a></code>.</p></td>
     </tr>
     <tr>
-      <th>cols</th>
-      <td><p>color vector for the varaiables from the predictor matrix. By default, it's set to NULL
-and the function colors the variables by whether or not they were selected.</p></td>
+      <th>selProbMin</th>
+      <td><p>A numerical scalar in [0,1]. Predictors with a selection
+probability greater than <code>selProbMin</code> are shown as colored lines. The
+color is defined by the <code>col</code> argument.</p></td>
+    </tr>
+    <tr>
+      <th>col</th>
+      <td><p>color of the selected predictors.</p></td>
     </tr>
     <tr>
       <th>lwd</th>
-      <td><p>line width (default 1).</p></td>
+      <td><p>line width (default = 1).</p></td>
     </tr>
     <tr>
       <th>lty</th>
-      <td><p>line type (default 1).</p></td>
+      <td><p>line type (default = 1).</p></td>
     </tr>
     <tr>
       <th>ylim</th>
-      <td><p>limits for y-axis (default c(0,1.1)).</p></td>
+      <td><p>limits for y-axis (default = c(0,1.1)).</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -191,11 +201,11 @@ and the function colors the variables by whether or not they were selected.</p><
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://github.com/machlabd'>Dania Machlab</a>, <a href='https://github.com/LukasBurger'>Lukas Burger</a>, <a href='https://github.com/mbstadler'>Michael Stadler</a>.</p>
+  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
 </div>
 
       </footer>
@@ -203,6 +213,8 @@ and the function colors the variables by whether or not they were selected.</p><
 
   
 
+
+  
 
   </body>
 </html>

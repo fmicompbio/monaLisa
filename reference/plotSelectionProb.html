@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Barplot Selection Probabilities — plotSelectionProb • monaLisa</title>
+<title>Plot selection probabilities of predictors — plotSelectionProb • monaLisa</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,14 @@
 
 
 
-<meta property="og:title" content="Barplot Selection Probabilities — plotSelectionProb" />
-<meta property="og:description" content="Create a bar plot of the selection probabilities in descending order." />
+<meta property="og:title" content="Plot selection probabilities of predictors — plotSelectionProb" />
+<meta property="og:description" content="This function plots the selection probabilities of predictors
+  (for example the selected motifs), optionally multiplied with either +1 or
+  -1 to give a sense of both the strength and the directionality of the
+  associated effects. The directionality is estimated from the sign of the
+  correlation coefficient between each predictor and the response vector." />
+
+
 
 
 
@@ -56,9 +62,16 @@
 
 
 
+
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -72,19 +85,13 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.30</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.42</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/monaLisa.html">Get started</a>
 </li>
 <li>
@@ -106,7 +113,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/fmicompbio/monaLisa">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fas fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -123,60 +130,97 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Barplot Selection Probabilities</h1>
+    <h1>Plot selection probabilities of predictors</h1>
     
     <div class="hidden name"><code>plotSelectionProb.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Create a bar plot of the selection probabilities in descending order.</p>
+    <p>This function plots the selection probabilities of predictors
+  (for example the selected motifs), optionally multiplied with either +1 or
+  -1 to give a sense of both the strength and the directionality of the
+  associated effects. The directionality is estimated from the sign of the
+  correlation coefficient between each predictor and the response vector.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plotSelectionProb</span>(
-  <span class='no'>stabs_object</span>,
-  <span class='kw'>ylim</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>1.1</span>),
-  <span class='kw'>onlySelected</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>sel_color</span> <span class='kw'>=</span> <span class='st'>"cadetblue"</span>,
-  <span class='kw'>las</span> <span class='kw'>=</span> <span class='fl'>2</span>,
-  <span class='no'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>plotSelectionProb</span><span class='op'>(</span>
+  <span class='va'>se</span>,
+  directional <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  selProbMin <span class='op'>=</span> <span class='fu'>metadata</span><span class='op'>(</span><span class='va'>se</span><span class='op'>)</span><span class='op'>$</span><span class='va'>stabsel.params.cutoff</span>,
+  selProbMinPlot <span class='op'>=</span> <span class='fl'>0.4</span>,
+  showSelProbMin <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  col <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"cadetblue"</span>, <span class='st'>"grey"</span>, <span class='st'>"red"</span><span class='op'>)</span>,
+  method <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"pearson"</span>, <span class='st'>"kendall"</span>, <span class='st'>"spearman"</span><span class='op'>)</span>,
+  ylimext <span class='op'>=</span> <span class='fl'>0.25</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>stabs_object</th>
-      <td><p>the <code>stabs</code> object resulting from stability selection.</p></td>
+      <th>se</th>
+      <td><p>The <code>SummarizedExperiment</code> object with the results from
+stability selection (typically returned by <code><a href='randLassoStabSel.html'>randLassoStabSel</a></code>).</p></td>
     </tr>
     <tr>
-      <th>ylim</th>
-      <td><p>the limits for the y-axis.</p></td>
+      <th>directional</th>
+      <td><p>A logical scalar. If <code>TRUE</code>, selection probabilities
+are plotted with the sign of the marginal correlation between a predictor
+and the response.</p></td>
     </tr>
     <tr>
-      <th>onlySelected</th>
-      <td><p>logical (default=TRUE) indicating if only selected predictors' selection probabilities
-should be plotted.</p></td>
+      <th>selProbMin</th>
+      <td><p>A numerical scalar in [0,1]. Predictors with a selection
+probability greater than <code>selProbMin</code> are shown as colored bars. The
+color is defined by <code>col[1]</code>. By default, <code>selProbMin</code> is
+extracted from the parameters stored in <code>se</code>.</p></td>
     </tr>
     <tr>
-      <th>sel_color</th>
-      <td><p>color of the selected predictors.</p></td>
+      <th>selProbMinPlot</th>
+      <td><p>A numerical scalar in [0,1] less than <code>selProbMin</code>.
+Predictors with a selection probability greater than <code>selProbMinPlot</code>
+but less than <code>selProbMin</code> are shown as bars with color <code>col[2]</code>.
+<code>selProbMinPlot</code> is useful to include additional predictors in the plot
+that were not selected according to <code>selProbMin</code> but may be close to
+that cutoff. Setting <code>selProbMinPlot = 0</code> will create a plot including
+all predictors.</p></td>
     </tr>
     <tr>
-      <th>las</th>
-      <td><p>(2 by default) plot labels vertically or horizontally.</p></td>
+      <th>showSelProbMin</th>
+      <td><p>A logical scalar. If <code>TRUE</code>, the value of
+<code>selProbMin</code> is shown by a horizontal dashed line of color <code>col[3]</code>.</p></td>
+    </tr>
+    <tr>
+      <th>col</th>
+      <td><p>A color vector giving the three colors used for predictors with
+selection probability greater than <code>selProbMin</code>, additional predictors
+with selection probability greater than <code>selProbMinPlot</code>, and the
+selection probability cutoff line.</p></td>
+    </tr>
+    <tr>
+      <th>method</th>
+      <td><p>A character scalar with the correlation method to use in the
+calculation of predictor-response marginal correlations. One of "pearson",
+"kendall" or "spearman" (see <code><a href='https://rdrr.io/r/stats/cor.html'>cor</a></code>).</p></td>
+    </tr>
+    <tr>
+      <th>ylimext</th>
+      <td><p>A numeric scalar defining how much the y axis limits should be
+expanded beyond the plotted probabilities to allow for space for the
+bar labels.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>additional parameters for the <code>barplot</code> function.</p></td>
+      <td><p>additional parameters passed to <code><a href='https://rdrr.io/r/graphics/barplot.html'>barplot</a></code>.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>barplot of selection probabilities.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p><code><a href='https://rdrr.io/r/graphics/barplot.html'>barplot</a></code></p></div>
+    <p><code>TRUE</code> (invisible). The function is called to create a barplot
+  indicating the selection probability and optionally directionality of the
+  predictors (motifs).</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -189,11 +233,11 @@ should be plotted.</p></td>
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://github.com/machlabd'>Dania Machlab</a>, <a href='https://github.com/LukasBurger'>Lukas Burger</a>, <a href='https://github.com/mbstadler'>Michael Stadler</a>.</p>
+  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
 </div>
 
       </footer>
@@ -201,6 +245,8 @@ should be plotted.</p></td>
 
   
 
+
+  
 
   </body>
 </html>

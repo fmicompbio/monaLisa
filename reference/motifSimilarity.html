@@ -50,6 +50,8 @@
 
 
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -61,9 +63,16 @@
 
 
 
+
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -77,19 +86,13 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.30</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.42</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/monaLisa.html">Get started</a>
 </li>
 <li>
@@ -111,7 +114,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/fmicompbio/monaLisa">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fas fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -142,15 +145,15 @@
   0.25) to enable comparison of all positions in both matrices.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>motifSimilarity</span>(
-  <span class='no'>x</span>,
-  <span class='kw'>y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"R"</span>, <span class='st'>"HOMER"</span>),
-  <span class='kw'>homerfile</span> <span class='kw'>=</span> <span class='fu'><a href='findHomer.html'>findHomer</a></span>(<span class='st'>"compareMotifs.pl"</span>),
-  <span class='kw'>homerOutfile</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>Ncpu</span> <span class='kw'>=</span> <span class='fl'>1L</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>motifSimilarity</span><span class='op'>(</span>
+  <span class='va'>x</span>,
+  y <span class='op'>=</span> <span class='cn'>NULL</span>,
+  method <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"R"</span>, <span class='st'>"HOMER"</span><span class='op'>)</span>,
+  homerfile <span class='op'>=</span> <span class='fu'><a href='findHomer.html'>findHomer</a></span><span class='op'>(</span><span class='st'>"compareMotifs.pl"</span><span class='op'>)</span>,
+  homerOutfile <span class='op'>=</span> <span class='cn'>NULL</span>,
+  BPPARAM <span class='op'>=</span> <span class='fu'>SerialParam</span><span class='op'>(</span><span class='op'>)</span>,
+  verbose <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -176,8 +179,8 @@ pairs of motifs within <code>x</code>. Otherwise, <code>method</code> must be
       <td><p>A character scalar specifying the method for similarity
 calculations. Either <code>"R"</code> (pure R implementation) or <code>"HOMER"</code>
 (will call the <code>compareMotifs.pl</code> script from HOMER). Results are
-identical (appart from rounding errors), and the R implementation is
-usually faster and can be parallelized (<code>Ncpu</code> argument).</p></td>
+identical (apart from rounding errors), and the R implementation is
+usually faster and can be parallelized (<code>BPPARAM</code> argument).</p></td>
     </tr>
     <tr>
       <th>homerfile</th>
@@ -191,10 +194,10 @@ scores (only for <code>metho = "HOMER"</code>). If <code>NULL</code>, scores wil
 stored into a temporary file.</p></td>
     </tr>
     <tr>
-      <th>Ncpu</th>
-      <td><p>The number of CPU cores to use when calculating similarities.
-This uses <code><a href='https://rdrr.io/r/parallel/mclapply.html'>mclapply</a></code> and only works for <code>method
-= "R"</code>.</p></td>
+      <th>BPPARAM</th>
+      <td><p>An optional <code><a href='https://rdrr.io/pkg/BiocParallel/man/BiocParallelParam-class.html'>BiocParallelParam</a></code>
+instance determining the parallel back-end to be used during evaluation
+(only used for <code>method = "R"</code>).</p></td>
     </tr>
     <tr>
       <th>verbose</th>
@@ -208,7 +211,8 @@ This uses <code><a href='https://rdrr.io/r/parallel/mclapply.html'>mclapply</a><
   motifs.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='https://rdrr.io/r/parallel/mclapply.html'>mclapply</a></code> for how parallelization is done,
+    <div class='dont-index'><p><code><a href='https://rdrr.io/pkg/BiocParallel/man/bplapply.html'>bplapply</a></code> used for parallelization for
+  <code>method = "R"</code>,
   documentation of HOMER's <code>compareMotifs.pl</code> for details on
   <code>method = "HOMER"</code>.</p></div>
 
@@ -223,11 +227,11 @@ This uses <code><a href='https://rdrr.io/r/parallel/mclapply.html'>mclapply</a><
 
       <footer>
       <div class="copyright">
-  <p>Developed by <a href='https://github.com/machlabd'>Dania Machlab</a>, <a href='https://github.com/LukasBurger'>Lukas Burger</a>, <a href='https://github.com/mbstadler'>Michael Stadler</a>.</p>
+  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
 </div>
 
       </footer>
@@ -235,6 +239,8 @@ This uses <code><a href='https://rdrr.io/r/parallel/mclapply.html'>mclapply</a><
 
   
 
+
+  
 
   </body>
 </html>
