@@ -2,8 +2,8 @@
 % Please edit documentation in R/monaLisa.R
 \docType{package}
 \name{monaLisa-package}
-\alias{monaLisa}
 \alias{monaLisa-package}
+\alias{monaLisa}
 \title{monaLisa - MOtif aNAlysis with Lisa.}
 \description{
 \pkg{monaLisa} is a collection of tools that simplify motif enrichment
@@ -18,12 +18,6 @@ Known motifs can for example be obtained from a collection of transcription
 factor binding site specificities, such as \pkg{JASPAR2018}.
 }
 \author{
-\strong{Maintainer}: Michael Stadler \email{michael.stadler@fmi.ch}
-
-Authors:
-\itemize{
-  \item Dania Machlab \email{dania.machlab@fmi.ch}
-  \item Lukas Burger \email{lukas.burger@fmi.ch}
+Dania Machlab, Lukas Burger and Michael Stadler
 }
-
-}
+\keyword{package}
