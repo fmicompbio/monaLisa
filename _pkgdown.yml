@@ -29,6 +29,9 @@ navbar:
       href: https://github.com/fmicompbio/monaLisa
 
 reference:
+- title: monaLisa package overview
+  contents:
+    - '`monaLisa-package`'
 - title: Binned motif-enrichment analysis
   desc: "Bin regions of interest and analyse motifs enrichments in bins."
   contents:
