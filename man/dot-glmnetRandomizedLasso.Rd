@@ -51,3 +51,4 @@ This function is identical to \code{glmnet.lasso} from the \code{stabs} package.
 \seealso{
 \code{\link[stabs]{glmnet.lasso}} and \code{\link[glmnet]{glmnet}}
 }
+\keyword{internal}

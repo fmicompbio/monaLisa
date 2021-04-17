@@ -37,3 +37,4 @@ Filter sequences that are unlikely to be useful for motif
 \details{
 The filtering logic is based on \code{removePoorSeq.pl} from Homer.
 }
+\keyword{internal}

@@ -30,3 +30,4 @@ Check if the DataFrame with sequence information is valid,
   i.e. is of the correct object type (DataFrame) and has all expected
   columns and attributes.
 }
+\keyword{internal}

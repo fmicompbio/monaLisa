@@ -48,3 +48,4 @@ Here we run `.normForKmers` multiple times to converge to
   \code{normalizeSequence()} one last time after going through all iterations
   or reaching a low error, which we do not do here.
 }
+\keyword{internal}

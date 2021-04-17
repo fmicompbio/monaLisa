@@ -20,6 +20,8 @@
 #'
 #' @return \code{TRUE} (invisibly) if \code{df} is valid, otherwise it
 #'   raises an exception using \code{stop()}
+#' 
+#' @keywords internal
 .checkDfValidity <- function(df) {
     expected_cols <- c("seqs", "isForeground",
                        "GCfrac", "GCbin", "GCwgt", "seqWgt")
@@ -71,6 +73,8 @@
 #'
 #' @importFrom Biostrings alphabetFrequency DNAStringSet
 #' @importFrom S4Vectors DataFrame
+#' 
+#' @keywords internal
 .filterSeqs <- function(seqs, maxFracN = 0.7, minLength = 5L,
                         maxLength = 100000L, verbose = FALSE) {
 
@@ -132,6 +136,8 @@
 #'
 #' @importFrom Biostrings oligonucleotideFrequency DNAStringSet
 #' @importFrom S4Vectors DataFrame
+#' 
+#' @keywords internal
 .calculateGCweight <- function(df,
                                GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4,
                                             0.45, 0.5, 0.6, 0.7, 0.8),
@@ -220,6 +226,8 @@
 #' @return a named \code{list} with elements \code{seqWgt} (updated
 #'   weights) and \code{err} (error measuring difference of foreground
 #'   and weighted background sequence compositions).
+#' 
+#' @keywords internal
 .normForKmers <- function(kmerFreq,
                           goodKmers,
                           kmerRC,
@@ -327,6 +335,8 @@
 #' @importFrom Biostrings oligonucleotideFrequency reverseComplement
 #'   DNAStringSet
 #' @importFrom S4Vectors DataFrame
+#' 
+#' @keywords internal
 .iterativeNormForKmers <- function(df,
                                    maxKmerSize = 3L,
                                    minSeqWgt = 0.001,
@@ -437,6 +447,8 @@
 #'   }
 #'
 #' @importFrom stats pbinom fisher.test
+#' 
+#' @keywords internal
 .calcMotifEnrichment <- function(motifHitMatrix,
                                  df,
                                  test = c("binomial", "fisher"),

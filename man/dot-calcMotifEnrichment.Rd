@@ -57,3 +57,4 @@ Given motif counts, foreground/background labels and
   \code{alternative = "greater"}, making it a one-sided test for enrichment,
   as is the case with the binomial test.
 }
+\keyword{internal}

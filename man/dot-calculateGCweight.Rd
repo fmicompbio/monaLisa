@@ -34,3 +34,4 @@ The logic is based on Homer (version 4.11). All sequences
   weight_i = (number_fg_seqs_i / number_bg_seqs_i) * (number_bg_seqs_total /
   number_fg_seqs_total)
 }
+\keyword{internal}

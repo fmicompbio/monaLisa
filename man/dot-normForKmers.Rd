@@ -56,3 +56,4 @@ Adjust background sequence weights for differences in k-mer
   composition. The logic is based on Homer's
   \code{normalizeSequenceIteration()} function found in \code{Motif2.cpp}.
 }
+\keyword{internal}

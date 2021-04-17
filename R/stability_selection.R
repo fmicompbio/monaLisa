@@ -37,6 +37,8 @@ NULL
 #'
 #' @importFrom glmnet glmnet predict.glmnet
 #' @importFrom stats model.matrix runif
+#' 
+#' @keywords internal
 .glmnetRandomizedLasso <- function(x, y, q, weakness=1, type = c("conservative", "anticonservative"), ...) {
   if (is.data.frame(x)) {
     message("Note: ", sQuote("x"), " is coerced to a model matrix without intercept")
