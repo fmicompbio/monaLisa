@@ -39,7 +39,8 @@ provide potential answers to the question "Which transcription factors are
 the drivers of my observed changes in expression/methylation/accessiblity?".
 
 You can use known motifs from collections of transcription factor binding 
-specificities such as `JASPAR2018`, also available from Bioconductor. Genomic
+specificities such as `JASPAR2018`, also available from 
+[Bioconductor](https://bioconductor.org/packages/JASPAR2018/). Genomic
 regions could be for example promoters, enhancers or accessible regions for
 which experimental data is available.
 
@@ -97,7 +98,7 @@ with motifs (rows) by bins (columns). The values are:
   Benjamini and Hochberg, 1995 (`p.adjust(..., method="fdr"`).  
 - *enr*: Motif enrichments, calculated as: $enr = (o - e) / \sqrt e$, where $o$
   and $e$ are the observed and expected numbers of regions in the bin containing a
-  given motif. These enrichments correspond to $z$ values ($z = (z - \mu)/\sigma$),
+  given motif. These enrichments correspond to $z$ values ($z = (o - \mu)/\sigma$),
   assuming that the numbers of regions in a bin that contain a motif are independent
   Poisson random variables with mean and variance $e$.
 - *log2enr*: Motif enrichments, calculated as: $log2enr = log2((o + 8)/(e + 8))$,
@@ -261,7 +262,7 @@ motif similarity. To this end, we first calculate all pairwise motif similaritie
 (measured as maximum Pearson correlation of all possible shifted alignments).
 This can be quickly calculated for the few selected motifs using the `motifSimilarity`
 function. For many motifs, this step may take a while, and it may be useful to
-parallelize it using the `BPARAM` argument (e.g. to run on `n` parallel threads
+parallelize it using the `BPPARAM` argument (e.g. to run on `n` parallel threads
 using the multi-core backend, you can use:
 `motifSimilarity(..., BPPARAM = BiocParallel::MulticoreParam(n))`).
 
@@ -275,7 +276,7 @@ The order of the TFs in the resulting matrix is consistent with the elements of
 subtracting these similarities from 1.0, we obtain distances that we use
 to perform a hierarchical clustering with the `hclust` function. The returned
 object is then passed to the `cluster` argument to define the order of the rows
-in the heatmap. The plotting of the dendogram is controlled by the parameter
+in the heatmap. The plotting of the dendrogram is controlled by the parameter
 `show_dendrogram`, and we also display the motifs as sequence logos using
 `show_seqlogo`: 
 ```{r plottfsclustered}
@@ -298,7 +299,7 @@ example (just on few sequences/motifs for illustration):
 # (could also be a single DNAString, or the name of a fasta file)
 library(TxDb.Mmusculus.UCSC.mm10.knownGene)
 gr <- promoters(TxDb.Mmusculus.UCSC.mm10.knownGene,
-                upstream = 1000, downstream = 500)[c(1,4,5,10)]
+                upstream = 1000, downstream = 500)[c(1, 4, 5, 10)]
 library(BSgenome.Mmusculus.UCSC.mm10)
 seqs <- getSeq(BSgenome.Mmusculus.UCSC.mm10, gr)
 seqs
@@ -336,7 +337,7 @@ the order in `seqs` and `pwms`.
 
 # Motif Selection with Randomized Lasso Stability Selection{#stabsel}
 
-One can also select for important transcription factor (TF) motifs in a regression based approach with predictors consisting of the TF motif hits, and the response vector being the observed measure of interest, e.g. log-fold changes of accessibility for a set of regions. In `monaLisa`, we implement the randomized lasso stability selection proposed by Meinshausen and Bühlmann [@StabSel] with the improved error bounds introduced by Shah and Samworth [@compStabs]. We have modified the `stabsel` function from the `stabs` package to implement the randomized lasso version of stability selection. 
+One can also select for important transcription factor (TF) motifs in a regression based approach with predictors consisting of the TF motif hits, and the response vector being the observed measure of interest, e.g. log-fold changes of accessibility for a set of regions. In `monaLisa`, we implement the randomized lasso stability selection proposed by @StabSel with the improved error bounds introduced by @compStabs. We have modified the `stabsel` function from the `r CRANpkg("stabs")` package to implement the randomized lasso version of stability selection. 
 
 Lasso stability selection implements the lasso regression multiple times on subsamples of the data, and returns a selection probability for each predictor (number of times selected divided by number of regressions done). With the randomized lasso, a weakness parameter is additionally used to randomly vary the lambda parameter of the lasso regression. Although the main appeal of stability selection is in cases where the number of predictors exceeds the number of observations, it also performs better variable selection with noisy data [@StabSel].
 
