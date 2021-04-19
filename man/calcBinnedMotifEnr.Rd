@@ -9,7 +9,7 @@ calcBinnedMotifEnr(
   bins,
   motifs,
   method = c("R", "Homer"),
-  pseudocount = 8,
+  pseudocount.log2enr = 8,
   p.adjust.method = "BH",
   BPPARAM = SerialParam(),
   verbose = FALSE,
@@ -32,7 +32,7 @@ Homer format (for \code{method = "Homer"}).}
 \item{method}{A \code{character} scalar specifying the backend to use for
 enrichment calculations. One of \code{"R"} (default) or \code{"Homer"}.}
 
-\item{pseudocount}{A numerical scalar with the pseudocount to add to
+\item{pseudocount.log2enr}{A numerical scalar with the pseudocount to add to
 foreground and background counts when calculating log2 motif enrichments}
 
 \item{p.adjust.method}{A character scalar selecting the p value adjustment

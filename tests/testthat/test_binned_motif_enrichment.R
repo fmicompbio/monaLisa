@@ -211,7 +211,7 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = "error"), "PWMatrixList")
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm, maxFracN = "error"), "numeric")
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm, min.score = 6, maxKmerSize = "error"), "integer")
-    expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm, pseudocount = "error"))
+    expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm, pseudocount.log2enr = "error"))
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm, p.adjust.method = "error"))
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm, BPPARAM = "error"), "BiocParallelParam")
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm, verbose = "error"), "logical")
@@ -240,7 +240,7 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
     expect_identical(names(metadata(res1)),
                      c("sequences", "bins", "bins.binmode", "bins.breaks", "bins.bin0", 
                        "param.test", "param.maxFracN", "param.maxKmerSize", "param.min.score", 
-                       "param.matchMethod", "param.pseudocount", "param.p.adj.method",
+                       "param.matchMethod", "param.pseudocount.log2enr", "param.p.adj.method",
                        "param.BPPARAM.class", "param.BPPARAM.bpnworkers", "param.verbose"))
     expect_identical(metadata(res1)$param.test, "binom")
     expect_identical(metadata(res2)$param.test, "fisher")

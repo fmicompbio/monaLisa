@@ -564,7 +564,7 @@
 #'   \code{\link[monaLisa]{findMotifHits}}.
 #' @param matchMethod the method used to scan for motif hits, passed to the
 #'   \code{method} parameter in \code{\link[monaLisa]{findMotifHits}}.
-#' @param pseudocount A numerical scalar with the pseudocount to add to
+#' @param pseudocount.log2enr A numerical scalar with the pseudocount to add to
 #'   foreground and background counts when calculating log2 motif enrichments
 #' @param p.adjust.method A character scalar selecting the p value adjustment
 #'   method (used in \code{\link[stats]{p.adjust}}).
@@ -632,7 +632,7 @@ calcBinnedMotifEnrR <- function(seqs,
                                 maxKmerSize = 3L,
                                 min.score = 10,
                                 matchMethod = "matchPWM",
-                                pseudocount = 8,
+                                pseudocount.log2enr = 8,
                                 p.adjust.method = "BH",
                                 BPPARAM = SerialParam(),
                                 verbose = FALSE,
@@ -651,7 +651,7 @@ calcBinnedMotifEnrR <- function(seqs,
     if (!is(pwmL, "PWMatrixList")) {
         stop("'pwmL' must be of class 'PWMatrixList'")
     }
-    .assertScalar(x = pseudocount, type = "numeric", rngIncl = c(0, Inf))
+    .assertScalar(x = pseudocount.log2enr, type = "numeric", rngIncl = c(0, Inf))
     .assertScalar(x = p.adjust.method, type = "character", validValues = stats::p.adjust.methods)
     if (!is(BPPARAM, "BiocParallelParam")) {
         stop("'BPPARAM' must be of class 'BiocParallelParam'")
@@ -768,7 +768,7 @@ calcBinnedMotifEnrR <- function(seqs,
         D <- enrich1[, c("sumForegroundWgtWithHits", "sumBackgroundWgtWithHits")]
         nTot <- unlist(enrich1[1, c("totalWgtForeground", "totalWgtBackground")])
         D.norm <- t(t(D) / nTot * min(nTot))
-        DL <- log2(D.norm + pseudocount)
+        DL <- log2(D.norm + pseudocount.log2enr)
         log2enr <- DL[, 1] - DL[, 2]
         log2enr
     }))
@@ -812,7 +812,7 @@ calcBinnedMotifEnrR <- function(seqs,
                  param.maxKmerSize = maxKmerSize,
                  param.min.score = min.score,
                  param.matchMethod = matchMethod,
-                 param.pseudocount = pseudocount,
+                 param.pseudocount.log2enr = pseudocount.log2enr,
                  param.p.adj.method = p.adjust.method,
                  param.BPPARAM.class = class(BPPARAM),
                  param.BPPARAM.bpnworkers = bpnworkers(BPPARAM),

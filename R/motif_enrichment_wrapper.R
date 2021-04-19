@@ -16,7 +16,7 @@
 #'   Homer format (for \code{method = "Homer"}).
 #' @param method A \code{character} scalar specifying the backend to use for
 #'   enrichment calculations. One of \code{"R"} (default) or \code{"Homer"}.
-#' @param pseudocount A numerical scalar with the pseudocount to add to
+#' @param pseudocount.log2enr A numerical scalar with the pseudocount to add to
 #'   foreground and background counts when calculating log2 motif enrichments
 #' @param p.adjust.method A character scalar selecting the p value adjustment
 #'   method (used in \code{\link[stats]{p.adjust}}).
@@ -59,7 +59,7 @@ calcBinnedMotifEnr <- function(seqs,
                                bins,
                                motifs,
                                method =  c("R", "Homer"),
-                               pseudocount = 8,
+                               pseudocount.log2enr = 8,
                                p.adjust.method = "BH",
                                BPPARAM = SerialParam(),
                                verbose = FALSE,
@@ -73,7 +73,7 @@ calcBinnedMotifEnr <- function(seqs,
         se <- calcBinnedMotifEnrR(seqs = seqs,
                                   bins = bins,
                                   pwmL = motifs,
-                                  pseudocount = pseudocount,
+                                  pseudocount.log2enr = pseudocount.log2enr,
                                   p.adjust.method = p.adjust.method,
                                   BPPARAM = BPPARAM,
                                   verbose = verbose,
@@ -96,7 +96,7 @@ calcBinnedMotifEnr <- function(seqs,
         se <- calcBinnedMotifEnrHomer(gr = seqs,
                                       b = bins,
                                       motifFile = motifs,
-                                      pseudocount = pseudocount,
+                                      pseudocount.log2enr = pseudocount.log2enr,
                                       p.adjust.method = p.adjust.method,
                                       Ncpu = ncpu,
                                       verbose = verbose,
