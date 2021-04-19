@@ -7,7 +7,8 @@
 .assertScalar <- function(x,
                           type = NULL,
                           rngIncl = NULL,
-                          rngExcl = NULL) {
+                          rngExcl = NULL,
+                          validValues = NULL) {
     args <- lapply(sys.call()[-1], as.character)
     xname <- if ("x" %in% names(args)) args$x else "argument"
 
@@ -31,6 +32,10 @@
     if (!is.null(rngExcl) && is.numeric(rngExcl) && length(rngExcl) == 2L &&
         (x <= rngExcl[1] || x >= rngExcl[2])) {
         stop("'", xname, "' must be within (", rngExcl[1], ",", rngExcl[2], ") (exclusive)")
+    }
+    
+    if (!is.null(validValues) && !(x %in% validValues)) {
+        stop("'", xname, "' must be one of: ", paste(validValues, collapse = ", "))
     }
     
     return(invisible(TRUE))
