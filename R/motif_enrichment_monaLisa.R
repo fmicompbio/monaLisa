@@ -804,7 +804,7 @@ calcBinnedMotifEnrR <- function(seqs,
                  param.min.score = min.score,
                  param.matchMethod = matchMethod,
                  param.BPPARAM.class = class(BPPARAM),
-                 param.BPARAM.bpnworkers = bpnworkers(BPPARAM),
+                 param.BPPARAM.bpnworkers = bpnworkers(BPPARAM),
                  param.verbose = verbose)
     assaySumForegroundWgtWithHits <- do.call(cbind, lapply(enrichL, function(x){x$sumForegroundWgtWithHits}))
     assaySumBackgroundWgtWithHits <- do.call(cbind, lapply(enrichL, function(x){x$sumBackgroundWgtWithHits}))
