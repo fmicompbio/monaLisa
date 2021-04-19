@@ -209,18 +209,18 @@ plotBinScatter <- function(x, y, b,
 #' @param x A \code{\link[SummarizedExperiment]{SummarizedExperiment}} with numerical matrices
 #'     (motifs-by-bins) in its \code{assays()}, typically the return value
 #'     of \code{\link{calcBinnedMotifEnr}}.
-#' @param which.plots Selects which heatmaps to plot (one or several from \code{"p"}, \code{"FDR"},
-#'     \code{"enr"} and \code{"log2enr"}).
+#' @param which.plots Selects which heatmaps to plot (one or several from \code{"negLog10P"},
+#'     \code{"negLog10Padj"}, \code{"pearsonResid"} and \code{"log2enr"}).
 #' @param width The width (in inches) of each individual heatmap, without legend.
-#' @param col.enr Colors used for enrichment heatmap.
-#' @param col.sig Colors used for significance hetmaps (P values and FDR).
+#' @param col.enr Colors used for enrichment heatmap ("pearsonResid" and "log2enr").
+#' @param col.sig Colors used for significance hetmaps ("negLog10P" and "negLog10Padj").
 #' @param col.gc Colors used for motif GC content (for \code{show_motif_GC = TRUE}).
 #' @param maxEnr Cap color mapping at enrichment = \code{maxEnr} (default: 99.5th percentile).
 #' @param maxSig Cap color mapping at -log10 P value or -log10 FDR = \code{maxSig}
 #'     (default: 99.5th percentile).
 #' @param highlight A logical vector indicating motifs to be highlighted.
 #' @param cluster If \code{TRUE}, the order of transcription factors will be determined by
-#'     hierarchical clustering of the \code{"enr"} component. Alternatively, an
+#'     hierarchical clustering of the \code{"pearsonResid"} component. Alternatively, an
 #'     \code{hclust}-object can be supplied which will determine the motif ordering.
 #'     No reordering is done for \code{cluster = FALSE}.
 #' @param show_dendrogram If \code{cluster != FALSE}, controls whether to show
@@ -263,7 +263,7 @@ plotBinScatter <- function(x, y, b,
 #'
 #' @export
 plotMotifHeatmaps <- function(x,
-                              which.plots = c("p", "enr", "FDR", "log2enr"),
+                              which.plots = c("negLog10P", "pearsonResid", "negLog10Padj", "log2enr"),
                               width = 4,
                               col.enr = c("#053061","#2166AC","#4393C3","#92C5DE",
                                           "#D1E5F0","#F7F7F7","#FDDBC7","#F4A582",
@@ -298,12 +298,12 @@ plotMotifHeatmaps <- function(x,
 	.assertScalar(x = use_raster, type = "logical")
 	stopifnot(exprs = {
 	    ncol(x) == nlevels(b)
-	    all(which.plots %in% c("p", "FDR", "enr", "log2enr"))
+	    all(which.plots %in% c("negLog10P", "negLog10Padj", "pearsonResid", "log2enr"))
 	    is.null(highlight) || (is.logical(highlight) && length(highlight) == nrow(x))
 	})
 	bincols <- attr(getColsByBin(b), "cols")
 	if (is.logical(cluster) && length(cluster) == 1 && cluster[1] == TRUE) {
-	    clres <- hclust(dist(assay(x, "enr")))
+	    clres <- hclust(dist(assay(x, "pearsonResid")))
 	} else if (is.logical(cluster) && length(cluster) == 1 && cluster[1] == FALSE) {
 	    clres <- FALSE
 	} else if (is(cluster, "hclust")) {
@@ -338,10 +338,13 @@ plotMotifHeatmaps <- function(x,
 	                    row_names_side = "left", show_column_names = FALSE,
 	                    show_heatmap_legend = FALSE, left_annotation = hmSeqlogo)
 
-	assayNameMap1 <- c(p = "P value", FDR = "FDR", enr = "enrichment",
+	assayNameMap1 <- c(negLog10P = "P value",
+	                   negLog10Padj = "adj. P value",
+	                   pearsonResid = "Pearson residual",
 	                   log2enr = "log2 enrichment")
-	assayNameMap2 <- c(p = "P value (-log10)", FDR = "FDR (-log10)",
-	                   enr = "enrichment (o-e)/sqrt(e)",
+	assayNameMap2 <- c(negLog10P = "P value (-log10)",
+	                   negLog10Padj = "adj. P value (-log10)",
+	                   pearsonResid = "Pearson residual (o-e)/sqrt(e)",
 	                   log2enr = "enrichment (log2)")
 	L <- list(labels = hmMotifs)
 	if (show_motif_GC) {
@@ -359,7 +362,7 @@ plotMotifHeatmaps <- function(x,
 	}
 	ret <- c(L, lapply(which.plots, function(w) {
 		dat <- assay(x, w)
-		if ((w == "enr") | (w == "log2enr")) {
+		if ((w == "pearsonResid") | (w == "log2enr")) {
 			rng <- c(-1, 1) * if (is.null(maxEnr)) quantile(abs(dat), .995) else maxEnr
 			cols <- col.enr
 		} else {

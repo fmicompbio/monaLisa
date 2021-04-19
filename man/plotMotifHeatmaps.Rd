@@ -6,7 +6,7 @@
 \usage{
 plotMotifHeatmaps(
   x,
-  which.plots = c("p", "enr", "FDR", "log2enr"),
+  which.plots = c("negLog10P", "pearsonResid", "negLog10Padj", "log2enr"),
   width = 4,
   col.enr = c("#053061", "#2166AC", "#4393C3", "#92C5DE", "#D1E5F0", "#F7F7F7",
     "#FDDBC7", "#F4A582", "#D6604D", "#B2182B", "#67001F"),
@@ -31,14 +31,14 @@ plotMotifHeatmaps(
 (motifs-by-bins) in its \code{assays()}, typically the return value
 of \code{\link{calcBinnedMotifEnr}}.}
 
-\item{which.plots}{Selects which heatmaps to plot (one or several from \code{"p"}, \code{"FDR"},
-\code{"enr"} and \code{"log2enr"}).}
+\item{which.plots}{Selects which heatmaps to plot (one or several from \code{"negLog10P"},
+\code{"negLog10Padj"}, \code{"pearsonResid"} and \code{"log2enr"}).}
 
 \item{width}{The width (in inches) of each individual heatmap, without legend.}
 
-\item{col.enr}{Colors used for enrichment heatmap.}
+\item{col.enr}{Colors used for enrichment heatmap ("pearsonResid" and "log2enr").}
 
-\item{col.sig}{Colors used for significance hetmaps (P values and FDR).}
+\item{col.sig}{Colors used for significance hetmaps ("negLog10P" and "negLog10Padj").}
 
 \item{col.gc}{Colors used for motif GC content (for \code{show_motif_GC = TRUE}).}
 
@@ -50,7 +50,7 @@ of \code{\link{calcBinnedMotifEnr}}.}
 \item{highlight}{A logical vector indicating motifs to be highlighted.}
 
 \item{cluster}{If \code{TRUE}, the order of transcription factors will be determined by
-hierarchical clustering of the \code{"enr"} component. Alternatively, an
+hierarchical clustering of the \code{"pearsonResid"} component. Alternatively, an
 \code{hclust}-object can be supplied which will determine the motif ordering.
 No reordering is done for \code{cluster = FALSE}.}
 
