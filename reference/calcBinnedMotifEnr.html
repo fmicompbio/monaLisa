@@ -146,7 +146,8 @@
   <span class='va'>bins</span>,
   <span class='va'>motifs</span>,
   method <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"R"</span>, <span class='st'>"Homer"</span><span class='op'>)</span>,
-  pseudocount <span class='op'>=</span> <span class='fl'>8</span>,
+  pseudocount.log2enr <span class='op'>=</span> <span class='fl'>8</span>,
+  pseudocount.pearsonResid <span class='op'>=</span> <span class='fl'>0.001</span>,
   p.adjust.method <span class='op'>=</span> <span class='st'>"BH"</span>,
   BPPARAM <span class='op'>=</span> <span class='fu'>SerialParam</span><span class='op'>(</span><span class='op'>)</span>,
   verbose <span class='op'>=</span> <span class='cn'>FALSE</span>,
@@ -180,9 +181,15 @@ Homer format (for <code>method = "Homer"</code>).</p></td>
 enrichment calculations. One of <code>"R"</code> (default) or <code>"Homer"</code>.</p></td>
     </tr>
     <tr>
-      <th>pseudocount</th>
+      <th>pseudocount.log2enr</th>
       <td><p>A numerical scalar with the pseudocount to add to
-observed and expected counts when calculating log2 motif enrichments</p></td>
+foreground and background counts when calculating log2 motif enrichments</p></td>
+    </tr>
+    <tr>
+      <th>pseudocount.pearsonResid</th>
+      <td><p>A numerical scalar with the pseudocount to add
+to foreground and background frequencies when calculating expected counts
+and Pearson residuals.</p></td>
     </tr>
     <tr>
       <th>p.adjust.method</th>

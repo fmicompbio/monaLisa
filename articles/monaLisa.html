@@ -124,18 +124,18 @@
 <p><code>se</code> is a <code>SummarizedExperiment</code> with <code>assays</code> <em>p</em>, <em>FDR</em>, <em>enr</em>, <em>log2enr</em>, <em>sumForegroundWgtWithHits</em> and <em>sumBackgroundWgtWithHits</em>, each containing a matrix with motifs (rows) by bins (columns). The values are:</p>
 <ul>
 <li>
-<em>p</em>: the raw P value (<span class="math inline">\(-\log_{10} p\)</span>) of a given motif enrichment in a given bin. Each P value results from an enrichment calculation comparing occurrences of each motif in the bin to its occurrences in all other bins as a background.<br>
+<em>negLog10P</em>: the raw P value (<span class="math inline">\(-\log_{10} p\)</span>) of a given motif enrichment in a given bin. Each P value results from an enrichment calculation comparing occurrences of each motif in the bin to its occurrences in all other bins as a background.<br>
 </li>
 <li>
-<em>FDR</em>: Same as <em>p</em> but adjusted for multiple testing using the method of Benjamini and Hochberg, 1995 (<code>p.adjust(..., method="fdr"</code>).<br>
+<em>negLog10Padj</em>: Same as <em>p</em> but adjusted for multiple testing using the method of provided in the <code>p.adjust.method</code> argument, by default: Benjamini and Hochberg, 1995 (<code>p.adjust(..., method="fdr"</code>).<br>
 </li>
 <li>
-<em>enr</em>: Motif enrichments, calculated as: <span class="math inline">\(enr = (o - e) / \sqrt e\)</span>, where <span class="math inline">\(o\)</span> and <span class="math inline">\(e\)</span> are the observed and expected numbers of regions in the bin containing a given motif. These enrichments correspond to <span class="math inline">\(z\)</span> values (<span class="math inline">\(z = (o - \mu)/\sigma\)</span>), assuming that the numbers of regions in a bin that contain a motif are independent Poisson random variables with mean and variance <span class="math inline">\(e\)</span>.</li>
+<em>pearsonResid</em>: Pearson residuals, a measure for motif enrichments calculated as: <span class="math inline">\(enr = (o - e) / \sqrt e\)</span>, where <span class="math inline">\(o\)</span> and <span class="math inline">\(e\)</span> are the observed and expected numbers of regions in the bin containing a given motif. These enrichments correspond to <span class="math inline">\(z\)</span> values (<span class="math inline">\(z = (o - \mu)/\sigma\)</span>), assuming that the numbers of regions in a bin that contain a motif are independent Poisson random variables with mean and variance <span class="math inline">\(e\)</span>.</li>
 <li>
-<em>log2enr</em>: Motif enrichments, calculated as: <span class="math inline">\(log2enr = log2((o + 8)/(e + 8))\)</span>, where <span class="math inline">\(o\)</span> and <span class="math inline">\(e\)</span> are the observed and expected numbers of regions in the bin containing a given motif.<br>
+<em>log2enr</em>: Motif enrichments, calculated as: <span class="math inline">\(log2enr = log2((o + c)/(e + c))\)</span>, where <span class="math inline">\(o\)</span> and <span class="math inline">\(e\)</span> are the observed and expected numbers of regions in the bin containing a given motif, and <span class="math inline">\(c\)</span> is a pseudocount defined by the <code>pseudocount.log2enr</code> argument.<br>
 </li>
 <li>
-<em>sumForegroundWgtWithHits</em> and <em>sumBackgroundWgtWithHits</em>: Are the sum of foreground and background sequences that have at least one occurrence of the motif, respectively. The background sequences are weighted in order to adjust for differences in sequence composition between foreground and background.</li>
+<em>sumForegroundWgtWithHits</em> and <em>sumBackgroundWgtWithHits</em> are the sum of foreground and background sequences that have at least one occurrence of the motif, respectively. The background sequences are weighted in order to adjust for differences in sequence composition between foreground and background.</li>
 </ul>
 <p>In addition, <code><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData(se)</a></code> and <code><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData(se)</a></code> give information about the used motifs and bins, respectively. In <code>metadata(se)</code> you can find information about parameter values.</p>
 </div>
@@ -236,8 +236,9 @@
 <span class="va">se</span>
 <span class="co">#&gt; class: SummarizedExperiment </span>
 <span class="co">#&gt; dim: 579 8 </span>
-<span class="co">#&gt; metadata(13): sequences bins ... param.BPARAM.bpnworkers param.verbose</span>
-<span class="co">#&gt; assays(6): p FDR ... sumForegroundWgtWithHits sumBackgroundWgtWithHits</span>
+<span class="co">#&gt; metadata(16): sequences bins ... param.BPPARAM.bpnworkers param.verbose</span>
+<span class="co">#&gt; assays(6): negLog10P negLog10Padj ... sumForegroundWgtWithHits</span>
+<span class="co">#&gt;   sumBackgroundWgtWithHits</span>
 <span class="co">#&gt; rownames(579): MA0004.1 MA0006.1 ... MA1420.1 MA1421.1</span>
 <span class="co">#&gt; rowData names(5): motif.id motif.name motif.pfm motif.pwm</span>
 <span class="co">#&gt;   motif.percentGC</span>
@@ -322,8 +323,8 @@
 
 <span class="co"># assays: the motif enrichment results</span>
 <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assayNames</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span>
-<span class="co">#&gt; [1] "p"                        "FDR"                     </span>
-<span class="co">#&gt; [3] "enr"                      "log2enr"                 </span>
+<span class="co">#&gt; [1] "negLog10P"                "negLog10Padj"            </span>
+<span class="co">#&gt; [3] "pearsonResid"             "log2enr"                 </span>
 <span class="co">#&gt; [5] "sumForegroundWgtWithHits" "sumBackgroundWgtWithHits"</span>
 <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">se</span>, <span class="st">"log2enr"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span>
 <span class="co">#&gt;          [-0.935,-0.242] (-0.242,0.327] (0.327,0.388]</span>
@@ -332,16 +333,16 @@
 <span class="co">#&gt; MA0019.1      -0.7132110     0.09184673   -0.12197049</span>
 <span class="co">#&gt; MA0025.1      -0.4894612    -0.27114705   -0.12557419</span>
 <span class="co">#&gt; MA0029.1      -0.3721574    -0.21648466   -0.06075382</span></code></pre></div>
-<p>We can plot the results using the <code>plotMotifHeatmaps</code> function, e.g. selecting all transcription factor motifs that have an <span class="math inline">\(-log_{10} FDR\)</span> of at least 8.0 in any bin (corresponding to an <span class="math inline">\(FDR &lt; 10^{-8}\)</span>):</p>
+<p>We can plot the results using the <code>plotMotifHeatmaps</code> function, e.g. selecting all transcription factor motifs that have an <span class="math inline">\(-log_{10} FDR\)</span> of at least 8.0 in any bin (corresponding to an <span class="math inline">\(FDR &lt; 10^{-8}\)</span>). FDR values are store in the <code>negLog10Padj</code> assay:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># select strongly enriched motifs</span>
-<span class="va">sel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">se</span>, <span class="st">"FDR"</span><span class="op">)</span>, <span class="fl">1</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">8.0</span>
+<span class="va">sel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">se</span>, <span class="st">"negLog10Padj"</span><span class="op">)</span>, <span class="fl">1</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">8.0</span>
 <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">sel</span><span class="op">)</span>
 <span class="co">#&gt; [1] 25</span>
 <span class="va">seSel</span> <span class="op">&lt;-</span> <span class="va">se</span><span class="op">[</span><span class="va">sel</span>, <span class="op">]</span>
 
 <span class="co"># plot</span>
-<span class="fu"><a href="../reference/plotMotifHeatmaps.html">plotMotifHeatmaps</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">seSel</span>, which.plots <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log2enr"</span>,<span class="st">"FDR"</span><span class="op">)</span>, width <span class="op">=</span> <span class="fl">2.0</span>,
+<span class="fu"><a href="../reference/plotMotifHeatmaps.html">plotMotifHeatmaps</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">seSel</span>, which.plots <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log2enr"</span>,<span class="st">"negLog10Padj"</span><span class="op">)</span>, width <span class="op">=</span> <span class="fl">2.0</span>,
                   cluster <span class="op">=</span> <span class="cn">TRUE</span>, maxEnr <span class="op">=</span> <span class="fl">2</span>, maxSig <span class="op">=</span> <span class="fl">10</span>, show_motif_GC <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <p><img src="monaLisa_files/figure-html/plottfs-1.png" width="80%" style="display: block; margin: auto;"></p>
 <p>Setting <code>cluster = TRUE</code> has re-ordered the rows using hierarchical clustering of the <code>"enr"</code> assay. As many transcription factor binding motifs are similar to each other, it is also helpful to show the enrichment heatmap clustered by motif similarity. To this end, we first calculate all pairwise motif similarities (measured as maximum Pearson correlation of all possible shifted alignments). This can be quickly calculated for the few selected motifs using the <code>motifSimilarity</code> function. For many motifs, this step may take a while, and it may be useful to parallelize it using the <code>BPPARAM</code> argument (e.g. to run on <code>n</code> parallel threads using the multi-core backend, you can use: <code><a href="../reference/motifSimilarity.html">motifSimilarity(..., BPPARAM = BiocParallel::MulticoreParam(n))</a></code>).</p>
@@ -353,7 +354,7 @@
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># create hclust object, similarity defined by 1 - Pearson correlation</span>
 <span class="va">hcl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/hclust.html" class="external-link">hclust</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/dist.html" class="external-link">as.dist</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">SimMatSel</span><span class="op">)</span>, method <span class="op">=</span> <span class="st">"average"</span><span class="op">)</span>
-<span class="fu"><a href="../reference/plotMotifHeatmaps.html">plotMotifHeatmaps</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">seSel</span>, which.plots <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log2enr"</span>,<span class="st">"FDR"</span><span class="op">)</span>, width <span class="op">=</span> <span class="fl">1.2</span>,
+<span class="fu"><a href="../reference/plotMotifHeatmaps.html">plotMotifHeatmaps</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">seSel</span>, which.plots <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log2enr"</span>,<span class="st">"negLog10Padj"</span><span class="op">)</span>, width <span class="op">=</span> <span class="fl">1.8</span>,
                   cluster <span class="op">=</span> <span class="va">hcl</span>, maxEnr <span class="op">=</span> <span class="fl">2</span>, maxSig <span class="op">=</span> <span class="fl">10</span>,
                   show_dendrogram <span class="op">=</span> <span class="cn">TRUE</span>, show_seqlogo <span class="op">=</span> <span class="cn">TRUE</span>,
                   width.seqlogo <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span></code></pre></div>
