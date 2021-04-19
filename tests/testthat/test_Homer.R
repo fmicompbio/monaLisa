@@ -90,7 +90,8 @@ test_that("parseHomerOutput() works properly", {
 
     res <- parseHomerOutput(structure(c(outfile, outfile), names = c("bin1", "bin2")))
     expect_length(res, 8L)
-    expect_identical(names(res), c("p", "FDR", "enr", "log2enr",
+    expect_identical(names(res), c("negLog10P", "negLog10Padj",
+                                   "pearsonResid", "log2enr",
                                    "sumForegroundWgtWithHits",
                                    "sumBackgroundWgtWithHits",
                                    "totalWgtForeground",
@@ -100,7 +101,7 @@ test_that("parseHomerOutput() works properly", {
     expect_true(all(sapply(res[1:6], dim) == c(579L, 2L)))
     expect_length(res[[7]], 2L)
     expect_length(res[[8]], 2L)
-    expect_equal(sum(res$enr), 5344.75730637349)
+    expect_equal(sum(res$pearsonResid), 5344.75730637349)
     expect_identical(res[[8]], c(bin1 = 43339, bin2 = 43339))
 })
 
@@ -138,13 +139,13 @@ test_that("calcBinnedMotifEnrHomer() works properly", {
         expect_identical(rownames(res), selids)
         expect_length(SummarizedExperiment::assays(res), 6L)
         expect_identical(SummarizedExperiment::assayNames(res),
-                         c("p", "FDR", "enr", "log2enr",
+                         c("negLog10P", "negLog10Padj", "pearsonResid", "log2enr",
                            "sumForegroundWgtWithHits", "sumBackgroundWgtWithHits"))
         expect_identical(dim(res), c(5L, 3L))
         expect_identical(rownames(res), SummarizedExperiment::rowData(res)[, "motif.id"])
         expect_identical(rownames(res), TFBSTools::ID(SummarizedExperiment::rowData(res)[, "motif.pfm"]))
-        expect_equal(sum(SummarizedExperiment::assay(res, "p")), 113.333158367961)
-        expect_equal(sum(SummarizedExperiment::assay(res, "enr")), 12.6281779389433)
+        expect_equal(sum(SummarizedExperiment::assay(res, "negLog10P")), 113.333158367961)
+        expect_equal(sum(SummarizedExperiment::assay(res, "pearsonResid")), 12.6281779389433)
 
         unlink(c(mfile, outdir), recursive = TRUE, force = TRUE)
     }

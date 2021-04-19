@@ -410,8 +410,8 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
     expect_identical(metadata(res1)$param.test, "binom")
     expect_identical(metadata(res2)$param.test, "fisher")
     expect_identical(metadata(res1)[-6], metadata(res2)[-6])
-    expect_identical(assayNames(res1), c("p", "FDR", "enr", "log2enr", "sumForegroundWgtWithHits", "sumBackgroundWgtWithHits"))
-    expect_identical(assayNames(res2), c("p", "FDR", "enr", "log2enr", "sumForegroundWgtWithHits", "sumBackgroundWgtWithHits"))
+    expect_identical(assayNames(res1), c("negLog10P", "negLog10Padj", "pearsonResid", "log2enr", "sumForegroundWgtWithHits", "sumBackgroundWgtWithHits"))
+    expect_identical(assayNames(res2), c("negLog10P", "negLog10Padj", "pearsonResid", "log2enr", "sumForegroundWgtWithHits", "sumBackgroundWgtWithHits"))
     expect_identical(colnames(rowData(res1)), c("motif.id", "motif.name", "motif.pfm", "motif.pwm", "motif.percentGC"))
     expect_identical(rowData(res1), rowData(res2))
     expect_identical(dim(colData(res1)), c(3L, 6L))
@@ -419,17 +419,17 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
     expect_equal(-pbinom(q = assay(res1, "sumForegroundWgtWithHits")[, 3] - 1,
                          size = res1$totalWgtForeground[3],
                          prob = assay(res1, "sumBackgroundWgtWithHits")[, 3] /
-                          res1$totalWgtBackground[3], lower.tail = FALSE, log.p = TRUE),
-                 assay(res1, "p")[, 3])
-    expect_identical(round(assay(res1, "p"), 3),
+                         res1$totalWgtBackground[3], lower.tail = FALSE, log.p = TRUE),
+                 assay(res1, "negLog10P")[, 3])
+    expect_identical(round(assay(res1, "negLog10P"), 3),
                      structure(c(25.893, 0, 0, 34.537, 0, 0),
                                dim = c(length(pwm), nlevels(b)),
                                dimnames = list(names(pwm), levels(b))))
-    expect_identical(round(assay(res1, "FDR"), 3),
+    expect_identical(round(assay(res1, "negLog10Padj"), 3),
                      structure(c(25.416, 0, 0, 33.759, 0, 0),
                                dim = c(length(pwm), nlevels(b)),
                                dimnames = list(names(pwm), levels(b))))
-    expect_identical(round(assay(res1, "enr"), 3),
+    expect_identical(round(assay(res1, "pearsonResid"), 3),
                      structure(c(9.271, -3.449, -3.521, 12.433, -3.853, -4.192),
                                dim = c(length(pwm), nlevels(b)),
                                dimnames = list(names(pwm), levels(b))))
@@ -437,15 +437,15 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
                      structure(c(1.374, -1.219, -1.293, 1.673, -1.299, -1.423),
                                dim = c(length(pwm), nlevels(b)),
                                dimnames = list(names(pwm), levels(b))))
-    expect_identical(round(assay(res2, "p"), 3),
+    expect_identical(round(assay(res2, "negLog10P"), 3),
                      structure(c(17.038, 0, 0, 21.361, 0, 0),
                                dim = c(length(pwm), nlevels(b)),
                                dimnames = list(names(pwm), levels(b))))
-    expect_identical(round(assay(res2, "FDR"), 3),
+    expect_identical(round(assay(res2, "negLog10Padj"), 3),
                      structure(c(16.561, 0, 0, 20.582, 0, 0),
                                dim = c(length(pwm), nlevels(b)),
                                dimnames = list(names(pwm), levels(b))))
-    expect_identical(round(assay(res2, "enr"), 3),
+    expect_identical(round(assay(res2, "pearsonResid"), 3),
                      structure(c(9.271, -3.449, -3.521, 12.433, -3.853, -4.192),
                                dim = c(length(pwm), nlevels(b)),
                                dimnames = list(names(pwm), levels(b))))

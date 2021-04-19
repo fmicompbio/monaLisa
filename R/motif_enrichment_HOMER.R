@@ -277,10 +277,11 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
 #'
 #' @param infiles HOMER output files to be parsed.
 #'
-#' @return A list of four components (\code{p}, \code{FDR}, \code{enr} and \code{log2enr}),
-#'     containing each a motif (rows) by bin (columns) matrix with raw
-#'     -log10 P values, -log10 false discovery rates and motif enrichments as
-#'     Pearson residuals (\code{enr}) and as log2 ratios (\code{log2enr}).
+#' @return A list of four components (\code{negLog10P}, \code{negLog10Padj},
+#'     \code{pearsonResid} and \code{log2enr}), containing each a motif (rows)
+#'     by bin (columns) matrix with raw -log10 P values, -log10 adjusted P values,
+#'     and motif enrichments as Pearson residuals (\code{pearsonResid}) and as
+#'     log2 ratios (\code{log2enr}).
 #'
 #' @export
 parseHomerOutput <- function(infiles) {
@@ -324,7 +325,8 @@ parseHomerOutput <- function(infiles) {
     rownames(P) <- rownames(fdr) <- rownames(enrTF) <- rownames(log2enr) <-
         rownames(sumFgWgt) <- rownames(sumBgWgt) <- mnms
     
-    return(list(p = P, FDR = fdr, enr = enrTF, log2enr = log2enr,
+    return(list(negLog10P = P, negLog10Padj = padj,
+                pearsonResid = presid, log2enr = log2enr,
                 sumForegroundWgtWithHits = sumFgWgt, 
                 sumBackgroundWgtWithHits = sumBgWgt,
                 totalWgtForeground = totWgt[, 1],
@@ -387,9 +389,9 @@ parseHomerOutput <- function(infiles) {
 #'
 #' @return A \code{SummarizedExperiment} object with motifs in rows and bins
 #'   in columns, containing six assays: \itemize{
-#'   \item{p}{: -log10 P values}
-#'   \item{FDR}{: -log10 false discovery rates}
-#'   \item{enr}{: motif enrichments as Pearson residuals}
+#'   \item{negLog10P}{: -log10 P values}
+#'   \item{negLog10Padj}{: -log10 adjusted P values}
+#'   \item{pearsonResid}{: motif enrichments as Pearson residuals}
 #'   \item{log2enr}{: motif enrichments as log2 ratios}
 #'   \item{sumForegroundWgtWithHits}{: Sum of foreground sequence weights
 #'     in a bin that have motif hits}

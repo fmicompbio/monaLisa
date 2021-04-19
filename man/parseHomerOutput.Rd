@@ -10,10 +10,11 @@ parseHomerOutput(infiles)
 \item{infiles}{HOMER output files to be parsed.}
 }
 \value{
-A list of four components (\code{p}, \code{FDR}, \code{enr} and \code{log2enr}),
-    containing each a motif (rows) by bin (columns) matrix with raw
-    -log10 P values, -log10 false discovery rates and motif enrichments as
-    Pearson residuals (\code{enr}) and as log2 ratios (\code{log2enr}).
+A list of four components (\code{negLog10P}, \code{negLog10Padj},
+    \code{pearsonResid} and \code{log2enr}), containing each a motif (rows)
+    by bin (columns) matrix with raw -log10 P values, -log10 adjusted P values,
+    and motif enrichments as Pearson residuals (\code{pearsonResid}) and as
+    log2 ratios (\code{log2enr}).
 }
 \description{
 Parse HOMER output files into R data structures.

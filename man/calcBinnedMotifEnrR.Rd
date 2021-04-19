@@ -57,9 +57,9 @@ instance determining the parallel back-end to be used during evaluation.}
 \value{
 A \code{SummarizedExperiment} object with motifs in rows and bins
   in columns, containing six assays: \itemize{
-  \item{p}{: -log10 P values}
-  \item{FDR}{: -log10 false discovery rates}
-  \item{enr}{: motif enrichments as Pearson residuals}
+  \item{negLog10P}{: -log10 P values}
+  \item{negLog10Padj}{: -log10 adjusted P values}
+  \item{pearsonResid}{: motif enrichments as Pearson residuals}
   \item{log2enr}{: motif enrichments as log2 ratios}
   \item{sumForegroundWgtWithHits}{: Sum of foreground sequence weights
     in a bin that have motif hits}
