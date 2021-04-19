@@ -20,6 +20,11 @@ test_that(".assertScalar works", {
     expect_error(.assertScalar(-1, rngExcl = c(-1,1), "exclusive"))
     expect_true(.assertScalar(1.5, rngExcl = 1:2))
     expect_true(.assertScalar(0, rngExcl = c(-1,1)))
+    
+    expect_error(.assertScalar("a", validValues = c("b", "c")))
+    expect_error(.assertScalar(2, validValues = c(1, 3)))
+    expect_true(.assertScalar("b", validValues = c("b", "c")))
+    expect_true(.assertScalar(1, validValues = c(1, 3)))
 })
 
 test_that(".assertVector works", {
