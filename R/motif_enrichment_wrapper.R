@@ -17,7 +17,7 @@
 #' @param method A \code{character} scalar specifying the backend to use for
 #'   enrichment calculations. One of \code{"R"} (default) or \code{"Homer"}.
 #' @param pseudocount A numerical scalar with the pseudocount to add to
-#'   observed and expected counts when calculating log2 motif enrichments
+#'   foreground and background counts when calculating log2 motif enrichments
 #' @param p.adjust.method A character scalar selecting the p value adjustment
 #'   method (used in \code{\link[stats]{p.adjust}}).
 #' @param BPPARAM Specifies the number of CPU cores to use for parallel

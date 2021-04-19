@@ -37,7 +37,7 @@ into bins (typically a factor, such as the one returned by \code{\link{bin}}).}
 region, an integer value will keep only that many bases in the region center).}
 
 \item{pseudocount}{A numerical scalar with the pseudocount to add to
-observed and expected counts when calculating log2 motif enrichments}
+foreground and background counts when calculating log2 motif enrichments}
 
 \item{p.adjust.method}{A character scalar selecting the p value adjustment
 method (used in \code{\link[stats]{p.adjust}}).}

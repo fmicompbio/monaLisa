@@ -277,7 +277,7 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
 #'
 #' @param infiles HOMER output files to be parsed.
 #' @param pseudocount A numerical scalar with the pseudocount to add to
-#'   observed and expected counts when calculating log2 motif enrichments
+#'   foreground and background counts when calculating log2 motif enrichments
 #' @param p.adjust.method A character scalar selecting the p value adjustment
 #'   method (used in \code{\link[stats]{p.adjust}}).
 #'
@@ -389,7 +389,7 @@ parseHomerOutput <- function(infiles, pseudocount = 8, p.adjust.method = "BH") {
 #' @param regionsize The peak size to use in HOMER (\code{"given"} keeps the coordinate
 #'     region, an integer value will keep only that many bases in the region center).
 #' @param pseudocount A numerical scalar with the pseudocount to add to
-#'   observed and expected counts when calculating log2 motif enrichments
+#'   foreground and background counts when calculating log2 motif enrichments
 #' @param p.adjust.method A character scalar selecting the p value adjustment
 #'   method (used in \code{\link[stats]{p.adjust}}).
 #' @param Ncpu Number of parallel threads that HOMER can use.

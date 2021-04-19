@@ -10,7 +10,7 @@ parseHomerOutput(infiles, pseudocount = 8, p.adjust.method = "BH")
 \item{infiles}{HOMER output files to be parsed.}
 
 \item{pseudocount}{A numerical scalar with the pseudocount to add to
-observed and expected counts when calculating log2 motif enrichments}
+foreground and background counts when calculating log2 motif enrichments}
 
 \item{p.adjust.method}{A character scalar selecting the p value adjustment
 method (used in \code{\link[stats]{p.adjust}}).}

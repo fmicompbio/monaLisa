@@ -565,7 +565,7 @@
 #' @param matchMethod the method used to scan for motif hits, passed to the
 #'   \code{method} parameter in \code{\link[monaLisa]{findMotifHits}}.
 #' @param pseudocount A numerical scalar with the pseudocount to add to
-#'   observed and expected counts when calculating log2 motif enrichments
+#'   foreground and background counts when calculating log2 motif enrichments
 #' @param p.adjust.method A character scalar selecting the p value adjustment
 #'   method (used in \code{\link[stats]{p.adjust}}).
 #' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}

@@ -33,7 +33,7 @@ Homer format (for \code{method = "Homer"}).}
 enrichment calculations. One of \code{"R"} (default) or \code{"Homer"}.}
 
 \item{pseudocount}{A numerical scalar with the pseudocount to add to
-observed and expected counts when calculating log2 motif enrichments}
+foreground and background counts when calculating log2 motif enrichments}
 
 \item{p.adjust.method}{A character scalar selecting the p value adjustment
 method (used in \code{\link[stats]{p.adjust}}).}
