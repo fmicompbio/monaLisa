@@ -88,6 +88,10 @@ test_that("prepareHomer() works properly", {
 test_that("parseHomerOutput() works properly", {
     outfile <- system.file("extdata", "homer_output.txt.gz", package = "monaLisa")
 
+    expect_error(parseHomerOutput("does-not-exist"))
+    expect_error(parseHomerOutput(outfile, pseudocount = "error"))
+    expect_error(parseHomerOutput(outfile, p.adjust.method = "error"))
+    
     res <- parseHomerOutput(structure(c(outfile, outfile), names = c("bin1", "bin2")))
     expect_length(res, 8L)
     expect_identical(names(res), c("negLog10P", "negLog10Padj",

@@ -4,10 +4,16 @@
 \alias{parseHomerOutput}
 \title{load output from HOMER findMotifsGenome.pl into R}
 \usage{
-parseHomerOutput(infiles)
+parseHomerOutput(infiles, pseudocount = 8, p.adjust.method = "BH")
 }
 \arguments{
 \item{infiles}{HOMER output files to be parsed.}
+
+\item{pseudocount}{A numerical scalar with the pseudocount to add to
+observed and expected counts when calculating log2 motif enrichments}
+
+\item{p.adjust.method}{A character scalar selecting the p value adjustment
+method (used in \code{\link[stats]{p.adjust}}).}
 }
 \value{
 A list of four components (\code{negLog10P}, \code{negLog10Padj},

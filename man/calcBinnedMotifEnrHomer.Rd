@@ -12,6 +12,8 @@ calcBinnedMotifEnrHomer(
   motifFile,
   homerfile = findHomer(),
   regionsize = "given",
+  pseudocount = 8,
+  p.adjust.method = "BH",
   Ncpu = 2L,
   verbose = FALSE
 )
@@ -33,6 +35,12 @@ into bins (typically a factor, such as the one returned by \code{\link{bin}}).}
 
 \item{regionsize}{The peak size to use in HOMER (\code{"given"} keeps the coordinate
 region, an integer value will keep only that many bases in the region center).}
+
+\item{pseudocount}{A numerical scalar with the pseudocount to add to
+observed and expected counts when calculating log2 motif enrichments}
+
+\item{p.adjust.method}{A character scalar selecting the p value adjustment
+method (used in \code{\link[stats]{p.adjust}}).}
 
 \item{Ncpu}{Number of parallel threads that HOMER can use.}
 

@@ -13,6 +13,8 @@ calcBinnedMotifEnrR(
   maxKmerSize = 3L,
   min.score = 10,
   matchMethod = "matchPWM",
+  pseudocount = 8,
+  p.adjust.method = "BH",
   BPPARAM = SerialParam(),
   verbose = FALSE,
   ...
@@ -46,6 +48,12 @@ and tri-mer composition.}
 
 \item{matchMethod}{the method used to scan for motif hits, passed to the
 \code{method} parameter in \code{\link[monaLisa]{findMotifHits}}.}
+
+\item{pseudocount}{A numerical scalar with the pseudocount to add to
+observed and expected counts when calculating log2 motif enrichments}
+
+\item{p.adjust.method}{A character scalar selecting the p value adjustment
+method (used in \code{\link[stats]{p.adjust}}).}
 
 \item{BPPARAM}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
 instance determining the parallel back-end to be used during evaluation.}

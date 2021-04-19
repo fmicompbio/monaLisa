@@ -276,6 +276,10 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
 #' @description Parse HOMER output files into R data structures.
 #'
 #' @param infiles HOMER output files to be parsed.
+#' @param pseudocount A numerical scalar with the pseudocount to add to
+#'   observed and expected counts when calculating log2 motif enrichments
+#' @param p.adjust.method A character scalar selecting the p value adjustment
+#'   method (used in \code{\link[stats]{p.adjust}}).
 #'
 #' @return A list of four components (\code{negLog10P}, \code{negLog10Padj},
 #'     \code{pearsonResid} and \code{log2enr}), containing each a motif (rows)
@@ -283,15 +287,19 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
 #'     and motif enrichments as Pearson residuals (\code{pearsonResid}) and as
 #'     log2 ratios (\code{log2enr}).
 #'
+#' @importFrom stats p.adjust
+#'
 #' @export
-parseHomerOutput <- function(infiles) {
+parseHomerOutput <- function(infiles, pseudocount = 8, p.adjust.method = "BH") {
     stopifnot(all(file.exists(infiles)))
+    .assertScalar(x = pseudocount, type = "numeric", rngIncl = c(0, Inf))
+    .assertScalar(x = p.adjust.method, type = "character", validValues = stats::p.adjust.methods)
 
     tabL <- lapply(infiles, read.delim)
     mnms <- sort(tabL[[1]][, 1])
     names(tabL) <- if (is.null(names(infiles))) infiles else names(infiles)
     P <- do.call(cbind, lapply(tabL, function(x) -x[match(mnms, x[, 1]), 4] / log(10)))
-    enrTF <- do.call(cbind, lapply(tabL, function(tab) {
+    presid <- do.call(cbind, lapply(tabL, function(tab) {
         fracFgWithMotif <- as.numeric(sub("%$","", tab[, 7])) / 100
         fracBgWithMotif <- as.numeric(sub("%$","", tab[, 9])) / 100
         obsTF <- tab[, 6]
@@ -304,7 +312,7 @@ parseHomerOutput <- function(infiles) {
       	numFgBgWithHits <- tab[, c(6, 8)] # number of target seqs and bg seqs with motif
       	nTot <- as.numeric(gsub("\\S+\\.(\\d+)\\.", "\\1", colnames(numFgBgWithHits))) #total number of target and background sequences
       	numFgBgWithHitsNorm <- t(min(nTot) * t(numFgBgWithHits) / nTot) # scale to smaller number (usually number of target sequences)
-      	numFgBgWithHitsNormLog <- log2(numFgBgWithHitsNorm + 8)
+      	numFgBgWithHitsNormLog <- log2(numFgBgWithHitsNorm + pseudocount)
       	lenr <- numFgBgWithHitsNormLog[, 1] - numFgBgWithHitsNormLog[, 2]
       	lenr[match(mnms, tab[, 1])]
     }))
@@ -318,11 +326,11 @@ parseHomerOutput <- function(infiles) {
         nTot
     }))
 
-    fdr <- matrix(-log10(p.adjust(as.vector(10^(-P)), method = "BH")),
+    padj <- matrix(-log10(p.adjust(as.vector(10^(-P)), method = p.adjust.method)),
                   nrow = nrow(P), dimnames = dimnames(P))
-    fdr[which(fdr == Inf, arr.ind = TRUE)] <- max(fdr[is.finite(fdr)])
+    padj[which(padj == Inf, arr.ind = TRUE)] <- max(padj[is.finite(padj)])
     
-    rownames(P) <- rownames(fdr) <- rownames(enrTF) <- rownames(log2enr) <-
+    rownames(P) <- rownames(padj) <- rownames(presid) <- rownames(log2enr) <-
         rownames(sumFgWgt) <- rownames(sumBgWgt) <- mnms
     
     return(list(negLog10P = P, negLog10Padj = padj,
@@ -380,6 +388,10 @@ parseHomerOutput <- function(infiles) {
 #' @param homerfile Path and file name of the \code{findMotifsGenome.pl} HOMER script.
 #' @param regionsize The peak size to use in HOMER (\code{"given"} keeps the coordinate
 #'     region, an integer value will keep only that many bases in the region center).
+#' @param pseudocount A numerical scalar with the pseudocount to add to
+#'   observed and expected counts when calculating log2 motif enrichments
+#' @param p.adjust.method A character scalar selecting the p value adjustment
+#'   method (used in \code{\link[stats]{p.adjust}}).
 #' @param Ncpu Number of parallel threads that HOMER can use.
 #' @param verbose A logical scalar. If \code{TRUE}, print progress messages.
 #'
@@ -407,6 +419,8 @@ parseHomerOutput <- function(infiles) {
 calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
                                     homerfile = findHomer(),
                                     regionsize = "given",
+                                    pseudocount = 8,
+                                    p.adjust.method = "BH",
                                     Ncpu = 2L,
                                     verbose = FALSE) {
     if (!inherits(gr, "GRanges"))
@@ -473,7 +487,7 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
     ## ... parse output
     resfiles <- sprintf("%s/bin_%03d_output/knownResults.txt", outdir, seq_along(levels(b)))
     names(resfiles) <- levels(b)
-    resL <- parseHomerOutput(resfiles)
+    resL <- parseHomerOutput(resfiles, pseudocount, p.adjust.method)
 
     ## ... create SummarizedExperiment
     ## ... ... reorder parsed output according to motifs in motifFile
@@ -524,6 +538,8 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
                   param.motifFile = motifFile,
                   param.homerfile = homerfile,
                   param.regionsize = regionsize,
+                  param.pseudocount = pseudocount,
+                  param.p.adj.method = p.adjust.method,
                   param.Ncpu = Ncpu,
                   motif.distances = NULL)
     ## ... ... return

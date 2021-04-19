@@ -564,6 +564,10 @@
 #'   \code{\link[monaLisa]{findMotifHits}}.
 #' @param matchMethod the method used to scan for motif hits, passed to the
 #'   \code{method} parameter in \code{\link[monaLisa]{findMotifHits}}.
+#' @param pseudocount A numerical scalar with the pseudocount to add to
+#'   observed and expected counts when calculating log2 motif enrichments
+#' @param p.adjust.method A character scalar selecting the p value adjustment
+#'   method (used in \code{\link[stats]{p.adjust}}).
 #' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
 #'     instance determining the parallel back-end to be used during evaluation.
 #' @param verbose A logical scalar. If \code{TRUE}, print progress messages.
@@ -617,6 +621,7 @@
 #' @importFrom S4Vectors DataFrame
 #' @importFrom GenomeInfoDb seqnames seqlevels
 #' @importFrom BiocParallel bplapply SerialParam bpnworkers
+#' @importFrom stats p.adjust
 #'
 #' @export
 calcBinnedMotifEnrR <- function(seqs,
@@ -627,6 +632,8 @@ calcBinnedMotifEnrR <- function(seqs,
                                 maxKmerSize = 3L,
                                 min.score = 10,
                                 matchMethod = "matchPWM",
+                                pseudocount = 8,
+                                p.adjust.method = "BH",
                                 BPPARAM = SerialParam(),
                                 verbose = FALSE,
                                 ...) {
@@ -644,6 +651,8 @@ calcBinnedMotifEnrR <- function(seqs,
     if (!is(pwmL, "PWMatrixList")) {
         stop("'pwmL' must be of class 'PWMatrixList'")
     }
+    .assertScalar(x = pseudocount, type = "numeric", rngIncl = c(0, Inf))
+    .assertScalar(x = p.adjust.method, type = "character", validValues = stats::p.adjust.methods)
     if (!is(BPPARAM, "BiocParallelParam")) {
         stop("'BPPARAM' must be of class 'BiocParallelParam'")
     }
@@ -730,17 +739,17 @@ calcBinnedMotifEnrR <- function(seqs,
 
 
     # summarize results as SE
-    # ... log10 of p-value
+    # ... -log10 of P value
     P <- do.call(cbind, lapply(enrichL, function(enrich1) {
         logpVals <- -enrich1[, "logP"] / log(10)
         names(logpVals) <- enrich1[, "motifName"]
         logpVals
     }))
 
-    # ... log10 of FDR
-    fdr <- matrix(-log10(p.adjust(as.vector(10**(-P)), method = "BH")), nrow = nrow(P))
-    dimnames(fdr) <- dimnames(P)
-    fdr[which(fdr == Inf, arr.ind = TRUE)] <- max(fdr[is.finite(fdr)])
+    # ... -log10 of adjusted P value
+    padj <- matrix(-log10(p.adjust(as.vector(10**(-P)), method = p.adjust.method)), nrow = nrow(P))
+    dimnames(padj) <- dimnames(P)
+    padj[which(padj == Inf, arr.ind = TRUE)] <- max(padj[is.finite(padj)])
 
     # ... Pearson residuals
     enrTF <- do.call(cbind, lapply(enrichL, function(enrich1) {
@@ -759,7 +768,7 @@ calcBinnedMotifEnrR <- function(seqs,
         D <- enrich1[, c("sumForegroundWgtWithHits", "sumBackgroundWgtWithHits")]
         nTot <- unlist(enrich1[1, c("totalWgtForeground", "totalWgtBackground")])
         D.norm <- t(t(D) / nTot * min(nTot))
-        DL <- log2(D.norm + 8)
+        DL <- log2(D.norm + pseudocount)
         log2enr <- DL[, 1] - DL[, 2]
         log2enr
     }))
@@ -803,6 +812,8 @@ calcBinnedMotifEnrR <- function(seqs,
                  param.maxKmerSize = maxKmerSize,
                  param.min.score = min.score,
                  param.matchMethod = matchMethod,
+                 param.pseudocount = pseudocount,
+                 param.p.adj.method = p.adjust.method,
                  param.BPPARAM.class = class(BPPARAM),
                  param.BPPARAM.bpnworkers = bpnworkers(BPPARAM),
                  param.verbose = verbose)

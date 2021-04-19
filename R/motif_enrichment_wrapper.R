@@ -16,6 +16,10 @@
 #'   Homer format (for \code{method = "Homer"}).
 #' @param method A \code{character} scalar specifying the backend to use for
 #'   enrichment calculations. One of \code{"R"} (default) or \code{"Homer"}.
+#' @param pseudocount A numerical scalar with the pseudocount to add to
+#'   observed and expected counts when calculating log2 motif enrichments
+#' @param p.adjust.method A character scalar selecting the p value adjustment
+#'   method (used in \code{\link[stats]{p.adjust}}).
 #' @param BPPARAM Specifies the number of CPU cores to use for parallel
 #'   processing. Either a \code{\link[BiocParallel]{SerialParam}} or a
 #'   \code{\link[BiocParallel]{MulticoreParam}} object instance, or for
@@ -55,6 +59,8 @@ calcBinnedMotifEnr <- function(seqs,
                                bins,
                                motifs,
                                method =  c("R", "Homer"),
+                               pseudocount = 8,
+                               p.adjust.method = "BH",
                                BPPARAM = SerialParam(),
                                verbose = FALSE,
                                ...) {
@@ -67,6 +73,8 @@ calcBinnedMotifEnr <- function(seqs,
         se <- calcBinnedMotifEnrR(seqs = seqs,
                                   bins = bins,
                                   pwmL = motifs,
+                                  pseudocount = pseudocount,
+                                  p.adjust.method = p.adjust.method,
                                   BPPARAM = BPPARAM,
                                   verbose = verbose,
                                   ...)
@@ -88,6 +96,8 @@ calcBinnedMotifEnr <- function(seqs,
         se <- calcBinnedMotifEnrHomer(gr = seqs,
                                       b = bins,
                                       motifFile = motifs,
+                                      pseudocount = pseudocount,
+                                      p.adjust.method = p.adjust.method,
                                       Ncpu = ncpu,
                                       verbose = verbose,
                                       ...)
