@@ -566,6 +566,9 @@
 #'   \code{method} parameter in \code{\link[monaLisa]{findMotifHits}}.
 #' @param pseudocount.log2enr A numerical scalar with the pseudocount to add to
 #'   foreground and background counts when calculating log2 motif enrichments
+#' @param pseudocount.pearsonResid A numerical scalar with the pseudocount to add
+#'   to foreground and background frequencies when calculating expected counts
+#'   and Pearson residuals.
 #' @param p.adjust.method A character scalar selecting the p value adjustment
 #'   method (used in \code{\link[stats]{p.adjust}}).
 #' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
@@ -633,6 +636,7 @@ calcBinnedMotifEnrR <- function(seqs,
                                 min.score = 10,
                                 matchMethod = "matchPWM",
                                 pseudocount.log2enr = 8,
+                                pseudocount.pearsonResid = 0.001,
                                 p.adjust.method = "BH",
                                 BPPARAM = SerialParam(),
                                 verbose = FALSE,
@@ -652,6 +656,7 @@ calcBinnedMotifEnrR <- function(seqs,
         stop("'pwmL' must be of class 'PWMatrixList'")
     }
     .assertScalar(x = pseudocount.log2enr, type = "numeric", rngIncl = c(0, Inf))
+    .assertScalar(x = pseudocount.pearsonResid, type = "numeric", rngIncl = c(0, Inf))
     .assertScalar(x = p.adjust.method, type = "character", validValues = stats::p.adjust.methods)
     if (!is(BPPARAM, "BiocParallelParam")) {
         stop("'BPPARAM' must be of class 'BiocParallelParam'")
@@ -756,7 +761,7 @@ calcBinnedMotifEnrR <- function(seqs,
         fracForeground <- enrich1[, "sumForegroundWgtWithHits"] / enrich1[, "totalWgtForeground"]
         fracBackground <- enrich1[, "sumBackgroundWgtWithHits"] / enrich1[, "totalWgtBackground"]
         obsTF <- enrich1[, "sumForegroundWgtWithHits"]
-        expTF <- obsTF / (fracForeground + 0.001) * (fracBackground + 0.001)
+        expTF <- obsTF / (fracForeground + pseudocount.pearsonResid) * (fracBackground + pseudocount.pearsonResid)
         enr <- (obsTF - expTF) / sqrt(expTF)
         enr[ is.na(enr) ] <- 0
         names(enr) <- enrich1[, "motifName"]
@@ -813,6 +818,7 @@ calcBinnedMotifEnrR <- function(seqs,
                  param.min.score = min.score,
                  param.matchMethod = matchMethod,
                  param.pseudocount.log2enr = pseudocount.log2enr,
+                 param.pseudocount.pearsonResid = pseudocount.pearsonResid,
                  param.p.adj.method = p.adjust.method,
                  param.BPPARAM.class = class(BPPARAM),
                  param.BPPARAM.bpnworkers = bpnworkers(BPPARAM),

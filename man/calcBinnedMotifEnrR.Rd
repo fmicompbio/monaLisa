@@ -14,6 +14,7 @@ calcBinnedMotifEnrR(
   min.score = 10,
   matchMethod = "matchPWM",
   pseudocount.log2enr = 8,
+  pseudocount.pearsonResid = 0.001,
   p.adjust.method = "BH",
   BPPARAM = SerialParam(),
   verbose = FALSE,
@@ -51,6 +52,10 @@ and tri-mer composition.}
 
 \item{pseudocount.log2enr}{A numerical scalar with the pseudocount to add to
 foreground and background counts when calculating log2 motif enrichments}
+
+\item{pseudocount.pearsonResid}{A numerical scalar with the pseudocount to add
+to foreground and background frequencies when calculating expected counts
+and Pearson residuals.}
 
 \item{p.adjust.method}{A character scalar selecting the p value adjustment
 method (used in \code{\link[stats]{p.adjust}}).}

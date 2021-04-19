@@ -278,6 +278,9 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
 #' @param infiles HOMER output files to be parsed.
 #' @param pseudocount.log2enr A numerical scalar with the pseudocount to add to
 #'   foreground and background counts when calculating log2 motif enrichments
+#' @param pseudocount.pearsonResid A numerical scalar with the pseudocount to add
+#'   to foreground and background frequencies when calculating expected counts
+#'   and Pearson residuals.
 #' @param p.adjust.method A character scalar selecting the p value adjustment
 #'   method (used in \code{\link[stats]{p.adjust}}).
 #'
@@ -290,9 +293,13 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
 #' @importFrom stats p.adjust
 #'
 #' @export
-parseHomerOutput <- function(infiles, pseudocount.log2enr = 8, p.adjust.method = "BH") {
+parseHomerOutput <- function(infiles,
+                             pseudocount.log2enr = 8,
+                             pseudocount.pearsonResid = 0.001,
+                             p.adjust.method = "BH") {
     stopifnot(all(file.exists(infiles)))
     .assertScalar(x = pseudocount.log2enr, type = "numeric", rngIncl = c(0, Inf))
+    .assertScalar(x = pseudocount.pearsonResid, type = "numeric", rngIncl = c(0, Inf))
     .assertScalar(x = p.adjust.method, type = "character", validValues = stats::p.adjust.methods)
 
     tabL <- lapply(infiles, read.delim)
@@ -303,7 +310,7 @@ parseHomerOutput <- function(infiles, pseudocount.log2enr = 8, p.adjust.method =
         fracFgWithMotif <- as.numeric(sub("%$","", tab[, 7])) / 100
         fracBgWithMotif <- as.numeric(sub("%$","", tab[, 9])) / 100
         obsTF <- tab[, 6]
-        expTF <- obsTF / (fracFgWithMotif + 0.001) * (fracBgWithMotif + 0.001)
+        expTF <- obsTF / (fracFgWithMotif + pseudocount.pearsonResid) * (fracBgWithMotif + pseudocount.pearsonResid)
         enr <- (obsTF - expTF) / sqrt(expTF)
         enr[ is.na(enr) ] <- 0
         enr[match(mnms, tab[, 1])]
@@ -390,6 +397,9 @@ parseHomerOutput <- function(infiles, pseudocount.log2enr = 8, p.adjust.method =
 #'     region, an integer value will keep only that many bases in the region center).
 #' @param pseudocount.log2enr A numerical scalar with the pseudocount to add to
 #'   foreground and background counts when calculating log2 motif enrichments
+#' @param pseudocount.pearsonResid A numerical scalar with the pseudocount to add
+#'   to foreground and background frequencies when calculating expected counts
+#'   and Pearson residuals.
 #' @param p.adjust.method A character scalar selecting the p value adjustment
 #'   method (used in \code{\link[stats]{p.adjust}}).
 #' @param Ncpu Number of parallel threads that HOMER can use.
@@ -420,6 +430,7 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
                                     homerfile = findHomer(),
                                     regionsize = "given",
                                     pseudocount.log2enr = 8,
+                                    pseudocount.pearsonResid = 0.001,
                                     p.adjust.method = "BH",
                                     Ncpu = 2L,
                                     verbose = FALSE) {
@@ -487,7 +498,10 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
     ## ... parse output
     resfiles <- sprintf("%s/bin_%03d_output/knownResults.txt", outdir, seq_along(levels(b)))
     names(resfiles) <- levels(b)
-    resL <- parseHomerOutput(resfiles, pseudocount.log2enr, p.adjust.method)
+    resL <- parseHomerOutput(infiles = resfiles,
+                             pseudocount.log2enr = pseudocount.log2enr,
+                             pseudocount.pearsonResid = pseudocount.pearsonResid,
+                             p.adjust.method = p.adjust.method)
 
     ## ... create SummarizedExperiment
     ## ... ... reorder parsed output according to motifs in motifFile
@@ -539,6 +553,7 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
                   param.homerfile = homerfile,
                   param.regionsize = regionsize,
                   param.pseudocount.log2enr = pseudocount.log2enr,
+                  param.pseudocount.pearsonResid = pseudocount.pearsonResid,
                   param.p.adj.method = p.adjust.method,
                   param.Ncpu = Ncpu,
                   motif.distances = NULL)
