@@ -83,7 +83,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.42</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.43</span>
       </span>
     </div>
 
@@ -147,6 +147,8 @@
   <span class='va'>motifFile</span>,
   homerfile <span class='op'>=</span> <span class='fu'><a href='findHomer.html'>findHomer</a></span><span class='op'>(</span><span class='op'>)</span>,
   regionsize <span class='op'>=</span> <span class='st'>"given"</span>,
+  pseudocount <span class='op'>=</span> <span class='fl'>8</span>,
+  p.adjust.method <span class='op'>=</span> <span class='st'>"BH"</span>,
   Ncpu <span class='op'>=</span> <span class='fl'>2L</span>,
   verbose <span class='op'>=</span> <span class='cn'>FALSE</span>
 <span class='op'>)</span></pre>
@@ -186,6 +188,16 @@ into bins (typically a factor, such as the one returned by <code><a href='bin.ht
 region, an integer value will keep only that many bases in the region center).</p></td>
     </tr>
     <tr>
+      <th>pseudocount</th>
+      <td><p>A numerical scalar with the pseudocount to add to
+observed and expected counts when calculating log2 motif enrichments</p></td>
+    </tr>
+    <tr>
+      <th>p.adjust.method</th>
+      <td><p>A character scalar selecting the p value adjustment
+method (used in <code><a href='https://rdrr.io/r/stats/p.adjust.html'>p.adjust</a></code>).</p></td>
+    </tr>
+    <tr>
       <th>Ncpu</th>
       <td><p>Number of parallel threads that HOMER can use.</p></td>
     </tr>
@@ -199,9 +211,9 @@ region, an integer value will keep only that many bases in the region center).</
 
     <p>A <code>SummarizedExperiment</code> object with motifs in rows and bins
   in columns, containing six assays:</p><ul>
-<li><p>p: -log10 P values</p></li>
-<li><p>FDR: -log10 false discovery rates</p></li>
-<li><p>enr: motif enrichments as Pearson residuals</p></li>
+<li><p>negLog10P: -log10 P values</p></li>
+<li><p>negLog10Padj: -log10 adjusted P values</p></li>
+<li><p>pearsonResid: motif enrichments as Pearson residuals</p></li>
 <li><p>log2enr: motif enrichments as log2 ratios</p></li>
 <li><p>sumForegroundWgtWithHits: Sum of foreground sequence weights
     in a bin that have motif hits</p></li>

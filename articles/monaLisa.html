@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.42</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.43</span>
       </span>
     </div>
 
@@ -81,7 +81,7 @@
       <h1 data-toc-skip>monaLisa - MOtif aNAlysis with Lisa</h1>
                         <h4 data-toc-skip class="author">Dania Machlab, Lukas Burger, Michael Stadler</h4>
             
-            <h4 data-toc-skip class="date">2021-04-17</h4>
+            <h4 data-toc-skip class="date">2021-04-19</h4>
       
       
       <div class="hidden name"><code>monaLisa.Rmd</code></div>
@@ -96,7 +96,7 @@
 <a href="#introduction" class="anchor"></a>Introduction</h1>
 <p><code>monaLisa</code> is a collection of functions for working with biological sequences and motifs that represent the binding preferences of transcription factors or nucleic acid binding proteins.</p>
 <p>For example, <code>monaLisa</code> can be used to conveniently find motif hits in sequences (see section @ref(findhits)), or to identify motifs that are likely associated to observed experimental data. This analysis is supposed to provide potential answers to the question “Which transcription factors are the drivers of my observed changes in expression/methylation/accessiblity?”.</p>
-<p>You can use known motifs from collections of transcription factor binding specificities such as <code>JASPAR2018</code>, also available from Bioconductor. Genomic regions could be for example promoters, enhancers or accessible regions for which experimental data is available.</p>
+<p>You can use known motifs from collections of transcription factor binding specificities such as <code>JASPAR2018</code>, also available from <a href="https://bioconductor.org/packages/JASPAR2018/" class="external-link">Bioconductor</a>. Genomic regions could be for example promoters, enhancers or accessible regions for which experimental data is available.</p>
 <p>Two independent approaches are implemented to identify interesting motifs:</p>
 <ul>
 <li><p>In <strong>binned motif enrichment analysis</strong> (<code><a href="../reference/calcBinnedMotifEnr.html">calcBinnedMotifEnr()</a></code>, see section @ref(binned)), genomic regions are grouped into bins according to a numerical value assigned to each region, such as change of expression, accessibility or methylation. Motif enrichments are then calculated for each bin, normalizing for differences in sequence composition very similarly as it was originally done by <a href="http://homer.ucsd.edu/homer/index.html" class="external-link">Homer</a>.</p></li>
@@ -130,7 +130,7 @@
 <em>FDR</em>: Same as <em>p</em> but adjusted for multiple testing using the method of Benjamini and Hochberg, 1995 (<code>p.adjust(..., method="fdr"</code>).<br>
 </li>
 <li>
-<em>enr</em>: Motif enrichments, calculated as: <span class="math inline">\(enr = (o - e) / \sqrt e\)</span>, where <span class="math inline">\(o\)</span> and <span class="math inline">\(e\)</span> are the observed and expected numbers of regions in the bin containing a given motif. These enrichments correspond to <span class="math inline">\(z\)</span> values (<span class="math inline">\(z = (z - \mu)/\sigma\)</span>), assuming that the numbers of regions in a bin that contain a motif are independent Poisson random variables with mean and variance <span class="math inline">\(e\)</span>.</li>
+<em>enr</em>: Motif enrichments, calculated as: <span class="math inline">\(enr = (o - e) / \sqrt e\)</span>, where <span class="math inline">\(o\)</span> and <span class="math inline">\(e\)</span> are the observed and expected numbers of regions in the bin containing a given motif. These enrichments correspond to <span class="math inline">\(z\)</span> values (<span class="math inline">\(z = (o - \mu)/\sigma\)</span>), assuming that the numbers of regions in a bin that contain a motif are independent Poisson random variables with mean and variance <span class="math inline">\(e\)</span>.</li>
 <li>
 <em>log2enr</em>: Motif enrichments, calculated as: <span class="math inline">\(log2enr = log2((o + 8)/(e + 8))\)</span>, where <span class="math inline">\(o\)</span> and <span class="math inline">\(e\)</span> are the observed and expected numbers of regions in the bin containing a given motif.<br>
 </li>
@@ -344,12 +344,12 @@
 <span class="fu"><a href="../reference/plotMotifHeatmaps.html">plotMotifHeatmaps</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">seSel</span>, which.plots <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log2enr"</span>,<span class="st">"FDR"</span><span class="op">)</span>, width <span class="op">=</span> <span class="fl">2.0</span>,
                   cluster <span class="op">=</span> <span class="cn">TRUE</span>, maxEnr <span class="op">=</span> <span class="fl">2</span>, maxSig <span class="op">=</span> <span class="fl">10</span>, show_motif_GC <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <p><img src="monaLisa_files/figure-html/plottfs-1.png" width="80%" style="display: block; margin: auto;"></p>
-<p>Setting <code>cluster = TRUE</code> has re-ordered the rows using hierarchical clustering of the <code>"enr"</code> assay. As many transcription factor binding motifs are similar to each other, it is also helpful to show the enrichment heatmap clustered by motif similarity. To this end, we first calculate all pairwise motif similarities (measured as maximum Pearson correlation of all possible shifted alignments). This can be quickly calculated for the few selected motifs using the <code>motifSimilarity</code> function. For many motifs, this step may take a while, and it may be useful to parallelize it using the <code>BPARAM</code> argument (e.g. to run on <code>n</code> parallel threads using the multi-core backend, you can use: <code><a href="../reference/motifSimilarity.html">motifSimilarity(..., BPPARAM = BiocParallel::MulticoreParam(n))</a></code>).</p>
+<p>Setting <code>cluster = TRUE</code> has re-ordered the rows using hierarchical clustering of the <code>"enr"</code> assay. As many transcription factor binding motifs are similar to each other, it is also helpful to show the enrichment heatmap clustered by motif similarity. To this end, we first calculate all pairwise motif similarities (measured as maximum Pearson correlation of all possible shifted alignments). This can be quickly calculated for the few selected motifs using the <code>motifSimilarity</code> function. For many motifs, this step may take a while, and it may be useful to parallelize it using the <code>BPPARAM</code> argument (e.g. to run on <code>n</code> parallel threads using the multi-core backend, you can use: <code><a href="../reference/motifSimilarity.html">motifSimilarity(..., BPPARAM = BiocParallel::MulticoreParam(n))</a></code>).</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">SimMatSel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/motifSimilarity.html">motifSimilarity</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData</a></span><span class="op">(</span><span class="va">seSel</span><span class="op">)</span><span class="op">$</span><span class="va">motif.pfm</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/inter-range-methods.html" class="external-link">range</a></span><span class="op">(</span><span class="va">SimMatSel</span><span class="op">)</span>
 <span class="co">#&gt; [1] 0.07927602 1.00000000</span></code></pre></div>
-<p>The order of the TFs in the resulting matrix is consistent with the elements of <code>seSel</code>, and the maximal similarity between any pair of motifs is 1.0. By subtracting these similarities from 1.0, we obtain distances that we use to perform a hierarchical clustering with the <code>hclust</code> function. The returned object is then passed to the <code>cluster</code> argument to define the order of the rows in the heatmap. The plotting of the dendogram is controlled by the parameter <code>show_dendrogram</code>, and we also display the motifs as sequence logos using <code>show_seqlogo</code>:</p>
+<p>The order of the TFs in the resulting matrix is consistent with the elements of <code>seSel</code>, and the maximal similarity between any pair of motifs is 1.0. By subtracting these similarities from 1.0, we obtain distances that we use to perform a hierarchical clustering with the <code>hclust</code> function. The returned object is then passed to the <code>cluster</code> argument to define the order of the rows in the heatmap. The plotting of the dendrogram is controlled by the parameter <code>show_dendrogram</code>, and we also display the motifs as sequence logos using <code>show_seqlogo</code>:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># create hclust object, similarity defined by 1 - Pearson correlation</span>
 <span class="va">hcl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/hclust.html" class="external-link">hclust</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/dist.html" class="external-link">as.dist</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">SimMatSel</span><span class="op">)</span>, method <span class="op">=</span> <span class="st">"average"</span><span class="op">)</span>
@@ -371,7 +371,7 @@
 <span class="co">#&gt; Loading required package: GenomicFeatures</span>
 <span class="co">#&gt; Loading required package: AnnotationDbi</span>
 <span class="va">gr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/intra-range-methods.html" class="external-link">promoters</a></span><span class="op">(</span><span class="va">TxDb.Mmusculus.UCSC.mm10.knownGene</span>,
-                upstream <span class="op">=</span> <span class="fl">1000</span>, downstream <span class="op">=</span> <span class="fl">500</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">4</span>,<span class="fl">5</span>,<span class="fl">10</span><span class="op">)</span><span class="op">]</span>
+                upstream <span class="op">=</span> <span class="fl">1000</span>, downstream <span class="op">=</span> <span class="fl">500</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">10</span><span class="op">)</span><span class="op">]</span>
 <span class="co">#&gt; Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 1 out-of-bound range located on sequence</span>
 <span class="co">#&gt;   chr4_JH584295_random. Note that ranges located on a sequence whose</span>
 <span class="co">#&gt;   length is unknown (NA) or on a circular sequence are not considered</span>
@@ -455,7 +455,7 @@
 <div id="stabsel" class="section level1">
 <h1 class="hasAnchor">
 <a href="#stabsel" class="anchor"></a>Motif Selection with Randomized Lasso Stability Selection</h1>
-<p>One can also select for important transcription factor (TF) motifs in a regression based approach with predictors consisting of the TF motif hits, and the response vector being the observed measure of interest, e.g. log-fold changes of accessibility for a set of regions. In <code>monaLisa</code>, we implement the randomized lasso stability selection proposed by Meinshausen and Bühlmann <span class="citation">(Meinshausen and Bühlmann 2010)</span> with the improved error bounds introduced by Shah and Samworth <span class="citation">(Shah and Samworth 2013)</span>. We have modified the <code>stabsel</code> function from the <code>stabs</code> package to implement the randomized lasso version of stability selection.</p>
+<p>One can also select for important transcription factor (TF) motifs in a regression based approach with predictors consisting of the TF motif hits, and the response vector being the observed measure of interest, e.g. log-fold changes of accessibility for a set of regions. In <code>monaLisa</code>, we implement the randomized lasso stability selection proposed by <span class="citation">Meinshausen and Bühlmann (2010)</span> with the improved error bounds introduced by <span class="citation">Shah and Samworth (2013)</span>. We have modified the <code>stabsel</code> function from the <em><a href="https://CRAN.R-project.org/package=stabs" class="external-link">stabs</a></em> package to implement the randomized lasso version of stability selection.</p>
 <p>Lasso stability selection implements the lasso regression multiple times on subsamples of the data, and returns a selection probability for each predictor (number of times selected divided by number of regressions done). With the randomized lasso, a weakness parameter is additionally used to randomly vary the lambda parameter of the lasso regression. Although the main appeal of stability selection is in cases where the number of predictors exceeds the number of observations, it also performs better variable selection with noisy data <span class="citation">(Meinshausen and Bühlmann 2010)</span>.</p>
 <p>With this approach, TF motifs compete against each other to explain observations, and we can also include additional predictors like GC content to compete against the TF motifs for selection. This is especially useful if the response is biased by sequence composition, for example if regions with higher GC content tend to have higher response values.</p>
 <p>In the example below, we select for TF motifs explaining log-fold changes in chromatin accessibility (ATAC-seq) across the enhancers between mouse liver and lung tissue at P0, but this can be applied to other data types as well (ChIP-seq, RNA-seq, methylation etc.).</p>
@@ -664,7 +664,7 @@ Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promot
 <span class="co">#&gt;  [3] TxDb.Mmusculus.UCSC.mm10.knownGene_3.10.0</span>
 <span class="co">#&gt;  [4] GenomicFeatures_1.42.3                   </span>
 <span class="co">#&gt;  [5] AnnotationDbi_1.52.0                     </span>
-<span class="co">#&gt;  [6] monaLisa_0.1.42                          </span>
+<span class="co">#&gt;  [6] monaLisa_0.1.43                          </span>
 <span class="co">#&gt;  [7] BSgenome.Mmusculus.UCSC.mm10_1.4.0       </span>
 <span class="co">#&gt;  [8] BSgenome_1.58.0                          </span>
 <span class="co">#&gt;  [9] rtracklayer_1.50.0                       </span>
@@ -680,7 +680,7 @@ Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promot
 <span class="co">#&gt; [19] GenomeInfoDb_1.26.7                      </span>
 <span class="co">#&gt; [20] IRanges_2.24.1                           </span>
 <span class="co">#&gt; [21] S4Vectors_0.28.1                         </span>
-<span class="co">#&gt; [22] BiocGenerics_0.36.0                      </span>
+<span class="co">#&gt; [22] BiocGenerics_0.36.1                      </span>
 <span class="co">#&gt; [23] BiocStyle_2.18.1                         </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; loaded via a namespace (and not attached):</span>
@@ -733,7 +733,7 @@ Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promot
 <span class="co">#&gt;  [93] DelayedArray_0.16.3         DBI_1.1.1                  </span>
 <span class="co">#&gt;  [95] pillar_1.6.0                survival_3.2-10            </span>
 <span class="co">#&gt;  [97] KEGGREST_1.30.1             RCurl_1.98-1.3             </span>
-<span class="co">#&gt;  [99] tibble_3.1.0                crayon_1.4.1               </span>
+<span class="co">#&gt;  [99] tibble_3.1.1                crayon_1.4.1               </span>
 <span class="co">#&gt; [101] utf8_1.2.1                  BiocFileCache_1.14.0       </span>
 <span class="co">#&gt; [103] rmarkdown_2.7               progress_1.2.2             </span>
 <span class="co">#&gt; [105] GetoptLong_1.0.5            blob_1.2.1                 </span>
