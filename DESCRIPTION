@@ -3,9 +3,9 @@ Type: Package
 Title: Binned Motif Enrichment Analysis and Visualization
 Version: 0.1.43
 Authors@R: c(
-    person("Dania", "Machlab", email = "dania.machlab@fmi.ch", role = c("aut")),
+    person("Dania", "Machlab", email = "dania.machlab@fmi.ch", role = c("aut"), comment = c(ORCID = "0000-0002-2578-6930")),
     person("Lukas", "Burger", email = "lukas.burger@fmi.ch", role = c("aut")),
-    person("Michael", "Stadler", email = "michael.stadler@fmi.ch", role = c("aut", "cre")))
+    person("Michael", "Stadler", email = "michael.stadler@fmi.ch", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-2269-4934")))
 Description: Useful functions to work with sequence motifs in the analysis of genomics data.
     These include methods to annotate genomic regions or sequences with predicted motif hits
     and to identify motifs that drive observed changes in accessibility or expression.
