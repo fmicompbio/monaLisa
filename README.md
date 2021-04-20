@@ -71,14 +71,14 @@ The results can be conveniently visualized:
 ```
 plotBinDensity(atacPeaksChange, bins, legend = FALSE)
 ```
-<img src="vignettes/monaLisa_binning_small.png" align="center" alt="binning" width="412px"/>
+<img src="man/figures/monaLisa_binning_small.png" align="center" alt="binning" width="412px"/>
 
 ```
 plotMotifHeatmaps(se, cluster = TRUE,
                   which.plots = c("enr", "FDR"),
                   show_seqlogo = TRUE)
 ```
-<img src="vignettes/monaLisa_heatmaps_small.png" align="center" alt="heatmaps" width="501px"/>
+<img src="man/figures/monaLisa_heatmaps_small.png" align="center" alt="heatmaps" width="501px"/>
 
 ## Software status
 
