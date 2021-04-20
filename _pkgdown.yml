@@ -8,6 +8,10 @@ authors:
 
 url: https://fmicompbio.github.io/monaLisa
 
+template:
+  params:
+    bootswatch: cerulean
+
 navbar:
   structure:
     left:
@@ -73,7 +77,3 @@ reference:
     - '`seqLogoGrob`'
     - '`getColsByBin`'
     - '`sample_random_regions`'
-
-template:
-  params:
-    bootswatch: cerulean
