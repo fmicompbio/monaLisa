@@ -82,5 +82,7 @@ plotMotifHeatmaps(se, cluster = TRUE,
 
 ## Software status
 
+<!-- badges: start -->
 Github Actions (multiple OS): [![R build status](https://github.com/fmicompbio/monaLisa/workflows/R-CMD-check/badge.svg)](https://github.com/fmicompbio/monaLisa/actions) [![Codecov.io coverage status](https://codecov.io/github/fmicompbio/monaLisa/coverage.svg?branch=master)](https://codecov.io/github/fmicompbio/monaLisa)
+<!-- badges: end -->
 
