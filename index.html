@@ -63,7 +63,7 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/fmicompbio/monaLisa">
-    <span class="fas fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -129,16 +129,17 @@ library(TFBSTools)
 pwms &lt;- getMatrixSet(JASPAR2018, list(matrixtype = "PWM", tax_group = "vertebrates"))</a></code></pre>
 <p>The results can be conveniently visualized:</p>
 <pre><code><a href="reference/plotBinDensity.html">plotBinDensity(atacPeaksChange, bins, legend = FALSE)</a></code></pre>
-<p><img src="articles/monaLisa_binning_small.png" align="center" alt="binning" width="412px"></p>
+<p><img src="reference/figures/monaLisa_binning_small.png" align="center" alt="binning" width="412px"></p>
 <pre><code><a href="reference/plotMotifHeatmaps.html">plotMotifHeatmaps(se, cluster = TRUE,
                   which.plots = c("enr", "FDR"),
                   show_seqlogo = TRUE)</a></code></pre>
-<p><img src="articles/monaLisa_heatmaps_small.png" align="center" alt="heatmaps" width="501px"></p>
+<p><img src="reference/figures/monaLisa_heatmaps_small.png" align="center" alt="heatmaps" width="501px"></p>
 </div>
 <div id="software-status" class="section level2">
 <h2 class="hasAnchor">
 <a href="#software-status" class="anchor"></a>Software status</h2>
-<p>Github Actions (multiple OS): <a href="https://github.com/fmicompbio/monaLisa/actions" class="external-link"><img src="https://github.com/fmicompbio/monaLisa/workflows/R-CMD-check/badge.svg" alt="R build status"></a> <a href="https://codecov.io/github/fmicompbio/monaLisa" class="external-link"><img src="https://codecov.io/github/fmicompbio/monaLisa/coverage.svg?branch=master" alt="Codecov.io coverage status"></a></p>
+<!-- badges: start -->
+
 </div>
 </div>
 
@@ -157,15 +158,21 @@ pwms &lt;- getMatrixSet(JASPAR2018, list(matrixtype = "PWM", tax_group = "verteb
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>
-<a href="https://github.com/machlabd">Dania Machlab</a> <br><small class="roles"> Author </small>  </li>
+<a href="https://github.com/machlabd">Dania Machlab</a> <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-2578-6930" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
 <li>
 <a href="https://github.com/LukasBurger">Lukas Burger</a> <br><small class="roles"> Author </small>  </li>
 <li>
-<a href="https://github.com/mbstadler">Michael Stadler</a> <br><small class="roles"> Author, maintainer </small>  </li>
+<a href="https://github.com/mbstadler">Michael Stadler</a> <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0002-2269-4934" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
 </ul>
 </div>
 
-
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/fmicompbio/monaLisa/actions" class="external-link"><img src="https://github.com/fmicompbio/monaLisa/workflows/R-CMD-check/badge.svg" alt="R build status"></a></li>
+<li><a href="https://codecov.io/github/fmicompbio/monaLisa" class="external-link"><img src="https://codecov.io/github/fmicompbio/monaLisa/coverage.svg?branch=master" alt="Codecov.io coverage status"></a></li>
+</ul>
+</div>
 
   </div>
 </div>
