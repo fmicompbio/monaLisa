@@ -435,7 +435,7 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
                                     Ncpu = 2L,
                                     verbose = FALSE) {
     if (!inherits(gr, "GRanges"))
-        as(gr, "GRanges")
+        gr <- as(gr, "GRanges")
     if (!is.factor(b))
         b <- factor(b, levels = unique(b))
     .assertVector(x = b, type = "factor", len = length(gr))
