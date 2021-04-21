@@ -510,9 +510,15 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
     o <- match(morder, rownames(resL[[1]]))
     assayL <- lapply(resL[1:6], function(x) x[o, ])
     ## ... ... colData
+    if (is.null(attr(b, "breaks"))) {
+        binL <- binH <- rep(NA, nlevels(b))
+    } else {
+        binL <- attr(b, "breaks")[-(nlevels(b) + 1)]
+        binH <- attr(b, "breaks")[-1]
+    }
     cdat <- S4Vectors::DataFrame(bin.names = levels(b),
-                                 bin.lower = attr(b, "breaks")[-(nlevels(b) + 1)],
-                                 bin.upper = attr(b, "breaks")[-1],
+                                 bin.lower = binL,
+                                 bin.upper = binH,
                                  bin.nochange = seq.int(nlevels(b)) %in% attr(b, "bin0"),
                                  totalWgtForeground = resL$totalWgtForeground,
                                  totalWgtBackground = resL$totalWgtBackground)
