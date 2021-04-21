@@ -680,7 +680,7 @@ calcBinnedMotifEnrR <- function(seqs,
     seqs <- seqs[keep]
     
     # stop if all sequences were filtered out
-    if(sum(keep)==0){
+    if (sum(keep) == 0) {
       stop("No sequence passed the filtering step. Cannot proceed with the enrichment analysis ...")
     }
     
@@ -729,7 +729,7 @@ calcBinnedMotifEnrR <- function(seqs,
                                  verbose = verbose1)
         
         # if df is empty, then all seqs were filtered out in the GC weight calculation step
-        if(nrow(df)==0){
+        if (nrow(df) == 0) {
           stop(paste0("No sequences remained after the GC weight calculation step in bin ", levels(bins)[i], 
                       " due to no GC bin containing both fore- and background sequences. ", 
                       "Cannot proceed with the ernichment analysis ..."))

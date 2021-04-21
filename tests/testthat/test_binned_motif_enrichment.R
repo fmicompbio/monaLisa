@@ -123,6 +123,10 @@ test_that(".iterativeNormForKmers() works", {
     expect_error(.iterativeNormForKmers(df, maxIter = "error"), "integer")
     expect_error(.iterativeNormForKmers(df, verbose = "error"), "logical")
     
+    expect_message(res0 <- .iterativeNormForKmers(df, maxKmerSize = 2L, verbose = TRUE))
+    expect_is(res0, "DataFrame")
+    expect_identical(round(attr(res0, "err"), 6), 0.495758)
+    expect_identical(dim(df), dim(res0))
     expect_message(res1 <- .iterativeNormForKmers(df, verbose = TRUE))
     expect_is(res1, "DataFrame")
     expect_identical(round(attr(res1, "err"), 6), 0.954395)
@@ -203,7 +207,12 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
     seqs <- Biostrings::DNAStringSet(seqschar)
     
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm,
-                                     min.score = 20), "No motif hits")    
+                                     min.score = 20), "No motif hits")
+    expect_error(calcBinnedMotifEnrR(seqs = Biostrings::DNAStringSet(c("NNN","NNN","NNN")),
+                                     bins = factor(1:3), pwmL = pwm), "No sequence passed")
+    expect_error(calcBinnedMotifEnrR(seqs = Biostrings::DNAStringSet(c("TAAAAAAT","GCACGTAT","GCCCCCCG")),
+                                     bins = factor(1:3), pwmL = pwm, min.score = 6),
+                 "No sequences remained after the GC weight")
     expect_error(calcBinnedMotifEnrR(seqs = "error"), "DNAStringSet")
     expect_error(calcBinnedMotifEnrR(seqs = as.character(seqs)), "DNAStringSet")
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = "error"), "factor")
@@ -225,6 +234,7 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
                                               min.score = 6,
                                               test = "binom",
                                               verbose = TRUE))
+    attr(b, "breaks") <- c(1:4 - 0.5)
     expect_message(res2 <- calcBinnedMotifEnr(seqs = seqs,
                                               bins = b,
                                               motifs = pwm,
@@ -246,13 +256,16 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
                        "param.BPPARAM.class", "param.BPPARAM.bpnworkers", "param.verbose"))
     expect_identical(metadata(res1)$param.test, "binom")
     expect_identical(metadata(res2)$param.test, "fisher")
-    expect_identical(metadata(res1)[-6], metadata(res2)[-6])
+    expect_identical(metadata(res1)[-c(2,4,6)], metadata(res2)[-c(2,4,6)])
+    expect_identical(metadata(res2)[[2]], b)
     expect_identical(assayNames(res1), c("negLog10P", "negLog10Padj", "pearsonResid", "log2enr", "sumForegroundWgtWithHits", "sumBackgroundWgtWithHits"))
     expect_identical(assayNames(res2), c("negLog10P", "negLog10Padj", "pearsonResid", "log2enr", "sumForegroundWgtWithHits", "sumBackgroundWgtWithHits"))
     expect_identical(colnames(rowData(res1)), c("motif.id", "motif.name", "motif.pfm", "motif.pwm", "motif.percentGC"))
     expect_identical(rowData(res1), rowData(res2))
     expect_identical(dim(colData(res1)), c(3L, 6L))
-    expect_identical(colData(res1), colData(res2))
+    expect_identical(colData(res1)[, -c(2,3)], colData(res2)[, -c(2,3)])
+    expect_identical(colData(res2)[, 2], attr(b, "breaks")[-4])
+    expect_identical(colData(res2)[, 3], attr(b, "breaks")[-1])
     expect_equal(-pbinom(q = assay(res1, "sumForegroundWgtWithHits")[, 3] - 1,
                          size = res1$totalWgtForeground[3],
                          prob = assay(res1, "sumBackgroundWgtWithHits")[, 3] /

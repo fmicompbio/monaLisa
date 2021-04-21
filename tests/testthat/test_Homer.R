@@ -35,7 +35,7 @@ test_that("dumpJaspar() works properly", {
     expect_error(dumpJaspar(filename = system.file("extdata", "se.rds", package = "monaLisa")))
     expect_error(dumpJaspar(filename = tmp1, opts = list(matrixtype = "PWM")))
     expect_error(dumpJaspar(filename = tmp1, relScoreCutoff = "error"))
-    expect_true(dumpJaspar(filename = tmp1, opts = list(ID = c("MA0006.1", "MA0007.3", "MA0828.1"))))
+    expect_true(dumpJaspar(filename = tmp1, opts = list(ID = c("MA0006.1", "MA0007.3", "MA0828.1")), verbose = TRUE))
 
     unlink(tmp1)
 })
@@ -73,13 +73,15 @@ test_that("prepareHomer() works properly", {
 
     expect_error(prepareHomer(gr = gr, b = b, genomedir = "genomedir", outdir = tmp1,
                               motifFile = fname, homerfile = fname, regionsize = "given", Ncpu = 2))
+    expect_error(prepareHomer(gr = gr, b = b, genomedir = tmp1, outdir = tmp1,
+                              motifFile = fname, homerfile = fname, regionsize = "given", Ncpu = 2))
     expect_error(prepareHomer(gr = as(gr, "data.frame"), b = bF[1:10], genomedir = "genomedir", outdir = tmp2,
                               motifFile = fname, homerfile = fname, regionsize = "given", Ncpu = 2))
     expect_error(prepareHomer(gr = gr, b = bF, genomedir = "genomedir", outdir = tmp2,
                               motifFile = "error", homerfile = fname, regionsize = "given", Ncpu = 2))
 
     expect_identical(prepareHomer(gr = gr, b = bF, genomedir = ".", outdir = tmp2,
-                                  motifFile = fname, homerfile = fname, regionsize = "given", Ncpu = 2),
+                                  motifFile = fname, homerfile = fname, regionsize = "given", Ncpu = 2, verbose = TRUE),
                      file.path(tmp2, "run.sh"))
 
     unlink(c(tmp1, tmp2), recursive = TRUE, force = TRUE)
@@ -134,13 +136,28 @@ test_that("calcBinnedMotifEnrHomer() works properly", {
         expect_error(calcBinnedMotifEnr(seqs = gr, bins = b, motifs = mfile,
                                         method = "Homer", BPPARAM = "error"))
 
-        res <- calcBinnedMotifEnr(seqs = gr, bins = b, motifs = mfile,
-                                  method = "Homer",
+        res <- calcBinnedMotifEnr(seqs = as.character(gr), bins = as.character(b),
+                                  motifs = mfile, method = "Homer",
                                   genomedir = genomedir, outdir = outdir,
                                   homerfile = homerbin, regionsize = "given",
-                                  BPPARAM = 2L)
-
+                                  BPPARAM = 2,
+                                  verbose = TRUE)
+        expect_message(res1 <- calcBinnedMotifEnr(seqs = as.character(gr), bins = as.character(b),
+                                                  motifs = mfile, method = "Homer",
+                                                  genomedir = genomedir, outdir = outdir,
+                                                  homerfile = homerbin, regionsize = "given",
+                                                  BPPARAM = BiocParallel::MulticoreParam(2L),
+                                                  verbose = TRUE),
+                       "HOMER output files already exist, using existing files")
+        unlink(dir(path = outdir, pattern = "knownResults.txt", full.names = TRUE, recursive = TRUE, ignore.case = FALSE)[1])
+        expect_error(calcBinnedMotifEnr(seqs = as.character(gr), bins = as.character(b),
+                                        motifs = mfile, method = "Homer",
+                                        genomedir = genomedir, outdir = outdir,
+                                        homerfile = homerbin, regionsize = "given"))
+        
         expect_is(res, "SummarizedExperiment")
+        expect_is(res1, "SummarizedExperiment")
+        expect_identical(res, res1)
         expect_identical(rownames(res), selids)
         expect_length(SummarizedExperiment::assays(res), 6L)
         expect_identical(SummarizedExperiment::assayNames(res),

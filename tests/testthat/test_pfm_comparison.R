@@ -79,7 +79,7 @@ test_that("motifSimilarity works as expected", {
         homerfile <- findHomer("compareMotifs.pl", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.11/bin")
     }
     if (!is.na(homerfile)) { # only test at home
-        expect_is(res6 <- motifSimilarity(x = tmpf, y = NULL, method = "HOMER", homerfile = homerfile), "matrix")
+        expect_is(res6 <- motifSimilarity(x = tmpf, y = NULL, method = "HOMER", homerfile = homerfile, verbose = TRUE), "matrix")
         expect_equal(res1, res6)
     }
 
