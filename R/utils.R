@@ -55,7 +55,7 @@
     }
     
     if (!is.null(type) && !is(x, type)) {
-        stop("'", xname, "' must be of type '", type, "'")
+        stop("'", xname, "' must be of class '", type, "'")
     }
     
     if (!is.null(rngIncl) && is.numeric(rngIncl) && length(rngIncl) == 2L &&

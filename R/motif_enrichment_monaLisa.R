@@ -643,24 +643,16 @@ calcBinnedMotifEnrR <- function(seqs,
                                 ...) {
 
     # checks
-    if (!is(seqs, "DNAStringSet")) {
-        stop("class of 'seqs' must be DNAStringSet")
-    }
-    if (!is(bins, "factor")) {
-        stop("'bins' must be of class 'factor'")
-    }
+    .assertVector(x = seqs, type = "DNAStringSet")
+    .assertVector(x = bins, type = "factor")
     if (length(seqs) != length(bins)) {
         stop("'seqs' and 'bins' must be of equal length and in the same order")
     }
-    if (!is(pwmL, "PWMatrixList")) {
-        stop("'pwmL' must be of class 'PWMatrixList'")
-    }
+    .assertVector(x = pwmL, type = "PWMatrixList")
     .assertScalar(x = pseudocount.log2enr, type = "numeric", rngIncl = c(0, Inf))
     .assertScalar(x = pseudocount.pearsonResid, type = "numeric", rngIncl = c(0, Inf))
     .assertScalar(x = p.adjust.method, type = "character", validValues = stats::p.adjust.methods)
-    if (!is(BPPARAM, "BiocParallelParam")) {
-        stop("'BPPARAM' must be of class 'BiocParallelParam'")
-    }
+    .assertVector(x = BPPARAM, type = "BiocParallelParam")
     .assertScalar(x = verbose, type = "logical")
     if (is.null(names(seqs))) {
         names(seqs) <- paste0("s", seq_along(seqs))
