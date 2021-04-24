@@ -6,8 +6,9 @@
 \usage{
 calcBinnedMotifEnrR(
   seqs,
-  bins,
-  pwmL,
+  bins = NULL,
+  pwmL = NULL,
+  background = c("otherBins", "allBins", "zeroBin", "genome"),
   test = c("binomial", "fisher"),
   maxFracN = 0.7,
   maxKmerSize = 3L,
@@ -16,6 +17,10 @@ calcBinnedMotifEnrR(
   pseudocount.log2enr = 8,
   pseudocount.pearsonResid = 0.001,
   p.adjust.method = "BH",
+  genome = NULL,
+  genome.regions = NULL,
+  genome.oversample = 2,
+  genome.seed = 42L,
   BPPARAM = SerialParam(),
   verbose = FALSE,
   ...
@@ -24,12 +29,16 @@ calcBinnedMotifEnrR(
 \arguments{
 \item{seqs}{DNAStringSet object with sequences to test}
 
-\item{bins}{factor of the 
-same length and order as \code{seqs}, indicating
-  the bin for each sequence. Typically the return value of
-  \code{\link[monaLisa]{bin}}.}
+\item{bins}{factor of the same length and order as \code{seqs}, indicating
+the bin for each sequence. Typically the return value of
+\code{\link[monaLisa]{bin}}. For \code{background = "genome"}, \code{bins}
+can be omitted.}
 
 \item{pwmL}{PWMatrixList with motifs for which to calculate enrichments.}
+
+\item{background}{A \code{character} scalar specifying the background sequences
+to use. One of \code{"otherBins"} (default), \code{"allBins"}, \code{"zeroBin"}
+or \code{"genome"} (see "Details").}
 
 \item{test}{A \code{character} scalar specifying the type of enrichment test
 to perform. One of \code{"binomial"} (default) or \code{"fisher"}. The
@@ -60,6 +69,24 @@ and Pearson residuals.}
 \item{p.adjust.method}{A character scalar selecting the p value adjustment
 method (used in \code{\link[stats]{p.adjust}}).}
 
+\item{genome}{A \code{BSgenome} or \code{DNAStringSet} object with the
+genome sequence. Only used for \code{background = "genome"} for extracting
+background sequences.}
+
+\item{genome.regions}{An optional \code{\link[GenomicRanges]{GRanges}} object
+defining the intervals in \code{genome} from which background sequences are
+sampled for \code{background = "genome"}. If \code{NULL}, background
+sequences are sampled randomly from \code{genome}.}
+
+\item{genome.oversample}{A \code{numeric} scalar of at least 1.0 defining how
+many background sequences will be sampled per foreground sequence for
+\code{background = "genome"}. Larger values will take longer but improve
+the sequence composition similarity between foreground and background
+(see \code{"Details"}).}
+
+\item{genome.seed}{An \code{integer} scalar used to seed the random number
+generator before sampling regions.}
+
 \item{BPPARAM}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
 instance determining the parallel back-end to be used during evaluation.}
 
@@ -88,12 +115,31 @@ This function performs a motif enrichment analysis on bins of
 \details{
 This function implements a binned motif enrichment analysis. In each
   enrichment analysis, the sequences in a specific bin are used as foreground
-  sequences to test for motif enrichment using sequences in the remaining
-  bins as background. The logic follows the \code{findMotifsGenome.pl} tool
-  from \code{Homer} version 4.11, with \code{-size given -nomotif -mknown}
-  and gives very similar results. As in the \code{Homer} tool, sequences are
-  weighted to correct for GC and k-mer composition differences between fore-
-  and background sets.
+  sequences to test for motif enrichment comparing to background sequences
+  (defined by \code{background}, see below). The logic follows the
+  \code{findMotifsGenome.pl} tool from \code{Homer} version 4.11, with
+  \code{-size given -nomotif -mknown} and gives very similar results.
+  As in the \code{Homer} tool, sequences are weighted to correct for GC and
+  k-mer composition differences between fore- and background sets.
+  
+  The background sequences are defined according to the value of the
+  \code{background} argument:
+  \itemize{
+    \item{otherBins}{: sequences from all other bins (excluding the current bin)}
+    \item{allBins}{: sequences from all bins (including the current bin)}
+    \item{zeroBin}{: sequences from the "zero bin", defined by the
+      \code{maxAbsX} argument of \code{\link[monaLisa]{bin}}. If \code{bins}
+      does not define a "zero bin", for example because it was created by
+      \code{bin(..., maxAbsX = NULL)}, selecting this background definition
+      will abort with an error.}
+    \item{genome}{: sequences randomly sampled from the genome (or the
+      intervals defined in \code{genome.regions} if given). For each
+      foreground sequence, \code{genome.oversample} background sequences
+      of the same size are sampled (on average). From these, one per
+      foreground sequence is selected trying to match the G+C composition.
+      In order to make the sampling deterministic, the random number
+      generator is seeded using \code{genome.seed}.}
+  }
 
   Motif hits are predicted using \code{\link[monaLisa]{findMotifHits}} and
   multiple hits per sequence are counted as just one hit (ZOOPS mode). For

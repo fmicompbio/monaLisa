@@ -33,9 +33,9 @@ test_that(".assertVector works", {
     expect_true(.assertVector("test"))
     expect_true(.assertVector(list()))
     
-    expect_error(.assertVector(1, type = "character"),    "must be of type")
-    expect_error(.assertVector("test", type = "numeric"), "must be of type")
-    expect_error(.assertVector("0.5", rngIncl = 0:1),     "must be of type")
+    expect_error(.assertVector(1, type = "character"),    "must be of class")
+    expect_error(.assertVector("test", type = "numeric"), "must be of class")
+    expect_error(.assertVector("0.5", rngIncl = 0:1),     "must be of class")
     expect_true(.assertVector(1:3, type = "numeric"))
     expect_true(.assertVector(letters, type = "character"))
     

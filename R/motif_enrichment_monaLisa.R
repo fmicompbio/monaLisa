@@ -113,6 +113,151 @@
 }
 
 
+#' @title Define background sequence set for a single motif enrichment calculation
+#' 
+#' @description Define the background set for the motif enrichment calculation
+#'   in a single bin, depending on the background mode and given foreground
+#'   sequences.
+#' 
+#' @param sqs,bns,bg The \code{seqs}, \code{bins} and \code{background} arguments
+#'   from \code{calcBinnedMotifEnrR}.
+#' @param currbn An \code{integer} scalar with the current bin defining the
+#'   foreground sequences.
+#' @param gnm,gnm.regions,gnm.oversample The \code{genome}, \code{genome.regions}
+#'   and \code{genome.oversample} arguments from \code{calcBinnedMotifEnrR}.
+#' @param gnm.seed An \code{integer} scalar to seed the random number generator.
+#' @param maxFracN The \code{maxFracN} argument from \code{calcBinnedMotifEnrR}.
+#' @param GCbreaks The breaks between GC bins. The default value is based on
+#'   the hard-coded bins used in Homer.
+#' 
+#' @return a \code{DataFrame} with sequences represented by rows and columns
+#'   \code{seqs}, \code{isForeground}, \code{GCfrac}, \code{GCbin}, \code{GCwgt}
+#'   and \code{seqWgt}. Only the first three are already filled in.
+#' 
+#' @importFrom Biostrings oligonucleotideFrequency DNAStringSet
+#' @importFrom S4Vectors DataFrame
+#' @importFrom BSgenome getSeq
+#' @importFrom GenomeInfoDb seqlengths seqnames
+#' @importFrom BiocGenerics width
+#' @importFrom GenomicRanges GRanges
+#' @importFrom IRanges IRanges
+#' @importFrom stats quantile
+#' 
+#' @keywords internal
+.defineBackground <- function(sqs,
+                              bns,
+                              bg,
+                              currbn,
+                              gnm,
+                              gnm.regions,
+                              gnm.oversample,
+                              gnm.seed,
+                              maxFracN,
+                              GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4,
+                                           0.45, 0.5, 0.6, 0.7, 0.8)) {
+  
+    # calculate G+C frequencies of input sequences
+    fmono <- oligonucleotideFrequency(sqs, width = 1, as.prob = TRUE)
+    gcf <- fmono[, "G"] + fmono[, "C"]
+
+    inCurrBin <- as.integer(bns) == currbn
+
+    if (identical(bg, "genome")) {
+
+        # (over-)sample random sequences from the genome
+        n <- round(gnm.oversample * sum(inCurrBin))
+        w <- width(sqs)
+        if (is.null(gnm.regions)) {
+            slen <- seqlengths(gnm)
+            gnm.regions <- GRanges(seqnames = names(slen),
+                                   ranges = IRanges(start = 1, end = slen))
+        }
+        gnm.regions.width <- width(gnm.regions)
+        set.seed(gnm.seed)
+        gnmsqs <- DNAStringSet()
+        
+        iter <- 0
+        while (length(gnmsqs) < n && iter < 10) {
+            # sample coordinates
+            n1 <- n - length(gnmsqs)
+            ridx <- sort(sample(x = length(gnm.regions), size = n1,
+                                replace = TRUE,
+                                prob = pmax(0, gnm.regions.width - mean(w) + 1)),
+                         decreasing = FALSE)
+            rw <- sample(x = w, size = n1, replace = TRUE)
+            ridxL <- split(seq_along(ridx), ridx)[as.character(unique(ridx))]
+            reg <- GRanges(seqnames = seqnames(gnm.regions)[ridx],
+                           ranges = do.call(c,
+                              unname(lapply(ridxL, function(i) {
+                  rst <- sample(x = gnm.regions.width[ridx[i[1]]] - mean(w) + 1,
+                                size = length(i), replace = FALSE)
+                  IRanges(start = rst,
+                          end = pmin(rst + rw[i] - 1, gnm.regions.width[ridx[i[1]]]))
+            }))), seqlengths = seqlengths(gnm))
+
+            # extract sequences
+            s <- getSeq(gnm, reg)
+
+            # filter sequences
+            keep <- .filterSeqs(seqs = s, maxFracN = maxFracN)
+
+            # add to already sampled sequences
+            gnmsqs <- c(gnmsqs, s[keep])
+            
+            iter <- iter + 1
+        }
+        names(gnmsqs) <- paste0("g", seq_along(gnmsqs))
+
+        # calculate G+C composition of sampled sequences
+        fmono.gnm <- oligonucleotideFrequency(gnmsqs, width = 1, as.prob = TRUE)
+        gcf.gnm <- fmono.gnm[, "G"] + fmono.gnm[, "C"]
+        
+        # select a set that matches sqs[inCurrBin]
+        sqs.gcbin <- findInterval(x = gcf[inCurrBin], vec = GCbreaks, all.inside = TRUE)
+        gnm.gcbin <- findInterval(x = gcf.gnm, vec = GCbreaks, all.inside = TRUE)
+        sqs.tab <- tabulate(sqs.gcbin, nbins = length(GCbreaks) - 1)
+        gnm.tab <- tabulate(gnm.gcbin, nbins = length(GCbreaks) - 1)
+        sel <- sample(x = length(gnmsqs), size = sum(inCurrBin), replace = FALSE,
+                      prob = ((sqs.tab + 0.5) / (gnm.tab + 0.5))[gnm.gcbin])
+        
+        isFg <- rep(c(TRUE, FALSE), each = sum(inCurrBin))
+        sqs <- c(sqs[inCurrBin], gnmsqs[sel])
+        gcf <- c(gcf[inCurrBin], gcf.gnm[sel])
+
+    } else {
+
+        if (identical(bg, "otherBins")) {
+            isFg <- inCurrBin
+
+        } else if (identical(bg, "allBins")) {
+            isFg <- rep(c(TRUE, FALSE),
+                        c(sum(inCurrBin), length(sqs)))
+            sqs <- c(sqs[inCurrBin], sqs)
+            gcf <- c(gcf[inCurrBin], gcf)
+
+        } else if (identical(bg, "zeroBin")) {
+            inZeroBin <- as.integer(bns) == attr(bns, "bin0")
+            isFg <- rep(c(TRUE, FALSE),
+                        c(sum(inCurrBin), sum(inZeroBin)))
+            sqs <- c(sqs[inCurrBin], sqs[inZeroBin])
+            gcf <- c(gcf[inCurrBin], gcf[inZeroBin])
+        }
+    } 
+
+    # create sequence DataFrame
+    df <- DataFrame(seqs = sqs,
+                    isForeground = isFg,
+                    GCfrac = gcf,
+                    GCbin = rep(NA_integer_, length(sqs)),
+                    GCwgt = rep(NA_real_, length(sqs)),
+                    seqWgt = rep(NA_real_, length(sqs)))
+    attr(df, "err") <- NA
+    
+    # return DataFrame  
+    return(df)
+}
+
+
 #' @title Get background sequence weights for GC bins
 #'
 #' @description The logic is based on Homer (version 4.11). All sequences
@@ -151,10 +296,12 @@
     }
     .assertScalar(x = verbose,   type = "logical")
   
-    # calculate GC fraction for each sequence
-    fmono <- oligonucleotideFrequency(df$seqs, width = 1, as.prob = TRUE)
-    df$GCfrac <- fmono[, "G"] + fmono[, "C"]
-
+    # calculate G+C frequencies
+    if (any(is.na(df$GCfrac))) {
+        fmono <- oligonucleotideFrequency(df$seqs, width = 1, as.prob = TRUE)
+        df$GCfrac <- fmono[, "G"] + fmono[, "C"]
+    }
+    
     # assign sequences to a GC bin
     df$GCbin <- findInterval(x = df$GCfrac, vec = GCbreaks, all.inside = TRUE)
 
@@ -545,11 +692,14 @@
 #'   background.
 #'
 #' @param seqs DNAStringSet object with sequences to test
-#' @param bins factor of the 
-#' same length and order as \code{seqs}, indicating
+#' @param bins factor of the same length and order as \code{seqs}, indicating
 #'   the bin for each sequence. Typically the return value of
-#'   \code{\link[monaLisa]{bin}}.
+#'   \code{\link[monaLisa]{bin}}. For \code{background = "genome"}, \code{bins}
+#'   can be omitted.
 #' @param pwmL PWMatrixList with motifs for which to calculate enrichments.
+#' @param background A \code{character} scalar specifying the background sequences
+#'   to use. One of \code{"otherBins"} (default), \code{"allBins"}, \code{"zeroBin"}
+#'   or \code{"genome"} (see "Details").
 #' @param test A \code{character} scalar specifying the type of enrichment test
 #'   to perform. One of \code{"binomial"} (default) or \code{"fisher"}. The
 #'   enrichment test is one-sided (enriched in foreground).
@@ -571,6 +721,20 @@
 #'   and Pearson residuals.
 #' @param p.adjust.method A character scalar selecting the p value adjustment
 #'   method (used in \code{\link[stats]{p.adjust}}).
+#' @param genome A \code{BSgenome} or \code{DNAStringSet} object with the
+#'   genome sequence. Only used for \code{background = "genome"} for extracting
+#'   background sequences.
+#' @param genome.regions An optional \code{\link[GenomicRanges]{GRanges}} object
+#'   defining the intervals in \code{genome} from which background sequences are
+#'   sampled for \code{background = "genome"}. If \code{NULL}, background
+#'   sequences are sampled randomly from \code{genome}.
+#' @param genome.oversample A \code{numeric} scalar of at least 1.0 defining how
+#'   many background sequences will be sampled per foreground sequence for
+#'   \code{background = "genome"}. Larger values will take longer but improve
+#'   the sequence composition similarity between foreground and background
+#'   (see \code{"Details"}).
+#' @param genome.seed An \code{integer} scalar used to seed the random number
+#'   generator before sampling regions.
 #' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
 #'     instance determining the parallel back-end to be used during evaluation.
 #' @param verbose A logical scalar. If \code{TRUE}, print progress messages.
@@ -578,12 +742,31 @@
 #'
 #' @details This function implements a binned motif enrichment analysis. In each
 #'   enrichment analysis, the sequences in a specific bin are used as foreground
-#'   sequences to test for motif enrichment using sequences in the remaining
-#'   bins as background. The logic follows the \code{findMotifsGenome.pl} tool
-#'   from \code{Homer} version 4.11, with \code{-size given -nomotif -mknown}
-#'   and gives very similar results. As in the \code{Homer} tool, sequences are
-#'   weighted to correct for GC and k-mer composition differences between fore-
-#'   and background sets.
+#'   sequences to test for motif enrichment comparing to background sequences
+#'   (defined by \code{background}, see below). The logic follows the
+#'   \code{findMotifsGenome.pl} tool from \code{Homer} version 4.11, with
+#'   \code{-size given -nomotif -mknown} and gives very similar results.
+#'   As in the \code{Homer} tool, sequences are weighted to correct for GC and
+#'   k-mer composition differences between fore- and background sets.
+#'   
+#'   The background sequences are defined according to the value of the
+#'   \code{background} argument:
+#'   \itemize{
+#'     \item{otherBins}{: sequences from all other bins (excluding the current bin)}
+#'     \item{allBins}{: sequences from all bins (including the current bin)}
+#'     \item{zeroBin}{: sequences from the "zero bin", defined by the
+#'       \code{maxAbsX} argument of \code{\link[monaLisa]{bin}}. If \code{bins}
+#'       does not define a "zero bin", for example because it was created by
+#'       \code{bin(..., maxAbsX = NULL)}, selecting this background definition
+#'       will abort with an error.}
+#'     \item{genome}{: sequences randomly sampled from the genome (or the
+#'       intervals defined in \code{genome.regions} if given). For each
+#'       foreground sequence, \code{genome.oversample} background sequences
+#'       of the same size are sampled (on average). From these, one per
+#'       foreground sequence is selected trying to match the G+C composition.
+#'       In order to make the sampling deterministic, the random number
+#'       generator is seeded using \code{genome.seed}.}
+#'   }
 #'
 #'   Motif hits are predicted using \code{\link[monaLisa]{findMotifHits}} and
 #'   multiple hits per sequence are counted as just one hit (ZOOPS mode). For
@@ -628,8 +811,9 @@
 #'
 #' @export
 calcBinnedMotifEnrR <- function(seqs,
-                                bins,
-                                pwmL,
+                                bins = NULL,
+                                pwmL = NULL,
+                                background = c("otherBins", "allBins", "zeroBin", "genome"),
                                 test = c("binomial", "fisher"),
                                 maxFracN = 0.7,
                                 maxKmerSize = 3L,
@@ -638,20 +822,50 @@ calcBinnedMotifEnrR <- function(seqs,
                                 pseudocount.log2enr = 8,
                                 pseudocount.pearsonResid = 0.001,
                                 p.adjust.method = "BH",
+                                genome = NULL,
+                                genome.regions = NULL,
+                                genome.oversample = 2,
+                                genome.seed = 42L,
                                 BPPARAM = SerialParam(),
                                 verbose = FALSE,
                                 ...) {
 
     # checks
     .assertVector(x = seqs, type = "DNAStringSet")
+    if (is.null(bins) && identical(background, "genome")) {
+        bins <- factor(rep(1, length(seqs)))
+    }
     .assertVector(x = bins, type = "factor")
     if (length(seqs) != length(bins)) {
         stop("'seqs' and 'bins' must be of equal length and in the same order")
     }
     .assertVector(x = pwmL, type = "PWMatrixList")
+    background <- match.arg(background)
     .assertScalar(x = pseudocount.log2enr, type = "numeric", rngIncl = c(0, Inf))
     .assertScalar(x = pseudocount.pearsonResid, type = "numeric", rngIncl = c(0, Inf))
     .assertScalar(x = p.adjust.method, type = "character", validValues = stats::p.adjust.methods)
+    if (identical(background, "zeroBin") &&
+        (!"bin0" %in% names(attributes(bins)) || is.na(attr(bins, "bin0")))) {
+        stop("For background = 'zeroBin', 'bins' has to define a zero bin (see ",
+             "'maxAbsX' arugment of 'bin' function).")
+    }
+    if (identical(background, "genome")) {
+        if (is.null(genome) || !(is(genome, "DNAStringSet") || is(genome, "BSgenome"))) {
+            stop("For background = 'genome', 'genome' must be either a ",
+                 "DNAStringSet or a BSgenome object.")
+        }
+        if (!is.null(genome.regions)) {
+            if (!is(genome.regions, "GRanges")) {
+                stop("For background = 'genome', 'genome.regions' must be either ",
+                     "NULL or a GRanges object.")
+            }
+            if (!all(seqlevels(genome.regions) %in% names(genome))) {
+                stop("'genome.regions' contains seqlevels not contained in 'genome'")
+            }
+        }
+        .assertScalar(x = genome.oversample, type = "numeric", rngIncl = c(1, Inf))
+        .assertScalar(x = genome.seed, type = "integer")
+    }
     .assertVector(x = BPPARAM, type = "BiocParallelParam")
     .assertScalar(x = verbose, type = "logical")
     if (is.null(names(seqs))) {
@@ -704,15 +918,46 @@ calcBinnedMotifEnrR <- function(seqs,
             message("starting analysis of bin ", levels(bins)[i])
         verbose1 <- verbose && bpnworkers(BPPARAM) == 1L
 
-        # create sequence info data frame
-        df <- DataFrame(seqs = seqs,
-                        isForeground = (as.integer(bins) == i),
-                        GCfrac = rep(NA_real_, length(seqs)),
-                        GCbin = rep(NA_integer_, length(seqs)),
-                        GCwgt = rep(NA_real_, length(seqs)),
-                        seqWgt = rep(NA_real_, length(seqs)))
-        attr(df, "err") <- NA
+        # define background set and create sequence info data frame
+        if (verbose1) {
+            message("Defining background sequence set (", background, ")...")
+        }
+        df <- .defineBackground(sqs = seqs,
+                                bns = bins,
+                                bg = background,
+                                currbn = i,
+                                gnm = genome,
+                                gnm.regions = genome.regions,
+                                gnm.oversample = genome.oversample,
+                                gnm.seed = genome.seed + i,
+                                maxFracN = maxFracN)
 
+        # for background = "genome", scan sampled background sequences for motifs
+        if (identical(background, "genome")) {
+            if (verbose1) {
+              message("Scanning genomic background sequences for motif hits...")
+            }
+            hits.genome <- findMotifHits(query = pwmL, subject = df$seqs[!df$isForeground],
+                                         min.score = min.score, method = matchMethod,
+                                         BPPARAM = BPPARAM, ...)
+            if (isEmpty(hits.genome)) {
+              stop("No motif hits found in any of the genomic background sequences - aborting.")
+            }
+
+            # create motif hit matrix
+            hitmatrix.genome <- unclass(table(factor(seqnames(hits.genome),
+                                                     levels = seqlevels(hits.genome)),
+                                        factor(hits.genome$pwmid,
+                                               levels = TFBSTools::ID(pwmL))))
+            # zoops (zero or one per sequence) mode
+            hitmatrix.genome[hitmatrix.genome > 0] <- 1
+            
+            hitmatrix2 <- rbind(hitmatrix, hitmatrix.genome)
+
+        } else {
+            hitmatrix2 <- hitmatrix
+        }
+        
         # calculate initial background sequence weights based on G+C composition
         if (verbose1) {
             message("Correcting for GC differences to the background sequences...")
@@ -739,7 +984,7 @@ calcBinnedMotifEnrR <- function(seqs,
         if (verbose1) {
             message("Calculating motif enrichment...")
         }
-        enrich1 <- .calcMotifEnrichment(motifHitMatrix = hitmatrix[rownames(df), , drop = FALSE],
+        enrich1 <- .calcMotifEnrichment(motifHitMatrix = hitmatrix2[rownames(df), ],
                                         df = df, test = test, verbose = verbose1)
         return(enrich1)
 

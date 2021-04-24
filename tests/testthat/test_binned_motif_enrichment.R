@@ -36,6 +36,102 @@ test_that(".filterSeqs() works", {
 })
 
 
+test_that(".defineBackground() works", {
+    set.seed(1)
+    seqs <- DNAStringSet(unlist(lapply(1:90,
+                                       function(i) paste(sample(c("A","C","G","T"),
+                                                                20, replace = TRUE,
+                                                                prob = c(.2,.3,.3,.2)),
+                                                         collapse = ""))))
+    names(seqs) <- paste0("s", seq_along(seqs))
+    b1 <- factor(rep(1:3, each = 30))
+    attr(b1, "bin0") <- 2
+    b2 <- factor(rep(1:2, each = 45))
+    attr(b2, "bin0") <- 2
+    gnm <- DNAStringSet(unlist(lapply(1:10,
+                                      function(i) paste(sample(c("A","C","G","T"),
+                                                               1000 - i * 10,
+                                                               replace = TRUE),
+                                                        collapse = ""))))
+    names(gnm) <- paste0("g", seq_along(gnm))
+    
+    df1 <- .defineBackground(seqs, b1, "otherBins", 1, NULL, NULL, 2, 42L, 0.7)
+    df2 <- .defineBackground(seqs, b1, "allBins",   1, NULL, NULL, 2, 42L, 0.7)
+    df3 <- .defineBackground(seqs, b1, "zeroBin",   1, NULL, NULL, 2, 42L, 0.7)
+    df4 <- .defineBackground(seqs, b1, "genome",    1, gnm,  NULL, 2, 42L, 0.7)
+    
+    df5 <- .defineBackground(seqs, b2, "otherBins", 1, NULL, NULL, 2, 42L, 0.7)
+    df6 <- .defineBackground(seqs, b2, "zeroBin",   1, NULL, NULL, 2, 42L, 0.7)
+    
+    df7 <- .defineBackground(seqs, b1, "genome",    1, gnm,
+                             GenomicRanges::GRanges("g3", IRanges::IRanges(1, 970)),
+                             2, 42L, 0.7)
+    
+    expect_is(df1, "DataFrame")
+    expect_is(df2, "DataFrame")
+    expect_is(df3, "DataFrame")
+    expect_is(df4, "DataFrame")
+    expect_is(df5, "DataFrame")
+    expect_is(df6, "DataFrame")
+    expect_is(df7, "DataFrame")
+    
+    expect_identical(attr(df1, "err"), NA)
+
+    expect_identical(dim(df1), c( 90L, 6L))
+    expect_identical(dim(df2), c(120L, 6L))
+    expect_identical(dim(df3), c( 60L, 6L))
+    expect_identical(dim(df4), c( 60L, 6L))
+    expect_identical(dim(df5), c( 90L, 6L))
+    expect_identical(dim(df6), c( 90L, 6L))
+    expect_identical(dim(df7), c( 60L, 6L))
+    
+    expect_identical(df5, df6)
+    
+    expect_identical(unlist(lapply(as.character(df7$seqs[!df7$isForeground]),
+                                   function(gs) {
+        grep(gs, as.character(gnm))
+    }), use.names = FALSE), rep(3L, 30))
+    
+    expect_true(.checkDfValidity(df1))
+    expect_true(.checkDfValidity(df2))
+    expect_true(.checkDfValidity(df3))
+    expect_true(.checkDfValidity(df4))
+    expect_true(.checkDfValidity(df5))
+    expect_true(.checkDfValidity(df6))
+    expect_true(.checkDfValidity(df7))
+    
+    expect_identical(sum(df1$isForeground), 30L)
+    expect_identical(sum(df2$isForeground), 30L)
+    expect_identical(sum(df3$isForeground), 30L)
+    expect_identical(sum(df4$isForeground), 30L)
+    expect_identical(sum(df5$isForeground), 45L)
+    expect_identical(sum(df6$isForeground), 45L)
+    expect_identical(sum(df7$isForeground), 30L)
+    
+    expect_identical(rownames(df1), names(seqs))
+    expect_identical(rownames(df2), names(seqs)[c(1:30, 1:90)])
+    expect_identical(rownames(df3), names(seqs)[c(1:60)])
+    expect_identical(rownames(df4)[1:30], names(seqs)[1:30])
+    expect_true(all(grepl("^g[0-9]+$", rownames(df4)[31:60])))
+    expect_identical(rownames(df5), names(seqs))
+    expect_identical(rownames(df6), names(seqs))
+    expect_identical(rownames(df7)[1:30], names(seqs)[1:30])
+    expect_true(all(grepl("^g[0-9]+$", rownames(df7)[31:60])))
+    
+    # for background = "genome", does the sampling make the G+C distribution more similar?
+    gnm.tiles <- BSgenome::getSeq(gnm,
+                                  unlist(GenomicRanges::tileGenome(GenomeInfoDb::seqlengths(gnm),
+                                                                   tilewidth = 20)))
+    df4b <- .defineBackground(gnm.tiles, factor(rep(1, length(gnm.tiles))), "otherBins", 1,
+                              NULL, NULL, NULL, NULL, 0.7)
+    GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.7, 0.8)
+    gnm.gcbin.tab <- unclass(tabulate(findInterval(df4b$GCfrac, GCbreaks, all.inside = TRUE), 9))
+    bg.gcbin.tab  <- unclass(tabulate(findInterval(df4$GCfrac[!df4$isForeground], GCbreaks, all.inside = TRUE), 9))
+    fg.gcbin.tab  <- unclass(tabulate(findInterval(df4$GCfrac[ df4$isForeground], GCbreaks, all.inside = TRUE), 9))
+    expect_true(cor(fg.gcbin.tab, bg.gcbin.tab) > cor(fg.gcbin.tab, gnm.gcbin.tab))
+})
+
+
 test_that(".calculateGCweight() works", {
     fseq <- c(f1  = "AGGGGGGGGG", f2  = "AAGGGGGGGG", f3  = "AAAGGGGGGG",
               f4  = "AAAAGGGGGG",                     f6  = "AAAAAAGGGG",
@@ -205,7 +301,14 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
     p2 <- sample(len - 2 * ncol(m2), round(sum(b == 2) * 0.8), replace = TRUE)
     substring(seqschar[b == 2], first = p2, last = p2 + ncol(m2) - 1) <- "ACGTA"
     seqs <- Biostrings::DNAStringSet(seqschar)
+    gnm <- DNAStringSet(unlist(lapply(1:10,
+                                      function(i) paste(sample(c("A","C","G","T"),
+                                                               1000 - i * 10,
+                                                               replace = TRUE),
+                                                        collapse = ""))))
+    names(gnm) <- paste0("g", seq_along(gnm))
     
+    # argument checks
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm,
                                      min.score = 20), "No motif hits")
     expect_error(calcBinnedMotifEnrR(seqs = Biostrings::DNAStringSet(c("NNN","NNN","NNN")),
@@ -213,6 +316,32 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
     expect_error(calcBinnedMotifEnrR(seqs = Biostrings::DNAStringSet(c("TAAAAAAT","GCACGTAT","GCCCCCCG")),
                                      bins = factor(1:3), pwmL = pwm, min.score = 6),
                  "No sequences remained after the GC weight")
+    expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm,
+                                     background = "error"),
+                 "should be one of")
+    expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm,
+                                     background = "zeroBin"),
+                 "has to define a zero bin")
+    b2 <- b
+    attr(b2, "bin0") <- NULL
+    expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b2, pwmL = pwm,
+                                     background = "zeroBin"),
+                 "has to define a zero bin")
+    expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = NULL, pwmL = pwm,
+                                     background = "genome", genome = "error"),
+                 "'genome' must be")
+    expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = NULL, pwmL = pwm,
+                                     background = "genome", genome = gnm,
+                                     genome.regions = "error"),
+                 "'genome.regions' must be")
+    expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = NULL, pwmL = pwm,
+                                     background = "genome", genome = gnm,
+                                     genome.regions = GenomicRanges::GRanges("error", IRanges::IRanges(1, 10))),
+                 "seqlevels not contained")
+    expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm,
+                                     background = "genome", min.score = 6,
+                                     genome = DNAStringSet(c(g1 = paste(rep("G", 300), collapse = "")))),
+                 "No motif hits found in any of the genomic background sequences")
     expect_error(calcBinnedMotifEnrR(seqs = "error"), "DNAStringSet")
     expect_error(calcBinnedMotifEnrR(seqs = as.character(seqs)), "DNAStringSet")
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = "error"), "factor")
@@ -227,6 +356,7 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm, verbose = "error"), "logical")
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = TFBSTools::Matrix(pwm[[1]])), "PWMatrixList")
 
+    # results correctness
     expect_message(res1 <- calcBinnedMotifEnr(seqs = seqs,
                                               bins = b,
                                               motifs = pwm,
@@ -242,8 +372,18 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
                                               min.score = 6,
                                               test = "fisher",
                                               verbose = TRUE))
+    expect_message(res3 <- calcBinnedMotifEnr(seqs = seqs,
+                                              bins = b,
+                                              motifs = pwm,
+                                              method = "R",
+                                              min.score = 6,
+                                              test = "fisher",
+                                              background = "genome",
+                                              genome = gnm,
+                                              verbose = TRUE))
     expect_is(res1, "SummarizedExperiment")
     expect_is(res2, "SummarizedExperiment")
+    expect_is(res3, "SummarizedExperiment")
     expect_identical(dim(res1), c(length(pwm), nlevels(b)))
     expect_identical(dim(res1), dim(res1))
     expect_identical(dimnames(res1), list(names(pwm), levels(b)))

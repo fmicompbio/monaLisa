@@ -93,7 +93,8 @@ with motifs (rows) by bins (columns). The values are:
 
 - *negLog10P*: the raw P value ($-\log_{10} p$) of a given motif enrichment in a given
   bin. Each P value results from an enrichment calculation comparing occurrences
-  of each motif in the bin to its occurrences in all other bins as a background.  
+  of each motif in the bin to its occurrences in background sequences, defined by
+  the `background` argument (by default: sequences in all other bins).  
 - *negLog10Padj*: Same as *p* but adjusted for multiple testing using the method of
   provided in the `p.adjust.method` argument, by default: Benjamini and Hochberg, 1995
   (`p.adjust(..., method="fdr"`).  
