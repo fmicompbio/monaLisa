@@ -83,7 +83,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.44</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.45</span>
       </span>
     </div>
 
@@ -141,8 +141,9 @@
 
     <pre class="usage"><span class='fu'>calcBinnedMotifEnrR</span><span class='op'>(</span>
   <span class='va'>seqs</span>,
-  <span class='va'>bins</span>,
-  <span class='va'>pwmL</span>,
+  bins <span class='op'>=</span> <span class='cn'>NULL</span>,
+  pwmL <span class='op'>=</span> <span class='cn'>NULL</span>,
+  background <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"otherBins"</span>, <span class='st'>"allBins"</span>, <span class='st'>"zeroBin"</span>, <span class='st'>"genome"</span><span class='op'>)</span>,
   test <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"binomial"</span>, <span class='st'>"fisher"</span><span class='op'>)</span>,
   maxFracN <span class='op'>=</span> <span class='fl'>0.7</span>,
   maxKmerSize <span class='op'>=</span> <span class='fl'>3L</span>,
@@ -151,6 +152,10 @@
   pseudocount.log2enr <span class='op'>=</span> <span class='fl'>8</span>,
   pseudocount.pearsonResid <span class='op'>=</span> <span class='fl'>0.001</span>,
   p.adjust.method <span class='op'>=</span> <span class='st'>"BH"</span>,
+  genome <span class='op'>=</span> <span class='cn'>NULL</span>,
+  genome.regions <span class='op'>=</span> <span class='cn'>NULL</span>,
+  genome.oversample <span class='op'>=</span> <span class='fl'>2</span>,
+  genome.seed <span class='op'>=</span> <span class='fl'>42L</span>,
   BPPARAM <span class='op'>=</span> <span class='fu'>SerialParam</span><span class='op'>(</span><span class='op'>)</span>,
   verbose <span class='op'>=</span> <span class='cn'>FALSE</span>,
   <span class='va'>...</span>
@@ -165,14 +170,20 @@
     </tr>
     <tr>
       <th>bins</th>
-      <td><p>factor of the 
-same length and order as <code>seqs</code>, indicating
-  the bin for each sequence. Typically the return value of
-  <code><a href='bin.html'>bin</a></code>.</p></td>
+      <td><p>factor of the same length and order as <code>seqs</code>, indicating
+the bin for each sequence. Typically the return value of
+<code><a href='bin.html'>bin</a></code>. For <code>background = "genome"</code>, <code>bins</code>
+can be omitted.</p></td>
     </tr>
     <tr>
       <th>pwmL</th>
       <td><p>PWMatrixList with motifs for which to calculate enrichments.</p></td>
+    </tr>
+    <tr>
+      <th>background</th>
+      <td><p>A <code>character</code> scalar specifying the background sequences
+to use. One of <code>"otherBins"</code> (default), <code>"allBins"</code>, <code>"zeroBin"</code>
+or <code>"genome"</code> (see "Details").</p></td>
     </tr>
     <tr>
       <th>test</th>
@@ -220,6 +231,32 @@ and Pearson residuals.</p></td>
 method (used in <code><a href='https://rdrr.io/r/stats/p.adjust.html'>p.adjust</a></code>).</p></td>
     </tr>
     <tr>
+      <th>genome</th>
+      <td><p>A <code>BSgenome</code> or <code>DNAStringSet</code> object with the
+genome sequence. Only used for <code>background = "genome"</code> for extracting
+background sequences.</p></td>
+    </tr>
+    <tr>
+      <th>genome.regions</th>
+      <td><p>An optional <code><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></code> object
+defining the intervals in <code>genome</code> from which background sequences are
+sampled for <code>background = "genome"</code>. If <code>NULL</code>, background
+sequences are sampled randomly from <code>genome</code>.</p></td>
+    </tr>
+    <tr>
+      <th>genome.oversample</th>
+      <td><p>A <code>numeric</code> scalar of at least 1.0 defining how
+many background sequences will be sampled per foreground sequence for
+<code>background = "genome"</code>. Larger values will take longer but improve
+the sequence composition similarity between foreground and background
+(see <code>"Details"</code>).</p></td>
+    </tr>
+    <tr>
+      <th>genome.seed</th>
+      <td><p>An <code>integer</code> scalar used to seed the random number
+generator before sampling regions.</p></td>
+    </tr>
+    <tr>
       <th>BPPARAM</th>
       <td><p>An optional <code><a href='https://rdrr.io/pkg/BiocParallel/man/BiocParallelParam-class.html'>BiocParallelParam</a></code>
 instance determining the parallel back-end to be used during evaluation.</p></td>
@@ -252,12 +289,30 @@ instance determining the parallel back-end to be used during evaluation.</p></td
 
     <p>This function implements a binned motif enrichment analysis. In each
   enrichment analysis, the sequences in a specific bin are used as foreground
-  sequences to test for motif enrichment using sequences in the remaining
-  bins as background. The logic follows the <code>findMotifsGenome.pl</code> tool
-  from <code>Homer</code> version 4.11, with <code>-size given -nomotif -mknown</code>
-  and gives very similar results. As in the <code>Homer</code> tool, sequences are
-  weighted to correct for GC and k-mer composition differences between fore-
-  and background sets.</p>
+  sequences to test for motif enrichment comparing to background sequences
+  (defined by <code>background</code>, see below). The logic follows the
+  <code>findMotifsGenome.pl</code> tool from <code>Homer</code> version 4.11, with
+  <code>-size given -nomotif -mknown</code> and gives very similar results.
+  As in the <code>Homer</code> tool, sequences are weighted to correct for GC and
+  k-mer composition differences between fore- and background sets.</p>  
+<p>The background sequences are defined according to the value of the
+  <code>background</code> argument:</p><ul>
+<li><p>otherBins: sequences from all other bins (excluding the current bin)</p></li>
+<li><p>allBins: sequences from all bins (including the current bin)</p></li>
+<li><p>zeroBin: sequences from the "zero bin", defined by the
+      <code>maxAbsX</code> argument of <code><a href='bin.html'>bin</a></code>. If <code>bins</code>
+      does not define a "zero bin", for example because it was created by
+      <code><a href='bin.html'>bin(..., maxAbsX = NULL)</a></code>, selecting this background definition
+      will abort with an error.</p></li>
+<li><p>genome: sequences randomly sampled from the genome (or the
+      intervals defined in <code>genome.regions</code> if given). For each
+      foreground sequence, <code>genome.oversample</code> background sequences
+      of the same size are sampled (on average). From these, one per
+      foreground sequence is selected trying to match the G+C composition.
+      In order to make the sampling deterministic, the random number
+      generator is seeded using <code>genome.seed</code>.</p></li>
+</ul>
+
 <p>Motif hits are predicted using <code><a href='findMotifHits-methods.html'>findMotifHits</a></code> and
   multiple hits per sequence are counted as just one hit (ZOOPS mode). For
   each motif, the weights of sequences that have a hit are summed separately
