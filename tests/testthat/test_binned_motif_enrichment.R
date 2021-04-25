@@ -389,15 +389,11 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
     expect_identical(dimnames(res1), list(names(pwm), levels(b)))
     expect_identical(dimnames(res1), dimnames(res1))
     expect_identical(names(metadata(res1)),
-                     c("sequences", "bins", "bins.binmode", "bins.breaks", "bins.bin0", 
-                       "param.test", "param.maxFracN", "param.maxKmerSize", "param.min.score", 
-                       "param.matchMethod", "param.pseudocount.log2enr",
-                       "param.pseudocount.pearsonResid", "param.p.adj.method",
-                       "param.BPPARAM.class", "param.BPPARAM.bpnworkers", "param.verbose"))
-    expect_identical(metadata(res1)$param.test, "binom")
-    expect_identical(metadata(res2)$param.test, "fisher")
-    expect_identical(metadata(res1)[-c(2,4,6)], metadata(res2)[-c(2,4,6)])
-    expect_identical(metadata(res2)[[2]], b)
+                     c("bins", "bins.binmode", "bins.breaks", "bins.bin0", "param"))
+    expect_identical(metadata(res1)$param$test, "binom")
+    expect_identical(metadata(res2)$param$test, "fisher")
+    expect_identical(metadata(res1)$param[-3], metadata(res2)$param[-3])
+    expect_identical(metadata(res2)$bins, b)
     expect_identical(assayNames(res1), c("negLog10P", "negLog10Padj", "pearsonResid", "log2enr", "sumForegroundWgtWithHits", "sumBackgroundWgtWithHits"))
     expect_identical(assayNames(res2), c("negLog10P", "negLog10Padj", "pearsonResid", "log2enr", "sumForegroundWgtWithHits", "sumBackgroundWgtWithHits"))
     expect_identical(colnames(rowData(res1)), c("motif.id", "motif.name", "motif.pfm", "motif.pwm", "motif.percentGC"))
