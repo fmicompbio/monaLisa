@@ -3,7 +3,7 @@ pkgdown: 1.6.1.9001
 pkgdown_sha: 1224e7d19dc1247a45d2885cf7b18b37bd02797b
 articles:
   monaLisa: monaLisa.html
-last_built: 2021-04-24T21:49Z
+last_built: 2021-04-25T12:19Z
 urls:
   reference: https://fmicompbio.github.io/monaLisa/reference
   article: https://fmicompbio.github.io/monaLisa/articles
