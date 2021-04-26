@@ -83,7 +83,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.46</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.47</span>
       </span>
     </div>
 
@@ -183,8 +183,8 @@ is used to calculate pairwise similarities.</p></td>
       <th>nKmers</th>
       <td><p>A <code>numeric</code> scalar. If <code>x</code> is a <code>list</code> as
 returned by <code><a href='getKmerFreq.html'>getKmerFreq</a></code>, the number of top enriched k-mers to
-use ordered by FDR. If <code>NULL</code> (the default), it will use <code>nKmers
-&lt;- max(10, sum(x$FDR &lt; 0.05))</code>. <code>nKmers</code> is ignored if <code>x</code> is a
+use ordered by padj. If <code>NULL</code> (the default), it will use <code>nKmers
+&lt;- max(10, sum(x$padj &lt; 0.05))</code>. <code>nKmers</code> is ignored if <code>x</code> is a
 character vector.</p></td>
     </tr>
     <tr>

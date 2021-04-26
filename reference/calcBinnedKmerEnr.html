@@ -83,7 +83,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.46</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.47</span>
       </span>
     </div>
 
@@ -219,19 +219,7 @@ instance determining the parallel back-end to be used during evaluation.</p></td
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A <code><a href='https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html'>SummarizedExperiment</a></code> <code>y</code>
-  with</p><dl>
-<dt>assays(y)</dt><dd><p>containing the four components <code>p</code>,
-  <code>FDR</code>, <code>enr</code> and <code>log2enr</code>), each a k-mer (rows) by bin
-  (columns) matrix with raw -log10 P values, -log10 false discovery rates and
-  k-mer enrichments as Pearson residuals (<code>enr</code>) and as log2 ratios
-  (<code>log2enr</code>).</p></dd> <dt>rowData(x)</dt><dd><p>containing information about the
-  k-mers.</p></dd> <dt>colData(x)</dt><dd><p>containing information about the bins.</p></dd>
-  <dt>metaData(x)</dt><dd><p>containing meta data on the object (e.g. parameter
-  values).</p></dd> 
-</dl>
-
-<p>A <code><a href='https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html'>SummarizedExperiment</a></code> object with
+    <p>A <code><a href='https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html'>SummarizedExperiment</a></code> object with
   k-mers in rows and bins in columns, containing four assays:</p><ul>
 <li><p>negLog10P: -log10 P values</p></li>
 <li><p>negLog10Padj: -log10 adjusted P values</p></li>
