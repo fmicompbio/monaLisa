@@ -166,7 +166,7 @@
 
         # (over-)sample random sequences from the genome
         n <- round(gnm.oversample * sum(inCurrBin))
-        w <- width(sqs)
+        w <- width(sqs)[inCurrBin]
         if (is.null(gnm.regions)) {
             slen <- seqlengths(gnm)
             gnm.regions <- GRanges(seqnames = names(slen),

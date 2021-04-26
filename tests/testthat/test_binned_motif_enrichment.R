@@ -349,9 +349,10 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
                                      background = "genome", genome = gnm,
                                      genome.regions = GenomicRanges::GRanges("error", IRanges::IRanges(1, 10))),
                  "seqlevels not contained")
-    expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm,
+    expect_error(expect_warning(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm,
                                      background = "genome", min.score = 6,
                                      genome = DNAStringSet(c(g1 = paste(rep("G", 300), collapse = "")))),
+                                "do not match well"),
                  "No motif hits found in any of the genomic background sequences")
     expect_error(calcBinnedMotifEnrR(seqs = "error"), "DNAStringSet")
     expect_error(calcBinnedMotifEnrR(seqs = as.character(seqs)), "DNAStringSet")
