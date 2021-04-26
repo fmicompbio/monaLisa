@@ -14,6 +14,7 @@ calcBinnedMotifEnrR(
   maxKmerSize = 3L,
   min.score = 10,
   matchMethod = "matchPWM",
+  GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.7, 0.8),
   pseudocount.log2enr = 8,
   pseudocount.pearsonResid = 0.001,
   p.adjust.method = "BH",
@@ -58,6 +59,9 @@ and tri-mer composition.}
 
 \item{matchMethod}{the method used to scan for motif hits, passed to the
 \code{method} parameter in \code{\link[monaLisa]{findMotifHits}}.}
+
+\item{GCbreaks}{The breaks between GC bins. The default value is based on
+the hard-coded bins used in Homer.}
 
 \item{pseudocount.log2enr}{A numerical scalar with the pseudocount to add to
 foreground and background counts when calculating log2 motif enrichments}

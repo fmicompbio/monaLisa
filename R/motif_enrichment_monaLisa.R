@@ -714,6 +714,8 @@
 #'   \code{\link[monaLisa]{findMotifHits}}.
 #' @param matchMethod the method used to scan for motif hits, passed to the
 #'   \code{method} parameter in \code{\link[monaLisa]{findMotifHits}}.
+#' @param GCbreaks The breaks between GC bins. The default value is based on
+#'   the hard-coded bins used in Homer.
 #' @param pseudocount.log2enr A numerical scalar with the pseudocount to add to
 #'   foreground and background counts when calculating log2 motif enrichments
 #' @param pseudocount.pearsonResid A numerical scalar with the pseudocount to add
@@ -819,6 +821,8 @@ calcBinnedMotifEnrR <- function(seqs,
                                 maxKmerSize = 3L,
                                 min.score = 10,
                                 matchMethod = "matchPWM",
+                                GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4,
+                                             0.45, 0.5, 0.6, 0.7, 0.8),
                                 pseudocount.log2enr = 8,
                                 pseudocount.pearsonResid = 0.001,
                                 p.adjust.method = "BH",
@@ -963,6 +967,7 @@ calcBinnedMotifEnrR <- function(seqs,
             message("Correcting for GC differences to the background sequences...")
         }
         df <- .calculateGCweight(df = df,
+                                 GCbreaks = GCbreaks,
                                  verbose = verbose1)
         
         # if df is empty, then all seqs were filtered out in the GC weight calculation step
