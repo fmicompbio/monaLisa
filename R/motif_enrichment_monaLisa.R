@@ -215,11 +215,26 @@
         # select a set that matches sqs[inCurrBin]
         sqs.gcbin <- findInterval(x = gcf[inCurrBin], vec = GCbreaks, all.inside = TRUE)
         gnm.gcbin <- findInterval(x = gcf.gnm, vec = GCbreaks, all.inside = TRUE)
-        sqs.tab <- tabulate(sqs.gcbin, nbins = length(GCbreaks) - 1)
-        gnm.tab <- tabulate(gnm.gcbin, nbins = length(GCbreaks) - 1)
+        sqs.tab <- tabulate(sqs.gcbin, nbins = length(GCbreaks) - 1) / length(sqs.gcbin)
+        gnm.tab <- tabulate(gnm.gcbin, nbins = length(GCbreaks) - 1) / length(gnm.gcbin)
         sel <- sample(x = length(gnmsqs), size = sum(inCurrBin), replace = FALSE,
                       prob = ((sqs.tab + 0.5) / (gnm.tab + 0.5))[gnm.gcbin])
-        
+
+        gnm.tab.sel <- tabulate(gnm.gcbin[sel], nbins = length(GCbreaks) - 1) / length(sel)
+        gcdist <- sqrt(sum((sqs.tab - gnm.tab.sel)^2))
+        if (gcdist > (3 / (length(GCbreaks) - 1))) {
+            warning("The background sequences sampled from 'genome' do not match ",
+                    "well\nthe G+C content of 'seqs' (normdist = ", round(gcdist, 3),
+                    ").\n\n",
+                    "Consider increasing 'genome.oversample', and/or focus the ",
+                    "sampling on a subset\nwith similar sequence composition as ",
+                    "'seqs' using 'genome.regions'.\n\n",
+                    "It may also be useful to split 'seqs' into subsets with ",
+                    "homogenous G+C\n(e.g. with/without CpG islands) and use ",
+                    "an appropriate 'genome' for them\n(e.g. all CpG islands and ",
+                    "the rest of the genome, respectively).")
+        }
+
         isFg <- rep(c(TRUE, FALSE), each = sum(inCurrBin))
         sqs <- c(sqs[inCurrBin], gnmsqs[sel])
         gcf <- c(gcf[inCurrBin], gcf.gnm[sel])

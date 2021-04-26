@@ -54,6 +54,13 @@ test_that(".defineBackground() works", {
                                                                replace = TRUE),
                                                         collapse = ""))))
     names(gnm) <- paste0("g", seq_along(gnm))
+    gnm2 <- DNAStringSet(unlist(lapply(1:10,
+                                       function(i) paste(sample(c("A","C","G","T"),
+                                                                1000 - i * 10,
+                                                                replace = TRUE,
+                                                                prob = c(.4, .1, .1, .4)),
+                                                        collapse = ""))))
+    names(gnm2) <- paste0("g", seq_along(gnm2))
     
     df1 <- .defineBackground(seqs, b1, "otherBins", 1, NULL, NULL, 2, 42L, 0.7)
     df2 <- .defineBackground(seqs, b1, "allBins",   1, NULL, NULL, 2, 42L, 0.7)
@@ -66,6 +73,8 @@ test_that(".defineBackground() works", {
     df7 <- .defineBackground(seqs, b1, "genome",    1, gnm,
                              GenomicRanges::GRanges("g3", IRanges::IRanges(1, 970)),
                              2, 42L, 0.7)
+    expect_warning(df8 <- .defineBackground(seqs, b1, "genome", 1,
+                                            gnm2, NULL, 2, 42L, 0.7))
     
     expect_is(df1, "DataFrame")
     expect_is(df2, "DataFrame")
@@ -74,6 +83,7 @@ test_that(".defineBackground() works", {
     expect_is(df5, "DataFrame")
     expect_is(df6, "DataFrame")
     expect_is(df7, "DataFrame")
+    expect_is(df8, "DataFrame")
     
     expect_identical(attr(df1, "err"), NA)
 
@@ -84,6 +94,7 @@ test_that(".defineBackground() works", {
     expect_identical(dim(df5), c( 90L, 6L))
     expect_identical(dim(df6), c( 90L, 6L))
     expect_identical(dim(df7), c( 60L, 6L))
+    expect_identical(dim(df8), c( 60L, 6L))
     
     expect_identical(df5, df6)
     
