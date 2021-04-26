@@ -124,6 +124,8 @@ test_that("calcBinnedKmerEnr works as expected", {
     expect_error(calcBinnedKmerEnr(seqs, b[1:20]))
     expect_error(calcBinnedKmerEnr(seqs, b, background = "error"))
     expect_error(calcBinnedKmerEnr(seqs, b, BPPARAM = "error"))
+    expect_error(calcBinnedKmerEnr(seqs, b, p.adjust.method = "error"))
+    expect_error(calcBinnedKmerEnr(seqs, b, pseudoCount = -1))
     
     expect_message(res1 <- calcBinnedKmerEnr(as.character(seqs), b, verbose = TRUE))
     res2 <- calcBinnedKmerEnr(gr, b, genomepkg = "BSgenome.Mmusculus.UCSC.mm10", verbose = TRUE)
@@ -141,9 +143,9 @@ test_that("calcBinnedKmerEnr works as expected", {
     expect_equal(assays(res1), assays(res4), check.attributes = FALSE)
     expect_identical(nrow(rowData(res1)), 1024L)
     expect_identical(nrow(colData(res1)), nlevels(b))
-    expect_identical(assayNames(res1), c("p", "FDR", "enr", "log2enr"))
+    expect_identical(assayNames(res1), c("negLog10P", "negLog10Padj", "pearsonResid", "log2enr"))
     expect_identical(dim(assay(res1, "log2enr")), c(1024L, 5L))
-    expect_equal(diag(cor(assay(res1, "enr"), assay(res5, "enr"))),
+    expect_equal(diag(cor(assay(res1, "pearsonResid"), assay(res5, "pearsonResid"))),
                  c(`[1,1.8]` = 0.489330664583753, `(1.8,2.6]` = 0.548030716046016,
                    `(2.6,3.4]` = 0.479902775647403, `(3.4,4.2]` = 0.526336153099691,
                    `(4.2,5]` = 0.568191209285844))

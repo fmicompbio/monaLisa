@@ -12,6 +12,7 @@ calcBinnedKmerEnr(
   background = c("other", "model"),
   MMorder = 1,
   zoops = TRUE,
+  p.adjust.method = "BH",
   pseudoCount = 1,
   BPPARAM = SerialParam(),
   verbose = FALSE
@@ -44,6 +45,9 @@ used to calculate the expected frequencies for \code{background = "model"}.}
 or zero occurences of a k-mer are considered per sequence. This is helpful
 to reduce the impact of simple sequence repeats occurring in few sequences.}
 
+\item{p.adjust.method}{A character scalar selecting the p value adjustment
+method (used in \code{\link[stats]{p.adjust}}).}
+
 \item{pseudoCount}{A \code{numeric} scalar - will be added to the observed
 counts for each k-mer to avoid zero values.}
 
@@ -62,6 +66,17 @@ A \code{\link[SummarizedExperiment]{SummarizedExperiment}} \code{y}
   k-mers.} \item{colData(x)}{containing information about the bins.}
   \item{metaData(x)}{containing meta data on the object (e.g. parameter
   values).} }
+
+A \code{\link[SummarizedExperiment]{SummarizedExperiment}} object with
+  k-mers in rows and bins in columns, containing four assays: \itemize{
+  \item{negLog10P}{: -log10 P values}
+  \item{negLog10Padj}{: -log10 adjusted P values}
+  \item{pearsonResid}{: motif enrichments as Pearson residuals}
+  \item{log2enr}{: motif enrichments as log2 ratios}
+}.
+rowData(x) contains information about the k-mers, colData(x) contains
+information about the bins, and metaData(x) contains meta data on the object
+and how it was generated (e.g. parameter values).
 }
 \description{
 Given a set of sequences and corresponding bins, identify

@@ -354,6 +354,8 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
 #' @param zoops A \code{logical} scalar. If \code{TRUE} (the default), only one
 #'   or zero occurences of a k-mer are considered per sequence. This is helpful
 #'   to reduce the impact of simple sequence repeats occurring in few sequences.
+#' @param p.adjust.method A character scalar selecting the p value adjustment
+#'   method (used in \code{\link[stats]{p.adjust}}).
 #' @param pseudoCount A \code{numeric} scalar - will be added to the observed
 #'   counts for each k-mer to avoid zero values.
 #' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
@@ -375,6 +377,16 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
 #'   k-mers.} \item{colData(x)}{containing information about the bins.}
 #'   \item{metaData(x)}{containing meta data on the object (e.g. parameter
 #'   values).} }
+#' @return A \code{\link[SummarizedExperiment]{SummarizedExperiment}} object with
+#'   k-mers in rows and bins in columns, containing four assays: \itemize{
+#'   \item{negLog10P}{: -log10 P values}
+#'   \item{negLog10Padj}{: -log10 adjusted P values}
+#'   \item{pearsonResid}{: motif enrichments as Pearson residuals}
+#'   \item{log2enr}{: motif enrichments as log2 ratios}
+#' }.
+#' rowData(x) contains information about the k-mers, colData(x) contains
+#' information about the bins, and metaData(x) contains meta data on the object
+#' and how it was generated (e.g. parameter values).
 #'
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom S4Vectors DataFrame split
@@ -384,10 +396,17 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
 #' @importFrom BiocParallel bplapply SerialParam bpnworkers
 #'
 #' @export
-calcBinnedKmerEnr <- function(x, b, genomepkg = NULL, kmerLen = 5,
-                              background = c("other", "model"), MMorder = 1,
-                              zoops = TRUE, pseudoCount = 1,
-                              BPPARAM = SerialParam(), verbose = FALSE) {
+calcBinnedKmerEnr <- function(x,
+                              b,
+                              genomepkg = NULL,
+                              kmerLen = 5,
+                              background = c("other", "model"),
+                              MMorder = 1,
+                              zoops = TRUE,
+                              p.adjust.method = "BH",
+                              pseudoCount = 1,
+                              BPPARAM = SerialParam(),
+                              verbose = FALSE) {
     ## pre-flight checks
     background <- match.arg(background)
     .assertScalar(x = verbose, type = "logical")
@@ -421,6 +440,7 @@ calcBinnedKmerEnr <- function(x, b, genomepkg = NULL, kmerLen = 5,
         b <- factor(b, levels = unique(b))
     }
     .assertVector(x = b, len = length(x))
+    .assertScalar(x = p.adjust.method, type = "character", validValues = stats::p.adjust.methods)
     .assertScalar(x = pseudoCount, type = "numeric", rngIncl = c(0, Inf))
     .assertScalar(x = zoops, type = "logical")
     stopifnot(is(BPPARAM, "BiocParallelParam"))
@@ -455,14 +475,15 @@ calcBinnedKmerEnr <- function(x, b, genomepkg = NULL, kmerLen = 5,
         lenr <- log2((f.obs + pseudoCount) / (f.exp + pseudoCount))
         z <- (f.obs - f.exp) / sqrt(f.exp)
         p <- ppois(q = f.obs, lambda = f.exp, lower.tail = FALSE)
-        padj <- matrix(p.adjust(p, method = "fdr"), nrow = nrow(p), dimnames = dimnames(p))
-        assayL <- list(p = -log10(p), FDR = -log10(padj), enr = z, log2enr = lenr)
+        padj <- matrix(p.adjust(p, method = p.adjust.method), nrow = nrow(p), dimnames = dimnames(p))
+        assayL <- list(negLog10P = -log10(p), negLog10Padj = -log10(padj),
+                       pearsonResid = z, log2enr = lenr)
         
     } else if (background == "model") {
         p <- do.call(cbind, lapply(resL, "[[", "p"))
-        padj <- matrix(p.adjust(p, method = "fdr"), nrow = nrow(p), dimnames = dimnames(p))
-        assayL <- list(p = -log10(p), FDR = -log10(padj),
-                       enr = do.call(cbind, lapply(resL, "[[", "z")),
+        padj <- matrix(p.adjust(p, method = p.adjust.method), nrow = nrow(p), dimnames = dimnames(p))
+        assayL <- list(negLog10P = -log10(p), negLog10Padj = -log10(padj),
+                       pearsonResid = do.call(cbind, lapply(resL, "[[", "z")),
                        log2enr = do.call(cbind, lapply(resL, "[[", "log2enr")))
     }
     
@@ -490,18 +511,18 @@ calcBinnedKmerEnr <- function(x, b, genomepkg = NULL, kmerLen = 5,
     se <- SummarizedExperiment::SummarizedExperiment(
         assays = assayL,
         colData = cdat, rowData = rdat,
-        metadata = list(sequences = x,
-                        bins = b,
+        metadata = list(bins = b,
                         bins.binmode = attr(b, "binmode"),
                         bins.breaks = as.vector(attr(b, "breaks")),
                         bins.bin0 = attr(b, "bin0"),
-                        param.genomepkg = genomepkg,
-                        param.kmerLen = kmerLen,
-                        param.background = background,
-                        param.MMorder = MMorder,
-                        param.pseudoCount = pseudoCount,
-                        param.zoops = zoops,
-                        param.Ncpu = bpnworkers(BPPARAM),
+                        param = list(genomepkg = genomepkg,
+                                     kmerLen = kmerLen,
+                                     background = background,
+                                     MMorder = MMorder,
+                                     p.adjust.method = p.adjust.method,
+                                     pseudoCount = pseudoCount,
+                                     zoops = zoops,
+                                     Ncpu = bpnworkers(BPPARAM)),
                         motif.distances = NULL)
     )
     rownames(se) <- kmers
@@ -545,19 +566,19 @@ convertKmersToMotifs <- function(x, m, BPPARAM = SerialParam(), verbose = FALSE)
     }
     stopifnot(exprs = {
         is(x, "SummarizedExperiment")
-        "param.kmerLen" %in% names(metadata(x))
+        "param" %in% names(metadata(x)) && "kmerLen" %in% names(metadata(x)$param)
         nrow(x) == 4^metadata(x)$param.kmerLen
-        all(c("enr","log2enr") %in% assayNames(x))
+        all(c("pearsonResid","log2enr") %in% assayNames(x))
         is(m, "PFMatrixList")
         is(BPPARAM, "BiocParallelParam")
     })
     
     ## calculate motif-by-kmer matrix (probabilities)
-    m.k <- motifKmerSimilarity(m, kmerLen = metadata(x)$param.kmerLen,
+    m.k <- motifKmerSimilarity(m, kmerLen = metadata(x)$param$kmerLen,
                                BPPARAM = BPPARAM, verbose = verbose)
     
     ## calculate motif-by-bin = motif-by-kmer %*% kmer-by-bin
-    m.b.enr <- m.k %*% assay(x, "enr")
+    m.b.enr <- m.k %*% assay(x, "pearsonResid")
     m.b.log2enr <- m.k %*% assay(x, "log2enr")
     
     ## create and return new SummarizedExperiment object
