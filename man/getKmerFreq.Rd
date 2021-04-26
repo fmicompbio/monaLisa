@@ -10,7 +10,8 @@ getKmerFreq(
   MMorder = 1,
   pseudoCount = 1,
   zoops = TRUE,
-  strata = rep(1L, length(seqs))
+  strata = rep(1L, length(seqs)),
+  p.adjust.method = "BH"
 )
 }
 \arguments{
@@ -34,6 +35,9 @@ estimated for the set of sequences in each stratum (level in a \code{strata}
 factor). If \code{strata} is a scalar value, it will be interpreted as the
 number of strata to split the sequences into according to their CpG
 observed-over-expected counts using \code{kmeans(CpGoe, centers = strata)}.}
+
+\item{p.adjust.method}{A character scalar selecting the p value adjustment
+method (used in \code{\link[stats]{p.adjust}}).}
 }
 \value{
 A \code{list} with observed and expected k-mer frequencies (\code{freq.obs}

@@ -57,16 +57,6 @@ instance determining the parallel back-end to be used during evaluation.}
 \item{verbose}{A \code{logical} scalar. If \code{TRUE}, report on progress.}
 }
 \value{
-A \code{\link[SummarizedExperiment]{SummarizedExperiment}} \code{y}
-  with \describe{ \item{assays(y)}{containing the four components \code{p},
-  \code{FDR}, \code{enr} and \code{log2enr}), each a k-mer (rows) by bin
-  (columns) matrix with raw -log10 P values, -log10 false discovery rates and
-  k-mer enrichments as Pearson residuals (\code{enr}) and as log2 ratios
-  (\code{log2enr}).} \item{rowData(x)}{containing information about the
-  k-mers.} \item{colData(x)}{containing information about the bins.}
-  \item{metaData(x)}{containing meta data on the object (e.g. parameter
-  values).} }
-
 A \code{\link[SummarizedExperiment]{SummarizedExperiment}} object with
   k-mers in rows and bins in columns, containing four assays: \itemize{
   \item{negLog10P}{: -log10 P values}

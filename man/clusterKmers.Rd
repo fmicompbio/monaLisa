@@ -38,8 +38,8 @@ is used to calculate pairwise similarities.}
 
 \item{nKmers}{A \code{numeric} scalar. If \code{x} is a \code{list} as
 returned by \code{\link{getKmerFreq}}, the number of top enriched k-mers to
-use ordered by FDR. If \code{NULL} (the default), it will use \code{nKmers
-<- max(10, sum(x$FDR < 0.05))}. \code{nKmers} is ignored if \code{x} is a
+use ordered by padj. If \code{NULL} (the default), it will use \code{nKmers
+<- max(10, sum(x$padj < 0.05))}. \code{nKmers} is ignored if \code{x} is a
 character vector.}
 
 \item{maxShift}{(Only used for \code{method = "similarity"}.) A \code{numeric}

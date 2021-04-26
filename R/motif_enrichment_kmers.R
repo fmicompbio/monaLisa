@@ -32,6 +32,8 @@
 #'   factor). If \code{strata} is a scalar value, it will be interpreted as the
 #'   number of strata to split the sequences into according to their CpG
 #'   observed-over-expected counts using \code{kmeans(CpGoe, centers = strata)}.
+#' @param p.adjust.method A character scalar selecting the p value adjustment
+#'   method (used in \code{\link[stats]{p.adjust}}).
 #'
 #' @return A \code{list} with observed and expected k-mer frequencies (\code{freq.obs}
 #'   and \code{freq.exp}, respectively), and enrichment statistics for each k-mer.
@@ -42,7 +44,7 @@
 #'
 #' @export
 getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops = TRUE,
-                        strata = rep(1L, length(seqs))) {
+                        strata = rep(1L, length(seqs)), p.adjust.method = "BH") {
 
     ##comments
 
@@ -67,7 +69,8 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
     .assertScalar(x = MMorder, type = "numeric", rngExcl = c(0, kmerLen - 1L))
     .assertScalar(x = pseudoCount, type = "numeric", rngIncl = c(0, Inf))
     .assertScalar(x = zoops, type = "logical")
-
+    .assertScalar(x = p.adjust.method, type = "character", validValues = stats::p.adjust.methods)
+    
     ## split sequences into strata
     CpGoe <- NA
     if (length(strata) == 1L) {
@@ -122,11 +125,11 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
     sDelta <- sqrt(kmerFreq) - sqrt(kmerFreqMM)
     ## ... P value
     p <- ppois(q = kmerFreq, lambda = kmerFreqMM, lower.tail = FALSE)
-    padj <- p.adjust(p, method = "fdr")
+    padj <- p.adjust(p, method = p.adjust.method)
 
     ## return results
     list(freq.obs = kmerFreq, freq.exp = kmerFreqMM,
-         log2enr = lenr, sqrtDelta = sDelta, z = z, p = p, FDR = padj,
+         log2enr = lenr, sqrtDelta = sDelta, z = z, p = p, padj = padj,
          strata = strata, freq.strata = res.strata, CpGoe = CpGoe)
 }
 
@@ -156,8 +159,8 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
 #'   is used to calculate pairwise similarities.
 #' @param nKmers A \code{numeric} scalar. If \code{x} is a \code{list} as
 #'   returned by \code{\link{getKmerFreq}}, the number of top enriched k-mers to
-#'   use ordered by FDR. If \code{NULL} (the default), it will use \code{nKmers
-#'   <- max(10, sum(x$FDR < 0.05))}. \code{nKmers} is ignored if \code{x} is a
+#'   use ordered by padj. If \code{NULL} (the default), it will use \code{nKmers
+#'   <- max(10, sum(x$padj < 0.05))}. \code{nKmers} is ignored if \code{x} is a
 #'   character vector.
 #' @param maxShift (Only used for \code{method = "similarity"}.) A \code{numeric}
 #'   scalar with the maximal number of shifts to perform when calculating k-mer
@@ -217,13 +220,13 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
     method <- match.arg(method)
     if (is(x, "list")) {
         stopifnot(exprs = {
-            "FDR" %in% names(x)
-            !is.null(names(x$FDR))
+            "padj" %in% names(x)
+            !is.null(names(x$padj))
         })
         if (is.null(nKmers)) {
-            nKmers <- max(10, sum(x$FDR < 0.05))
+            nKmers <- max(10, sum(x$padj < 0.05))
         }
-        x <- names(x$FDR)[order(x$FDR)[seq.int(nKmers)]]
+        x <- names(x$padj)[order(x$padj)[seq.int(nKmers)]]
     }
     stopifnot(exprs = {
         is(x, "character")
@@ -368,15 +371,6 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
 #'   \code{\link[BiocParallel]{bplapply}} that is used for parallelization;
 #'   \code{\link{bin}} for binning of regions
 #'
-#' @return A \code{\link[SummarizedExperiment]{SummarizedExperiment}} \code{y}
-#'   with \describe{ \item{assays(y)}{containing the four components \code{p},
-#'   \code{FDR}, \code{enr} and \code{log2enr}), each a k-mer (rows) by bin
-#'   (columns) matrix with raw -log10 P values, -log10 false discovery rates and
-#'   k-mer enrichments as Pearson residuals (\code{enr}) and as log2 ratios
-#'   (\code{log2enr}).} \item{rowData(x)}{containing information about the
-#'   k-mers.} \item{colData(x)}{containing information about the bins.}
-#'   \item{metaData(x)}{containing meta data on the object (e.g. parameter
-#'   values).} }
 #' @return A \code{\link[SummarizedExperiment]{SummarizedExperiment}} object with
 #'   k-mers in rows and bins in columns, containing four assays: \itemize{
 #'   \item{negLog10P}{: -log10 P values}
@@ -594,9 +588,9 @@ convertKmersToMotifs <- function(x, m, BPPARAM = SerialParam(), verbose = FALSE)
     mzero <- matrix(0, nrow = nrow(m.b.enr), ncol = ncol(m.b.enr),
                     dimnames = dimnames(m.b.enr))
     se <- SummarizedExperiment(
-        assays = list(p = mzero,
-                      FDR = mzero,
-                      enr = m.b.enr,
+        assays = list(negLog10P = mzero,
+                      negLog10Padj = mzero,
+                      pearsonResid = m.b.enr,
                       log2enr = m.b.log2enr),
         colData = colData(x), rowData = rdat,
         metadata = mdat

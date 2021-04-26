@@ -29,7 +29,7 @@ test_that("getKmerFreq works as expected", {
     expect_identical(res1, res2)
     expect_equal(sum(res1$freq.obs), sum(res1$freq.exp), tolerance = 0.001)
     expect_identical(names(res1$log2enr)[which.max(res1$log2enr)], "ACGT")
-    expect_true(all(names(res1$FDR)[res1$FDR < 0.001] %in% c("AACG", "ACGT", "CGTT")))
+    expect_true(all(names(res1$padj)[res1$padj < 0.001] %in% c("AACG", "ACGT", "CGTT")))
 
     ## zoops = TRUE
     set.seed(2)
@@ -39,9 +39,9 @@ test_that("getKmerFreq works as expected", {
     seqs <- c(DNAStringSet(DNAString(paste(rep("CA", 250), collapse = ""))), seqs[-1])
     expect_is(res3 <- getKmerFreq(seqs, kmerLen = 4, zoops = TRUE),  "list")
     expect_is(res4 <- getKmerFreq(seqs, kmerLen = 4, zoops = FALSE), "list")
-    expect_equal(sum(res3$FDR < 0.001), 0L)
-    expect_equal(sum(res4$FDR < 0.001), 2L)
-    expect_equal(names(res4$FDR[res4$FDR < 0.001]), c("ACAC", "CACA"))
+    expect_equal(sum(res3$padj < 0.001), 0L)
+    expect_equal(sum(res4$padj < 0.001), 2L)
+    expect_equal(names(res4$padj[res4$padj < 0.001]), c("ACAC", "CACA"))
 
     ## strata
     expect_is(res5 <- getKmerFreq(seqsDSS, kmerLen = 4, zoops = FALSE, strata = 3), "list")
@@ -51,7 +51,7 @@ test_that("getKmerFreq works as expected", {
     expect_length(res5$freq.strata, 3L)
     expect_equal(sum(res5$CpGoe), 102.0151708, tolerance = 1e-6)
     expect_identical(names(res5$log2enr)[which.max(res5$log2enr)], "ACGT")
-    expect_true(all(names(res5$FDR)[res5$FDR < 0.001] %in% c("AACG", "ACGT", "CGTT")))
+    expect_true(all(names(res5$padj)[res5$padj < 0.001] %in% c("AACG", "ACGT", "CGTT")))
 })
 
 test_that("countKmerPairs works as expected", {
@@ -92,7 +92,7 @@ test_that("clusterKmers works as expected", {
     ## ... with a planted 6-mer
     substr(seqs, start = r, stop = r + 5L) <- "AACGTT"
     x1 <- getKmerFreq(seqs, kmerLen = 4, zoops = FALSE)
-    x2 <- names(x1$FDR[order(x1$FDR)[1:10]])
+    x2 <- names(x1$padj[order(x1$padj)[1:10]])
     expect_error(clusterKmers(x2, method = "cooccurrence"))
     res1 <- clusterKmers(x1, method = "similarity")
     res2 <- clusterKmers(x2, method = "similarity")
@@ -194,7 +194,7 @@ test_that("convertKmersToMotifs works as expected", {
     expect_is(a1, "SummarizedExperiment")
     expect_is(a2, "SummarizedExperiment")
     expect_identical(a1, a2)
-    expect_equal(rowSums(assay(a1, "enr")), c("m1:::m1" = 42.263710609719, "m2:::m2" = 0.537892231292))
+    expect_equal(rowSums(assay(a1, "pearsonResid")), c("m1:::m1" = 42.263710609719, "m2:::m2" = 0.537892231292))
 })
 
 test_that("extractOverlappingKmerFrequecies works as expected", {
