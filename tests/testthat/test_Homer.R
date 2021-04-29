@@ -112,51 +112,85 @@ test_that("parseHomerOutput() works properly", {
     expect_identical(res[[8]], c(bin1 = 43339, bin2 = 43339))
 })
 
-test_that("calcBinnedMotifEnrHomer() works properly", {
+test_that("calcBinnedMotifEnrHomer() works properly (synthetic data)", {
     homerbin <- findHomer("findMotifsGenome.pl", dirs = "/Users/runner/work/monaLisa/monaLisa/homer/bin")
     if (is.na(homerbin)) {
         homerbin <- findHomer("findMotifsGenome.pl", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.11/bin")
     }
-    genomedir <- "/tungstenfs/groups/gbioinfo/DB/genomes/mm10/"
+    
+    if (!is.na(homerbin) && require("JASPAR2018")) {
+        # genome
+        set.seed(42)
+        genomedir <- tempfile()
+        chrsstr <-
+            unlist(lapply(1:3, function(i) paste(sample(x = c("A","C","G","T"),
+                                                        size = 10000,
+                                                        replace = TRUE,
+                                                        prob = c(.3,.2,.2,.3)),
+                                                 collapse = "")))
+        names(chrsstr) <- paste0("chr", seq_along(chrsstr))
 
-    if (!is.na(homerbin) && file.exists(genomedir) && require("JASPAR2018")) {
-        gr <- readRDS(system.file("extdata", "LMRsESNPmerged.gr.rds", package = "monaLisa"))
-        gr <- gr[seqnames(gr) == "chr1"]
-        gr <- c(gr[order(gr$deltaMeth, decreasing = TRUE)[1:200]],
-                gr[abs(gr$deltaMeth) < 0.1][1:200],
-                gr[order(gr$deltaMeth, decreasing = FALSE)][1:200]
-                )
-        b <- bin(gr$deltaMeth, nElements = 200)
-        outdir <- tempfile()
-        mfile <- tempfile(fileext = ".motifs")
+        # regions
+        gr <- GenomicRanges::tileGenome(seqlengths = nchar(chrsstr),
+                                        tilewidth = 200, cut.last.tile.in.chrom = TRUE)
+        bins <- factor(GenomicRanges::seqnames(gr))
+        
+        # motifs
         selids <- c("MA0139.1", "MA1102.1", "MA0740.1", "MA0493.1", "MA0856.1")
+        pfm <- TFBSTools::getMatrixSet(JASPAR2018, opts = list(ID = selids))
+        cons <- unlist(lapply(Matrix(pfm), function(x) paste(rownames(x)[apply(x, 2, which.max)], collapse = "")))
+        #              MA0139.1          MA1102.1          MA0740.1       MA0493.1          MA0856.1 
+        # "TGGCCACCAGGGGGCGCTA"  "CACCAGGGGGCACC"  "GGCCACGCCCCCTT"  "GGCCACACCCA"  "GGGGTCAAAGGTCA" 
+        # ... dump to file for Homer
+        mfile <- tempfile(fileext = ".motifs")
         expect_true(dumpJaspar(filename = mfile, pkg = "JASPAR2018",
                                opts = list(ID = selids)))
-        
-        expect_error(calcBinnedMotifEnr(seqs = gr, bins = b, motifs = mfile,
-                                        method = "Homer", BPPARAM = "error"))
+        # ... plant motifs
+        for (chr1 in names(chrsstr)) {
+            i <- which(as.character(GenomeInfoDb::seqnames(gr)) == chr1)
+            j <- sample(x = GenomicRanges::start(gr)[i], size = round(length(i) / 3))
+            m <- match(chr1, names(chrsstr))
+            for (j1 in j)
+                substring(chrsstr[chr1], first = j1, last = j1 + nchar(cons[m]) - 1) <- cons[m]
+        }
+        chrs <- Biostrings::DNAStringSet(chrsstr)
+        expect_true(dir.create(genomedir))
+        genomefile <- file.path(genomedir, "genome.fa")
+        Biostrings::writeXStringSet(x = chrs, filepath = genomefile, format = "fasta")
 
-        res <- calcBinnedMotifEnr(seqs = as.character(gr), bins = as.character(b),
-                                  motifs = mfile, method = "Homer",
-                                  genomedir = genomedir, outdir = outdir,
-                                  homerfile = homerbin, regionsize = "given",
-                                  BPPARAM = 2,
-                                  verbose = TRUE)
-        expect_message(res1 <- calcBinnedMotifEnr(seqs = as.character(gr), bins = as.character(b),
-                                                  motifs = mfile, method = "Homer",
-                                                  genomedir = genomedir, outdir = outdir,
-                                                  homerfile = homerbin, regionsize = "given",
-                                                  BPPARAM = BiocParallel::MulticoreParam(2L),
-                                                  verbose = TRUE),
+        outdir <- tempfile()
+        
+        expect_error(calcBinnedMotifEnr(seqs = gr, bins = bins, motifs = mfile,
+                                        method = "Homer", BPPARAM = "error"))
+        
+        expect_message(res <- calcBinnedMotifEnr(
+            seqs = as.character(gr), bins = as.character(bins),
+            motifs = mfile, method = "Homer", genomedir = genomedir,
+            outdir = outdir, homerfile = homerbin, regionsize = "given",
+            BPPARAM = 2, verbose = TRUE),
+            "preparing input files")
+        attr(bins, "breaks") <- seq(0.5, 3.5, by = 1)
+        expect_message(res1 <- calcBinnedMotifEnr(
+            seqs = as.character(gr), bins = bins,
+            motifs = mfile, method = "Homer", genomedir = genomedir,
+            outdir = outdir, homerfile = homerbin, regionsize = "given",
+            BPPARAM = BiocParallel::MulticoreParam(2L), verbose = TRUE),
                        "HOMER output files already exist, using existing files")
         unlink(dir(path = outdir, pattern = "knownResults.txt", full.names = TRUE, recursive = TRUE, ignore.case = FALSE)[1])
-        expect_error(calcBinnedMotifEnr(seqs = as.character(gr), bins = as.character(b),
-                                        motifs = mfile, method = "Homer",
-                                        genomedir = genomedir, outdir = outdir,
-                                        homerfile = homerbin, regionsize = "given"))
-        
+        expect_error(calcBinnedMotifEnr(
+            seqs = as.character(gr), bins = as.character(bins),
+            motifs = mfile, method = "Homer", genomedir = genomedir,
+            outdir = outdir, homerfile = homerbin, regionsize = "given"),
+            "missing 'knownResults.txt' files for some bins")
+
         expect_is(res, "SummarizedExperiment")
         expect_is(res1, "SummarizedExperiment")
+        expect_identical(SummarizedExperiment::colData(res)[, -(2:3)],
+                         SummarizedExperiment::colData(res1)[, -(2:3)])
+        SummarizedExperiment::colData(res)[, 2:3] <- SummarizedExperiment::colData(res1)[, 2:3]
+        expect_identical(S4Vectors::metadata(res)[-c(2,4)],
+                         S4Vectors::metadata(res1)[-c(2,4)])
+        S4Vectors::metadata(res)[c(2,4)] <- S4Vectors::metadata(res1)[c(2,4)]
         expect_identical(res, res1)
         expect_identical(rownames(res), selids)
         expect_length(SummarizedExperiment::assays(res), 6L)
@@ -166,9 +200,11 @@ test_that("calcBinnedMotifEnrHomer() works properly", {
         expect_identical(dim(res), c(5L, 3L))
         expect_identical(rownames(res), SummarizedExperiment::rowData(res)[, "motif.id"])
         expect_identical(rownames(res), TFBSTools::ID(SummarizedExperiment::rowData(res)[, "motif.pfm"]))
-        expect_equal(sum(SummarizedExperiment::assay(res, "negLog10P")), 113.333158367961)
-        expect_equal(sum(SummarizedExperiment::assay(res, "pearsonResid")), 12.6281779389433)
-
-        unlink(c(mfile, outdir), recursive = TRUE, force = TRUE)
+        expect_identical(apply(SummarizedExperiment::assay(res, "negLog10P"), 2, which.max),
+                         c(chr1 = 1L, chr2 = 2L, chr3 = 3L))
+        expect_equal(sum(SummarizedExperiment::assay(res, "negLog10P")), 65.132971396505)
+        expect_equal(sum(SummarizedExperiment::assay(res, "pearsonResid")), 68.0751984482359)
+        
+        unlink(c(mfile, outdir, genomedir), recursive = TRUE, force = TRUE)
     }
 })
