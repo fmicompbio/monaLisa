@@ -183,7 +183,7 @@ of sequences. A separate Markov model and expected k-mer frequencies are
 estimated for the set of sequences in each stratum (level in a <code>strata</code>
 factor). If <code>strata</code> is a scalar value, it will be interpreted as the
 number of strata to split the sequences into according to their CpG
-observed-over-expected counts using <code><a href='https://rdrr.io/r/stats/kmeans.html'>kmeans(CpGoe, centers = strata)</a></code>.</p></td>
+observed-over-expected counts using <code>kmeans(CpGoe, centers = strata)</code>.</p></td>
     </tr>
     <tr>
       <th>p.adjust.method</th>

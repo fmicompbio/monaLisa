@@ -128,11 +128,11 @@ library(JASPAR2018)
 library(TFBSTools)
 pwms &lt;- getMatrixSet(JASPAR2018, list(matrixtype = "PWM", tax_group = "vertebrates"))</a></code></pre>
 <p>The results can be conveniently visualized:</p>
-<pre><code><a href="reference/plotBinDensity.html">plotBinDensity(atacPeaksChange, bins, legend = FALSE)</a></code></pre>
+<pre><code>plotBinDensity(atacPeaksChange, bins, legend = FALSE)</code></pre>
 <p><img src="reference/figures/monaLisa_binning_small.png" align="center" alt="binning" width="412px"></p>
-<pre><code><a href="reference/plotMotifHeatmaps.html">plotMotifHeatmaps(se, cluster = TRUE,
+<pre><code>plotMotifHeatmaps(se, cluster = TRUE,
                   which.plots = c("enr", "FDR"),
-                  show_seqlogo = TRUE)</a></code></pre>
+                  show_seqlogo = TRUE)</code></pre>
 <p><img src="reference/figures/monaLisa_heatmaps_small.png" align="center" alt="heatmaps" width="501px"></p>
 </div>
 <div id="software-status" class="section level2">

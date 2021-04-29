@@ -308,7 +308,7 @@ instance determining the parallel back-end to be used during evaluation.</p></td
 <li><p>zeroBin: sequences from the "zero bin", defined by the
       <code>maxAbsX</code> argument of <code><a href='bin.html'>bin</a></code>. If <code>bins</code>
       does not define a "zero bin", for example because it was created by
-      <code><a href='bin.html'>bin(..., maxAbsX = NULL)</a></code>, selecting this background definition
+      <code>bin(..., maxAbsX = NULL)</code>, selecting this background definition
       will abort with an error.</p></li>
 <li><p>genome: sequences randomly sampled from the genome (or the
       intervals defined in <code>genome.regions</code> if given). For each
@@ -330,11 +330,11 @@ instance determining the parallel back-end to be used during evaluation.</p></td
   available: <code>test = "binomial"</code> (default) to perform binomial test
   like <code>Homer</code>, or <code>test = "fisher"</code> to perform Fisher's exact
   tests, using:</p><ul>
-<li><p>binomial: <code><a href='https://rdrr.io/r/stats/Binomial.html'>pbinom(q = sumForegroundWgtWithHits - 1, size =
+<li><p>binomial: <code>pbinom(q = sumForegroundWgtWithHits - 1, size =
       totalWgtForeground, prob = sumBackgroundWgtWithHits / totalWgtBackground,
-      lower.tail = FALSE, log.p = TRUE)</a></code></p></li>
-<li><p>fisher: <code><a href='https://rdrr.io/r/stats/fisher.test.html'>fisher.test(x = tab, alternative =
-      "greater")</a></code>, where <code>tab</code> is the contingency table with the summed
+      lower.tail = FALSE, log.p = TRUE)</code></p></li>
+<li><p>fisher: <code>fisher.test(x = tab, alternative =
+      "greater")</code>, where <code>tab</code> is the contingency table with the summed
       weights of sequences in foreground or background sets (rows), and with
       or without a hit for a particular motif (columns).</p></li>
 </ul>

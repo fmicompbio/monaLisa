@@ -221,14 +221,14 @@ start position of the first k-mer (default: <code>n = NULL</code>).</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A named <code>numeric</code> vector, with k-mer as names and values
-  indicating the k-mer cluster memberships. In <code><a href='https://rdrr.io/r/base/attr.html'>attr(y, "graph")</a></code> (where
+  indicating the k-mer cluster memberships. In <code>attr(y, "graph")</code> (where
   <code>y</code> is the return value), you can get the k-mer graph on which the
   clustering is based.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>The clustering is performed depending on <code>method</code>.
   For <code>method = "cooccurrence"</code>,
-  <code><a href='countKmerPairs.html'>countKmerPairs(x = seqs, k = k, n = 1, zoops = zoops)</a></code>
+  <code>countKmerPairs(x = seqs, k = k, n = 1, zoops = zoops)</code>
   will be used to first get a pairwise co-occurrence count matrix.
   Rows and columns corresponding to enriched k-mers from <code>x</code> (and their
   reverse complements, if <code>allowReverseComplement = TRUE</code>) will
