@@ -529,6 +529,8 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
         m <- TFBSTools::Matrix(x)
         100 * sum(m[c("C","G"), ]) / sum(m)
     }), use.names = FALSE)
+    mid <- rep(NA, length(pfms))
+    mnm <- rownames(assayL[[1]])
     if (all(grepl(":::", rownames(assayL[[1]])))) {
         mid <- sub(":::.+$", "", rownames(assayL[[1]]))
         mnm <- sub("^.+:::", "", rownames(assayL[[1]]))
@@ -540,9 +542,6 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
             pfms[[i]]@ID <- mid[i]
             pfms[[i]]@name <- mnm[i]
         }
-    } else {
-        mid <- rep(NA, length(pfms))
-        mnm <- rownames(assayL[[1]])
     }
     ## ... ... rowData
     rdat <- S4Vectors::DataFrame(motif.id = mid,
