@@ -404,6 +404,8 @@ parseHomerOutput <- function(infiles,
 #'   method (used in \code{\link[stats]{p.adjust}}).
 #' @param Ncpu Number of parallel threads that HOMER can use.
 #' @param verbose A logical scalar. If \code{TRUE}, print progress messages.
+#' @param verbose.Homer A logical scalar. If \code{TRUE}, print the console
+#'   output when running Homer.
 #'
 #' @seealso The functions that are wrapped: \code{\link{prepareHomer}},
 #'     \code{\link[base]{system2}} and \code{\link{parseHomerOutput}},
@@ -433,7 +435,8 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
                                     pseudocount.pearsonResid = 0.001,
                                     p.adjust.method = "BH",
                                     Ncpu = 2L,
-                                    verbose = FALSE) {
+                                    verbose = FALSE,
+                                    verbose.Homer = FALSE) {
     if (!inherits(gr, "GRanges"))
         gr <- as(gr, "GRanges")
     if (!is.factor(b))
@@ -451,7 +454,8 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
     })
     .assertScalar(x = Ncpu, type = "numeric", rngIncl = c(1, Inf))
     .assertScalar(x = verbose, type = "logical")
-
+    .assertScalar(x = verbose.Homer, type = "logical")
+    
     ## ... check if the HOMER output is already there for all bins and if it ran completely:
     ## ... ... If yes, go to the 'parse output step', otherwise run homer and check again
     if (.checkHomerRun(motifFile = motifFile, outdir = outdir, nbins = nlevels(b))) {
@@ -484,8 +488,8 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
       if (verbose)
           message("\nrunning HOMER...")
       system2(command = "sh", args = runfile,
-              stdout = ifelse(verbose, "", FALSE),
-              stderr = ifelse(verbose, "", FALSE),
+              stdout = ifelse(verbose.Homer, "", FALSE),
+              stderr = ifelse(verbose.Homer, "", FALSE),
               env = paste0("PATH=", dirname(homerfile), ":", Sys.getenv("PATH"), ";"))
 
       ## ... check HOMER ran correctly

@@ -16,7 +16,8 @@ calcBinnedMotifEnrHomer(
   pseudocount.pearsonResid = 0.001,
   p.adjust.method = "BH",
   Ncpu = 2L,
-  verbose = FALSE
+  verbose = FALSE,
+  verbose.Homer = FALSE
 )
 }
 \arguments{
@@ -50,6 +51,9 @@ method (used in \code{\link[stats]{p.adjust}}).}
 \item{Ncpu}{Number of parallel threads that HOMER can use.}
 
 \item{verbose}{A logical scalar. If \code{TRUE}, print progress messages.}
+
+\item{verbose.Homer}{A logical scalar. If \code{TRUE}, print the console
+output when running Homer.}
 }
 \value{
 A \code{SummarizedExperiment} object with motifs in rows and bins
