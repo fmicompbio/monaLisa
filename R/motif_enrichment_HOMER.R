@@ -466,8 +466,7 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
     } else {
 
       ## ... case: all/some files exist and/or HOMER didn't run correctly: warn the User to remove all existing files and rerun
-      if (!.checkHomerRun(motifFile = motifFile, outdir = outdir, nbins = nlevels(b)) &&
-          any(file.exists(dir(path = outdir, pattern = "knownResults.txt",
+      if (any(file.exists(dir(path = outdir, pattern = "knownResults.txt",
                               full.names = TRUE, recursive = TRUE, ignore.case = FALSE)))) {
 
           stop("\nThere are existing 'knownResults.txt' file(s) in outdir. ",
