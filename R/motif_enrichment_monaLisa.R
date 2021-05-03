@@ -89,7 +89,7 @@
     # fraction of N bases per sequence
     observedFracN <- alphabetFrequency(seqs, as.prob = TRUE)[, "N"]
 
-    f1 <- observedFracN > maxFracN
+    f1 <- width(seqs) > 0 & observedFracN > maxFracN
     if (sum(f1) > 0 && verbose) {
         message("  ", sum(f1), " of ", length(seqs),
                 " sequences (", round(100 * sum(f1) / length(seqs), 1), "%)",
@@ -152,7 +152,7 @@
                               gnm.regions,
                               gnm.oversample,
                               gnm.seed,
-                              maxFracN,
+                              maxFracN = 0.7,
                               GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4,
                                            0.45, 0.5, 0.6, 0.7, 0.8)) {
   
