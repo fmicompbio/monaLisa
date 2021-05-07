@@ -363,7 +363,7 @@ Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promot
 
 ## Load Data
 
-In our example dataset, we have quantified ATAC-seq reads on enhancers in mouse P0 lung and liver tissues. The log2-fold change (our response vector in this example) is for liver vs lung, and we are looking at enhancers that have an absolute log2-fold change > 2.
+In our example dataset, we have quantified ATAC-seq reads on enhancers in mouse P0 lung and liver tissues. The log2-fold change (our response vector in this example) is for liver vs lung chromatin accessibility. We are using a set of 10,000 randomly sampled enhancers to illustrate how randomized lasso stability selection can be used to select TFs.
 
 ```{r libs}
 suppressPackageStartupMessages({
@@ -425,18 +425,19 @@ TFBSmatrix[1:6, 1:6]
 ```
 
 
-## Identify important TFs
+## Identify Important TFs
 
 We can now run randomized lasso stability selection to identify TFs that are likely to explain the log-fold changes in accessibility. 
 
 ```{r stabSelTFs}
 # select TFs
+# ... randLassoStabSel() is stochastic, so we set a seed to reproduce the run
 set.seed(123)
 se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung,
                        cutoff = 0.8, mc.cores = 1)
 se
 
-## if using a Windows machine, parallelize using parLapply (see stabs::stabsel for more details)
+# # if using a Windows machine, parallelize using parLapply (see stabs::stabsel for more details)
 # library(parallel)
 # cl <- makeCluster(2)
 # se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung,
@@ -454,15 +455,17 @@ plotStabilityPaths(se)
 
 Each line corresponds to a predictor, and we can see the selection probabilities as a function of the regularization steps, corresponding to decreasing values for the lambda regularization parameter in lasso. The predictor (TF motif) selection happens at the last step, given the specified minimum probability.
 
-We can also visualize the selection probabilities of the selected TF motifs, optionally multiplied by the sign of the correlation to the response vector, to know how the TF relates to the change of accessibility (`directional` parameter).
+We can also visualize the selection probabilities of the selected TF motifs, optionally multiplied by the sign of the correlation to the response vector, to know how the TF relates to the change of accessibility (`directional` parameter). Note that although one can vary the `selProbMinPlot` parameter which sets the selection probability cutoff, it is best to re-run randomized lasso stability selection with the new cutoff, as this influences the other parameters model uses internally. See @StabSel for more details.
 
 ```{r plotSelProbs, fig.width=15, fig.height=7}
-plotSelectionProb(se, directional = TRUE, selProbMinPlot = 0.6)
+plotSelectionProb(se, directional = TRUE)
 ```
 
-Next, we visualize the correlation structure of the TFBS matrix using selected TFs. We can see that some TFs have similar binding sites across the genomic regions. 
+Next, we visualize the correlation structure of the TFBS matrix and selected TFs. We can see that some TFs have similar binding sites across the genomic regions.
 
-```{r TFBScor}
+<!--, and that randomized lasso stability selection does reasonably well in selecting motifs from all given ranges of correlation, even highly correlated motifs. -->
+
+```{r TFBScor_selected}
 # subset the selected TFs
 sel <- colnames(se)[se$selected]
 se_sub <- se[, sel]
@@ -484,13 +487,41 @@ hmSeqlogo <- rowAnnotation(logo = anno_seqlogo(seqlogoGrobs, which = "row"),
                            AUC = se_sub$selAUC, selProb = se_sub$selProb,
                            show_legend = TRUE, show_annotation_name = FALSE,
                            col = list(AUC = colorRamp2(c(0, 1), c("white", "brown")),
-                                      selProb = colorRamp2(c(0, 1), c("white", "forestgreen"))))
+                                      selProb = colorRamp2(c(0, 1), c("white", "steelblue"))))
 
 Heatmap(TFBSmatrixCorSel, show_row_names = TRUE, show_column_names = TRUE, 
         name = "Pear. Cor.", column_title = "Selected TFs",
         col = colorRamp2(c(-1, 0, 1), c("blue", "white", "red")), 
         right_annotation = hmSeqlogo)
 ```
+
+
+```{r TFBScor_all}
+# exclude oeCpG and fracGC
+excl <- colnames(se) %in% c("oeCpG", "fracGC")
+se_sub <- se[, !excl]
+
+# correlation matrix 
+TFBSmatrixCorSel <- cor(TFBSmatrix[, colnames(se_sub)], method = "pearson")
+
+# heatmap annotations
+ann <- HeatmapAnnotation(selected = as.character(se_sub$selected), 
+                         AUC = se_sub$selAUC, 
+                         selProb = se_sub$selProb, 
+                         col = list(selected = c("TRUE"="forestgreen", "FALSE"="grey"), 
+                                    AUC = colorRamp2(c(0, 1), c("white", "brown")), 
+                                    selProb = colorRamp2(c(0, 1), c("white", "steelblue")))
+                         )
+
+# heatmap
+Heatmap(TFBSmatrixCorSel, show_row_names = FALSE, show_column_names = FALSE, 
+        name = "Pear. Cor.", column_title = "All TFs",
+        col = colorRamp2(c(-1, 0, 1), c("blue", "white", "red")), 
+        top_annotation = ann)
+```
+
+
+
 
 We can examine the peaks that have hits for a selected TF motif of interest, ordered by absolute accessibility changes.
 
