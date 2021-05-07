@@ -85,7 +85,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.47</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.48</span>
       </span>
     </div>
 
@@ -220,24 +220,28 @@ include.lowest = TRUE, ...)</code>, such as <code>labels=FALSE</code>.</p></td>
     <div class='dont-index'><p><code><a href='https://rdrr.io/r/base/cut.html'>cut</a></code> which is used internally.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span>
-<span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fl'>100</span><span class='op'>)</span>
-<span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='fu'>bin</span><span class='op'>(</span><span class='va'>x</span>, <span class='st'>"equalN"</span>, nElements<span class='op'>=</span><span class='fl'>10</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='co'>#&gt;    [-2.21,-1.05]   (-1.05,-0.614]  (-0.614,-0.375] (-0.375,-0.0767] 
-#&gt;               10               10               10               10 
-#&gt;  (-0.0767,0.114]    (0.114,0.377]    (0.377,0.581]    (0.581,0.771] 
-#&gt;               10               10               10               10 
-#&gt;     (0.771,1.18]       (1.18,2.4] 
-#&gt;               10               10 </div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='fu'>bin</span><span class='op'>(</span><span class='va'>x</span>, <span class='st'>"equalN"</span>, nElements<span class='op'>=</span><span class='fl'>10</span>, minAbsX<span class='op'>=</span><span class='fl'>0.5</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='co'>#&gt;  [-2.21,-1.09] (-1.09,-0.621] (-0.621,0.576]  (0.576,0.769]   (0.769,1.18] 
-#&gt;             10             10             50             10             10 
-#&gt;     (1.18,2.4] 
-#&gt;             10 </div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='fu'>bin</span><span class='op'>(</span><span class='va'>x</span>, <span class='st'>"equalWidth"</span>, nBins<span class='op'>=</span><span class='fl'>5</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='co'>#&gt;  [-2.21,-1.29] (-1.29,-0.368] (-0.368,0.555]   (0.555,1.48]     (1.48,2.4] 
-#&gt;              6             24             36             28              6 </div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='fu'>bin</span><span class='op'>(</span><span class='va'>x</span>, <span class='st'>"breaks"</span>, breaks<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='op'>-</span><span class='fl'>10</span>,<span class='op'>-</span><span class='fl'>1</span>,<span class='fl'>0</span>,<span class='fl'>1</span>,<span class='fl'>10</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='co'>#&gt; [-10,-1]   (-1,0]    (0,1]   (1,10] 
-#&gt;       11       35       39       15 </div><div class='input'>
-</div></pre>
+    <pre class="examples"><span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fl'>100</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='fu'>bin</span><span class='op'>(</span><span class='va'>x</span>, <span class='st'>"equalN"</span>, nElements<span class='op'>=</span><span class='fl'>10</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>    [-2.21,-1.05]   (-1.05,-0.614]  (-0.614,-0.375] (-0.375,-0.0767] </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>               10               10               10               10 </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  (-0.0767,0.114]    (0.114,0.377]    (0.377,0.581]    (0.581,0.771] </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>               10               10               10               10 </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     (0.771,1.18]       (1.18,2.4] </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>               10               10 </span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='fu'>bin</span><span class='op'>(</span><span class='va'>x</span>, <span class='st'>"equalN"</span>, nElements<span class='op'>=</span><span class='fl'>10</span>, minAbsX<span class='op'>=</span><span class='fl'>0.5</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [-2.21,-1.09] (-1.09,-0.621] (-0.621,0.576]  (0.576,0.769]   (0.769,1.18] </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>             10             10             50             10             10 </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     (1.18,2.4] </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>             10 </span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='fu'>bin</span><span class='op'>(</span><span class='va'>x</span>, <span class='st'>"equalWidth"</span>, nBins<span class='op'>=</span><span class='fl'>5</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  [-2.21,-1.29] (-1.29,-0.368] (-0.368,0.555]   (0.555,1.48]     (1.48,2.4] </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>              6             24             36             28              6 </span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='fu'>bin</span><span class='op'>(</span><span class='va'>x</span>, <span class='st'>"breaks"</span>, breaks<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='op'>-</span><span class='fl'>10</span>,<span class='op'>-</span><span class='fl'>1</span>,<span class='fl'>0</span>,<span class='fl'>1</span>,<span class='fl'>10</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [-10,-1]   (-1,0]    (0,1]   (1,10] </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>       11       35       39       15 </span>
+<span class='r-in'></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

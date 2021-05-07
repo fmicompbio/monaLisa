@@ -1,9 +1,9 @@
 pandoc: 2.7.3
 pkgdown: 1.6.1.9001
-pkgdown_sha: dff8062d297c001dba0dfaf567bfffdc8ad89f5c
+pkgdown_sha: aae5ce1adce646d180f29ede23210ef13527ac7c
 articles:
   monaLisa: monaLisa.html
-last_built: 2021-04-29T14:08Z
+last_built: 2021-05-07T14:36Z
 urls:
   reference: https://fmicompbio.github.io/monaLisa/reference
   article: https://fmicompbio.github.io/monaLisa/articles

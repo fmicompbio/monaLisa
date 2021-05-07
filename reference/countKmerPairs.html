@@ -84,7 +84,7 @@ within a defined distance downstream of the start of a." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.47</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.48</span>
       </span>
     </div>
 
@@ -169,25 +169,26 @@ only once per sequence.</p></td>
     <p>A numeric matrix with observed k-mer pairs counts.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>countKmerPairs</span><span class='op'>(</span><span class='fu'>Biostrings</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html'>DNAStringSet</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"AACCGGTT"</span><span class='op'>)</span><span class='op'>)</span>, k <span class='op'>=</span> <span class='fl'>2</span>, n <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span>
-</div><div class='co'>#&gt;    AA AC AG AT CA CC CG CT GA GC GG GT TA TC TG TT
-#&gt; AA  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-#&gt; AC  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0
-#&gt; AG  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-#&gt; AT  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-#&gt; CA  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-#&gt; CC  0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0
-#&gt; CG  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0
-#&gt; CT  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-#&gt; GA  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-#&gt; GC  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-#&gt; GG  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0
-#&gt; GT  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1
-#&gt; TA  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-#&gt; TC  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-#&gt; TG  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-#&gt; TT  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0</div><div class='input'>
-</div></pre>
+    <pre class="examples"><span class='r-in'><span class='fu'>countKmerPairs</span><span class='op'>(</span><span class='fu'>Biostrings</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html'>DNAStringSet</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"AACCGGTT"</span><span class='op'>)</span><span class='op'>)</span>, k <span class='op'>=</span> <span class='fl'>2</span>, n <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>    AA AC AG AT CA CC CG CT GA GC GG GT TA TC TG TT</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> AA  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> AC  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> AG  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> AT  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> CA  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> CC  0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> CG  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> CT  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> GA  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> GC  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> GG  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> GT  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> TA  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> TC  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> TG  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> TT  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0</span>
+<span class='r-in'></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

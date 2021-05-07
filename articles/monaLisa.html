@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.47</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.48</span>
       </span>
     </div>
 
@@ -81,7 +81,7 @@
       <h1 data-toc-skip>monaLisa - MOtif aNAlysis with Lisa</h1>
                         <h4 data-toc-skip class="author">Dania Machlab, Lukas Burger, Michael Stadler</h4>
             
-            <h4 data-toc-skip class="date">2021-04-29</h4>
+            <h4 data-toc-skip class="date">2021-05-07</h4>
       
       
       <div class="hidden name"><code>monaLisa.Rmd</code></div>
@@ -474,7 +474,7 @@ Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promot
 <div id="load-data" class="section level2">
 <h2 class="hasAnchor">
 <a href="#load-data" class="anchor" aria-hidden="true"></a>Load Data</h2>
-<p>In our example dataset, we have quantified ATAC-seq reads on enhancers in mouse P0 lung and liver tissues. The log2-fold change (our response vector in this example) is for liver vs lung, and we are looking at enhancers that have an absolute log2-fold change &gt; 2.</p>
+<p>In our example dataset, we have quantified ATAC-seq reads on enhancers in mouse P0 lung and liver tissues. The log2-fold change (our response vector in this example) is for liver vs lung chromatin accessibility. We are using a set of 10,000 randomly sampled enhancers to illustrate how randomized lasso stability selection can be used to select TFs.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="op">{</span>
   <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">monaLisa</span><span class="op">)</span>
@@ -512,14 +512,14 @@ Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promot
 <span class="va">TFBSmatrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">unclass</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html" class="external-link">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html" class="external-link">seqnames</a></span><span class="op">(</span><span class="va">hits</span><span class="op">)</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html" class="external-link">seqlevels</a></span><span class="op">(</span><span class="va">hits</span><span class="op">)</span><span class="op">)</span>,
                                   <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">hits</span><span class="op">$</span><span class="va">pwmname</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html" class="external-link">name</a></span><span class="op">(</span><span class="va">pwms</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
 <span class="va">TFBSmatrix</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>
-<span class="co">#&gt;          </span>
-<span class="co">#&gt;           DLX6 YY1 FLI1 CEBPE ISL2 GCM1</span>
-<span class="co">#&gt;   peak_6     2   1    0     0    0    0</span>
-<span class="co">#&gt;   peak_8     0   0    0     2    0    0</span>
-<span class="co">#&gt;   peak_10    0   0    0     0    0    0</span>
-<span class="co">#&gt;   peak_12    0   0    0     0    1    0</span>
-<span class="co">#&gt;   peak_13    0   0    0     0    0    0</span>
-<span class="co">#&gt;   peak_14    0   0    0     0    0    0</span>
+<span class="co">#&gt;              </span>
+<span class="co">#&gt;               DLX6 YY1 FLI1 CEBPE ISL2 GCM1</span>
+<span class="co">#&gt;   peak_51663     0   1    0     0    0    0</span>
+<span class="co">#&gt;   peak_57870     0   0    0     0    0    0</span>
+<span class="co">#&gt;   peak_2986      1   0    0     1    0    0</span>
+<span class="co">#&gt;   peak_124022    0   0    0     0    0    0</span>
+<span class="co">#&gt;   peak_29925     0   0    0     0    0    0</span>
+<span class="co">#&gt;   peak_95246     2   0    0     0    0    0</span>
 
 <span class="co"># remove TF motifs with 0 binding sites in all regions</span>
 <span class="va">zero_TF</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="va">TFBSmatrix</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span>
@@ -536,35 +536,36 @@ Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promot
 <span class="co"># add GC and oeCpG to predictor matrix</span>
 <span class="va">TFBSmatrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">fracGC</span>, <span class="va">oeCpG</span>, <span class="va">TFBSmatrix</span><span class="op">)</span>
 <span class="va">TFBSmatrix</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>
-<span class="co">#&gt;            fracGC     oeCpG DLX6 YY1 FLI1 CEBPE</span>
-<span class="co">#&gt; peak_6  0.3905997 0.2793090    2   1    0     0</span>
-<span class="co">#&gt; peak_8  0.5169492 0.3269142    0   0    0     2</span>
-<span class="co">#&gt; peak_10 0.5033921 0.3800543    0   0    0     0</span>
-<span class="co">#&gt; peak_12 0.5581395 0.2775807    0   0    0     0</span>
-<span class="co">#&gt; peak_13 0.5072202 0.4070690    0   0    0     0</span>
-<span class="co">#&gt; peak_14 0.4268293 0.4615656    0   0    0     0</span></code></pre></div>
+<span class="co">#&gt;                fracGC     oeCpG DLX6 YY1 FLI1 CEBPE</span>
+<span class="co">#&gt; peak_51663  0.5155709 0.4079115    0   1    0     0</span>
+<span class="co">#&gt; peak_57870  0.4963235 0.3048298    0   0    0     0</span>
+<span class="co">#&gt; peak_2986   0.4008264 0.3103806    1   0    0     1</span>
+<span class="co">#&gt; peak_124022 0.4572650 0.4429813    0   0    0     0</span>
+<span class="co">#&gt; peak_29925  0.4675000 0.3495939    0   0    0     0</span>
+<span class="co">#&gt; peak_95246  0.5144509 0.4020976    2   0    0     0</span></code></pre></div>
 </div>
 <div id="identify-important-tfs" class="section level2">
 <h2 class="hasAnchor">
-<a href="#identify-important-tfs" class="anchor" aria-hidden="true"></a>Identify important TFs</h2>
+<a href="#identify-important-tfs" class="anchor" aria-hidden="true"></a>Identify Important TFs</h2>
 <p>We can now run randomized lasso stability selection to identify TFs that are likely to explain the log-fold changes in accessibility.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># select TFs</span>
+<span class="co"># ... randLassoStabSel() is stochastic, so we set a seed to reproduce the run</span>
 <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span>
 <span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/randLassoStabSel.html">randLassoStabSel</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">TFBSmatrix</span>, y <span class="op">=</span> <span class="va">gr</span><span class="op">$</span><span class="va">logFC_liver_vs_lung</span>,
                        cutoff <span class="op">=</span> <span class="fl">0.8</span>, mc.cores <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>
 <span class="va">se</span>
 <span class="co">#&gt; class: SummarizedExperiment </span>
-<span class="co">#&gt; dim: 29805 101 </span>
+<span class="co">#&gt; dim: 10000 101 </span>
 <span class="co">#&gt; metadata(12): stabsel.params.cutoff stabsel.params.selected ...</span>
 <span class="co">#&gt;   stabsel.params.call randStabsel.params.weakness</span>
 <span class="co">#&gt; assays(1): x</span>
-<span class="co">#&gt; rownames(29805): peak_6 peak_8 ... peak_125924 peak_125930</span>
+<span class="co">#&gt; rownames(10000): peak_51663 peak_57870 ... peak_98880 peak_67984</span>
 <span class="co">#&gt; rowData names(1): y</span>
 <span class="co">#&gt; colnames(101): fracGC oeCpG ... MYBL2 MEIS2</span>
-<span class="co">#&gt; colData names(20): selProb selected ... regStep16 regStep17</span>
+<span class="co">#&gt; colData names(21): selProb selected ... regStep17 regStep18</span>
 
-<span class="co">## if using a Windows machine, parallelize using parLapply (see stabs::stabsel for more details)</span>
+<span class="co"># # if using a Windows machine, parallelize using parLapply (see stabs::stabsel for more details)</span>
 <span class="co"># library(parallel)</span>
 <span class="co"># cl &lt;- makeCluster(2)</span>
 <span class="co"># se &lt;- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung,</span>
@@ -572,19 +573,20 @@ Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promot
   
 <span class="co"># selected TFs</span>
 <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span><span class="op">[</span><span class="va">se</span><span class="op">$</span><span class="va">selected</span><span class="op">]</span>
-<span class="co">#&gt;  [1] "fracGC"        "ISL2"          "ONECUT2"       "GATA1::TAL1"  </span>
-<span class="co">#&gt;  [5] "Nkx2-5(var.2)" "NR2F2"         "Myod1"         "NR4A2::RXRA"  </span>
-<span class="co">#&gt;  [9] "NFATC3"        "HNF4G"         "HNF1A"         "TEAD3"</span></code></pre></div>
+<span class="co">#&gt;  [1] "ISL2"           "ONECUT2"        "GATA1::TAL1"    "Nkx2-5(var.2)" </span>
+<span class="co">#&gt;  [5] "NR2F2"          "Myod1"          "NR4A2::RXRA"    "Stat5a::Stat5b"</span>
+<span class="co">#&gt;  [9] "HNF4G"          "HNF1A"          "TEAD3"</span></code></pre></div>
 <p>The stability paths visualizes how predictors get selected decreasing regularization stringency (from left to right):</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plotStabilityPaths.html">plotStabilityPaths</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span></code></pre></div>
 <p><img src="monaLisa_files/figure-html/plotStabilityPaths-1.png" width="80%" style="display: block; margin: auto;"></p>
 <p>Each line corresponds to a predictor, and we can see the selection probabilities as a function of the regularization steps, corresponding to decreasing values for the lambda regularization parameter in lasso. The predictor (TF motif) selection happens at the last step, given the specified minimum probability.</p>
-<p>We can also visualize the selection probabilities of the selected TF motifs, optionally multiplied by the sign of the correlation to the response vector, to know how the TF relates to the change of accessibility (<code>directional</code> parameter).</p>
+<p>We can also visualize the selection probabilities of the selected TF motifs, optionally multiplied by the sign of the correlation to the response vector, to know how the TF relates to the change of accessibility (<code>directional</code> parameter). Note that although one can vary the <code>selProbMinPlot</code> parameter which sets the selection probability cutoff, it is best to re-run randomized lasso stability selection with the new cutoff, as this influences the other parameters model uses internally. See <span class="citation">Meinshausen and Bühlmann (2010)</span> for more details.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plotSelectionProb.html">plotSelectionProb</a></span><span class="op">(</span><span class="va">se</span>, directional <span class="op">=</span> <span class="cn">TRUE</span>, selProbMinPlot <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="../reference/plotSelectionProb.html">plotSelectionProb</a></span><span class="op">(</span><span class="va">se</span>, directional <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <p><img src="monaLisa_files/figure-html/plotSelProbs-1.png" width="80%" style="display: block; margin: auto;"></p>
-<p>Next, we visualize the correlation structure of the TFBS matrix using selected TFs. We can see that some TFs have similar binding sites across the genomic regions.</p>
+<p>Next, we visualize the correlation structure of the TFBS matrix and selected TFs. We can see that some TFs have similar binding sites across the genomic regions.</p>
+<!--, and that randomized lasso stability selection does reasonably well in selecting motifs from all given ranges of correlation, even highly correlated motifs. -->
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># subset the selected TFs</span>
 <span class="va">sel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span><span class="op">[</span><span class="va">se</span><span class="op">$</span><span class="va">selected</span><span class="op">]</span>
@@ -607,18 +609,41 @@ Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promot
                            AUC <span class="op">=</span> <span class="va">se_sub</span><span class="op">$</span><span class="va">selAUC</span>, selProb <span class="op">=</span> <span class="va">se_sub</span><span class="op">$</span><span class="va">selProb</span>,
                            show_legend <span class="op">=</span> <span class="cn">TRUE</span>, show_annotation_name <span class="op">=</span> <span class="cn">FALSE</span>,
                            col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>AUC <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/circlize/man/colorRamp2.html" class="external-link">colorRamp2</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"white"</span>, <span class="st">"brown"</span><span class="op">)</span><span class="op">)</span>,
-                                      selProb <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/circlize/man/colorRamp2.html" class="external-link">colorRamp2</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"white"</span>, <span class="st">"forestgreen"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+                                      selProb <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/circlize/man/colorRamp2.html" class="external-link">colorRamp2</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"white"</span>, <span class="st">"steelblue"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
 
 <span class="fu"><a href="https://rdrr.io/pkg/ComplexHeatmap/man/Heatmap.html" class="external-link">Heatmap</a></span><span class="op">(</span><span class="va">TFBSmatrixCorSel</span>, show_row_names <span class="op">=</span> <span class="cn">TRUE</span>, show_column_names <span class="op">=</span> <span class="cn">TRUE</span>, 
         name <span class="op">=</span> <span class="st">"Pear. Cor."</span>, column_title <span class="op">=</span> <span class="st">"Selected TFs"</span>,
         col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/circlize/man/colorRamp2.html" class="external-link">colorRamp2</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"blue"</span>, <span class="st">"white"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span>, 
         right_annotation <span class="op">=</span> <span class="va">hmSeqlogo</span><span class="op">)</span></code></pre></div>
-<p><img src="monaLisa_files/figure-html/TFBScor-1.png" width="80%" style="display: block; margin: auto;"></p>
-<p>We can examine the peaks that have hits for a selected TF motif of interest, ordered by absolute accessibility changes.</p>
+<p><img src="monaLisa_files/figure-html/TFBScor_selected-1.png" width="80%" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># exclude oeCpG and fracGC</span>
+<span class="va">excl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/BiocGenerics/man/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"oeCpG"</span>, <span class="st">"fracGC"</span><span class="op">)</span>
+<span class="va">se_sub</span> <span class="op">&lt;-</span> <span class="va">se</span><span class="op">[</span>, <span class="op">!</span><span class="va">excl</span><span class="op">]</span>
+
+<span class="co"># correlation matrix </span>
+<span class="va">TFBSmatrixCorSel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">TFBSmatrix</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">se_sub</span><span class="op">)</span><span class="op">]</span>, method <span class="op">=</span> <span class="st">"pearson"</span><span class="op">)</span>
+
+<span class="co"># heatmap annotations</span>
+<span class="va">ann</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ComplexHeatmap/man/HeatmapAnnotation.html" class="external-link">HeatmapAnnotation</a></span><span class="op">(</span>selected <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">se_sub</span><span class="op">$</span><span class="va">selected</span><span class="op">)</span>, 
+                         AUC <span class="op">=</span> <span class="va">se_sub</span><span class="op">$</span><span class="va">selAUC</span>, 
+                         selProb <span class="op">=</span> <span class="va">se_sub</span><span class="op">$</span><span class="va">selProb</span>, 
+                         col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>selected <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TRUE"</span><span class="op">=</span><span class="st">"forestgreen"</span>, <span class="st">"FALSE"</span><span class="op">=</span><span class="st">"grey"</span><span class="op">)</span>, 
+                                    AUC <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/circlize/man/colorRamp2.html" class="external-link">colorRamp2</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"white"</span>, <span class="st">"brown"</span><span class="op">)</span><span class="op">)</span>, 
+                                    selProb <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/circlize/man/colorRamp2.html" class="external-link">colorRamp2</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"white"</span>, <span class="st">"steelblue"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+                         <span class="op">)</span>
+
+<span class="co"># heatmap</span>
+<span class="fu"><a href="https://rdrr.io/pkg/ComplexHeatmap/man/Heatmap.html" class="external-link">Heatmap</a></span><span class="op">(</span><span class="va">TFBSmatrixCorSel</span>, show_row_names <span class="op">=</span> <span class="cn">FALSE</span>, show_column_names <span class="op">=</span> <span class="cn">FALSE</span>, 
+        name <span class="op">=</span> <span class="st">"Pear. Cor."</span>, column_title <span class="op">=</span> <span class="st">"All TFs"</span>,
+        col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/circlize/man/colorRamp2.html" class="external-link">colorRamp2</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"blue"</span>, <span class="st">"white"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span>, 
+        top_annotation <span class="op">=</span> <span class="va">ann</span><span class="op">)</span></code></pre></div>
+<p><img src="monaLisa_files/figure-html/TFBScor_all-1.png" width="80%" style="display: block; margin: auto;"></p>
+<p>We can examine the peaks that have hits for a selected TF motif of interest, ordered by absolute accessibility changes.</p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">TF</span> <span class="op">&lt;-</span> <span class="va">sel</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>
 <span class="va">TF</span>
-<span class="co">#&gt; [1] "ISL2"</span>
+<span class="co">#&gt; [1] "ONECUT2"</span>
 
 <span class="va">i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">se</span>, <span class="st">"x"</span><span class="op">)</span><span class="op">[</span>, <span class="va">TF</span><span class="op">]</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="co"># peaks that contain TF hits...</span>
 <span class="va">nm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">gr</span><span class="op">$</span><span class="va">logFC_liver_vs_lung</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="co"># ... order by |logFC|</span>
@@ -627,12 +652,12 @@ Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promot
 <span class="co">#&gt; GRanges object with 6 ranges and 1 metadata column:</span>
 <span class="co">#&gt;               seqnames              ranges strand | logFC_liver_vs_lung</span>
 <span class="co">#&gt;                  &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; |           &lt;numeric&gt;</span>
-<span class="co">#&gt;    peak_67037     chr9   74671278-74672246      * |             6.00494</span>
-<span class="co">#&gt;   peak_108697    chr16   22898213-22900713      * |             5.99728</span>
-<span class="co">#&gt;     peak_9118     chr1 193001515-193002191      * |             5.88732</span>
-<span class="co">#&gt;    peak_74900    chr10   95836333-95837388      * |             5.87761</span>
-<span class="co">#&gt;    peak_59594     chr8   79615686-79616505      * |             5.83592</span>
-<span class="co">#&gt;    peak_24204     chr3 121559211-121560775      * |            -5.78383</span>
+<span class="co">#&gt;   peak_112861    chr17   10361698-10362434      * |            -5.88179</span>
+<span class="co">#&gt;    peak_34787     chr5   25163640-25164610      * |             5.42585</span>
+<span class="co">#&gt;   peak_115994    chr17   66880993-66881911      * |             5.37573</span>
+<span class="co">#&gt;    peak_59642     chr8   80499941-80501128      * |             5.31505</span>
+<span class="co">#&gt;    peak_95069    chr13   93648444-93649430      * |             5.16886</span>
+<span class="co">#&gt;     peak_9182     chr1 193543294-193544285      * |             4.73593</span>
 <span class="co">#&gt;   -------</span>
 <span class="co">#&gt;   seqinfo: 19 sequences from an unspecified genome; no seqlengths</span></code></pre></div>
 </div>
@@ -642,7 +667,7 @@ Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promot
 <a href="#session-info-and-logo" class="anchor" aria-hidden="true"></a>Session info and logo</h1>
 <p>The monaLisa logo uses a drawing that was obtained from <a href="http://vectorish.com/lisa-simpson.html" class="external-link uri">http://vectorish.com/lisa-simpson.html</a> under the Creative Commons attribution - non-commercial 3.0 license: <a href="https://creativecommons.org/licenses/by-nc/3.0/" class="external-link uri">https://creativecommons.org/licenses/by-nc/3.0/</a>.</p>
 <p>This vignette was built using:</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt; R version 4.0.5 (2021-03-31)</span>
 <span class="co">#&gt; Platform: x86_64-apple-darwin17.0 (64-bit)</span>
@@ -665,7 +690,7 @@ Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promot
 <span class="co">#&gt;  [3] TxDb.Mmusculus.UCSC.mm10.knownGene_3.10.0</span>
 <span class="co">#&gt;  [4] GenomicFeatures_1.42.3                   </span>
 <span class="co">#&gt;  [5] AnnotationDbi_1.52.0                     </span>
-<span class="co">#&gt;  [6] monaLisa_0.1.47                          </span>
+<span class="co">#&gt;  [6] monaLisa_0.1.48                          </span>
 <span class="co">#&gt;  [7] BSgenome.Mmusculus.UCSC.mm10_1.4.0       </span>
 <span class="co">#&gt;  [8] BSgenome_1.58.0                          </span>
 <span class="co">#&gt;  [9] rtracklayer_1.50.0                       </span>
@@ -685,7 +710,7 @@ Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promot
 <span class="co">#&gt; [23] BiocStyle_2.18.1                         </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; loaded via a namespace (and not attached):</span>
-<span class="co">#&gt;   [1] colorspace_2.0-0            rjson_0.2.20               </span>
+<span class="co">#&gt;   [1] colorspace_2.0-1            rjson_0.2.20               </span>
 <span class="co">#&gt;   [3] ellipsis_0.3.2              rprojroot_2.0.2            </span>
 <span class="co">#&gt;   [5] GlobalOptions_0.1.2         fs_1.5.0                   </span>
 <span class="co">#&gt;   [7] clue_0.3-59                 bit64_4.0.5                </span>
@@ -700,47 +725,47 @@ Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promot
 <span class="co">#&gt;  [25] R.oo_1.24.0                 BiocManager_1.30.12        </span>
 <span class="co">#&gt;  [27] readr_1.4.0                 compiler_4.0.5             </span>
 <span class="co">#&gt;  [29] httr_1.4.2                  assertthat_0.2.1           </span>
-<span class="co">#&gt;  [31] Matrix_1.3-2                fastmap_1.1.0              </span>
+<span class="co">#&gt;  [31] Matrix_1.3-3                fastmap_1.1.0              </span>
 <span class="co">#&gt;  [33] prettyunits_1.1.1           htmltools_0.5.1.1          </span>
 <span class="co">#&gt;  [35] tools_4.0.5                 igraph_1.2.6               </span>
 <span class="co">#&gt;  [37] gtable_0.3.0                glue_1.4.2                 </span>
 <span class="co">#&gt;  [39] TFMPvalue_0.0.8             GenomeInfoDbData_1.2.4     </span>
-<span class="co">#&gt;  [41] reshape2_1.4.4              dplyr_1.0.5                </span>
+<span class="co">#&gt;  [41] reshape2_1.4.4              dplyr_1.0.6                </span>
 <span class="co">#&gt;  [43] rappdirs_0.3.3              Rcpp_1.0.6                 </span>
 <span class="co">#&gt;  [45] jquerylib_0.1.4             pkgdown_1.6.1.9001         </span>
-<span class="co">#&gt;  [47] vctrs_0.3.7                 iterators_1.0.13           </span>
+<span class="co">#&gt;  [47] vctrs_0.3.8                 iterators_1.0.13           </span>
 <span class="co">#&gt;  [49] xfun_0.22                   CNEr_1.26.0                </span>
 <span class="co">#&gt;  [51] stringr_1.4.0               lifecycle_1.0.0            </span>
 <span class="co">#&gt;  [53] poweRlaw_0.70.6             gtools_3.8.2               </span>
 <span class="co">#&gt;  [55] stringdist_0.9.6.3          XML_3.99-0.6               </span>
 <span class="co">#&gt;  [57] zlibbioc_1.36.0             scales_1.1.1               </span>
 <span class="co">#&gt;  [59] ragg_1.1.2                  hms_1.0.0                  </span>
-<span class="co">#&gt;  [61] RColorBrewer_1.1-2          curl_4.3                   </span>
+<span class="co">#&gt;  [61] RColorBrewer_1.1-2          curl_4.3.1                 </span>
 <span class="co">#&gt;  [63] yaml_2.2.1                  memoise_2.0.0              </span>
 <span class="co">#&gt;  [65] ggplot2_3.3.3               stabs_0.6-4                </span>
 <span class="co">#&gt;  [67] sass_0.3.1                  biomaRt_2.46.3             </span>
-<span class="co">#&gt;  [69] stringi_1.5.3               RSQLite_2.2.6              </span>
+<span class="co">#&gt;  [69] stringi_1.5.3               RSQLite_2.2.7              </span>
 <span class="co">#&gt;  [71] highr_0.9                   desc_1.3.0                 </span>
 <span class="co">#&gt;  [73] foreach_1.5.1               caTools_1.18.2             </span>
 <span class="co">#&gt;  [75] BiocParallel_1.24.1         shape_1.4.5                </span>
-<span class="co">#&gt;  [77] rlang_0.4.10                pkgconfig_2.0.3            </span>
-<span class="co">#&gt;  [79] systemfonts_1.0.1           bitops_1.0-6               </span>
+<span class="co">#&gt;  [77] rlang_0.4.11                pkgconfig_2.0.3            </span>
+<span class="co">#&gt;  [79] systemfonts_1.0.1           bitops_1.0-7               </span>
 <span class="co">#&gt;  [81] pracma_2.3.3                evaluate_0.14              </span>
-<span class="co">#&gt;  [83] lattice_0.20-41             purrr_0.3.4                </span>
+<span class="co">#&gt;  [83] lattice_0.20-44             purrr_0.3.4                </span>
 <span class="co">#&gt;  [85] GenomicAlignments_1.26.0    bit_4.0.4                  </span>
-<span class="co">#&gt;  [87] tidyselect_1.1.0            plyr_1.8.6                 </span>
-<span class="co">#&gt;  [89] magrittr_2.0.1              bookdown_0.21              </span>
+<span class="co">#&gt;  [87] tidyselect_1.1.1            plyr_1.8.6                 </span>
+<span class="co">#&gt;  [89] magrittr_2.0.1              bookdown_0.22              </span>
 <span class="co">#&gt;  [91] R6_2.5.0                    generics_0.1.0             </span>
 <span class="co">#&gt;  [93] DelayedArray_0.16.3         DBI_1.1.1                  </span>
 <span class="co">#&gt;  [95] pillar_1.6.0                survival_3.2-11            </span>
 <span class="co">#&gt;  [97] KEGGREST_1.30.1             RCurl_1.98-1.3             </span>
 <span class="co">#&gt;  [99] tibble_3.1.1                crayon_1.4.1               </span>
 <span class="co">#&gt; [101] utf8_1.2.1                  BiocFileCache_1.14.0       </span>
-<span class="co">#&gt; [103] rmarkdown_2.7               progress_1.2.2             </span>
+<span class="co">#&gt; [103] rmarkdown_2.8               progress_1.2.2             </span>
 <span class="co">#&gt; [105] GetoptLong_1.0.5            blob_1.2.1                 </span>
 <span class="co">#&gt; [107] digest_0.6.27               xtable_1.8-4               </span>
 <span class="co">#&gt; [109] R.utils_2.10.1              textshaping_0.3.3          </span>
-<span class="co">#&gt; [111] openssl_1.4.3               glmnet_4.1-1               </span>
+<span class="co">#&gt; [111] openssl_1.4.4               glmnet_4.1-1               </span>
 <span class="co">#&gt; [113] munsell_0.5.0               DirichletMultinomial_1.32.0</span>
 <span class="co">#&gt; [115] bslib_0.2.4                 askpass_1.1</span></code></pre></div>
 </div>

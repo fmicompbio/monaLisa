@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://fmicompbio.github.io/monaLisa/404.html</loc>
+  </url>
+  <url>
+    <loc>https://fmicompbio.github.io/monaLisa/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>https://fmicompbio.github.io/monaLisa/articles/monaLisa.html</loc>
+  </url>
+  <url>
+    <loc>https://fmicompbio.github.io/monaLisa/authors.html</loc>
+  </url>
+  <url>
     <loc>https://fmicompbio.github.io/monaLisa/index.html</loc>
   </url>
   <url>
@@ -76,6 +88,9 @@
     <loc>https://fmicompbio.github.io/monaLisa/reference/homerToPFMatrixList.html</loc>
   </url>
   <url>
+    <loc>https://fmicompbio.github.io/monaLisa/reference/index.html</loc>
+  </url>
+  <url>
     <loc>https://fmicompbio.github.io/monaLisa/reference/monaLisa-package.html</loc>
   </url>
   <url>
@@ -116,8 +131,5 @@
   </url>
   <url>
     <loc>https://fmicompbio.github.io/monaLisa/reference/seqLogoGrob.html</loc>
-  </url>
-  <url>
-    <loc>https://fmicompbio.github.io/monaLisa/articles/monaLisa.html</loc>
   </url>
 </urlset>
