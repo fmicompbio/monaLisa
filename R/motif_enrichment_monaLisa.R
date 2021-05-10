@@ -1098,6 +1098,22 @@ calcBinnedMotifEnrR <- function(seqs,
                               verbose = verbose))
     assaySumForegroundWgtWithHits <- do.call(cbind, lapply(enrichL, function(x){x$sumForegroundWgtWithHits}))
     assaySumBackgroundWgtWithHits <- do.call(cbind, lapply(enrichL, function(x){x$sumBackgroundWgtWithHits}))
+    
+    # ... set motifs with zero fore- and background sums to NA
+    assayFgBgSum <- assaySumForegroundWgtWithHits + assaySumBackgroundWgtWithHits
+    set_NA <- assayFgBgSum == 0
+    P[set_NA] <- NA
+    padj[set_NA] <- NA
+    enrTF[set_NA] <- NA
+    log2enr[set_NA] <- NA
+    assaySumForegroundWgtWithHits[set_NA] <- NA
+    assaySumBackgroundWgtWithHits[set_NA] <- NA
+    if(any(set_NA)){
+        message("Some motifs had no hits in the fore- and background sets.
+                 Their values in the assays will be set to NA where this occured. 
+                 See the Assays for more details.")
+    }
+    
     se <- SummarizedExperiment(assays = list(negLog10P = P, 
                                              negLog10Padj = padj, 
                                              pearsonResid = enrTF,
