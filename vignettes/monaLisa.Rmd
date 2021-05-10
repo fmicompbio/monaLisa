@@ -392,10 +392,10 @@ We will now construct the transcription factor binding site (TFBS) matrix for kn
 As mentioned, this framework offers the flexibility to add additional predictors to compete against the TF motifs for selection. Here, we add the fraction of G+C and CpG observed/expected ratio as predictors, to ensure that selected TF motifs are not just detecting a simple trend in GC or CpG composition.
 
 ```{r predictorMatrix}
-# get PWMs (random subset of 100 vertebrate TFs from Jaspar)
+# get PWMs (random subset of 200 vertebrate TFs from Jaspar)
 pfms <- getMatrixSet(JASPAR2018, list(matrixtype = "PFM", tax_group = "vertebrates"))
 set.seed(6698)
-pfms <- pfms[sample(length(pfms), size = 100)]
+pfms <- pfms[sample(length(pfms), size = 200)]
 pwms <- toPWM(pfms)
 
 # get TFBS on given GRanges (peaks)
