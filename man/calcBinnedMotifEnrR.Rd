@@ -9,7 +9,7 @@ calcBinnedMotifEnrR(
   bins = NULL,
   pwmL = NULL,
   background = c("otherBins", "allBins", "zeroBin", "genome"),
-  test = c("binomial", "fisher"),
+  test = c("fisher", "binomial"),
   maxFracN = 0.7,
   maxKmerSize = 3L,
   min.score = 10,
@@ -42,7 +42,7 @@ to use. One of \code{"otherBins"} (default), \code{"allBins"}, \code{"zeroBin"}
 or \code{"genome"} (see "Details").}
 
 \item{test}{A \code{character} scalar specifying the type of enrichment test
-to perform. One of \code{"binomial"} (default) or \code{"fisher"}. The
+to perform. One of \code{"fisher"} (default) or \code{"binomial"}. The
 enrichment test is one-sided (enriched in foreground).}
 
 \item{maxFracN}{A numeric scalar with the maximal fraction of N bases allowed
@@ -122,7 +122,8 @@ This function implements a binned motif enrichment analysis. In each
   sequences to test for motif enrichment comparing to background sequences
   (defined by \code{background}, see below). The logic follows the
   \code{findMotifsGenome.pl} tool from \code{Homer} version 4.11, with
-  \code{-size given -nomotif -mknown} and gives very similar results.
+  \code{-size given -nomotif -mknown} and additionally \code{-h} if using 
+  \code{test = "fisher"}, and gives very similar results.
   As in the \code{Homer} tool, sequences are weighted to correct for GC and
   k-mer composition differences between fore- and background sets.
   
@@ -153,17 +154,17 @@ This function implements a binned motif enrichment analysis. In each
   (\code{totalWgtForeground}) and background (\code{totalWgtBackground})
   sum of sequence weights is also calculated.
 
-  To statistical tests for the calculation of enrichment log p-value are
-  available: \code{test = "binomial"} (default) to perform binomial test
-  like \code{Homer}, or \code{test = "fisher"} to perform Fisher's exact
-  tests, using:
+  Two statistical tests for the calculation of enrichment log p-value are
+  available: \code{test = "fisher"} (default) to perform Fisher's exact
+  tests, or \code{test = "binomial"} to perform binomial tests
+  (default in \code{Homer}), using:
   \itemize{
-    \item{binomial}{: \code{pbinom(q = sumForegroundWgtWithHits - 1, size =
-      totalWgtForeground, prob = sumBackgroundWgtWithHits / totalWgtBackground,
-      lower.tail = FALSE, log.p = TRUE)}}
     \item{fisher}{: \code{fisher.test(x = tab, alternative =
       "greater")}, where \code{tab} is the contingency table with the summed
       weights of sequences in foreground or background sets (rows), and with
       or without a hit for a particular motif (columns).}
+    \item{binomial}{: \code{pbinom(q = sumForegroundWgtWithHits - 1, size =
+      totalWgtForeground, prob = sumBackgroundWgtWithHits / totalWgtBackground,
+      lower.tail = FALSE, log.p = TRUE)}}
   }
 }

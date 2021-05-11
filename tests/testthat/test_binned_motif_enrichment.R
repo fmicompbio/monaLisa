@@ -278,7 +278,7 @@ test_that(".calcMotifEnrichment works", {
     # expect_is(res1, "data.frame")
     expect_is(res1 <- .calcMotifEnrichment(motifHitMatrix = mhits, df = df), "data.frame")
     expect_identical(rownames(res1), colnames(mhits))
-    expect_identical(round(res1$logP, 3), c(-1.341, -0.038, -0.844, 0))
+    expect_identical(round(res1$logP, 3), c(-0.990, -0.029, 0, 0))
     expect_message(res2 <- .calcMotifEnrichment(motifHitMatrix = mhits, df = df, test = "fisher", verbose = TRUE))
     expect_is(res2, "data.frame")
     expect_identical(res1[, -2], res2[, -2])

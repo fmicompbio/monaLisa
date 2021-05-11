@@ -573,11 +573,12 @@
 #'   in foreground compared to background. This function is called by
 #'   \code{calcBinnedMotifEnrR()} for each bin.
 #'
-#'   The defaults type of test is \code{"binomial"}, which is also what
-#'   \code{Homer} uses by default. Alternatively, Fisher's exact test can be
-#'   used by \code{test = "fisher"}, which has the advantage that special cases
-#'   such as zero background counts are handled without ad-hoc adjustments to
-#'   the frequencies.
+#'   The default type of test is \code{"fisher"}, which is also what
+#'   \code{Homer} uses if "-h" is specified for a hypergeometric test.
+#'   Alternatively, a binomial test can be used by \code{test = "binomial"}
+#'   (what \code{Homer} does by default). Using Fisher's exact test has 
+#'   the advantage that special cases such as zero background counts are handled 
+#'   without ad-hoc adjustments to the frequencies.
 #'
 #'   For \code{test = "fisher"}, \code{fisher.test} is used with
 #'   \code{alternative = "greater"}, making it a one-sided test for enrichment,
@@ -613,7 +614,7 @@
 #' @keywords internal
 .calcMotifEnrichment <- function(motifHitMatrix,
                                  df,
-                                 test = c("binomial", "fisher"),
+                                 test = c("fisher", "binomial"),
                                  verbose = FALSE){
 
     # checks
@@ -716,7 +717,7 @@
 #'   to use. One of \code{"otherBins"} (default), \code{"allBins"}, \code{"zeroBin"}
 #'   or \code{"genome"} (see "Details").
 #' @param test A \code{character} scalar specifying the type of enrichment test
-#'   to perform. One of \code{"binomial"} (default) or \code{"fisher"}. The
+#'   to perform. One of \code{"fisher"} (default) or \code{"binomial"}. The
 #'   enrichment test is one-sided (enriched in foreground).
 #' @param maxFracN A numeric scalar with the maximal fraction of N bases allowed
 #'   in a sequence (defaults to 0.7). Sequences with higher fractions are
@@ -762,7 +763,8 @@
 #'   sequences to test for motif enrichment comparing to background sequences
 #'   (defined by \code{background}, see below). The logic follows the
 #'   \code{findMotifsGenome.pl} tool from \code{Homer} version 4.11, with
-#'   \code{-size given -nomotif -mknown} and gives very similar results.
+#'   \code{-size given -nomotif -mknown} and additionally \code{-h} if using 
+#'   \code{test = "fisher"}, and gives very similar results.
 #'   As in the \code{Homer} tool, sequences are weighted to correct for GC and
 #'   k-mer composition differences between fore- and background sets.
 #'   
@@ -793,18 +795,18 @@
 #'   (\code{totalWgtForeground}) and background (\code{totalWgtBackground})
 #'   sum of sequence weights is also calculated.
 #'
-#'   To statistical tests for the calculation of enrichment log p-value are
-#'   available: \code{test = "binomial"} (default) to perform binomial test
-#'   like \code{Homer}, or \code{test = "fisher"} to perform Fisher's exact
-#'   tests, using:
+#'   Two statistical tests for the calculation of enrichment log p-value are
+#'   available: \code{test = "fisher"} (default) to perform Fisher's exact
+#'   tests, or \code{test = "binomial"} to perform binomial tests
+#'   (default in \code{Homer}), using:
 #'   \itemize{
-#'     \item{binomial}{: \code{pbinom(q = sumForegroundWgtWithHits - 1, size =
-#'       totalWgtForeground, prob = sumBackgroundWgtWithHits / totalWgtBackground,
-#'       lower.tail = FALSE, log.p = TRUE)}}
 #'     \item{fisher}{: \code{fisher.test(x = tab, alternative =
 #'       "greater")}, where \code{tab} is the contingency table with the summed
 #'       weights of sequences in foreground or background sets (rows), and with
 #'       or without a hit for a particular motif (columns).}
+#'     \item{binomial}{: \code{pbinom(q = sumForegroundWgtWithHits - 1, size =
+#'       totalWgtForeground, prob = sumBackgroundWgtWithHits / totalWgtBackground,
+#'       lower.tail = FALSE, log.p = TRUE)}}
 #'   }
 #'   
 #' @return A \code{SummarizedExperiment} object with motifs in rows and bins
@@ -831,7 +833,7 @@ calcBinnedMotifEnrR <- function(seqs,
                                 bins = NULL,
                                 pwmL = NULL,
                                 background = c("otherBins", "allBins", "zeroBin", "genome"),
-                                test = c("binomial", "fisher"),
+                                test = c("fisher", "binomial"),
                                 maxFracN = 0.7,
                                 maxKmerSize = 3L,
                                 min.score = 10,

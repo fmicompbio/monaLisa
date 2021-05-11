@@ -7,7 +7,7 @@
 .calcMotifEnrichment(
   motifHitMatrix,
   df,
-  test = c("binomial", "fisher"),
+  test = c("fisher", "binomial"),
   verbose = FALSE
 )
 }
@@ -47,11 +47,12 @@ Given motif counts, foreground/background labels and
   in foreground compared to background. This function is called by
   \code{calcBinnedMotifEnrR()} for each bin.
 
-  The defaults type of test is \code{"binomial"}, which is also what
-  \code{Homer} uses by default. Alternatively, Fisher's exact test can be
-  used by \code{test = "fisher"}, which has the advantage that special cases
-  such as zero background counts are handled without ad-hoc adjustments to
-  the frequencies.
+  The default type of test is \code{"fisher"}, which is also what
+  \code{Homer} uses if "-h" is specified for a hypergeometric test.
+  Alternatively, a binomial test can be used by \code{test = "binomial"}
+  (what \code{Homer} does by default). Using Fisher's exact test has 
+  the advantage that special cases such as zero background counts are handled 
+  without ad-hoc adjustments to the frequencies.
 
   For \code{test = "fisher"}, \code{fisher.test} is used with
   \code{alternative = "greater"}, making it a one-sided test for enrichment,
