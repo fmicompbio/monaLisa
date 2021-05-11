@@ -233,6 +233,8 @@ plotBinScatter <- function(x, y, b,
 #'     logos are drawn to scale).
 #' @param use_raster \code{TRUE} or \code{FALSE} (default). Passed to \code{use_raster}
 #'     of \code{\link[ComplexHeatmap]{Heatmap}}.
+#' @param na_col "white" (default). Passed to \code{na_col} of 
+#'     \code{\link[ComplexHeatmap]{Heatmap}}.
 #' @param ... Further arguments passed to \code{\link[ComplexHeatmap]{Heatmap}}
 #'     when creating the main heatmaps selected by \code{which.plots}. 
 #'
@@ -282,6 +284,7 @@ plotMotifHeatmaps <- function(x,
                               show_seqlogo = FALSE,
                               width.seqlogo = 1.5,
                               use_raster = FALSE,
+                              na_col = "white", 
                               ...) {
 	stopifnot(exprs = {
 	    is(x, "SummarizedExperiment")
@@ -296,6 +299,7 @@ plotMotifHeatmaps <- function(x,
 	.assertScalar(x = show_seqlogo, type = "logical")
 	.assertScalar(x = width.seqlogo, type = "numeric", rngExcl = c(0, Inf))
 	.assertScalar(x = use_raster, type = "logical")
+	.assertScalar(x = na_col, type = "character")
 	stopifnot(exprs = {
 	    ncol(x) == nlevels(b)
 	    all(which.plots %in% c("negLog10P", "negLog10Padj", "pearsonResid", "log2enr"))
@@ -303,7 +307,14 @@ plotMotifHeatmaps <- function(x,
 	})
 	bincols <- attr(getColsByBin(b), "cols")
 	if (is.logical(cluster) && length(cluster) == 1 && cluster[1] == TRUE) {
-	    clres <- hclust(dist(assay(x, "pearsonResid")))
+	    if(any(is.na(assay(x, "pearsonResid")))) {
+	        # set NA values to 0 for the distance calcuclations
+	        assay <- assay(x, "pearsonResid")
+	        assay[is.na(assay)] <- 0
+	        clres <- hclust(dist(assay))
+	    } else {
+	        clres <- hclust(dist(assay(x, "pearsonResid")))
+	    }
 	} else if (is.logical(cluster) && length(cluster) == 1 && cluster[1] == FALSE) {
 	    clres <- FALSE
 	} else if (is(cluster, "hclust")) {
@@ -381,6 +392,7 @@ plotMotifHeatmaps <- function(x,
 		        top_annotation = hmBin, show_heatmap_legend = TRUE,
 		        heatmap_legend_param = list(color_bar = "continuous"),
 		        use_raster = use_raster,
+		        na_col = na_col, 
 		        ...)
 	}))
 	names(ret)[seq(length(ret) - length(which.plots) + 1L, length(ret))] <- which.plots

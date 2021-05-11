@@ -250,7 +250,7 @@ transcription factor motifs that have an $-log_{10} FDR$ of at least 8.0 in any 
 (corresponding to an $FDR < 10^{-8}$). FDR values are store in the `negLog10Padj` assay:  
 ```{r plottfs}
 # select strongly enriched motifs
-sel <- apply(assay(se, "negLog10Padj"), 1, function(x) max(abs(x))) > 8.0
+sel <- apply(assay(se, "negLog10Padj"), 1, function(x) max(abs(x), 0, na.rm = TRUE)) > 8.0
 sum(sel)
 seSel <- se[sel, ]
 
