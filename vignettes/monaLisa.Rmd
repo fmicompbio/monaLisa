@@ -466,7 +466,7 @@ We can also visualize the selection probabilities of the selected TF motifs, opt
 plotSelectionProb(se, directional = TRUE)
 ```
 
-Next, we visualize the correlation structure of the TFBS matrix and selected TF motifs. We can see that some TFs have similar binding sites across the genomic regions and that randomized lasso stability selection does reasonably well in selecting TF motifs from all given ranges of correlation.
+Next, we visualize the correlation structure of the TFBS matrix and selected TF motifs. While the colinearity of predictors is generally an issue in regression-based approaches where variables are selected, randomized lasso stability selection generally does better at selecting correlated predictors. In practice, we still see it select predictors with correlations as high as 0.9. However, it is good to keep in mind that this can be an issue, and that predictors that are extremely correlated with each other might not end up being selected. In a bad case example, if we have two identical predictors, neither of them would end up being selected as half of the times the regressions are done, one would be randomly selected, and the other one in the other half, giving each a selection probability of 0.5. If many cases of high correlations exist or this is a concern, one may consider selecting a representative set of predictors to use. 
 ```{r TFBScor_selected, fig.width=10, fig.height=7}
 # subset the selected TFs
 sel <- colnames(se)[se$selected]
