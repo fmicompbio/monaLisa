@@ -392,7 +392,7 @@ We will now construct the transcription factor binding site (TFBS) matrix for kn
 As mentioned, this framework offers the flexibility to add additional predictors to compete against the TF motifs for selection. Here, we add the fraction of G+C and CpG observed/expected ratio as predictors, to ensure that selected TF motifs are not just detecting a simple trend in GC or CpG composition.
 
 ```{r predictorMatrix}
-# get PWMs (random subset of 200 vertebrate TFs from Jaspar)
+# get PFMs (vertebrate TFs from Jaspar)
 pfms <- getMatrixSet(JASPAR2018, list(matrixtype = "PFM", tax_group = "vertebrates"))
 
 # randomly sample 200 PFMs for illustration purposes (for quick runtime)
@@ -441,7 +441,8 @@ se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung,
                        cutoff = 0.8, mc.cores = 1)
 se
 
-# # if using a Windows OS, parallelize using parLapply (see stabs::stabsel for more details)
+# # if using a Windows OS, parallelize using parLapply 
+# # ... (see stabs::stabsel for more details)
 # library(parallel)
 # cl <- makeCluster(2)
 # se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung,
@@ -461,12 +462,12 @@ Each line corresponds to a predictor, and we can see the selection probabilities
 \ 
 
 We can also visualize the selection probabilities of the selected TF motifs, optionally multiplied by the sign of the correlation to the response vector, to know how the TF relates to the change of accessibility (`directional` parameter). Note that although one can vary the `selProbMinPlot` parameter which sets the selection probability cutoff, it is best to re-run randomized lasso stability selection with the new cutoff, as this influences other parameter choices the model uses internally. See @StabSel for more details.
-```{r plotSelProbs, fig.width=15, fig.height=7}
+```{r plotSelProbs, fig.width=15, fig.height=9}
 plotSelectionProb(se, directional = TRUE)
 ```
 
 Next, we visualize the correlation structure of the TFBS matrix and selected TF motifs. We can see that some TFs have similar binding sites across the genomic regions and that randomized lasso stability selection does reasonably well in selecting TF motifs from all given ranges of correlation.
-```{r TFBScor_selected}
+```{r TFBScor_selected, fig.width=10, fig.height=7}
 # subset the selected TFs
 sel <- colnames(se)[se$selected]
 se_sub <- se[, sel]
@@ -484,16 +485,25 @@ maxwidth <- max(sapply(TFBSTools::Matrix(pfmsSel), ncol))
 seqlogoGrobs <- lapply(pfmsSel, seqLogoGrob, xmax = maxwidth)
 
 hmSeqlogo <- rowAnnotation(logo = anno_seqlogo(seqlogoGrobs, which = "row"),
-                           annotation_width = c(unit(3.5, "inch"), unit(0.5, "inch"), unit(0.5, "inch")),
-                           AUC = se_sub$selAUC, selProb = se_sub$selProb,
-                           show_legend = TRUE, show_annotation_name = FALSE,
-                           col = list(AUC = colorRamp2(c(0, 1), c("white", "brown")),
-                                      selProb = colorRamp2(c(0, 1), c("white", "steelblue"))))
+                           annotation_width = unit(2, "inch"), 
+                           show_annotation_name = FALSE
+)
 
-Heatmap(TFBSmatrixCorSel, show_row_names = TRUE, show_column_names = TRUE, 
+colAnn <- HeatmapAnnotation(AUC = se_sub$selAUC, selProb = se_sub$selProb,
+                            show_legend = TRUE, 
+                            show_annotation_name = TRUE,
+                            col = list(
+                              AUC = colorRamp2(c(0, 1), c("white", "brown")),
+                              selProb = colorRamp2(c(0, 1), c("white", "steelblue")))
+)
+
+Heatmap(TFBSmatrixCorSel, 
+        show_row_names = TRUE, 
+        show_column_names = TRUE, 
         name = "Pear. Cor.", column_title = "Selected TFs",
         col = colorRamp2(c(-1, 0, 1), c("blue", "white", "red")), 
-        right_annotation = hmSeqlogo)
+        right_annotation = hmSeqlogo,
+        top_annotation = colAnn)
 ```
 
 
