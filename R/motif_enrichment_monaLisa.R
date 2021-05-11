@@ -1110,10 +1110,10 @@ calcBinnedMotifEnrR <- function(seqs,
     log2enr[set_NA] <- NA
     assaySumForegroundWgtWithHits[set_NA] <- NA
     assaySumBackgroundWgtWithHits[set_NA] <- NA
-    if(any(set_NA)){
-        message("Some motifs had no hits in the fore- and background sets.
-                 Their values in the assays will be set to NA where this occured. 
-                 See the Assays for more details.")
+    if(any(set_NA) & verbose){
+        message("Some motifs had no hits in the fore- and background sets. Their values",
+                "\n  in the assays will be set to NA where this occured. See the assays", 
+                "\n  for more details.")
     }
     
     se <- SummarizedExperiment(assays = list(negLog10P = P, 

@@ -363,7 +363,7 @@ Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promot
 ## Load library
 
 We start by loading the needed libraries: 
-```{r libs}
+```{r libs, message=FALSE}
 library(monaLisa)
 library(JASPAR2018)
 library(TFBSTools)
