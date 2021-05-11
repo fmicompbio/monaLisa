@@ -220,7 +220,8 @@ plotBinScatter <- function(x, y, b,
 #'     (default: 99.5th percentile).
 #' @param highlight A logical vector indicating motifs to be highlighted.
 #' @param cluster If \code{TRUE}, the order of transcription factors will be determined by
-#'     hierarchical clustering of the \code{"pearsonResid"} component. Alternatively, an
+#'     hierarchical clustering of the \code{"pearsonResid"} component. If there are NA
+#'     values, they will be replaced by zero to do the clustering. Alternatively, an
 #'     \code{hclust}-object can be supplied which will determine the motif ordering.
 #'     No reordering is done for \code{cluster = FALSE}.
 #' @param show_dendrogram If \code{cluster != FALSE}, controls whether to show
@@ -307,14 +308,10 @@ plotMotifHeatmaps <- function(x,
 	})
 	bincols <- attr(getColsByBin(b), "cols")
 	if (is.logical(cluster) && length(cluster) == 1 && cluster[1] == TRUE) {
-	    if(any(is.na(assay(x, "pearsonResid")))) {
-	        # set NA values to 0 for the distance calcuclations
-	        assay <- assay(x, "pearsonResid")
-	        assay[is.na(assay)] <- 0
-	        clres <- hclust(dist(assay))
-	    } else {
-	        clres <- hclust(dist(assay(x, "pearsonResid")))
-	    }
+	    # set NA values to 0 for the distance calculations
+	    assay <- assay(x, "pearsonResid")
+	    assay[is.na(assay)] <- 0
+	    clres <- hclust(dist(assay))
 	} else if (is.logical(cluster) && length(cluster) == 1 && cluster[1] == FALSE) {
 	    clres <- FALSE
 	} else if (is(cluster, "hclust")) {
