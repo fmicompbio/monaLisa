@@ -309,9 +309,9 @@ plotMotifHeatmaps <- function(x,
 	bincols <- attr(getColsByBin(b), "cols")
 	if (is.logical(cluster) && length(cluster) == 1 && cluster[1] == TRUE) {
 	    # set NA values to 0 for the distance calculations
-	    assay <- assay(x, "pearsonResid")
-	    assay[is.na(assay)] <- 0
-	    clres <- hclust(dist(assay))
+	    pearsResidAssay <- assay(x, "pearsonResid")
+	    pearsResidAssay[is.na(pearsResidAssay)] <- 0
+	    clres <- hclust(dist(pearsResidAssay))
 	} else if (is.logical(cluster) && length(cluster) == 1 && cluster[1] == FALSE) {
 	    clres <- FALSE
 	} else if (is(cluster, "hclust")) {

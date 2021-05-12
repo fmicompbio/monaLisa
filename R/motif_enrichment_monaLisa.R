@@ -1108,8 +1108,6 @@ calcBinnedMotifEnrR <- function(seqs,
     padj[set_NA] <- NA
     enrTF[set_NA] <- NA
     log2enr[set_NA] <- NA
-    assaySumForegroundWgtWithHits[set_NA] <- NA
-    assaySumBackgroundWgtWithHits[set_NA] <- NA
     if(any(set_NA) & verbose){
         message("Some motifs had no hits in the fore- and background sets. Their values",
                 "\n  in the assays will be set to NA where this occured. See the assays", 
