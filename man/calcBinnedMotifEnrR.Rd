@@ -152,7 +152,10 @@ This function implements a binned motif enrichment analysis. In each
   for foreground (\code{sumForegroundWgtWithHits}) and background
   (\code{sumBackgroundWgtWithHits}). The total foreground 
   (\code{totalWgtForeground}) and background (\code{totalWgtBackground})
-  sum of sequence weights is also calculated.
+  sum of sequence weights is also calculated. If a motif has zero 
+  (\code{sumForegroundWgtWithHits}) and (\code{sumBackgroundWgtWithHits}), 
+  then any values (p-values and enrichment) that are calculated using 
+  these two numbers are set to NA.
 
   Two statistical tests for the calculation of enrichment log p-value are
   available: \code{test = "fisher"} (default) to perform Fisher's exact
