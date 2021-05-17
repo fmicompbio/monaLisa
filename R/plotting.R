@@ -307,12 +307,12 @@ plotMotifHeatmaps <- function(x,
 	    is.null(highlight) || (is.logical(highlight) && length(highlight) == nrow(x))
 	})
 	bincols <- attr(getColsByBin(b), "cols")
-	if (is.logical(cluster) && length(cluster) == 1 && cluster[1] == TRUE) {
+	if (identical(cluster, TRUE)) {
 	    # set NA values to 0 for the distance calculations
 	    pearsResidAssay <- assay(x, "pearsonResid")
 	    pearsResidAssay[is.na(pearsResidAssay)] <- 0
 	    clres <- hclust(dist(pearsResidAssay))
-	} else if (is.logical(cluster) && length(cluster) == 1 && cluster[1] == FALSE) {
+	} else if (identical(cluster, FALSE)) {
 	    clres <- FALSE
 	} else if (is(cluster, "hclust")) {
 	    clres <- cluster
@@ -371,10 +371,10 @@ plotMotifHeatmaps <- function(x,
 	ret <- c(L, lapply(which.plots, function(w) {
 		dat <- assay(x, w)
 		if ((w == "pearsonResid") | (w == "log2enr")) {
-			rng <- c(-1, 1) * if (is.null(maxEnr)) quantile(abs(dat), .995) else maxEnr
+			rng <- c(-1, 1) * if (is.null(maxEnr)) quantile(abs(dat), .995, na.rm = TRUE) else maxEnr
 			cols <- col.enr
 		} else {
-			rng <- c(0, if (is.null(maxSig)) quantile(dat, .995) else maxSig)
+			rng <- c(0, if (is.null(maxSig)) quantile(dat, .995, na.rm = TRUE) else maxSig)
 			cols <- col.sig
 		}
 		Heatmap(matrix = dat,
