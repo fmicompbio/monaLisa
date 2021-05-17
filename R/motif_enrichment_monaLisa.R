@@ -793,7 +793,10 @@
 #'   for foreground (\code{sumForegroundWgtWithHits}) and background
 #'   (\code{sumBackgroundWgtWithHits}). The total foreground 
 #'   (\code{totalWgtForeground}) and background (\code{totalWgtBackground})
-#'   sum of sequence weights is also calculated.
+#'   sum of sequence weights is also calculated. If a motif has zero 
+#'   (\code{sumForegroundWgtWithHits}) and (\code{sumBackgroundWgtWithHits}), 
+#'   then any values (p-values and enrichment) that are calculated using 
+#'   these two numbers are set to NA.
 #'
 #'   Two statistical tests for the calculation of enrichment log p-value are
 #'   available: \code{test = "fisher"} (default) to perform Fisher's exact
@@ -1108,12 +1111,7 @@ calcBinnedMotifEnrR <- function(seqs,
     padj[set_NA] <- NA
     enrTF[set_NA] <- NA
     log2enr[set_NA] <- NA
-    if(any(set_NA) & verbose){
-        message("Some motifs had no hits in the fore- and background sets. Their values",
-                "\n  in the assays will be set to NA where this occured. See the assays", 
-                "\n  for more details.")
-    }
-    
+
     se <- SummarizedExperiment(assays = list(negLog10P = P, 
                                              negLog10Padj = padj, 
                                              pearsonResid = enrTF,
