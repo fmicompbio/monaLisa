@@ -60,8 +60,6 @@
 
 
 
-<!-- dependencies from examples -->
-
 
   
 
@@ -85,7 +83,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.48</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.49</span>
       </span>
     </div>
 
@@ -141,7 +139,7 @@
   user-provided bin boundaries.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>bin</span><span class='op'>(</span>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>bin</span><span class='op'>(</span>
   <span class='va'>x</span>,
   binmode <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"equalN"</span>, <span class='st'>"equalWidth"</span>, <span class='st'>"breaks"</span><span class='op'>)</span>,
   nElements <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>round</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span><span class='op'>/</span><span class='fl'>5</span><span class='op'>)</span>,
@@ -149,7 +147,7 @@
   minAbsX <span class='op'>=</span> <span class='cn'>NULL</span>,
   breaks <span class='op'>=</span> <span class='cn'>NULL</span>,
   <span class='va'>...</span>
-<span class='op'>)</span></pre>
+<span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -220,7 +218,7 @@ include.lowest = TRUE, ...)</code>, such as <code>labels=FALSE</code>.</p></td>
     <div class='dont-index'><p><code><a href='https://rdrr.io/r/base/cut.html'>cut</a></code> which is used internally.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span></span>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span></span>
 <span class='r-in'><span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fl'>100</span><span class='op'>)</span></span>
 <span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='fu'>bin</span><span class='op'>(</span><span class='va'>x</span>, <span class='st'>"equalN"</span>, nElements<span class='op'>=</span><span class='fl'>10</span><span class='op'>)</span><span class='op'>)</span></span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>    [-2.21,-1.05]   (-1.05,-0.614]  (-0.614,-0.375] (-0.375,-0.0767] </span>
@@ -241,7 +239,7 @@ include.lowest = TRUE, ...)</code>, such as <code>labels=FALSE</code>.</p></td>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> [-10,-1]   (-1,0]    (0,1]   (1,10] </span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>       11       35       39       15 </span>
 <span class='r-in'></span>
-</pre>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

@@ -83,7 +83,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.48</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.49</span>
       </span>
     </div>
 
@@ -139,12 +139,12 @@
   background.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>calcBinnedMotifEnrR</span><span class='op'>(</span>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>calcBinnedMotifEnrR</span><span class='op'>(</span>
   <span class='va'>seqs</span>,
   bins <span class='op'>=</span> <span class='cn'>NULL</span>,
   pwmL <span class='op'>=</span> <span class='cn'>NULL</span>,
   background <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"otherBins"</span>, <span class='st'>"allBins"</span>, <span class='st'>"zeroBin"</span>, <span class='st'>"genome"</span><span class='op'>)</span>,
-  test <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"binomial"</span>, <span class='st'>"fisher"</span><span class='op'>)</span>,
+  test <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"fisher"</span>, <span class='st'>"binomial"</span><span class='op'>)</span>,
   maxFracN <span class='op'>=</span> <span class='fl'>0.7</span>,
   maxKmerSize <span class='op'>=</span> <span class='fl'>3L</span>,
   min.score <span class='op'>=</span> <span class='fl'>10</span>,
@@ -160,7 +160,7 @@
   BPPARAM <span class='op'>=</span> <span class='fu'>SerialParam</span><span class='op'>(</span><span class='op'>)</span>,
   verbose <span class='op'>=</span> <span class='cn'>FALSE</span>,
   <span class='va'>...</span>
-<span class='op'>)</span></pre>
+<span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -189,7 +189,7 @@ or <code>"genome"</code> (see "Details").</p></td>
     <tr>
       <th>test</th>
       <td><p>A <code>character</code> scalar specifying the type of enrichment test
-to perform. One of <code>"binomial"</code> (default) or <code>"fisher"</code>. The
+to perform. One of <code>"fisher"</code> (default) or <code>"binomial"</code>. The
 enrichment test is one-sided (enriched in foreground).</p></td>
     </tr>
     <tr>
@@ -298,7 +298,8 @@ instance determining the parallel back-end to be used during evaluation.</p></td
   sequences to test for motif enrichment comparing to background sequences
   (defined by <code>background</code>, see below). The logic follows the
   <code>findMotifsGenome.pl</code> tool from <code>Homer</code> version 4.11, with
-  <code>-size given -nomotif -mknown</code> and gives very similar results.
+  <code>-size given -nomotif -mknown</code> and additionally <code>-h</code> if using 
+  <code>test = "fisher"</code>, and gives very similar results.
   As in the <code>Homer</code> tool, sequences are weighted to correct for GC and
   k-mer composition differences between fore- and background sets.</p>  
 <p>The background sequences are defined according to the value of the
@@ -325,18 +326,21 @@ instance determining the parallel back-end to be used during evaluation.</p></td
   for foreground (<code>sumForegroundWgtWithHits</code>) and background
   (<code>sumBackgroundWgtWithHits</code>). The total foreground 
   (<code>totalWgtForeground</code>) and background (<code>totalWgtBackground</code>)
-  sum of sequence weights is also calculated.</p>
-<p>To statistical tests for the calculation of enrichment log p-value are
-  available: <code>test = "binomial"</code> (default) to perform binomial test
-  like <code>Homer</code>, or <code>test = "fisher"</code> to perform Fisher's exact
-  tests, using:</p><ul>
-<li><p>binomial: <code>pbinom(q = sumForegroundWgtWithHits - 1, size =
-      totalWgtForeground, prob = sumBackgroundWgtWithHits / totalWgtBackground,
-      lower.tail = FALSE, log.p = TRUE)</code></p></li>
+  sum of sequence weights is also calculated. If a motif has zero 
+  (<code>sumForegroundWgtWithHits</code>) and (<code>sumBackgroundWgtWithHits</code>), 
+  then any values (p-values and enrichment) that are calculated using 
+  these two numbers are set to NA.</p>
+<p>Two statistical tests for the calculation of enrichment log p-value are
+  available: <code>test = "fisher"</code> (default) to perform Fisher's exact
+  tests, or <code>test = "binomial"</code> to perform binomial tests
+  (default in <code>Homer</code>), using:</p><ul>
 <li><p>fisher: <code>fisher.test(x = tab, alternative =
       "greater")</code>, where <code>tab</code> is the contingency table with the summed
       weights of sequences in foreground or background sets (rows), and with
       or without a hit for a particular motif (columns).</p></li>
+<li><p>binomial: <code>pbinom(q = sumForegroundWgtWithHits - 1, size =
+      totalWgtForeground, prob = sumBackgroundWgtWithHits / totalWgtBackground,
+      lower.tail = FALSE, log.p = TRUE)</code></p></li>
 </ul>
 
 

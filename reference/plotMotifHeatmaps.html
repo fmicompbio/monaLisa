@@ -81,7 +81,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.48</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.49</span>
       </span>
     </div>
 
@@ -135,7 +135,7 @@
     <p>Plot motif enrichments (e.g. significance or magnitude) as a heatmap.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plotMotifHeatmaps</span><span class='op'>(</span>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>plotMotifHeatmaps</span><span class='op'>(</span>
   <span class='va'>x</span>,
   which.plots <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"negLog10P"</span>, <span class='st'>"pearsonResid"</span>, <span class='st'>"negLog10Padj"</span>, <span class='st'>"log2enr"</span><span class='op'>)</span>,
   width <span class='op'>=</span> <span class='fl'>4</span>,
@@ -154,8 +154,9 @@
   show_seqlogo <span class='op'>=</span> <span class='cn'>FALSE</span>,
   width.seqlogo <span class='op'>=</span> <span class='fl'>1.5</span>,
   use_raster <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  na_col <span class='op'>=</span> <span class='st'>"white"</span>,
   <span class='va'>...</span>
-<span class='op'>)</span></pre>
+<span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -231,6 +232,11 @@ logos are drawn to scale).</p></td>
       <th>use_raster</th>
       <td><p><code>TRUE</code> or <code>FALSE</code> (default). Passed to <code>use_raster</code>
 of <code><a href='https://rdrr.io/pkg/ComplexHeatmap/man/Heatmap.html'>Heatmap</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>na_col</th>
+      <td><p>"white" (default). Passed to <code>na_col</code> of 
+<code><a href='https://rdrr.io/pkg/ComplexHeatmap/man/Heatmap.html'>Heatmap</a></code>.</p></td>
     </tr>
     <tr>
       <th>...</th>

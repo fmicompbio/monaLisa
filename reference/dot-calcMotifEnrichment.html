@@ -44,11 +44,12 @@
   weights for a set of sequences, calculate the enrichment of each motif
   in foreground compared to background. This function is called by
   calcBinnedMotifEnrR() for each bin.
-The defaults type of test is &quot;binomial&quot;, which is also what
-  Homer uses by default. Alternatively, Fisher's exact test can be
-  used by test = &quot;fisher&quot;, which has the advantage that special cases
-  such as zero background counts are handled without ad-hoc adjustments to
-  the frequencies.
+The default type of test is &quot;fisher&quot;, which is also what
+  Homer uses if &quot;-h&quot; is specified for a hypergeometric test.
+  Alternatively, a binomial test can be used by test = &quot;binomial&quot;
+  (what Homer does by default). Using Fisher's exact test has 
+  the advantage that special cases such as zero background counts are handled 
+  without ad-hoc adjustments to the frequencies.
 For test = &quot;fisher&quot;, fisher.test is used with
   alternative = &quot;greater&quot;, making it a one-sided test for enrichment,
   as is the case with the binomial test." />
@@ -92,7 +93,7 @@ For test = &quot;fisher&quot;, fisher.test is used with
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.48</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.49</span>
       </span>
     </div>
 
@@ -147,22 +148,23 @@ For test = &quot;fisher&quot;, fisher.test is used with
   weights for a set of sequences, calculate the enrichment of each motif
   in foreground compared to background. This function is called by
   <code><a href='calcBinnedMotifEnrR.html'>calcBinnedMotifEnrR()</a></code> for each bin.</p>
-<p>The defaults type of test is <code>"binomial"</code>, which is also what
-  <code>Homer</code> uses by default. Alternatively, Fisher's exact test can be
-  used by <code>test = "fisher"</code>, which has the advantage that special cases
-  such as zero background counts are handled without ad-hoc adjustments to
-  the frequencies.</p>
+<p>The default type of test is <code>"fisher"</code>, which is also what
+  <code>Homer</code> uses if "-h" is specified for a hypergeometric test.
+  Alternatively, a binomial test can be used by <code>test = "binomial"</code>
+  (what <code>Homer</code> does by default). Using Fisher's exact test has 
+  the advantage that special cases such as zero background counts are handled 
+  without ad-hoc adjustments to the frequencies.</p>
 <p>For <code>test = "fisher"</code>, <code>fisher.test</code> is used with
   <code>alternative = "greater"</code>, making it a one-sided test for enrichment,
   as is the case with the binomial test.</p>
     </div>
 
-    <pre class="usage"><span class='fu'><a href='dot-calcMotifEnrichment.html'>.calcMotifEnrichment</a></span><span class='op'>(</span>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>.calcMotifEnrichment</span><span class='op'>(</span>
   <span class='va'>motifHitMatrix</span>,
   <span class='va'>df</span>,
-  test <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"binomial"</span>, <span class='st'>"fisher"</span><span class='op'>)</span>,
+  test <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"fisher"</span>, <span class='st'>"binomial"</span><span class='op'>)</span>,
   verbose <span class='op'>=</span> <span class='cn'>FALSE</span>
-<span class='op'>)</span></pre>
+<span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">

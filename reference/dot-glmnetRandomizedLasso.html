@@ -41,9 +41,9 @@
 
 <meta property="og:title" content="Randomized Lasso — .glmnetRandomizedLasso" />
 <meta property="og:description" content="This function performs randomized lasso using the glmnet package. The
-  function present in the stabs package that runs the lasso version was adapted for
-  the randomized lasso here. Ranodmized lasso stability selection uses this function repeatedly
-  to select predictors." />
+    function present in the stabs package that runs the lasso version was adapted for
+    the randomized lasso here. Randomized lasso stability selection uses this function repeatedly
+    to select predictors." />
 
 
 
@@ -84,7 +84,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.48</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.49</span>
       </span>
     </div>
 
@@ -136,45 +136,48 @@
 
     <div class="ref-description">
     <p>This function performs randomized lasso using the <code>glmnet</code> package. The
-  function present in the <code>stabs</code> package that runs the lasso version was adapted for
-  the randomized lasso here. Ranodmized lasso stability selection uses this function repeatedly
-  to select predictors.</p>
+    function present in the <code>stabs</code> package that runs the lasso version was adapted for
+    the randomized lasso here. Randomized lasso stability selection uses this function repeatedly
+    to select predictors.</p>
     </div>
 
-    <pre class="usage"><span class='fu'><a href='dot-glmnetRandomizedLasso.html'>.glmnetRandomizedLasso</a></span><span class='op'>(</span>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>.glmnetRandomizedLasso</span><span class='op'>(</span>
   <span class='va'>x</span>,
   <span class='va'>y</span>,
   <span class='va'>q</span>,
   weakness <span class='op'>=</span> <span class='fl'>1</span>,
   type <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"conservative"</span>, <span class='st'>"anticonservative"</span><span class='op'>)</span>,
   <span class='va'>...</span>
-<span class='op'>)</span></pre>
+<span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>the predictor matrix.</p></td>
+      <td><p>the predictor matrix. Passed to <code>x</code>
+of <code>glmnet.lasso</code> from <code>stabs</code> package.</p></td>
     </tr>
     <tr>
       <th>y</th>
-      <td><p>the response vector.</p></td>
+      <td><p>the response vector. Passed to <code>y</code>
+of <code>glmnet.lasso</code> from <code>stabs</code> package.</p></td>
     </tr>
     <tr>
       <th>q</th>
-      <td><p>the average number of selected variables.</p></td>
+      <td><p>the number of variables that are selected on each subsample. Passed to <code>q</code>
+of <code>glmnet.lasso</code> from <code>stabs</code> package.</p></td>
     </tr>
     <tr>
       <th>weakness</th>
-      <td><p>parameter used randomized lasso (see details).</p></td>
+      <td><p>weakness parameter used in randomized lasso (see details).</p></td>
     </tr>
     <tr>
       <th>type</th>
-      <td><p>parameter from <code>lars.lasso</code> function in <code>stabs</code>. It is a character vector specifying
-how much the PFER should be controlled. If type is "conservative" then the number of selected variables per
-subsample is &lt;= q. If type is "anticonservative" then the number of selected variables per subsample is &gt;= q.
-By default the conservative type is chosen.</p></td>
+      <td><p>parameter passed to <code>type</code> of <code>glmnet.lasso</code> from <code>stabs</code> package.
+It is a character vector specifying how much the PFER should be controlled. 
+If type is "conservative" (default), then the number of selected variables per
+subsample is &lt;= q. If type is "anticonservative" then the number of selected variables per subsample is &gt;= q.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -192,9 +195,9 @@ By default the conservative type is chosen.</p></td>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This function is identical to <code>glmnet.lasso</code> from the <code>stabs</code> package. The only 
-  addition/modification is the weakness parameter which has been added when calling the 
-  <code>glmnet</code> function by setting penalty.factor = 1/runif(ncol(x), weakness, 1), 
-  where ncol(x) is the number of predictors.</p>
+    addition/modification is the weakness parameter which has been added when calling the 
+    <code>glmnet</code> function by setting penalty.factor = 1/runif(ncol(x), weakness, 1), 
+    where ncol(x) is the number of predictors.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='https://rdrr.io/pkg/stabs/man/fitfuns.html'>glmnet.lasso</a></code> and <code><a href='https://glmnet.stanford.edu/reference/glmnet.html'>glmnet</a></code></p></div>
