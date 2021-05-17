@@ -23,6 +23,7 @@ plotMotifHeatmaps(
   show_seqlogo = FALSE,
   width.seqlogo = 1.5,
   use_raster = FALSE,
+  na_col = "white",
   ...
 )
 }
@@ -68,6 +69,9 @@ logos are drawn to scale).}
 
 \item{use_raster}{\code{TRUE} or \code{FALSE} (default). Passed to \code{use_raster}
 of \code{\link[ComplexHeatmap]{Heatmap}}.}
+
+\item{na_col}{"white" (default). Passed to \code{na_col} of 
+\code{\link[ComplexHeatmap]{Heatmap}}.}
 
 \item{...}{Further arguments passed to \code{\link[ComplexHeatmap]{Heatmap}}
 when creating the main heatmaps selected by \code{which.plots}.}

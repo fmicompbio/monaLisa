@@ -233,6 +233,8 @@ plotBinScatter <- function(x, y, b,
 #'     logos are drawn to scale).
 #' @param use_raster \code{TRUE} or \code{FALSE} (default). Passed to \code{use_raster}
 #'     of \code{\link[ComplexHeatmap]{Heatmap}}.
+#' @param na_col "white" (default). Passed to \code{na_col} of 
+#'     \code{\link[ComplexHeatmap]{Heatmap}}.
 #' @param ... Further arguments passed to \code{\link[ComplexHeatmap]{Heatmap}}
 #'     when creating the main heatmaps selected by \code{which.plots}. 
 #'
@@ -282,6 +284,7 @@ plotMotifHeatmaps <- function(x,
                               show_seqlogo = FALSE,
                               width.seqlogo = 1.5,
                               use_raster = FALSE,
+                              na_col = "white", 
                               ...) {
 	stopifnot(exprs = {
 	    is(x, "SummarizedExperiment")
@@ -296,15 +299,26 @@ plotMotifHeatmaps <- function(x,
 	.assertScalar(x = show_seqlogo, type = "logical")
 	.assertScalar(x = width.seqlogo, type = "numeric", rngExcl = c(0, Inf))
 	.assertScalar(x = use_raster, type = "logical")
+	.assertScalar(x = na_col, type = "character")
 	stopifnot(exprs = {
 	    ncol(x) == nlevels(b)
 	    all(which.plots %in% c("negLog10P", "negLog10Padj", "pearsonResid", "log2enr"))
 	    is.null(highlight) || (is.logical(highlight) && length(highlight) == nrow(x))
 	})
 	bincols <- attr(getColsByBin(b), "cols")
-	if (is.logical(cluster) && length(cluster) == 1 && cluster[1] == TRUE) {
-	    clres <- hclust(dist(assay(x, "pearsonResid")))
-	} else if (is.logical(cluster) && length(cluster) == 1 && cluster[1] == FALSE) {
+	if (identical(cluster, TRUE)) {
+	    clAssayName <- "pearsonResid"
+	    clAssay <- assay(x, clAssayName)
+	    allNA <- rowSums(is.na(clAssay)) == ncol(clAssay)
+	    if (any(allNA)) {
+	        warning("removing motifs without finite values in '",
+	                clAssayName, "': ",
+	                paste(rownames(clAssay)[allNA], collapse = ", "))
+	        x <- x[!allNA, ]
+	        clAssay <- clAssay[!allNA, ]
+	    }
+	    clres <- hclust(dist(clAssay))
+	} else if (identical(cluster, FALSE)) {
 	    clres <- FALSE
 	} else if (is(cluster, "hclust")) {
 	    clres <- cluster
@@ -318,7 +332,7 @@ plotMotifHeatmaps <- function(x,
 	                           annotation_height = unit(width / 16, "inch"),
 	                           show_legend = FALSE)
 	tmp <- matrix(if (!is.null(highlight)) as.character(highlight) else rep(NA, nrow(x)),
-								ncol = 1, dimnames = list(unname(rowData(x)$motif.name), NULL))
+	              ncol = 1, dimnames = list(unname(rowData(x)$motif.name), NULL))
 	hmSeqlogo <- NULL
 	if (show_seqlogo) {
 	    pfms <- rowData(x)$motif.pfm
@@ -363,10 +377,10 @@ plotMotifHeatmaps <- function(x,
 	ret <- c(L, lapply(which.plots, function(w) {
 		dat <- assay(x, w)
 		if ((w == "pearsonResid") | (w == "log2enr")) {
-			rng <- c(-1, 1) * if (is.null(maxEnr)) quantile(abs(dat), .995) else maxEnr
+			rng <- c(-1, 1) * if (is.null(maxEnr)) quantile(abs(dat), .995, na.rm = TRUE) else maxEnr
 			cols <- col.enr
 		} else {
-			rng <- c(0, if (is.null(maxSig)) quantile(dat, .995) else maxSig)
+			rng <- c(0, if (is.null(maxSig)) quantile(dat, .995, na.rm = TRUE) else maxSig)
 			cols <- col.sig
 		}
 		Heatmap(matrix = dat,
@@ -381,6 +395,7 @@ plotMotifHeatmaps <- function(x,
 		        top_annotation = hmBin, show_heatmap_legend = TRUE,
 		        heatmap_legend_param = list(color_bar = "continuous"),
 		        use_raster = use_raster,
+		        na_col = na_col, 
 		        ...)
 	}))
 	names(ret)[seq(length(ret) - length(which.plots) + 1L, length(ret))] <- which.plots

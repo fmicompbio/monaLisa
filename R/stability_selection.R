@@ -7,31 +7,34 @@ NULL
 #' @title Randomized Lasso
 #'
 #' @description This function performs randomized lasso using the \code{glmnet} package. The
-#'   function present in the \code{stabs} package that runs the lasso version was adapted for
-#'   the randomized lasso here. Ranodmized lasso stability selection uses this function repeatedly
-#'   to select predictors.
+#'     function present in the \code{stabs} package that runs the lasso version was adapted for
+#'     the randomized lasso here. Randomized lasso stability selection uses this function repeatedly
+#'     to select predictors.
 #'
-#' @param x the predictor matrix.
-#' @param y the response vector.
-#' @param q the average number of selected variables.
-#' @param weakness parameter used randomized lasso (see details).
-#' @param type parameter from \code{lars.lasso} function in \code{stabs}. It is a character vector specifying
-#'   how much the PFER should be controlled. If type is "conservative" then the number of selected variables per
-#'   subsample is <= q. If type is "anticonservative" then the number of selected variables per subsample is >= q.
-#'   By default the conservative type is chosen.
+#' @param x the predictor matrix. Passed to \code{x}
+#'     of \code{glmnet.lasso} from \code{stabs} package.
+#' @param y the response vector. Passed to \code{y}
+#'     of \code{glmnet.lasso} from \code{stabs} package.
+#' @param q the number of variables that are selected on each subsample. Passed to \code{q}
+#'     of \code{glmnet.lasso} from \code{stabs} package.
+#' @param weakness weakness parameter used in randomized lasso (see details). 
+#' @param type parameter passed to \code{type} of \code{glmnet.lasso} from \code{stabs} package.
+#'     It is a character vector specifying how much the PFER should be controlled. 
+#'     If type is "conservative" (default), then the number of selected variables per
+#'     subsample is <= q. If type is "anticonservative" then the number of selected variables per subsample is >= q.
 #' @param ... additional parameters for \code{glmnet}.
 #'
 #' @return the regression output which consists of a list of length 2. The list contains the following:
-#'   \itemize{
-#'   \item selected - a logical vector of length equal to the total number of predictors. The predictors that were chosen have a value of TRUE.
-#'   \item path - a logical matrix containing the regularization steps as columns and the predictors as rows. An entry of TRUE indicates selection.
-#'   }
+#'     \itemize{
+#'     \item selected - a logical vector of length equal to the total number of predictors. The predictors that were chosen have a value of TRUE.
+#'     \item path - a logical matrix containing the regularization steps as columns and the predictors as rows. An entry of TRUE indicates selection.
+#'     }
 #'
 #'
 #' @details This function is identical to \code{glmnet.lasso} from the \code{stabs} package. The only 
-#'   addition/modification is the weakness parameter which has been added when calling the 
-#'   \code{glmnet} function by setting penalty.factor = 1/runif(ncol(x), weakness, 1), 
-#'   where ncol(x) is the number of predictors.
+#'     addition/modification is the weakness parameter which has been added when calling the 
+#'     \code{glmnet} function by setting penalty.factor = 1/runif(ncol(x), weakness, 1), 
+#'     where ncol(x) is the number of predictors.
 #'
 #' @seealso \code{\link[stabs]{glmnet.lasso}} and \code{\link[glmnet]{glmnet}}
 #'
