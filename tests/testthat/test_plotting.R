@@ -73,6 +73,13 @@ test_that("plotMotifHeatmaps() runs", {
     cl <- hclust(dist(SummarizedExperiment::assay(se, "log2enr")))
     expect_is(plotMotifHeatmaps(x = se, which.plots = "log2enr", cluster = cl, show_dendrogram = TRUE), "list")
 
+    se2 <- se
+    tmp <- SummarizedExperiment::assay(se2, "pearsonResid")
+    tmp[1:2, ] <- NA
+    SummarizedExperiment::assay(se2, "pearsonResid") <- tmp
+    expect_warning(res <- plotMotifHeatmaps(x = se2, which.plots = "log2enr", cluster = TRUE))
+    expect_is(res, "list")
+    
     dev.off()
     unlink(tf)
 })

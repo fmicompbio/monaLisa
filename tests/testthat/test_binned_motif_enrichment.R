@@ -274,9 +274,8 @@ test_that(".calcMotifEnrichment works", {
     expect_error(.calcMotifEnrichment(mhits, df, test = "error"), "should be one of")
     expect_error(.calcMotifEnrichment(mhits, df, verbose = "error"), "logical")
 
-    # expect_warning(res1 <- .calcMotifEnrichment(motifHitMatrix = mhits, df = df))
-    # expect_is(res1, "data.frame")
-    expect_is(res1 <- .calcMotifEnrichment(motifHitMatrix = mhits, df = df), "data.frame")
+    expect_message(res1 <- .calcMotifEnrichment(motifHitMatrix = mhits, df = df, test = "binom", verbose = TRUE))
+    expect_is(res1, "data.frame")
     expect_identical(rownames(res1), colnames(mhits))
     expect_identical(round(res1$logP, 3), c(-1.341, -0.038, -0.844, 0))
     expect_message(res2 <- .calcMotifEnrichment(motifHitMatrix = mhits, df = df, test = "fisher", verbose = TRUE))
