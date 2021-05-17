@@ -51,8 +51,7 @@ of \code{\link{calcBinnedMotifEnr}}.}
 \item{highlight}{A logical vector indicating motifs to be highlighted.}
 
 \item{cluster}{If \code{TRUE}, the order of transcription factors will be determined by
-hierarchical clustering of the \code{"pearsonResid"} component. If there are NA
-values, they will be replaced by zero to do the clustering. Alternatively, an
+hierarchical clustering of the \code{"pearsonResid"} component. Alternatively, an
 \code{hclust}-object can be supplied which will determine the motif ordering.
 No reordering is done for \code{cluster = FALSE}.}
 

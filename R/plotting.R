@@ -220,8 +220,7 @@ plotBinScatter <- function(x, y, b,
 #'     (default: 99.5th percentile).
 #' @param highlight A logical vector indicating motifs to be highlighted.
 #' @param cluster If \code{TRUE}, the order of transcription factors will be determined by
-#'     hierarchical clustering of the \code{"pearsonResid"} component. If there are NA
-#'     values, they will be replaced by zero to do the clustering. Alternatively, an
+#'     hierarchical clustering of the \code{"pearsonResid"} component. Alternatively, an
 #'     \code{hclust}-object can be supplied which will determine the motif ordering.
 #'     No reordering is done for \code{cluster = FALSE}.
 #' @param show_dendrogram If \code{cluster != FALSE}, controls whether to show
@@ -308,10 +307,17 @@ plotMotifHeatmaps <- function(x,
 	})
 	bincols <- attr(getColsByBin(b), "cols")
 	if (identical(cluster, TRUE)) {
-	    # set NA values to 0 for the distance calculations
-	    pearsResidAssay <- assay(x, "pearsonResid")
-	    pearsResidAssay[is.na(pearsResidAssay)] <- 0
-	    clres <- hclust(dist(pearsResidAssay))
+	    clAssayName <- "pearsonResid"
+	    clAssay <- assay(x, clAssayName)
+	    allNA <- rowSums(is.na(clAssay)) == ncol(clAssay)
+	    if (any(allNA)) {
+	        warning("removing motifs without finite values in '",
+	                clAssayName, "': ",
+	                paste(rownames(clAssay)[allNA], collapse = ", "))
+	        x <- x[!allNA, ]
+	        clAssay <- clAssay[!allNA, ]
+	    }
+	    clres <- hclust(dist(clAssay))
 	} else if (identical(cluster, FALSE)) {
 	    clres <- FALSE
 	} else if (is(cluster, "hclust")) {
@@ -326,7 +332,7 @@ plotMotifHeatmaps <- function(x,
 	                           annotation_height = unit(width / 16, "inch"),
 	                           show_legend = FALSE)
 	tmp <- matrix(if (!is.null(highlight)) as.character(highlight) else rep(NA, nrow(x)),
-								ncol = 1, dimnames = list(unname(rowData(x)$motif.name), NULL))
+	              ncol = 1, dimnames = list(unname(rowData(x)$motif.name), NULL))
 	hmSeqlogo <- NULL
 	if (show_seqlogo) {
 	    pfms <- rowData(x)$motif.pfm
