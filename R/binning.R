@@ -5,10 +5,10 @@
     if (!is.null(minAbsX)) {
         n1 <- round(sum(x < -minAbsX, na.rm = TRUE) / nElements) * nElements
         n2 <- round(sum(x >  minAbsX, na.rm = TRUE) / nElements) * nElements
-        x1 <- sort(x, decreasing = FALSE, na.last = NA)[1:n1]
-        x2 <- sort(x, decreasing = TRUE,  na.last = NA)[1:(n2+1)]
-        bin.breaks <- c(quantile(x1, seq(0, 1, length.out = n1 / nElements + 1)),
-                        quantile(x2, seq(0, 1, length.out = n2 / nElements + 1)))
+        x1 <- sort(x, decreasing = FALSE, na.last = NA)[seq_len(n1)]
+        x2 <- sort(x, decreasing = TRUE,  na.last = NA)[seq_len(n2 + 1)]
+        bin.breaks <- c(if (n1 > 0) quantile(x1, seq(0, 1, length.out = n1 / nElements + 1)) else min(x, na.rm = TRUE),
+                        if (n2 > 0) quantile(x2, seq(0, 1, length.out = n2 / nElements + 1)) else max(x, na.rm = TRUE))
         attr(bin.breaks, "bin0") <- ceiling(n1 / nElements + 1)
     } else {
         bin.breaks <- quantile(x, seq(0, 1, length.out = round(length(x) / nElements) + 1L))
@@ -24,10 +24,12 @@
         e2 <- sum(x >  minAbsX, na.rm = TRUE)
         b1 <- round((nBins - 1) * e1 / (e1 + e2))
         b2 <- nBins - 1 - b1
-        bw <- max((-minAbsX - min(x, na.rm = TRUE)) / b1, (max(x, na.rm = TRUE) - minAbsX) / b2, na.rm = TRUE)
+        bw12 <- c((-minAbsX - min(x, na.rm = TRUE)) / b1,
+                  (max(x, na.rm = TRUE) - minAbsX) / b2)
+        bw <- max(bw12[is.finite(bw12)])
         almostOne <- (length(x) - 1) / length(x)
-        bin.breaks <- c(if (b1 > 0) rev(seq(-minAbsX, min(x, na.rm = TRUE) - almostOne * bw, by = -bw)) else numeric(0),
-                        if (b2 > 0) seq(minAbsX, max(x, na.rm = TRUE) + almostOne * bw, by = bw) else numeric(0))
+        bin.breaks <- c(if (b1 > 0) rev(seq(-minAbsX, min(x, na.rm = TRUE) - almostOne * bw, by = -bw)) else min(x, na.rm = TRUE),
+                        if (b2 > 0) seq(minAbsX, max(x, na.rm = TRUE) + almostOne * bw, by = bw) else max(x, na.rm = TRUE))
         attr(bin.breaks, "bin0") <- b1 + 1
     } else {
         bin.breaks <- seq(min(x, na.rm = TRUE), max(x, na.rm = TRUE), length.out = nBins + 1)

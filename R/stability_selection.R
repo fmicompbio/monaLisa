@@ -163,10 +163,10 @@ randLassoStabSel <- function(x, y, weakness=0.8, cutoff=0.8, PFER=2, ...) {
              identical and that the orders match.")
     }
     if (is.null(rownames(x))) {
-        rownames(x) <- paste0("obs", 1:nrow(x))
+        rownames(x) <- paste0("obs", seq_len(nrow(x)))
     }
     if (is.null(colnames(x))) {
-        colnames(x) <- paste0("pred", 1:ncol(x))
+        colnames(x) <- paste0("pred", seq_len(ncol(x)))
     }
   
     
@@ -192,7 +192,7 @@ randLassoStabSel <- function(x, y, weakness=0.8, cutoff=0.8, PFER=2, ...) {
                  )
     
     probMat <- as(ss$phat, "DataFrame")
-    colnames(probMat) <- paste0("regStep", 1:ncol(probMat))
+    colnames(probMat) <- paste0("regStep", seq_len(ncol(probMat)))
     cdat <- S4Vectors::DataFrame(selProb = probMat[, ncol(probMat)],
                                  selected = seq.int(ncol(x)) %in% ss$selected,
                                  selAUC = rowMeans(as.matrix(probMat)),

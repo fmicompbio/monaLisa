@@ -4,19 +4,19 @@ test_that("randLassoStabSel() works properly", {
     set.seed(555)
     Y <- rnorm(n = 500, mean = 2, sd = 1)
     X <- matrix(data = NA, nrow = length(Y), ncol = 50)
-    for (i in 1:ncol(X)) {
+    for (i in seq_len(ncol(X))) {
         X[ ,i] <- runif(n = 500, min = 0, max = 3)
     }
-    s_cols <- sample(x = 1:ncol(X), size = 10, replace = FALSE)
-    for (i in 1:length(s_cols)) {
+    s_cols <- sample(x = seq_len(ncol(X)), size = 10, replace = FALSE)
+    for (i in seq_along(s_cols)) {
         X[ ,s_cols[i]] <- X[ ,s_cols[i]] + Y
     }
 
     X2 <- X
     Y2 <- Y
-    rownames(X2) <- paste0("peak", 1:nrow(X2))
-    colnames(X2) <- paste0("motif", 1:ncol(X2))
-    names(Y2) <- paste0("peak", 1:length(Y2))
+    rownames(X2) <- paste0("peak", seq_len(nrow(X2)))
+    colnames(X2) <- paste0("motif", seq_len(ncol(X2)))
+    names(Y2) <- paste0("peak", seq_along(Y2))
 
     # randomized lasso stability selection
     ss <- monaLisa::randLassoStabSel(x = X, y = Y)
@@ -44,11 +44,11 @@ test_that(".glmnetRandomizedLasso() works properly", {
     set.seed(555)
     Y <- rnorm(n = 500, mean = 2, sd = 1)
     X <- matrix(data = NA, nrow = length(Y), ncol = 50)
-    for (i in 1:ncol(X)) {
+    for (i in seq_len(ncol(X))) {
         X[ ,i] <- runif(n = 500, min = 0, max = 3)
     }
-    s_cols <- sample(x = 1:ncol(X), size = 10, replace = FALSE)
-    for (i in 1:length(s_cols)) {
+    s_cols <- sample(x = ncol(X), size = 10, replace = FALSE)
+    for (i in seq_along(s_cols)) {
         X[ ,s_cols[i]] <- X[ ,s_cols[i]] + Y
     }
 

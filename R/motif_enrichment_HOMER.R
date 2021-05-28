@@ -89,7 +89,7 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018",
     if (verbose)
         message("converting to HOMER format...", appendLF = FALSE)
     fh <- file(filename, "wb")
-    for (i in 1:length(siteList)) {
+    for (i in seq_len(length(siteList))) {
         pwm <- TFBSTools::Matrix(siteList[[i]]) + 1
         pwm <- t(t(pwm) / colSums(pwm))
         tmp.rn <- rownames(pwm)
@@ -239,7 +239,7 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
 
     if (verbose)
         message("creating foreground/background region files for HOMER")
-    for (i in 1:nlevels(b)) {
+    for (i in seq_len(nlevels(b))) {
         bn <- levels(b)[i]
         if (verbose)
             message("  bin ",bn)
@@ -250,14 +250,14 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
 
         tmp.gr <- gr[b == bn]
         write.table(file = fgfile,
-                    data.frame(1:length(tmp.gr), as.character(seqnames(tmp.gr)),
+                    data.frame(seq_along(tmp.gr), as.character(seqnames(tmp.gr)),
                                start(tmp.gr) - 1, end(tmp.gr),
                                ifelse(as.character(strand(tmp.gr)) == "-", "-", "+")),
                     sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
 
         tmp.gr <- gr[b != bn]
         write.table(file = bgfile,
-                    data.frame(1:length(tmp.gr), as.character(seqnames(tmp.gr)),
+                    data.frame(seq_along(tmp.gr), as.character(seqnames(tmp.gr)),
                                start(tmp.gr) - 1, end(tmp.gr), 
                                ifelse(as.character(strand(tmp.gr)) == "-", "-", "+")),
                     sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
