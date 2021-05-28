@@ -80,8 +80,6 @@ plotMotifHeatmaps(se, cluster = TRUE,
 ```
 <img src="man/figures/monaLisa_heatmaps_small.png" align="center" alt="heatmaps" width="501px"/>
 
-## Software status
-
 <!-- badges: start -->
 Github Actions (multiple OS): [![R build status](https://github.com/fmicompbio/monaLisa/workflows/R-CMD-check/badge.svg)](https://github.com/fmicompbio/monaLisa/actions) [![Codecov.io coverage status](https://codecov.io/github/fmicompbio/monaLisa/coverage.svg?branch=master)](https://codecov.io/github/fmicompbio/monaLisa)
 <!-- badges: end -->
