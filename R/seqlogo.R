@@ -104,10 +104,10 @@ addLetter <- function (letters, which = c("A", "C", "G", "T"), x.pos, y.pos, ht,
 }
 
 # Calculate the information content for each position in a PFMatrix (internal)
-pfm2ic <- function (pfm) {
+pfm2ic <- function(pfm) {
     npos <- ncol(pfm)
     ic <- numeric(length = npos)
-    for (i in 1:npos)
+    for (i in seq_len(npos))
         ic[i] <- 2 + sum(sapply(pfm[, i], function(x) if (x > 0) (x * log2(x)) else 0))
     ic
 }
@@ -162,7 +162,7 @@ seqLogoGrob <- function(x, xmax = NULL, ymax = 2.0, xjust = c("left", "center", 
     facs <- pfm2ic(xm)
     wt <- 1
     x.pos <- 0
-    for (j in 1:npos) {
+    for (j in seq_len(npos)) {
         hts <- 0.95 * xm[, j] * facs[j]
         letterOrder <- order(hts)
         y.pos <- 0
@@ -243,7 +243,8 @@ anno_seqlogo <- function(grobL, which = c("column", "row"),
     column_fun <- function(index) {
         n <- length(index)
         pushViewport(viewport())
-        grid.rect(x = (1:n - 0.5)/n, width = 1/n, gp = subset_gp(gp, index))
+        grid.rect(x = (seq_len(n) - 0.5) / n, width = 1 / n,
+                  gp = subset_gp(gp, index))
         for (i in seq_len(n)) {
             height <- unit(1, "npc") - space * 2
             width  <- unit(1 / n, "npc") - space * 2
@@ -256,11 +257,13 @@ anno_seqlogo <- function(grobL, which = c("column", "row"),
     row_fun <- function(index) {
         n <- length(index)
         pushViewport(viewport())
-        grid.rect(y = (n - 1:n + 0.5)/n, height = 1/n, gp = subset_gp(gp, index))
+        grid.rect(y = (n - seq_len(n) + 0.5) / n, height = 1 / n,
+                  gp = subset_gp(gp, index))
         for (i in seq_len(n)) {
             height <- unit(1 / n, "npc") - space * 2
             width  <- unit(1, "npc") - space * 2
-            pushViewport(viewport(y = (n - i + 0.5)/n, width = width, height = height))
+            pushViewport(viewport(y = (n - i + 0.5) / n,
+                                  width = width, height = height))
             grid.draw(grobL[[index[i]]])
             popViewport()
         }

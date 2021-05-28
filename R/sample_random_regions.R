@@ -53,7 +53,7 @@ sample_random_regions <- function(allowedRegions = NULL, N = 100L,
 
 	#sample regions
 	set.seed(seed)
-	indx <- sample(1:length(gr), size = N, prob = ps, replace = TRUE)
+	indx <- sample(seq_along(gr), size = N, prob = ps, replace = TRUE)
 
 	#for each range, sample 1 position uniformly
 	gr.sampled <- gr[indx]

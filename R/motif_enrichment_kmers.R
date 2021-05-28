@@ -102,9 +102,9 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
         n <- nchar(names(kmerFreq.stratum)[1]) - MMorder
         log2pMM <- sapply(names(kmerFreq.stratum), function(current.kmer) {
             ii_long <- substr(rep(current.kmer, n),
-                              start = 1:n, stop = 1:n + MMorder)
+                              start = seq_len(n), stop = seq_len(n) + MMorder)
             ii_short <- substr(rep(current.kmer, n - 1L),
-                               start = 2:n, stop = 1:(n - 1L) + MMorder)
+                               start = seq(2, n), stop = seq_len(n - 1L) + MMorder)
             sum(lp_long[ii_long]) - sum(lp_short[ii_short])
         })
         kmerFreqMM.stratum <- (2 ** log2pMM) * sum(kmerFreq.stratum)
