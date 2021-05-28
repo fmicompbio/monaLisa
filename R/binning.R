@@ -7,8 +7,8 @@
         n2 <- round(sum(x >  minAbsX, na.rm = TRUE) / nElements) * nElements
         x1 <- sort(x, decreasing = FALSE, na.last = NA)[seq_len(n1)]
         x2 <- sort(x, decreasing = TRUE,  na.last = NA)[seq_len(n2 + 1)]
-        bin.breaks <- c(quantile(x1, seq(0, 1, length.out = n1 / nElements + 1)),
-                        quantile(x2, seq(0, 1, length.out = n2 / nElements + 1)))
+        bin.breaks <- c(if (n1 > 0) quantile(x1, seq(0, 1, length.out = n1 / nElements + 1)) else min(x, na.rm = TRUE),
+                        if (n2 > 0) quantile(x2, seq(0, 1, length.out = n2 / nElements + 1)) else max(x, na.rm = TRUE))
         attr(bin.breaks, "bin0") <- ceiling(n1 / nElements + 1)
     } else {
         bin.breaks <- quantile(x, seq(0, 1, length.out = round(length(x) / nElements) + 1L))
