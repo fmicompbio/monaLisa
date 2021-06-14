@@ -624,7 +624,7 @@ convertKmersToMotifs <- function(x, m, BPPARAM = SerialParam(), verbose = FALSE)
 #' @importFrom IRanges reduce
 #' 
 #' @export
-extractOverlappingKmerFrequecies <- function(seqs, x, BPPARAM = SerialParam()) {
+extractOverlappingKmerFrequencies <- function(seqs, x, BPPARAM = SerialParam()) {
     ## pre-flight checks
     x <- toupper(x)
     stopifnot(exprs = {

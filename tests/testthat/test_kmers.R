@@ -197,18 +197,18 @@ test_that("convertKmersToMotifs works as expected", {
     expect_equal(rowSums(assay(a1, "pearsonResid")), c("m1:::m1" = 42.263710609719, "m2:::m2" = 0.537892231292))
 })
 
-test_that("extractOverlappingKmerFrequecies works as expected", {
+test_that("extractOverlappingKmerFrequencies works as expected", {
     seqs <- Biostrings::DNAStringSet(c(s1 = "AAAAACCGTTAAAAAAAAAAAAAAAAACCGTTAAAAAAAAAAAAAA",
                                        s2 = "AAAAAAAAAAAAAAAAACCGTTAAAAAAAAAAATAACGGAAAAAAA",
                                        s3 = "ATAACGGAAAACCGTTCCGTTAAAAAAAAAAAAAAAAAAAAAAAAA"))
     kmers <- c("CCGT", "CGTT", "GTTA")
     
-    expect_error(extractOverlappingKmerFrequecies(seqs = "error", x = kmers))
-    expect_error(extractOverlappingKmerFrequecies(seqs, x = "error"))
-    expect_error(extractOverlappingKmerFrequecies(seqs, kmers, BPPARAM = "error"))
+    expect_error(extractOverlappingKmerFrequencies(seqs = "error", x = kmers))
+    expect_error(extractOverlappingKmerFrequencies(seqs, x = "error"))
+    expect_error(extractOverlappingKmerFrequencies(seqs, kmers, BPPARAM = "error"))
 
-    res1 <- extractOverlappingKmerFrequecies(seqs, kmers)
-    res2 <- extractOverlappingKmerFrequecies(seqs, kmers, BPPARAM = BiocParallel::MulticoreParam(2L))
+    res1 <- extractOverlappingKmerFrequencies(seqs, kmers)
+    res2 <- extractOverlappingKmerFrequencies(seqs, kmers, BPPARAM = BiocParallel::MulticoreParam(2L))
     
     expect_is(res1, "integer")
     expect_identical(res1, c(CCGTTA = 3L, TAACGG = 2L, CCGTTCCGTTA = 1L))
