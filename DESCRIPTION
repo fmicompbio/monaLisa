@@ -34,7 +34,12 @@ Imports:
     stringdist,
     igraph,
     GenomeInfoDb,
-    Rcpp
+    Rcpp,
+    tidyr,
+    dplyr,
+    tibble,
+    rlang,
+    gtools
 Suggests: JASPAR2018, BSgenome.Mmusculus.UCSC.mm10, TxDb.Mmusculus.UCSC.mm10.knownGene,
     knitr, rmarkdown, testthat, BiocStyle, gridExtra
 License: GPL-3

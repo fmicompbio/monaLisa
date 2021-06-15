@@ -664,7 +664,114 @@ extractOverlappingKmerFrequencies <- function(seqs, x, BPPARAM = SerialParam()) 
     extended.seqs[order(extended.seqs, decreasing = TRUE)]
 }
 
+#' Build a directed graph from enriched k-mers
+#' 
+#' Build a directed graph from k-mers enriched in a set of sequences. The 
+#' graph is based on a de Bruijn graph, in which edges are weighted based on 
+#' the co-occurrence of neighboring k-mers in the provided input sequences. 
+#' Putative motifs can be found by only retaining edges with weight above a 
+#' user-defined threshold (see \code{getMotifsFromDirGraph}). 
+#' 
+#' @param seqs A \code{\link{DNAStringSet}} with sequences within which the 
+#'   kmers in \code{x} are enriched. 
+#' @param x A \code{character} vector of k-mers enriched in the sequences 
+#'   in \code{seqs}.
+#' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
+#'   instance determining the parallel back-end to be used during evaluation.
+#' 
+#' @export
+#' 
+#' @examples 
+#' \dontrun{
+#' g <- buildDirGraphFromKmers(seqs, x)
+#' hist(E(g)$weights)
+#' getMotifsFromDirGraph(g, 10)
+#' }
+#' 
+#' @importFrom igraph make_de_bruijn_graph vertex_attr induced_subgraph as_ids
+#'   E
+#' @importFrom Biostrings DNAStringSet
+#' @importFrom gtools permutations
+#' @importFrom rlang .data
+#' @importFrom tibble rownames_to_column
+#' @importFrom dplyr filter %>%
+#' @importFrom tidyr gather unite
+#' 
+buildDirGraphFromKmers <- function(seqs, x, BPPARAM = SerialParam()) {
+    x <- toupper(x)
+    stopifnot(exprs = {
+        is(seqs, "DNAStringSet")
+        is(x, "character")
+        all(grepl("^[ACGT]+$", x))
+        length(unique(nchar(x))) == 1
+    })
+    
+    # Build de Bruijn graph
+    bases <- c("A", "C", "G", "T")
+    ## m = number of letters to choose from
+    ## n = k-mer length (the length of the sequences in x)
+    k <- nchar(x[1])
+    g <- igraph::make_de_bruijn_graph(m = length(bases), n = k)
+    ## Set vertex names
+    kmn <- apply(gtools::permutations(n = length(bases), 
+                                      r = k, v = bases, repeats.allowed = TRUE), 
+                 1, function(x) paste(x, collapse = ""))
+    igraph::vertex_attr(g, "name") <- kmn
+    
+    # Map k-mers back to the sequences
+    # This is useful in case a central k-mer does not pass the 
+    # enrichment threshold
+    overlapkmers <- extractOverlappingKmerFrequencies(seqs, x,
+                                                      BPPARAM = BPPARAM)
+    
+    # Get subgraph induced by kmers in the 'overlapping k-mers' only
+    cooccs <- Biostrings::oligonucleotideFrequency(
+        Biostrings::DNAStringSet(names(overlapkmers)), width = k
+    )
+    cooccs <- cooccs[, colSums(cooccs) > 0]
+    gi <- igraph::induced_subgraph(
+        g, vids = match(colnames(cooccs), igraph::vertex_attr(g, "name"))
+    )
+    
+    # Assign a weight to each edge, representing the number of times the 
+    # pair of k-mers appear just after each other in the input sequences
+    kmpairs <- countKmerPairs(
+        x = Biostrings::DNAStringSet(x = rep(names(overlapkmers),
+                                             overlapkmers)), 
+        k = k, n = 1, zoops = TRUE
+    )
+    
+    ## Add weights to the edges based on the number of co-occurrences
+    igraph::E(gi)$weight <- 0
+    kmp <- as.data.frame(kmpairs) %>% 
+        tibble::rownames_to_column("km1") %>% 
+        tidyr::gather(key = "km2", value = "weight", -.data$km1) %>% 
+        tidyr::unite(.data$km1, .data$km2, col = "node", sep = "|") %>%
+        dplyr::filter(.data$node %in% igraph::as_ids(igraph::E(gi)))
+    igraph::E(gi)$weight[match(kmp$node, igraph::as_ids(igraph::E(gi)))] <-
+        kmp$weight
 
+    gi
+}
 
-
+#' Get putative motifs from directed graph
+#' 
+#' Get putative motifs from a directed graph, by only retaining edges with a 
+#' weight exceeding a given threshold.
+#' 
+#' @param g A directed k-mer graph (e.g., from \code{buildDirGraphFromKmers})
+#' @param edge_weight_thr An edge weight threshold. Edges with weight below 
+#'   this threshold will be removed. 
+#'   
+#' @export
+#' 
+#' @importFrom igraph subgraph.edges V
+#' 
+getMotifsFromDirGraph <- function(g, edge_weight_thr) {
+    ## Plot graph, and subset to only the most abundant edges
+    gisub <- igraph::subgraph.edges(
+        g, eids = which(igraph::E(g)$weight > edge_weight_thr)
+    )
+    gisub
+}
 
