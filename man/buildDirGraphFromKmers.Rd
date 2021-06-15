@@ -21,7 +21,7 @@ Build a directed graph from k-mers enriched in a set of sequences. The
 graph is based on a de Bruijn graph, in which edges are weighted based on 
 the co-occurrence of neighboring k-mers in the provided input sequences. 
 Putative motifs can be found by only retaining edges with weight above a 
-user-defined threshold (see \code{\link{getMotifsFromDirGraph}}).
+user-defined threshold (see \code{getMotifsFromDirGraph}).
 }
 \examples{
 \dontrun{
