@@ -22,7 +22,7 @@
 #' @param kmerLen A \code{numeric} scalar giving the k-mer length.
 #' @param MMorder A \code{numeric} scalar giving the order of the Markov model
 #'   used to calculate the expected frequencies.
-#' @param pseudoCount A \code{numeric} scalar - will be added to the observed
+#' @param pseudocount A \code{numeric} scalar - will be added to the observed
 #'   counts for each k-mer to avoid zero values.
 #' @param zoops A \code{logical} scalar. If \code{TRUE} (the default), only one
 #'   or zero occurences of a k-mer are considered per sequence.
@@ -43,7 +43,7 @@
 #' @importFrom stats ppois kmeans
 #'
 #' @export
-getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops = TRUE,
+getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudocount = 1, zoops = TRUE,
                         strata = rep(1L, length(seqs)), p.adjust.method = "BH") {
 
     ##comments
@@ -88,12 +88,12 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
             kmerFreq.stratum <- colSums(kmerFreqRaw.stratum > 0)
             #make new sequences that are simply the kmers detected
             seqs.stratum.zoops <- DNAStringSet(rep(names(kmerFreq.stratum), kmerFreq.stratum))
-            lp_long  <- colSums(oligonucleotideFrequency(seqs.stratum.zoops, width = MMorder + 1L)) + pseudoCount
-            lp_short <- colSums(oligonucleotideFrequency(seqs.stratum.zoops, width = MMorder)     ) + pseudoCount
+            lp_long  <- colSums(oligonucleotideFrequency(seqs.stratum.zoops, width = MMorder + 1L)) + pseudocount
+            lp_short <- colSums(oligonucleotideFrequency(seqs.stratum.zoops, width = MMorder)     ) + pseudocount
         } else {
             kmerFreq.stratum <- colSums(kmerFreqRaw.stratum)
-            lp_long  <- colSums(oligonucleotideFrequency(seqs.stratum, width = MMorder + 1L)) + pseudoCount
-            lp_short <- colSums(oligonucleotideFrequency(seqs.stratum, width = MMorder))      + pseudoCount
+            lp_long  <- colSums(oligonucleotideFrequency(seqs.stratum, width = MMorder + 1L)) + pseudocount
+            lp_short <- colSums(oligonucleotideFrequency(seqs.stratum, width = MMorder))      + pseudocount
         }
         lp_long  <- log2(lp_long / sum(lp_long))
         lp_short <- log2(lp_short / sum(lp_short))
@@ -118,7 +118,7 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
 
     ## calculate enrichment statistics
     ## ... log2 (obs/exp)
-    lenr <- log2((kmerFreq + pseudoCount) / (kmerFreqMM + pseudoCount))
+    lenr <- log2((kmerFreq + pseudocount) / (kmerFreqMM + pseudocount))
     ## ... z value (Pearson residuals)
     z <- (kmerFreq - kmerFreqMM) / sqrt(kmerFreqMM)
     ## ... use square-root as variance-stablizing function
