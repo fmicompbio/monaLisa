@@ -59,17 +59,17 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudocount = 1, zoops =
     ## pre-flight checks
     if (is.character(seqs))
         seqs <- DNAStringSet(seqs)
+    .assertScalar(x = kmerLen, type = "numeric", rngIncl = c(1, Inf))
+    .assertScalar(x = MMorder, type = "numeric", rngExcl = c(0, kmerLen - 1L))
+    .assertScalar(x = pseudocount, type = "numeric", rngIncl = c(0, Inf))
+    .assertScalar(x = zoops, type = "logical")
+    .assertScalar(x = p.adjust.method, type = "character", validValues = stats::p.adjust.methods)
     stopifnot(exprs = {
         is(seqs, "DNAStringSet")
         round(kmerLen, 0L) == kmerLen
         round(MMorder, 0L) == MMorder
         length(strata) == length(seqs) || (is.numeric(strata) && length(strata) == 1L)
     })
-    .assertScalar(x = kmerLen, type = "numeric", rngIncl = c(1, Inf))
-    .assertScalar(x = MMorder, type = "numeric", rngExcl = c(0, kmerLen - 1L))
-    .assertScalar(x = pseudoCount, type = "numeric", rngIncl = c(0, Inf))
-    .assertScalar(x = zoops, type = "logical")
-    .assertScalar(x = p.adjust.method, type = "character", validValues = stats::p.adjust.methods)
     
     ## split sequences into strata
     CpGoe <- NA
