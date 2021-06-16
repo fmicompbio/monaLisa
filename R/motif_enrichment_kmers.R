@@ -332,6 +332,143 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
 }
 
 
+#' @title Calculate k-mer enrichment
+#'
+#' @description Given sequences, foreground/background labels and
+#'   weights, calculate the enrichment of each k-mer
+#'   in foreground compared to background. This function is called by
+#'   \code{calcBinnedKmerEnr()} for each bin if \code{background != "model"}.
+#'
+#'   The default type of test is \code{"fisher"}.
+#'   Alternatively, a binomial test can be used by \code{test = "binomial"}.
+#'   Using Fisher's exact test has the advantage that special cases such as
+#'   zero background counts are handled without ad-hoc adjustments to the
+#'   k-mer frequencies.
+#'
+#'   For \code{test = "fisher"}, \code{fisher.test} is used with
+#'   \code{alternative = "greater"}, making it a one-sided test for enrichment,
+#'   as is the case with the binomial test.
+#'
+#' @param k Numeric scalar giving the length of k-mers to analyze.
+#' @param df a \code{DataFrame} with sequence information as returned by
+#'   \code{.iterativeNormForKmers()}.
+#' @param zoops A \code{logical} scalar. If \code{TRUE} (the default), only one
+#'   or zero occurrences of a k-mer are considered per sequence. This is helpful
+#'   to reduce the impact of simple sequence repeats occurring in few sequences.
+#' @param test type of motif enrichment test to perform.
+#' @param verbose A logical scalar. If \code{TRUE}, report on progress.
+#'
+#' @return a \code{data.frame} containing the motifs as rows and the columns:
+#'   \itemize{
+#'     \item{motifName}{: the motif name}
+#'     \item{logP}{: the log p-value for enrichment (natural logarithm).
+#'        If \code{test="binomial"} (default), this log p-value is identical to
+#'        the one returned by Homer.}
+#'     \item{sumForegroundWgtWithHits}{: the weighted number of k-mer hits in
+#'        foreground sequences.}
+#'     \item{sumBackgroundWgtWithHits}{: the weighted number of k-mer hits in
+#'        background sequences.}
+#'     \item{totalWgtForeground}{: the total sum of weights of foreground
+#'        sequences.}
+#'     \item{totalWgtBackground}{: the total sum of weights of background
+#'        sequences.}
+#'   }
+#'
+#' @importFrom Biostrings oligonucleotideFrequency
+#' @importFrom stats pbinom fisher.test
+#' 
+#' @keywords internal
+.calcKmerEnrichment <- function(k,
+                                df,
+                                zoops = TRUE,
+                                test = c("fisher", "binomial"),
+                                verbose = FALSE){
+    
+    # checks
+    .assertScalar(x = k, type = "numeric", rngIncl = c(1, Inf))
+    .checkDfValidity(df)
+    .assertScalar(x = zoops, type = "logical")
+    test <- match.arg(test)
+    .assertScalar(x = verbose, type = "logical")
+    
+    totalWgtForeground <- sum(df$seqWgt[df$isForeground])
+    totalWgtBackground <- sum(df$seqWgt[!df$isForeground])
+    
+    kmerHitMatrix <- oligonucleotideFrequency(x = df$seqs,
+                                               width = k,
+                                               as.prob = FALSE,
+                                               with.labels = TRUE)
+    
+    if (zoops) {
+        kmerHitMatrix[kmerHitMatrix > 0] <- 1
+    }
+
+    kmerHitMatrixWeighted <- kmerHitMatrix * df$seqWgt
+    KmatchedSeqCountForeground <- colSums(kmerHitMatrixWeighted[df$isForeground, ])
+    KmatchedSeqCountBackground <- colSums(kmerHitMatrixWeighted[!df$isForeground, ])
+    
+    # calculate k-mer enrichment
+    if (identical(test, "binomial")) {
+        
+        if (verbose) {
+            message("using binomial test to calculate ",
+                    "log(p-values) for k-mer enrichments")
+        }
+        
+        prob <- KmatchedSeqCountBackground / totalWgtBackground
+        minProb <- 1 / totalWgtBackground
+        maxProb <- (totalWgtBackground - 1) / totalWgtBackground
+        if (any(i <- (prob < minProb))) {
+            # warning("some background k-mer match probabilities are below ",
+            #         "minProb (for example when there were zero hits) ",
+            #         "and will be given a value of minProb=1/totalWgtBackground")
+            prob[i] <- minProb
+        }
+        if (any(i <- (prob > maxProb))) {
+            # warning("some k-mer match probabilities a above",
+            #         "maxProb (for example when all sequences had hits) ",
+            #         "and will be givena value of ",
+            #         "maxProb=(totalWgtBackground-1)/totalWgtBackground")
+            prob[i] <- maxProb
+        }
+        
+        logP <- pbinom(q = KmatchedSeqCountForeground - 1,
+                       size = totalWgtForeground,
+                       prob = prob, lower.tail = FALSE, log.p = TRUE)
+        
+    } else if (identical(test, "fisher")) {
+        
+        if (verbose) {
+            message("using fisher's exact test (one-sided) to calculate ",
+                    "log(p-values) for motif enrichments")
+        }
+        
+        # contingency table per motif for fisher's exact test (rounded to integer):
+        #              withHit  noHit
+        #   foreground    x       y
+        #   background    z       w
+        #
+        logP <- log(vapply(structure(seq_along(KmatchedSeqCountForeground),
+                                     names = names(KmatchedSeqCountForeground)),
+                           function(i) {
+                               ctab <- rbind(c(KmatchedSeqCountForeground[i],
+                                               totalWgtForeground - KmatchedSeqCountForeground[i]),
+                                             c(KmatchedSeqCountBackground[i],
+                                               totalWgtBackground - KmatchedSeqCountBackground[i]))
+                               ctab <- round(ctab)
+                               fisher.test(x = ctab, alternative = "greater")$p.value
+                           }, FUN.VALUE = numeric(1)))
+    }
+    
+    return(data.frame(motifName = names(logP),
+                      logP = logP,
+                      sumForegroundWgtWithHits = KmatchedSeqCountForeground,
+                      sumBackgroundWgtWithHits = KmatchedSeqCountBackground,
+                      totalWgtForeground = totalWgtForeground,
+                      totalWgtBackground = totalWgtBackground))
+}
+
+
 #' @title Calculate k-mer enrichment in bins of sequences.
 #'
 #' @description Given a set of sequences and corresponding bins, identify
