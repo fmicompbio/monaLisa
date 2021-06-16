@@ -1,3 +1,8 @@
+# dummy import to suppress R CMD check NOTE:
+# "Namespace in Imports field not imported from: 'Rcpp'"
+#' @importFrom Rcpp sourceCpp
+
+
 # given a string of A,C,G,T letters, construct a profileMatrix (internal)
 .cons2matrix <- function(x, n = 100L) {
     stopifnot(exprs = {
