@@ -475,188 +475,438 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
 #'   enriched k-mers (n-grams) in each bin. The sequences can be given either
 #'   directly or as genomic coordinates.
 #'
-#' @param x A \code{character} vector, \code{\link[Biostrings]{DNAStringSet}} or
-#'   a \code{\link[GenomicRanges]{GRanges}} object with the sequences to
-#'   analyze.
-#' @param b A vector of the same length as \code{x} that groups its elements
-#'   into bins (typically a factor, such as the one returned by
-#'   \code{\link{bin}}).
-#' @param genomepkg Only used if \code{x} is a \code{GRanges} object: A
-#'   \code{character} scalar with the name of a \code{BSgenome} package from
-#'   which to extract the sequences.
+#' @param seqs \code{\link[Biostrings]{DNAStringSet}} object with sequences to test
+#' @param bins factor of the same length and order as \code{seqs}, indicating
+#'   the bin for each sequence. Typically the return value of
+#'   \code{\link[monaLisa]{bin}}. For \code{background = "genome"} or
+#'   \code{background = "model"}, \code{bins} can be omitted.
 #' @param kmerLen A \code{numeric} scalar giving the k-mer length.
-#' @param background A \code{character} scalar. If \code{"other"} (the default),
-#'   the enrichments in a bin are calculated compared to the sequences in all
-#'   other bins. If \code{"model"}, the enrichments are relative to the expected
-#'   frequencies obtained from a Markov model of order \code{MMorder}.
+#' @param background A \code{character} scalar specifying the background sequences
+#'   to use. One of \code{"otherBins"} (default), \code{"allBins"}, \code{"zeroBin"},
+#'   \code{"genome"} or \code{"model"} (see "Details").
 #' @param MMorder A \code{numeric} scalar giving the order of the Markov model
 #'   used to calculate the expected frequencies for \code{background = "model"}.
+#' @param test A \code{character} scalar specifying the type of enrichment test
+#'   to perform. One of \code{"fisher"} (default) or \code{"binomial"}. The
+#'   enrichment test is one-sided (enriched in foreground).
+#' @param maxFracN A numeric scalar with the maximal fraction of N bases allowed
+#'   in a sequence (defaults to 0.7). Sequences with higher fractions are
+#'   excluded from the analysis.
+#' @param maxKmerSize the maximum k-mer size to consider, when adjusting
+#'   background sequence weights for k-mer composition compared to the
+#'   foreground sequences. The default value (3) will correct for mono-, di-
+#'   and tri-mer composition.
+#' @param GCbreaks The breaks between GC bins. The default value is based on
+#'   the hard-coded bins used in Homer.
+#' @param pseudocount.kmers A \code{numeric} scalar - will be added to the
+#'   observed and expected counts for each k-mer to avoid zero values.
+#' @param pseudocount.log2enr A numerical scalar with the pseudocount to add to
+#'   foreground and background counts when calculating log2 motif enrichments
+#' @param pseudocount.pearsonResid A numerical scalar with the pseudocount to add
+#'   to foreground and background frequencies when calculating expected counts
+#'   and Pearson residuals.
 #' @param zoops A \code{logical} scalar. If \code{TRUE} (the default), only one
-#'   or zero occurences of a k-mer are considered per sequence. This is helpful
+#'   or zero occurrences of a k-mer are considered per sequence. This is helpful
 #'   to reduce the impact of simple sequence repeats occurring in few sequences.
 #' @param p.adjust.method A character scalar selecting the p value adjustment
 #'   method (used in \code{\link[stats]{p.adjust}}).
-#' @param pseudoCount A \code{numeric} scalar - will be added to the observed
-#'   counts for each k-mer to avoid zero values.
+#' @param genome A \code{BSgenome} or \code{DNAStringSet} object with the
+#'   genome sequence. Only used for \code{background = "genome"} for extracting
+#'   background sequences.
+#' @param genome.regions An optional \code{\link[GenomicRanges]{GRanges}} object
+#'   defining the intervals in \code{genome} from which background sequences are
+#'   sampled for \code{background = "genome"}. If \code{NULL}, background
+#'   sequences are sampled randomly from \code{genome}.
+#' @param genome.oversample A \code{numeric} scalar of at least 1.0 defining how
+#'   many background sequences will be sampled per foreground sequence for
+#'   \code{background = "genome"}. Larger values will take longer but improve
+#'   the sequence composition similarity between foreground and background
+#'   (see \code{"Details"}).
+#' @param genome.seed An \code{integer} scalar used to seed the random number
+#'   generator before sampling regions.
 #' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
 #'     instance determining the parallel back-end to be used during evaluation.
 #' @param verbose A \code{logical} scalar. If \code{TRUE}, report on progress.
 #'
+#' @details This function implements a binned k-mer enrichment analysis. In each
+#'   enrichment analysis, the sequences in a specific bin are used as foreground
+#'   sequences to test for k-mer enrichments comparing to background sequences
+#'   (defined by \code{background}, see below), similarly as in done for motifs
+#'   in \code{\link{calcBinnedMotifEnrR}}. Sequences are weighted to correct for
+#'   GC and shorter k-mer composition differences between fore- and background
+#'   sets.
+#'   
+#'   The background sequences are defined according to the value of the
+#'   \code{background} argument:
+#'   \itemize{
+#'     \item{otherBins}{: sequences from all other bins (excluding the current bin)}
+#'     \item{allBins}{: sequences from all bins (including the current bin)}
+#'     \item{zeroBin}{: sequences from the "zero bin", defined by the
+#'       \code{maxAbsX} argument of \code{\link[monaLisa]{bin}}. If \code{bins}
+#'       does not define a "zero bin", for example because it was created by
+#'       \code{bin(..., maxAbsX = NULL)}, selecting this background definition
+#'       will abort with an error.}
+#'     \item{genome}{: sequences randomly sampled from the genome (or the
+#'       intervals defined in \code{genome.regions} if given). For each
+#'       foreground sequence, \code{genome.oversample} background sequences
+#'       of the same size are sampled (on average). From these, one per
+#'       foreground sequence is selected trying to match the G+C composition.
+#'       In order to make the sampling deterministic, the random number
+#'       generator is seeded using \code{genome.seed}.}
+#'     \item{model}{: a Markov model of the order \code{MMorder} is estimated
+#'       from the foreground sequences and used to estimate expected k-mer
+#'       frequencies. K-mer enrichments are then calculated comparing observed
+#'       to these expected frequencies.}
+#'   }
+#'
+#'   For each k-mer, the weights of sequences is multiplied with the number
+#'   of k-mer occurrences in each sequence and summed, separately for foreground
+#'   (\code{sumForegroundWgtWithHits}) and background
+#'   (\code{sumBackgroundWgtWithHits}) sequences. For \code{zoops = TRUE}
+#'   (Zero-Or-One-Per-Sequence mode, default), at most one occurrence per
+#'   sequence is counted, which helps reduce the impact of sequence repeats.
+#'   The total foreground (\code{totalWgtForeground}) and background
+#'   (\code{totalWgtBackground}) sum of sequence weights is also calculated. If
+#'   a k-mer has zero \code{sumForegroundWgtWithHits} and
+#'   \code{sumBackgroundWgtWithHits}, then any values (p-values and enrichment)
+#'   that are calculated using these two numbers are set to NA.
+#'
+#'   Two statistical tests for the calculation of enrichment log p-value are
+#'   available: \code{test = "fisher"} (default) to perform Fisher's exact
+#'   tests, or \code{test = "binomial"} to perform binomial tests, using:
+#'   \itemize{
+#'     \item{fisher}{: \code{fisher.test(x = tab, alternative =
+#'       "greater")}, where \code{tab} is the contingency table with the summed
+#'       weights of sequences in foreground or background sets (rows), and with
+#'       or without a occurrences of a particular k-mer (columns).}
+#'     \item{binomial}{: \code{pbinom(q = sumForegroundWgtWithHits - 1, size =
+#'       totalWgtForeground, prob = sumBackgroundWgtWithHits / totalWgtBackground,
+#'       lower.tail = FALSE, log.p = TRUE)}}
+#'   }
+#'   
+#' @return A \code{\link[SummarizedExperiment]{SummarizedExperiment}} object
+#'   with motifs in rows and bins in columns, containing six assays: \itemize{
+#'   \item{negLog10P}{: -log10 P values}
+#'   \item{negLog10Padj}{: -log10 adjusted P values}
+#'   \item{pearsonResid}{: k-mer enrichments as Pearson residuals}
+#'   \item{log2enr}{: k-mer enrichments as log2 ratios}
+#'   \item{sumForegroundWgtWithHits}{: Sum of foreground sequence weights
+#'     in a bin that have k-mer occurrences}
+#'   \item{sumBackgroundWgtWithHits}{: Sum of background sequence weights
+#'     in a bin that have k-mer occurrences}
+#' }
+#'
 #' @seealso \code{\link{getKmerFreq}} used to calculate k-mer enrichments;
-#'   \code{\link[BSgenome]{getSeq,BSgenome-method}} which is used to extract
-#'   sequences from \code{genomepkg} if \code{x} is a \code{GRanges} object;
 #'   \code{\link[BiocParallel]{bplapply}} that is used for parallelization;
 #'   \code{\link{bin}} for binning of regions
 #'
-#' @return A \code{\link[SummarizedExperiment]{SummarizedExperiment}} object with
-#'   k-mers in rows and bins in columns, containing four assays: \itemize{
-#'   \item{negLog10P}{: -log10 P values}
-#'   \item{negLog10Padj}{: -log10 adjusted P values}
-#'   \item{pearsonResid}{: motif enrichments as Pearson residuals}
-#'   \item{log2enr}{: motif enrichments as log2 ratios}
-#' }.
-#' rowData(x) contains information about the k-mers, colData(x) contains
-#' information about the bins, and metaData(x) contains meta data on the object
-#' and how it was generated (e.g. parameter values).
-#'
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom S4Vectors DataFrame split
-#' @importFrom BSgenome getSeq
-#' @importFrom TFBSTools PFMatrix PFMatrixList
+#' @importFrom TFBSTools PFMatrix PFMatrixList ID name toPWM
 #' @importFrom stats ppois p.adjust
 #' @importFrom BiocParallel bplapply SerialParam bpnworkers
 #'
 #' @export
-calcBinnedKmerEnr <- function(x,
-                              b,
-                              genomepkg = NULL,
+calcBinnedKmerEnr <- function(seqs,
+                              bins = NULL,
                               kmerLen = 5,
-                              background = c("other", "model"),
+                              background = c("otherBins", "allBins", "zeroBin", "genome", "model"),
                               MMorder = 1,
+                              test = c("fisher", "binomial"),
+                              maxFracN = 0.7,
+                              maxKmerSize = 3L,
+                              GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4,
+                                           0.45, 0.5, 0.6, 0.7, 0.8),
+                              pseudocount.kmers = 1,
+                              pseudocount.log2enr = 8,
+                              pseudocount.pearsonResid = 0.001,
                               zoops = TRUE,
                               p.adjust.method = "BH",
-                              pseudoCount = 1,
+                              genome = NULL,
+                              genome.regions = NULL,
+                              genome.oversample = 2,
+                              genome.seed = 42L,
                               BPPARAM = SerialParam(),
                               verbose = FALSE) {
     ## pre-flight checks
+    .assertVector(x = seqs, type = "DNAStringSet")
+    if (is.null(bins) && (background %in% c("genome", "model"))) {
+        bins <- factor(rep(1, length(seqs)))
+    }
+    .assertVector(x = bins, type = "factor")
+    if (length(seqs) != length(bins)) {
+        stop("'seqs' and 'bins' must be of equal length and in the same order")
+    }
+    .assertScalar(x = kmerLen, type = "numeric", rngIncl = c(1, Inf))
     background <- match.arg(background)
-    .assertScalar(x = verbose, type = "logical")
-    if (is.character(x)) {
-        if (!all(grepl("^[ACGTNacgtn]+$", x))) {
-            stop("'x' must contain only A, C, G, T or N letters")
-        }
-        if (verbose) {
-            message("converting 'x' to 'DNAStringSet'")
-        }
-        x <- DNAStringSet(x)
-        
-    } else if (is(x, "GRanges"))  {
-        if (is.null(genomepkg) || !is.character(genomepkg) ||
-            length(genomepkg) != 1L || !require(genomepkg, character.only = TRUE)) {
-            stop("'genomepkg' must be a character scalar with the name",
-                 "of an installed BSgenome package")
-        }
-        if (verbose) {
-            message("extracting sequences for regions in 'x' from '", genomepkg, "'")
-        }
-        x <- getSeq(get(genomepkg), x)
-        
-    } else if (!is(x, "DNAStringSet")) {
-        stop("'x' needs to be either a 'character', 'GRanges' or 'DNAStringSet'")
-    }
-    if (!is.factor(b)) {
-        if (verbose) {
-            message("converting 'b' to a 'factor'")
-        }
-        b <- factor(b, levels = unique(b))
-    }
-    .assertVector(x = b, len = length(x))
-    .assertScalar(x = p.adjust.method, type = "character", validValues = stats::p.adjust.methods)
-    .assertScalar(x = pseudoCount, type = "numeric", rngIncl = c(0, Inf))
+    test <- match.arg(test)
+    .assertScalar(x = pseudocount.kmers, type = "numeric", rngIncl = c(0, Inf))
+    .assertScalar(x = pseudocount.log2enr, type = "numeric", rngIncl = c(0, Inf))
+    .assertScalar(x = pseudocount.pearsonResid, type = "numeric", rngIncl = c(0, Inf))
     .assertScalar(x = zoops, type = "logical")
-    stopifnot(is(BPPARAM, "BiocParallelParam"))
+    .assertScalar(x = p.adjust.method, type = "character", validValues = stats::p.adjust.methods)
+    if (identical(background, "zeroBin") &&
+        (!"bin0" %in% names(attributes(bins)) || is.na(attr(bins, "bin0")))) {
+        stop("For background = 'zeroBin', 'bins' has to define a zero bin (see ",
+             "'maxAbsX' arugment of 'bin' function).")
+    }
+    if (identical(background, "genome")) {
+        if (is.null(genome) || !(is(genome, "DNAStringSet") || is(genome, "BSgenome"))) {
+            stop("For background = 'genome', 'genome' must be either a ",
+                 "DNAStringSet or a BSgenome object.")
+        }
+        if (!is.null(genome.regions)) {
+            if (!is(genome.regions, "GRanges")) {
+                stop("For background = 'genome', 'genome.regions' must be either ",
+                     "NULL or a GRanges object.")
+            }
+            if (!all(seqlevels(genome.regions) %in% names(genome))) {
+                stop("'genome.regions' contains seqlevels not contained in 'genome'")
+            }
+        }
+        .assertScalar(x = genome.oversample, type = "numeric", rngIncl = c(1, Inf))
+        .assertScalar(x = genome.seed, type = "integer")
+    }
+    .assertVector(x = BPPARAM, type = "BiocParallelParam")
+    .assertScalar(x = verbose, type = "logical")
+    if (is.null(names(seqs))) {
+        names(seqs) <- paste0("s", seq_along(seqs))
+    }
     
-    ## identify enriched k-mers in each bin
+    
+    ## filter sequences
     if (verbose) {
-        message("searching for enriched ", kmerLen, "-mers in ", nlevels(b),
-                " bins using ", bpnworkers(BPPARAM),
-                if (bpnworkers(BPPARAM) > 1) " cores" else " core",
-                " (background: ", c("other" = "sequences in other bins",
-                                    "model" = paste0("Markov model of order ", MMorder))[background],
-                ")...", appendLF = FALSE)
+        message("Filtering sequences ...")
     }
-    resL <- bplapply(split(x, b)[levels(b)], getKmerFreq, kmerLen = kmerLen,
-                     MMorder = MMorder, pseudoCount = pseudoCount,
-                     zoops = zoops, BPPARAM = BPPARAM)
-    if (verbose) {
-        message("done")
+    keep <- .filterSeqs(seqs, maxFracN = maxFracN, verbose = verbose)
+    battr <- attributes(bins) # rescue attributes dropped by subsetting
+    bins <- bins[keep]
+    attr(bins, "binmode") <- battr$binmode
+    attr(bins, "breaks") <- battr$breaks
+    attr(bins, "bin0") <- battr$bin0
+    seqs <- seqs[keep]
+    
+    # stop if all sequences were filtered out
+    if (sum(keep) == 0) {
+        stop("No sequence passed the filtering step. Cannot proceed with the enrichment analysis ...")
     }
     
-    ## calculate motif enrichments
-    if (background == "other") {
-        f.obs <- do.call(cbind, lapply(resL, "[[", "freq.obs"))
-        f.exp <- do.call(cbind, lapply(seq_along(resL), function(i) {
-            rowSums(do.call(cbind, lapply(resL[-i], "[[", "freq.obs")))
-        }))
-        colnames(f.exp) <- colnames(f.obs)
-        n.obs <- colSums(f.obs)
-        n.exp <- colSums(f.exp)
-        f.obs <- t(t(f.obs) / n.obs * pmin(n.obs, n.exp))
-        f.exp <- t(t(f.exp) / n.exp * pmin(n.obs, n.exp))
-        lenr <- log2((f.obs + pseudoCount) / (f.exp + pseudoCount))
-        z <- (f.obs - f.exp) / sqrt(f.exp)
-        p <- ppois(q = f.obs, lambda = f.exp, lower.tail = FALSE)
-        padj <- matrix(p.adjust(p, method = p.adjust.method), nrow = nrow(p), dimnames = dimnames(p))
-        assayL <- list(negLog10P = -log10(p), negLog10Padj = -log10(padj),
-                       pearsonResid = z, log2enr = lenr)
-        
-    } else if (background == "model") {
-        p <- do.call(cbind, lapply(resL, "[[", "p"))
-        padj <- matrix(p.adjust(p, method = p.adjust.method), nrow = nrow(p), dimnames = dimnames(p))
-        assayL <- list(negLog10P = -log10(p), negLog10Padj = -log10(padj),
-                       pearsonResid = do.call(cbind, lapply(resL, "[[", "z")),
-                       log2enr = do.call(cbind, lapply(resL, "[[", "log2enr")))
-    }
     
-    ## create SummarizedExperiment
-    brks <- attr(b, "breaks")
-    if (is.null(brks)) {
-        brks <- rep(NA, nlevels(b) + 1L)
-    }
-    cdat <- S4Vectors::DataFrame(bin.names = levels(b),
-                                 bin.lower = brks[-(nlevels(b) + 1)],
-                                 bin.upper = brks[-1],
-                                 bin.nochange = seq.int(nlevels(b)) %in% attr(b, "bin0"))
-    kmers <- names(resL[[1]][[1]])
-    pfms <- do.call(TFBSTools::PFMatrixList, lapply(kmers, function(kmer) {
+    # iterate over bins
+    enrichL <- bplapply(structure(seq.int(nlevels(bins)), names = levels(bins)),
+                        function(i) {
+
+        if (verbose)
+            message("starting analysis of bin ", levels(bins)[i])
+        verbose1 <- verbose && bpnworkers(BPPARAM) == 1L
+
+        if (identical(background, "model")) {
+            # no need to calculate sequence weights for background = "model"
+            is.fg <- as.numeric(bins) == i
+            Nfg <- sum(is.fg)
+            res1 <- getKmerFreq(seqs = seqs[is.fg],
+                                kmerLen = kmerLen,
+                                MMorder = MMorder,
+                                pseudocount = pseudocount.kmers,
+                                zoops = zoops)
+
+            if (identical(test, "binomial")) {
+                prob <- res1$freq.exp / Nfg
+                minProb <- 1 / Nfg
+                maxProb <- (Nfg - 1) / Nfg
+                if (any(i <- (prob < minProb))) {
+                    prob[i] <- minProb
+                }
+                if (any(i <- (prob > maxProb))) {
+                    prob[i] <- maxProb
+                }
+                
+                logP <- pbinom(q = res1$freq.obs - 1,
+                               size = Nfg,
+                               prob = prob, lower.tail = FALSE, log.p = TRUE)
+                
+            } else if (identical(test, "fisher")) {
+                # contingency table per motif for fisher's exact test (rounded to integer):
+                #              withHit  noHit
+                #   foreground    x       y
+                #   background    z       w
+                #
+                logP <- log(vapply(structure(seq_along(res1$freq.obs),
+                                             names = names(res1$freq.obs)),
+                                   function(i) {
+                                       ctab <- rbind(c(res1$freq.obs[i],
+                                                       Nfg - res1$freq.obs[i]),
+                                                     c(res1$freq.exp[i],
+                                                       Nfg - res1$freq.exp[i]))
+                                       ctab <- round(ctab)
+                                       fisher.test(x = ctab, alternative = "greater")$p.value
+                                   }, FUN.VALUE = numeric(1)))
+            }
+
+            return(data.frame(motifName = names(logP),
+                              logP = logP,
+                              sumForegroundWgtWithHits = res1$freq.obs,
+                              sumBackgroundWgtWithHits = res1$freq.exp,
+                              totalWgtForeground = Nfg,
+                              totalWgtBackground = Nfg))
+            
+        } else {
+            # define background set and create sequence info data frame
+            if (verbose1) {
+                message("Defining background sequence set (", background, ")...")
+            }
+            df <- .defineBackground(sqs = seqs,
+                                    bns = bins,
+                                    bg = background,
+                                    currbn = i,
+                                    gnm = genome,
+                                    gnm.regions = genome.regions,
+                                    gnm.oversample = genome.oversample,
+                                    gnm.seed = genome.seed + i,
+                                    maxFracN = maxFracN)
+
+            # calculate initial background sequence weights based on G+C composition
+            if (verbose1) {
+                message("Correcting for GC differences to the background sequences...")
+            }
+            df <- .calculateGCweight(df = df,
+                                     GCbreaks = GCbreaks,
+                                     verbose = verbose1)
+
+            # if df is empty, then all seqs were filtered out in the GC weight calculation step
+            if (nrow(df) == 0) {
+                stop(paste0("No sequences remained after the GC weight calculation step in bin ", levels(bins)[i], 
+                            " due to no GC bin containing both fore- and background sequences. ", 
+                            "Cannot proceed with the ernichment analysis ..."))
+            }
+
+            # update background sequence weights based on k-mer composition
+            if (verbose1) {
+                message("Correcting for k-mer differences between fore- and background sequences...")
+            }
+            df <- .iterativeNormForKmers(df = df,
+                                         maxKmerSize = maxKmerSize,
+                                         verbose = verbose1)
+
+            # calculate motif enrichments
+            if (verbose1) {
+                message("Calculating ", kmerLen, "-mer enrichment...")
+            }
+            enrich1 <- .calcKmerEnrichment(k = kmerLen,
+                                           df = df,
+                                           zoops = zoops,
+                                           test = test,
+                                           verbose = verbose1)
+            return(enrich1)
+        }
+    }, BPPARAM = BPPARAM)
+
+    # summarize results as SE
+    # ... -log10 of P value
+    P <- do.call(cbind, lapply(enrichL, function(enrich1) {
+        logpVals <- -enrich1[, "logP"] / log(10)
+        names(logpVals) <- enrich1[, "motifName"]
+        logpVals
+    }))
+    
+    # ... -log10 of adjusted P value
+    padj <- matrix(-log10(p.adjust(as.vector(10**(-P)),
+                                   method = p.adjust.method)), nrow = nrow(P))
+    dimnames(padj) <- dimnames(P)
+    padj[which(padj == Inf, arr.ind = TRUE)] <- max(padj[is.finite(padj)])
+    
+    # ... Pearson residuals
+    enrTF <- do.call(cbind, lapply(enrichL, function(enrich1) {
+        fracForeground <- enrich1[, "sumForegroundWgtWithHits"] / enrich1[, "totalWgtForeground"]
+        fracBackground <- enrich1[, "sumBackgroundWgtWithHits"] / enrich1[, "totalWgtBackground"]
+        obsTF <- enrich1[, "sumForegroundWgtWithHits"]
+        expTF <- obsTF / (fracForeground + pseudocount.pearsonResid) * (fracBackground + pseudocount.pearsonResid)
+        enr <- (obsTF - expTF) / sqrt(expTF)
+        enr[ is.na(enr) ] <- 0
+        names(enr) <- enrich1[, "motifName"]
+        enr
+    }))
+    
+    # log2 enrichments
+    log2enr <- do.call(cbind, lapply(enrichL, function(enrich1) {
+        D <- enrich1[, c("sumForegroundWgtWithHits", "sumBackgroundWgtWithHits")]
+        nTot <- unlist(enrich1[1, c("totalWgtForeground", "totalWgtBackground")])
+        D.norm <- t(t(D) / nTot * min(nTot))
+        DL <- log2(D.norm + pseudocount.log2enr)
+        log2enr <- DL[, 1] - DL[, 2]
+        log2enr
+    }))
+    
+    # return SummarizedExperiment
+    kmers <- enrichL[[1]]$motifName
+    pfmL <- do.call(TFBSTools::PFMatrixList, lapply(kmers, function(kmer) {
         TFBSTools::PFMatrix(ID = kmer, name = kmer,
                             profileMatrix = .cons2matrix(kmer))
     }))
-    percentGC <- unlist(lapply(pfms, function(x) {
+    pwmL <- TFBSTools::toPWM(pfmL)
+    percentGC <- unlist(lapply(pfmL, function(x) {
         m <- TFBSTools::Matrix(x)
         100 * sum(m[c("C","G"), ]) / sum(m)
     }), use.names = FALSE)
-    rdat <- S4Vectors::DataFrame(motif.name = kmers,
-                                 motif.pfm = pfms,
-                                 motif.percentGC = percentGC)
-    se <- SummarizedExperiment::SummarizedExperiment(
-        assays = assayL,
-        colData = cdat, rowData = rdat,
-        metadata = list(bins = b,
-                        bins.binmode = attr(b, "binmode"),
-                        bins.breaks = as.vector(attr(b, "breaks")),
-                        bins.bin0 = attr(b, "bin0"),
-                        param = list(genomepkg = genomepkg,
-                                     kmerLen = kmerLen,
-                                     background = background,
-                                     MMorder = MMorder,
-                                     p.adjust.method = p.adjust.method,
-                                     pseudoCount = pseudoCount,
-                                     zoops = zoops,
-                                     Ncpu = bpnworkers(BPPARAM)),
-                        motif.distances = NULL)
-    )
+    rdat <- DataFrame(motif.id = TFBSTools::ID(pwmL),
+                      motif.name = TFBSTools::name(pwmL),
+                      motif.pfm = pfmL,
+                      motif.pwm = pwmL,
+                      motif.percentGC = percentGC)
+    if (is.null(attr(bins, "breaks"))) {
+        binL <- binH <- rep(NA, nlevels(bins))
+    } else {
+        binL <- attr(bins, "breaks")[-(nlevels(bins) + 1)]
+        binH <- attr(bins, "breaks")[-1]
+    }
+    cdat <- DataFrame(bin.names = levels(bins),
+                      bin.lower = binL,
+                      bin.upper = binH,
+                      bin.nochange = seq.int(nlevels(bins)) %in% attr(bins, "bin0"),
+                      totalWgtForeground = do.call(c, lapply(enrichL, function(x){x$totalWgtForeground[1]})), 
+                      totalWgtBackground = do.call(c, lapply(enrichL, function(x){x$totalWgtBackground[1]})))
+    mdat <- list(bins = bins,
+                 bins.binmode = attr(bins, "binmode"),
+                 bins.breaks = as.vector(attr(bins, "breaks")),
+                 bins.bin0 = attr(bins, "bin0"),
+                 param = list(kmerLen = kmerLen,
+                              background = background,
+                              MMorder = MMorder,
+                              test = test,
+                              maxFracN = maxFracN,
+                              maxKmerSize = maxKmerSize,
+                              pseudocount.kmers = pseudocount.kmers,
+                              pseudocount.log2enr = pseudocount.log2enr,
+                              pseudocount.pearsonResid = pseudocount.pearsonResid,
+                              zoops = zoops,
+                              p.adj.method = p.adjust.method,
+                              genome.class = class(genome),
+                              genome.regions = genome.regions,
+                              genome.oversample = genome.oversample,
+                              genome.seed = genome.seed,
+                              BPPARAM.class = class(BPPARAM),
+                              BPPARAM.bpnworkers = bpnworkers(BPPARAM),
+                              verbose = verbose))
+    assaySumForegroundWgtWithHits <- do.call(cbind, lapply(enrichL, function(x){x$sumForegroundWgtWithHits}))
+    assaySumBackgroundWgtWithHits <- do.call(cbind, lapply(enrichL, function(x){x$sumBackgroundWgtWithHits}))
+    
+    # ... set motifs with zero fore- and background sums to NA
+    assayFgBgSum <- assaySumForegroundWgtWithHits + assaySumBackgroundWgtWithHits
+    set_NA <- assayFgBgSum == 0
+    P[set_NA] <- NA
+    padj[set_NA] <- NA
+    enrTF[set_NA] <- NA
+    log2enr[set_NA] <- NA
+    
+    se <- SummarizedExperiment(assays = list(negLog10P = P, 
+                                             negLog10Padj = padj, 
+                                             pearsonResid = enrTF,
+                                             log2enr = log2enr, 
+                                             sumForegroundWgtWithHits = assaySumForegroundWgtWithHits, 
+                                             sumBackgroundWgtWithHits = assaySumBackgroundWgtWithHits),
+                               rowData = rdat, colData = cdat, metadata = mdat)
     rownames(se) <- kmers
+    
     return(se)
 }
 
