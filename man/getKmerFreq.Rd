@@ -8,7 +8,7 @@ getKmerFreq(
   seqs,
   kmerLen = 5,
   MMorder = 1,
-  pseudoCount = 1,
+  pseudocount = 1,
   zoops = TRUE,
   strata = rep(1L, length(seqs)),
   p.adjust.method = "BH"
@@ -23,7 +23,7 @@ getKmerFreq(
 \item{MMorder}{A \code{numeric} scalar giving the order of the Markov model
 used to calculate the expected frequencies.}
 
-\item{pseudoCount}{A \code{numeric} scalar - will be added to the observed
+\item{pseudocount}{A \code{numeric} scalar - will be added to the observed
 counts for each k-mer to avoid zero values.}
 
 \item{zoops}{A \code{logical} scalar. If \code{TRUE} (the default), only one

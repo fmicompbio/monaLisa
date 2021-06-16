@@ -28,7 +28,7 @@ calcBinnedMotifEnrR(
 )
 }
 \arguments{
-\item{seqs}{DNAStringSet object with sequences to test}
+\item{seqs}{\code{\link[Biostrings]{DNAStringSet}} object with sequences to test}
 
 \item{bins}{factor of the same length and order as \code{seqs}, indicating
 the bin for each sequence. Typically the return value of
@@ -99,8 +99,8 @@ instance determining the parallel back-end to be used during evaluation.}
 \item{...}{Additional arguments for  \code{\link[monaLisa]{findMotifHits}}.}
 }
 \value{
-A \code{SummarizedExperiment} object with motifs in rows and bins
-  in columns, containing six assays: \itemize{
+A \code{\link[SummarizedExperiment]{SummarizedExperiment}} object
+  with motifs in rows and bins in columns, containing six assays: \itemize{
   \item{negLog10P}{: -log10 P values}
   \item{negLog10Padj}{: -log10 adjusted P values}
   \item{pearsonResid}{: motif enrichments as Pearson residuals}
@@ -119,7 +119,7 @@ This function performs a motif enrichment analysis on bins of
 \details{
 This function implements a binned motif enrichment analysis. In each
   enrichment analysis, the sequences in a specific bin are used as foreground
-  sequences to test for motif enrichment comparing to background sequences
+  sequences to test for motif enrichments comparing to background sequences
   (defined by \code{background}, see below). The logic follows the
   \code{findMotifsGenome.pl} tool from \code{Homer} version 4.11, with
   \code{-size given -nomotif -mknown} and additionally \code{-h} if using 
@@ -153,7 +153,7 @@ This function implements a binned motif enrichment analysis. In each
   (\code{sumBackgroundWgtWithHits}). The total foreground 
   (\code{totalWgtForeground}) and background (\code{totalWgtBackground})
   sum of sequence weights is also calculated. If a motif has zero 
-  (\code{sumForegroundWgtWithHits}) and (\code{sumBackgroundWgtWithHits}), 
+  \code{sumForegroundWgtWithHits} and \code{sumBackgroundWgtWithHits},
   then any values (p-values and enrichment) that are calculated using 
   these two numbers are set to NA.
 

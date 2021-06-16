@@ -5,51 +5,95 @@
 \title{Calculate k-mer enrichment in bins of sequences.}
 \usage{
 calcBinnedKmerEnr(
-  x,
-  b,
-  genomepkg = NULL,
+  seqs,
+  bins = NULL,
   kmerLen = 5,
-  background = c("other", "model"),
+  background = c("otherBins", "allBins", "zeroBin", "genome", "model"),
   MMorder = 1,
+  test = c("fisher", "binomial"),
+  maxFracN = 0.7,
+  maxKmerSize = 3L,
+  GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.7, 0.8),
+  pseudocount.kmers = 1,
+  pseudocount.log2enr = 8,
+  pseudocount.pearsonResid = 0.001,
   zoops = TRUE,
   p.adjust.method = "BH",
-  pseudoCount = 1,
+  genome = NULL,
+  genome.regions = NULL,
+  genome.oversample = 2,
+  genome.seed = 42L,
   BPPARAM = SerialParam(),
   verbose = FALSE
 )
 }
 \arguments{
-\item{x}{A \code{character} vector, \code{\link[Biostrings]{DNAStringSet}} or
-a \code{\link[GenomicRanges]{GRanges}} object with the sequences to
-analyze.}
+\item{seqs}{\code{\link[Biostrings]{DNAStringSet}} object with sequences to test}
 
-\item{b}{A vector of the same length as \code{x} that groups its elements
-into bins (typically a factor, such as the one returned by
-\code{\link{bin}}).}
-
-\item{genomepkg}{Only used if \code{x} is a \code{GRanges} object: A
-\code{character} scalar with the name of a \code{BSgenome} package from
-which to extract the sequences.}
+\item{bins}{factor of the same length and order as \code{seqs}, indicating
+the bin for each sequence. Typically the return value of
+\code{\link[monaLisa]{bin}}. For \code{background = "genome"} or
+\code{background = "model"}, \code{bins} can be omitted.}
 
 \item{kmerLen}{A \code{numeric} scalar giving the k-mer length.}
 
-\item{background}{A \code{character} scalar. If \code{"other"} (the default),
-the enrichments in a bin are calculated compared to the sequences in all
-other bins. If \code{"model"}, the enrichments are relative to the expected
-frequencies obtained from a Markov model of order \code{MMorder}.}
+\item{background}{A \code{character} scalar specifying the background sequences
+to use. One of \code{"otherBins"} (default), \code{"allBins"}, \code{"zeroBin"},
+\code{"genome"} or \code{"model"} (see "Details").}
 
 \item{MMorder}{A \code{numeric} scalar giving the order of the Markov model
 used to calculate the expected frequencies for \code{background = "model"}.}
 
+\item{test}{A \code{character} scalar specifying the type of enrichment test
+to perform. One of \code{"fisher"} (default) or \code{"binomial"}. The
+enrichment test is one-sided (enriched in foreground).}
+
+\item{maxFracN}{A numeric scalar with the maximal fraction of N bases allowed
+in a sequence (defaults to 0.7). Sequences with higher fractions are
+excluded from the analysis.}
+
+\item{maxKmerSize}{the maximum k-mer size to consider, when adjusting
+background sequence weights for k-mer composition compared to the
+foreground sequences. The default value (3) will correct for mono-, di-
+and tri-mer composition.}
+
+\item{GCbreaks}{The breaks between GC bins. The default value is based on
+the hard-coded bins used in Homer.}
+
+\item{pseudocount.kmers}{A \code{numeric} scalar - will be added to the
+observed and expected counts for each k-mer to avoid zero values.}
+
+\item{pseudocount.log2enr}{A numerical scalar with the pseudocount to add to
+foreground and background counts when calculating log2 motif enrichments}
+
+\item{pseudocount.pearsonResid}{A numerical scalar with the pseudocount to add
+to foreground and background frequencies when calculating expected counts
+and Pearson residuals.}
+
 \item{zoops}{A \code{logical} scalar. If \code{TRUE} (the default), only one
-or zero occurences of a k-mer are considered per sequence. This is helpful
+or zero occurrences of a k-mer are considered per sequence. This is helpful
 to reduce the impact of simple sequence repeats occurring in few sequences.}
 
 \item{p.adjust.method}{A character scalar selecting the p value adjustment
 method (used in \code{\link[stats]{p.adjust}}).}
 
-\item{pseudoCount}{A \code{numeric} scalar - will be added to the observed
-counts for each k-mer to avoid zero values.}
+\item{genome}{A \code{BSgenome} or \code{DNAStringSet} object with the
+genome sequence. Only used for \code{background = "genome"} for extracting
+background sequences.}
+
+\item{genome.regions}{An optional \code{\link[GenomicRanges]{GRanges}} object
+defining the intervals in \code{genome} from which background sequences are
+sampled for \code{background = "genome"}. If \code{NULL}, background
+sequences are sampled randomly from \code{genome}.}
+
+\item{genome.oversample}{A \code{numeric} scalar of at least 1.0 defining how
+many background sequences will be sampled per foreground sequence for
+\code{background = "genome"}. Larger values will take longer but improve
+the sequence composition similarity between foreground and background
+(see \code{"Details"}).}
+
+\item{genome.seed}{An \code{integer} scalar used to seed the random number
+generator before sampling regions.}
 
 \item{BPPARAM}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
 instance determining the parallel back-end to be used during evaluation.}
@@ -57,26 +101,82 @@ instance determining the parallel back-end to be used during evaluation.}
 \item{verbose}{A \code{logical} scalar. If \code{TRUE}, report on progress.}
 }
 \value{
-A \code{\link[SummarizedExperiment]{SummarizedExperiment}} object with
-  k-mers in rows and bins in columns, containing four assays: \itemize{
+A \code{\link[SummarizedExperiment]{SummarizedExperiment}} object
+  with motifs in rows and bins in columns, containing six assays: \itemize{
   \item{negLog10P}{: -log10 P values}
   \item{negLog10Padj}{: -log10 adjusted P values}
-  \item{pearsonResid}{: motif enrichments as Pearson residuals}
-  \item{log2enr}{: motif enrichments as log2 ratios}
-}.
-rowData(x) contains information about the k-mers, colData(x) contains
-information about the bins, and metaData(x) contains meta data on the object
-and how it was generated (e.g. parameter values).
+  \item{pearsonResid}{: k-mer enrichments as Pearson residuals}
+  \item{log2enr}{: k-mer enrichments as log2 ratios}
+  \item{sumForegroundWgtWithHits}{: Sum of foreground sequence weights
+    in a bin that have k-mer occurrences}
+  \item{sumBackgroundWgtWithHits}{: Sum of background sequence weights
+    in a bin that have k-mer occurrences}
+}
 }
 \description{
 Given a set of sequences and corresponding bins, identify
   enriched k-mers (n-grams) in each bin. The sequences can be given either
   directly or as genomic coordinates.
 }
+\details{
+This function implements a binned k-mer enrichment analysis. In each
+  enrichment analysis, the sequences in a specific bin are used as foreground
+  sequences to test for k-mer enrichments comparing to background sequences
+  (defined by \code{background}, see below), similarly as in done for motifs
+  in \code{\link{calcBinnedMotifEnrR}}. Sequences are weighted to correct for
+  GC and shorter k-mer composition differences between fore- and background
+  sets.
+  
+  The background sequences are defined according to the value of the
+  \code{background} argument:
+  \itemize{
+    \item{otherBins}{: sequences from all other bins (excluding the current bin)}
+    \item{allBins}{: sequences from all bins (including the current bin)}
+    \item{zeroBin}{: sequences from the "zero bin", defined by the
+      \code{maxAbsX} argument of \code{\link[monaLisa]{bin}}. If \code{bins}
+      does not define a "zero bin", for example because it was created by
+      \code{bin(..., maxAbsX = NULL)}, selecting this background definition
+      will abort with an error.}
+    \item{genome}{: sequences randomly sampled from the genome (or the
+      intervals defined in \code{genome.regions} if given). For each
+      foreground sequence, \code{genome.oversample} background sequences
+      of the same size are sampled (on average). From these, one per
+      foreground sequence is selected trying to match the G+C composition.
+      In order to make the sampling deterministic, the random number
+      generator is seeded using \code{genome.seed}.}
+    \item{model}{: a Markov model of the order \code{MMorder} is estimated
+      from the foreground sequences and used to estimate expected k-mer
+      frequencies. K-mer enrichments are then calculated comparing observed
+      to these expected frequencies.}
+  }
+
+  For each k-mer, the weights of sequences is multiplied with the number
+  of k-mer occurrences in each sequence and summed, separately for foreground
+  (\code{sumForegroundWgtWithHits}) and background
+  (\code{sumBackgroundWgtWithHits}) sequences. For \code{zoops = TRUE}
+  (Zero-Or-One-Per-Sequence mode, default), at most one occurrence per
+  sequence is counted, which helps reduce the impact of sequence repeats.
+  The total foreground (\code{totalWgtForeground}) and background
+  (\code{totalWgtBackground}) sum of sequence weights is also calculated. If
+  a k-mer has zero \code{sumForegroundWgtWithHits} and
+  \code{sumBackgroundWgtWithHits}, then any values (p-values and enrichment)
+  that are calculated using these two numbers are set to NA.
+
+  Two statistical tests for the calculation of enrichment log p-value are
+  available: \code{test = "fisher"} (default) to perform Fisher's exact
+  tests, or \code{test = "binomial"} to perform binomial tests, using:
+  \itemize{
+    \item{fisher}{: \code{fisher.test(x = tab, alternative =
+      "greater")}, where \code{tab} is the contingency table with the summed
+      weights of sequences in foreground or background sets (rows), and with
+      or without a occurrences of a particular k-mer (columns).}
+    \item{binomial}{: \code{pbinom(q = sumForegroundWgtWithHits - 1, size =
+      totalWgtForeground, prob = sumBackgroundWgtWithHits / totalWgtBackground,
+      lower.tail = FALSE, log.p = TRUE)}}
+  }
+}
 \seealso{
 \code{\link{getKmerFreq}} used to calculate k-mer enrichments;
-  \code{\link[BSgenome]{getSeq,BSgenome-method}} which is used to extract
-  sequences from \code{genomepkg} if \code{x} is a \code{GRanges} object;
   \code{\link[BiocParallel]{bplapply}} that is used for parallelization;
   \code{\link{bin}} for binning of regions
 }
