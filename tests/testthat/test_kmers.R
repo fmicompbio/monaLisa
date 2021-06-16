@@ -327,3 +327,22 @@ test_that("extractOverlappingKmerFrequencies works as expected", {
     expect_identical(res1, res2)
 })
 
+test_that("buildDirGraphFromKmers works as expected", {
+    set.seed(1)
+    x <- sapply(1:100, function(i) paste(sample(x = c("A","C","G","T"),
+                                                size = 50L, replace = TRUE),
+                                         collapse = ""))
+    seqs <- DNAStringSet(x = x)
+    enrkmers <- c("CATAA", "GTCGA")
+    g <- buildDirGraphFromKmers(seqs, enrkmers)
+    
+    expect_is(g, "igraph")
+    expect_true(all(enrkmers %in% vertex_attr(g, "name")))
+    
+    olk <- extractOverlappingKmerFrequencies(seqs, enrkmers)
+    onf <- oligonucleotideFrequency(DNAStringSet(names(olk)), width = 5)
+    onf <- onf[, colSums(onf) > 0]
+    
+    expect_true(all(sort(vertex_attr(g, "name")) == sort(colnames(onf))))
+})
+
