@@ -629,7 +629,7 @@
         stop("'motifHitMatrix' and 'df' must have identical rownames")
     }
     .checkDfValidity(df)
-    method <- match.arg(test)
+    test <- match.arg(test)
     .assertScalar(x = verbose, type = "logical")
 
     totalWgtForeground <- sum(df$seqWgt[df$isForeground])
@@ -640,7 +640,7 @@
     TFmatchedSeqCountBackground <- colSums(motifHitMatrixWeighted[!df$isForeground, ])
 
     # calculate motif enrichment
-    if (method == "binomial") {
+    if (identical(test, "binomial")) {
 
       if (verbose) {
           message("using binomial test to calculate ",
@@ -668,7 +668,7 @@
                      size = totalWgtForeground,
                      prob = prob, lower.tail = FALSE, log.p = TRUE)
 
-    } else if (method == "fisher") {
+    } else if (identical(test, "fisher")) {
 
         if (verbose) {
             message("using fisher's exact test (one-sided) to calculate ",
