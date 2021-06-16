@@ -707,7 +707,7 @@
 #'   sequences. For each bin, the sequences in all other bins are used as
 #'   background.
 #'
-#' @param seqs DNAStringSet object with sequences to test
+#' @param seqs \code{\link[Biostrings]{DNAStringSet}} object with sequences to test
 #' @param bins factor of the same length and order as \code{seqs}, indicating
 #'   the bin for each sequence. Typically the return value of
 #'   \code{\link[monaLisa]{bin}}. For \code{background = "genome"}, \code{bins}
@@ -760,7 +760,7 @@
 #'
 #' @details This function implements a binned motif enrichment analysis. In each
 #'   enrichment analysis, the sequences in a specific bin are used as foreground
-#'   sequences to test for motif enrichment comparing to background sequences
+#'   sequences to test for motif enrichments comparing to background sequences
 #'   (defined by \code{background}, see below). The logic follows the
 #'   \code{findMotifsGenome.pl} tool from \code{Homer} version 4.11, with
 #'   \code{-size given -nomotif -mknown} and additionally \code{-h} if using 
@@ -794,7 +794,7 @@
 #'   (\code{sumBackgroundWgtWithHits}). The total foreground 
 #'   (\code{totalWgtForeground}) and background (\code{totalWgtBackground})
 #'   sum of sequence weights is also calculated. If a motif has zero 
-#'   (\code{sumForegroundWgtWithHits}) and (\code{sumBackgroundWgtWithHits}), 
+#'   \code{sumForegroundWgtWithHits} and \code{sumBackgroundWgtWithHits},
 #'   then any values (p-values and enrichment) that are calculated using 
 #'   these two numbers are set to NA.
 #'
@@ -812,8 +812,8 @@
 #'       lower.tail = FALSE, log.p = TRUE)}}
 #'   }
 #'   
-#' @return A \code{SummarizedExperiment} object with motifs in rows and bins
-#'   in columns, containing six assays: \itemize{
+#' @return A \code{\link[SummarizedExperiment]{SummarizedExperiment}} object
+#'   with motifs in rows and bins in columns, containing six assays: \itemize{
 #'   \item{negLog10P}{: -log10 P values}
 #'   \item{negLog10Padj}{: -log10 adjusted P values}
 #'   \item{pearsonResid}{: motif enrichments as Pearson residuals}
@@ -896,7 +896,7 @@ calcBinnedMotifEnrR <- function(seqs,
         names(seqs) <- paste0("s", seq_along(seqs))
     }
 
-    
+
     # filter sequences
     if (verbose) {
         message("Filtering sequences ...")
