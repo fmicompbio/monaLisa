@@ -61,8 +61,21 @@ int kmer_index_at(const char* seq_char, int k, int* pow4) {
     return index;
 }
 
-// Code for walking along each sequence of an XStringSet object
-// and read 1 character at a time.
+// calculate k-mer indices for a given XString sequence
+// and store them in kidx (grow size if necessary)
+void calc_kmer_indices_for_seq(std::vector<int> &kidx,
+                               Chars_holder &seq, int k, int* pow4) {
+    int i;
+    const char *seq_char;
+
+    if (kidx.size() < (size_t)seq.length)
+        kidx.resize(seq.length);
+
+    for (i = 0, seq_char = seq.ptr; i < seq.length - k + 1; i++, seq_char++) {
+        kidx[i] = kmer_index_at(seq_char, k, pow4);
+    }
+}
+
 
 //' Count k-mer pairs in sequences
 //'
@@ -95,102 +108,103 @@ Rcpp::NumericMatrix countKmerPairs(SEXP x,
         ::Rf_warning("'k' (%d) is large - this might take long an use a lot of memory", k);
     if (n < 1)
         ::Rf_error("'n' must be greater than 0");
-
+    
     // prepare
     int i = 0, j = 0, l = 0, a = 0, b = 0, idx1 = 0, idx2 = 0;
-
+    std::vector<int> kidx;
+    
     int *pow4 = new int[k + 1];
     for (i = 0; i <= k; i++)
         pow4[i] = pow(4, i);
     int nk = pow4[k];
-
+    
     std::string* strkmers = new std::string[nk];
     int position = 0;
     populate(k, 0, "", strkmers, &position);
-
+    
     Rcpp::CharacterVector kmers(nk);
     for (i = 0; i < nk; i++) {
         kmers(i) = strkmers[i];
     }
-
+    
     Rcpp::NumericMatrix m(nk, nk);
     rownames(m) = kmers;
     colnames(m) = kmers;
-
+    
     // loop through sequences
     const XStringSet_holder X = hold_XStringSet(x);
     const int x_len = get_XStringSet_length(x);
-
-    Chars_holder seq;
-    const char *seq_char1, *seq_char2;
     
-    if (zoops) { // zoops == true
+    Chars_holder seq;
 
+    if (zoops) { // zoops == true
+        
         bool **seen = new bool*[nk];
         for (a = 0; a < nk; a++)
             seen[a] = new bool[nk];
-
+        
         for (i = 0; i < x_len; i++) {
             
             seq = get_elt_from_XStringSet_holder(&X, i);
             if (seq.length < k)
                 continue;
             
+            // pre-calculate k-mer indices
+            calc_kmer_indices_for_seq(kidx, seq, k, pow4);
+            
             // initialize seen matrix
             for (a = 0; a < nk; a++)
                 for (b = 0; b < nk; b++)
                     seen[a][b] = false; 
-
-            //Rprintf("seq %d (%d bp): ", i+1, seq.length);
-            for (j = 0, seq_char1 = seq.ptr; j < seq.length - k; j++, seq_char1++) {
-                //Rprintf("%x ", *seq_char1);
-                idx1 = kmer_index_at(seq_char1, k, pow4);
+            
+            //Rprintf("seq %d (%d bp)\n", i+1, seq.length);
+            for (j = 0; j < seq.length - k; j++) {
+                idx1 = kidx[j];
                 if (idx1 < 0)
                     continue; // ignore k-mers with non-ACGT characters
-                //Rprintf("%d(%s) ", idx, strkmers[idx].c_str());
-                for (l = j + 1, seq_char2 = seq_char1 + 1; l <= j+n && l <= seq.length - k; l++, seq_char2++) {
-                    idx2 = kmer_index_at(seq_char2, k, pow4);
+                for (l = j + 1; l <= j+n && l <= seq.length - k; l++) {
+                    idx2 = kidx[l];
                     if (idx2 < 0 || seen[idx1][idx2])
                         continue; // ignore seen k-mer pairs (zoops = true) and k-mers with non-ACGT characters
                     seen[idx1][idx2] = true; 
                     m(idx1, idx2) += 1;
                 }
             }
-            //Rprintf("\n");
         }
         
         for (a = 0; a < nk; a++)
             delete [] seen[a];
         delete [] seen;
-
+        
     } else {     // zoops == false
         for (i = 0; i < x_len; i++) {
-
+            
             seq = get_elt_from_XStringSet_holder(&X, i);
             if (seq.length < k)
                 continue;
             
-            //Rprintf("seq %d (%d bp): ", i+1, seq.length);
-            for (j = 0, seq_char1 = seq.ptr; j < seq.length - k; j++, seq_char1++) {
-                //Rprintf("%x ", *seq_char1);
-                idx1 = kmer_index_at(seq_char1, k, pow4);
+            // pre-calculate k-mer indices
+            calc_kmer_indices_for_seq(kidx, seq, k, pow4);
+
+            //Rprintf("seq %d (%d bp)\n", i+1, seq.length);
+            for (j = 0; j < seq.length - k; j++) {
+                idx1 = kidx[j];
                 if (idx1 < 0)
                     continue; // ignore k-mers with non-ACGT characters
-                //Rprintf("%d(%s) ", idx, strkmers[idx].c_str());
-                for (l = j + 1, seq_char2 = seq_char1 + 1; l <= j+n && l <= seq.length - k; l++, seq_char2++) {
-                    idx2 = kmer_index_at(seq_char2, k, pow4);
+                for (l = j + 1; l <= j+n && l <= seq.length - k; l++) {
+                    idx2 = kidx[l];
                     if (idx2 < 0)
                         continue; // ignore k-mers with non-ACGT characters
                     m(idx1, idx2) += 1;
                 }
             }
-            //Rprintf("\n");
         }
     }
-
+    
     // clean up
     delete [] strkmers;
     delete [] pow4;
-
+    
     return m;
 }
+
