@@ -1082,8 +1082,7 @@ extractOverlappingKmerFrequencies <- function(seqs, x, BPPARAM = SerialParam()) 
 #' 
 #' @importFrom igraph make_de_bruijn_graph vertex_attr induced_subgraph as_ids
 #'   E
-#' @importFrom Biostrings DNAStringSet
-#' @importFrom gtools permutations
+#' @importFrom Biostrings DNAStringSet mkAllStrings
 #' @importFrom rlang .data
 #' @importFrom tibble rownames_to_column
 #' @importFrom dplyr filter %>%
@@ -1105,9 +1104,7 @@ buildDirGraphFromKmers <- function(seqs, x, BPPARAM = SerialParam()) {
     k <- nchar(x[1])
     g <- igraph::make_de_bruijn_graph(m = length(bases), n = k)
     ## Set vertex names
-    kmn <- apply(gtools::permutations(n = length(bases), 
-                                      r = k, v = bases, repeats.allowed = TRUE), 
-                 1, function(x) paste(x, collapse = ""))
+    kmn <- Biostrings::mkAllStrings(alphabet = bases, width = k)
     igraph::vertex_attr(g, "name") <- kmn
     
     # Map k-mers back to the sequences
