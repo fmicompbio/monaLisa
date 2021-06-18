@@ -28,3 +28,8 @@ within a defined distance downstream of the start of a.
 countKmerPairs(Biostrings::DNAStringSet(c("AACCGGTT")), k = 2, n = 1)
 
 }
+\seealso{
+\code{\link{countKmerPairsSelected}} for counting co-occurrences
+    only amongst a set of selected k-mers. For a small set of selected
+    k-mers, this is much more efficient.
+}

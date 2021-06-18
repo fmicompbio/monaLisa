@@ -92,6 +92,10 @@ void calc_kmer_indices_for_seq(std::vector<int> &kidx,
 //' @examples
 //' countKmerPairs(Biostrings::DNAStringSet(c("AACCGGTT")), k = 2, n = 1)
 //'
+//' @seealso \code{\link{countKmerPairsSelected}} for counting co-occurrences
+//'     only amongst a set of selected k-mers. For a small set of selected
+//'     k-mers, this is much more efficient.
+//' 
 //' @return A numeric matrix with observed k-mer pairs counts.
 //' @export
 // [[Rcpp::export]]
@@ -208,3 +212,157 @@ Rcpp::NumericMatrix countKmerPairs(SEXP x,
     return m;
 }
 
+
+//' Count selected k-mer pairs in sequences
+//'
+//' Over a set of sequences, for each k-mer a in a given set of k-mers A, count
+//' occurences of all k-mers b in A within a defined distance downstream of the
+//' start of a.
+//'
+//' @param x DNAStringSet with sequences.
+//' @param kmers DNAStringSet with k-mers.
+//' @param n An integer scalar defining the maximum downstream distance of
+//'     second k-mers, relative to the start position of the first k-mer.
+//' @param zoops A logical scalar. If TRUE, count each observed k-mer pair
+//'     only once per sequence.
+//'
+//' @examples
+//' countKmerPairs(Biostrings::DNAStringSet(c("AACCGGTT")), k = 2, n = 1)
+//'
+//' @seealso \code{\link{countKmerPairs}} for counting co-occurrences
+//'     amongst all k-mers of a given length. This is more efficient than
+//'     \code{countKmerPairsSelected} and setting \code{kmers} to all
+//'     possible k-mers of a given length.
+//' 
+//' @return A numeric matrix with observed k-mer pairs counts.
+//' @export
+// [[Rcpp::export]]
+Rcpp::NumericMatrix countKmerPairsSelected(SEXP x,
+                                           SEXP kmers,
+                                           int n = 5,
+                                           bool zoops = false) {
+    // pre-flight checks and declarations
+    int i = 0, j = 0, l = 0, a = 0, b = 0, idx1 = 0, idx2 = 0;
+    std::vector<int> kidx;
+    
+    Chars_holder seq;
+    
+    if (! ::Rf_inherits(x, "DNAStringSet"))
+        ::Rf_error("'x' must be a DNAStringSet");
+    const XStringSet_holder X = hold_XStringSet(x);
+    const int x_len = get_XStringSet_length(x);
+
+    if (! ::Rf_inherits(kmers, "DNAStringSet"))
+        ::Rf_error("'kmers' must be a DNAStringSet");
+    const XStringSet_holder K = hold_XStringSet(kmers);
+    const int nk = get_XStringSet_length(kmers);
+    std::map<int,int> kmeridx2row;
+    std::map<int,int>::iterator kit1, kit2;
+    int k = get_elt_from_XStringSet_holder(&K, 0).length;
+    int *pow4 = new int[k + 1];
+    for (i = 0; i <= k; i++)
+        pow4[i] = pow(4, i);
+
+    char* seqbuffer = new char[k+1];
+    seqbuffer[k] = '\0';
+    Rcpp::CharacterVector kmersvect;
+    for (i = 0; i < nk; i++) {
+        seq = get_elt_from_XStringSet_holder(&K, i);
+        
+        if (seq.length != k)
+            ::Rf_error("all 'kmers' must be of the same length");
+        
+        for (j = 0; j < k; j++)
+            seqbuffer[j] = DNAdecode(seq.ptr[j]);
+        kmersvect.push_back(seqbuffer);
+        
+        idx1 = kmer_index_at(seq.ptr, k, pow4);
+        kmeridx2row[idx1] = i;
+    }
+    if (k <= 1)
+        ::Rf_error("'k' must be greater than 1");
+    if (k > 10)
+        ::Rf_warning("'k' (%d) is large - this might take long an use a lot of memory", k);
+    if (n < 1)
+        ::Rf_error("'n' must be greater than 0");
+    
+    // prepare
+    Rcpp::NumericMatrix m(nk, nk);
+    rownames(m) = kmersvect;
+    colnames(m) = kmersvect;
+    
+    // loop through sequences
+    
+    if (zoops) { // zoops == true
+        
+        bool **seen = new bool*[nk];
+        for (a = 0; a < nk; a++)
+            seen[a] = new bool[nk];
+        
+        for (i = 0; i < x_len; i++) {
+            
+            seq = get_elt_from_XStringSet_holder(&X, i);
+            if (seq.length < k)
+                continue;
+            
+            // pre-calculate k-mer indices
+            calc_kmer_indices_for_seq(kidx, seq, k, pow4);
+
+            // initialize seen matrix
+            for (a = 0; a < nk; a++)
+                for (b = 0; b < nk; b++)
+                    seen[a][b] = false; 
+            
+            //Rprintf("seq %d (%d bp)\n", i+1, seq.length);
+            for (j = 0; j < seq.length - k; j++) {
+                idx1 = kidx[j];
+                kit1 = kmeridx2row.find(idx1);
+                if (idx1 < 0 || kit1 == kmeridx2row.end())
+                    continue; // ignore k-mers with non-ACGT characters or not in 'kmers'
+                for (l = j + 1; l <= j+n && l <= seq.length - k; l++) {
+                    idx2 = kidx[l];
+                    kit2 = kmeridx2row.find(idx2);
+                    if (idx2 < 0 || kit2 == kmeridx2row.end() || seen[kit1->second][kit2->second])
+                        continue; // ignore seen k-mer pairs (zoops = true) and k-mers with non-ACGT characters or not in 'kmers'
+                    seen[kit1->second][kit2->second] = true; 
+                    m(kit1->second, kit2->second) += 1;
+                }
+            }
+        }
+        
+        for (a = 0; a < nk; a++)
+            delete [] seen[a];
+        delete [] seen;
+        
+    } else {     // zoops == false
+        for (i = 0; i < x_len; i++) {
+            
+            seq = get_elt_from_XStringSet_holder(&X, i);
+            if (seq.length < k)
+                continue;
+            
+            // pre-calculate k-mer indices
+            calc_kmer_indices_for_seq(kidx, seq, k, pow4);
+            
+            //Rprintf("seq %d (%d bp)\n", i+1, seq.length);
+            for (j = 0; j < seq.length - k; j++) {
+                idx1 = kidx[j];
+                kit1 = kmeridx2row.find(idx1);
+                if (idx1 < 0 || kit1 == kmeridx2row.end())
+                    continue; // ignore k-mers with non-ACGT characters or not in 'kmers'
+                for (l = j + 1; l <= j+n && l <= seq.length - k; l++) {
+                    idx2 = kidx[l];
+                    kit2 = kmeridx2row.find(idx2);
+                    if (idx2 < 0 || kit2 == kmeridx2row.end())
+                        continue; // ignore k-mers with non-ACGT characters or not in 'kmers'
+                    m(kit1->second, kit2->second) += 1;
+                }
+            }
+        }
+    }
+    
+    // clean up
+    delete [] pow4;
+    
+    return m;
+}

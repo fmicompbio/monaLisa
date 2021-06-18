@@ -19,9 +19,24 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// countKmerPairsSelected
+Rcpp::NumericMatrix countKmerPairsSelected(SEXP x, SEXP kmers, int n, bool zoops);
+RcppExport SEXP _monaLisa_countKmerPairsSelected(SEXP xSEXP, SEXP kmersSEXP, SEXP nSEXP, SEXP zoopsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type kmers(kmersSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< bool >::type zoops(zoopsSEXP);
+    rcpp_result_gen = Rcpp::wrap(countKmerPairsSelected(x, kmers, n, zoops));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_monaLisa_countKmerPairs", (DL_FUNC) &_monaLisa_countKmerPairs, 4},
+    {"_monaLisa_countKmerPairsSelected", (DL_FUNC) &_monaLisa_countKmerPairsSelected, 4},
     {NULL, NULL, 0}
 };
 

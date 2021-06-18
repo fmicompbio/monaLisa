@@ -54,12 +54,17 @@ test_that("getKmerFreq works as expected", {
     expect_true(all(names(res5$padj)[res5$padj < 0.001] %in% c("AACG", "ACGT", "CGTT")))
 })
 
-test_that("countKmerPairs works as expected", {
+test_that("countKmerPairs and countKmerPairsSelected work as expected", {
 
+    ### input sequences of variable length with and without N bases
     seqs <- Biostrings::DNAStringSet(c("AAAAAAN","ATATAT","ACGTAC","N"))
+    kmerschar <- c("AA","AC","AT","CG","GT","TA")
+    kmers <- Biostrings::DNAStringSet(kmerschar)
 
+    # ... countKmerPairs
     expect_error(countKmerPairs(x = "error"))
     expect_error(countKmerPairs(x = seqs, k = 0))
+    expect_error(countKmerPairs(x = seqs, k = 20, n = 0))
     expect_error(countKmerPairs(x = seqs, k = 2, n = 0))
 
     expect_is(res1 <- countKmerPairs(x = seqs, k = 2, n = 1, zoops = FALSE), "matrix")
@@ -71,12 +76,39 @@ test_that("countKmerPairs works as expected", {
     expect_identical(sum(res1), 12)
     expect_identical(sum(res2), 7)
     
+    # ... countKmerPairsSelected
+    expect_error(countKmerPairsSelected(x = "error", kmers = "error"))
+    expect_error(countKmerPairsSelected(x = seqs, kmers = "error"))
+    expect_error(countKmerPairsSelected(x = seqs, kmers = Biostrings::DNAStringSet(c("A","AA"))))
+    expect_error(countKmerPairsSelected(x = seqs, kmers = Biostrings::DNAStringSet(c("A","A"))))
+    expect_error(countKmerPairsSelected(x = seqs, kmers = Biostrings::DNAStringSet("AAAAAAAAAAAA"), n = 0))
+    expect_error(countKmerPairsSelected(x = seqs, kmers = kmers, n = 0))
+
+    expect_is(res1b <- countKmerPairsSelected(x = seqs, kmers = kmers, n = 1, zoops = FALSE), "matrix")
+    expect_is(res2b <- countKmerPairsSelected(x = seqs, kmers = kmers, n = 1, zoops = TRUE),  "matrix")
+    expect_identical(which(res1b > 0, arr.ind = TRUE), which(res2b > 0, arr.ind = TRUE))
+    expect_identical(dimnames(res1b), dimnames(res2b))
+    expect_identical(dimnames(res1b), list(kmerschar, kmerschar))
+    expect_identical(res1[kmerschar, kmerschar], res1b)
+    expect_identical(res2[kmerschar, kmerschar], res2b)
+
+    ### alternative input sequences
     seqs2 <- Biostrings::DNAStringSet(c("AAANAANAANAAN"))
+    
+    # ... countKmerPairs
     expect_is(res3 <- countKmerPairs(x = seqs2, k = 2, n = 1, zoops = TRUE), "matrix")
     expect_is(res4 <- countKmerPairs(x = seqs2, k = 2, n = 1, zoops = FALSE), "matrix")
     expect_identical(res3[1,1], 1)
     expect_true(all(as.vector(res3[-1]) == 0))
     expect_identical(dim(res3), c(16L, 16L))
+    expect_identical(res3, res4)
+    
+    # ... countKmerPairsSelected
+    expect_is(res3b <- countKmerPairsSelected(x = seqs2, kmers = kmers, n = 1, zoops = TRUE), "matrix")
+    expect_is(res4b <- countKmerPairsSelected(x = seqs2, kmers = kmers, n = 1, zoops = FALSE), "matrix")
+    expect_identical(res3b[1,1], 1)
+    expect_true(all(as.vector(res3b[-1]) == 0))
+    expect_identical(dim(res3b), c(length(kmers), length(kmers)))
     expect_identical(res3, res4)
 })
 
