@@ -16,6 +16,7 @@
     m
 }
 
+
 #' @title Calculate observed and expected k-mer frequencies
 #'
 #' @description Given a set of sequences, calculate observed and expected k-mer
@@ -137,7 +138,6 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudocount = 1, zoops =
          log2enr = lenr, sqrtDelta = sDelta, z = z, p = p, padj = padj,
          strata = strata, freq.strata = res.strata, CpGoe = CpGoe)
 }
-
 
 
 #' @title Cluster k-mers
@@ -915,6 +915,7 @@ calcBinnedKmerEnr <- function(seqs,
     return(se)
 }
 
+
 #' @title Transform k-mer enrichments to motif enrichments.
 #'
 #' @description Using a set of know motifs and the result of a k-mer enrichment
@@ -991,16 +992,19 @@ convertKmersToMotifs <- function(x, m, BPPARAM = SerialParam(), verbose = FALSE)
 }
 
 
-#' @title Match a set of k-mers to input sequences and determine frequencies of overlapping matches.
+#' @title Match a set of k-mers to input sequences and determine frequencies of
+#'     overlapping matches.
 #'
-#' @description Using a set of k-mers, search input sequences for matches and retrieve
-#'      the frequencies of sequences overlapping with 1 or more overlapping k-mers.
+#' @description Using a set of k-mers, search input sequences for matches and
+#'     retrieve the frequencies of sequences overlapping with any of the k-mers.
+#'     Overlapping k-mer matches will result in extracted sequences that are
+#'     longer than the input k-mers.
 #'
-#' @param seqs Set of sequences, either a \code{character} vector or a
-#'    \code{\link{DNAStringSet}}.
-#'   
-#' @param x A \code{character} vector of enriched k-mers.
-#'
+#' @param seqs \code{\link{DNAStringSet}} with sequences to search.
+#' @param x A \code{character} vector of k-mers to search in \code{seqs}.
+#' @param includeRevComp Either \code{TRUE} or \code{FALSE}. If \code{TRUE}
+#'     (default), \code{seqs} will not only be searched for matches to \code{x},
+#'     but also for matches to the reverse-complemented k-mers in \code{x}.
 #' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
 #'     instance determining the parallel back-end to be used during evaluation.
 #'
@@ -1011,12 +1015,17 @@ convertKmersToMotifs <- function(x, m, BPPARAM = SerialParam(), verbose = FALSE)
 #' @seealso \code{\link{calcBinnedKmerEnr}} for performing a k-mer enrichment
 #'     analysis, \code{\link[BiocParallel]{bplapply}} used for parallelization. 
 #'
-#' @importFrom Biostrings matchPDict reverseComplement DNAStringSet
-#' @importFrom BiocParallel bplapply SerialParam bpnworkers
-#' @importFrom IRanges reduce
+#' @importFrom Biostrings DNAStringSet reverseComplement vmatchPattern
+#' @importFrom BiocParallel bplapply SerialParam
+#' @importFrom GenomicRanges GRanges reduce
+#' @importFrom GenomeInfoDb seqlengths
+#' @importFrom BSgenome getSeq
 #' 
 #' @export
-extractOverlappingKmerFrequencies <- function(seqs, x, BPPARAM = SerialParam()) {
+extractOverlappingKmerFrequencies <- function(seqs,
+                                              x,
+                                              includeRevComp = TRUE,
+                                              BPPARAM = SerialParam()) {
     ## pre-flight checks
     x <- toupper(x)
     stopifnot(exprs = {
@@ -1025,36 +1034,25 @@ extractOverlappingKmerFrequencies <- function(seqs, x, BPPARAM = SerialParam()) 
         all(grepl("^[ACGT]+$", x))
         is(BPPARAM, "BiocParallelParam")
     })
-    #also include reverse complements
-    # enriched.kmers <- unique(c(x, as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(x)))))
-    # tmp <- unlist(bplapply(seq_along(seqs), function(i) {
-    #     tmp.range <- IRanges::reduce(do.call(c, lapply(enriched.kmers, function(kmer) {
-    #         Biostrings::vmatchPattern(kmer, seqs[i])[[1]]
-    #     })))
-    #     tmp.range
-    #     res <- NULL
-    #     if (length(tmp.range) > 0) {
-    #         res <- as.character(do.call(c, lapply(seq_along(tmp.range), function(ii) {
-    #             subseq(seqs[i], start = start(tmp.range)[ii], end = end(tmp.range)[ii])
-    #         })))
-    #     }
-    #     res
-    # }, BPPARAM = BPPARAM))
-    xx <- Biostrings::DNAStringSet(x)
-    xxrc <- unique(c(xx, Biostrings::reverseComplement(xx)))
-    xxdict <- Biostrings::PDict(xxrc)
-    tmp <- unlist(bplapply(seq_along(seqs), function(i) {
-        hitranges <- IRanges::reduce(unlist(matchPDict(pdict = xxdict, subject = seqs[[i]])))
-        if (length(hitranges)) {
-            substring(as.character(seqs[[i]]), first = start(hitranges), last = end(hitranges))
-        } else {
-            character(0)
-        }
-    }, BPPARAM = BPPARAM))
-    ttmp <- table(tmp)
+    if (includeRevComp) {
+        xx <- Biostrings::DNAStringSet(x)
+        xxrc <- c(xx, Biostrings::reverseComplement(xx))
+        x <- unique(as.character(xxrc))
+    }
+    if (is.null(names(seqs)))
+        names(seqs) <- paste0("s", seq_along(seqs))
+    gr <- GenomicRanges::reduce(do.call(c, bplapply(seq_along(x), function(i) {
+        hits <- Biostrings::vmatchPattern(pattern = x[i], subject = seqs)
+        GenomicRanges::GRanges(seqnames = rep(names(seqs), lengths(hits)),
+                               ranges = unlist(hits),
+                               seqlengths = GenomeInfoDb::seqlengths(seqs))
+    }, BPPARAM = BPPARAM)))
+    tmp <- BSgenome::getSeq(seqs, gr)
+    ttmp <- table(as.character(tmp))
     extended.seqs <- structure(as.vector(ttmp), names = names(ttmp))
     extended.seqs[order(extended.seqs, decreasing = TRUE)]
 }
+
 
 #' Build a directed graph from enriched k-mers
 #' 
@@ -1142,6 +1140,7 @@ buildDirGraphFromKmers <- function(seqs, x, BPPARAM = SerialParam()) {
 
     gi
 }
+
 
 #' Get putative motifs from directed graph
 #' 

@@ -2,15 +2,24 @@
 % Please edit documentation in R/motif_enrichment_kmers.R
 \name{extractOverlappingKmerFrequencies}
 \alias{extractOverlappingKmerFrequencies}
-\title{Match a set of k-mers to input sequences and determine frequencies of overlapping matches.}
+\title{Match a set of k-mers to input sequences and determine frequencies of
+    overlapping matches.}
 \usage{
-extractOverlappingKmerFrequencies(seqs, x, BPPARAM = SerialParam())
+extractOverlappingKmerFrequencies(
+  seqs,
+  x,
+  includeRevComp = TRUE,
+  BPPARAM = SerialParam()
+)
 }
 \arguments{
-\item{seqs}{Set of sequences, either a \code{character} vector or a
-\code{\link{DNAStringSet}}.}
+\item{seqs}{\code{\link{DNAStringSet}} with sequences to search.}
 
-\item{x}{A \code{character} vector of enriched k-mers.}
+\item{x}{A \code{character} vector of k-mers to search in \code{seqs}.}
+
+\item{includeRevComp}{Either \code{TRUE} or \code{FALSE}. If \code{TRUE}
+(default), \code{seqs} will not only be searched for matches to \code{x},
+but also for matches to the reverse-complemented k-mers in \code{x}.}
 
 \item{BPPARAM}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
 instance determining the parallel back-end to be used during evaluation.}
@@ -21,8 +30,10 @@ A named integer vector with the number of observed occurrences of
   names, and the elements are sorted by decreasing frequency.
 }
 \description{
-Using a set of k-mers, search input sequences for matches and retrieve
-     the frequencies of sequences overlapping with 1 or more overlapping k-mers.
+Using a set of k-mers, search input sequences for matches and
+    retrieve the frequencies of sequences overlapping with any of the k-mers.
+    Overlapping k-mer matches will result in extracted sequences that are
+    longer than the input k-mers.
 }
 \seealso{
 \code{\link{calcBinnedKmerEnr}} for performing a k-mer enrichment
