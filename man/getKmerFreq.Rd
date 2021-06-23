@@ -40,7 +40,7 @@ observed-over-expected counts using \code{kmeans(CpGoe, centers = strata)}.}
 \item{p.adjust.method}{A character scalar selecting the p value adjustment
 method (used in \code{\link[stats]{p.adjust}}).}
 
-\item{includeRevComp}{A \code{logcial} scalar. If \code{TRUE} (default),
+\item{includeRevComp}{A \code{logical} scalar. If \code{TRUE} (default),
 count k-mer occurrences in both \code{seqs} and their reverse-complement,
 by concatenating \code{seqs} and their reverse-complemented versions
 before the counting. This is useful if motifs can be expected to occur

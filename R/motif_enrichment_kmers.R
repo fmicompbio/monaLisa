@@ -50,7 +50,7 @@
 #'   observed-over-expected counts using \code{kmeans(CpGoe, centers = strata)}.
 #' @param p.adjust.method A character scalar selecting the p value adjustment
 #'   method (used in \code{\link[stats]{p.adjust}}).
-#' @param includeRevComp A \code{logcial} scalar. If \code{TRUE} (default),
+#' @param includeRevComp A \code{logical} scalar. If \code{TRUE} (default),
 #'   count k-mer occurrences in both \code{seqs} and their reverse-complement,
 #'   by concatenating \code{seqs} and their reverse-complemented versions
 #'   before the counting. This is useful if motifs can be expected to occur
@@ -537,7 +537,7 @@ clusterKmers <- function(x,
 #' @param test A \code{character} scalar specifying the type of enrichment test
 #'   to perform. One of \code{"fisher"} (default) or \code{"binomial"}. The
 #'   enrichment test is one-sided (enriched in foreground).
-#' @param includeRevComp A \code{logcial} scalar. If \code{TRUE} (default),
+#' @param includeRevComp A \code{logical} scalar. If \code{TRUE} (default),
 #'   count k-mer occurrences in both \code{seqs} and their reverse-complement,
 #'   by concatenating \code{seqs} and their reverse-complemented versions
 #'   before the counting. This is useful if motifs can be expected to occur
@@ -1074,7 +1074,7 @@ convertKmersToMotifs <- function(x, m, BPPARAM = SerialParam(), verbose = FALSE)
 #'
 #' @param seqs \code{\link{DNAStringSet}} with sequences to search.
 #' @param x A \code{character} vector of k-mers to search in \code{seqs}.
-#' @param includeRevComp A \code{logcial} scalar. If \code{TRUE} (default),
+#' @param includeRevComp A \code{logical} scalar. If \code{TRUE} (default),
 #'     scan both \code{seqs} and their reverse-complement for matches to \code{x}.
 #' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
 #'     instance determining the parallel back-end to be used during evaluation.
@@ -1139,7 +1139,11 @@ extractOverlappingKmerFrequencies <- function(seqs,
 #'   in \code{seqs}.
 #' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
 #'   instance determining the parallel back-end to be used during evaluation.
-#' 
+#' @param includeRevComp A \code{logical} scalar. If \code{TRUE} (default),
+#'   concatenate \code{seqs} and their reverse-complemented versions
+#'   before building the graph. The choice here should correspond to the choice
+#'   made when extracting the k-mers. 
+#'   
 #' @export
 #' 
 #' @examples 
@@ -1157,7 +1161,8 @@ extractOverlappingKmerFrequencies <- function(seqs,
 #' @importFrom dplyr filter %>%
 #' @importFrom tidyr gather unite
 #' 
-buildDirGraphFromKmers <- function(seqs, x, BPPARAM = SerialParam()) {
+buildDirGraphFromKmers <- function(seqs, x, BPPARAM = SerialParam(),
+                                   includeRevComp = TRUE) {
     x <- toupper(x)
     stopifnot(exprs = {
         is(seqs, "DNAStringSet")
@@ -1179,8 +1184,10 @@ buildDirGraphFromKmers <- function(seqs, x, BPPARAM = SerialParam()) {
     # Map k-mers back to the sequences
     # This is useful in case a central k-mer does not pass the 
     # enrichment threshold
-    overlapkmers <- extractOverlappingKmerFrequencies(seqs, x,
-                                                      BPPARAM = BPPARAM)
+    overlapkmers <- extractOverlappingKmerFrequencies(
+        seqs, x, BPPARAM = BPPARAM,
+        includeRevComp = includeRevComp
+    )
     
     # Get subgraph induced by kmers in the 'overlapping k-mers' only
     cooccs <- Biostrings::oligonucleotideFrequency(
@@ -1243,6 +1250,10 @@ filterDirGraph <- function(g, edge_weight_thr) {
 #'   or \code{filterDirGraph}
 #' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
 #'   instance determining the parallel back-end to be used during evaluation.
+#' @param includeRevComp A \code{logical} scalar. If \code{TRUE} (default),
+#'   concatenate \code{seqs} and their reverse-complemented versions
+#'   before building the graph. The choice here should correspond to the choice
+#'   made when extracting the k-mers. 
 #' 
 #' @export
 #' 
@@ -1251,11 +1262,12 @@ filterDirGraph <- function(g, edge_weight_thr) {
 #' @importFrom Biostrings DNAStringSet extractAt
 #' @importFrom IRanges IRanges
 #' 
-getMotifsFromDirGraph <- function(seqs, g, BPPARAM = SerialParam()) {
+getMotifsFromDirGraph <- function(seqs, g, BPPARAM = SerialParam(),
+                                  includeRevComp = TRUE) {
     ## Get only the interesting parts of the input sequences
     overlapkmers <- extractOverlappingKmerFrequencies(
         seqs, igraph::vertex_attr(g, "name"),
-        BPPARAM = BPPARAM
+        BPPARAM = BPPARAM, includeRevComp = includeRevComp
     )
     y <- Biostrings::DNAStringSet(x = names(overlapkmers))
     ## Extract all k-mers in order from each input sequence

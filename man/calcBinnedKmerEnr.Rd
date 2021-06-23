@@ -49,7 +49,7 @@ used to calculate the expected frequencies for \code{background = "model"}.}
 to perform. One of \code{"fisher"} (default) or \code{"binomial"}. The
 enrichment test is one-sided (enriched in foreground).}
 
-\item{includeRevComp}{A \code{logcial} scalar. If \code{TRUE} (default),
+\item{includeRevComp}{A \code{logical} scalar. If \code{TRUE} (default),
 count k-mer occurrences in both \code{seqs} and their reverse-complement,
 by concatenating \code{seqs} and their reverse-complemented versions
 before the counting. This is useful if motifs can be expected to occur

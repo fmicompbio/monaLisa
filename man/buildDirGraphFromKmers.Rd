@@ -4,7 +4,7 @@
 \alias{buildDirGraphFromKmers}
 \title{Build a directed graph from enriched k-mers}
 \usage{
-buildDirGraphFromKmers(seqs, x, BPPARAM = SerialParam())
+buildDirGraphFromKmers(seqs, x, BPPARAM = SerialParam(), includeRevComp = TRUE)
 }
 \arguments{
 \item{seqs}{A \code{\link{DNAStringSet}} with sequences within which the 
@@ -15,6 +15,11 @@ in \code{seqs}.}
 
 \item{BPPARAM}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
 instance determining the parallel back-end to be used during evaluation.}
+
+\item{includeRevComp}{A \code{logical} scalar. If \code{TRUE} (default),
+concatenate \code{seqs} and their reverse-complemented versions
+before building the graph. The choice here should correspond to the choice
+made when extracting the k-mers.}
 }
 \description{
 Build a directed graph from k-mers enriched in a set of sequences. The 

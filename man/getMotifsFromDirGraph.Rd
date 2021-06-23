@@ -4,7 +4,7 @@
 \alias{getMotifsFromDirGraph}
 \title{Infer putative motifs from directed graph}
 \usage{
-getMotifsFromDirGraph(seqs, g, BPPARAM = SerialParam())
+getMotifsFromDirGraph(seqs, g, BPPARAM = SerialParam(), includeRevComp = TRUE)
 }
 \arguments{
 \item{seqs}{A \code{DNAStringSet} with sequences}
@@ -14,6 +14,11 @@ or \code{filterDirGraph}}
 
 \item{BPPARAM}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
 instance determining the parallel back-end to be used during evaluation.}
+
+\item{includeRevComp}{A \code{logical} scalar. If \code{TRUE} (default),
+concatenate \code{seqs} and their reverse-complemented versions
+before building the graph. The choice here should correspond to the choice
+made when extracting the k-mers.}
 }
 \description{
 Infer putative motifs from a directed graph
