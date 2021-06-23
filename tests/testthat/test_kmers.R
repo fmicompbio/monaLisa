@@ -35,6 +35,7 @@ test_that("getKmerFreq works as expected", {
     expect_error(getKmerFreq(seqsDSS, MMorder = 2.5))
     expect_error(getKmerFreq(seqsDSS, MMorder = -1))
     expect_error(getKmerFreq(seqsDSS, MMorder = 4))
+    expect_error(getKmerFreq(seqs, 3, includeRevComp = "error"))
 
     ## zoops = FALSE
     expect_is(res1 <- getKmerFreq(seqs, kmerLen = 4, zoops = FALSE),    "list")
@@ -137,7 +138,7 @@ test_that("clusterKmers works as expected", {
     r <- sample(500L - 5L, 100L)
     ## ... with a planted 6-mer
     substr(seqs, start = r, stop = r + 5L) <- "AACGTT"
-    x1 <- getKmerFreq(seqs, kmerLen = 4, zoops = FALSE)
+    x1 <- getKmerFreq(seqs, kmerLen = 4, zoops = FALSE, includeRevComp = FALSE)
     x2 <- names(x1$padj[order(x1$padj)[1:10]])
     expect_error(clusterKmers(x2, method = "cooccurrence"))
     expect_message(res1 <- clusterKmers(x1, method = "similarity"))
@@ -226,6 +227,9 @@ test_that("calcBinnedKmerEnr works as expected", {
                                               collapse = "")))
     b <- bin(rep(1:2, each = 100), binmode = "equalN", nElements = 100)
     m <- structure(c("AAC", "CCA"), names = levels(b))
+    mrc <- as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(m)))
+    m2 <- rbind(m, mrc)
+    rownames(m2) <- NULL
     for (b1 in levels(b))
         substr(seqstr[b == b1], start = 10, stop = 12) <- m[b1]
     seqs <- DNAStringSet(seqstr)
@@ -247,6 +251,7 @@ test_that("calcBinnedKmerEnr works as expected", {
     expect_error(calcBinnedKmerEnr(seqs, b, k, background = "zeroBin"))
     expect_error(calcBinnedKmerEnr(seqs, b, k, background = "genome"))
     expect_error(calcBinnedKmerEnr(seqs, b, k, test = "error"))
+    expect_error(calcBinnedKmerEnr(seqs, b, k, includeRevComp = "error"))
     expect_error(calcBinnedKmerEnr(seqs, b, k, maxFracN = "error"))
     expect_error(calcBinnedKmerEnr(seqs, b, k, maxKmerSize = "error"))
     expect_error(calcBinnedKmerEnr(seqs, b, k, GCbreaks = "error"))
@@ -269,9 +274,9 @@ test_that("calcBinnedKmerEnr works as expected", {
     expect_error(calcBinnedKmerEnr(seqs, b, k, BPPARAM = "error"))
     expect_error(calcBinnedKmerEnr(DNAStringSet(rep("NNNNNNNNNN", 10)), background = "model"))
 
-    expect_message(res1 <- calcBinnedKmerEnr(seqs, b, k, verbose = TRUE))
+    expect_message(res1 <- calcBinnedKmerEnr(seqs, b, k, includeRevComp = FALSE, verbose = TRUE))
     res2 <- calcBinnedKmerEnr(seqs, b, k, background = "genome", genome = gnm,
-                              verbose = FALSE, BPPARAM = pparams)
+                              includeRevComp = FALSE, verbose = FALSE, BPPARAM = pparams)
     res3 <- calcBinnedKmerEnr(seqs, b, k, background = "model",
                               BPPARAM = pparams)
     res4 <- calcBinnedKmerEnr(seqs, b, k, background = "model",
@@ -289,17 +294,17 @@ test_that("calcBinnedKmerEnr works as expected", {
     expect_identical(apply(assay(res2, "negLog10Padj"), 2,
                            function(x) names(x)[x > 3]), m)
     expect_identical(apply(assay(res3, "negLog10Padj"), 2,
-                           function(x) names(x)[x > 3]), m)
+                           function(x) names(x)[x > 0.5]), m2)
     expect_identical(apply(assay(res4, "negLog10Padj"), 2,
-                           function(x) names(x)[x > 3]), m)
+                           function(x) names(x)[x > 1]), m2)
     expect_equal(colSums(assay(res1, "negLog10P")),
                  c(`[1,1.5]` = 33.1936891496806, `(1.5,2]` = 31.5395993919718))
     expect_equal(colSums(assay(res2, "negLog10P")),
                  c(`[1,1.5]` = 34.5789076108342, `(1.5,2]` = 37.7387629738933))
     expect_equal(colSums(assay(res3, "negLog10P")),
-                 c(`[1,1.5]` = 29.1757374201805, `(1.5,2]` = 28.7226457870927))
+                 c(`[1,1.5]` = 27.2409566382244, `(1.5,2]` = 23.5971145106083))
     expect_equal(colSums(assay(res4, "negLog10P")),
-                 c(`[1,1.5]` = 38.5925611212238, `(1.5,2]` = 37.9295692005325))
+                 c(`[1,1.5]` = 37.2309483817477, `(1.5,2]` = 30.1142668663514))
     expect_identical(nrow(res1), as.integer(4^k))
     expect_identical(ncol(res1), nlevels(b))
     expect_identical(assay(res1, "sumForegroundWgtWithHits"),
@@ -328,7 +333,7 @@ test_that("convertKmersToMotifs works as expected", {
         substr(seqs[i], start = r, stop = r + 5L) <- "AACGTT"
     }
     seqs <- Biostrings::DNAStringSet(seqs)
-    res1 <- calcBinnedKmerEnr(seqs, b, kmerLen = 4, background = "model", verbose = TRUE)
+    res1 <- calcBinnedKmerEnr(seqs, b, kmerLen = 4, background = "model", includeRevComp = FALSE, verbose = TRUE)
     #o <- order(assay(res1, "log2enr")[, 1], decreasing = TRUE)[1:10]
     #res2 <- plotMotifHeatmaps(res1[o, ], cluster = TRUE, show_dendrogram = TRUE)
 

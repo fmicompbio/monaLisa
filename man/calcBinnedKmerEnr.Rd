@@ -11,6 +11,7 @@ calcBinnedKmerEnr(
   background = c("otherBins", "allBins", "zeroBin", "genome", "model"),
   MMorder = 1,
   test = c("fisher", "binomial"),
+  includeRevComp = TRUE,
   maxFracN = 0.7,
   maxKmerSize = 3L,
   GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.7, 0.8),
@@ -47,6 +48,17 @@ used to calculate the expected frequencies for \code{background = "model"}.}
 \item{test}{A \code{character} scalar specifying the type of enrichment test
 to perform. One of \code{"fisher"} (default) or \code{"binomial"}. The
 enrichment test is one-sided (enriched in foreground).}
+
+\item{includeRevComp}{A \code{logcial} scalar. If \code{TRUE} (default),
+count k-mer occurrences in both \code{seqs} and their reverse-complement,
+by concatenating \code{seqs} and their reverse-complemented versions
+before the counting. This is useful if motifs can be expected to occur
+on any strand (e.g. DNA sequences of ChIP-seq peaks). If motifs are only
+expected on the forward strand (e.g. RNA sequences of CLIP-seq peaks),
+\code{includeRevComp = FALSE} should be used. Note that \code{bins}
+will be recycled for the reverse complemented sequences, which means that
+each reverse-complemented sequence will be assigned to the same bib as the
+corresponding forward sequence.}
 
 \item{maxFracN}{A numeric scalar with the maximal fraction of N bases allowed
 in a sequence (defaults to 0.7). Sequences with higher fractions are

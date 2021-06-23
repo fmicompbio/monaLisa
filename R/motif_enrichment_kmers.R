@@ -537,6 +537,16 @@ clusterKmers <- function(x,
 #' @param test A \code{character} scalar specifying the type of enrichment test
 #'   to perform. One of \code{"fisher"} (default) or \code{"binomial"}. The
 #'   enrichment test is one-sided (enriched in foreground).
+#' @param includeRevComp A \code{logcial} scalar. If \code{TRUE} (default),
+#'   count k-mer occurrences in both \code{seqs} and their reverse-complement,
+#'   by concatenating \code{seqs} and their reverse-complemented versions
+#'   before the counting. This is useful if motifs can be expected to occur
+#'   on any strand (e.g. DNA sequences of ChIP-seq peaks). If motifs are only
+#'   expected on the forward strand (e.g. RNA sequences of CLIP-seq peaks),
+#'   \code{includeRevComp = FALSE} should be used. Note that \code{bins}
+#'   will be recycled for the reverse complemented sequences, which means that
+#'   each reverse-complemented sequence will be assigned to the same bib as the
+#'   corresponding forward sequence.
 #' @param maxFracN A numeric scalar with the maximal fraction of N bases allowed
 #'   in a sequence (defaults to 0.7). Sequences with higher fractions are
 #'   excluded from the analysis.
@@ -649,6 +659,7 @@ clusterKmers <- function(x,
 #'   \code{\link{bin}} for binning of regions
 #'
 #' @importFrom SummarizedExperiment SummarizedExperiment
+#' @importFrom Biostrings reverseComplement
 #' @importFrom S4Vectors DataFrame split
 #' @importFrom TFBSTools PFMatrix PFMatrixList ID name toPWM
 #' @importFrom stats ppois p.adjust
@@ -661,6 +672,7 @@ calcBinnedKmerEnr <- function(seqs,
                               background = c("otherBins", "allBins", "zeroBin", "genome", "model"),
                               MMorder = 1,
                               test = c("fisher", "binomial"),
+                              includeRevComp = TRUE,
                               maxFracN = 0.7,
                               maxKmerSize = 3L,
                               GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4,
@@ -688,6 +700,7 @@ calcBinnedKmerEnr <- function(seqs,
     .assertScalar(x = kmerLen, type = "numeric", rngIncl = c(1, Inf))
     background <- match.arg(background)
     test <- match.arg(test)
+    .assertScalar(x = includeRevComp, type = "logical")
     .assertScalar(x = pseudocount.kmers, type = "numeric", rngIncl = c(0, Inf))
     .assertScalar(x = pseudocount.log2enr, type = "numeric", rngIncl = c(0, Inf))
     .assertScalar(x = pseudocount.pearsonResid, type = "numeric", rngIncl = c(0, Inf))
@@ -720,8 +733,22 @@ calcBinnedKmerEnr <- function(seqs,
     if (is.null(names(seqs))) {
         names(seqs) <- paste0("s", seq_along(seqs))
     }
+
     
-    
+    ## include reverse-complement sequences?
+    if (identical(includeRevComp, TRUE)) {
+        seqsrc <- Biostrings::reverseComplement(seqs)
+        names(seqsrc) <- paste0(names(seqs), "_rc")
+        
+        battr <- attributes(bins) # rescue attributes dropped by c()
+        bins <- c(bins, bins)
+        attr(bins, "binmode") <- battr$binmode
+        attr(bins, "breaks") <- battr$breaks
+        attr(bins, "bin0") <- battr$bin0
+        seqs <- c(seqs, seqsrc)
+    }
+
+
     ## filter sequences
     if (verbose) {
         message("Filtering sequences ...")
@@ -756,7 +783,8 @@ calcBinnedKmerEnr <- function(seqs,
                                 kmerLen = kmerLen,
                                 MMorder = MMorder,
                                 pseudocount = pseudocount.kmers,
-                                zoops = zoops)
+                                zoops = zoops,
+                                includeRevComp = FALSE)
 
             if (identical(test, "binomial")) {
                 prob <- res1$freq.exp / Nfg
@@ -921,6 +949,7 @@ calcBinnedKmerEnr <- function(seqs,
                               background = background,
                               MMorder = MMorder,
                               test = test,
+                              includeRevComp = includeRevComp,
                               maxFracN = maxFracN,
                               maxKmerSize = maxKmerSize,
                               pseudocount.kmers = pseudocount.kmers,
