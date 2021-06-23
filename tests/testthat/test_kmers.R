@@ -295,7 +295,7 @@ test_that("calcBinnedKmerEnr works as expected", {
     expect_equal(colSums(assay(res1, "negLog10P")),
                  c(`[1,1.5]` = 33.1936891496806, `(1.5,2]` = 31.5395993919718))
     expect_equal(colSums(assay(res2, "negLog10P")),
-                 c(`[1,1.5]` = 32.5808174298964, `(1.5,2]` = 38.5839375598351))
+                 c(`[1,1.5]` = 34.5789076108342, `(1.5,2]` = 37.7387629738933))
     expect_equal(colSums(assay(res3, "negLog10P")),
                  c(`[1,1.5]` = 29.1757374201805, `(1.5,2]` = 28.7226457870927))
     expect_equal(colSums(assay(res4, "negLog10P")),
