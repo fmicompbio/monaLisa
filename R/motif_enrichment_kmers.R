@@ -50,17 +50,32 @@
 #'   observed-over-expected counts using \code{kmeans(CpGoe, centers = strata)}.
 #' @param p.adjust.method A character scalar selecting the p value adjustment
 #'   method (used in \code{\link[stats]{p.adjust}}).
+#' @param includeRevComp A \code{logcial} scalar. If \code{TRUE} (default),
+#'   count k-mer occurrences in both \code{seqs} and their reverse-complement,
+#'   by concatenating \code{seqs} and their reverse-complemented versions
+#'   before the counting. This is useful if motifs can be expected to occur
+#'   on any strand (e.g. DNA sequences of ChIP-seq peaks). If motifs are only
+#'   expected on the forward strand (e.g. RNA sequences of CLIP-seq peaks),
+#'   \code{includeRevComp = FALSE} should be used. Note that if \code{strata}
+#'   is a vector of the same length as \code{seqs}, each reverse-complemented
+#'   sequence will be assigned to the same stratum as the forward sequence.
 #'
 #' @return A \code{list} with observed and expected k-mer frequencies (\code{freq.obs}
 #'   and \code{freq.exp}, respectively), and enrichment statistics for each k-mer.
 #'
-#' @importFrom Biostrings DNAStringSet oligonucleotideFrequency
+#' @importFrom Biostrings DNAStringSet oligonucleotideFrequency reverseComplement
 #' @importFrom XVector subseq
 #' @importFrom stats ppois kmeans
 #'
 #' @export
-getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudocount = 1, zoops = TRUE,
-                        strata = rep(1L, length(seqs)), p.adjust.method = "BH") {
+getKmerFreq <- function(seqs,
+                        kmerLen = 5,
+                        MMorder = 1,
+                        pseudocount = 1,
+                        zoops = TRUE,
+                        strata = rep(1L, length(seqs)),
+                        p.adjust.method = "BH",
+                        includeRevComp = TRUE) {
 
     ##comments
 
@@ -80,6 +95,7 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudocount = 1, zoops =
     .assertScalar(x = pseudocount, type = "numeric", rngIncl = c(0, Inf))
     .assertScalar(x = zoops, type = "logical")
     .assertScalar(x = p.adjust.method, type = "character", validValues = stats::p.adjust.methods)
+    .assertScalar(x = includeRevComp, type = "logical")
     stopifnot(exprs = {
         is(seqs, "DNAStringSet")
         round(kmerLen, 0L) == kmerLen
@@ -87,9 +103,21 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudocount = 1, zoops =
         length(strata) == length(seqs) || (is.numeric(strata) && length(strata) == 1L)
     })
     
+    ## include reverse-complement sequences?
+    if (identical(includeRevComp, TRUE)) {
+        seqsrc <- Biostrings::reverseComplement(seqs)
+        names(seqsrc) <- paste0(names(seqs), "_rc")
+        
+        if (length(strata) == length(seqs)) {
+            # recycle strata (same stratum for forward and rev-comp sequence)
+            strata <- rep(strata, 2L)
+        }
+        seqs <- c(seqs, seqsrc)
+    }
+    
     ## split sequences into strata
     CpGoe <- NA
-    if (length(strata) == 1L) {
+    if (identical(length(strata), 1L)) {
         n1 <- oligonucleotideFrequency(seqs, width = 1L)
         n2 <- oligonucleotideFrequency(seqs, width = 2L)
         CpGoe <- n2[, "CG"] / (n1[,"C"] / rowSums(n1) * n1[,"G"])
@@ -1050,7 +1078,7 @@ extractOverlappingKmerFrequencies <- function(seqs,
     })
     if (is.null(names(seqs)))
         names(seqs) <- paste0("s", seq_along(seqs))
-    if (includeRevComp) {
+    if (identical(includeRevComp, TRUE)) {
         seqsrc <- Biostrings::reverseComplement(seqs)
         names(seqsrc) <- paste0(names(seqs), "_rc")
         seqs <- c(seqs, seqsrc)

@@ -11,7 +11,8 @@ getKmerFreq(
   pseudocount = 1,
   zoops = TRUE,
   strata = rep(1L, length(seqs)),
-  p.adjust.method = "BH"
+  p.adjust.method = "BH",
+  includeRevComp = TRUE
 )
 }
 \arguments{
@@ -38,6 +39,16 @@ observed-over-expected counts using \code{kmeans(CpGoe, centers = strata)}.}
 
 \item{p.adjust.method}{A character scalar selecting the p value adjustment
 method (used in \code{\link[stats]{p.adjust}}).}
+
+\item{includeRevComp}{A \code{logcial} scalar. If \code{TRUE} (default),
+count k-mer occurrences in both \code{seqs} and their reverse-complement,
+by concatenating \code{seqs} and their reverse-complemented versions
+before the counting. This is useful if motifs can be expected to occur
+on any strand (e.g. DNA sequences of ChIP-seq peaks). If motifs are only
+expected on the forward strand (e.g. RNA sequences of CLIP-seq peaks),
+\code{includeRevComp = FALSE} should be used. Note that if \code{strata}
+is a vector of the same length as \code{seqs}, each reverse-complemented
+sequence will be assigned to the same stratum as the forward sequence.}
 }
 \value{
 A \code{list} with observed and expected k-mer frequencies (\code{freq.obs}
