@@ -17,9 +17,8 @@ extractOverlappingKmerFrequencies(
 
 \item{x}{A \code{character} vector of k-mers to search in \code{seqs}.}
 
-\item{includeRevComp}{Either \code{TRUE} or \code{FALSE}. If \code{TRUE}
-(default), \code{seqs} will not only be searched for matches to \code{x},
-but also for matches to the reverse-complemented k-mers in \code{x}.}
+\item{includeRevComp}{A \code{logcial} scalar. If \code{TRUE} (default),
+scan both \code{seqs} and their reverse-complement for matches to \code{x}.}
 
 \item{BPPARAM}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
 instance determining the parallel back-end to be used during evaluation.}
