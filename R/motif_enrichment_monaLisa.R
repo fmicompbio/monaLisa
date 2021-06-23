@@ -167,6 +167,7 @@
         # (over-)sample random sequences from the genome
         n <- round(gnm.oversample * sum(inCurrBin))
         w <- width(sqs)[inCurrBin]
+        mw <- mean(w)
         if (is.null(gnm.regions)) {
             slen <- seqlengths(gnm)
             gnm.regions <- GRanges(seqnames = names(slen),
@@ -185,15 +186,14 @@
                                 prob = pmax(0, gnm.regions.width - mean(w) + 1)),
                          decreasing = FALSE)
             rw <- sample(x = w, size = n1, replace = TRUE)
-            ridxL <- split(seq_along(ridx), ridx)[as.character(unique(ridx))]
+            rst <- start(gnm.regions)[ridx] +
+                unlist(lapply(pmax(gnm.regions.width[ridx] - rw, 0),
+                              function(w1) sample(x = w1, size = 1)))
             reg <- GRanges(seqnames = seqnames(gnm.regions)[ridx],
-                           ranges = do.call(c,
-                              unname(lapply(ridxL, function(i) {
-                  rst <- sample(x = gnm.regions.width[ridx[i[1]]] - mean(w) + 1,
-                                size = length(i), replace = FALSE)
-                  IRanges(start = rst,
-                          end = pmin(rst + rw[i] - 1, gnm.regions.width[ridx[i[1]]]))
-            }))), seqlengths = seqlengths(gnm))
+                           ranges = IRanges(start = rst,
+                                            end = pmin(rst + rw - 1,
+                                                       end(gnm.regions)[ridx])),
+                           seqlengths = seqlengths(gnm))
 
             # extract sequences
             s <- getSeq(gnm, reg)
