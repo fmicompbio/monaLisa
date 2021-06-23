@@ -65,7 +65,8 @@ test_that(".defineBackground() works", {
     df1 <- .defineBackground(seqs, b1, "otherBins", 1, NULL, NULL, 2, 42L, 0.7)
     df2 <- .defineBackground(seqs, b1, "allBins",   1, NULL, NULL, 2, 42L, 0.7)
     df3 <- .defineBackground(seqs, b1, "zeroBin",   1, NULL, NULL, 2, 42L, 0.7)
-    df4 <- .defineBackground(seqs, b1, "genome",    1, gnm,  NULL, 2, 42L, 0.7)
+    expect_warning(df4 <- .defineBackground(seqs, b1, "genome", 1,
+                                            gnm,  NULL, 2, 42L, 0.7))
     
     df5 <- .defineBackground(seqs, b2, "otherBins", 1, NULL, NULL, 2, 42L, 0.7)
     df6 <- .defineBackground(seqs, b2, "zeroBin",   1, NULL, NULL, 2, 42L, 0.7)
