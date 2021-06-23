@@ -1142,9 +1142,9 @@ buildDirGraphFromKmers <- function(seqs, x, BPPARAM = SerialParam()) {
 }
 
 
-#' Get putative motifs from directed graph
+#' Filter directed graph
 #' 
-#' Get putative motifs from a directed graph, by only retaining edges with a 
+#' Filter directed graph, by only retaining edges with a 
 #' weight exceeding a given threshold.
 #' 
 #' @param g A directed k-mer graph (e.g., from \code{buildDirGraphFromKmers})
@@ -1155,7 +1155,7 @@ buildDirGraphFromKmers <- function(seqs, x, BPPARAM = SerialParam()) {
 #' 
 #' @importFrom igraph subgraph.edges V
 #' 
-getMotifsFromDirGraph <- function(g, edge_weight_thr) {
+filterDirGraph <- function(g, edge_weight_thr) {
     ## Plot graph, and subset to only the most abundant edges
     gisub <- igraph::subgraph.edges(
         g, eids = which(igraph::E(g)$weight > edge_weight_thr)
@@ -1163,3 +1163,63 @@ getMotifsFromDirGraph <- function(g, edge_weight_thr) {
     gisub
 }
 
+#' Infer putative motifs from directed graph
+#' 
+#' Infer putative motifs from a directed graph
+#' 
+#' @param seqs A \code{DNAStringSet} with sequences
+#' @param A directed k-mer graph, e.g. from \code{buildDirGraphFromKmers}
+#'   or \code{filterDirGraph}
+#' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
+#'   instance determining the parallel back-end to be used during evaluation.
+#' 
+#' @export
+#' 
+#' @importFrom igraph vertex_attr as_ids
+#' @importFrom BiocParallel SerialParam
+#' @importFrom Biostrings DNAStringSet extractAt
+#' @importFrom IRanges IRanges
+#' 
+getMotifsFromDirGraph <- function(seqs, g, BPPARAM = SerialParam()) {
+    ## Get only the interesting parts of the input sequences
+    overlapkmers <- extractOverlappingKmerFrequencies(
+        seqs, igraph::vertex_attr(g, "name"),
+        BPPARAM = BPPARAM
+    )
+    y <- Biostrings::DNAStringSet(x = names(overlapkmers))
+    ## Extract all k-mers in order from each input sequence
+    kmerlen <- nchar(igraph::vertex_attr(g, "name")[1])
+    irl <- as(lapply(seq_along(y), function(i) {
+        IRanges::IRanges(start = seq_len(width(y)[i] - (kmerlen - 1)),
+                         width = kmerlen)
+    }), "IRangesList")
+    kmers <- Biostrings::extractAt(y, at = irl)
+    ## Find matches in graph
+    matches_to_graph <- lapply(kmers, function(kl) {
+        igraph::vertex_attr(g, "name")[match(kl, igraph::vertex_attr(g, "name"))]
+    })
+    ## Insert NA between any k-mers that are not connected in the graph
+    matches_to_graph <- lapply(matches_to_graph, function(x) {
+        tmp <- sapply(seq_along(x), function(i) paste(x[i], x[i + 1], sep = "|"))
+        tmp <- tmp %in% igraph::as_ids(igraph::E(g))
+        w <- which(!tmp) + 0.5
+        idx <- c(seq_along(x), w)
+        vals <- c(x, rep(NA, length(w)))
+        vals[order(idx)]
+    })
+    # matches_to_graph
+    ## Create motifs (graph paths)
+    helpfun <- function(v) {
+        idx1 <- c(1, which(is.na(v)) + 1)
+        idx2 <- setdiff(seq_along(v), idx1)
+        v[idx2] <- substr(v[idx2], nchar(v[idx2]), nchar(v[idx2]))
+        v[is.na(v)] <- "X"
+        strsplit(paste(v, collapse = ""), "X")
+    }
+    motifs <- unlist(lapply(matches_to_graph, helpfun))
+    # motifs
+    ## Remove any motif that is a substring of another
+    unique(motifs[!sapply(motifs, 
+                          function(m) any(grepl(m, motifs[motifs != m], 
+                                                fixed = TRUE)))])
+}

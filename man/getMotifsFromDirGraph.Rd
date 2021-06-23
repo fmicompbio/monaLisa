@@ -2,17 +2,19 @@
 % Please edit documentation in R/motif_enrichment_kmers.R
 \name{getMotifsFromDirGraph}
 \alias{getMotifsFromDirGraph}
-\title{Get putative motifs from directed graph}
+\title{Infer putative motifs from directed graph}
 \usage{
-getMotifsFromDirGraph(g, edge_weight_thr)
+getMotifsFromDirGraph(seqs, g, BPPARAM = SerialParam())
 }
 \arguments{
-\item{g}{A directed k-mer graph (e.g., from \code{buildDirGraphFromKmers})}
+\item{seqs}{A \code{DNAStringSet} with sequences}
 
-\item{edge_weight_thr}{An edge weight threshold. Edges with weight below 
-this threshold will be removed.}
+\item{BPPARAM}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
+instance determining the parallel back-end to be used during evaluation.}
+
+\item{A}{directed k-mer graph, e.g. from \code{buildDirGraphFromKmers}
+or \code{filterDirGraph}}
 }
 \description{
-Get putative motifs from a directed graph, by only retaining edges with a 
-weight exceeding a given threshold.
+Infer putative motifs from a directed graph
 }
