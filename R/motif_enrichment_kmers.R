@@ -1168,7 +1168,7 @@ filterDirGraph <- function(g, edge_weight_thr) {
 #' Infer putative motifs from a directed graph
 #' 
 #' @param seqs A \code{DNAStringSet} with sequences
-#' @param A directed k-mer graph, e.g. from \code{buildDirGraphFromKmers}
+#' @param g A directed k-mer graph, e.g. from \code{buildDirGraphFromKmers}
 #'   or \code{filterDirGraph}
 #' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
 #'   instance determining the parallel back-end to be used during evaluation.
