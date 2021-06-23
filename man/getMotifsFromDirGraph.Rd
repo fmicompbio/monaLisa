@@ -9,11 +9,11 @@ getMotifsFromDirGraph(seqs, g, BPPARAM = SerialParam())
 \arguments{
 \item{seqs}{A \code{DNAStringSet} with sequences}
 
+\item{g}{A directed k-mer graph, e.g. from \code{buildDirGraphFromKmers}
+or \code{filterDirGraph}}
+
 \item{BPPARAM}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
 instance determining the parallel back-end to be used during evaluation.}
-
-\item{A}{directed k-mer graph, e.g. from \code{buildDirGraphFromKmers}
-or \code{filterDirGraph}}
 }
 \description{
 Infer putative motifs from a directed graph
