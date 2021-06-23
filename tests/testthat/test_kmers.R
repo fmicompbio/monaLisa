@@ -358,7 +358,10 @@ test_that("extractOverlappingKmerFrequencies works as expected", {
     seqs <- Biostrings::DNAStringSet(c(s1 = "AAAAACCGTTAAAAAAAAAAAAAAAAACCGTTAAAAAAAAAAAAAA",
                                        s2 = "AAAAAAAAAAAAAAAAACCGTTAAAAAAAAAAATAACGGAAAAAAA",
                                        s3 = "ATAACGGAAAACCGTTCCGTTAAAAAAAAAAAAAAAAAAAAAAAAA"))
+    seqsrc <- Biostrings::reverseComplement(seqs)
+    names(seqsrc) <- paste0("r", seq_along(seqsrc))
     kmers <- c("CCGT", "CGTT", "GTTA")
+    kmersrc <- as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(kmers)))
     
     expect_error(extractOverlappingKmerFrequencies(seqs = "error", x = kmers))
     expect_error(extractOverlappingKmerFrequencies(seqs, x = "error"))
@@ -366,10 +369,14 @@ test_that("extractOverlappingKmerFrequencies works as expected", {
 
     res1 <- extractOverlappingKmerFrequencies(seqs, kmers)
     res2 <- extractOverlappingKmerFrequencies(seqs, kmers, BPPARAM = BiocParallel::MulticoreParam(2L))
+    res3 <- extractOverlappingKmerFrequencies(c(seqs, seqsrc), kmers, includeRevComp = FALSE)
+    res4 <- extractOverlappingKmerFrequencies(seqs, c(kmers, kmersrc), includeRevComp = FALSE)
     
     expect_is(res1, "integer")
-    expect_identical(res1, c(CCGTTA = 3L, TAACGG = 2L, CCGTTCCGTTA = 1L))
+    expect_identical(res1, c(CCGTTA = 5L, CCGTTCCGTTA = 1L))
     expect_identical(res1, res2)
+    expect_identical(res1, res3)
+    expect_identical(res4, c(CCGTTA = 3L, TAACGG = 2L, CCGTTCCGTTA = 1L))
 })
 
 test_that("buildDirGraphFromKmers works as expected", {

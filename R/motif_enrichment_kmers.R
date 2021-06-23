@@ -1017,9 +1017,8 @@ convertKmersToMotifs <- function(x, m, BPPARAM = SerialParam(), verbose = FALSE)
 #'
 #' @param seqs \code{\link{DNAStringSet}} with sequences to search.
 #' @param x A \code{character} vector of k-mers to search in \code{seqs}.
-#' @param includeRevComp Either \code{TRUE} or \code{FALSE}. If \code{TRUE}
-#'     (default), \code{seqs} will not only be searched for matches to \code{x},
-#'     but also for matches to the reverse-complemented k-mers in \code{x}.
+#' @param includeRevComp A \code{logcial} scalar. If \code{TRUE} (default),
+#'     scan both \code{seqs} and their reverse-complement for matches to \code{x}.
 #' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
 #'     instance determining the parallel back-end to be used during evaluation.
 #'
@@ -1049,13 +1048,13 @@ extractOverlappingKmerFrequencies <- function(seqs,
         all(grepl("^[ACGT]+$", x))
         is(BPPARAM, "BiocParallelParam")
     })
-    if (includeRevComp) {
-        xx <- Biostrings::DNAStringSet(x)
-        xxrc <- c(xx, Biostrings::reverseComplement(xx))
-        x <- unique(as.character(xxrc))
-    }
     if (is.null(names(seqs)))
         names(seqs) <- paste0("s", seq_along(seqs))
+    if (includeRevComp) {
+        seqsrc <- Biostrings::reverseComplement(seqs)
+        names(seqsrc) <- paste0(names(seqs), "_rc")
+        seqs <- c(seqs, seqsrc)
+    }
     gr <- GenomicRanges::reduce(do.call(c, bplapply(seq_along(x), function(i) {
         hits <- Biostrings::vmatchPattern(pattern = x[i], subject = seqs)
         GenomicRanges::GRanges(seqnames = rep(names(seqs), lengths(hits)),
