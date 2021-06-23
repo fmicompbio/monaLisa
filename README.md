@@ -29,6 +29,7 @@ Current contributors include:
 - [Michael Stadler](https://github.com/mbstadler)
 - [Dania Machlab](https://github.com/machlabd)
 - [Lukas Burger](https://github.com/LukasBurger)
+- [Charlotte Soneson](https://github.com/csoneson)
 
 ## Functionality
 
