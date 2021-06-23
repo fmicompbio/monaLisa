@@ -3,13 +3,23 @@
 #' @importFrom Rcpp sourceCpp
 
 
-# given a string of A,C,G,T letters, construct a profileMatrix (internal)
+#' @title Create matrix from consensus sequence
+#'
+#' @description Given a nucleotide sequence of A,C,G,T letter corresponding
+#'   to a motif's consensus string, construct a positional frequency matrix.
+#'   This matrix can for example be used as the \code{profileMatrix} argument
+#'   in the constructor for a \code{TFBSTools::PFMatrix} object.
+#'
+#' @param x Character scalar with the motif the consensus sequence.
+#' @param n Integer scalar giving the columns sums in the constructed
+#'   matrix (number of observed bases at each position).
+#' 
+#' @keywords internal
 .cons2matrix <- function(x, n = 100L) {
-    stopifnot(exprs = {
-        is.character(x)
-        length(x) == 1L
-    })
-    m <- matrix(0L, nrow = 4, ncol = nchar(x), dimnames = list(c("A","C","G","T"), NULL))
+    .assertScalar(x = x, type = "character")
+    .assertScalar(x = n, type = "integer", rngIncl = c(1L, Inf))
+    m <- matrix(0L, nrow = 4, ncol = nchar(x),
+                dimnames = list(c("A","C","G","T"), NULL))
     xx <- strsplit(x, "", fixed = TRUE)[[1]]
     ok <- which(xx %in% rownames(m))
     m[cbind(match(xx[ok], rownames(m)), ok)] <- n

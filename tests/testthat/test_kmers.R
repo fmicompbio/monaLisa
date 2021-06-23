@@ -1,5 +1,18 @@
 context("k-mers")
 
+test_that(".cons2matrix works as expected", {
+    expect_error(.cons2matrix(x = c("error","error")))
+    expect_error(.cons2matrix(x = 1L))
+    expect_error(.cons2matrix("ACGT", n = "error"))
+    
+    expect_is(res1 <- .cons2matrix(x = "ACGT", n = 1L), "matrix")
+    expect_is(res2 <- .cons2matrix(x = "ACGT", n = 2L), "matrix")
+    expect_identical(dim(res1), c(4L, 4L))
+    expect_identical(rownames(res1), c("A","C","G","T"))
+    expect_equal(res1, diag(4), check.attributes = FALSE)
+    expect_identical(res1 * 2L, res2)
+})
+
 test_that("getKmerFreq works as expected", {
     library(Biostrings)
 
