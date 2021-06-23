@@ -143,11 +143,11 @@ test_that("clusterKmers works as expected", {
     expect_message(res1 <- clusterKmers(x1, method = "similarity"))
     expect_message(res2 <- clusterKmers(x2, method = "similarity"))
     expect_message(res3 <- clusterKmers(x2, method = "similarity",
-                                        allowReverseComplement = TRUE))
+                                        includeRevComp = TRUE))
     expect_message(res4 <- clusterKmers(x2, method = "cooccurrence",
                                         seqs = dseqs))
     expect_message(res5 <- clusterKmers(x2, method = "cooccurrence",
-                                        seqs = dseqs, allowReverseComplement = TRUE))
+                                        seqs = dseqs, includeRevComp = TRUE))
     expect_message(expect_warning(res6 <- clusterKmers(x1, method = "cooccurrence",
                                                        seqs = dseqs, n = 11)))
 

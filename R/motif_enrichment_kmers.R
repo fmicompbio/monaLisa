@@ -96,7 +96,7 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudocount = 1, zoops =
         strata <- kmeans(x = CpGoe, centers = strata)$cluster
     }
 
-    ## for each sequence stratum, calcluate...
+    ## for each sequence stratum, calculate...
     res.strata <- lapply(split(seqs, strata), function(seqs.stratum) {
         ## ... observed k-mer frequencies
         kmerFreqRaw.stratum <- oligonucleotideFrequency(seqs.stratum, width = kmerLen)
@@ -163,7 +163,7 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudocount = 1, zoops =
 #'   Currently, either \code{"cooccurrence"} (co-occurrence of k-mers in a
 #'   set of sequences, the default) or \code{"similarity"} (using k-mer
 #'   similarities, see Details below).
-#' @param allowReverseComplement A \code{logical} scalar. If \code{TRUE}, also
+#' @param includeRevComp A \code{logical} scalar. If \code{TRUE}, also
 #'   include the reverse complement of enriched k-mers in the analysis. For
 #'   \code{method = "cooccurrence"}, this will extract also reverse complement
 #'   k-mers from the co-occurrence count matrix for graph estimation. For
@@ -197,14 +197,14 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudocount = 1, zoops =
 #'   \code{countKmerPairs(x = seqs, k = k, n = 1, zoops = zoops)}
 #'   will be used to first get a pairwise co-occurrence count matrix.
 #'   Rows and columns corresponding to enriched k-mers from \code{x} (and their
-#'   reverse complements, if \code{allowReverseComplement = TRUE}) will
+#'   reverse complements, if \code{includeRevComp = TRUE}) will
 #'   be extracted, and the resulting adjacency matrix will be converted to a
 #'   graph, in which clusters will be identified as communities.
 #'   For \code{method = "similarity"}, all pairwise k-mer distances for all
 #'   possible shifts (defined by \code{maxShift}) are calculated, defined as
 #'   the Hamming distance of the overlapping substring plus the number of shifts.
 #'   For each k-mer pair, the minimal distance over shifts is retained. If
-#'   \code{allowReverseComplement == TRUE}, this procedure is repeated to compare
+#'   \code{includeRevComp == TRUE}, this procedure is repeated to compare
 #'   each k-mer to all reverse-complemented k-mers, and replace it with the
 #'   reverse-complemented version if this yields a lower sum of pairwise distances.
 #'   The resulting distance matrix is then converted into a similarity matrix by
@@ -227,10 +227,15 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudocount = 1, zoops =
 #' @importFrom Biostrings reverseComplement DNAStringSet
 #'
 #' @export
-clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
-                         allowReverseComplement = FALSE,
-                         nKmers = NULL, maxShift = NULL, minSim = NULL,
-                         seqs = NULL, zoops = TRUE, n = 1L) {
+clusterKmers <- function(x,
+                         method = c("cooccurrence", "similarity"),
+                         includeRevComp = FALSE,
+                         nKmers = NULL,
+                         maxShift = NULL,
+                         minSim = NULL,
+                         seqs = NULL,
+                         zoops = TRUE,
+                         n = 1L) {
     ## pre-flight checks
     method <- match.arg(method)
     if (is(x, "list")) {
@@ -248,7 +253,7 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
         all(nchar(x) == nchar(x[1]))
         all(grepl("^[ACGT]+$", x))
     })
-    .assertScalar(x = allowReverseComplement, type = "logical")
+    .assertScalar(x = includeRevComp, type = "logical")
     kmerLen <- nchar(x[1])
     if (method == "cooccurrence") {
         stopifnot(is(seqs, "DNAStringSet"))
@@ -276,7 +281,7 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
         ## calculate pairwise co-occurrence matrix
         co <- countKmerPairs(x = seqs, k = kmerLen, n = n, zoops = zoops)
         ## select enriched k-mers
-        if (allowReverseComplement) {
+        if (identical(includeRevComp, TRUE)) {
             xrc <- as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(x)))
             xsel <- unique(c(x, xrc))
         } else {
@@ -307,7 +312,7 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
         d[lower.tri(d)] <- t(d)[lower.tri(d)]
         colnames(d) <- x
         ## ... repeat by comparing x to reverseComplement(x) and keep the minium distance
-        if (allowReverseComplement) {
+        if (identical(includeRevComp, TRUE)) {
             message("also considering reverse complement k-mers")
             xrc <- as.character(Biostrings::reverseComplement(Biostrings::DNAStringSet(x)))
             drc <- Reduce(pmin, lapply(seq(from = 0, to = min(kmerLen - 1, maxShift)),
