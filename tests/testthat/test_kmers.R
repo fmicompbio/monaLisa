@@ -77,7 +77,7 @@ test_that("countKmerPairs and countKmerPairsSelected work as expected", {
     # ... countKmerPairs
     expect_error(countKmerPairs(x = "error"))
     expect_error(countKmerPairs(x = seqs, k = 0))
-    expect_error(countKmerPairs(x = seqs, k = 20, n = 0))
+    expect_error(expect_warning(countKmerPairs(x = seqs, k = 20, n = 0)))
     expect_error(countKmerPairs(x = seqs, k = 2, n = 0))
 
     expect_is(res1 <- countKmerPairs(x = seqs, k = 2, n = 1, zoops = FALSE), "matrix")
@@ -94,7 +94,7 @@ test_that("countKmerPairs and countKmerPairsSelected work as expected", {
     expect_error(countKmerPairsSelected(x = seqs, kmers = "error"))
     expect_error(countKmerPairsSelected(x = seqs, kmers = Biostrings::DNAStringSet(c("A","AA"))))
     expect_error(countKmerPairsSelected(x = seqs, kmers = Biostrings::DNAStringSet(c("A","A"))))
-    expect_error(countKmerPairsSelected(x = seqs, kmers = Biostrings::DNAStringSet(rep("AA",1001)), n = 0))
+    expect_error(expect_warning(countKmerPairsSelected(x = seqs, kmers = Biostrings::DNAStringSet(rep("AA",1001)), n = 0)))
     expect_error(countKmerPairsSelected(x = seqs, kmers = kmers, n = 0))
 
     expect_is(res1b <- countKmerPairsSelected(x = seqs, kmers = kmers, n = 1, zoops = FALSE), "matrix")
