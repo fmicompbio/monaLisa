@@ -1279,9 +1279,10 @@ getMotifsFromDirGraph <- function(seqs, g, BPPARAM = SerialParam(),
     kmers <- Biostrings::extractAt(y, at = irl)
     
     ## Find matches in graph
-    ## This is a bottleneck time-wise
-    matches_to_graph <- lapply(kmers, function(kl) {
-        igraph::vertex_attr(g, "name")[match(kl, igraph::vertex_attr(g, "name"))]
+    ## Replace k-mers not in the graph by NA
+    nodes <- igraph::vertex_attr(g, "name")
+    matches_to_graph <- lapply(as(kmers, "CharacterList"), function(kl) {
+        nodes[match(kl, nodes)]
     })
     ## Insert NA between any k-mers that are not connected in the graph
     matches_to_graph <- lapply(matches_to_graph, function(x) {
