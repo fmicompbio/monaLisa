@@ -1277,7 +1277,9 @@ getMotifsFromDirGraph <- function(seqs, g, BPPARAM = SerialParam(),
                          width = kmerlen)
     }), "IRangesList")
     kmers <- Biostrings::extractAt(y, at = irl)
+    
     ## Find matches in graph
+    ## This is a bottleneck time-wise
     matches_to_graph <- lapply(kmers, function(kl) {
         igraph::vertex_attr(g, "name")[match(kl, igraph::vertex_attr(g, "name"))]
     })
@@ -1300,9 +1302,22 @@ getMotifsFromDirGraph <- function(seqs, g, BPPARAM = SerialParam(),
         strsplit(paste(v, collapse = ""), "X")
     }
     motifs <- unlist(lapply(matches_to_graph, helpfun))
-    # motifs
+    motifs <- unique(motifs[motifs != ""])
+    
+    motifs_dss <- DNAStringSet(x = motifs)
+    motifs_fwd_revcomp <- as.character(c(motifs_dss, reverseComplement(motifs_dss)))
+
     ## Remove any motif that is a substring of another
-    unique(motifs[!sapply(motifs, 
-                          function(m) any(grepl(m, motifs[motifs != m], 
-                                                fixed = TRUE)))])
+    motifs <- unique(motifs[!sapply(
+        motifs, 
+        function(m) any(grepl(m, motifs_fwd_revcomp[motifs_fwd_revcomp != m], 
+                              fixed = TRUE)))])
+    
+    ## Get only the canonical motifs (remove reverse complements)
+    motifs <- as.character(
+        unique(pmin(DNAStringSet(x = motifs),
+                    reverseComplement(DNAStringSet(x = motifs))))
+    )
+    
+    motifs
 }
