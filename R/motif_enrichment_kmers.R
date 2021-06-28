@@ -1153,15 +1153,12 @@ extractOverlappingKmerFrequencies <- function(seqs,
 #' getMotifsFromDirGraph(g, 10)
 #' }
 #' 
-#' @importFrom igraph make_de_bruijn_graph vertex_attr induced_subgraph as_ids
-#'   E
-#' @importFrom Biostrings DNAStringSet mkAllStrings
-#' @importFrom rlang .data
-#' @importFrom tibble rownames_to_column
-#' @importFrom dplyr filter %>%
-#' @importFrom tidyr gather unite
-#' 
-buildDirGraphFromKmers <- function(seqs, x, BPPARAM = SerialParam(),
+#' @importFrom BiocParallel SerialParam
+#' @importFrom Biostrings DNAStringSet
+#' @importFrom igraph graph_from_adjacency_matrix
+buildDirGraphFromKmers <- function(seqs,
+                                   x,
+                                   BPPARAM = SerialParam(),
                                    includeRevComp = TRUE) {
     x <- toupper(x)
     stopifnot(exprs = {
@@ -1171,52 +1168,39 @@ buildDirGraphFromKmers <- function(seqs, x, BPPARAM = SerialParam(),
         length(unique(nchar(x))) == 1
     })
     
-    # Build de Bruijn graph
-    bases <- c("A", "C", "G", "T")
-    ## m = number of letters to choose from
-    ## n = k-mer length (the length of the sequences in x)
-    k <- nchar(x[1])
-    g <- igraph::make_de_bruijn_graph(m = length(bases), n = k)
-    ## Set vertex names
-    kmn <- Biostrings::mkAllStrings(alphabet = bases, width = k)
-    igraph::vertex_attr(g, "name") <- kmn
-    
     # Map k-mers back to the sequences
     # This is useful in case a central k-mer does not pass the 
     # enrichment threshold
+    k <- nchar(x[1])
     overlapkmers <- extractOverlappingKmerFrequencies(
         seqs, x, BPPARAM = BPPARAM,
         includeRevComp = includeRevComp
     )
-    
-    # Get subgraph induced by kmers in the 'overlapping k-mers' only
-    cooccs <- Biostrings::oligonucleotideFrequency(
-        Biostrings::DNAStringSet(names(overlapkmers)), width = k
-    )
-    cooccs <- cooccs[, colSums(cooccs) > 0]
-    gi <- igraph::induced_subgraph(
-        g, vids = match(colnames(cooccs), igraph::vertex_attr(g, "name"))
-    )
-    
+
+    # Extract all k-mers in names(overlapkmers)
+    overlapkmersLen <- nchar(names(overlapkmers))
+    kmers <- unique(substring(text = rep(names(overlapkmers), overlapkmersLen - k + 1),
+                              first = unlist(lapply(seq_along(overlapkmers), function(i) {
+                                  seq.int(1L, overlapkmersLen[i] - k + 1)
+                              })),
+                              last = unlist(lapply(seq_along(overlapkmers), function(i) {
+                                  seq.int(k, overlapkmersLen[i])
+                              }))))
+
     # Assign a weight to each edge, representing the number of times the 
     # pair of k-mers appear just after each other in the input sequences
-    kmpairs <- countKmerPairs(
+    kmpairs <- countKmerPairsSelected(
         x = Biostrings::DNAStringSet(x = rep(names(overlapkmers),
                                              overlapkmers)), 
-        k = k, n = 1, zoops = TRUE
+        kmers = Biostrings::DNAStringSet(kmers), n = 1, zoops = TRUE
     )
     
-    ## Add weights to the edges based on the number of co-occurrences
-    igraph::E(gi)$weight <- 0
-    kmp <- as.data.frame(kmpairs) %>% 
-        tibble::rownames_to_column("km1") %>% 
-        tidyr::gather(key = "km2", value = "weight", -.data$km1) %>% 
-        tidyr::unite(.data$km1, .data$km2, col = "node", sep = "|") %>%
-        dplyr::filter(.data$node %in% igraph::as_ids(igraph::E(gi)))
-    igraph::E(gi)$weight[match(kmp$node, igraph::as_ids(igraph::E(gi)))] <-
-        kmp$weight
-
-    gi
+    # Build de Bruijn graph from kmers
+    g <- igraph::graph_from_adjacency_matrix(adjmatrix = kmpairs,
+                                             mode = "directed",
+                                             weighted = TRUE,
+                                             add.colnames = NULL)
+    g
 }
 
 

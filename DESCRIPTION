@@ -1,7 +1,7 @@
 Package: monaLisa
 Type: Package
 Title: Binned Motif Enrichment Analysis and Visualization
-Version: 0.1.51
+Version: 0.1.52
 Authors@R: c(
     person("Dania", "Machlab", email = "dania.machlab@fmi.ch", role = c("aut"), comment = c(ORCID = "0000-0002-2578-6930")),
     person("Lukas", "Burger", email = "lukas.burger@fmi.ch", role = c("aut")),
@@ -36,12 +36,7 @@ Imports:
     stringdist,
     igraph,
     GenomeInfoDb,
-    Rcpp,
-    tidyr,
-    dplyr,
-    tibble,
-    rlang,
-    gtools
+    Rcpp
 Suggests: JASPAR2018, BSgenome.Mmusculus.UCSC.mm10, TxDb.Mmusculus.UCSC.mm10.knownGene,
     knitr, rmarkdown, testthat, BiocStyle, gridExtra
 License: GPL-3
