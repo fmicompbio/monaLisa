@@ -1,7 +1,7 @@
 Package: monaLisa
 Type: Package
 Title: Binned Motif Enrichment Analysis and Visualization
-Version: 0.1.52
+Version: 0.1.53
 Authors@R: c(
     person("Dania", "Machlab", email = "dania.machlab@fmi.ch", role = c("aut"), comment = c(ORCID = "0000-0002-2578-6930")),
     person("Lukas", "Burger", email = "lukas.burger@fmi.ch", role = c("aut")),
@@ -37,15 +37,24 @@ Imports:
     igraph,
     GenomeInfoDb,
     Rcpp
-Suggests: JASPAR2018, BSgenome.Mmusculus.UCSC.mm10, TxDb.Mmusculus.UCSC.mm10.knownGene,
-    knitr, rmarkdown, testthat, BiocStyle, gridExtra
+Suggests:
+    JASPAR2018,
+    BSgenome.Mmusculus.UCSC.mm10,
+    TxDb.Mmusculus.UCSC.mm10.knownGene,
+    knitr,
+    rmarkdown,
+    testthat,
+    BiocStyle,
+    gridExtra
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
+SystemRequirements: C++11
 LinkingTo: 
     Rcpp,
+    beachmat,
     IRanges,
     XVector,
     S4Vectors,

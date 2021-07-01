@@ -18,7 +18,8 @@ second k-mers, relative to the start position of the first k-mer.}
 only once per sequence.}
 }
 \value{
-A numeric matrix with observed k-mer pairs counts.
+A sparse numeric matrix (\code{\link[Matrix]{dgCMatrix-class}})
+    with observed k-mer pairs counts.
 }
 \description{
 Over a set of sequences, for each k-mer a in a given set of k-mers A, count

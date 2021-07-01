@@ -81,8 +81,8 @@ test_that("countKmerPairs and countKmerPairsSelected work as expected", {
     expect_error(expect_warning(countKmerPairs(x = seqs, k = 20, n = 0)))
     expect_error(countKmerPairs(x = seqs, k = 2, n = 0))
 
-    expect_is(res1 <- countKmerPairs(x = seqs, k = 2, n = 1, zoops = FALSE), "matrix")
-    expect_is(res2 <- countKmerPairs(x = seqs, k = 2, n = 1, zoops = TRUE),  "matrix")
+    expect_is(res1 <- countKmerPairs(x = seqs, k = 2, n = 1, zoops = FALSE), "dgCMatrix")
+    expect_is(res2 <- countKmerPairs(x = seqs, k = 2, n = 1, zoops = TRUE),  "dgCMatrix")
     expect_identical(which(res1 > 0, arr.ind = TRUE), which(res2 > 0, arr.ind = TRUE))
     expect_equal(unname(which(res1 > 0, arr.ind = TRUE)),
                  cbind(c(1, 13, 13, 2, 7,  4,  12),
@@ -98,8 +98,8 @@ test_that("countKmerPairs and countKmerPairsSelected work as expected", {
     expect_error(expect_warning(countKmerPairsSelected(x = seqs, kmers = Biostrings::DNAStringSet(rep("AA",1001)), n = 0)))
     expect_error(countKmerPairsSelected(x = seqs, kmers = kmers, n = 0))
 
-    expect_is(res1b <- countKmerPairsSelected(x = seqs, kmers = kmers, n = 1, zoops = FALSE), "matrix")
-    expect_is(res2b <- countKmerPairsSelected(x = seqs, kmers = kmers, n = 1, zoops = TRUE),  "matrix")
+    expect_is(res1b <- countKmerPairsSelected(x = seqs, kmers = kmers, n = 1, zoops = FALSE), "dgCMatrix")
+    expect_is(res2b <- countKmerPairsSelected(x = seqs, kmers = kmers, n = 1, zoops = TRUE),  "dgCMatrix")
     expect_identical(which(res1b > 0, arr.ind = TRUE), which(res2b > 0, arr.ind = TRUE))
     expect_identical(dimnames(res1b), dimnames(res2b))
     expect_identical(dimnames(res1b), list(kmerschar, kmerschar))
@@ -110,16 +110,16 @@ test_that("countKmerPairs and countKmerPairsSelected work as expected", {
     seqs2 <- Biostrings::DNAStringSet(c("AAANAANAANAAN"))
     
     # ... countKmerPairs
-    expect_is(res3 <- countKmerPairs(x = seqs2, k = 2, n = 1, zoops = TRUE), "matrix")
-    expect_is(res4 <- countKmerPairs(x = seqs2, k = 2, n = 1, zoops = FALSE), "matrix")
+    expect_is(res3 <- countKmerPairs(x = seqs2, k = 2, n = 1, zoops = TRUE),  "dgCMatrix")
+    expect_is(res4 <- countKmerPairs(x = seqs2, k = 2, n = 1, zoops = FALSE), "dgCMatrix")
     expect_identical(res3[1,1], 1)
     expect_true(all(as.vector(res3[-1]) == 0))
     expect_identical(dim(res3), c(16L, 16L))
     expect_identical(res3, res4)
     
     # ... countKmerPairsSelected
-    expect_is(res3b <- countKmerPairsSelected(x = seqs2, kmers = kmers, n = 1, zoops = TRUE), "matrix")
-    expect_is(res4b <- countKmerPairsSelected(x = seqs2, kmers = kmers, n = 1, zoops = FALSE), "matrix")
+    expect_is(res3b <- countKmerPairsSelected(x = seqs2, kmers = kmers, n = 1, zoops = TRUE),  "dgCMatrix")
+    expect_is(res4b <- countKmerPairsSelected(x = seqs2, kmers = kmers, n = 1, zoops = FALSE), "dgCMatrix")
     expect_identical(res3b[1,1], 1)
     expect_true(all(as.vector(res3b[-1]) == 0))
     expect_identical(dim(res3b), c(length(kmers), length(kmers)))

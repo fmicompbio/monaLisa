@@ -20,7 +20,8 @@
 #'     only amongst a set of selected k-mers. For a small set of selected
 #'     k-mers, this is much more efficient.
 #' 
-#' @return A numeric matrix with observed k-mer pairs counts.
+#' @return A sparse numeric matrix (\code{\link[Matrix]{dgCMatrix-class}})
+#'     with observed k-mer pairs counts.
 #' @export
 countKmerPairs <- function(x, k = 6L, n = 5L, zoops = FALSE) {
     .Call(`_monaLisa_countKmerPairs`, x, k, n, zoops)
@@ -47,7 +48,8 @@ countKmerPairs <- function(x, k = 6L, n = 5L, zoops = FALSE) {
 #'     \code{countKmerPairsSelected} and setting \code{kmers} to all
 #'     possible k-mers of a given length.
 #' 
-#' @return A numeric matrix with observed k-mer pairs counts.
+#' @return A sparse numeric matrix (\code{\link[Matrix]{dgCMatrix-class}})
+#'     with observed k-mer pairs counts.
 #' @export
 countKmerPairsSelected <- function(x, kmers, n = 5L, zoops = FALSE) {
     .Call(`_monaLisa_countKmerPairsSelected`, x, kmers, n, zoops)
