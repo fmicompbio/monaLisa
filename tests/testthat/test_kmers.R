@@ -83,8 +83,8 @@ test_that("countKmerPairs and countKmerPairsSelected work as expected", {
 
     expect_is(res1 <- countKmerPairs(x = seqs, k = 2, n = 1, zoops = FALSE), "dgCMatrix")
     expect_is(res2 <- countKmerPairs(x = seqs, k = 2, n = 1, zoops = TRUE),  "dgCMatrix")
-    expect_identical(which(res1 > 0, arr.ind = TRUE), which(res2 > 0, arr.ind = TRUE))
-    expect_equal(unname(which(res1 > 0, arr.ind = TRUE)),
+    expect_identical(res1 > 0, res2 > 0)
+    expect_equal(unname(which(as.matrix(res1) > 0, arr.ind = TRUE)),
                  cbind(c(1, 13, 13, 2, 7,  4,  12),
                        c(1,  2,  4, 7, 12, 13, 13)))
     expect_identical(sum(res1), 12)
@@ -100,7 +100,7 @@ test_that("countKmerPairs and countKmerPairsSelected work as expected", {
 
     expect_is(res1b <- countKmerPairsSelected(x = seqs, kmers = kmers, n = 1, zoops = FALSE), "dgCMatrix")
     expect_is(res2b <- countKmerPairsSelected(x = seqs, kmers = kmers, n = 1, zoops = TRUE),  "dgCMatrix")
-    expect_identical(which(res1b > 0, arr.ind = TRUE), which(res2b > 0, arr.ind = TRUE))
+    expect_identical(res1b > 0, res2b > 0)
     expect_identical(dimnames(res1b), dimnames(res2b))
     expect_identical(dimnames(res1b), list(kmerschar, kmerschar))
     expect_identical(res1[kmerschar, kmerschar], res1b)
@@ -157,9 +157,9 @@ test_that("clusterKmers works as expected", {
     expect_equal(res1, res2, check.attributes = FALSE)
     expect_identical(as.vector(res1), c(1, 1, 1, 2, 3, 1, 3, 1, 4, 5))
     expect_identical(as.vector(res3), c(1, 1, 1, 2, 3, 1, 3, 1, 3, 4))
-    expect_identical(as.vector(res4), c(1, 1, 4, 2, 3, 4, 3, 4, 5, 6))
-    expect_identical(as.vector(res5), c(6, 6, 3, 1, 2, 3, 2, 3, 7, 4, 5, 7, 6, 7, 6, 2, 8))
-    expect_identical(as.vector(res6), c(3, 3, 3, 1, 2, 3, 2, 3, 4, 4))
+    expect_identical(as.vector(res4), c(5, 1, 5, 2, 3, 5, 4, 5, 6, 7))
+    expect_identical(as.vector(res5), c(5, 1, 5, 2, 3, 5, 4, 5, 6, 7, 8, 10, 9, 10, 11, 12, 13))
+    expect_identical(as.vector(res6), c(2, 3, 2, 1, 3, 2, 3, 2, 3, 2))
 })
 
 test_that(".calcKmerEnrichment works", {

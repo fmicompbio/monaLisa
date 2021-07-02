@@ -317,7 +317,7 @@ clusterKmers <- function(x,
         }
         co <- co[xsel, xsel]
         ## construct graph
-        G <- igraph::graph_from_adjacency_matrix(co, mode = "undirected", weighted = TRUE)
+        G <- igraph::graph_from_adjacency_matrix(co, mode = "lower", weighted = TRUE)
         ## find communities
         comm <- igraph::cluster_louvain(G)
         res <- igraph::membership(comm)
@@ -366,7 +366,7 @@ clusterKmers <- function(x,
         ## ... prune and construct the graph
         a[a < minSim] <- 0
         diag(a) <- 0
-        G <- igraph::graph_from_adjacency_matrix(a, mode = "undirected", weighted = TRUE)
+        G <- igraph::graph_from_adjacency_matrix(a, mode = "lower", weighted = TRUE)
         
         ## find communities
         #comm <- igraph::cluster_louvain(G)
