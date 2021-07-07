@@ -313,7 +313,7 @@ Rcpp::RObject countKmerPairsSelected(SEXP x,
     }
     if (k <= 1)
         ::Rf_error("'k' must be greater than 1");
-    if (nk > 1000)
+    if (nk > 60000)
         ::Rf_warning("'kmers' (%d) is large - this might take long an use a lot of memory", nk);
     if (n < 1)
         ::Rf_error("'n' must be greater than 0");
