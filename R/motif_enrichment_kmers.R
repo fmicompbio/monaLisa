@@ -1243,7 +1243,7 @@ filterDirGraph <- function(g, edge_weight_thr) {
 #' 
 #' @importFrom igraph vertex_attr components
 #' @importFrom BiocParallel SerialParam
-#' @importFrom Biostrings DNAStringSet reverseComplement
+#' @importFrom Biostrings DNAStringSet
 #' @importFrom IRanges start end slice
 #' @importFrom S4Vectors mcols
 #' @importFrom XVector subseq
@@ -1283,14 +1283,10 @@ getMotifsFromDirGraph <- function(seqs, g, BPPARAM = SerialParam(),
     motifs <- c(motifs, names(overlapkmers)[is_len_k])
     motif_scores <- c(motif_scores, unname(overlapkmers[is_len_k]))
 
-    ## Get only the canonical motifs (remove reverse complements)
-    motifs <- as.character(pmin(DNAStringSet(x = motifs),
-                                reverseComplement(DNAStringSet(x = motifs))))
-    keep <- !duplicated(motifs)
-    
-    motifs_dss <- DNAStringSet(x = motifs[keep])
-    mcols(motifs_dss)$edgeScore <- motif_scores[keep]
-    mcols(motifs_dss)$nodeScore <- rep(NA, sum(keep))
+    ## return results as DNAStringSet with metadata columns
+    motifs_dss <- DNAStringSet(x = motifs)
+    mcols(motifs_dss)$edgeScore <- motif_scores
+    mcols(motifs_dss)$nodeScore <- rep(NA, length(motifs))
     mcols(motifs_dss)$component <-
         igraph::components(g)$membership[as.character(subseq(x = motifs_dss,
                                                              start = 1L,
