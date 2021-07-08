@@ -1241,10 +1241,12 @@ filterDirGraph <- function(g, edge_weight_thr) {
 #' 
 #' @export
 #' 
-#' @importFrom igraph vertex_attr as_ids
+#' @importFrom igraph vertex_attr components
 #' @importFrom BiocParallel SerialParam
-#' @importFrom Biostrings DNAStringSet extractAt
-#' @importFrom IRanges IRanges
+#' @importFrom Biostrings DNAStringSet reverseComplement
+#' @importFrom IRanges start end slice
+#' @importFrom S4Vectors mcols
+#' @importFrom XVector subseq
 #' 
 getMotifsFromDirGraph <- function(seqs, g, BPPARAM = SerialParam(),
                                   includeRevComp = TRUE) {
@@ -1253,56 +1255,46 @@ getMotifsFromDirGraph <- function(seqs, g, BPPARAM = SerialParam(),
         seqs, igraph::vertex_attr(g, "name"),
         BPPARAM = BPPARAM, includeRevComp = includeRevComp
     )
-    y <- Biostrings::DNAStringSet(x = names(overlapkmers))
-    ## Extract all k-mers in order from each input sequence
-    kmerlen <- nchar(igraph::vertex_attr(g, "name")[1])
-    irl <- as(lapply(seq_along(y), function(i) {
-        IRanges::IRanges(start = seq_len(width(y)[i] - (kmerlen - 1)),
-                         width = kmerlen)
-    }), "IRangesList")
-    kmers <- Biostrings::extractAt(y, at = irl)
-    
-    ## Find matches in graph
-    ## Replace k-mers not in the graph by NA
-    nodes <- igraph::vertex_attr(g, "name")
-    matches_to_graph <- lapply(as(kmers, "CharacterList"), function(kl) {
-        nodes[match(kl, nodes)]
-    })
-    ## Insert NA between any k-mers that are not connected in the graph
-    matches_to_graph <- lapply(matches_to_graph, function(x) {
-        tmp <- sapply(seq_along(x), function(i) paste(x[i], x[i + 1], sep = "|"))
-        tmp <- tmp %in% igraph::as_ids(igraph::E(g))
-        w <- which(!tmp) + 0.5
-        idx <- c(seq_along(x), w)
-        vals <- c(x, rep(NA, length(w)))
-        vals[order(idx)]
-    })
-    # matches_to_graph
-    ## Create motifs (graph paths)
-    helpfun <- function(v) {
-        idx1 <- c(1, which(is.na(v)) + 1)
-        idx2 <- setdiff(seq_along(v), idx1)
-        v[idx2] <- substr(v[idx2], nchar(v[idx2]), nchar(v[idx2]))
-        v[is.na(v)] <- "X"
-        strsplit(paste(v, collapse = ""), "X")
-    }
-    motifs <- unlist(lapply(matches_to_graph, helpfun))
-    motifs <- unique(motifs[motifs != ""])
-    
-    motifs_dss <- DNAStringSet(x = motifs)
-    motifs_fwd_revcomp <- as.character(c(motifs_dss, reverseComplement(motifs_dss)))
 
-    ## Remove any motif that is a substring of another
-    motifs <- unique(motifs[!sapply(
-        motifs, 
-        function(m) any(grepl(m, motifs_fwd_revcomp[motifs_fwd_revcomp != m], 
-                              fixed = TRUE)))])
+    ## Extract all k-mers in order from each input sequence
+    k <- nchar(igraph::vertex_attr(g, "name")[1])
+    overlapkmersflat <- paste0(names(overlapkmers), ":", collapse = "") # append an : to prevent paths across sequence boundaries
+    kmersflat <- substring(text = overlapkmersflat,
+                           first = seq.int(1L, nchar(overlapkmersflat) - k + 1),
+                           last = seq.int(k, nchar(overlapkmersflat)))
+
+    ## Find matches in graph
+    am <- igraph::as_adjacency_matrix(graph = g, type = "both", attr = "weight",
+                                      names = TRUE, sparse = FALSE)
+    kmersflat_idx <- match(kmersflat, colnames(am))
+    am_idx <- cbind(row = kmersflat_idx[-length(kmersflat_idx)],
+                    column = kmersflat_idx[-1])
+    edgeweights <- am[am_idx]
+    edgeweights[is.na(edgeweights)] <- 0
+    motif_ranges <- IRanges::slice(edgeweights, lower = 1)
     
+    motif_scores <- viewMeans(motif_ranges)
+    motifs <- substring(overlapkmersflat,
+                        first = IRanges::start(motif_ranges),
+                        last = IRanges::end(motif_ranges) + k)
+    
+    ## add single k-mers not occurring in any path
+    is_len_k <- nchar(overlapkmers) == k
+    motifs <- c(motifs, names(overlapkmers)[is_len_k])
+    motif_scores <- c(motif_scores, unname(overlapkmers[is_len_k]))
+
     ## Get only the canonical motifs (remove reverse complements)
-    motifs <- as.character(
-        unique(pmin(DNAStringSet(x = motifs),
-                    reverseComplement(DNAStringSet(x = motifs))))
-    )
+    motifs <- as.character(pmin(DNAStringSet(x = motifs),
+                                reverseComplement(DNAStringSet(x = motifs))))
+    keep <- !duplicated(motifs)
     
-    motifs
+    motifs_dss <- DNAStringSet(x = motifs[keep])
+    mcols(motifs_dss)$edgeScore <- motif_scores[keep]
+    mcols(motifs_dss)$nodeScore <- rep(NA, sum(keep))
+    mcols(motifs_dss)$component <-
+        igraph::components(g)$membership[as.character(subseq(x = motifs_dss,
+                                                             start = 1L,
+                                                             end = k))]
+    
+    motifs_dss
 }
