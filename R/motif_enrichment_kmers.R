@@ -1086,7 +1086,7 @@ convertKmersToMotifs <- function(x, m, BPPARAM = SerialParam(), verbose = FALSE)
 #' @seealso \code{\link{calcBinnedKmerEnr}} for performing a k-mer enrichment
 #'     analysis, \code{\link[BiocParallel]{bplapply}} used for parallelization. 
 #'
-#' @importFrom Biostrings DNAStringSet reverseComplement vmatchPattern
+#' @importFrom Biostrings DNAStringSet reverseComplement vmatchPattern startIndex endIndex
 #' @importFrom BiocParallel bplapply SerialParam
 #' @importFrom GenomicRanges GRanges reduce
 #' @importFrom GenomeInfoDb seqlengths
@@ -1112,12 +1112,18 @@ extractOverlappingKmerFrequencies <- function(seqs,
         names(seqsrc) <- paste0(names(seqs), "_rc")
         seqs <- c(seqs, seqsrc)
     }
-    gr <- GenomicRanges::reduce(do.call(c, bplapply(seq_along(x), function(i) {
-        hits <- Biostrings::vmatchPattern(pattern = x[i], subject = seqs)
-        GenomicRanges::GRanges(seqnames = rep(names(seqs), lengths(hits)),
-                               ranges = unlist(hits),
+    hits <- do.call(rbind, bplapply(seq_along(x), function(i) {
+        hits1 <- Biostrings::vmatchPattern(pattern = x[i], subject = seqs)
+        data.frame(seqnames = rep(names(seqs), lengths(hits1)),
+                   start = unlist(Biostrings::startIndex(hits1)),
+                   end = unlist(Biostrings::endIndex(hits1)))
+    }, BPPARAM = BPPARAM))
+    gr <- GenomicRanges::reduce(
+        GenomicRanges::GRanges(seqnames = hits$seqnames,
+                               ranges = IRanges::IRanges(start = hits$start,
+                                                         end = hits$end),
                                seqlengths = GenomeInfoDb::seqlengths(seqs))
-    }, BPPARAM = BPPARAM)))
+    )
     tmp <- BSgenome::getSeq(seqs, gr)
     ttmp <- table(as.character(tmp))
     extended.seqs <- structure(as.vector(ttmp), names = names(ttmp))
