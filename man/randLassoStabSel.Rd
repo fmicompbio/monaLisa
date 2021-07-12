@@ -93,32 +93,31 @@ Randomized lasso stability selection runs a randomized lasso regression
   and adapted it to run randomized lasso stability selection.
 }
 \examples{
-  library(monaLisa)
+library(monaLisa)
   
-  # create artificial data set
-  Y <- rnorm(n = 500, mean = 2, sd = 1)
-  X <- matrix(data = NA, nrow = length(Y), ncol = 50)
-  for (i in seq_len(ncol(X))) {
-      X[ ,i] <- runif(n = 500, min = 0, max = 3)
-  }
-  s_cols <- sample(x = seq_len(ncol(X)), size = 10, 
-      replace = FALSE)
-  for (i in seq_along(s_cols)) {
-      X[ ,s_cols[i]] <- X[ ,s_cols[i]] + Y
-  }
+## create data set
+Y <- rnorm(n = 500, mean = 2, sd = 1)
+X <- matrix(data = NA, nrow = length(Y), ncol = 50)
+for (i in seq_len(ncol(X))) {
+  X[ ,i] <- runif(n = 500, min = 0, max = 3)
+}
+s_cols <- sample(x = seq_len(ncol(X)), size = 10, 
+  replace = FALSE)
+for (i in seq_along(s_cols)) {
+  X[ ,s_cols[i]] <- X[ ,s_cols[i]] + Y
+}
   
-  # reproducible randLassoStabSel() with 1 core
-  set.seed(123)
-  ss <- randLassoStabSel(x = X, y = Y)
+## reproducible randLassoStabSel() with 1 core
+set.seed(123)
+ss <- randLassoStabSel(x = X, y = Y)
   
-  # reproducible randLassoStabSel() in parallel mode 
-  # (only works on non-windows machines)
-  \dontrun{
-    RNGkind("L'Ecuyer-CMRG")
-    set.seed(123)
-    ss <- randLassoStabSel(x = X, y = Y, mc.preschedule = TRUE, 
-        mc.set.seed = TRUE, mc.cores = 2L)
-  }
+## reproducible randLassoStabSel() in parallel mode 
+## (only works on non-windows machines)
+\dontrun{
+RNGkind("L'Ecuyer-CMRG")
+set.seed(123)
+ss <- randLassoStabSel(x = X, y = Y, mc.preschedule = TRUE, 
+  mc.set.seed = TRUE, mc.cores = 2L)}
 
 }
 \references{
