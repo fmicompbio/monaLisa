@@ -38,6 +38,31 @@ test_that("randLassoStabSel() works properly", {
     expect_error(randLassoStabSel(x = X2[1:100, ], y = Y2[2:100]))
 })
 
+test_that("randLassoStabSel() is deterministic", {
+  
+  # create data set
+  set.seed(555)
+  Y <- rnorm(n = 500, mean = 2, sd = 1)
+  X <- matrix(data = NA, nrow = length(Y), ncol = 50)
+  for (i in seq_len(ncol(X))) {
+    X[ ,i] <- runif(n = 500, min = 0, max = 3)
+  }
+  s_cols <- sample(x = seq_len(ncol(X)), size = 10, replace = FALSE)
+  for (i in seq_along(s_cols)) {
+    X[ ,s_cols[i]] <- X[ ,s_cols[i]] + Y
+  }
+  
+  # randomized lasso stability selection
+  set.seed(123)
+  ss1 <- monaLisa::randLassoStabSel(x = X, y = Y)
+  set.seed(123)
+  ss2 <- monaLisa::randLassoStabSel(x = X, y = Y)
+  
+  # tests
+  expect_identical(colData(ss1), colData(ss2))
+  
+})
+
 
 test_that(".glmnetRandomizedLasso() works properly", {
     # create data set
