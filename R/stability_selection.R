@@ -159,11 +159,14 @@ NULL
 #'   set.seed(123)
 #'   ss <- randLassoStabSel(x = X, y = Y)
 #'   
-#'   # reproducible randLassoStabSel() in parallel mode
-#'   RNGkind("L'Ecuyer-CMRG")
-#'   set.seed(123)
-#'   ss <- randLassoStabSel(x = X, y = Y, mc.preschedule = TRUE, 
-#'       mc.set.seed = TRUE, mc.cores = 2L)
+#'   # reproducible randLassoStabSel() in parallel mode 
+#'   # (only works on non-windows machines)
+#'   \dontrun{
+#'     RNGkind("L'Ecuyer-CMRG")
+#'     set.seed(123)
+#'     ss <- randLassoStabSel(x = X, y = Y, mc.preschedule = TRUE, 
+#'         mc.set.seed = TRUE, mc.cores = 2L)
+#'   }
 #'
 #' @seealso \code{\link[stabs]{stabsel}}
 #'
