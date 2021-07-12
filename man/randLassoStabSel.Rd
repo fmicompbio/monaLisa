@@ -30,7 +30,7 @@ Any variable with a selection probability that is higher than the set cutoff wil
 \item{PFER}{integer (default = 2) representing the absolute number of false positives that we 
 allow for in the final list of selected variables. For details see Meinshausen and Bühlmann (2010).}
 
-\item{mc.cores}{integer (default = 1), specifying the number of cores to use in 
+\item{mc.cores}{integer (default = 1) specifying the number of cores to use in 
 \code{\link[parallel]{mclapply}}, which is the default way \code{\link[stabs]{stabsel}} 
 does parallelization.}
 
