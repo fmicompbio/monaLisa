@@ -434,27 +434,15 @@ We can now run randomized lasso stability selection to identify TFs that are lik
 
 ```{r stabSelTFs}
 # select TFs
-# ... randLassoStabSel() is stochastic, so we set a seed to reproduce the run
-# set.seed(123)
-# se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung, cutoff = 0.8, mc.cores = 1)
-# se
-
-# # if using a Windows OS, parallelize using parLapply 
-# # ... (see stabs::stabsel for more details)
-# library(parallel)
-# cl <- makeCluster(2)
-# se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung,
-#                        cutoff = 0.8, papply = parLapply, cl = cl)
-  
-library(parallel)
-cl <- makeCluster(4)
-set.seed(123);system.time(se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung, cutoff = 0.8, papply = parLapply, cl = cl))
-set.seed(123);system.time(se2 <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung, cutoff = 0.8, papply = parLapply, cl = cl))
-
-identical(colData(se), colData(se2))
-
-cl <- makeCluster(1)
-set.seed(123);system.time(se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung, cutoff = 0.8, papply = parLapply, cl = cl))
+# ... randLassoStabSel() is stochastic, so we set a seed to reproduce a parallel run
+RNGkind("L'Ecuyer-CMRG")
+set.seed(123)
+se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung, cutoff = 0.8, mc.preschedule = TRUE, mc.set.seed = TRUE, mc.cores = 2L)
+# ... if not running in parallel mode, it is enough to use set.seed() before using the function
+# ... ... to ensure reproducibility (with 1 core)
+set.seed(123)
+se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung, cutoff = 0.8)
+se
 
 # selected TFs
 colnames(se)[se$selected]
