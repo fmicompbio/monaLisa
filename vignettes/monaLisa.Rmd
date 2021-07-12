@@ -435,9 +435,9 @@ We can now run randomized lasso stability selection to identify TFs that are lik
 ```{r stabSelTFs}
 # select TFs
 # ... randLassoStabSel() is stochastic, so we set a seed to reproduce the run
-set.seed(123)
-se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung, cutoff = 0.8, mc.cores = 1)
-se
+# set.seed(123)
+# se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung, cutoff = 0.8, mc.cores = 1)
+# se
 
 # # if using a Windows OS, parallelize using parLapply 
 # # ... (see stabs::stabsel for more details)
@@ -446,6 +446,16 @@ se
 # se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung,
 #                        cutoff = 0.8, papply = parLapply, cl = cl)
   
+library(parallel)
+cl <- makeCluster(4)
+set.seed(123);system.time(se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung, cutoff = 0.8, papply = parLapply, cl = cl))
+set.seed(123);system.time(se2 <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung, cutoff = 0.8, papply = parLapply, cl = cl))
+
+identical(colData(se), colData(se2))
+
+cl <- makeCluster(1)
+set.seed(123);system.time(se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung, cutoff = 0.8, papply = parLapply, cl = cl))
+
 # selected TFs
 colnames(se)[se$selected]
 ```
