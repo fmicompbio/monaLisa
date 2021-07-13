@@ -59,7 +59,7 @@ test_that("randLassoStabSel() is deterministic", {
   ss2 <- monaLisa::randLassoStabSel(x = X, y = Y)
   
   # tests
-  expect_identical(colData(ss1), colData(ss2))
+  expect_identical(ss1, ss2)
   
 })
 
