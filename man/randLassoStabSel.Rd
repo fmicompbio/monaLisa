@@ -4,7 +4,15 @@
 \alias{randLassoStabSel}
 \title{Randomized Lasso Stability Selection}
 \usage{
-randLassoStabSel(x, y, weakness = 0.8, cutoff = 0.8, PFER = 2, ...)
+randLassoStabSel(
+  x,
+  y,
+  weakness = 0.8,
+  cutoff = 0.8,
+  PFER = 2,
+  mc.cores = 1L,
+  ...
+)
 }
 \arguments{
 \item{x}{the predictor matrix.}
@@ -21,6 +29,10 @@ Any variable with a selection probability that is higher than the set cutoff wil
 
 \item{PFER}{integer (default = 2) representing the absolute number of false positives that we 
 allow for in the final list of selected variables. For details see Meinshausen and Bühlmann (2010).}
+
+\item{mc.cores}{integer (default = 1) specifying the number of cores to use in 
+\code{\link[parallel]{mclapply}}, which is the default way \code{\link[stabs]{stabsel}} 
+does parallelization.}
 
 \item{...}{additional parameters that can be passed on to \code{\link[stabs]{stabsel}}.}
 }
@@ -79,6 +91,34 @@ Randomized lasso stability selection runs a randomized lasso regression
 
   We made use of the \code{stabs} package that implements lasso stability selection, 
   and adapted it to run randomized lasso stability selection.
+}
+\examples{
+library(monaLisa)
+  
+## create data set
+Y <- rnorm(n = 500, mean = 2, sd = 1)
+X <- matrix(data = NA, nrow = length(Y), ncol = 50)
+for (i in seq_len(ncol(X))) {
+  X[ ,i] <- runif(n = 500, min = 0, max = 3)
+}
+s_cols <- sample(x = seq_len(ncol(X)), size = 10, 
+  replace = FALSE)
+for (i in seq_along(s_cols)) {
+  X[ ,s_cols[i]] <- X[ ,s_cols[i]] + Y
+}
+  
+## reproducible randLassoStabSel() with 1 core
+set.seed(123)
+ss <- randLassoStabSel(x = X, y = Y)
+  
+## reproducible randLassoStabSel() in parallel mode 
+## (only works on non-windows machines)
+\dontrun{
+RNGkind("L'Ecuyer-CMRG")
+set.seed(123)
+ss <- randLassoStabSel(x = X, y = Y, mc.preschedule = TRUE, 
+  mc.set.seed = TRUE, mc.cores = 2L)}
+
 }
 \references{
 N. Meinshausen and P. Bühlmann (2010), Stability Selection, \emph{Journal of the Royal Statistical Society: Series B (Statistical Methodology)}, \strong{72}, 417–73. \cr
