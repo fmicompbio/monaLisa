@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.50</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -81,7 +81,7 @@
       <h1 data-toc-skip>monaLisa - MOtif aNAlysis with Lisa</h1>
                         <h4 data-toc-skip class="author">Dania Machlab, Lukas Burger, Michael Stadler</h4>
             
-            <h4 data-toc-skip class="date">2021-05-28</h4>
+            <h4 data-toc-skip class="date">2021-07-13</h4>
       
       
       <div class="hidden name"><code>monaLisa.Rmd</code></div>
@@ -556,10 +556,15 @@ Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promot
 <a href="#identify-important-tfs" class="anchor" aria-hidden="true"></a>Identify important TFs</h2>
 <p>We can now run randomized lasso stability selection to identify TFs that are likely to explain the log-fold changes in accessibility.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># select TFs</span>
-<span class="co"># ... randLassoStabSel() is stochastic, so we set a seed to reproduce the run</span>
+<code class="sourceCode R"><span class="co"># # randLassoStabSel() is stochastic, so we set a seed to reproduce a parallel run</span>
+<span class="co"># RNGkind("L'Ecuyer-CMRG")</span>
+<span class="co"># set.seed(123)</span>
+<span class="co"># se &lt;- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung, cutoff = 0.8, mc.preschedule = TRUE, mc.set.seed = TRUE, mc.cores = 2L)</span>
+
+<span class="co"># if not running in parallel mode, it is enough to use set.seed() before using the function</span>
+<span class="co"># ... to ensure reproducibility (with 1 core)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span>
-<span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/randLassoStabSel.html">randLassoStabSel</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">TFBSmatrix</span>, y <span class="op">=</span> <span class="va">gr</span><span class="op">$</span><span class="va">logFC_liver_vs_lung</span>, cutoff <span class="op">=</span> <span class="fl">0.8</span>, mc.cores <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>
+<span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/randLassoStabSel.html">randLassoStabSel</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">TFBSmatrix</span>, y <span class="op">=</span> <span class="va">gr</span><span class="op">$</span><span class="va">logFC_liver_vs_lung</span>, cutoff <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span>
 <span class="va">se</span>
 <span class="co">#&gt; class: SummarizedExperiment </span>
 <span class="co">#&gt; dim: 10000 200 </span>
@@ -571,13 +576,6 @@ Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promot
 <span class="co">#&gt; colnames(200): fracGC oeCpG ... Pou2f3 Hnf4a</span>
 <span class="co">#&gt; colData names(20): selProb selected ... regStep16 regStep17</span>
 
-<span class="co"># # if using a Windows OS, parallelize using parLapply </span>
-<span class="co"># # ... (see stabs::stabsel for more details)</span>
-<span class="co"># library(parallel)</span>
-<span class="co"># cl &lt;- makeCluster(2)</span>
-<span class="co"># se &lt;- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung,</span>
-<span class="co">#                        cutoff = 0.8, papply = parLapply, cl = cl)</span>
-  
 <span class="co"># selected TFs</span>
 <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span><span class="op">[</span><span class="va">se</span><span class="op">$</span><span class="va">selected</span><span class="op">]</span>
 <span class="co">#&gt;  [1] "ONECUT2"       "GATA1::TAL1"   "Nkx2-5(var.2)" "HNF4G"        </span>
@@ -702,55 +700,55 @@ Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promot
 <span class="co">#&gt;  [8] datasets  methods   base     </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; other attached packages:</span>
-<span class="co">#&gt;  [1] circlize_0.4.12                          </span>
+<span class="co">#&gt;  [1] circlize_0.4.13                          </span>
 <span class="co">#&gt;  [2] ComplexHeatmap_2.8.0                     </span>
 <span class="co">#&gt;  [3] TxDb.Mmusculus.UCSC.mm10.knownGene_3.10.0</span>
 <span class="co">#&gt;  [4] GenomicFeatures_1.44.0                   </span>
-<span class="co">#&gt;  [5] AnnotationDbi_1.54.0                     </span>
-<span class="co">#&gt;  [6] monaLisa_0.1.50                          </span>
+<span class="co">#&gt;  [5] AnnotationDbi_1.54.1                     </span>
+<span class="co">#&gt;  [6] monaLisa_0.2.0                           </span>
 <span class="co">#&gt;  [7] BSgenome.Mmusculus.UCSC.mm10_1.4.0       </span>
 <span class="co">#&gt;  [8] BSgenome_1.60.0                          </span>
 <span class="co">#&gt;  [9] rtracklayer_1.52.0                       </span>
-<span class="co">#&gt; [10] Biostrings_2.60.0                        </span>
+<span class="co">#&gt; [10] Biostrings_2.60.1                        </span>
 <span class="co">#&gt; [11] XVector_0.32.0                           </span>
 <span class="co">#&gt; [12] TFBSTools_1.30.0                         </span>
 <span class="co">#&gt; [13] JASPAR2018_1.1.1                         </span>
 <span class="co">#&gt; [14] SummarizedExperiment_1.22.0              </span>
 <span class="co">#&gt; [15] Biobase_2.52.0                           </span>
 <span class="co">#&gt; [16] MatrixGenerics_1.4.0                     </span>
-<span class="co">#&gt; [17] matrixStats_0.58.0                       </span>
+<span class="co">#&gt; [17] matrixStats_0.59.0                       </span>
 <span class="co">#&gt; [18] GenomicRanges_1.44.0                     </span>
-<span class="co">#&gt; [19] GenomeInfoDb_1.28.0                      </span>
+<span class="co">#&gt; [19] GenomeInfoDb_1.28.1                      </span>
 <span class="co">#&gt; [20] IRanges_2.26.0                           </span>
 <span class="co">#&gt; [21] S4Vectors_0.30.0                         </span>
 <span class="co">#&gt; [22] BiocGenerics_0.38.0                      </span>
-<span class="co">#&gt; [23] BiocStyle_2.20.0                         </span>
+<span class="co">#&gt; [23] BiocStyle_2.20.2                         </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; loaded via a namespace (and not attached):</span>
 <span class="co">#&gt;   [1] BiocFileCache_2.0.0         systemfonts_1.0.2          </span>
 <span class="co">#&gt;   [3] plyr_1.8.6                  igraph_1.2.6               </span>
-<span class="co">#&gt;   [5] splines_4.1.0               BiocParallel_1.26.0        </span>
-<span class="co">#&gt;   [7] ggplot2_3.3.3               digest_0.6.27              </span>
+<span class="co">#&gt;   [5] splines_4.1.0               BiocParallel_1.26.1        </span>
+<span class="co">#&gt;   [7] ggplot2_3.3.5               digest_0.6.27              </span>
 <span class="co">#&gt;   [9] foreach_1.5.1               htmltools_0.5.1.1          </span>
 <span class="co">#&gt;  [11] GO.db_3.13.0                fansi_0.5.0                </span>
 <span class="co">#&gt;  [13] magrittr_2.0.1              memoise_2.0.0              </span>
 <span class="co">#&gt;  [15] cluster_2.1.2               doParallel_1.0.16          </span>
 <span class="co">#&gt;  [17] readr_1.4.0                 annotate_1.70.0            </span>
 <span class="co">#&gt;  [19] R.utils_2.10.1              pkgdown_1.6.1.9001         </span>
-<span class="co">#&gt;  [21] prettyunits_1.1.1           colorspace_2.0-1           </span>
+<span class="co">#&gt;  [21] prettyunits_1.1.1           colorspace_2.0-2           </span>
 <span class="co">#&gt;  [23] blob_1.2.1                  rappdirs_0.3.3             </span>
-<span class="co">#&gt;  [25] textshaping_0.3.4           xfun_0.23                  </span>
-<span class="co">#&gt;  [27] dplyr_1.0.6                 crayon_1.4.1               </span>
+<span class="co">#&gt;  [25] textshaping_0.3.5           xfun_0.24                  </span>
+<span class="co">#&gt;  [27] dplyr_1.0.7                 crayon_1.4.1               </span>
 <span class="co">#&gt;  [29] RCurl_1.98-1.3              jsonlite_1.7.2             </span>
 <span class="co">#&gt;  [31] TFMPvalue_0.0.8             survival_3.2-11            </span>
 <span class="co">#&gt;  [33] iterators_1.0.13            glue_1.4.2                 </span>
 <span class="co">#&gt;  [35] gtable_0.3.0                zlibbioc_1.38.0            </span>
 <span class="co">#&gt;  [37] GetoptLong_1.0.5            DelayedArray_0.18.0        </span>
 <span class="co">#&gt;  [39] shape_1.4.6                 scales_1.1.1               </span>
-<span class="co">#&gt;  [41] DBI_1.1.1                   Rcpp_1.0.6                 </span>
+<span class="co">#&gt;  [41] DBI_1.1.1                   Rcpp_1.0.7                 </span>
 <span class="co">#&gt;  [43] xtable_1.8-4                progress_1.2.2             </span>
 <span class="co">#&gt;  [45] clue_0.3-59                 bit_4.0.4                  </span>
-<span class="co">#&gt;  [47] stabs_0.6-4                 glmnet_4.1-1               </span>
+<span class="co">#&gt;  [47] stabs_0.6-4                 glmnet_4.1-2               </span>
 <span class="co">#&gt;  [49] httr_1.4.2                  RColorBrewer_1.1-2         </span>
 <span class="co">#&gt;  [51] ellipsis_0.3.2              pkgconfig_2.0.3            </span>
 <span class="co">#&gt;  [53] XML_3.99-0.6                R.methodsS3_1.8.1          </span>
@@ -762,30 +760,30 @@ Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promot
 <span class="co">#&gt;  [65] generics_0.1.0              RSQLite_2.2.7              </span>
 <span class="co">#&gt;  [67] evaluate_0.14               stringr_1.4.0              </span>
 <span class="co">#&gt;  [69] fastmap_1.1.0               yaml_2.2.1                 </span>
-<span class="co">#&gt;  [71] ragg_1.1.2                  knitr_1.33                 </span>
+<span class="co">#&gt;  [71] ragg_1.1.3                  knitr_1.33                 </span>
 <span class="co">#&gt;  [73] bit64_4.0.5                 fs_1.5.0                   </span>
 <span class="co">#&gt;  [75] caTools_1.18.2              purrr_0.3.4                </span>
 <span class="co">#&gt;  [77] KEGGREST_1.32.0             R.oo_1.24.0                </span>
-<span class="co">#&gt;  [79] poweRlaw_0.70.6             pracma_2.3.3               </span>
-<span class="co">#&gt;  [81] biomaRt_2.48.0              compiler_4.1.0             </span>
-<span class="co">#&gt;  [83] filelock_1.0.2              curl_4.3.1                 </span>
-<span class="co">#&gt;  [85] png_0.1-7                   tibble_3.1.2               </span>
-<span class="co">#&gt;  [87] bslib_0.2.5.1               stringi_1.6.2              </span>
-<span class="co">#&gt;  [89] highr_0.9                   desc_1.3.0                 </span>
-<span class="co">#&gt;  [91] lattice_0.20-44             CNEr_1.28.0                </span>
-<span class="co">#&gt;  [93] Matrix_1.3-3                vctrs_0.3.8                </span>
-<span class="co">#&gt;  [95] stringdist_0.9.6.3          pillar_1.6.1               </span>
-<span class="co">#&gt;  [97] lifecycle_1.0.0             BiocManager_1.30.15        </span>
-<span class="co">#&gt;  [99] jquerylib_0.1.4             GlobalOptions_0.1.2        </span>
-<span class="co">#&gt; [101] bitops_1.0-7                R6_2.5.0                   </span>
-<span class="co">#&gt; [103] BiocIO_1.2.0                bookdown_0.22              </span>
-<span class="co">#&gt; [105] codetools_0.2-18            gtools_3.8.2               </span>
-<span class="co">#&gt; [107] assertthat_0.2.1            seqLogo_1.58.0             </span>
-<span class="co">#&gt; [109] rprojroot_2.0.2             rjson_0.2.20               </span>
-<span class="co">#&gt; [111] GenomicAlignments_1.28.0    Rsamtools_2.8.0            </span>
-<span class="co">#&gt; [113] GenomeInfoDbData_1.2.6      hms_1.1.0                  </span>
-<span class="co">#&gt; [115] rmarkdown_2.8               Cairo_1.5-12.2             </span>
-<span class="co">#&gt; [117] restfulr_0.0.13</span></code></pre></div>
+<span class="co">#&gt;  [79] poweRlaw_0.70.6             xml2_1.3.2                 </span>
+<span class="co">#&gt;  [81] pracma_2.3.3                biomaRt_2.48.2             </span>
+<span class="co">#&gt;  [83] compiler_4.1.0              filelock_1.0.2             </span>
+<span class="co">#&gt;  [85] curl_4.3.2                  png_0.1-7                  </span>
+<span class="co">#&gt;  [87] tibble_3.1.2                bslib_0.2.5.1              </span>
+<span class="co">#&gt;  [89] stringi_1.6.2               highr_0.9                  </span>
+<span class="co">#&gt;  [91] desc_1.3.0                  lattice_0.20-44            </span>
+<span class="co">#&gt;  [93] CNEr_1.28.0                 Matrix_1.3-4               </span>
+<span class="co">#&gt;  [95] vctrs_0.3.8                 stringdist_0.9.6.3         </span>
+<span class="co">#&gt;  [97] pillar_1.6.1                lifecycle_1.0.0            </span>
+<span class="co">#&gt;  [99] BiocManager_1.30.16         jquerylib_0.1.4            </span>
+<span class="co">#&gt; [101] GlobalOptions_0.1.2         bitops_1.0-7               </span>
+<span class="co">#&gt; [103] R6_2.5.0                    BiocIO_1.2.0               </span>
+<span class="co">#&gt; [105] bookdown_0.22               codetools_0.2-18           </span>
+<span class="co">#&gt; [107] gtools_3.9.2                assertthat_0.2.1           </span>
+<span class="co">#&gt; [109] seqLogo_1.58.0              rprojroot_2.0.2            </span>
+<span class="co">#&gt; [111] rjson_0.2.20                GenomicAlignments_1.28.0   </span>
+<span class="co">#&gt; [113] Rsamtools_2.8.0             GenomeInfoDbData_1.2.6     </span>
+<span class="co">#&gt; [115] hms_1.1.0                   rmarkdown_2.9              </span>
+<span class="co">#&gt; [117] Cairo_1.5-12.2              restfulr_0.0.13</span></code></pre></div>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1 class="hasAnchor">
