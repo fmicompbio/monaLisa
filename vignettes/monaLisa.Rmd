@@ -38,9 +38,16 @@ associated to observed experimental data. This analysis is supposed to
 provide potential answers to the question "Which transcription factors are
 the drivers of my observed changes in expression/methylation/accessiblity?".
 
+Several other approaches have been described that also address this problem,
+among them REDUCE [@reduce] and ISMARA [@ismara]. In `monaLisa`, we aim to
+provide a flexible implementation that integrates well with other Bioconductor
+resources, makes use of the sequence composition correction developed for Homer
+[@homer] or stability selection [@StabSel] and provides several alternative ways
+to study the relationship between experimental measurements and sequence motifs.
+
 You can use known motifs from collections of transcription factor binding 
-specificities such as `JASPAR2018`, also available from 
-[Bioconductor](https://bioconductor.org/packages/JASPAR2018/). Genomic
+specificities such as `JASPAR2020`, also available from 
+[Bioconductor](https://bioconductor.org/packages/JASPAR2020/). Genomic
 regions could be for example promoters, enhancers or accessible regions for
 which experimental data is available.
 
@@ -51,14 +58,16 @@ section \@ref(binned)), genomic regions are grouped into bins according to a
 numerical value assigned to each region, such as change of expression,
 accessibility or methylation. Motif enrichments are then calculated for
 each bin, normalizing for differences in sequence composition very similarly
-as it was originally done by [Homer](http://homer.ucsd.edu/homer/index.html).
+as it was originally done by [Homer](http://homer.ucsd.edu/homer/index.html)
+[@homer]. This approach has for example been used in @ginno2018 and @barisic2019.
 
 - In **randomized Lasso stability selection** (`randLassoStabSel()`, see
-section \@ref(stabsel)), `monaLisa` uses a robust regression approach to predict
-what transcription factors can explain experimental measurements,
-for example changes in chromatin accessibility between two conditions. Also
-this approach allows to correct for sequence composition. In addition, similar
-motifs have to "compete" with each other to be selected.
+section \@ref(stabsel)), `monaLisa` uses a robust regression approach (stability
+selection, @StabSel) to predict what transcription factors can explain
+experimental measurements, for example changes in chromatin accessibility
+between two conditions. Also this approach allows to correct for sequence
+composition. In addition, similar motifs have to "compete" with each other to be
+selected.
 
 For both approaches, functions that allow visualization of obtained results
 are provided.
