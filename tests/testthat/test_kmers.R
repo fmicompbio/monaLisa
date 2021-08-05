@@ -183,24 +183,19 @@ test_that(".calcKmerEnrichment works", {
                  "'k' must be of type 'numeric'")
     expect_error(.calcKmerEnrichment(k = k, df = "error"),
                  "'df' should be a DataFrame")
-    expect_error(.calcKmerEnrichment(k = k, df = df, zoops = "error"),
-                 "'zoops' must be of type 'logical'")
-    expect_error(.calcKmerEnrichment(k = k, df = df, zoops = TRUE,
+    expect_error(.calcKmerEnrichment(k = k, df = df,
                                      test = "error"),
                  "should be one of")
-    expect_error(.calcKmerEnrichment(k = k, df = df, zoops = TRUE,
+    expect_error(.calcKmerEnrichment(k = k, df = df,
                                      test = "fisher", verbose = "error"),
                  "'verbose' must be of type 'logical'")
     
-    expect_message(res1 <- .calcKmerEnrichment(k = k, df = df, zoops = TRUE,
+    expect_message(res1 <- .calcKmerEnrichment(k = k, df = df,
                                                test = "binomial", verbose = TRUE))
-    expect_message(res2 <- .calcKmerEnrichment(k = k, df = df, zoops = FALSE,
-                                               test = "binomial", verbose = TRUE))
-    expect_message(res3 <- .calcKmerEnrichment(k = k, df = df, zoops = TRUE,
+    expect_message(res3 <- .calcKmerEnrichment(k = k, df = df,
                                                test = "fisher", verbose = TRUE))
     
     expect_is(res1, "data.frame")
-    expect_is(res2, "data.frame")
     expect_is(res3, "data.frame")
     
     expect_equal(dim(res1), c(4^k, 6))
@@ -208,8 +203,6 @@ test_that(".calcKmerEnrichment works", {
     expect_identical(res1$sumBackgroundWgtWithHits, res3$sumBackgroundWgtWithHits)
     expect_equal(res1$logP, c(-0.163497930965412, 0, -0.843717559537887, 0, 0,
                               0, 0, 0, 0, 0, -0.843717559537887, 0, 0, 0, 0, 0))
-    expect_equal(res2$logP, c(-Inf, 0, -0.843717559537887, 0, 0, 0, 0, 0, 0, 0,
-                              -Inf, 0, 0, 0, 0, 0))
     expect_equal(res3$logP, c(-0.154150679827258, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                               0, 0, 0, 0, 0))
 })
