@@ -95,7 +95,7 @@ test_that("countKmerPairs and countKmerPairsSelected work as expected", {
     expect_error(countKmerPairsSelected(x = seqs, kmers = "error"))
     expect_error(countKmerPairsSelected(x = seqs, kmers = Biostrings::DNAStringSet(c("A","AA"))))
     expect_error(countKmerPairsSelected(x = seqs, kmers = Biostrings::DNAStringSet(c("A","A"))))
-    expect_error(expect_warning(countKmerPairsSelected(x = seqs, kmers = Biostrings::DNAStringSet(rep("AA",1001)), n = 0)))
+    expect_error(expect_warning(countKmerPairsSelected(x = seqs, kmers = Biostrings::DNAStringSet(rep("AA",60001)), n = 0)))
     expect_error(countKmerPairsSelected(x = seqs, kmers = kmers, n = 0))
 
     expect_is(res1b <- countKmerPairsSelected(x = seqs, kmers = kmers, n = 1, zoops = FALSE), "dgCMatrix")
@@ -105,6 +105,7 @@ test_that("countKmerPairs and countKmerPairsSelected work as expected", {
     expect_identical(dimnames(res1b), list(kmerschar, kmerschar))
     expect_identical(res1[kmerschar, kmerschar], res1b)
     expect_identical(res2[kmerschar, kmerschar], res2b)
+    expect_true(sum(res1b) < sum(width(seqs) - 1))
 
     ### alternative input sequences
     seqs2 <- Biostrings::DNAStringSet(c("AAANAANAANAAN"))
