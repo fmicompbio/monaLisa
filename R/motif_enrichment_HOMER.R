@@ -278,6 +278,10 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
 #' @param infiles HOMER output files to be parsed.
 #' @param pseudocount.log2enr A numerical scalar with the pseudocount to add to
 #'   foreground and background counts when calculating log2 motif enrichments
+#' @param pseudofreq.pearsonResid A numerical scalar with the pseudo-frequency
+#'   to add to background frequencies when calculating Pearson residuals.
+#'   The value needs to be in [0,1] and corresponds to the minimal expected
+#'   frequency of background sequences that contain at least one motif hit.
 #' @param p.adjust.method A character scalar selecting the p value adjustment
 #'   method (used in \code{\link[stats]{p.adjust}}).
 #'
@@ -292,9 +296,11 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
 #' @export
 parseHomerOutput <- function(infiles,
                              pseudocount.log2enr = 8,
+                             pseudofreq.pearsonResid = 0.001,
                              p.adjust.method = "BH") {
     stopifnot(all(file.exists(infiles)))
     .assertScalar(x = pseudocount.log2enr, type = "numeric", rngIncl = c(0, Inf))
+    .assertScalar(x = pseudofreq.pearsonResid, type = "numeric", rngIncl = c(0, 1))
     .assertScalar(x = p.adjust.method, type = "character", validValues = stats::p.adjust.methods)
 
     tabL <- lapply(infiles, read.delim)
@@ -307,7 +313,9 @@ parseHomerOutput <- function(infiles,
     #       variance = N_fg * p_bg * (1 - p_bg)
     presid <- do.call(cbind, lapply(tabL, function(tab) {
         nTotFg <- as.numeric(gsub("\\S+\\.(\\d+)\\.", "\\1", colnames(tab)[6])) #total number of target (foreground) sequences
-        fracBgWithMotif <- as.numeric(sub("%$","", tab[, 9])) / 100
+        fracBgWithMotif <-
+          pmin(1, as.numeric(sub("%$","", tab[, 9])) / 100 +
+                 pseudofreq.pearsonResid)
         obsTF <- tab[, 6]
         expTF <- nTotFg * fracBgWithMotif
         enr <- (obsTF - expTF) / sqrt(expTF * (1 - fracBgWithMotif))
@@ -396,6 +404,10 @@ parseHomerOutput <- function(infiles,
 #'     region, an integer value will keep only that many bases in the region center).
 #' @param pseudocount.log2enr A numerical scalar with the pseudocount to add to
 #'   foreground and background counts when calculating log2 motif enrichments
+#' @param pseudofreq.pearsonResid A numerical scalar with the pseudo-frequency
+#'   to add to background frequencies when calculating Pearson residuals.
+#'   The value needs to be in [0,1] and corresponds to the minimal expected
+#'   frequency of background sequences that contain at least one motif hit.
 #' @param p.adjust.method A character scalar selecting the p value adjustment
 #'   method (used in \code{\link[stats]{p.adjust}}).
 #' @param Ncpu Number of parallel threads that HOMER can use.
@@ -428,6 +440,7 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
                                     homerfile = findHomer(),
                                     regionsize = "given",
                                     pseudocount.log2enr = 8,
+                                    pseudofreq.pearsonResid = 0.001,
                                     p.adjust.method = "BH",
                                     Ncpu = 2L,
                                     verbose = FALSE,

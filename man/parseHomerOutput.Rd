@@ -4,13 +4,23 @@
 \alias{parseHomerOutput}
 \title{load output from HOMER findMotifsGenome.pl into R}
 \usage{
-parseHomerOutput(infiles, pseudocount.log2enr = 8, p.adjust.method = "BH")
+parseHomerOutput(
+  infiles,
+  pseudocount.log2enr = 8,
+  pseudofreq.pearsonResid = 0.001,
+  p.adjust.method = "BH"
+)
 }
 \arguments{
 \item{infiles}{HOMER output files to be parsed.}
 
 \item{pseudocount.log2enr}{A numerical scalar with the pseudocount to add to
 foreground and background counts when calculating log2 motif enrichments}
+
+\item{pseudofreq.pearsonResid}{A numerical scalar with the pseudo-frequency
+to add to background frequencies when calculating Pearson residuals.
+The value needs to be in [0,1] and corresponds to the minimal expected
+frequency of background sequences that contain at least one motif hit.}
 
 \item{p.adjust.method}{A character scalar selecting the p value adjustment
 method (used in \code{\link[stats]{p.adjust}}).}
