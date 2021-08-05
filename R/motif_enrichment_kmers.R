@@ -560,9 +560,10 @@ clusterKmers <- function(x,
 #'   observed and expected counts for each k-mer to avoid zero values.
 #' @param pseudocount.log2enr A numerical scalar with the pseudocount to add to
 #'   foreground and background counts when calculating log2 motif enrichments
-#' @param pseudocount.pearsonResid A numerical scalar with the pseudocount to add
-#'   to foreground and background frequencies when calculating expected counts
-#'   and Pearson residuals.
+#' @param pseudofreq.pearsonResid A numerical scalar with the pseudo-frequency
+#'   to add to background frequencies when calculating Pearson residuals.
+#'   The value needs to be in [0,1] and corresponds to the minimal expected
+#'   frequency of background sequences that contain at least one motif hit.
 #' @param zoops A \code{logical} scalar. If \code{TRUE} (the default), only one
 #'   or zero occurrences of a k-mer are considered per sequence. This is helpful
 #'   to reduce the impact of simple sequence repeats occurring in few sequences.
@@ -679,7 +680,7 @@ calcBinnedKmerEnr <- function(seqs,
                                            0.45, 0.5, 0.6, 0.7, 0.8),
                               pseudocount.kmers = 1,
                               pseudocount.log2enr = 8,
-                              pseudocount.pearsonResid = 0.001,
+                              pseudofreq.pearsonResid = 0.001,
                               zoops = TRUE,
                               p.adjust.method = "BH",
                               genome = NULL,
@@ -703,7 +704,7 @@ calcBinnedKmerEnr <- function(seqs,
     .assertScalar(x = includeRevComp, type = "logical")
     .assertScalar(x = pseudocount.kmers, type = "numeric", rngIncl = c(0, Inf))
     .assertScalar(x = pseudocount.log2enr, type = "numeric", rngIncl = c(0, Inf))
-    .assertScalar(x = pseudocount.pearsonResid, type = "numeric", rngIncl = c(0, Inf))
+    .assertScalar(x = pseudofreq.pearsonResid, type = "numeric", rngIncl = c(0, 1))
     .assertScalar(x = zoops, type = "logical")
     .assertScalar(x = p.adjust.method, type = "character", validValues = stats::p.adjust.methods)
     if (identical(background, "zeroBin") &&
@@ -892,17 +893,21 @@ calcBinnedKmerEnr <- function(seqs,
     padj[which(padj == Inf, arr.ind = TRUE)] <- max(padj[is.finite(padj)])
     
     # ... Pearson residuals
+    #     assuming expTF to be a Binomial random variable, with
+    #       mean     = N_fg * p_bg
+    #       variance = N_fg * p_bg * (1 - p_bg)
     enrTF <- do.call(cbind, lapply(enrichL, function(enrich1) {
-        fracForeground <- enrich1[, "sumForegroundWgtWithHits"] / enrich1[, "totalWgtForeground"]
-        fracBackground <- enrich1[, "sumBackgroundWgtWithHits"] / enrich1[, "totalWgtBackground"]
+        fracBackground <-
+            pmin(1, enrich1[, "sumBackgroundWgtWithHits"] /
+                     enrich1[, "totalWgtBackground"] + pseudocount.pearsonResid)
         obsTF <- enrich1[, "sumForegroundWgtWithHits"]
-        expTF <- obsTF / (fracForeground + pseudocount.pearsonResid) * (fracBackground + pseudocount.pearsonResid)
-        enr <- (obsTF - expTF) / sqrt(expTF)
-        enr[ is.na(enr) ] <- 0
+        expTF <- enrich1[, "totalWgtForeground"] * fracBackground
+        enr <- (obsTF - expTF) / sqrt(expTF * (1 - fracBackground))
+        enr[ is.na(enr) ] <- 0 # needed for fracBackground == 1
         names(enr) <- enrich1[, "motifName"]
         enr
     }))
-    
+
     # log2 enrichments
     log2enr <- do.call(cbind, lapply(enrichL, function(enrich1) {
         D <- enrich1[, c("sumForegroundWgtWithHits", "sumBackgroundWgtWithHits")]
@@ -954,7 +959,7 @@ calcBinnedKmerEnr <- function(seqs,
                               maxKmerSize = maxKmerSize,
                               pseudocount.kmers = pseudocount.kmers,
                               pseudocount.log2enr = pseudocount.log2enr,
-                              pseudocount.pearsonResid = pseudocount.pearsonResid,
+                              pseudofreq.pearsonResid = pseudofreq.pearsonResid,
                               zoops = zoops,
                               p.adj.method = p.adjust.method,
                               genome.class = class(genome),
