@@ -1037,7 +1037,7 @@ calcBinnedMotifEnrR <- function(seqs,
     enrTF <- do.call(cbind, lapply(enrichL, function(enrich1) {
         fracBackground <-
             pmin(1, enrich1[, "sumBackgroundWgtWithHits"] /
-                 enrich1[, "totalWgtBackground"] + pseudocount.pearsonResid)
+                 enrich1[, "totalWgtBackground"] + pseudofreq.pearsonResid)
         obsTF <- enrich1[, "sumForegroundWgtWithHits"]
         expTF <- enrich1[, "totalWgtForeground"] * fracBackground
         enr <- (obsTF - expTF) / sqrt(expTF * (1 - fracBackground))

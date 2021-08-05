@@ -362,7 +362,7 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm, maxFracN = "error"), "numeric")
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm, min.score = 6, maxKmerSize = "error"), "integer")
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm, pseudocount.log2enr = "error"))
-    expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm, pseudocount.pearsonResid = "error"))
+    expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm, pseudofreq.pearsonResid = "error"))
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm, p.adjust.method = "error"))
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm, BPPARAM = "error"), "BiocParallelParam")
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm, verbose = "error"), "logical")

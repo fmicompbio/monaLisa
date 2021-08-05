@@ -92,7 +92,6 @@ test_that("parseHomerOutput() works properly", {
 
     expect_error(parseHomerOutput("does-not-exist"))
     expect_error(parseHomerOutput(outfile, pseudocount.log2enr = "error"))
-    expect_error(parseHomerOutput(outfile, pseudocount.pearsonResid = -1))
     expect_error(parseHomerOutput(outfile, p.adjust.method = "error"))
     
     res <- parseHomerOutput(structure(c(outfile, outfile), names = c("bin1", "bin2")))

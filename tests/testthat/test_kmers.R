@@ -257,7 +257,7 @@ test_that("calcBinnedKmerEnr works as expected", {
     expect_error(calcBinnedKmerEnr(seqs, b, k, GCbreaks = "error"))
     expect_error(calcBinnedKmerEnr(seqs, b, k, pseudocount.kmers = -1))
     expect_error(calcBinnedKmerEnr(seqs, b, k, pseudocount.log2enr = "error"))
-    expect_error(calcBinnedKmerEnr(seqs, b, k, pseudocount.pearsonResid = "error"))
+    expect_error(calcBinnedKmerEnr(seqs, b, k, pseudofreq.pearsonResid = "error"))
     expect_error(calcBinnedKmerEnr(seqs, b, k, zoops = "error"))
     expect_error(calcBinnedKmerEnr(seqs, b, k, p.adjust.method = "error"))
     expect_error(calcBinnedKmerEnr(seqs, b, k, background = "genome",
