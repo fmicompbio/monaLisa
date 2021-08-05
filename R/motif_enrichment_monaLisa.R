@@ -1035,17 +1035,17 @@ calcBinnedMotifEnrR <- function(seqs,
     #       mean     = N_fg * p_bg
     #       variance = N_fg * p_bg * (1 - p_bg)
     enrTF <- do.call(cbind, lapply(enrichL, function(enrich1) {
-      fracBackground <-
-        pmin(1, enrich1[, "sumBackgroundWgtWithHits"] /
-               enrich1[, "totalWgtBackground"] + pseudocount.pearsonResid)
-      obsTF <- enrich1[, "sumForegroundWgtWithHits"]
-      expTF <- enrich1[, "totalWgtForeground"] * fracBackground
-      enr <- (obsTF - expTF) / sqrt(expTF * (1 - fracBackground))
-      enr[ is.na(enr) ] <- 0 # needed for fracBackground == 1
-      names(enr) <- enrich1[, "motifName"]
-      enr
+        fracBackground <-
+            pmin(1, enrich1[, "sumBackgroundWgtWithHits"] /
+                 enrich1[, "totalWgtBackground"] + pseudocount.pearsonResid)
+        obsTF <- enrich1[, "sumForegroundWgtWithHits"]
+        expTF <- enrich1[, "totalWgtForeground"] * fracBackground
+        enr <- (obsTF - expTF) / sqrt(expTF * (1 - fracBackground))
+        enr[ is.na(enr) ] <- 0 # needed for fracBackground == 1
+        names(enr) <- enrich1[, "motifName"]
+        enr
     }))
-    
+
     # log2 enrichments
     log2enr <- do.call(cbind, lapply(enrichL, function(enrich1) {
         D <- enrich1[, c("sumForegroundWgtWithHits", "sumBackgroundWgtWithHits")]

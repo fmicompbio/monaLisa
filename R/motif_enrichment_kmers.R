@@ -907,6 +907,11 @@ calcBinnedKmerEnr <- function(seqs,
         names(enr) <- enrich1[, "motifName"]
         enr
     }))
+    if (identical(zoops, FALSE)) {
+        warning("Pearson residuals (assay 'pearsonResid') are calculated ",
+                "assumimg counts from a binomial distribion and may thus be ",
+                "incorrect for zoops=FALSE")
+    }
 
     # log2 enrichments
     log2enr <- do.call(cbind, lapply(enrichL, function(enrich1) {
