@@ -428,7 +428,7 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
                                dim = c(length(pwm), nlevels(b)),
                                dimnames = list(names(pwm), levels(b))))
     expect_identical(round(assay(res1, "pearsonResid"), 3),
-                     structure(c(9.271, -3.449, -3.521, 12.433, -3.853, -4.192),
+                     structure(c(10.933, -4.413, -4.374, 13.933, -5.387, -6.211),
                                dim = c(length(pwm), nlevels(b)),
                                dimnames = list(names(pwm), levels(b))))
     expect_identical(round(assay(res1, "log2enr"), 3),
@@ -444,7 +444,7 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
                                dim = c(length(pwm), nlevels(b)),
                                dimnames = list(names(pwm), levels(b))))
     expect_identical(round(assay(res2, "pearsonResid"), 3),
-                     structure(c(9.271, -3.449, -3.521, 12.433, -3.853, -4.192),
+                     structure(c(10.933, -4.413, -4.374, 13.933, -5.387, -6.211),
                                dim = c(length(pwm), nlevels(b)),
                                dimnames = list(names(pwm), levels(b))))
     expect_identical(round(assay(res2, "log2enr"), 3),

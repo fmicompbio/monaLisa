@@ -92,6 +92,7 @@ test_that("parseHomerOutput() works properly", {
 
     expect_error(parseHomerOutput("does-not-exist"))
     expect_error(parseHomerOutput(outfile, pseudocount.log2enr = "error"))
+    expect_error(parseHomerOutput(outfile, pseudofreq.pearsonResid = "error"))
     expect_error(parseHomerOutput(outfile, p.adjust.method = "error"))
     
     res <- parseHomerOutput(structure(c(outfile, outfile), names = c("bin1", "bin2")))
@@ -107,7 +108,8 @@ test_that("parseHomerOutput() works properly", {
     expect_true(all(sapply(res[1:6], dim) == c(579L, 2L)))
     expect_length(res[[7]], 2L)
     expect_length(res[[8]], 2L)
-    expect_equal(sum(res$pearsonResid), 5344.75730637349)
+    expect_equal(sum(res$pearsonResid), 5551.72765321722)
+    expect_equal(sum(res$log2enr), 447.056685196643)
     expect_identical(res[[8]], c(bin1 = 43339, bin2 = 43339))
 })
 
@@ -202,7 +204,7 @@ test_that("calcBinnedMotifEnrHomer() works properly (synthetic data)", {
         expect_identical(apply(SummarizedExperiment::assay(res, "negLog10P"), 2, which.max),
                          c(chr1 = 1L, chr2 = 2L, chr3 = 3L))
         expect_equal(sum(SummarizedExperiment::assay(res, "negLog10P")), 65.132971396505)
-        expect_equal(sum(SummarizedExperiment::assay(res, "pearsonResid")), 68.0751984482359)
+        expect_equal(sum(SummarizedExperiment::assay(res, "pearsonResid")), 55.5841704935281)
         
         unlink(c(mfile, outdir, genomedir), recursive = TRUE, force = TRUE)
     }

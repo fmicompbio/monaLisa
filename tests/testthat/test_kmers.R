@@ -356,7 +356,7 @@ test_that("convertKmersToMotifs works as expected", {
     expect_is(a1, "SummarizedExperiment")
     expect_is(a2, "SummarizedExperiment")
     expect_identical(a1, a2)
-    expect_equal(rowSums(assay(a1, "pearsonResid")), c(`m1:::m1` = 42.1838496219965, `m2:::m2` = 0.540912980345304))
+    expect_equal(rowSums(assay(a1, "pearsonResid")), c(`m1:::m1` = 52.7476459257492, `m2:::m2` = -0.101202243464047))
 })
 
 test_that("extractOverlappingKmerFrequencies works as expected", {
