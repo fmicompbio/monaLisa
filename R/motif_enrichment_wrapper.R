@@ -21,7 +21,7 @@
 #' @param pseudofreq.pearsonResid A numerical scalar with the pseudo-frequency
 #'   to add to background frequencies when calculating Pearson residuals.
 #'   The value needs to be in [0,1] and corresponds to the minimal expected
-#'   frequency of background sequences that contain at least one motif hit.
+#'   fraction of background sequences that contain at least one motif hit.
 #' @param p.adjust.method A character scalar selecting the p value adjustment
 #'   method (used in \code{\link[stats]{p.adjust}}).
 #' @param BPPARAM Specifies the number of CPU cores to use for parallel
