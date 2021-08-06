@@ -311,6 +311,11 @@ parseHomerOutput <- function(infiles,
     #     assuming expTF to be a Binomial random variable, with
     #       mean     = N_fg * p_bg
     #       variance = N_fg * p_bg * (1 - p_bg)
+    #     idea: each sequence is one trial with outcomes "hit" or "no hit"
+    #     (zoops), with a constant "hit" rate within a sequence set
+    #     (p_bg in the background); expTF thus follows a binomial distribution
+    #     with the number of trials corresponding to the (weighted) number of
+    #     sequences (e.g. N_fg)
     presid <- do.call(cbind, lapply(tabL, function(tab) {
         nTotFg <- as.numeric(gsub("\\S+\\.(\\d+)\\.", "\\1", colnames(tab)[6])) #total number of target (foreground) sequences
         fracBgWithMotif <-

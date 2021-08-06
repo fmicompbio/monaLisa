@@ -886,6 +886,11 @@ calcBinnedKmerEnr <- function(seqs,
     #     assuming expTF to be a Binomial random variable, with
     #       mean     = N_fg * p_bg
     #       variance = N_fg * p_bg * (1 - p_bg)
+    #     idea: each sequence is one trial with outcomes "hit" or "no hit"
+    #     (zoops), with a constant "hit" rate within a sequence set
+    #     (p_bg in the background); expTF thus follows a binomial distribution
+    #     with the number of trials corresponding to the (weighted) number of
+    #     sequences (e.g. N_fg)
     enrTF <- do.call(cbind, lapply(enrichL, function(enrich1) {
         fracBackground <-
             pmin(1, enrich1[, "sumBackgroundWgtWithHits"] /
