@@ -95,7 +95,7 @@ test_that("countKmerPairs and countKmerPairsSelected work as expected", {
     expect_error(countKmerPairsSelected(x = seqs, kmers = "error"))
     expect_error(countKmerPairsSelected(x = seqs, kmers = Biostrings::DNAStringSet(c("A","AA"))))
     expect_error(countKmerPairsSelected(x = seqs, kmers = Biostrings::DNAStringSet(c("A","A"))))
-    expect_error(expect_warning(countKmerPairsSelected(x = seqs, kmers = Biostrings::DNAStringSet(rep("AA",1001)), n = 0)))
+    expect_error(expect_warning(countKmerPairsSelected(x = seqs, kmers = Biostrings::DNAStringSet(rep("AA",60001)), n = 0)))
     expect_error(countKmerPairsSelected(x = seqs, kmers = kmers, n = 0))
 
     expect_is(res1b <- countKmerPairsSelected(x = seqs, kmers = kmers, n = 1, zoops = FALSE), "dgCMatrix")
@@ -105,6 +105,7 @@ test_that("countKmerPairs and countKmerPairsSelected work as expected", {
     expect_identical(dimnames(res1b), list(kmerschar, kmerschar))
     expect_identical(res1[kmerschar, kmerschar], res1b)
     expect_identical(res2[kmerschar, kmerschar], res2b)
+    expect_true(sum(res1b) < sum(width(seqs) - 1))
 
     ### alternative input sequences
     seqs2 <- Biostrings::DNAStringSet(c("AAANAANAANAAN"))
@@ -182,24 +183,19 @@ test_that(".calcKmerEnrichment works", {
                  "'k' must be of type 'numeric'")
     expect_error(.calcKmerEnrichment(k = k, df = "error"),
                  "'df' should be a DataFrame")
-    expect_error(.calcKmerEnrichment(k = k, df = df, zoops = "error"),
-                 "'zoops' must be of type 'logical'")
-    expect_error(.calcKmerEnrichment(k = k, df = df, zoops = TRUE,
+    expect_error(.calcKmerEnrichment(k = k, df = df,
                                      test = "error"),
                  "should be one of")
-    expect_error(.calcKmerEnrichment(k = k, df = df, zoops = TRUE,
+    expect_error(.calcKmerEnrichment(k = k, df = df,
                                      test = "fisher", verbose = "error"),
                  "'verbose' must be of type 'logical'")
     
-    expect_message(res1 <- .calcKmerEnrichment(k = k, df = df, zoops = TRUE,
+    expect_message(res1 <- .calcKmerEnrichment(k = k, df = df,
                                                test = "binomial", verbose = TRUE))
-    expect_message(res2 <- .calcKmerEnrichment(k = k, df = df, zoops = FALSE,
-                                               test = "binomial", verbose = TRUE))
-    expect_message(res3 <- .calcKmerEnrichment(k = k, df = df, zoops = TRUE,
+    expect_message(res3 <- .calcKmerEnrichment(k = k, df = df,
                                                test = "fisher", verbose = TRUE))
     
     expect_is(res1, "data.frame")
-    expect_is(res2, "data.frame")
     expect_is(res3, "data.frame")
     
     expect_equal(dim(res1), c(4^k, 6))
@@ -207,8 +203,6 @@ test_that(".calcKmerEnrichment works", {
     expect_identical(res1$sumBackgroundWgtWithHits, res3$sumBackgroundWgtWithHits)
     expect_equal(res1$logP, c(-0.163497930965412, 0, -0.843717559537887, 0, 0,
                               0, 0, 0, 0, 0, -0.843717559537887, 0, 0, 0, 0, 0))
-    expect_equal(res2$logP, c(-Inf, 0, -0.843717559537887, 0, 0, 0, 0, 0, 0, 0,
-                              -Inf, 0, 0, 0, 0, 0))
     expect_equal(res3$logP, c(-0.154150679827258, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                               0, 0, 0, 0, 0))
 })
@@ -257,7 +251,7 @@ test_that("calcBinnedKmerEnr works as expected", {
     expect_error(calcBinnedKmerEnr(seqs, b, k, GCbreaks = "error"))
     expect_error(calcBinnedKmerEnr(seqs, b, k, pseudocount.kmers = -1))
     expect_error(calcBinnedKmerEnr(seqs, b, k, pseudocount.log2enr = "error"))
-    expect_error(calcBinnedKmerEnr(seqs, b, k, pseudocount.pearsonResid = "error"))
+    expect_error(calcBinnedKmerEnr(seqs, b, k, pseudofreq.pearsonResid = "error"))
     expect_error(calcBinnedKmerEnr(seqs, b, k, zoops = "error"))
     expect_error(calcBinnedKmerEnr(seqs, b, k, p.adjust.method = "error"))
     expect_error(calcBinnedKmerEnr(seqs, b, k, background = "genome",
@@ -356,7 +350,7 @@ test_that("convertKmersToMotifs works as expected", {
     expect_is(a1, "SummarizedExperiment")
     expect_is(a2, "SummarizedExperiment")
     expect_identical(a1, a2)
-    expect_equal(rowSums(assay(a1, "pearsonResid")), c(`m1:::m1` = 42.1838496219965, `m2:::m2` = 0.540912980345304))
+    expect_equal(rowSums(assay(a1, "pearsonResid")), c(`m1:::m1` = 52.7476459257492, `m2:::m2` = -0.101202243464047))
 })
 
 test_that("extractOverlappingKmerFrequencies works as expected", {

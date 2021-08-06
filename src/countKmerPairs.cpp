@@ -295,6 +295,13 @@ Rcpp::RObject countKmerPairsSelected(SEXP x,
     for (i = 0; i <= k; i++)
         pow4[i] = pow(4, i);
     
+    if (k <= 1)
+        ::Rf_error("'k' must be greater than 1");
+    if (nk > 60000)
+        ::Rf_warning("'kmers' (%d) is large - this might take long an use a lot of memory", nk);
+    if (n < 1)
+        ::Rf_error("'n' must be greater than 0");
+
     char* seqbuffer = new char[k+1];
     seqbuffer[k] = '\0';
     Rcpp::CharacterVector kmersvect;
@@ -311,12 +318,6 @@ Rcpp::RObject countKmerPairsSelected(SEXP x,
         idx1 = kmer_index_at(seq.ptr, k, pow4);
         kmeridx2row[idx1] = i;
     }
-    if (k <= 1)
-        ::Rf_error("'k' must be greater than 1");
-    if (nk > 60000)
-        ::Rf_warning("'kmers' (%d) is large - this might take long an use a lot of memory", nk);
-    if (n < 1)
-        ::Rf_error("'n' must be greater than 0");
     
     // prepare
     // storage: column/row/value triplets used later to create a sparse matrix

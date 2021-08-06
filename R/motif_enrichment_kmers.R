@@ -400,11 +400,12 @@ clusterKmers <- function(x,
 #' @param k Numeric scalar giving the length of k-mers to analyze.
 #' @param df a \code{DataFrame} with sequence information as returned by
 #'   \code{.iterativeNormForKmers()}.
-#' @param zoops A \code{logical} scalar. If \code{TRUE} (the default), only one
-#'   or zero occurrences of a k-mer are considered per sequence. This is helpful
-#'   to reduce the impact of simple sequence repeats occurring in few sequences.
 #' @param test type of motif enrichment test to perform.
 #' @param verbose A logical scalar. If \code{TRUE}, report on progress.
+#' 
+#' @details The function works in ZOOPS mode, which means only one
+#'   or zero occurrences of a k-mer are considered per sequence. This is helpful
+#'   to reduce the impact of simple sequence repeats occurring in few sequences.
 #'
 #' @return a \code{data.frame} containing the motifs as rows and the columns:
 #'   \itemize{
@@ -428,14 +429,12 @@ clusterKmers <- function(x,
 #' @keywords internal
 .calcKmerEnrichment <- function(k,
                                 df,
-                                zoops = TRUE,
                                 test = c("fisher", "binomial"),
                                 verbose = FALSE){
     
     # checks
     .assertScalar(x = k, type = "numeric", rngIncl = c(1, Inf))
     .checkDfValidity(df)
-    .assertScalar(x = zoops, type = "logical")
     test <- match.arg(test)
     .assertScalar(x = verbose, type = "logical")
     
@@ -447,10 +446,7 @@ clusterKmers <- function(x,
                                                as.prob = FALSE,
                                                with.labels = TRUE)
     
-    if (zoops) {
-        kmerHitMatrix[kmerHitMatrix > 0] <- 1
-    }
-
+    kmerHitMatrix[kmerHitMatrix > 0] <- 1 # ZOOPS
     kmerHitMatrixWeighted <- kmerHitMatrix * df$seqWgt
     KmatchedSeqCountForeground <- colSums(kmerHitMatrixWeighted[df$isForeground, ])
     KmatchedSeqCountBackground <- colSums(kmerHitMatrixWeighted[!df$isForeground, ])
@@ -560,12 +556,10 @@ clusterKmers <- function(x,
 #'   observed and expected counts for each k-mer to avoid zero values.
 #' @param pseudocount.log2enr A numerical scalar with the pseudocount to add to
 #'   foreground and background counts when calculating log2 motif enrichments
-#' @param pseudocount.pearsonResid A numerical scalar with the pseudocount to add
-#'   to foreground and background frequencies when calculating expected counts
-#'   and Pearson residuals.
-#' @param zoops A \code{logical} scalar. If \code{TRUE} (the default), only one
-#'   or zero occurrences of a k-mer are considered per sequence. This is helpful
-#'   to reduce the impact of simple sequence repeats occurring in few sequences.
+#' @param pseudofreq.pearsonResid A numerical scalar with the pseudo-frequency
+#'   to add to background frequencies when calculating Pearson residuals.
+#'   The value needs to be in [0,1] and corresponds to the minimal expected
+#'   fraction of background sequences that contain at least one motif hit.
 #' @param p.adjust.method A character scalar selecting the p value adjustment
 #'   method (used in \code{\link[stats]{p.adjust}}).
 #' @param genome A \code{BSgenome} or \code{DNAStringSet} object with the
@@ -620,8 +614,8 @@ clusterKmers <- function(x,
 #'   For each k-mer, the weights of sequences is multiplied with the number
 #'   of k-mer occurrences in each sequence and summed, separately for foreground
 #'   (\code{sumForegroundWgtWithHits}) and background
-#'   (\code{sumBackgroundWgtWithHits}) sequences. For \code{zoops = TRUE}
-#'   (Zero-Or-One-Per-Sequence mode, default), at most one occurrence per
+#'   (\code{sumBackgroundWgtWithHits}) sequences. The function works in ZOOPS
+#'   (Zero-Or-One-Per-Sequence) mode, so at most one occurrence per
 #'   sequence is counted, which helps reduce the impact of sequence repeats.
 #'   The total foreground (\code{totalWgtForeground}) and background
 #'   (\code{totalWgtBackground}) sum of sequence weights is also calculated. If
@@ -679,8 +673,7 @@ calcBinnedKmerEnr <- function(seqs,
                                            0.45, 0.5, 0.6, 0.7, 0.8),
                               pseudocount.kmers = 1,
                               pseudocount.log2enr = 8,
-                              pseudocount.pearsonResid = 0.001,
-                              zoops = TRUE,
+                              pseudofreq.pearsonResid = 0.001,
                               p.adjust.method = "BH",
                               genome = NULL,
                               genome.regions = NULL,
@@ -703,8 +696,7 @@ calcBinnedKmerEnr <- function(seqs,
     .assertScalar(x = includeRevComp, type = "logical")
     .assertScalar(x = pseudocount.kmers, type = "numeric", rngIncl = c(0, Inf))
     .assertScalar(x = pseudocount.log2enr, type = "numeric", rngIncl = c(0, Inf))
-    .assertScalar(x = pseudocount.pearsonResid, type = "numeric", rngIncl = c(0, Inf))
-    .assertScalar(x = zoops, type = "logical")
+    .assertScalar(x = pseudofreq.pearsonResid, type = "numeric", rngIncl = c(0, 1))
     .assertScalar(x = p.adjust.method, type = "character", validValues = stats::p.adjust.methods)
     if (identical(background, "zeroBin") &&
         (!"bin0" %in% names(attributes(bins)) || is.na(attr(bins, "bin0")))) {
@@ -783,7 +775,7 @@ calcBinnedKmerEnr <- function(seqs,
                                 kmerLen = kmerLen,
                                 MMorder = MMorder,
                                 pseudocount = pseudocount.kmers,
-                                zoops = zoops,
+                                zoops = TRUE,
                                 includeRevComp = FALSE)
 
             if (identical(test, "binomial")) {
@@ -870,7 +862,6 @@ calcBinnedKmerEnr <- function(seqs,
             }
             enrich1 <- .calcKmerEnrichment(k = kmerLen,
                                            df = df,
-                                           zoops = zoops,
                                            test = test,
                                            verbose = verbose1)
             return(enrich1)
@@ -892,17 +883,26 @@ calcBinnedKmerEnr <- function(seqs,
     padj[which(padj == Inf, arr.ind = TRUE)] <- max(padj[is.finite(padj)])
     
     # ... Pearson residuals
+    #     assuming expTF to be a Binomial random variable, with
+    #       mean     = N_fg * p_bg
+    #       variance = N_fg * p_bg * (1 - p_bg)
+    #     idea: each sequence is one trial with outcomes "hit" or "no hit"
+    #     (zoops), with a constant "hit" rate within a sequence set
+    #     (p_bg in the background); expTF thus follows a binomial distribution
+    #     with the number of trials corresponding to the (weighted) number of
+    #     sequences (e.g. N_fg)
     enrTF <- do.call(cbind, lapply(enrichL, function(enrich1) {
-        fracForeground <- enrich1[, "sumForegroundWgtWithHits"] / enrich1[, "totalWgtForeground"]
-        fracBackground <- enrich1[, "sumBackgroundWgtWithHits"] / enrich1[, "totalWgtBackground"]
+        fracBackground <-
+            pmin(1, enrich1[, "sumBackgroundWgtWithHits"] /
+                     enrich1[, "totalWgtBackground"] + pseudofreq.pearsonResid)
         obsTF <- enrich1[, "sumForegroundWgtWithHits"]
-        expTF <- obsTF / (fracForeground + pseudocount.pearsonResid) * (fracBackground + pseudocount.pearsonResid)
-        enr <- (obsTF - expTF) / sqrt(expTF)
-        enr[ is.na(enr) ] <- 0
+        expTF <- enrich1[, "totalWgtForeground"] * fracBackground
+        enr <- (obsTF - expTF) / sqrt(expTF * (1 - fracBackground))
+        enr[ is.na(enr) ] <- 0 # needed for fracBackground == 1
         names(enr) <- enrich1[, "motifName"]
         enr
     }))
-    
+
     # log2 enrichments
     log2enr <- do.call(cbind, lapply(enrichL, function(enrich1) {
         D <- enrich1[, c("sumForegroundWgtWithHits", "sumBackgroundWgtWithHits")]
@@ -954,8 +954,8 @@ calcBinnedKmerEnr <- function(seqs,
                               maxKmerSize = maxKmerSize,
                               pseudocount.kmers = pseudocount.kmers,
                               pseudocount.log2enr = pseudocount.log2enr,
-                              pseudocount.pearsonResid = pseudocount.pearsonResid,
-                              zoops = zoops,
+                              pseudofreq.pearsonResid = pseudofreq.pearsonResid,
+                              zoops = TRUE,
                               p.adj.method = p.adjust.method,
                               genome.class = class(genome),
                               genome.regions = genome.regions,

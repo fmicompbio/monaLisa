@@ -4,23 +4,13 @@
 \alias{.calcKmerEnrichment}
 \title{Calculate k-mer enrichment}
 \usage{
-.calcKmerEnrichment(
-  k,
-  df,
-  zoops = TRUE,
-  test = c("fisher", "binomial"),
-  verbose = FALSE
-)
+.calcKmerEnrichment(k, df, test = c("fisher", "binomial"), verbose = FALSE)
 }
 \arguments{
 \item{k}{Numeric scalar giving the length of k-mers to analyze.}
 
 \item{df}{a \code{DataFrame} with sequence information as returned by
 \code{.iterativeNormForKmers()}.}
-
-\item{zoops}{A \code{logical} scalar. If \code{TRUE} (the default), only one
-or zero occurrences of a k-mer are considered per sequence. This is helpful
-to reduce the impact of simple sequence repeats occurring in few sequences.}
 
 \item{test}{type of motif enrichment test to perform.}
 
@@ -58,5 +48,10 @@ Given sequences, foreground/background labels and
   For \code{test = "fisher"}, \code{fisher.test} is used with
   \code{alternative = "greater"}, making it a one-sided test for enrichment,
   as is the case with the binomial test.
+}
+\details{
+The function works in ZOOPS mode, which means only one
+  or zero occurrences of a k-mer are considered per sequence. This is helpful
+  to reduce the impact of simple sequence repeats occurring in few sequences.
 }
 \keyword{internal}

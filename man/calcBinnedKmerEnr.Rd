@@ -17,8 +17,7 @@ calcBinnedKmerEnr(
   GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.7, 0.8),
   pseudocount.kmers = 1,
   pseudocount.log2enr = 8,
-  pseudocount.pearsonResid = 0.001,
-  zoops = TRUE,
+  pseudofreq.pearsonResid = 0.001,
   p.adjust.method = "BH",
   genome = NULL,
   genome.regions = NULL,
@@ -78,13 +77,10 @@ observed and expected counts for each k-mer to avoid zero values.}
 \item{pseudocount.log2enr}{A numerical scalar with the pseudocount to add to
 foreground and background counts when calculating log2 motif enrichments}
 
-\item{pseudocount.pearsonResid}{A numerical scalar with the pseudocount to add
-to foreground and background frequencies when calculating expected counts
-and Pearson residuals.}
-
-\item{zoops}{A \code{logical} scalar. If \code{TRUE} (the default), only one
-or zero occurrences of a k-mer are considered per sequence. This is helpful
-to reduce the impact of simple sequence repeats occurring in few sequences.}
+\item{pseudofreq.pearsonResid}{A numerical scalar with the pseudo-frequency
+to add to background frequencies when calculating Pearson residuals.
+The value needs to be in [0,1] and corresponds to the minimal expected
+frequency of background sequences that contain at least one motif hit.}
 
 \item{p.adjust.method}{A character scalar selecting the p value adjustment
 method (used in \code{\link[stats]{p.adjust}}).}
@@ -165,8 +161,8 @@ This function implements a binned k-mer enrichment analysis. In each
   For each k-mer, the weights of sequences is multiplied with the number
   of k-mer occurrences in each sequence and summed, separately for foreground
   (\code{sumForegroundWgtWithHits}) and background
-  (\code{sumBackgroundWgtWithHits}) sequences. For \code{zoops = TRUE}
-  (Zero-Or-One-Per-Sequence mode, default), at most one occurrence per
+  (\code{sumBackgroundWgtWithHits}) sequences. The function works in ZOOPS
+  (Zero-Or-One-Per-Sequence) mode, so at most one occurrence per
   sequence is counted, which helps reduce the impact of sequence repeats.
   The total foreground (\code{totalWgtForeground}) and background
   (\code{totalWgtBackground}) sum of sequence weights is also calculated. If

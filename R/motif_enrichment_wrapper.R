@@ -18,9 +18,10 @@
 #'   enrichment calculations. One of \code{"R"} (default) or \code{"Homer"}.
 #' @param pseudocount.log2enr A numerical scalar with the pseudocount to add to
 #'   foreground and background counts when calculating log2 motif enrichments
-#' @param pseudocount.pearsonResid A numerical scalar with the pseudocount to add
-#'   to foreground and background frequencies when calculating expected counts
-#'   and Pearson residuals.
+#' @param pseudofreq.pearsonResid A numerical scalar with the pseudo-frequency
+#'   to add to background frequencies when calculating Pearson residuals.
+#'   The value needs to be in [0,1] and corresponds to the minimal expected
+#'   fraction of background sequences that contain at least one motif hit.
 #' @param p.adjust.method A character scalar selecting the p value adjustment
 #'   method (used in \code{\link[stats]{p.adjust}}).
 #' @param BPPARAM Specifies the number of CPU cores to use for parallel
@@ -63,7 +64,7 @@ calcBinnedMotifEnr <- function(seqs,
                                motifs,
                                method =  c("R", "Homer"),
                                pseudocount.log2enr = 8,
-                               pseudocount.pearsonResid = 0.001,
+                               pseudofreq.pearsonResid = 0.001,
                                p.adjust.method = "BH",
                                BPPARAM = SerialParam(),
                                verbose = FALSE,
@@ -78,7 +79,7 @@ calcBinnedMotifEnr <- function(seqs,
                                   bins = bins,
                                   pwmL = motifs,
                                   pseudocount.log2enr = pseudocount.log2enr,
-                                  pseudocount.pearsonResid = pseudocount.pearsonResid,
+                                  pseudofreq.pearsonResid = pseudofreq.pearsonResid,
                                   p.adjust.method = p.adjust.method,
                                   BPPARAM = BPPARAM,
                                   verbose = verbose,
@@ -102,7 +103,7 @@ calcBinnedMotifEnr <- function(seqs,
                                       b = bins,
                                       motifFile = motifs,
                                       pseudocount.log2enr = pseudocount.log2enr,
-                                      pseudocount.pearsonResid = pseudocount.pearsonResid,
+                                      pseudofreq.pearsonResid = pseudofreq.pearsonResid,
                                       p.adjust.method = p.adjust.method,
                                       Ncpu = ncpu,
                                       verbose = verbose,
