@@ -137,7 +137,7 @@ plotBinDensity <- function(x, b,
     segments(x0 = pusr[c(1,1)], y0 = pusr[c(4,3)],
              x1 = pusr[c(1,2)], y1 = pusr[c(3,3)])
     rug(binbreaks, col = "black")
-    dx <- diff(ret$x[1:2]) / 2
+    dx <- diff(ret$x[seq_len(2)]) / 2
     rect(xleft = ret$x - dx, ybottom = 0, xright = ret$x + dx, ytop = ret$y,
          col = bincols[findInterval(ret$x, binbreaks, all.inside = TRUE)], border = NA)
     lines(ret$x, ret$y)
@@ -336,7 +336,7 @@ plotMotifHeatmaps <- function(x,
 	hmSeqlogo <- NULL
 	if (show_seqlogo) {
 	    pfms <- rowData(x)$motif.pfm
-	    maxwidth <- max(sapply(TFBSTools::Matrix(pfms), ncol))
+	    maxwidth <- max(vapply(TFBSTools::Matrix(pfms), ncol, 0L))
 	    grobL <- lapply(pfms, seqLogoGrob, xmax = maxwidth, xjust = "center")
 	    hmSeqlogo <- HeatmapAnnotation(
 	        logo = anno_seqlogo(grobL = grobL, which = "row",
@@ -566,7 +566,7 @@ plotSelectionProb <- function(se,
             hval <- if (directional) c(-1, 1) * selProbMin else selProbMin
             graphics::abline(h = hval, lty = 5, col = col[3])
         }
-        graphics::legend("topright", bty = "n", fill = col[1:2], border = NA,
+        graphics::legend("topright", bty = "n", fill = col[seq_len(2)], border = NA,
                          legend = c("selected", "not selected"))
         if (any(up)) {
             graphics::text(x = bar[up], y = probs[up] + par("cxy")[2] / 3,

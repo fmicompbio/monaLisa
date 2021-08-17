@@ -141,8 +141,6 @@ NULL
 #'   }
 #'   
 #' @examples 
-#' library(monaLisa)
-#'   
 #' ## create data set
 #' Y <- rnorm(n = 500, mean = 2, sd = 1)
 #' X <- matrix(data = NA, nrow = length(Y), ncol = 50)

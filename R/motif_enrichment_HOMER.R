@@ -375,7 +375,7 @@ parseHomerOutput <- function(infiles,
       df_list <- lapply(as.list(out_files), function(f){read.table(f, header = FALSE, sep = "\t", skip = 1)}) # skip the column names
       motifs_outdir_list <- lapply(df_list, function(df){ as.character(df[ ,1]) })
       # check the completeness of the run and that the number of output files equals number of bins
-      all(sapply(motifs_outdir_list, function(x){all(motifs_motifFile %in% x)})) & (length(out_files) == nbins)
+      all(vapply(motifs_outdir_list, function(x){all(motifs_motifFile %in% x)}, NA)) & (length(out_files) == nbins)
 
 }
 
@@ -511,7 +511,7 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
     pfms <- homerToPFMatrixList(motifFile)
     morder <- TFBSTools::name(pfms)
     o <- match(morder, rownames(resL[[1]]))
-    assayL <- lapply(resL[1:6], function(x) x[o, ])
+    assayL <- lapply(resL[seq_len(6)], function(x) x[o, ])
     ## ... ... colData
     if (is.null(attr(b, "breaks"))) {
         binL <- binH <- rep(NA, nlevels(b))

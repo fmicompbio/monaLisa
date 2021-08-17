@@ -108,7 +108,7 @@ pfm2ic <- function(pfm) {
     npos <- ncol(pfm)
     ic <- numeric(length = npos)
     for (i in seq_len(npos))
-        ic[i] <- 2 + sum(sapply(pfm[, i], function(x) if (x > 0) (x * log2(x)) else 0))
+        ic[i] <- 2 + sum(vapply(pfm[, i], function(x) if (x > 0) (x * log2(x)) else 0, 0))
     ic
 }
 
@@ -166,7 +166,7 @@ seqLogoGrob <- function(x, xmax = NULL, ymax = 2.0, xjust = c("left", "center", 
         hts <- 0.95 * xm[, j] * facs[j]
         letterOrder <- order(hts)
         y.pos <- 0
-        for (i in 1:4) {
+        for (i in seq_len(4)) {
             letter <- chars[letterOrder[i]]
             ht <- hts[letterOrder[i]]
             if (ht > 0)
@@ -221,7 +221,7 @@ anno_seqlogo <- function(grobL, which = c("column", "row"),
                          space = unit(0.5, "mm"), width = NULL, height = NULL,
                          gp = gpar(fill = NA, col = NA)) {
     stopifnot(is(grobL, "list"))
-    stopifnot(all(sapply(grobL, function(x) is(x, "grob"))))
+    stopifnot(all(vapply(grobL, function(x) is(x, "grob"), FALSE)))
 
     .recycle_gp <- function(gp, n = 1) {
         for (i in seq_along(gp)) {
