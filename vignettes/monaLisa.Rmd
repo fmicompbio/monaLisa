@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 bibliography: monaLisa-refs.bib
 output: BiocStyle::html_document
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{monaLisa - MOtif aNAlysis with Lisa}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
