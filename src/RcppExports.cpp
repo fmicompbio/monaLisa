@@ -5,6 +5,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // countKmerPairs
 Rcpp::NumericMatrix countKmerPairs(SEXP x, int k, int n, bool zoops);
 RcppExport SEXP _monaLisa_countKmerPairs(SEXP xSEXP, SEXP kSEXP, SEXP nSEXP, SEXP zoopsSEXP) {
