@@ -93,8 +93,6 @@ Randomized lasso stability selection runs a randomized lasso regression
   and adapted it to run randomized lasso stability selection.
 }
 \examples{
-library(monaLisa)
-  
 ## create data set
 Y <- rnorm(n = 500, mean = 2, sd = 1)
 X <- matrix(data = NA, nrow = length(Y), ncol = 50)
