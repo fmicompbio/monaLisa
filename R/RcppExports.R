@@ -15,7 +15,9 @@
 #'
 #' @examples
 #' countKmerPairs(Biostrings::DNAStringSet(c("AACCGGTT")), k = 2, n = 1)
-#'
+#' 
+#' @import Rcpp
+#' 
 #' @return A numeric matrix with observed k-mer pairs counts.
 #' @export
 countKmerPairs <- function(x, k = 6L, n = 5L, zoops = FALSE) {
