@@ -893,14 +893,24 @@ calcBinnedKmerEnr <- function(seqs,
     #     sequences (e.g. N_fg)
     enrTF <- do.call(cbind, lapply(enrichL, function(enrich1) {
         fracBackground <-
-            pmin(1, enrich1[, "sumBackgroundWgtWithHits"] /
-                     enrich1[, "totalWgtBackground"] + pseudofreq.pearsonResid)
+            enrich1[, "sumBackgroundWgtWithHits"] /
+            enrich1[, "totalWgtBackground"] + pseudofreq.pearsonResid
         obsTF <- enrich1[, "sumForegroundWgtWithHits"]
-        expTF <- enrich1[, "totalWgtForeground"] * fracBackground
-        enr <- (obsTF - expTF) / sqrt(expTF * (1 - fracBackground))
+        expTF <- enrich1[, "totalWgtForeground"] * (fracBackground - pseudofreq.pearsonResid)
+        enr <- (obsTF - expTF) / sqrt(expTF * (1 - pmin(1, fracBackground)))
         enr[ is.na(enr) ] <- 0 # needed for fracBackground == 1
         names(enr) <- enrich1[, "motifName"]
         enr
+    }))
+    
+    # expected foreground hits
+    expFG <- do.call(cbind, lapply(enrichL, function(enrich1) {
+        fracBackground <-
+            enrich1[, "sumBackgroundWgtWithHits"] /
+            enrich1[, "totalWgtBackground"] + pseudofreq.pearsonResid
+        expTF <- enrich1[, "totalWgtForeground"] * (fracBackground - pseudofreq.pearsonResid)
+        names(expTF) <- enrich1[, "motifName"]
+        expTF
     }))
 
     # log2 enrichments
@@ -973,11 +983,13 @@ calcBinnedKmerEnr <- function(seqs,
     P[set_NA] <- NA
     padj[set_NA] <- NA
     enrTF[set_NA] <- NA
+    expFG[set_NA] <- NA
     log2enr[set_NA] <- NA
     
     se <- SummarizedExperiment(assays = list(negLog10P = P, 
                                              negLog10Padj = padj, 
                                              pearsonResid = enrTF,
+                                             expForeground = expFG,
                                              log2enr = log2enr, 
                                              sumForegroundWgtWithHits = assaySumForegroundWgtWithHits, 
                                              sumBackgroundWgtWithHits = assaySumBackgroundWgtWithHits),
