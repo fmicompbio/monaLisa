@@ -247,6 +247,9 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
 #' @param kmerLen A \code{numeric} scalar giving the k-mer length.
 #' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
 #'     instance determining the parallel back-end to be used during evaluation.
+#' @param kmers Either a character vector of k-mers for which to calculate 
+#'     the similarity to each motif, or \code{NULL}, in which case all k-mers
+#'     of length \code{kmerLen} are used.
 #' @param verbose A logical scalar. If \code{TRUE}, report on progress.
 #'
 #' @return A matrix of probabilties for each motif - k-mer pair.
@@ -259,6 +262,7 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
 motifKmerSimilarity <- function(x,
                                 kmerLen = 5,
                                 BPPARAM = SerialParam(),
+                                kmers = NULL, 
                                 verbose = FALSE) {
     ## pre-flight checks
     .assertScalar(x = verbose, type = "logical")
@@ -274,9 +278,16 @@ motifKmerSimilarity <- function(x,
         round(kmerLen, 0L) == kmerLen
         is(BPPARAM, "BiocParallelParam")
     })
+    stopifnot(exprs = {
+        is.null(kmers) || 
+            (.assertVector(kmers, type = "character") && 
+                 all(unlist(strsplit(kmers, "")) %in% Biostrings::DNA_ALPHABET))
+    })
 
     xm <- lapply(TFBSTools::Matrix(x), function(x) sweep(x, 2, colSums(x), "/"))
-    kmers <- Biostrings::mkAllStrings(c("A","C","G","T"), kmerLen)
+    if (is.null(kmers)) {
+        kmers <- Biostrings::mkAllStrings(c("A","C","G","T"), kmerLen)
+    }
 
     if (verbose) {
         message("calculating ", length(xm) * length(kmers),
