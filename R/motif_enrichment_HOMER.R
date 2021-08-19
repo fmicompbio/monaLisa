@@ -19,7 +19,10 @@ NULL
 #'     directory provided in the environment variable \code{MONALISA_HOMER}. 
 #'
 #' @return Absolute path to \code{homerfile}, or \code{NA} if none or several were found.
-#'
+#' 
+#' @examples 
+#' homer_path <- findHomer()
+#' 
 #' @export
 findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
     if (is.null(dirs))
