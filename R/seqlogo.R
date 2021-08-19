@@ -213,6 +213,15 @@ seqLogoGrob <- function(x, xmax = NULL, ymax = 2.0, xjust = c("left", "center", 
 #' @return An annotation function which can be used in
 #'   \code{\link[ComplexHeatmap]{HeatmapAnnotation}}.
 #'
+#' @examples
+#' if (require(JASPAR2018) && require(TFBSTools) && require(gridExtra)) {
+#'     pfm1 <- getMatrixByID(JASPAR2018, "MA0139")
+#'
+#'     g1 <- seqLogoGrob(pfm1)
+#'
+#'.    anno <- anno_seqlogo(list(g1))
+#' }
+#' 
 #' @importFrom grid unit grid.rect viewport pushViewport popViewport grid.draw
 #' @importFrom ComplexHeatmap AnnotationFunction subset_gp
 #'
