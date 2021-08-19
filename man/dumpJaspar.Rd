@@ -32,6 +32,11 @@ log-odds score cutof to relScoreCutoff * maximal score for each PWM
 Get PWMs from the \code{JASPAR2016} or \code{JASPAR2018} package
     and write them into a HOMER-compatible motif file.
 }
+\examples{
+dumpJaspar(filename = tempfile(), pkg = "JASPAR2018", 
+           relScoreCutoff = 0.9)
+
+}
 \seealso{
 \code{\link[TFBSTools]{getMatrixSet}} for details on the argument \code{opts}.
     \code{\link{homerToPFMatrixList}} to read a file with HOMER-formatted

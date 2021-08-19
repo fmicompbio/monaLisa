@@ -56,6 +56,10 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 #'     \code{\link{homerToPFMatrixList}} to read a file with HOMER-formatted
 #'     moitfs into a \code{\link[TFBSTools]{PFMatrixList}}.
 #'
+#' @examples 
+#' dumpJaspar(filename = tempfile(), pkg = "JASPAR2018", 
+#'            relScoreCutoff = 0.9)
+#' 
 #' @importFrom utils getFromNamespace
 #' @importFrom TFBSTools getMatrixSet Matrix ID name
 #'
