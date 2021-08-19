@@ -892,12 +892,22 @@ calcBinnedKmerEnr <- function(seqs,
     #     with the number of trials corresponding to the (weighted) number of
     #     sequences (e.g. N_fg)
     enrTF <- do.call(cbind, lapply(enrichL, function(enrich1) {
-        fracBackground <-
-            enrich1[, "sumBackgroundWgtWithHits"] /
-            enrich1[, "totalWgtBackground"] + pseudofreq.pearsonResid
         obsTF <- enrich1[, "sumForegroundWgtWithHits"]
-        expTF <- enrich1[, "totalWgtForeground"] * (fracBackground - pseudofreq.pearsonResid)
-        enr <- (obsTF - expTF) / sqrt(expTF * (1 - pmin(1, fracBackground)))
+        expTF <- enrich1[, "totalWgtForeground"] * (enrich1[, "sumForegroundWgtWithHits"] +
+                                                        enrich1[, "sumBackgroundWgtWithHits"]) /
+            (enrich1[, "totalWgtForeground"] + enrich1[, "totalWgtBackground"])
+        N <- enrich1[, "totalWgtForeground"] + enrich1[, "totalWgtBackground"]
+        enr <- (obsTF - expTF) / sqrt(expTF * (1 - enrich1[, "totalWgtForeground"] / N) *
+                                          (1 - (enrich1[, "sumForegroundWgtWithHits"] +
+                                                    enrich1[, "sumBackgroundWgtWithHits"]) / N))
+        
+        # fracBackground <-
+        #     enrich1[, "sumBackgroundWgtWithHits"] /
+        #     enrich1[, "totalWgtBackground"] + pseudofreq.pearsonResid
+        # obsTF <- enrich1[, "sumForegroundWgtWithHits"]
+        # expTF <- enrich1[, "totalWgtForeground"] * (fracBackground - pseudofreq.pearsonResid)
+        # enr <- (obsTF - expTF) / sqrt(expTF * (1 - pmin(1, fracBackground)))
+        
         enr[ is.na(enr) ] <- 0 # needed for fracBackground == 1
         names(enr) <- enrich1[, "motifName"]
         enr
@@ -905,10 +915,15 @@ calcBinnedKmerEnr <- function(seqs,
     
     # expected foreground hits
     expFG <- do.call(cbind, lapply(enrichL, function(enrich1) {
-        fracBackground <-
-            enrich1[, "sumBackgroundWgtWithHits"] /
-            enrich1[, "totalWgtBackground"] + pseudofreq.pearsonResid
-        expTF <- enrich1[, "totalWgtForeground"] * (fracBackground - pseudofreq.pearsonResid)
+        expTF <- enrich1[, "totalWgtForeground"] * (enrich1[, "sumForegroundWgtWithHits"] +
+                                                        enrich1[, "sumBackgroundWgtWithHits"]) /
+            (enrich1[, "totalWgtForeground"] + enrich1[, "totalWgtBackground"])
+        
+        # fracBackground <-
+        #     enrich1[, "sumBackgroundWgtWithHits"] /
+        #     enrich1[, "totalWgtBackground"] + pseudofreq.pearsonResid
+        # expTF <- enrich1[, "totalWgtForeground"] * (fracBackground - pseudofreq.pearsonResid)
+        
         names(expTF) <- enrich1[, "motifName"]
         expTF
     }))
