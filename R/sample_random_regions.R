@@ -14,6 +14,11 @@
 #' @return A GRanges object with randomly sampled mappable regions of width \code{regWidth}
 #'         with \code{fractionCGI} coming from CpG islands.
 #'
+#' @examples 
+#' regs <- GRanges(seqnames = rep(c("chr1", "chr2"), each = 2), 
+#'                 ranges = IRanges(start = 1:4, end = 5:8))
+#' sample_random_regions(regs, N = 2, regWidth = 3L, seed = 123)
+#' 
 #' @importFrom GenomeInfoDb seqlengths
 #' @importFrom GenomicRanges width end start seqnames GRanges sort
 #' @importFrom IRanges IRanges

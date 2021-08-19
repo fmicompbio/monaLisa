@@ -39,3 +39,13 @@ An annotation function which can be used in
 create an annotation for a \code{\link[ComplexHeatmap]{Heatmap}}
   containing sequence logos.
 }
+\examples{
+if (require(JASPAR2018) && require(TFBSTools) && require(gridExtra)) {
+    pfm1 <- getMatrixByID(JASPAR2018, "MA0139")
+
+    g1 <- seqLogoGrob(pfm1)
+
+.    anno <- anno_seqlogo(list(g1))
+}
+
+}

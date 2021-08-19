@@ -31,3 +31,9 @@ Sample random regions from the mappable parts of the genome with
 \details{
 to be filled in.
 }
+\examples{
+regs <- GRanges(seqnames = rep(c("chr1", "chr2"), each = 2), 
+                ranges = IRanges(start = 1:4, end = 5:8))
+sample_random_regions(regs, N = 2, regWidth = 3L, seed = 123)
+
+}
