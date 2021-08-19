@@ -48,6 +48,14 @@ Invisibly the return value of \code{plot(x, y, ...)} that generated the plot.
 \description{
 Plot a scatter (xy-plot) of binned elements with binning information.
 }
+\examples{
+set.seed(1)
+x <- rnorm(100)
+y <- rnorm(100)
+b <- bin(y, "equalN", nElements = 10)
+plotBinScatter(x, y, b)
+
+}
 \seealso{
 \code{\link{bin}}, \code{\link{getColsByBin}}
 }

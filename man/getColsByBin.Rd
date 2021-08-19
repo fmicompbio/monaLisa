@@ -30,6 +30,13 @@ Get colors for elements according to their bin.
     to \code{col2} in the order of \code{levels{b}}. \code{col0} is assigned
     to the neutral bin (attribute \code{""}) if available.
 }
+\examples{
+set.seed(1)
+x <- rnorm(100)
+b <- bin(x, "equalN", nElements = 10)
+cols <- getColsByBin(b)
+
+}
 \seealso{
 \code{\link{bin}}.
 }

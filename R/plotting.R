@@ -22,6 +22,12 @@ NULL
 #'
 #' @return A character vector with colors for the elements in \code{b}.
 #' 
+#' @examples 
+#' set.seed(1)
+#' x <- rnorm(100)
+#' b <- bin(x, "equalN", nElements = 10)
+#' cols <- getColsByBin(b)
+#' 
 #' @export
 getColsByBin <- function(b,
                          col1 = c("#003C30", "#01665E", "#35978F", "#80CDC1", "#C7EAE5"),
@@ -70,7 +76,13 @@ getColsByBin <- function(b,
 #' @seealso \code{\link{getColsByBin}}, \code{\link[graphics]{hist}}
 #'
 #' @return Invisibly the return value of \code{hist(...)} that generated the plot.
-#'
+#' 
+#' @examples 
+#' set.seed(1)
+#' x <- rnorm(100)
+#' b <- bin(x, "equalN", nElements = 10)
+#' plotBinHist(x, b)
+#' 
 #' @export
 plotBinHist <- function(x, b, breaks = 10 * nlevels(b),
                         xlab = deparse(substitute(x, env = as.environment(-1))),
@@ -97,7 +109,7 @@ plotBinHist <- function(x, b, breaks = 10 * nlevels(b),
 }
 
 
-#' @title Denstity plot of binned elements.
+#' @title Density plot of binned elements.
 #'
 #' @description Plot the density of binned elements with binning information.
 #'
@@ -117,6 +129,12 @@ plotBinHist <- function(x, b, breaks = 10 * nlevels(b),
 #'
 #' @return Invisibly the return value of \code{density(x)} that generated the plot.
 #'
+#' @examples 
+#' set.seed(1)
+#' x <- rnorm(100)
+#' b <- bin(x, "equalN", nElements = 10)
+#' plotBinDensity(x, b)
+#' 
 #' @export
 plotBinDensity <- function(x, b,
                            xlab = deparse(substitute(x, env = as.environment(-1))),
@@ -172,6 +190,13 @@ plotBinDensity <- function(x, b,
 #'
 #' @return Invisibly the return value of \code{plot(x, y, ...)} that generated the plot.
 #'
+#' @examples 
+#' set.seed(1)
+#' x <- rnorm(100)
+#' y <- rnorm(100)
+#' b <- bin(y, "equalN", nElements = 10)
+#' plotBinScatter(x, y, b)
+#' 
 #' @export
 plotBinScatter <- function(x, y, b,
                            cols = getColsByBin(b),
