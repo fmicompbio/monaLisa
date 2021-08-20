@@ -219,13 +219,13 @@ seqLogoGrob <- function(x, xmax = NULL, ymax = 2.0, xjust = c("left", "center", 
 #'
 #'     g1 <- seqLogoGrob(pfm1)
 #'
-#'.    anno <- anno_seqlogo(list(g1))
+#'     anno <- anno_seqlogo(list(g1))
 #' }
 #' 
 #' @importFrom grid unit grid.rect viewport pushViewport popViewport grid.draw
 #' @importFrom ComplexHeatmap AnnotationFunction subset_gp
 #'
-#' @export
+#' @export 
 anno_seqlogo <- function(grobL, which = c("column", "row"),
                          space = unit(0.5, "mm"), width = NULL, height = NULL,
                          gp = gpar(fill = NA, col = NA)) {

@@ -45,7 +45,7 @@ if (require(JASPAR2018) && require(TFBSTools) && require(gridExtra)) {
 
     g1 <- seqLogoGrob(pfm1)
 
-.    anno <- anno_seqlogo(list(g1))
+    anno <- anno_seqlogo(list(g1))
 }
 
 }
