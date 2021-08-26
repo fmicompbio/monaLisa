@@ -16,6 +16,11 @@ setZeroBin(bins, zeroBin)
 \item{zeroBin}{Numeric or character scalar indicating the level to use as 
 the zero bin.}
 }
+\value{
+For \code{getZeroBin}, the index of the level representing the zero bin. 
+For \code{setZeroBin}, a modified factor with the zero bin set to the 
+provided value.
+}
 \description{
 Get and set the zero bin manually
 }

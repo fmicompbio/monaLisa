@@ -121,6 +121,11 @@ bin <- function(x, binmode = c("equalN", "equalWidth", "breaks"),
 #' getZeroBin(bins)
 #' bins <- setZeroBin(bins, 2)
 #' 
+#' @return 
+#' For \code{getZeroBin}, the index of the level representing the zero bin. 
+#' For \code{setZeroBin}, a modified factor with the zero bin set to the 
+#' provided value.
+#' 
 #' @name getSetZeroBin
 NULL
 
