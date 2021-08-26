@@ -217,7 +217,7 @@ NULL
 #' @rdname findMotifHits-methods
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' findMotifHits(pwm, "sequences.fa")
 #' }
 setGeneric(name = "findMotifHits",

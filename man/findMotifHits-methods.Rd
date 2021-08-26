@@ -214,7 +214,7 @@ The implemented methods (\code{matchPWM} and \code{homer2}) are
     and hit scores (typically only low-scoring hits).
 }
 \examples{
-\donttest{
+\dontrun{
 findMotifHits(pwm, "sequences.fa")
 }
 }
