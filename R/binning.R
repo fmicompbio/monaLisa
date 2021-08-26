@@ -108,3 +108,43 @@ bin <- function(x, binmode = c("equalN", "equalWidth", "breaks"),
     res
 }
 
+#' Get and set the zero bin manually
+#' 
+#' @param bins Factor, typically the return value of \code{\link[monaLisa]{bin}}.
+#' @param zeroBin Numeric or character scalar indicating the level to use as 
+#'   the zero bin.
+#' 
+#' @examples 
+#' set.seed(1)
+#' x <- rnorm(100)
+#' bins <- bin(x, "equalN", nElements = 10, minAbsX = 0.5)
+#' getZeroBin(bins)
+#' bins <- setZeroBin(bins, 2)
+#' 
+#' @name getSetZeroBin
+NULL
+
+#' @export
+#' @rdname getSetZeroBin
+getZeroBin <- function(bins) {
+    attr(bins, "bin0")
+}
+
+#' @export 
+#' @rdname getSetZeroBin
+setZeroBin <- function(bins, zeroBin) {
+    stopifnot(is.factor(bins))
+    stopifnot((is.numeric(zeroBin) && 
+                   length(zeroBin) == 1 && 
+                   zeroBin > 0 && 
+                   zeroBin <= nlevels(bins)) ||
+                  (is.character(zeroBin) && 
+                       length(zeroBin) == 1 && 
+                       zeroBin %in% levels(bins)))
+    if (is.numeric(zeroBin)) {
+        attr(bins, "bin0") <- zeroBin
+    } else if (is.character(zeroBin)) {
+        attr(bins, "bin0") <- match(zeroBin, levels(bins))
+    }
+    bins
+}
