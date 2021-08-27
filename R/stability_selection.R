@@ -187,7 +187,7 @@ randLassoStabSel <- function(x, y, weakness=0.8, cutoff=0.8, PFER=2, mc.cores=1L
         stop("nrow of 'x' and length of 'y' are not equal. The rows of 
              x must be the same length and order as the elements in 'y'.")
     }
-    if (!is.null(names(y)) && !is.null(rownames(x)) && names(y) != rownames(x)) {
+    if (!is.null(names(y)) && !is.null(rownames(x)) && !all(names(y) == rownames(x))) {
         stop("'x' and 'y' have different names. Make sure that the names are 
              identical and that the orders match.")
     }
