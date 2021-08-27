@@ -180,6 +180,16 @@ bins <- bin(x = lmrsel$deltaMeth, binmode = "equalN", nElement = 800, minAbsX = 
 table(bins)
 ```
 
+
+We can see which bin has been set to be the zero bin using `monaLisa::getZeroBin`, 
+or set it to a different bin using `monaLisa::setZeroBin`:
+```{r}
+# find the index of the level representing the zero bin 
+levels(bins)
+getZeroBin(bins)
+```
+
+
 Because of the asymmetry of methylation changes, there is only a single bin with LMRs
 that lost methylation and many that gained:  
 ```{r plotbins}
