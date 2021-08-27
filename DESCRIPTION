@@ -62,6 +62,7 @@ LinkingTo:
     Biostrings
 biocViews: 
     MotifAnnotation, 
+    MotifEnrichment,
     Visualization, 
     FeatureExtraction,
     Epigenetics
