@@ -151,27 +151,44 @@ test_that(".calculateGCweight() works", {
               b4  = "AAAAGGGGGG", b5  = "AAAAAGGGGG", b6  = "AAAAAAGGGG",
               b7  = "AAAAAAAGGG", b8  = "AAAAAAAAGG", b9  = "AAAAAAAAAG",
               b2b = "AAGGGGGGGG", b4b = "AAAAGGGGGG", b6b = "AAAAAAGGGG")
+    bseq2 <- c(b1  = "AGGGGGGGGG", b2  = "AAGGGGGGGG", b3  = "AAAGGGGGGG",
+               b4  = "AAAAGGGGGCGC", b5  = "AAAAAGGGGCGCGC", b6  = "AAAAAAGGGG",
+               b7  = "AAAAAAAGGG", b8  = "AAAAAAAAGG", b9  = "AAAAAAAAAG",
+               b2b = "AAGGGGGGGG", b4b = "AAAAGGGGGG", b6b = "AAAAAAGGGGCGC")
     df <- DataFrame(seqs = DNAStringSet(c(fseq, bseq)),
                     isForeground = rep(c(TRUE, FALSE), c(length(fseq), length(bseq))),
                     GCfrac = NA_real_,
                     GCbin = NA_integer_,
                     GCwgt = NA_real_,
                     seqWgt = NA_real_)
+    df2 <- DataFrame(seqs = DNAStringSet(c(fseq, bseq2)),
+                     isForeground = rep(c(TRUE, FALSE), c(length(fseq), length(bseq2))),
+                     GCfrac = NA_real_,
+                     GCbin = NA_integer_,
+                     GCwgt = NA_real_,
+                     seqWgt = NA_real_)
     attr(df, "err") <- 0
+    attr(df2, "err") <- 0
     
     expect_error(.calculateGCweight("error"), "should be a DataFrame")
     expect_error(.calculateGCweight(df, GCbreaks = "error"), "numeric")
     expect_error(.calculateGCweight(df, GCbreaks = 0.2), "length 2 or greater")
     expect_error(.calculateGCweight(df, verbose = "error"), "logical")
     expect_message(.calculateGCweight(df, verbose = TRUE))
+    expect_message(.calculateGCweight(df2, verbose = TRUE))
 
     expect_is(res1 <- .calculateGCweight(df, verbose = FALSE), "DataFrame")
+    expect_is(res2 <- .calculateGCweight(df2, verbose = FALSE), "DataFrame")
+    expect_is(res3 <- .calculateGCweight(df2, verbose = FALSE, 
+                                         normalizeByLength = FALSE), "DataFrame")
     expect_identical(df[-13, 1:2], res1[, 1:2])
     expect_identical(res1$GCfrac, c(9:6,4:1,9:6,4:1,8,6,4) / 10)
     expect_identical(res1[res1$isForeground, "GCwgt"],
                      rep(1.0, sum(res1$isForeground)))
     expect_identical(res1[!res1$isForeground, "GCwgt"],
                      rep(c(1.03125, 0.68750, 1.37500, 1.03125, 0.68750), c(3, 2, 3, 1, 2)))
+    expect_identical(res2$GCbin, res3$GCbin)
+    expect_identical(res2$GCfrac, res3$GCfrac)
 })
 
 
