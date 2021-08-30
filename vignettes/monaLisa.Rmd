@@ -302,6 +302,40 @@ plotMotifHeatmaps(x = seSel, which.plots = c("log2enr", "negLog10Padj"), width =
 ```
 
 
+## Convert between motif text file for `Homer` and `TFMatrixList` in `R`
+
+`calcBinnedMotifEnr` is a wrapper function for `calcBinnedMotifEnrR` and `calcBinnedMotifEnrHomer`. `calcBinnedMotifEnrR` implements the binned motif enrichment analysis in `R`, similarly to `Homer` and does not require the user to have the `Homer` tool pre-installed. For more information on that function and how it resembles the `Homer` tool see the function details. This function takes a `PWMatrixList` as input, to scan for motif hits. `calcBinnedMotifEnrHomer` on the other hand takes a motif text file of position probability matrices (PPMs) as input, and requires the user to have `Homer` installed to use it for the binned motif enrichment analysis. Here, we show how one can convert the `TFMatrixList` to a text file and vice versa. 
+
+
+The `Homer` motif file contains the probability each letter (A, C, G, T) has at a specific position of a motif. The probabilities per position sum up to 1. `homerToPFMatrixList` reads in this file and constructs a `PFMatrixList`. Each entry is multiplied by the provided number of observations. The `dumpJaspar` function on the other hand, takes a specified data base like `JASPAR2018` as input, extracts the position frequency matrices (PFMs), adds a count of 1 to each entry, and calculates position probability matrices per motif before writing that into a file format suitable for `Homer`. 
+
+```{r}
+# get JASPAR PFMs to demonstrate
+pfms <- getMatrixSet(JASPAR2018,
+                     opts = list(matrixtype = "PFM",
+                                 tax_group = "vertebrates"))
+
+# convert pfms to Homer motif file
+tmp <- tempfile()
+convert <- dumpJaspar(filename = tmp, pkg = "JASPAR2018", 
+                      opts = list(tax_group = "vertebrates"))
+
+# convert Homer motif file to PFMatrixList
+pfms_ret <- homerToPFMatrixList(filename = tmp, n = 100L)
+
+# compare the first PFM
+as.matrix(pfms_ret[[1]])
+as.matrix(pfms[[1]])
+
+# compare position probability matrices with the original PFM 
+# getting a pseudo-count of 1 first
+sweep(x = as.matrix(pfms[[1]]) + 1, MARGIN = 2, 
+      STATS = colSums(as.matrix(pfms[[1]]) + 1), FUN = "/")
+sweep(x = as.matrix(pfms_ret[[1]]), MARGIN = 2, 
+      STATS = colSums(as.matrix(pfms_ret[[1]])), FUN = "/")
+```
+
+
 # Use `monaLisa` to annotate genomic regions with predicted motifs{#findhits}
 
 As mentioned `monaLisa` can also be used to scan sequences for motifs. Here is an
@@ -348,41 +382,7 @@ and that the order of sequences (rows) and motifs (columns) is identical to
 the order in `seqs` and `pwms`.
 
 
-# Convert between motif text file for `Homer` and `TFMatrixList` in `R`
-
-`calcBinnedMotifEnr` is a wrapper function for `calcBinnedMotifEnrR` and `calcBinnedMotifEnrHomer`. `calcBinnedMotifEnrR` implements the binned motif enrichment analysis in `R`, similarly to `Homer` and does not require the user to have the `Homer` tool pre-installed. For more information on that function and how it resembles the `Homer` tool see the function details. This function takes a `PWMatrixList` as input, to scan for motif hits. `calcBinnedMotifEnrHomer` on the other hand takes a motif text file of position probability matrices (PPMs) as input, and requires the user to have `Homer` installed to use it for the binned motif enrichment analysis. Here, we show how one can convert the `TFMatrixList` to a text file and vice versa. 
-
-
-The `Homer` motif file contains the probability each letter (A, C, G, T) has at a specific position of a motif. The probabilities per position sum up to 1. `homerToPFMatrixList` reads in this file and constructs a `PFMatrixList`. Each entry is multiplied by the provided number of observations. The `dumpJaspar` function on the other hand, takes a specified data base like `JASPAR2018` as input, extracts the position frequency matrices (PFMs), adds a count of 1 to each entry, and calculates position probability matrices per motif before writing that into a file format suitable for `Homer`. 
-
-```{r}
-# get JASPAR PFMs to demonstrate
-pfms <- getMatrixSet(JASPAR2018,
-                     opts = list(matrixtype = "PFM",
-                                 tax_group = "vertebrates"))
-
-# convert pfms to Homer motif file
-tmp <- tempfile()
-convert <- dumpJaspar(filename = tmp, pkg = "JASPAR2018", 
-                      opts = list(tax_group = "vertebrates"))
-
-# convert Homer motif file to PFMatrixList
-pfms_ret <- homerToPFMatrixList(filename = tmp, n = 100L)
-
-# compare the first PFM
-as.matrix(pfms_ret[[1]])
-as.matrix(pfms[[1]])
-
-# compare position probability matrices with the original PFM 
-# getting a pseudo-count of 1 first
-sweep(x = as.matrix(pfms[[1]]) + 1, MARGIN = 2, 
-      STATS = colSums(as.matrix(pfms[[1]]) + 1), FUN = "/")
-sweep(x = as.matrix(pfms_ret[[1]]), MARGIN = 2, 
-      STATS = colSums(as.matrix(pfms_ret[[1]])), FUN = "/")
-```
-
-
-# Motif Selection with Randomized Lasso Stability Selection{#stabsel}
+# Motif selection with Randomized Lasso Stability Selection{#stabsel}
 
 One can also select for important transcription factor (TF) motifs in a regression based approach with predictors consisting of the TF motif hits, and the response vector being the observed measure of interest, e.g. log-fold changes of accessibility for a set of regions. In `monaLisa`, we implement the randomized lasso stability selection proposed by @StabSel with the improved error bounds introduced by @compStabs. We have modified the `glmnet.lasso` function used by `stabsel` from the `r CRANpkg("stabs")` package to implement the randomized lasso.
 
