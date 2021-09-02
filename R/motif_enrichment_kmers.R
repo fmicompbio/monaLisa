@@ -100,13 +100,13 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
 
         ## ... expected k-mer frequencies (log2-probabilities with a pseudocount)
         n <- nchar(names(kmerFreq.stratum)[1]) - MMorder
-        log2pMM <- sapply(names(kmerFreq.stratum), function(current.kmer) {
+        log2pMM <- vapply(names(kmerFreq.stratum), function(current.kmer) {
             ii_long <- substr(rep(current.kmer, n),
                               start = seq_len(n), stop = seq_len(n) + MMorder)
             ii_short <- substr(rep(current.kmer, n - 1L),
                                start = seq(2, n), stop = seq_len(n - 1L) + MMorder)
             sum(lp_long[ii_long]) - sum(lp_short[ii_short])
-        })
+        }, numeric(1))
         kmerFreqMM.stratum <- (2 ** log2pMM) * sum(kmerFreq.stratum)
         cbind(obs = kmerFreq.stratum, exp = kmerFreqMM.stratum)
     })
