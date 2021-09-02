@@ -38,6 +38,12 @@
 #' @return A \code{list} with observed and expected k-mer frequencies (\code{freq.obs}
 #'   and \code{freq.exp}, respectively), and enrichment statistics for each k-mer.
 #'
+#' @examples 
+#' res <- getKmerFreq(seqs = c("AAAAATT", "AAATTTT"), kmerLen = 3)
+#' names(res)
+#' head(res$freq.obs)
+#' head(res$freq.exp)
+#' 
 #' @importFrom Biostrings DNAStringSet oligonucleotideFrequency
 #' @importFrom XVector subseq
 #' @importFrom stats ppois kmeans
