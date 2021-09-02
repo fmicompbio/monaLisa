@@ -6,10 +6,10 @@
 #' @param allowedRegions An unstranded GRanges object of the "allowed" of the genome, usually the mappable regions. 
 #' @param N Number of regions to sample.
 #' @param regWidth Region width.
-#' @param seed Seed for seeding the random number generator.
 #'
 #'
-#' @details to be filled in.
+#' @details In order to make the results deterministic, set the random
+#'      number seet before calling \code{sample_random_regions} using \code{set.seed}.
 #'
 #' @return A GRanges object with randomly sampled mappable regions of width \code{regWidth}
 #'         with \code{fractionCGI} coming from CpG islands.
@@ -18,7 +18,8 @@
 #' regs <- GenomicRanges::GRanges(
 #'   seqnames = rep(c("chr1", "chr2"), each = 2), 
 #'   ranges = IRanges::IRanges(start = 1:4, end = 5:8))
-#' sample_random_regions(regs, N = 2, regWidth = 3L, seed = 123)
+#' set.seed(123)
+#' sample_random_regions(regs, N = 2, regWidth = 3L)
 #' 
 #' @importFrom GenomeInfoDb seqlengths
 #' @importFrom GenomicRanges width end start seqnames GRanges sort
@@ -26,11 +27,10 @@
 #'
 #' @export
 sample_random_regions <- function(allowedRegions = NULL, N = 100L,
-                                  regWidth = 200L, seed = 123){
+                                  regWidth = 200L){
 
     .assertScalar(x = N, type = "numeric")
     .assertScalar(x = regWidth, type = "numeric")
-    .assertScalar(x = seed, type = "numeric")
 	stopifnot(exprs = {
 		is(allowedRegions, "GRanges")
 		length(allowedRegions) > 0
@@ -41,7 +41,6 @@ sample_random_regions <- function(allowedRegions = NULL, N = 100L,
 	#in case these parameters are not integers, round to integer
 	N <- round(N)
 	regWidth <- round(regWidth)
-	seed <- round(seed)
 
 	#reduce to ranges that are larger than or equal to width and adjust
 	#end position such that the object only contains
@@ -58,7 +57,6 @@ sample_random_regions <- function(allowedRegions = NULL, N = 100L,
 	ps <- widths/sum(widths)
 
 	#sample regions
-	set.seed(seed)
 	indx <- sample(seq_along(gr), size = N, prob = ps, replace = TRUE)
 
 	#for each range, sample 1 position uniformly
