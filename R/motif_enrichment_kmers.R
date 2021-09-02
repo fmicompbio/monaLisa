@@ -627,13 +627,11 @@ convertKmersToMotifs <- function(x, m, BPPARAM = SerialParam(), verbose = FALSE)
 #' @title Match a set of k-mers to input sequences and determine frequencies of overlapping matches.
 #'
 #' @description Using a set of k-mers, search input sequences for matches and retrieve
-#'      the frequencies of sequences overlapping with 1 or more overlapping k-mers.
+#'      the frequencies of sequences overlapping with 1 or more overlapping k-mers or
+#'      their reverse-complements.
 #'
-#' @param seqs Set of sequences, either a \code{character} vector or a
-#'    \code{\link{DNAStringSet}}.
-#'   
+#' @param seqs Set of sequences as a \code{\link{DNAStringSet}}.
 #' @param x A \code{character} vector of enriched k-mers.
-#'
 #' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
 #'     instance determining the parallel back-end to be used during evaluation.
 #'
@@ -641,6 +639,10 @@ convertKmersToMotifs <- function(x, m, BPPARAM = SerialParam(), verbose = FALSE)
 #'   sequences overlapping enriched k-mers. The sequences are given as the
 #'   names, and the elements are sorted by decreasing frequency.
 #'
+#' @examples 
+#' s <- DNAStringSet(c("AAATTGG", "AATTTGG"))
+#' extractOverlappingKmerFrequecies(seqs = s, x = c("AA", "AT"))
+#' 
 #' @seealso \code{\link{calcBinnedKmerEnr}} for performing a k-mer enrichment
 #'     analysis, \code{\link[BiocParallel]{bplapply}} used for parallelization. 
 #'
