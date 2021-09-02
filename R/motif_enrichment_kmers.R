@@ -441,12 +441,13 @@ calcBinnedKmerEnr <- function(x,
     
     ## identify enriched k-mers in each bin
     if (verbose) {
-        message("searching for enriched ", kmerLen, "-mers in ", nlevels(b),
-                " bins using ", bpnworkers(BPPARAM),
-                if (bpnworkers(BPPARAM) > 1) " cores" else " core",
-                " (background: ", c("other" = "sequences in other bins",
-                                    "model" = paste0("Markov model of order ", MMorder))[background],
-                ")...", appendLF = FALSE)
+        tmpmsg <- paste0("searching for enriched ", kmerLen, "-mers in ", nlevels(b),
+                         " bins using ", bpnworkers(BPPARAM),
+                         if (bpnworkers(BPPARAM) > 1) " cores" else " core",
+                         " (background: ", c("other" = "sequences in other bins",
+                                             "model" = paste0("Markov model of order ", MMorder))[background],
+                         ")...")
+        message(tmpmsg, appendLF = FALSE)
     }
     resL <- bplapply(split(x, b)[levels(b)], getKmerFreq, kmerLen = kmerLen,
                      MMorder = MMorder, pseudoCount = pseudoCount,

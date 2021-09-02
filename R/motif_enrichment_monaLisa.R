@@ -573,7 +573,7 @@
 
     if (res$err >= lastErr) {
         if (verbose) {
-          message("    detected increasing error - stopping after ", i, " iterations")
+          message("    detected increasing error - done after ", i, " iterations")
         }
         break
     } else {
