@@ -363,7 +363,7 @@
         median_FG_length_per_GCbin <- vapply(
             X = as.character(names(weight_per_bin)), 
             FUN = function(x){
-                median(seq_lengths[df$isForeground & as.character(df$GCbin)==x])
+                median(seq_lengths[df$isForeground & as.character(df$GCbin) == x])
             }, 
             FUN.VALUE = 0)
         median_FG_length_per_GCbin_vector <- 
@@ -760,8 +760,8 @@
 #' @param GCbreaks The breaks between GC bins. The default value is based on
 #'   the hard-coded bins used in Homer.
 #' @param normalizeByLength A logical scalar. If \code{TRUE}, account for 
-#'   sequence length differences between FG and BG sequences when calculating 
-#'   GC weights.
+#'   sequence length differences between foreground and background sequences
+#'   (see Details).
 #' @param pseudocount.log2enr A numerical scalar with the pseudocount to add to
 #'   foreground and background counts when calculating log2 motif enrichments
 #' @param pseudocount.pearsonResid A numerical scalar with the pseudocount to add

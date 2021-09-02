@@ -65,8 +65,8 @@ and tri-mer composition.}
 the hard-coded bins used in Homer.}
 
 \item{normalizeByLength}{A logical scalar. If \code{TRUE}, account for 
-sequence length differences between FG and BG sequences when calculating 
-GC weights.}
+sequence length differences between foreground and background sequences
+(see Details).}
 
 \item{pseudocount.log2enr}{A numerical scalar with the pseudocount to add to
 foreground and background counts when calculating log2 motif enrichments}
