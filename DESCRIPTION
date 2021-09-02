@@ -6,6 +6,8 @@ Authors@R: c(
     person("Dania", "Machlab", email = "dania.machlab@fmi.ch", role = c("aut"), 
            comment = c(ORCID = "0000-0002-2578-6930")),
     person("Lukas", "Burger", email = "lukas.burger@fmi.ch", role = c("aut")),
+    person("Charlotte", "Soneson", email = "charlottesoneson@gmail.com", role = c("aut"),
+           comment = c(ORCID = "0000-0003-3833-2169")),
     person("Michael", "Stadler", email = "michael.stadler@fmi.ch", 
            role = c("aut", "cre"), comment = c(ORCID = "0000-0002-2269-4934")))
 Description: Useful functions to work with sequence motifs in the analysis of 
