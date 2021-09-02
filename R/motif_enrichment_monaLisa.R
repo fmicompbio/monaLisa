@@ -298,6 +298,8 @@
 #'   correct differences in GC distributions between foreground and background
 #'   sequences.
 #'
+#' @importFrom BiocGenerics width
+#' @importFrom stats median
 #' @importFrom Biostrings oligonucleotideFrequency DNAStringSet
 #' @importFrom S4Vectors DataFrame
 #' 
@@ -363,7 +365,7 @@
         median_FG_length_per_GCbin <- vapply(
             X = as.character(names(weight_per_bin)), 
             FUN = function(x){
-                median(seq_lengths[df$isForeground & as.character(df$GCbin) == x])
+                stats::median(seq_lengths[df$isForeground & as.character(df$GCbin) == x])
             }, 
             FUN.VALUE = 0)
         median_FG_length_per_GCbin_vector <- 
