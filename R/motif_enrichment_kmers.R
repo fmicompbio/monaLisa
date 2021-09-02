@@ -541,6 +541,9 @@ calcBinnedKmerEnr <- function(x,
 #'     instance determining the parallel back-end to be used during evaluation.
 #' @param verbose A logical scalar. If \code{TRUE}, report on progress.
 #'
+#' @return A \code{\link[SummarizedExperiment]{SummarizedExperiment}}
+#'     with \code{length(m)} rows (motifs) and \code{ncol(x)} columns (bins).
+#'
 #' @seealso \code{\link{calcBinnedKmerEnr}} for performing a k-mer enrichment
 #'   analysis, \code{\link[BiocParallel]{bplapply}} used for parallelization.
 #'

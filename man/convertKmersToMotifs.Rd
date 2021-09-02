@@ -21,6 +21,10 @@ instance determining the parallel back-end to be used during evaluation.}
 
 \item{verbose}{A logical scalar. If \code{TRUE}, report on progress.}
 }
+\value{
+A \code{\link[SummarizedExperiment]{SummarizedExperiment}}
+    with \code{length(m)} rows (motifs) and \code{ncol(x)} columns (bins).
+}
 \description{
 Using a set of know motifs and the result of a k-mer enrichment
   analysis (k-mers by bins), transform the results into motif enrichments
