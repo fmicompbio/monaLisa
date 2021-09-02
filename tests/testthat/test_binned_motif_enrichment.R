@@ -62,19 +62,20 @@ test_that(".defineBackground() works", {
                                                         collapse = ""))))
     names(gnm2) <- paste0("g", seq_along(gnm2))
     
-    df1 <- .defineBackground(seqs, b1, "otherBins", 1, NULL, NULL, 2, 42L, 0.7)
-    df2 <- .defineBackground(seqs, b1, "allBins",   1, NULL, NULL, 2, 42L, 0.7)
-    df3 <- .defineBackground(seqs, b1, "zeroBin",   1, NULL, NULL, 2, 42L, 0.7)
-    df4 <- .defineBackground(seqs, b1, "genome",    1, gnm,  NULL, 2, 42L, 0.7)
+    df1 <- .defineBackground(seqs, b1, "otherBins", 1, NULL, NULL, 2, 0.7)
+    df2 <- .defineBackground(seqs, b1, "allBins",   1, NULL, NULL, 2, 0.7)
+    df3 <- .defineBackground(seqs, b1, "zeroBin",   1, NULL, NULL, 2, 0.7)
+    df4 <- .defineBackground(seqs, b1, "genome",    1, gnm,  NULL, 2, 0.7)
     
-    df5 <- .defineBackground(seqs, b2, "otherBins", 1, NULL, NULL, 2, 42L, 0.7)
-    df6 <- .defineBackground(seqs, b2, "zeroBin",   1, NULL, NULL, 2, 42L, 0.7)
+    df5 <- .defineBackground(seqs, b2, "otherBins", 1, NULL, NULL, 2, 0.7)
+    df6 <- .defineBackground(seqs, b2, "zeroBin",   1, NULL, NULL, 2, 0.7)
     
+    set.seed(42L)
     df7 <- .defineBackground(seqs, b1, "genome",    1, gnm,
                              GenomicRanges::GRanges("g3", IRanges::IRanges(1, 970)),
-                             2, 42L, 0.7)
+                             2, 0.7)
     expect_warning(df8 <- .defineBackground(seqs, b1, "genome", 1,
-                                            gnm2, NULL, 2, 42L, 0.7))
+                                            gnm2, NULL, 2, 0.7))
     
     expect_is(df1, "DataFrame")
     expect_is(df2, "DataFrame")
@@ -134,7 +135,7 @@ test_that(".defineBackground() works", {
                                   unlist(GenomicRanges::tileGenome(GenomeInfoDb::seqlengths(gnm),
                                                                    tilewidth = 20)))
     df4b <- .defineBackground(gnm.tiles, factor(rep(1, length(gnm.tiles))), "otherBins", 1,
-                              NULL, NULL, NULL, NULL, 0.7)
+                              NULL, NULL, NULL, 0.7)
     GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.7, 0.8)
     gnm.gcbin.tab <- unclass(tabulate(findInterval(df4b$GCfrac, GCbreaks, all.inside = TRUE), 9))
     bg.gcbin.tab  <- unclass(tabulate(findInterval(df4$GCfrac[!df4$isForeground], GCbreaks, all.inside = TRUE), 9))

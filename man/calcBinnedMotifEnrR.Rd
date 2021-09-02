@@ -22,7 +22,6 @@ calcBinnedMotifEnrR(
   genome = NULL,
   genome.regions = NULL,
   genome.oversample = 2,
-  genome.seed = 42L,
   BPPARAM = SerialParam(),
   verbose = FALSE,
   ...
@@ -93,9 +92,6 @@ many background sequences will be sampled per foreground sequence for
 the sequence composition similarity between foreground and background
 (see \code{"Details"}).}
 
-\item{genome.seed}{An \code{integer} scalar used to seed the random number
-generator before sampling regions.}
-
 \item{BPPARAM}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
 instance determining the parallel back-end to be used during evaluation.}
 
@@ -149,8 +145,9 @@ This function implements a binned motif enrichment analysis. In each
       foreground sequence, \code{genome.oversample} background sequences
       of the same size are sampled (on average). From these, one per
       foreground sequence is selected trying to match the G+C composition.
-      In order to make the sampling deterministic, the random number
-      generator is seeded using \code{genome.seed}.}
+      In order to make the sampling deterministic, seed the random number
+      generator before calling \code{calcBinnedMotifEnrR} using
+      \code{set.seed}.}
   }
 
   Motif hits are predicted using \code{\link[monaLisa]{findMotifHits}} and

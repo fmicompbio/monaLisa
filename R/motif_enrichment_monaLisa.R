@@ -125,7 +125,6 @@
 #'   foreground sequences.
 #' @param gnm,gnm.regions,gnm.oversample The \code{genome}, \code{genome.regions}
 #'   and \code{genome.oversample} arguments from \code{calcBinnedMotifEnrR}.
-#' @param gnm.seed An \code{integer} scalar to seed the random number generator.
 #' @param maxFracN The \code{maxFracN} argument from \code{calcBinnedMotifEnrR}.
 #' @param GCbreaks The breaks between GC bins. The default value is based on
 #'   the hard-coded bins used in Homer.
@@ -151,7 +150,6 @@
                               gnm,
                               gnm.regions,
                               gnm.oversample,
-                              gnm.seed,
                               maxFracN = 0.7,
                               GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4,
                                            0.45, 0.5, 0.6, 0.7, 0.8)) {
@@ -173,7 +171,6 @@
                                    ranges = IRanges(start = 1, end = slen))
         }
         gnm.regions.width <- width(gnm.regions)
-        set.seed(gnm.seed)
         gnmsqs <- DNAStringSet()
         
         iter <- 0
@@ -783,8 +780,6 @@
 #'   \code{background = "genome"}. Larger values will take longer but improve
 #'   the sequence composition similarity between foreground and background
 #'   (see \code{"Details"}).
-#' @param genome.seed An \code{integer} scalar used to seed the random number
-#'   generator before sampling regions.
 #' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
 #'     instance determining the parallel back-end to be used during evaluation.
 #' @param verbose A logical scalar. If \code{TRUE}, print progress messages.
@@ -817,8 +812,9 @@
 #'       foreground sequence, \code{genome.oversample} background sequences
 #'       of the same size are sampled (on average). From these, one per
 #'       foreground sequence is selected trying to match the G+C composition.
-#'       In order to make the sampling deterministic, the random number
-#'       generator is seeded using \code{genome.seed}.}
+#'       In order to make the sampling deterministic, seed the random number
+#'       generator before calling \code{calcBinnedMotifEnrR} using
+#'       \code{set.seed}.}
 #'   }
 #'
 #'   Motif hits are predicted using \code{\link[monaLisa]{findMotifHits}} and
@@ -884,7 +880,6 @@ calcBinnedMotifEnrR <- function(seqs,
                                 genome = NULL,
                                 genome.regions = NULL,
                                 genome.oversample = 2,
-                                genome.seed = 42L,
                                 BPPARAM = SerialParam(),
                                 verbose = FALSE,
                                 ...) {
@@ -923,7 +918,6 @@ calcBinnedMotifEnrR <- function(seqs,
             }
         }
         .assertScalar(x = genome.oversample, type = "numeric", rngIncl = c(1, Inf))
-        .assertScalar(x = genome.seed, type = "integer")
     }
     .assertVector(x = BPPARAM, type = "BiocParallelParam")
     .assertScalar(x = verbose, type = "logical")
@@ -991,7 +985,6 @@ calcBinnedMotifEnrR <- function(seqs,
                                 gnm = genome,
                                 gnm.regions = genome.regions,
                                 gnm.oversample = genome.oversample,
-                                gnm.seed = genome.seed + i,
                                 maxFracN = maxFracN)
 
         # for background = "genome", scan sampled background sequences for motifs
@@ -1136,7 +1129,6 @@ calcBinnedMotifEnrR <- function(seqs,
                               genome.class = class(genome),
                               genome.regions = genome.regions,
                               genome.oversample = 2,
-                              genome.seed = genome.seed,
                               BPPARAM.class = class(BPPARAM),
                               BPPARAM.bpnworkers = bpnworkers(BPPARAM),
                               verbose = verbose))
