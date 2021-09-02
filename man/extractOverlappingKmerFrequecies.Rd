@@ -7,8 +7,7 @@
 extractOverlappingKmerFrequecies(seqs, x, BPPARAM = SerialParam())
 }
 \arguments{
-\item{seqs}{Set of sequences, either a \code{character} vector or a
-\code{\link{DNAStringSet}}.}
+\item{seqs}{Set of sequences as a \code{\link{DNAStringSet}}.}
 
 \item{x}{A \code{character} vector of enriched k-mers.}
 
@@ -22,7 +21,13 @@ A named integer vector with the number of observed occurrences of
 }
 \description{
 Using a set of k-mers, search input sequences for matches and retrieve
-     the frequencies of sequences overlapping with 1 or more overlapping k-mers.
+     the frequencies of sequences overlapping with 1 or more overlapping k-mers or
+     their reverse-complements.
+}
+\examples{
+s <- DNAStringSet(c("AAATTGG", "AATTTGG"))
+extractOverlappingKmerFrequecies(seqs = s, x = c("AA", "AT"))
+
 }
 \seealso{
 \code{\link{calcBinnedKmerEnr}} for performing a k-mer enrichment

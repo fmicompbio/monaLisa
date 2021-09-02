@@ -30,6 +30,19 @@ Using a set of know motifs and the result of a k-mer enrichment
   analysis (k-mers by bins), transform the results into motif enrichments
   (motifs by bins).
 }
+\examples{
+seqs <- DNAStringSet(c("GCATGCATGC", "CTAGCTAGCTG"))
+bins <- factor(1:2)
+m <- rbind(A = c(2, 0, 0),
+           C = c(1, 1, 0),
+           G = c(0, 0, 3),
+           T = c(0, 2, 0))
+pfms <- PFMatrixList(PFMatrix(name = "m1", profileMatrix = m),
+                     PFMatrix(name = "m2", profileMatrix = m[, c(2,1,3)]))
+se1 <- calcBinnedKmerEnr(x = seqs, b = bins, kmerLen = 3)
+convertKmersToMotifs(se1, pfms)
+
+}
 \seealso{
 \code{\link{calcBinnedKmerEnr}} for performing a k-mer enrichment
   analysis, \code{\link[BiocParallel]{bplapply}} used for parallelization.

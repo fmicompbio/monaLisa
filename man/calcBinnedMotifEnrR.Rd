@@ -175,3 +175,17 @@ This function implements a binned motif enrichment analysis. In each
       lower.tail = FALSE, log.p = TRUE)}}
   }
 }
+\examples{
+seqs <- DNAStringSet(c("GTCAGTCGATC", "CAGTCTAGCTG",
+                       "CGATCGTCAGT", "AGCTGCAGTCT"))
+bins <- factor(rep(1:2, each = 2))
+m <- rbind(A = c(2, 0, 0),
+           C = c(1, 1, 0),
+           G = c(0, 2, 0),
+           T = c(0, 0, 3))
+pwms <- PWMatrixList(PWMatrix(ID = "m1", profileMatrix = m),
+                     PWMatrix(ID = "m2", profileMatrix = m[, 3:1]))
+calcBinnedMotifEnrR(seqs = seqs, bins = bins, pwmL = pwms,
+                    min.score = 3)
+
+}

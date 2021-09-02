@@ -49,7 +49,7 @@
 #'     in a bin that have motif hits}
 #' }
 #' 
-#' @example 
+#' @examples 
 #' seqs <- DNAStringSet(c("GTCAGTCGATC", "CAGTCTAGCTG",
 #'                        "CGATCGTCAGT", "AGCTGCAGTCT"))
 #' bins <- factor(rep(1:2, each = 2))

@@ -73,6 +73,12 @@ Given a set of sequences and corresponding bins, identify
   enriched k-mers (n-grams) in each bin. The sequences can be given either
   directly or as genomic coordinates.
 }
+\examples{
+seqs <- DNAStringSet(c("GCATGCATGC", "CTAGCTAGCTG"))
+bins <- factor(1:2)
+calcBinnedKmerEnr(x = seqs, b = bins, kmerLen = 3)
+
+}
 \seealso{
 \code{\link{getKmerFreq}} used to calculate k-mer enrichments;
   \code{\link[BSgenome]{getSeq,BSgenome-method}} which is used to extract

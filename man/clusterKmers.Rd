@@ -94,6 +94,11 @@ The clustering is performed depending on \code{method}.
   a k-mer graph. The clusters are identified as the connected components in
   this graph.
 }
+\examples{
+clusterKmers(x = c("AAA", "AAT", "GGG"),
+             method = "similarity", minSim = 2)
+
+}
 \seealso{
 \code{\link{getKmerFreq}} for finding enriched k-mers in a set of
   sequences; \code{\link{countKmerPairs}} for counting k-mer co-occurrences

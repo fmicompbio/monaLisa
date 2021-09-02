@@ -203,7 +203,7 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
 #'   \code{y} is the return value), you can get the k-mer graph on which the
 #'   clustering is based.
 #'   
-#' @example
+#' @examples
 #' clusterKmers(x = c("AAA", "AAT", "GGG"),
 #'              method = "similarity", minSim = 2)
 #'
@@ -369,7 +369,7 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
 #'     instance determining the parallel back-end to be used during evaluation.
 #' @param verbose A \code{logical} scalar. If \code{TRUE}, report on progress.
 #'
-#' @example 
+#' @examples 
 #' seqs <- DNAStringSet(c("GCATGCATGC", "CTAGCTAGCTG"))
 #' bins <- factor(1:2)
 #' calcBinnedKmerEnr(x = seqs, b = bins, kmerLen = 3)
@@ -553,7 +553,7 @@ calcBinnedKmerEnr <- function(x,
 #' @return A \code{\link[SummarizedExperiment]{SummarizedExperiment}}
 #'     with \code{length(m)} rows (motifs) and \code{ncol(x)} columns (bins).
 #'
-#' @example 
+#' @examples 
 #' seqs <- DNAStringSet(c("GCATGCATGC", "CTAGCTAGCTG"))
 #' bins <- factor(1:2)
 #' m <- rbind(A = c(2, 0, 0),
