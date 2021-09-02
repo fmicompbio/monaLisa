@@ -44,3 +44,27 @@ test_that("bin() works properly", {
     expect_true(table(a4)[attr(a4, "bin0")] == 526L)
 })
 
+test_that("getZeroBin() and setZeroBin() work properly", {
+    set.seed(1)
+    x <- rnorm(1000)
+    
+    b1 <- bin(x, nElements = 100)
+    b2 <- bin(x, nElements = 100, minAbsX = 0.5)
+    b3 <- cut(x, breaks = 10)
+    
+    expect_true(is.na(getZeroBin(b1)))
+    expect_identical(getZeroBin(b2), 4)
+    expect_true(is.null(getZeroBin(b3)))
+    
+    expect_error(setZeroBin(b1, FALSE))
+    expect_error(setZeroBin(b1, NA))
+    expect_error(setZeroBin(b1, 2000))
+    expect_error(setZeroBin(b1, "error"))
+    
+    expect_is(b4 <- setZeroBin(b1, 6), "factor")
+    expect_is(b5 <- setZeroBin(b1, "(-0.0353,0.245]"), "factor")
+
+    expect_is(getZeroBin(b4), "integer")    
+    expect_identical(getZeroBin(b4), getZeroBin(b5))
+})
+
