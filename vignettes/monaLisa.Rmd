@@ -302,20 +302,28 @@ plotMotifHeatmaps(x = seSel, which.plots = c("log2enr", "negLog10Padj"), width =
 ```
 
 
-## Convert between motif text file for `Homer` and `TFMatrixList` in `R`
+## Convert between motif text file for `Homer` and motif objects in `R`
 
-`calcBinnedMotifEnr` is a wrapper function for `calcBinnedMotifEnrR` and `calcBinnedMotifEnrHomer`. `calcBinnedMotifEnrR` implements the binned motif enrichment analysis in `R`, similarly to `Homer` and does not require the user to have the `Homer` tool pre-installed. For more information on that function and how it resembles the `Homer` tool see the function details. This function takes a `PWMatrixList` as input, to scan for motif hits. `calcBinnedMotifEnrHomer` on the other hand takes a motif text file of position probability matrices (PPMs) as input, and requires the user to have `Homer` installed to use it for the binned motif enrichment analysis. Here, we show how one can convert the `TFMatrixList` to a text file and vice versa. 
+`calcBinnedMotifEnr` is a wrapper function for `calcBinnedMotifEnrR` and `calcBinnedMotifEnrHomer`. `calcBinnedMotifEnrR` implements the binned motif enrichment analysis in `R`, similarly to `Homer` and does not require the user to have the `Homer` tool pre-installed. For more information on that function and how it resembles the `Homer` tool see the function documentation.
 
+A simple way to represent a DNA sequence motif that assumes independence of positions in the motif is a matrix with four rows (for the bases A, C, G and T) and `n` columns for the `n` positions in the motif. The values in that matrix can represent the sequence preferences of a binding protein in several different ways:  
 
-The `Homer` motif file contains the probability each letter (A, C, G, T) has at a specific position of a motif. The probabilities per position sum up to 1. `homerToPFMatrixList` reads in this file and constructs a `PFMatrixList`. Each entry is multiplied by the provided number of observations. The `dumpJaspar` function on the other hand, takes a specified data base like `JASPAR2018` as input, extracts the position frequency matrices (PFMs), adds a count of 1 to each entry, and calculates position probability matrices per motif before writing that into a file format suitable for `Homer`. 
+- **Position frequency matrices (PFM)** contain values that correspond to the number of times (frequency) that a given base has been observed in at a given position of the motif. It is usually obtained from a set of known, aligned binding site sequences, and depending on the number of sequences, the values will be lower or higher. In `R`, PFMs are often represented using `TFBSTools::PFMatrix` (single motif) or `TFBSTools::PFMatrixList` objects (set of motifs). This is the rawest way to represent a sequence motif and can be converted into any other representation.  
+- **Position probability matrices (PPM)** are obtained by dividing the counts in each column of a PFM by their sum. The values now give a probability of observing a given base at that position of the motif and sum up to one in each column. This is the representation used in motif text files for `Homer`. A PPM can only be converted back to a PFM by knowing or assuming how many binding site sequences were observed (see argument `n` in `homerToPFMatrixList`).  
+- **Position weight matrices (PWM)** (also known as position specific scoring matrices, PSSM) are obtained by comparing the base probabilities in a PPM to the probabilities of observing each base outside of a binding site (background base probabilities), for example by calculating log-odds scores (see `?toPWM` for details). This is a useful representation for scanning sequences for motif matches. In `R`, PWMs are often represented using `TFBSTools::PWMatrix` (single motif) or `TFBSTools::PWMatrixList` (set of motifs).
+
+`calcBinnedMotifEnrR` takes PWMs as a `PWMatrixList` object to scan for motif hits. `calcBinnedMotifEnrHomer` on the other hand takes a motif text file with PPMs, and requires the user to have `Homer` installed to use it for the binned motif enrichment analysis. Here, we show how one can get motif PFMs from `JASPAR2018` and convert them to a `Homer`-compatible text file with PPMs (`dumpJaspar`) and vice versa (`homerToPFMatrixList` ), and how to convert a `PFMatrixList` to a `PWMatrixList` for use with `calcBinnedMotifEnrR` or `findMotifHits`: 
 
 ```{r}
-# get JASPAR PFMs to demonstrate
+# get PFMs from JASPAR2018 package (vertebrate subset)
 pfms <- getMatrixSet(JASPAR2018,
                      opts = list(matrixtype = "PFM",
                                  tax_group = "vertebrates"))
 
-# convert pfms to Homer motif file
+# convert PFMs to PWMs
+pwms <- toPWM(pfms)
+
+# convert JASPAR2018 PFMs (vertebrate subset) to Homer motif file
 tmp <- tempfile()
 convert <- dumpJaspar(filename = tmp, pkg = "JASPAR2018", 
                       opts = list(tax_group = "vertebrates"))
@@ -324,15 +332,18 @@ convert <- dumpJaspar(filename = tmp, pkg = "JASPAR2018",
 pfms_ret <- homerToPFMatrixList(filename = tmp, n = 100L)
 
 # compare the first PFM
-as.matrix(pfms_ret[[1]])
+# - notice the different magnitude of counts (controlled by `n`)
+# - notice the absence of zero values, caused by a pseudocount
+#   of 1.0 added to each element of the PFM by `dumpJaspar`
 as.matrix(pfms[[1]])
+as.matrix(pfms_ret[[1]])
 
 # compare position probability matrices with the original PFM 
-# getting a pseudo-count of 1 first
-sweep(x = as.matrix(pfms[[1]]) + 1, MARGIN = 2, 
-      STATS = colSums(as.matrix(pfms[[1]]) + 1), FUN = "/")
-sweep(x = as.matrix(pfms_ret[[1]]), MARGIN = 2, 
-      STATS = colSums(as.matrix(pfms_ret[[1]])), FUN = "/")
+# (also adding a pseudo-count of 1.0 first)
+round(sweep(x = as.matrix(pfms[[1]]) + 1, MARGIN = 2, 
+            STATS = colSums(as.matrix(pfms[[1]]) + 1), FUN = "/"), 3)
+round(sweep(x = as.matrix(pfms_ret[[1]]), MARGIN = 2, 
+            STATS = colSums(as.matrix(pfms_ret[[1]])), FUN = "/"), 3)
 ```
 
 
