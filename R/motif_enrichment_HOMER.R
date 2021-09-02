@@ -57,7 +57,7 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 #'
 #' @seealso \code{\link[TFBSTools]{getMatrixSet}} for details on the argument \code{opts}.
 #'     \code{\link{homerToPFMatrixList}} to read a file with HOMER-formatted
-#'     moitfs into a \code{\link[TFBSTools]{PFMatrixList}}.
+#'     motifs into a \code{\link[TFBSTools]{PFMatrixList}}.
 #'
 #' @examples 
 #' dumpJaspar(filename = tempfile(), pkg = "JASPAR2018", 
