@@ -112,7 +112,7 @@ bin <- function(x, binmode = c("equalN", "equalWidth", "breaks"),
 #' 
 #' @param bins Factor, typically the return value of \code{\link[monaLisa]{bin}}.
 #' @param zeroBin Numeric or character scalar indicating the level to use as 
-#'   the zero bin.
+#'   the zero bin, or NA.
 #' 
 #' @examples 
 #' set.seed(1)
@@ -139,7 +139,9 @@ getZeroBin <- function(bins) {
 #' @rdname getSetZeroBin
 setZeroBin <- function(bins, zeroBin) {
     .assertVector(x = bins, type = "factor")
-    if (is.numeric(zeroBin)) {
+    if (is.na(zeroBin) && length(zeroBin) == 1L) {
+        attr(bins, "bin0") <- NA
+    } else if (is.numeric(zeroBin)) {
         .assertScalar(x = zeroBin, type = "numeric",
                       validValues = seq_len(nlevels(bins)))
         attr(bins, "bin0") <- as.integer(zeroBin)
@@ -148,7 +150,7 @@ setZeroBin <- function(bins, zeroBin) {
                       validValues = levels(bins))
         attr(bins, "bin0") <- match(zeroBin, levels(bins))
     } else {
-        stop("'zeroBin' must be of type 'character' or 'numeric'")
+        stop("'zeroBin' must be of type 'character', 'numeric' or NA")
     }
     bins
 }

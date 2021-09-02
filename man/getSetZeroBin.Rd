@@ -14,7 +14,7 @@ setZeroBin(bins, zeroBin)
 \item{bins}{Factor, typically the return value of \code{\link[monaLisa]{bin}}.}
 
 \item{zeroBin}{Numeric or character scalar indicating the level to use as 
-the zero bin.}
+the zero bin, or NA.}
 }
 \value{
 For \code{getZeroBin}, the index of the level representing the zero bin. 

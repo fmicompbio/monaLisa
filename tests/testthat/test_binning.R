@@ -53,18 +53,19 @@ test_that("getZeroBin() and setZeroBin() work properly", {
     b3 <- cut(x, breaks = 10)
     
     expect_true(is.na(getZeroBin(b1)))
-    expect_identical(getZeroBin(b2), 4)
+    expect_identical(getZeroBin(b2), 4L)
     expect_true(is.null(getZeroBin(b3)))
     
     expect_error(setZeroBin(b1, FALSE))
-    expect_error(setZeroBin(b1, NA))
     expect_error(setZeroBin(b1, 2000))
     expect_error(setZeroBin(b1, "error"))
     
     expect_is(b4 <- setZeroBin(b1, 6), "factor")
     expect_is(b5 <- setZeroBin(b1, "(-0.0353,0.245]"), "factor")
+    expect_is(b6 <- setZeroBin(b1, NA), "factor")
 
     expect_is(getZeroBin(b4), "integer")    
     expect_identical(getZeroBin(b4), getZeroBin(b5))
+    expect_true(is.na(getZeroBin(b6)))
 })
 
