@@ -80,8 +80,8 @@ This function is a wrapper for
   (via \code{...}) please see the help pages of these functions.
 }
 \examples{
-seqs <- DNAStringSet(c("GTCAGTCGATC", "CAGTCTAGCTG",
-                       "CGATCGTCAGT", "AGCTGCAGTCT"))
+seqs <- Biostrings::DNAStringSet(c("GTCAGTCGATC", "CAGTCTAGCTG",
+                                   "CGATCGTCAGT", "AGCTGCAGTCT"))
 bins <- factor(rep(1:2, each = 2))
 m <- rbind(A = c(2, 0, 0),
            C = c(1, 1, 0),

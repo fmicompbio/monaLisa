@@ -376,7 +376,7 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
 #' @param verbose A \code{logical} scalar. If \code{TRUE}, report on progress.
 #'
 #' @examples 
-#' seqs <- DNAStringSet(c("GCATGCATGC", "CTAGCTAGCTG"))
+#' seqs <- Biostrings::DNAStringSet(c("GCATGCATGC", "CTAGCTAGCTG"))
 #' bins <- factor(1:2)
 #' calcBinnedKmerEnr(x = seqs, b = bins, kmerLen = 3)
 #' 
@@ -560,7 +560,7 @@ calcBinnedKmerEnr <- function(x,
 #'     with \code{length(m)} rows (motifs) and \code{ncol(x)} columns (bins).
 #'
 #' @examples 
-#' seqs <- DNAStringSet(c("GCATGCATGC", "CTAGCTAGCTG"))
+#' seqs <- Biostrings::DNAStringSet(c("GCATGCATGC", "CTAGCTAGCTG"))
 #' bins <- factor(1:2)
 #' m <- rbind(A = c(2, 0, 0),
 #'            C = c(1, 1, 0),
@@ -646,7 +646,7 @@ convertKmersToMotifs <- function(x, m, BPPARAM = SerialParam(), verbose = FALSE)
 #'   names, and the elements are sorted by decreasing frequency.
 #'
 #' @examples 
-#' s <- DNAStringSet(c("AAATTGG", "AATTTGG"))
+#' s <- Biostrings::DNAStringSet(c("AAATTGG", "AATTTGG"))
 #' extractOverlappingKmerFrequecies(seqs = s, x = c("AA", "AT"))
 #' 
 #' @seealso \code{\link{calcBinnedKmerEnr}} for performing a k-mer enrichment

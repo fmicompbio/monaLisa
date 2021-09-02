@@ -25,7 +25,7 @@ Using a set of k-mers, search input sequences for matches and retrieve
      their reverse-complements.
 }
 \examples{
-s <- DNAStringSet(c("AAATTGG", "AATTTGG"))
+s <- Biostrings::DNAStringSet(c("AAATTGG", "AATTTGG"))
 extractOverlappingKmerFrequecies(seqs = s, x = c("AA", "AT"))
 
 }

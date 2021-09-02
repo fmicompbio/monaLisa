@@ -213,8 +213,8 @@ NULL
 #'     and hit scores (typically only low-scoring hits).
 #'
 #' @examples
-#' seqs <- DNAStringSet(c(s1 = "GTCAGTCGATC", s2 = "CAGTCTAGCTG",
-#'                        s3 = "CGATCGTCAGT", s4 = "AGCTGCAGTCT"))
+#' seqs <- Biostrings::DNAStringSet(c(s1 = "GTCAGTCGATC", s2 = "CAGTCTAGCTG",
+#'                                    s3 = "CGATCGTCAGT", s4 = "AGCTGCAGTCT"))
 #' m <- rbind(A = c(2, 0, 0),
 #'            C = c(1, 1, 0),
 #'            G = c(0, 2, 0),

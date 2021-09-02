@@ -31,7 +31,7 @@ Using a set of know motifs and the result of a k-mer enrichment
   (motifs by bins).
 }
 \examples{
-seqs <- DNAStringSet(c("GCATGCATGC", "CTAGCTAGCTG"))
+seqs <- Biostrings::DNAStringSet(c("GCATGCATGC", "CTAGCTAGCTG"))
 bins <- factor(1:2)
 m <- rbind(A = c(2, 0, 0),
            C = c(1, 1, 0),

@@ -74,7 +74,7 @@ Given a set of sequences and corresponding bins, identify
   directly or as genomic coordinates.
 }
 \examples{
-seqs <- DNAStringSet(c("GCATGCATGC", "CTAGCTAGCTG"))
+seqs <- Biostrings::DNAStringSet(c("GCATGCATGC", "CTAGCTAGCTG"))
 bins <- factor(1:2)
 calcBinnedKmerEnr(x = seqs, b = bins, kmerLen = 3)
 
