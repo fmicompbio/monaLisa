@@ -220,8 +220,10 @@ m <- rbind(A = c(2, 0, 0),
            C = c(1, 1, 0),
            G = c(0, 2, 0),
            T = c(0, 0, 3))
-pwms <- PWMatrixList(PWMatrix(ID = "m1", profileMatrix = m),
-                     PWMatrix(ID = "m2", profileMatrix = m[, 3:1]))
+pwms <- TFBSTools::PWMatrixList(
+    TFBSTools::PWMatrix(ID = "m1", profileMatrix = m),
+    TFBSTools::PWMatrix(ID = "m2", profileMatrix = m[, 3:1])
+)
 findMotifHits(pwms, seqs, min.score = 7)
 
 }

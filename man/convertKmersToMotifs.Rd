@@ -37,8 +37,10 @@ m <- rbind(A = c(2, 0, 0),
            C = c(1, 1, 0),
            G = c(0, 0, 3),
            T = c(0, 2, 0))
-pfms <- PFMatrixList(PFMatrix(name = "m1", profileMatrix = m),
-                     PFMatrix(name = "m2", profileMatrix = m[, c(2,1,3)]))
+pfms <- TFBSTools::PFMatrixList(
+    TFBSTools::PFMatrix(name = "m1", profileMatrix = m),
+    TFBSTools::PFMatrix(name = "m2", profileMatrix = m[, c(2,1,3)])
+)
 se1 <- calcBinnedKmerEnr(x = seqs, b = bins, kmerLen = 3)
 convertKmersToMotifs(se1, pfms)
 
