@@ -365,6 +365,11 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
 #'     instance determining the parallel back-end to be used during evaluation.
 #' @param verbose A \code{logical} scalar. If \code{TRUE}, report on progress.
 #'
+#' @example 
+#' seqs <- DNAStringSet(c("GCATGCATGC", "CTAGCTAGCTG"))
+#' bins <- factor(1:2)
+#' calcBinnedKmerEnr(x = seqs, b = bins, kmerLen = 3)
+#' 
 #' @seealso \code{\link{getKmerFreq}} used to calculate k-mer enrichments;
 #'   \code{\link[BSgenome]{getSeq,BSgenome-method}} which is used to extract
 #'   sequences from \code{genomepkg} if \code{x} is a \code{GRanges} object;
