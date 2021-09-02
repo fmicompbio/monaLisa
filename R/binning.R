@@ -138,18 +138,17 @@ getZeroBin <- function(bins) {
 #' @export 
 #' @rdname getSetZeroBin
 setZeroBin <- function(bins, zeroBin) {
-    stopifnot(is.factor(bins))
-    stopifnot((is.numeric(zeroBin) && 
-                   length(zeroBin) == 1 && 
-                   zeroBin > 0 && 
-                   zeroBin <= nlevels(bins)) ||
-                  (is.character(zeroBin) && 
-                       length(zeroBin) == 1 && 
-                       zeroBin %in% levels(bins)))
+    .assertVector(x = bins, type = "factor")
     if (is.numeric(zeroBin)) {
-        attr(bins, "bin0") <- zeroBin
+        .assertScalar(x = zeroBin, type = "numeric",
+                      validValues = seq_len(nlevels(bins)))
+        attr(bins, "bin0") <- as.integer(zeroBin)
     } else if (is.character(zeroBin)) {
+        .assertScalar(x = zeroBin, type = "character",
+                      validValues = levels(bins))
         attr(bins, "bin0") <- match(zeroBin, levels(bins))
+    } else {
+        stop("'zeroBin' must be of type 'character' or 'numeric'")
     }
     bins
 }
