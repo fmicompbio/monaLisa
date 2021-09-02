@@ -45,9 +45,9 @@ test_that(".defineBackground() works", {
                                                          collapse = ""))))
     names(seqs) <- paste0("s", seq_along(seqs))
     b1 <- factor(rep(1:3, each = 30))
-    attr(b1, "bin0") <- 2
+    b1 <- setZeroBin(b1, 2)
     b2 <- factor(rep(1:2, each = 45))
-    attr(b2, "bin0") <- 2
+    b2 <- setZeroBin(b2, 2)
     gnm <- DNAStringSet(unlist(lapply(1:10,
                                       function(i) paste(sample(c("A","C","G","T"),
                                                                1000 - i * 10,
@@ -309,7 +309,7 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
         paste(sample(c("A","C","G","T"), len, replace = TRUE), collapse = "")
     }))
     b <- factor(rep(c(1, 2, 3), each = 50))
-    attr(b, "bin0") <- NA
+    b <- setZeroBin(b, NA)
     m1 <- rbind(A = c(7, 7, 7, 7, 7), # AAAAA
                 C = c(1, 1, 1, 1, 1),
                 G = c(1, 1, 1, 1, 1),

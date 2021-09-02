@@ -489,7 +489,7 @@ calcBinnedKmerEnr <- function(x,
     cdat <- S4Vectors::DataFrame(bin.names = levels(b),
                                  bin.lower = brks[-(nlevels(b) + 1)],
                                  bin.upper = brks[-1],
-                                 bin.nochange = seq.int(nlevels(b)) %in% attr(b, "bin0"))
+                                 bin.nochange = seq.int(nlevels(b)) %in% getZeroBin(b))
     kmers <- names(resL[[1]][[1]])
     pfms <- do.call(TFBSTools::PFMatrixList, lapply(kmers, function(kmer) {
         TFBSTools::PFMatrix(ID = kmer, name = kmer,
@@ -508,7 +508,7 @@ calcBinnedKmerEnr <- function(x,
         metadata = list(bins = b,
                         bins.binmode = attr(b, "binmode"),
                         bins.breaks = as.vector(attr(b, "breaks")),
-                        bins.bin0 = attr(b, "bin0"),
+                        bins.bin0 = getZeroBin(b),
                         param = list(genomepkg = genomepkg,
                                      kmerLen = kmerLen,
                                      background = background,

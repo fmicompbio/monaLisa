@@ -251,7 +251,7 @@
             gcf <- c(gcf[inCurrBin], gcf)
 
         } else if (identical(bg, "zeroBin")) {
-            inZeroBin <- as.integer(bns) == attr(bns, "bin0")
+            inZeroBin <- as.integer(bns) == getZeroBin(bns)
             isFg <- rep(c(TRUE, FALSE),
                         c(sum(inCurrBin), sum(inZeroBin)))
             sqs <- c(sqs[inCurrBin], sqs[inZeroBin])
@@ -902,7 +902,7 @@ calcBinnedMotifEnrR <- function(seqs,
     .assertScalar(x = pseudocount.pearsonResid, type = "numeric", rngIncl = c(0, Inf))
     .assertScalar(x = p.adjust.method, type = "character", validValues = stats::p.adjust.methods)
     if (identical(background, "zeroBin") &&
-        (!"bin0" %in% names(attributes(bins)) || is.na(attr(bins, "bin0")))) {
+        (is.null(getZeroBin(bins)) || is.na(getZeroBin(bins)))) {
         stop("For background = 'zeroBin', 'bins' has to define a zero bin (see ",
              "'maxAbsX' arugment of 'bin' function).")
     }
@@ -936,10 +936,13 @@ calcBinnedMotifEnrR <- function(seqs,
     }
     keep <- .filterSeqs(seqs, maxFracN = maxFracN, verbose = verbose)
     battr <- attributes(bins) # rescue attributes dropped by subsetting
+    bin0 <- getZeroBin(bins)
     bins <- bins[keep]
     attr(bins, "binmode") <- battr$binmode
     attr(bins, "breaks") <- battr$breaks
-    attr(bins, "bin0") <- battr$bin0
+    if (!is.null(bin0)) {
+        bins <- setZeroBin(bins, bin0)
+    }
     seqs <- seqs[keep]
     
     # stop if all sequences were filtered out
@@ -1111,13 +1114,13 @@ calcBinnedMotifEnrR <- function(seqs,
     cdat <- DataFrame(bin.names = levels(bins),
                       bin.lower = binL,
                       bin.upper = binH,
-                      bin.nochange = seq.int(nlevels(bins)) %in% attr(bins, "bin0"),
+                      bin.nochange = seq.int(nlevels(bins)) %in% getZeroBin(bins),
                       totalWgtForeground = do.call(c, lapply(enrichL, function(x){x$totalWgtForeground[1]})), 
                       totalWgtBackground = do.call(c, lapply(enrichL, function(x){x$totalWgtBackground[1]})))
     mdat <- list(bins = bins,
                  bins.binmode = attr(bins, "binmode"),
                  bins.breaks = as.vector(attr(bins, "breaks")),
-                 bins.bin0 = attr(bins, "bin0"),
+                 bins.bin0 = getZeroBin(bins),
                  param = list(method = "R",
                               background = background,
                               test = test,
