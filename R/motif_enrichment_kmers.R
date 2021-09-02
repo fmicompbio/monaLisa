@@ -202,6 +202,10 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
 #'   indicating the k-mer cluster memberships. In \code{attr(y, "graph")} (where
 #'   \code{y} is the return value), you can get the k-mer graph on which the
 #'   clustering is based.
+#'   
+#' @example
+#' clusterKmers(x = c("AAA", "AAT", "GGG"),
+#'              method = "similarity", minSim = 2)
 #'
 #' @seealso \code{\link{getKmerFreq}} for finding enriched k-mers in a set of
 #'   sequences; \code{\link{countKmerPairs}} for counting k-mer co-occurrences
