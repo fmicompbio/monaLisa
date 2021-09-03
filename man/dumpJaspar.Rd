@@ -34,7 +34,7 @@ Get PWMs from the \code{JASPAR2016} or \code{JASPAR2018} package
 }
 \examples{
 dumpJaspar(filename = tempfile(), pkg = "JASPAR2018", 
-           relScoreCutoff = 0.9)
+           opts = list(ID = c("MA0006.1")), relScoreCutoff = 0.9)
 
 }
 \seealso{

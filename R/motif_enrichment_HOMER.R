@@ -61,7 +61,7 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 #'
 #' @examples 
 #' dumpJaspar(filename = tempfile(), pkg = "JASPAR2018", 
-#'            relScoreCutoff = 0.9)
+#'            opts = list(ID = c("MA0006.1")), relScoreCutoff = 0.9)
 #' 
 #' @importFrom utils getFromNamespace
 #' @importFrom TFBSTools getMatrixSet Matrix ID name
