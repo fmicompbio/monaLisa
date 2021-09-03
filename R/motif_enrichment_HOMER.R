@@ -151,6 +151,19 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018",
 #'
 #' @return A \code{\link[TFBSTools]{PFMatrixList}} with motifs from the file.
 #'
+#' @examples 
+#' library(JASPAR2018)
+#' optsL <- list(ID = c("MA0006.1"))
+#' pfm1 <- TFBSTools::getMatrixSet(JASPAR2018, opts = optsL)
+#' TFBSTools::Matrix(pfm1)
+#' 
+#' tmpfn <- tempfile()
+#' dumpJaspar(filename = tmpfn, pkg = "JASPAR2018", opts = optsL)
+#' pfm2 <- homerToPFMatrixList(tmpfn)
+#' TFBSTools::Matrix(pfm2)
+#' 
+#' unlink(tmpfn)
+#' 
 #' @seealso \code{\link{dumpJaspar}} for writing motifs from a Jaspar database
 #'     package into a file in HOMER format.
 #'
