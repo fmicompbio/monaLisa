@@ -57,7 +57,9 @@
 # compare a PFM to all k-mer of any length (padd left/right with background positions)
 # score := maximal probability of observing k-mer under (potentially padded) PFM
 # (internal function used by motifKmerSimilarity)
-compareMotifKmer <- function(m, kmers) {
+#' 
+#' @keywords internal
+.compareMotifKmer <- function(m, kmers) {
     # stopifnot(exprs = {
     #     is.matrix(m)
     #     is.character(kmers)
@@ -309,7 +311,7 @@ motifKmerSimilarity <- function(x,
                 if (bpnworkers(BPPARAM) > 1) " cores..." else " core...",
                 appendLF = FALSE)
     }
-    M <- do.call(rbind, bplapply(xm, function(m) compareMotifKmer(m = m, kmers = kmers)$bestScore,
+    M <- do.call(rbind, bplapply(xm, function(m) .compareMotifKmer(m = m, kmers = kmers)$bestScore,
                                  BPPARAM = BPPARAM))
     dimnames(M) <- list(name(x), kmers)
     if (verbose) {

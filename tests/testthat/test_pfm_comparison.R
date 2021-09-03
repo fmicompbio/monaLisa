@@ -25,9 +25,9 @@ test_that(".compareMotifPair works as expected", {
     expect_identical(res3, list(bestScore = 0.63146007727884323479, bestOffset = 7L, bestDirection = "forward"))
 })
 
-test_that("compareMotifKmer works as expected", {
-    res1 <- monaLisa:::compareMotifKmer(m1, FourMers)
-    res2 <- monaLisa:::compareMotifKmer(m2, FourMers)
+test_that(".compareMotifKmer works as expected", {
+    res1 <- .compareMotifKmer(m1, FourMers)
+    res2 <- .compareMotifKmer(m2, FourMers)
 
     expect_is(res1, "list")
     expect_is(res2, "list")
