@@ -310,6 +310,11 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
 #'     and motif enrichments as Pearson residuals (\code{pearsonResid}) and as
 #'     log2 ratios (\code{log2enr}).
 #'
+#' @examples 
+#' outfile <- system.file("extdata", "homer_output.txt.gz", package = "monaLisa")
+#' res <- parseHomerOutput(infiles = c(bin1 = outfile))
+#' head(res$negLog10P)
+#' 
 #' @importFrom stats p.adjust
 #'
 #' @export
