@@ -2,7 +2,9 @@
 # score := correlation of single base frequencies of aligned and padded matrices
 # (internal function used by motifSimilarity)
 #' @importFrom stats cor
-compareMotifPair <- function(m1, m2) {
+#' 
+#' @keywords internal
+.compareMotifPair <- function(m1, m2) {
     # stopifnot(is.matrix(m1) && is.matrix(m2) &&
     #               nrow(m1) == 4L && nrow(m2) == 4L &&
     #               all.equal(rep(1.0, ncol(m1)), colSums(m1)) &&
@@ -188,7 +190,7 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
             diag(M) <- 1.0
             for (i in seq.int(length(x) - 1L)) {
                 for (j in seq(i + 1, length(x))) {
-                    M[i, j] <- M[j, i] <- compareMotifPair(xm[[i]], xm[[j]])$bestScore
+                    M[i, j] <- M[j, i] <- .compareMotifPair(xm[[i]], xm[[j]])$bestScore
                 }
             }
             if (verbose) {
@@ -204,14 +206,14 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
             }
             if (bpnworkers(BPPARAM) > 1) {
                 M <- do.call(rbind, bplapply(seq_along(xm), function(i) {
-                    unlist(lapply(seq_along(ym), function(j) compareMotifPair(xm[[i]], ym[[j]])$bestScore))
+                    unlist(lapply(seq_along(ym), function(j) .compareMotifPair(xm[[i]], ym[[j]])$bestScore))
                 }, BPPARAM = BPPARAM))
                 dimnames(M) <- list(name(x), name(y))
             } else {
                 M <- matrix(NA, nrow = length(xm), ncol = length(ym), dimnames = list(name(x), name(y)))
                 for (i in seq_along(xm)) {
                     for (j in seq_along(ym)) {
-                        M[i, j] <- compareMotifPair(xm[[i]], ym[[j]])$bestScore
+                        M[i, j] <- .compareMotifPair(xm[[i]], ym[[j]])$bestScore
                     }
                 }
             }
