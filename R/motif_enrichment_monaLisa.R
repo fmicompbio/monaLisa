@@ -570,7 +570,8 @@
 
     if (res$err >= lastErr) {
         if (verbose) {
-          message("    detected increasing error - done after ", i, " iterations")
+          tmpmsg <- paste0("    detected increasing error - stopping after ", i, " iterations")
+          message(tmpmsg)
         }
         break
     } else {
