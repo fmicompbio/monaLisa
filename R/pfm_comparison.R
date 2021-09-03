@@ -250,6 +250,17 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
 #' @param verbose A logical scalar. If \code{TRUE}, report on progress.
 #'
 #' @return A matrix of probabilties for each motif - k-mer pair.
+#' 
+#' @examples 
+#' m <- rbind(A = c(12,  0,  0),
+#'            C = c( 3,  2,  0),
+#'            G = c( 0, 14,  0),
+#'            T = c( 0,  0, 15))
+#' pfms <- TFBSTools::PFMatrixList(
+#'     TFBSTools::PFMatrix(name = "m1", profileMatrix = m),
+#'     TFBSTools::PFMatrix(name = "m2", profileMatrix = m[, 3:1])
+#' )
+#' motifKmerSimilarity(pfms, kmerLen = 3)[, c("AGT", "TGA")]
 #'
 #' @seealso \code{\link[BiocParallel]{bplapply}} used for parallelization.
 #'
