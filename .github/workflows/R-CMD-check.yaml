@@ -116,7 +116,7 @@ jobs:
       - name: BiocCheck
         run: |
           BiocManager::install("BiocCheck")
-          BiocCheck::BiocCheck(".")
+          BiocCheck::BiocCheck(".", `new-package`=TRUE)
         shell: Rscript {0}
 
       - name: Show testthat output
