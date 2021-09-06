@@ -35,7 +35,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
         with:
-          path: $PKG_PATH
+          path: ${{ env.PKG_PATH }}
         
       - name: Set up pandoc
         uses: r-lib/actions/setup-pandoc@v1
