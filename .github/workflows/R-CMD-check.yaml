@@ -24,6 +24,8 @@ jobs:
 
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
+      PKG_PATH: monaLisa
+      MONALISA_HOMER: $GITHUB_WORKSPACE/homer/bin
       # CRAN: ${{ matrix.config.cran }}
       # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -32,6 +34,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
+        with:
+          path: $PKG_PATH
         
       - name: Set up pandoc
         uses: r-lib/actions/setup-pandoc@v1
@@ -50,9 +54,8 @@ jobs:
           wget http://homer.ucsd.edu/homer/configureHomer.pl
           perl configureHomer.pl -install
           export PATH=$PATH:$PWD/bin/
-          export MONALISA_HOMER=$PWD/bin/
           popd
-          echo "^homer$" >> .Rbuildignore
+          echo "^homer$" >> $PKG_PATH/.Rbuildignore
           # Rscript -e 'install.packages("magick")'
           
       - name: Install remotes
@@ -69,7 +72,7 @@ jobs:
         
       - name: List package dependencies
         run: | 
-          saveRDS(remotes::dev_package_deps(dependencies = TRUE, repos = c(getOption('repos'), BiocManager::repositories())), 'depends.Rds', version = 2)
+          saveRDS(remotes::dev_package_deps(pkgdir = Sys.getenv('PKG_PATH'), dependencies = TRUE, repos = c(getOption('repos'), BiocManager::repositories())), 'depends.Rds', version = 2)
         shell: Rscript {0}
         
       - name: Cache R packages
@@ -86,7 +89,7 @@ jobs:
           RHUB_PLATFORM: linux-x86_64-ubuntu-gcc
         run: |
           Rscript -e "remotes::install_github('r-hub/sysreqs')"
-          sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands('DESCRIPTION'))")
+          sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands(file.path(Sys.getenv('PKG_PATH'), 'DESCRIPTION')))")
           sudo -s eval "$sysreqs"
           sudo apt-get update && sudo apt-get -y install libcurl4-openssl-dev
           
@@ -97,8 +100,8 @@ jobs:
 
       - name: Install dependencies (R packages)
         run: |
-          local_deps <- remotes::local_package_deps(dependencies = TRUE)
-          deps <- remotes::dev_package_deps(dependencies = TRUE, repos = BiocManager::repositories())
+          local_deps <- remotes::local_package_deps(pkgdir = Sys.getenv('PKG_PATH'), dependencies = TRUE)
+          deps <- remotes::dev_package_deps(pkgdir = Sys.getenv('PKG_PATH'), dependencies = TRUE, repos = BiocManager::repositories())
           BiocManager::install(local_deps[local_deps %in% deps$package[deps$diff != 0]], Ncpu = 2L)
           remotes::install_cran('rcmdcheck', Ncpu = 2L)
         shell: Rscript {0}
@@ -111,14 +114,15 @@ jobs:
         shell: Rscript {0}
 
       - name: Check
-        run: rcmdcheck::rcmdcheck(args = c("--no-build-vignettes","--no-manual","--timings"),
+        run: rcmdcheck::rcmdcheck(path = Sys.getenv('PKG_PATH'),
+                                  args = c("--no-build-vignettes","--no-manual","--timings"),
                                   error_on = "warning", check_dir = "check")
         shell: Rscript {0}
 
       - name: BiocCheck
         run: |
           BiocManager::install("BiocCheck")
-          BiocCheck::BiocCheck(".", `new-package`=TRUE)
+          BiocCheck::BiocCheck(package = Sys.getenv('PKG_PATH'), `new-package`=TRUE)
         shell: Rscript {0}
 
       - name: Show testthat output
@@ -137,14 +141,14 @@ jobs:
         if: matrix.config.os == 'macOS-latest'
         run: |
           install.packages("covr")
-          covr::codecov(token = "${{secrets.CODECOV_TOKEN}}")
+          covr::codecov(path = Sys.getenv('PKG_PATH'), token = "${{secrets.CODECOV_TOKEN}}")
         shell: Rscript {0}
 
       - name: Deploy
         if: github.event_name == 'push' && github.ref == 'refs/heads/master' && matrix.config.os == 'macOS-latest'
         run: |
-          R CMD INSTALL .
-          Rscript -e "remotes::install_dev('pkgdown'); pkgdown::deploy_to_branch(new_process = FALSE)"
+          R CMD INSTALL $PKG_PATH
+          Rscript -e "remotes::install_dev('pkgdown'); pkgdown::deploy_to_branch(pkg = Sys.getenv('PKG_PATH'), new_process = FALSE)"
 
 
 
