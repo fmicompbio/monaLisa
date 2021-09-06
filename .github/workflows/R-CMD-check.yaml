@@ -151,7 +151,7 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/master' && matrix.config.os == 'macOS-latest'
         run: |
           R CMD INSTALL ${{env.PKG_PATH}}
-          Rscript -e "remotes::install_dev('pkgdown'); pkgdown::deploy_to_branch(pkg = Sys.getenv('PKG_PATH'), new_process = FALSE)"
+          Rscript -e "remotes::install_dev('pkgdown'); pkgdown::deploy_to_branch(pkg = ${{env.PKG_PATH}}, new_process = FALSE)"
 
 
 
