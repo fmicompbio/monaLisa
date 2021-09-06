@@ -41,7 +41,8 @@
 
 <meta property="og:title" content="Match a set of k-mers to input sequences and determine frequencies of overlapping matches. — extractOverlappingKmerFrequecies" />
 <meta property="og:description" content="Using a set of k-mers, search input sequences for matches and retrieve
-     the frequencies of sequences overlapping with 1 or more overlapping k-mers." />
+     the frequencies of sequences overlapping with 1 or more overlapping k-mers or
+     their reverse-complements." />
 
 
 
@@ -105,6 +106,9 @@
     </li>
   </ul>
 </li>
+<li>
+  <a href="../news/index.html">Changelog</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
@@ -133,7 +137,8 @@
 
     <div class="ref-description">
     <p>Using a set of k-mers, search input sequences for matches and retrieve
-     the frequencies of sequences overlapping with 1 or more overlapping k-mers.</p>
+     the frequencies of sequences overlapping with 1 or more overlapping k-mers or
+     their reverse-complements.</p>
     </div>
 
     <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>extractOverlappingKmerFrequecies</span><span class='op'>(</span><span class='va'>seqs</span>, <span class='va'>x</span>, BPPARAM <span class='op'>=</span> <span class='fu'>SerialParam</span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span></code></pre></div>
@@ -143,8 +148,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>seqs</th>
-      <td><p>Set of sequences, either a <code>character</code> vector or a
-<code>DNAStringSet</code>.</p></td>
+      <td><p>Set of sequences as a <code>DNAStringSet</code>.</p></td>
     </tr>
     <tr>
       <th>x</th>
@@ -167,6 +171,13 @@ instance determining the parallel back-end to be used during evaluation.</p></td
     <div class='dont-index'><p><code><a href='calcBinnedKmerEnr.html'>calcBinnedKmerEnr</a></code> for performing a k-mer enrichment
     analysis, <code><a href='https://rdrr.io/pkg/BiocParallel/man/bplapply.html'>bplapply</a></code> used for parallelization.</p></div>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='va'>s</span> <span class='op'>&lt;-</span> <span class='fu'>Biostrings</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html'>DNAStringSet</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"AAATTGG"</span>, <span class='st'>"AATTTGG"</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'>extractOverlappingKmerFrequecies</span><span class='op'>(</span>seqs <span class='op'>=</span> <span class='va'>s</span>, x <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"AA"</span>, <span class='st'>"AT"</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> AAATT AATTT </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     1     1 </span>
+<span class='r-in'></span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -178,7 +189,7 @@ instance determining the parallel back-end to be used during evaluation.</p></td
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
+  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, Charlotte Soneson, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
 </div>
 
 <div class="pkgdown">

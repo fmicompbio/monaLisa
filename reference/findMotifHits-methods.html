@@ -106,6 +106,9 @@ positional weight matrices (provided as a file or as R objects)" />
     </li>
   </ul>
 </li>
+<li>
+  <a href="../news/index.html">Changelog</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
@@ -355,9 +358,29 @@ convert the genomic regions into a <code>DNAStringSet</code> object.</p></td>
     and hit scores (typically only low-scoring hits).</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
-<span class='r-in'><span class='fu'>findMotifHits</span><span class='op'>(</span><span class='va'>pwm</span>, <span class='st'>"sequences.fa"</span><span class='op'>)</span></span>
-<span class='r-in'><span class='op'>}</span></span>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='va'>seqs</span> <span class='op'>&lt;-</span> <span class='fu'>Biostrings</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html'>DNAStringSet</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>s1 <span class='op'>=</span> <span class='st'>"GTCAGTCGATC"</span>, s2 <span class='op'>=</span> <span class='st'>"CAGTCTAGCTG"</span>,</span>
+<span class='r-in'>                                   s3 <span class='op'>=</span> <span class='st'>"CGATCGTCAGT"</span>, s4 <span class='op'>=</span> <span class='st'>"AGCTGCAGTCT"</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>m</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>rbind</a></span><span class='op'>(</span>A <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>2</span>, <span class='fl'>0</span>, <span class='fl'>0</span><span class='op'>)</span>,</span>
+<span class='r-in'>           C <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>0</span><span class='op'>)</span>,</span>
+<span class='r-in'>           G <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>2</span>, <span class='fl'>0</span><span class='op'>)</span>,</span>
+<span class='r-in'>           T <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>3</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>pwms</span> <span class='op'>&lt;-</span> <span class='fu'>TFBSTools</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html'>PWMatrixList</a></span><span class='op'>(</span></span>
+<span class='r-in'>    <span class='fu'>TFBSTools</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html'>PWMatrix</a></span><span class='op'>(</span>ID <span class='op'>=</span> <span class='st'>"m1"</span>, profileMatrix <span class='op'>=</span> <span class='va'>m</span><span class='op'>)</span>,</span>
+<span class='r-in'>    <span class='fu'>TFBSTools</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html'>PWMatrix</a></span><span class='op'>(</span>ID <span class='op'>=</span> <span class='st'>"m2"</span>, profileMatrix <span class='op'>=</span> <span class='va'>m</span><span class='op'>[</span>, <span class='fl'>3</span><span class='op'>:</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'>findMotifHits</span><span class='op'>(</span><span class='va'>pwms</span>, <span class='va'>seqs</span>, min.score <span class='op'>=</span> <span class='fl'>7</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> GRanges object with 6 ranges and 4 metadata columns:</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>       seqnames    ranges strand |     matchedSeq pwmid pwmname     score</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>          &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;DNAStringSet&gt; &lt;Rle&gt;   &lt;Rle&gt; &lt;numeric&gt;</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   [1]       s1       4-6      + |            AGT    m1 Unknown         7</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   [2]       s1       2-4      - |            TGA    m2 Unknown         7</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   [3]       s2       2-4      + |            AGT    m1 Unknown         7</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   [4]       s3      9-11      + |            AGT    m1 Unknown         7</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   [5]       s3       7-9      - |            TGA    m2 Unknown         7</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   [6]       s4       7-9      + |            AGT    m1 Unknown         7</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   -------</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   seqinfo: 4 sequences from an unspecified genome</span>
+<span class='r-in'></span>
 </code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -370,7 +393,7 @@ convert the genomic regions into a <code>DNAStringSet</code> object.</p></td>
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
+  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, Charlotte Soneson, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
 </div>
 
 <div class="pkgdown">

@@ -109,6 +109,9 @@
     </li>
   </ul>
 </li>
+<li>
+  <a href="../news/index.html">Changelog</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
@@ -147,6 +150,7 @@
     <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>.calculateGCweight</span><span class='op'>(</span>
   <span class='va'>df</span>,
   GCbreaks <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.2</span>, <span class='fl'>0.25</span>, <span class='fl'>0.3</span>, <span class='fl'>0.35</span>, <span class='fl'>0.4</span>, <span class='fl'>0.45</span>, <span class='fl'>0.5</span>, <span class='fl'>0.6</span>, <span class='fl'>0.7</span>, <span class='fl'>0.8</span><span class='op'>)</span>,
+  normalizeByLength <span class='op'>=</span> <span class='cn'>TRUE</span>,
   verbose <span class='op'>=</span> <span class='cn'>FALSE</span>
 <span class='op'>)</span></code></pre></div>
 
@@ -161,6 +165,13 @@
       <th>GCbreaks</th>
       <td><p>The breaks between GC bins. The default value is based on
 the hard-coded bins used in Homer.</p></td>
+    </tr>
+    <tr>
+      <th>normalizeByLength</th>
+      <td><p>A logical scalar. If <code>TRUE</code>, the weight calculated
+for each background sequence in a specific GC bin, to account for GC differences 
+between foreground and background, is multiplied by the length of the background
+sequence divided by the median length of foreground sequences in that GC bin.</p></td>
     </tr>
     <tr>
       <th>verbose</th>
@@ -188,7 +199,7 @@ calculation.</p></td>
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
+  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, Charlotte Soneson, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
 </div>
 
 <div class="pkgdown">

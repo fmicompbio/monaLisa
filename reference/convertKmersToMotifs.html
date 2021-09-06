@@ -106,6 +106,9 @@
     </li>
   </ul>
 </li>
+<li>
+  <a href="../news/index.html">Changelog</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
@@ -167,11 +170,38 @@ instance determining the parallel back-end to be used during evaluation.</p></td
     </tr>
     </table>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>A <code><a href='https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html'>SummarizedExperiment</a></code>
+    with <code>length(m)</code> rows (motifs) and <code>ncol(x)</code> columns (bins).</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='calcBinnedKmerEnr.html'>calcBinnedKmerEnr</a></code> for performing a k-mer enrichment
   analysis, <code><a href='https://rdrr.io/pkg/BiocParallel/man/bplapply.html'>bplapply</a></code> used for parallelization.</p></div>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='va'>seqs</span> <span class='op'>&lt;-</span> <span class='fu'>Biostrings</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html'>DNAStringSet</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"GCATGCATGC"</span>, <span class='st'>"CTAGCTAGCTG"</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>bins</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>m</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>rbind</a></span><span class='op'>(</span>A <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>2</span>, <span class='fl'>0</span>, <span class='fl'>0</span><span class='op'>)</span>,</span>
+<span class='r-in'>           C <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>0</span><span class='op'>)</span>,</span>
+<span class='r-in'>           G <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>3</span><span class='op'>)</span>,</span>
+<span class='r-in'>           T <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>2</span>, <span class='fl'>0</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>pfms</span> <span class='op'>&lt;-</span> <span class='fu'>TFBSTools</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html'>PFMatrixList</a></span><span class='op'>(</span></span>
+<span class='r-in'>    <span class='fu'>TFBSTools</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html'>PFMatrix</a></span><span class='op'>(</span>name <span class='op'>=</span> <span class='st'>"m1"</span>, profileMatrix <span class='op'>=</span> <span class='va'>m</span><span class='op'>)</span>,</span>
+<span class='r-in'>    <span class='fu'>TFBSTools</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html'>PFMatrix</a></span><span class='op'>(</span>name <span class='op'>=</span> <span class='st'>"m2"</span>, profileMatrix <span class='op'>=</span> <span class='va'>m</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>2</span>,<span class='fl'>1</span>,<span class='fl'>3</span><span class='op'>)</span><span class='op'>]</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>se1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='calcBinnedKmerEnr.html'>calcBinnedKmerEnr</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>seqs</span>, b <span class='op'>=</span> <span class='va'>bins</span>, kmerLen <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'>convertKmersToMotifs</span><span class='op'>(</span><span class='va'>se1</span>, <span class='va'>pfms</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> class: SummarizedExperiment </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> dim: 2 2 </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> metadata(7): bins bins.binmode ... motif.distances param.Ncpu</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> assays(4): negLog10P negLog10Padj pearsonResid log2enr</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> rownames(2): m1 m2</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> rowData names(3): motif.name motif.pfm motif.percentGC</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> colnames(2): 1 2</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> colData names(4): bin.names bin.lower bin.upper bin.nochange</span>
+<span class='r-in'></span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -183,7 +213,7 @@ instance determining the parallel back-end to be used during evaluation.</p></td
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
+  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, Charlotte Soneson, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
 </div>
 
 <div class="pkgdown">

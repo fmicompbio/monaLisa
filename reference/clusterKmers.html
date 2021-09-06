@@ -106,6 +106,9 @@
     </li>
   </ul>
 </li>
+<li>
+  <a href="../news/index.html">Changelog</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
@@ -251,6 +254,19 @@ start position of the first k-mer (default: <code>n = NULL</code>).</p></td>
   sequences; <code><a href='countKmerPairs.html'>countKmerPairs</a></code> for counting k-mer co-occurrences
   in a set of sequences.</p></div>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='fu'>clusterKmers</span><span class='op'>(</span>x <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"AAA"</span>, <span class='st'>"AAT"</span>, <span class='st'>"GGG"</span><span class='op'>)</span>,</span>
+<span class='r-in'>             method <span class='op'>=</span> <span class='st'>"similarity"</span>, minSim <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> clustering 3 3-mers (similarity-based, maxShift: 1, minSim: 2)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> AAA AAT GGG </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   1   1   2 </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> attr(,"graph")</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> IGRAPH fcff215 UNW- 3 1 -- </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> + attr: name (v/c), weight (e/n)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> + edge from fcff215 (vertex names):</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] AAA--AAT</span>
+<span class='r-in'></span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -262,7 +278,7 @@ start position of the first k-mer (default: <code>n = NULL</code>).</p></td>
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
+  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, Charlotte Soneson, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
 </div>
 
 <div class="pkgdown">
