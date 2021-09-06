@@ -24,8 +24,8 @@ jobs:
 
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
-      PKG_PATH: ${{ env.GITHUB_WORKSPACE }}/monaLisa
-      MONALISA_HOMER: ${{ env.GITHUB_WORKSPACE }}/homer/bin
+      PKG_PATH: ~/monaLisa
+      MONALISA_HOMER: ~/homer/bin
       # CRAN: ${{ matrix.config.cran }}
       # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
