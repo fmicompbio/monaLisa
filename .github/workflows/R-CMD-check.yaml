@@ -25,9 +25,9 @@ jobs:
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
       PKG_PATH: monaLisa
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       # CRAN: ${{ matrix.config.cran }}
       # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     # steps to run in the defined environments
     steps:
