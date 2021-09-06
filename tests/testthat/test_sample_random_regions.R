@@ -9,7 +9,9 @@ test_that("sample_random_regions() works properly", {
     expect_error(sample_random_regions(N = "error"))
     # todo: add some more
 
+    set.seed(123)
     res1 <- sample_random_regions(allowedRegions = gr)
+    set.seed(123)
     res2 <- sample_random_regions(allowedRegions = gr)
 
     expect_is(res1, "GRanges")

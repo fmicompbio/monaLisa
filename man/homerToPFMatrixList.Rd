@@ -2,7 +2,7 @@
 % Please edit documentation in R/motif_enrichment_HOMER.R
 \name{homerToPFMatrixList}
 \alias{homerToPFMatrixList}
-\title{Read a HOMER motif file and create a TFMatrixList.}
+\title{Read a HOMER motif file and create a PFMatrixList}
 \usage{
 homerToPFMatrixList(filename, n = 100L)
 }
@@ -17,7 +17,21 @@ A \code{\link[TFBSTools]{PFMatrixList}} with motifs from the file.
 }
 \description{
 Read motifs from a file in HOMER format and create
-    a TFMatrixList from them.
+    a PFMatrixList from them.
+}
+\examples{
+library(JASPAR2018)
+optsL <- list(ID = c("MA0006.1"))
+pfm1 <- TFBSTools::getMatrixSet(JASPAR2018, opts = optsL)
+TFBSTools::Matrix(pfm1)
+
+tmpfn <- tempfile()
+dumpJaspar(filename = tmpfn, pkg = "JASPAR2018", opts = optsL)
+pfm2 <- homerToPFMatrixList(tmpfn)
+TFBSTools::Matrix(pfm2)
+
+unlink(tmpfn)
+
 }
 \seealso{
 \code{\link{dumpJaspar}} for writing motifs from a Jaspar database

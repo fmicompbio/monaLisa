@@ -78,7 +78,9 @@ int kmer_index_at(const char* seq_char, int k, int* pow4) {
 //'
 //' @examples
 //' countKmerPairs(Biostrings::DNAStringSet(c("AACCGGTT")), k = 2, n = 1)
-//'
+//' 
+//' @import Rcpp
+//' 
 //' @return A numeric matrix with observed k-mer pairs counts.
 //' @export
 // [[Rcpp::export]]

@@ -31,6 +31,18 @@ For each motif, calculate it's similarity to all k-mers of
   matrices are padded on the sides with background base frequencies (assuming
   all bases to have a frequency of 0.25).
 }
+\examples{
+m <- rbind(A = c(12,  0,  0),
+           C = c( 3,  2,  0),
+           G = c( 0, 14,  0),
+           T = c( 0,  0, 15))
+pfms <- TFBSTools::PFMatrixList(
+    TFBSTools::PFMatrix(name = "m1", profileMatrix = m),
+    TFBSTools::PFMatrix(name = "m2", profileMatrix = m[, 3:1])
+)
+motifKmerSimilarity(pfms, kmerLen = 3)[, c("AGT", "TGA")]
+
+}
 \seealso{
 \code{\link[BiocParallel]{bplapply}} used for parallelization.
 }

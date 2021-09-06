@@ -91,6 +91,13 @@ The heatmaps are created using the \pkg{ComplexHeatmap} package
     plus the space used for motif names and legend. The height will be auto-adjusted to
     the graphics device.
 }
+\examples{
+se <- readRDS(system.file("extdata", "se.rds", package = "monaLisa"))
+i <- which(SummarizedExperiment::assay(se, "negLog10Padj")[, 8] > 10)
+plotMotifHeatmaps(se[i, ], which.plots = "pearsonResid",
+                  width = 2, show_seqlogo = TRUE)
+
+}
 \references{
 Gu, Z. Complex heatmaps reveal patterns and correlations in multidimensional
     genomic data. Bioinformatics 2016.

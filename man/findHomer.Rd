@@ -23,3 +23,7 @@ Find absolute path to HOMER script file.
 In addition to \code{dirs}, \code{findHomer} will also look in the
     directory provided in the environment variable \code{MONALISA_HOMER}.
 }
+\examples{
+homer_path <- findHomer()
+
+}

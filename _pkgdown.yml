@@ -40,6 +40,8 @@ reference:
   desc: "Bin regions of interest and analyse motifs enrichments in bins."
   contents:
     - '`bin`'
+    - '`getZeroBin`'
+    - '`setZeroBin`'
     - '`calcBinnedMotifEnr`'
     - '`calcBinnedMotifEnrHomer`'
     - '`calcBinnedMotifEnrR`'

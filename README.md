@@ -22,7 +22,7 @@ to be drivers in the underlying biological process.
 
 In addition to the "binned motif enrichment analysis", `monaLisa` can also be
 used to address the above question using stability selection (a form of linear
-regression), or to look for motif matchess in sequences.
+regression), or to look for motif matches in sequences.
 
 Current contributors include:
 
@@ -58,8 +58,8 @@ library(Biostrings)
 library(BSgenome.Mmusculus.UCSC.mm10)
 seqs <- getSeq(BSgenome.Mmusculus.UCSC.mm10, atacPeaks)
 
-# bin sequences ('atacPeaksChange' is a numberical vector)
-bins <- bin(x = atacPeaksChange, binmode = "equalN", nElement = 400)
+# bin sequences ('atacPeaksChange' is a numerical vector)
+bins <- monaLisa::bin(x = atacPeaksChange, binmode = "equalN", nElement = 400)
 
 # obtain known motifs from Jaspar
 library(JASPAR2018)

@@ -57,3 +57,32 @@ For each bin (unique value of \code{b}) this functions creates two files
     In addition, a shell script file is created containing the shell commands
     to run the HOMER motif enrichment analysis.
 }
+\examples{
+# prepare genome directory (here: one dummy chromosome)
+genomedir <- tempfile()
+dir.create(genomedir)
+writeLines(c(">chr1", "ATGCATGCATCGATCGATCGATCGTACGTA"),
+           file.path(genomedir, "chr1.fa"))
+
+# prepare motif file, regions and bins
+motiffile <- tempfile()
+dumpJaspar(filename = motiffile, pkg = "JASPAR2018", 
+           opts = list(ID = c("MA0006.1")))
+gr <- GenomicRanges::GRanges("chr1", IRanges::IRanges(1:4, width = 4))
+b <- bin(1:4, nElements = 2)
+
+# create dummy file (should point to local Homer installation)
+homerfile <- file.path(tempdir(), "findMotifsGenome.pl")
+writeLines("dummy", homerfile)
+
+# run prepareHomer
+outdir <- tempfile()
+prepareHomer(gr = gr, b = b, genomedir = genomedir,
+             outdir = outdir, motifFile = motiffile,
+             homerfile = homerfile, verbose = TRUE) 
+list.files(outdir)
+
+# clean up example
+unlink(c(genomedir, motiffile, homerfile, outdir))
+
+}

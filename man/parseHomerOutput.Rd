@@ -34,3 +34,9 @@ A list of four components (\code{negLog10P}, \code{negLog10Padj},
 \description{
 Parse HOMER output files into R data structures.
 }
+\examples{
+outfile <- system.file("extdata", "homer_output.txt.gz", package = "monaLisa")
+res <- parseHomerOutput(infiles = c(bin1 = outfile))
+head(res$negLog10P)
+
+}

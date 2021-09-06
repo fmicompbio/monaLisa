@@ -2,7 +2,9 @@
 # score := correlation of single base frequencies of aligned and padded matrices
 # (internal function used by motifSimilarity)
 #' @importFrom stats cor
-compareMotifPair <- function(m1, m2) {
+#' 
+#' @keywords internal
+.compareMotifPair <- function(m1, m2) {
     # stopifnot(is.matrix(m1) && is.matrix(m2) &&
     #               nrow(m1) == 4L && nrow(m2) == 4L &&
     #               all.equal(rep(1.0, ncol(m1)), colSums(m1)) &&
@@ -55,7 +57,9 @@ compareMotifPair <- function(m1, m2) {
 # compare a PFM to all k-mer of any length (padd left/right with background positions)
 # score := maximal probability of observing k-mer under (potentially padded) PFM
 # (internal function used by motifKmerSimilarity)
-compareMotifKmer <- function(m, kmers) {
+#' 
+#' @keywords internal
+.compareMotifKmer <- function(m, kmers) {
     # stopifnot(exprs = {
     #     is.matrix(m)
     #     is.character(kmers)
@@ -133,6 +137,18 @@ compareMotifKmer <- function(m, kmers) {
 #' @return A matrix of Pearson's correlation coefficients for each pair of
 #'   motifs.
 #'
+#' @examples 
+#' m <- rbind(A = c(12,  0,  0),
+#'            C = c( 3,  2,  0),
+#'            G = c( 0, 14,  0),
+#'            T = c( 0,  0, 15))
+#' pfms <- TFBSTools::PFMatrixList(
+#'     TFBSTools::PFMatrix(name = "m1", profileMatrix = m),
+#'     TFBSTools::PFMatrix(name = "m2", profileMatrix = m + 10),
+#'     TFBSTools::PFMatrix(name = "m3", profileMatrix = m[, 3:1])
+#' )
+#' motifSimilarity(pfms)
+#'
 #' @seealso \code{\link[BiocParallel]{bplapply}} used for parallelization for
 #'   \code{method = "R"},
 #'   documentation of HOMER's \code{compareMotifs.pl} for details on
@@ -176,7 +192,7 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
             diag(M) <- 1.0
             for (i in seq.int(length(x) - 1L)) {
                 for (j in seq(i + 1, length(x))) {
-                    M[i, j] <- M[j, i] <- compareMotifPair(xm[[i]], xm[[j]])$bestScore
+                    M[i, j] <- M[j, i] <- .compareMotifPair(xm[[i]], xm[[j]])$bestScore
                 }
             }
             if (verbose) {
@@ -192,14 +208,14 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
             }
             if (bpnworkers(BPPARAM) > 1) {
                 M <- do.call(rbind, bplapply(seq_along(xm), function(i) {
-                    unlist(lapply(seq_along(ym), function(j) compareMotifPair(xm[[i]], ym[[j]])$bestScore))
+                    unlist(lapply(seq_along(ym), function(j) .compareMotifPair(xm[[i]], ym[[j]])$bestScore))
                 }, BPPARAM = BPPARAM))
                 dimnames(M) <- list(name(x), name(y))
             } else {
                 M <- matrix(NA, nrow = length(xm), ncol = length(ym), dimnames = list(name(x), name(y)))
                 for (i in seq_along(xm)) {
                     for (j in seq_along(ym)) {
-                        M[i, j] <- compareMotifPair(xm[[i]], ym[[j]])$bestScore
+                        M[i, j] <- .compareMotifPair(xm[[i]], ym[[j]])$bestScore
                     }
                 }
             }
@@ -250,6 +266,17 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
 #' @param verbose A logical scalar. If \code{TRUE}, report on progress.
 #'
 #' @return A matrix of probabilties for each motif - k-mer pair.
+#' 
+#' @examples 
+#' m <- rbind(A = c(12,  0,  0),
+#'            C = c( 3,  2,  0),
+#'            G = c( 0, 14,  0),
+#'            T = c( 0,  0, 15))
+#' pfms <- TFBSTools::PFMatrixList(
+#'     TFBSTools::PFMatrix(name = "m1", profileMatrix = m),
+#'     TFBSTools::PFMatrix(name = "m2", profileMatrix = m[, 3:1])
+#' )
+#' motifKmerSimilarity(pfms, kmerLen = 3)[, c("AGT", "TGA")]
 #'
 #' @seealso \code{\link[BiocParallel]{bplapply}} used for parallelization.
 #'
@@ -284,7 +311,7 @@ motifKmerSimilarity <- function(x,
                 if (bpnworkers(BPPARAM) > 1) " cores..." else " core...",
                 appendLF = FALSE)
     }
-    M <- do.call(rbind, bplapply(xm, function(m) compareMotifKmer(m = m, kmers = kmers)$bestScore,
+    M <- do.call(rbind, bplapply(xm, function(m) .compareMotifKmer(m = m, kmers = kmers)$bestScore,
                                  BPPARAM = BPPARAM))
     dimnames(M) <- list(name(x), kmers)
     if (verbose) {

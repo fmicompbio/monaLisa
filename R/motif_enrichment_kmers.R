@@ -38,6 +38,12 @@
 #' @return A \code{list} with observed and expected k-mer frequencies (\code{freq.obs}
 #'   and \code{freq.exp}, respectively), and enrichment statistics for each k-mer.
 #'
+#' @examples 
+#' res <- getKmerFreq(seqs = c("AAAAATT", "AAATTTT"), kmerLen = 3)
+#' names(res)
+#' head(res$freq.obs)
+#' head(res$freq.exp)
+#' 
 #' @importFrom Biostrings DNAStringSet oligonucleotideFrequency
 #' @importFrom XVector subseq
 #' @importFrom stats ppois kmeans
@@ -100,13 +106,13 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
 
         ## ... expected k-mer frequencies (log2-probabilities with a pseudocount)
         n <- nchar(names(kmerFreq.stratum)[1]) - MMorder
-        log2pMM <- sapply(names(kmerFreq.stratum), function(current.kmer) {
+        log2pMM <- vapply(names(kmerFreq.stratum), function(current.kmer) {
             ii_long <- substr(rep(current.kmer, n),
                               start = seq_len(n), stop = seq_len(n) + MMorder)
             ii_short <- substr(rep(current.kmer, n - 1L),
                                start = seq(2, n), stop = seq_len(n - 1L) + MMorder)
             sum(lp_long[ii_long]) - sum(lp_short[ii_short])
-        })
+        }, numeric(1))
         kmerFreqMM.stratum <- (2 ** log2pMM) * sum(kmerFreq.stratum)
         cbind(obs = kmerFreq.stratum, exp = kmerFreqMM.stratum)
     })
@@ -202,6 +208,10 @@ getKmerFreq <- function(seqs, kmerLen = 5, MMorder = 1, pseudoCount = 1, zoops =
 #'   indicating the k-mer cluster memberships. In \code{attr(y, "graph")} (where
 #'   \code{y} is the return value), you can get the k-mer graph on which the
 #'   clustering is based.
+#'   
+#' @examples
+#' clusterKmers(x = c("AAA", "AAT", "GGG"),
+#'              method = "similarity", minSim = 2)
 #'
 #' @seealso \code{\link{getKmerFreq}} for finding enriched k-mers in a set of
 #'   sequences; \code{\link{countKmerPairs}} for counting k-mer co-occurrences
@@ -365,6 +375,11 @@ clusterKmers <- function(x, method = c("cooccurrence", "similarity"),
 #'     instance determining the parallel back-end to be used during evaluation.
 #' @param verbose A \code{logical} scalar. If \code{TRUE}, report on progress.
 #'
+#' @examples 
+#' seqs <- Biostrings::DNAStringSet(c("GCATGCATGC", "CTAGCTAGCTG"))
+#' bins <- factor(1:2)
+#' calcBinnedKmerEnr(x = seqs, b = bins, kmerLen = 3)
+#' 
 #' @seealso \code{\link{getKmerFreq}} used to calculate k-mer enrichments;
 #'   \code{\link[BSgenome]{getSeq,BSgenome-method}} which is used to extract
 #'   sequences from \code{genomepkg} if \code{x} is a \code{GRanges} object;
@@ -441,12 +456,13 @@ calcBinnedKmerEnr <- function(x,
     
     ## identify enriched k-mers in each bin
     if (verbose) {
-        message("searching for enriched ", kmerLen, "-mers in ", nlevels(b),
-                " bins using ", bpnworkers(BPPARAM),
-                if (bpnworkers(BPPARAM) > 1) " cores" else " core",
-                " (background: ", c("other" = "sequences in other bins",
-                                    "model" = paste0("Markov model of order ", MMorder))[background],
-                ")...", appendLF = FALSE)
+        tmpmsg <- paste0("searching for enriched ", kmerLen, "-mers in ", nlevels(b),
+                         " bins using ", bpnworkers(BPPARAM),
+                         if (bpnworkers(BPPARAM) > 1) " cores" else " core",
+                         " (background: ", c("other" = "sequences in other bins",
+                                             "model" = paste0("Markov model of order ", MMorder))[background],
+                         ")...")
+        message(tmpmsg, appendLF = FALSE)
     }
     resL <- bplapply(split(x, b)[levels(b)], getKmerFreq, kmerLen = kmerLen,
                      MMorder = MMorder, pseudoCount = pseudoCount,
@@ -489,7 +505,7 @@ calcBinnedKmerEnr <- function(x,
     cdat <- S4Vectors::DataFrame(bin.names = levels(b),
                                  bin.lower = brks[-(nlevels(b) + 1)],
                                  bin.upper = brks[-1],
-                                 bin.nochange = seq.int(nlevels(b)) %in% attr(b, "bin0"))
+                                 bin.nochange = seq.int(nlevels(b)) %in% getZeroBin(b))
     kmers <- names(resL[[1]][[1]])
     pfms <- do.call(TFBSTools::PFMatrixList, lapply(kmers, function(kmer) {
         TFBSTools::PFMatrix(ID = kmer, name = kmer,
@@ -508,7 +524,7 @@ calcBinnedKmerEnr <- function(x,
         metadata = list(bins = b,
                         bins.binmode = attr(b, "binmode"),
                         bins.breaks = as.vector(attr(b, "breaks")),
-                        bins.bin0 = attr(b, "bin0"),
+                        bins.bin0 = getZeroBin(b),
                         param = list(genomepkg = genomepkg,
                                      kmerLen = kmerLen,
                                      background = background,
@@ -540,6 +556,23 @@ calcBinnedKmerEnr <- function(x,
 #'     instance determining the parallel back-end to be used during evaluation.
 #' @param verbose A logical scalar. If \code{TRUE}, report on progress.
 #'
+#' @return A \code{\link[SummarizedExperiment]{SummarizedExperiment}}
+#'     with \code{length(m)} rows (motifs) and \code{ncol(x)} columns (bins).
+#'
+#' @examples 
+#' seqs <- Biostrings::DNAStringSet(c("GCATGCATGC", "CTAGCTAGCTG"))
+#' bins <- factor(1:2)
+#' m <- rbind(A = c(2, 0, 0),
+#'            C = c(1, 1, 0),
+#'            G = c(0, 0, 3),
+#'            T = c(0, 2, 0))
+#' pfms <- TFBSTools::PFMatrixList(
+#'     TFBSTools::PFMatrix(name = "m1", profileMatrix = m),
+#'     TFBSTools::PFMatrix(name = "m2", profileMatrix = m[, c(2,1,3)])
+#' )
+#' se1 <- calcBinnedKmerEnr(x = seqs, b = bins, kmerLen = 3)
+#' convertKmersToMotifs(se1, pfms)
+#' 
 #' @seealso \code{\link{calcBinnedKmerEnr}} for performing a k-mer enrichment
 #'   analysis, \code{\link[BiocParallel]{bplapply}} used for parallelization.
 #'
@@ -602,13 +635,11 @@ convertKmersToMotifs <- function(x, m, BPPARAM = SerialParam(), verbose = FALSE)
 #' @title Match a set of k-mers to input sequences and determine frequencies of overlapping matches.
 #'
 #' @description Using a set of k-mers, search input sequences for matches and retrieve
-#'      the frequencies of sequences overlapping with 1 or more overlapping k-mers.
+#'      the frequencies of sequences overlapping with 1 or more overlapping k-mers or
+#'      their reverse-complements.
 #'
-#' @param seqs Set of sequences, either a \code{character} vector or a
-#'    \code{\link{DNAStringSet}}.
-#'   
+#' @param seqs Set of sequences as a \code{\link{DNAStringSet}}.
 #' @param x A \code{character} vector of enriched k-mers.
-#'
 #' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
 #'     instance determining the parallel back-end to be used during evaluation.
 #'
@@ -616,6 +647,10 @@ convertKmersToMotifs <- function(x, m, BPPARAM = SerialParam(), verbose = FALSE)
 #'   sequences overlapping enriched k-mers. The sequences are given as the
 #'   names, and the elements are sorted by decreasing frequency.
 #'
+#' @examples 
+#' s <- Biostrings::DNAStringSet(c("AAATTGG", "AATTTGG"))
+#' extractOverlappingKmerFrequecies(seqs = s, x = c("AA", "AT"))
+#' 
 #' @seealso \code{\link{calcBinnedKmerEnr}} for performing a k-mer enrichment
 #'     analysis, \code{\link[BiocParallel]{bplapply}} used for parallelization. 
 #'

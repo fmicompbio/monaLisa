@@ -45,9 +45,9 @@ test_that(".defineBackground() works", {
                                                          collapse = ""))))
     names(seqs) <- paste0("s", seq_along(seqs))
     b1 <- factor(rep(1:3, each = 30))
-    attr(b1, "bin0") <- 2
+    b1 <- setZeroBin(b1, 2)
     b2 <- factor(rep(1:2, each = 45))
-    attr(b2, "bin0") <- 2
+    b2 <- setZeroBin(b2, 2)
     gnm <- DNAStringSet(unlist(lapply(1:10,
                                       function(i) paste(sample(c("A","C","G","T"),
                                                                1000 - i * 10,
@@ -62,19 +62,20 @@ test_that(".defineBackground() works", {
                                                         collapse = ""))))
     names(gnm2) <- paste0("g", seq_along(gnm2))
     
-    df1 <- .defineBackground(seqs, b1, "otherBins", 1, NULL, NULL, 2, 42L, 0.7)
-    df2 <- .defineBackground(seqs, b1, "allBins",   1, NULL, NULL, 2, 42L, 0.7)
-    df3 <- .defineBackground(seqs, b1, "zeroBin",   1, NULL, NULL, 2, 42L, 0.7)
-    df4 <- .defineBackground(seqs, b1, "genome",    1, gnm,  NULL, 2, 42L, 0.7)
+    df1 <- .defineBackground(seqs, b1, "otherBins", 1, NULL, NULL, 2, 0.7)
+    df2 <- .defineBackground(seqs, b1, "allBins",   1, NULL, NULL, 2, 0.7)
+    df3 <- .defineBackground(seqs, b1, "zeroBin",   1, NULL, NULL, 2, 0.7)
+    df4 <- .defineBackground(seqs, b1, "genome",    1, gnm,  NULL, 2, 0.7)
     
-    df5 <- .defineBackground(seqs, b2, "otherBins", 1, NULL, NULL, 2, 42L, 0.7)
-    df6 <- .defineBackground(seqs, b2, "zeroBin",   1, NULL, NULL, 2, 42L, 0.7)
+    df5 <- .defineBackground(seqs, b2, "otherBins", 1, NULL, NULL, 2, 0.7)
+    df6 <- .defineBackground(seqs, b2, "zeroBin",   1, NULL, NULL, 2, 0.7)
     
+    set.seed(42L)
     df7 <- .defineBackground(seqs, b1, "genome",    1, gnm,
                              GenomicRanges::GRanges("g3", IRanges::IRanges(1, 970)),
-                             2, 42L, 0.7)
+                             2, 0.7)
     expect_warning(df8 <- .defineBackground(seqs, b1, "genome", 1,
-                                            gnm2, NULL, 2, 42L, 0.7))
+                                            gnm2, NULL, 2, 0.7))
     
     expect_is(df1, "DataFrame")
     expect_is(df2, "DataFrame")
@@ -134,7 +135,7 @@ test_that(".defineBackground() works", {
                                   unlist(GenomicRanges::tileGenome(GenomeInfoDb::seqlengths(gnm),
                                                                    tilewidth = 20)))
     df4b <- .defineBackground(gnm.tiles, factor(rep(1, length(gnm.tiles))), "otherBins", 1,
-                              NULL, NULL, NULL, NULL, 0.7)
+                              NULL, NULL, NULL, 0.7)
     GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.7, 0.8)
     gnm.gcbin.tab <- unclass(tabulate(findInterval(df4b$GCfrac, GCbreaks, all.inside = TRUE), 9))
     bg.gcbin.tab  <- unclass(tabulate(findInterval(df4$GCfrac[!df4$isForeground], GCbreaks, all.inside = TRUE), 9))
@@ -151,27 +152,44 @@ test_that(".calculateGCweight() works", {
               b4  = "AAAAGGGGGG", b5  = "AAAAAGGGGG", b6  = "AAAAAAGGGG",
               b7  = "AAAAAAAGGG", b8  = "AAAAAAAAGG", b9  = "AAAAAAAAAG",
               b2b = "AAGGGGGGGG", b4b = "AAAAGGGGGG", b6b = "AAAAAAGGGG")
+    bseq2 <- c(b1  = "AGGGGGGGGG", b2  = "AAGGGGGGGG", b3  = "AAAGGGGGGG",
+               b4  = "AAAAGGGGGCGC", b5  = "AAAAAGGGGCGCGC", b6  = "AAAAAAGGGG",
+               b7  = "AAAAAAAGGG", b8  = "AAAAAAAAGG", b9  = "AAAAAAAAAG",
+               b2b = "AAGGGGGGGG", b4b = "AAAAGGGGGG", b6b = "AAAAAAGGGGCGC")
     df <- DataFrame(seqs = DNAStringSet(c(fseq, bseq)),
                     isForeground = rep(c(TRUE, FALSE), c(length(fseq), length(bseq))),
                     GCfrac = NA_real_,
                     GCbin = NA_integer_,
                     GCwgt = NA_real_,
                     seqWgt = NA_real_)
+    df2 <- DataFrame(seqs = DNAStringSet(c(fseq, bseq2)),
+                     isForeground = rep(c(TRUE, FALSE), c(length(fseq), length(bseq2))),
+                     GCfrac = NA_real_,
+                     GCbin = NA_integer_,
+                     GCwgt = NA_real_,
+                     seqWgt = NA_real_)
     attr(df, "err") <- 0
+    attr(df2, "err") <- 0
     
     expect_error(.calculateGCweight("error"), "should be a DataFrame")
     expect_error(.calculateGCweight(df, GCbreaks = "error"), "numeric")
     expect_error(.calculateGCweight(df, GCbreaks = 0.2), "length 2 or greater")
     expect_error(.calculateGCweight(df, verbose = "error"), "logical")
     expect_message(.calculateGCweight(df, verbose = TRUE))
+    expect_message(.calculateGCweight(df2, verbose = TRUE))
 
     expect_is(res1 <- .calculateGCweight(df, verbose = FALSE), "DataFrame")
+    expect_is(res2 <- .calculateGCweight(df2, verbose = FALSE), "DataFrame")
+    expect_is(res3 <- .calculateGCweight(df2, verbose = FALSE, 
+                                         normalizeByLength = FALSE), "DataFrame")
     expect_identical(df[-13, 1:2], res1[, 1:2])
     expect_identical(res1$GCfrac, c(9:6,4:1,9:6,4:1,8,6,4) / 10)
     expect_identical(res1[res1$isForeground, "GCwgt"],
                      rep(1.0, sum(res1$isForeground)))
     expect_identical(res1[!res1$isForeground, "GCwgt"],
                      rep(c(1.03125, 0.68750, 1.37500, 1.03125, 0.68750), c(3, 2, 3, 1, 2)))
+    expect_identical(res2$GCbin, res3$GCbin)
+    expect_identical(res2$GCfrac, res3$GCfrac)
 })
 
 
@@ -292,7 +310,7 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
         paste(sample(c("A","C","G","T"), len, replace = TRUE), collapse = "")
     }))
     b <- factor(rep(c(1, 2, 3), each = 50))
-    attr(b, "bin0") <- NA
+    b <- setZeroBin(b, NA)
     m1 <- rbind(A = c(7, 7, 7, 7, 7), # AAAAA
                 C = c(1, 1, 1, 1, 1),
                 G = c(1, 1, 1, 1, 1),

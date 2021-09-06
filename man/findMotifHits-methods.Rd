@@ -214,7 +214,16 @@ The implemented methods (\code{matchPWM} and \code{homer2}) are
     and hit scores (typically only low-scoring hits).
 }
 \examples{
-\dontrun{
-findMotifHits(pwm, "sequences.fa")
-}
+seqs <- Biostrings::DNAStringSet(c(s1 = "GTCAGTCGATC", s2 = "CAGTCTAGCTG",
+                                   s3 = "CGATCGTCAGT", s4 = "AGCTGCAGTCT"))
+m <- rbind(A = c(2, 0, 0),
+           C = c(1, 1, 0),
+           G = c(0, 2, 0),
+           T = c(0, 0, 3))
+pwms <- TFBSTools::PWMatrixList(
+    TFBSTools::PWMatrix(ID = "m1", profileMatrix = m),
+    TFBSTools::PWMatrix(ID = "m2", profileMatrix = m[, 3:1])
+)
+findMotifHits(pwms, seqs, min.score = 7)
+
 }

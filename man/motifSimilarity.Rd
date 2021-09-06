@@ -58,6 +58,19 @@ For each pair of motifs, calculate the similarity defined as the
   background base frequencies (assuming all bases to have a frequency of
   0.25) to enable comparison of all positions in both matrices.
 }
+\examples{
+m <- rbind(A = c(12,  0,  0),
+           C = c( 3,  2,  0),
+           G = c( 0, 14,  0),
+           T = c( 0,  0, 15))
+pfms <- TFBSTools::PFMatrixList(
+    TFBSTools::PFMatrix(name = "m1", profileMatrix = m),
+    TFBSTools::PFMatrix(name = "m2", profileMatrix = m + 10),
+    TFBSTools::PFMatrix(name = "m3", profileMatrix = m[, 3:1])
+)
+motifSimilarity(pfms)
+
+}
 \seealso{
 \code{\link[BiocParallel]{bplapply}} used for parallelization for
   \code{method = "R"},
