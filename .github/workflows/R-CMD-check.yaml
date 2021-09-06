@@ -113,7 +113,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Check
-        run:
+        run: |
           Sys.setenv(MONALISA_HOMER = "${{env.GITHUB_WORKSPACE}}/homer/bin")
           Sys.getenv("MONALISA_HOMER")
           rcmdcheck::rcmdcheck(path = "${{env.PKG_PATH}}",
