@@ -53,9 +53,9 @@ jobs:
           mkdir homer && pushd homer
           wget http://homer.ucsd.edu/homer/configureHomer.pl
           perl configureHomer.pl -install
-          export PATH=$PATH:$PWD/bin/
+          # export PATH=$PATH:$PWD/bin/
           popd
-          echo "^homer$" >> $PKG_PATH/.Rbuildignore
+          # echo "^homer$" >> $PKG_PATH/.Rbuildignore
           # Rscript -e 'install.packages("magick")'
           
       - name: Install remotes
