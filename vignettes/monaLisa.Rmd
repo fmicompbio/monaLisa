@@ -325,7 +325,9 @@ pwms <- toPWM(pfms)
 
 # convert JASPAR2018 PFMs (vertebrate subset) to Homer motif file
 tmp <- tempfile()
-convert <- dumpJaspar(filename = tmp, pkg = "JASPAR2018", 
+convert <- dumpJaspar(filename = tmp,
+                      pkg = "JASPAR2018",
+                      pseudocount = 0,
                       opts = list(tax_group = "vertebrates"))
 
 # convert Homer motif file to PFMatrixList
@@ -333,8 +335,9 @@ pfms_ret <- homerToPFMatrixList(filename = tmp, n = 100L)
 
 # compare the first PFM
 # - notice the different magnitude of counts (controlled by `n`)
-# - notice the absence of zero values, caused by a pseudocount
-#   of 1.0 added to each element of the PFM by `dumpJaspar`
+# - notice that with the default (recommended) value of `pseudocount = 1.0`,
+#   there would be no zero values in pfms_ret matrices, making
+#   pfms and pfms_ret even more different
 as.matrix(pfms[[1]])
 as.matrix(pfms_ret[[1]])
 

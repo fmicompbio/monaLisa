@@ -42,12 +42,19 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 
 #' @title Dump Jaspar motifs into a HOMER motif file.
 #'
-#' @description Get PWMs from the \code{JASPAR2016} or \code{JASPAR2018} package
-#'     and write them into a HOMER-compatible motif file.
+#' @description Get motifs from a Jaspar database package (e.g. \code{JASPAR2018})
+#'     and write them into a HOMER-compatible motif file as positional probability
+#'     matrices.
 #'
 #' @param filename Name of the output file to be created.
 #' @param pkg Name of the Jaspar package to use (default: \code{JASPAR2018}).
-#' @param opts a search options list used in \code{\link[TFBSTools]{getMatrixSet}}.
+#' @param opts A list with search options used in
+#'     \code{\link[TFBSTools]{getMatrixSet}}. By default, only vertebrate motifs
+#'     are included in the output using
+#'     \code{opts = list(tax_group = "vertebrates")}.
+#' @param pseudocount A numerical scalar with the pseudocount to be added to
+#'     each element of the position frequency matrix extracted from Jaspar,
+#'     before its conversion to a position probability matrix (default: 1.0).
 #' @param relScoreCutoff Currently ignored. numeric(1) in [0,1] that sets the default motif
 #'     log-odds score cutof to relScoreCutoff * maximal score for each PWM
 #'     (default: 0.8).
@@ -61,17 +68,21 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 #'
 #' @examples 
 #' dumpJaspar(filename = tempfile(), pkg = "JASPAR2018", 
-#'            opts = list(ID = c("MA0006.1")), relScoreCutoff = 0.9)
+#'            opts = list(ID = c("MA0006.1")))
 #' 
 #' @importFrom utils getFromNamespace
 #' @importFrom TFBSTools getMatrixSet Matrix ID name
 #'
 #' @export
-dumpJaspar <- function(filename, pkg = "JASPAR2018",
+dumpJaspar <- function(filename,
+                       pkg = "JASPAR2018",
                        opts = list(tax_group = "vertebrates"),
-                       relScoreCutoff = 0.8, verbose = FALSE) {
+                       pseudocount = 1,
+                       relScoreCutoff = 0.8,
+                       verbose = FALSE) {
     .assertScalar(x = filename, type = "character")
     stopifnot(!file.exists(filename))
+    .assertScalar(x = pseudocount, type = "numeric", rngIncl = c(0, Inf))
     .assertScalar(x = relScoreCutoff, type = "numeric", rngIncl = c(0, 1))
     if ("matrixtype" %in% names(opts) && opts[["matrixtype"]] != "PFM") {
       stop("opts[['matrixtype']] must be set to 'PFM'")
@@ -97,38 +108,24 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018",
         message("converting to HOMER format...", appendLF = FALSE)
     fh <- file(filename, "wb")
     for (i in seq_len(length(siteList))) {
-        pwm <- TFBSTools::Matrix(siteList[[i]]) + 1
-        pwm <- t(t(pwm) / colSums(pwm))
-        tmp.rn <- rownames(pwm)
-        #scorecut <- relScoreCutoff * sum(log(apply(pwm, 2, max) / 0.25))
+        ppm <- TFBSTools::Matrix(siteList[[i]]) + pseudocount
+        ppm <- t(t(ppm) / colSums(ppm))
+        tmp.rn <- rownames(ppm)
+        #scorecut <- relScoreCutoff * sum(log(apply(ppm, 2, max) / 0.25))
         scorecut <- log(2**10) # use constant cutoff for all motifs (ignore relScoreCutoff)
-        pwm <- apply(pwm, 2, function(x){sprintf("%.3f", x)})
-        rownames(pwm) <- tmp.rn
-        # wm.name <- paste(c(TFBSTools::name(siteList[[i]]),
-        #                    paste(TFBSTools::tags(siteList[[i]])$acc, collapse = "."),
-        #                    TFBSTools::tags(siteList[[i]])$type), collapse = "_")
-        # wm.name <- gsub("::", ".", wm.name)
-        # wm.name <- gsub("-", "", wm.name)
-        # wm.name <- gsub("\\s+", "", wm.name)
-        # if (length(grep("\\(var\\.\\d\\)", wm.name)) > 0) {
-        #   tmp.num <- gsub("\\S+\\(var\\.(\\d)\\)\\S+", "\\1", wm.name)
-        #   wm.name <- gsub(sprintf("\\(var\\.%s\\)", tmp.num),
-        #                   sprintf("var%s", tmp.num), wm.name)
-        # }
-        # wm.name <- gsub("\\(PBM\\)", "", wm.name)
-        # wm.name.conv <- make.names(wm.name)
-        # if (!(wm.name == wm.name.conv)) {
-        #   warning("Weight matrix name ", wm.name, " converted to ", wm.name.conv)
-        # }
-        # wm.name <- wm.name.conv
+        ppm <- apply(ppm, 2, function(x){sprintf("%.3f", x)})
+        rownames(ppm) <- tmp.rn
         wm.name <- paste0(TFBSTools::ID(siteList[[i]]), ":::", TFBSTools::name(siteList[[i]]))
 
-        #the -10 is added so that the motif file has 4 columns, which is needed to run compareMotifs.pl
-        #for weight matrix clustering (4th column not used, bug in compareMotifs.pl, I think)
+        # the -10 is added so that the motif file has 4 columns,
+        # which is needed to run compareMotifs.pl for weight matrix clustering
+        # (4th column not used, bug in compareMotifs.pl, I think)
         cat(sprintf(">%s\t%s\t%.2f\t-10\n",
-                    paste(apply(pwm, 2, function(x) { rownames(pwm)[which.max(x)] }), collapse = ""),
+                    paste(apply(ppm, 2, function(x) {
+                        rownames(ppm)[which.max(x)]
+                    }), collapse = ""),
                     wm.name, scorecut),  file = fh, append = TRUE)
-        write.table(file = fh, t(pwm), row.names = FALSE, col.names = FALSE,
+        write.table(file = fh, t(ppm), row.names = FALSE, col.names = FALSE,
                     sep = "\t", quote = FALSE, append = TRUE)
         flush(fh)
     }
@@ -140,10 +137,10 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018",
 }
 
 
-#' @title Read a HOMER motif file and create a TFMatrixList.
+#' @title Read a HOMER motif file and create a PFMatrixList
 #'
 #' @description Read motifs from a file in HOMER format and create
-#'     a TFMatrixList from them.
+#'     a PFMatrixList from them.
 #'
 #' @param filename Name of the input file with HOMER-formatted motifs.
 #' @param n The number of observations (multiplied with base frequencies to
