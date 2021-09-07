@@ -21,6 +21,9 @@ concatenate \code{seqs} and their reverse-complemented versions
 before building the graph. The choice here should correspond to the choice
 made when extracting the k-mers.}
 }
+\value{
+A directed graph with nodes corresponding to k-mers.
+}
 \description{
 Build a directed graph from k-mers enriched in a set of sequences. The 
 graph is based on a de Bruijn graph, in which edges are weighted based on 

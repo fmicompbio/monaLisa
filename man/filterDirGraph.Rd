@@ -12,6 +12,9 @@ filterDirGraph(g, edge_weight_thr)
 \item{edge_weight_thr}{An edge weight threshold. Edges with weight below 
 this threshold will be removed.}
 }
+\value{
+A filtered graph.
+}
 \description{
 Filter directed graph, by only retaining edges with a 
 weight exceeding a given threshold.

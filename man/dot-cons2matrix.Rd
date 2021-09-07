@@ -12,6 +12,9 @@
 \item{n}{Integer scalar giving the columns sums in the constructed
 matrix (number of observed bases at each position).}
 }
+\value{
+A positional frequency matrix.
+}
 \description{
 Given a nucleotide sequence of A,C,G,T letter corresponding
   to a motif's consensus string, construct a positional frequency matrix.

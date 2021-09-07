@@ -20,6 +20,9 @@ concatenate \code{seqs} and their reverse-complemented versions
 before building the graph. The choice here should correspond to the choice
 made when extracting the k-mers.}
 }
+\value{
+A \code{DNAStringSet} with potential motifs.
+}
 \description{
 Infer putative motifs from a directed graph
 }

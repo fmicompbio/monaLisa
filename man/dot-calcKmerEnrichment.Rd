@@ -17,7 +17,7 @@
 \item{verbose}{A logical scalar. If \code{TRUE}, report on progress.}
 }
 \value{
-a \code{data.frame} containing the motifs as rows and the columns:
+A \code{data.frame} containing the motifs as rows and the columns:
   \itemize{
     \item{motifName}{: the motif name}
     \item{logP}{: the log p-value for enrichment (natural logarithm).

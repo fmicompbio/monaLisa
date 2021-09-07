@@ -10,6 +10,8 @@
 #'   This matrix can for example be used as the \code{profileMatrix} argument
 #'   in the constructor for a \code{TFBSTools::PFMatrix} object.
 #'
+#' @return A positional frequency matrix.
+#' 
 #' @param x Character scalar with the motif the consensus sequence.
 #' @param n Integer scalar giving the columns sums in the constructed
 #'   matrix (number of observed bases at each position).
@@ -417,7 +419,7 @@ clusterKmers <- function(x,
 #'   or zero occurrences of a k-mer are considered per sequence. This is helpful
 #'   to reduce the impact of simple sequence repeats occurring in few sequences.
 #'
-#' @return a \code{data.frame} containing the motifs as rows and the columns:
+#' @return A \code{data.frame} containing the motifs as rows and the columns:
 #'   \itemize{
 #'     \item{motifName}{: the motif name}
 #'     \item{logP}{: the log p-value for enrichment (natural logarithm).
@@ -1190,6 +1192,8 @@ extractOverlappingKmerFrequencies <- function(seqs,
 #'   
 #' @export
 #' 
+#' @return A directed graph with nodes corresponding to k-mers.
+#' 
 #' @examples 
 #' \dontrun{
 #' g <- buildDirGraphFromKmers(seqs, x)
@@ -1256,7 +1260,9 @@ buildDirGraphFromKmers <- function(seqs,
 #' @param g A directed k-mer graph (e.g., from \code{buildDirGraphFromKmers})
 #' @param edge_weight_thr An edge weight threshold. Edges with weight below 
 #'   this threshold will be removed. 
-#'   
+#' 
+#' @return A filtered graph.
+#' 
 #' @export
 #' 
 #' @importFrom igraph subgraph.edges V
@@ -1284,6 +1290,8 @@ filterDirGraph <- function(g, edge_weight_thr) {
 #'   made when extracting the k-mers. 
 #' 
 #' @export
+#' 
+#' @return A \code{DNAStringSet} with potential motifs. 
 #' 
 #' @importFrom igraph vertex_attr components
 #' @importFrom BiocParallel SerialParam
