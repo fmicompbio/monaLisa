@@ -181,7 +181,7 @@ This function implements a binned k-mer enrichment analysis. In each
   }
 }
 \examples{
-seqs <- Biostrings::DNAStringSet(c("GCATGCATGC", "CTAGCTAGCTG"))
+seqs <- Biostrings::DNAStringSet(c("GCATGCATGC", "CATGCGCATG"))
 bins <- factor(1:2)
 calcBinnedKmerEnr(seqs = seqs, bins = bins, kmerLen = 3)
 

@@ -657,7 +657,7 @@ clusterKmers <- function(x,
 #'     in a bin that have k-mer occurrences}
 #' }
 #' @examples 
-#' seqs <- Biostrings::DNAStringSet(c("GCATGCATGC", "CTAGCTAGCTG"))
+#' seqs <- Biostrings::DNAStringSet(c("GCATGCATGC", "CATGCGCATG"))
 #' bins <- factor(1:2)
 #' calcBinnedKmerEnr(seqs = seqs, bins = bins, kmerLen = 3)
 #' 
@@ -1288,7 +1288,7 @@ filterDirGraph <- function(g, edge_weight_thr) {
 #' @importFrom igraph vertex_attr components
 #' @importFrom BiocParallel SerialParam
 #' @importFrom Biostrings DNAStringSet
-#' @importFrom IRanges start end slice
+#' @importFrom IRanges start end slice viewMeans
 #' @importFrom S4Vectors mcols
 #' @importFrom XVector subseq
 #' 
@@ -1317,7 +1317,7 @@ getMotifsFromDirGraph <- function(seqs, g, BPPARAM = SerialParam(),
     edgeweights[is.na(edgeweights)] <- 0
     motif_ranges <- IRanges::slice(edgeweights, lower = 1)
     
-    motif_scores <- viewMeans(motif_ranges)
+    motif_scores <- IRanges::viewMeans(motif_ranges)
     motifs <- substring(overlapkmersflat,
                         first = IRanges::start(motif_ranges),
                         last = IRanges::end(motif_ranges) + k)
