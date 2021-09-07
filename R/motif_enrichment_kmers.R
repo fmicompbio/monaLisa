@@ -1198,7 +1198,7 @@ extractOverlappingKmerFrequencies <- function(seqs,
 #' seqs <- Biostrings::DNAStringSet(c("GCATGCATGC", "CATGCGCATG"))
 #' bins <- factor(1:2)
 #' se <- calcBinnedKmerEnr(seqs = seqs, bins = bins, kmerLen = 3)
-#' x <- rownames(se)[which(assay(se, "negLog10P")[, 2] > 0.5)]
+#' x <- rownames(se)[which(SummarizedExperiment::assay(se, "negLog10P")[, 2] > 0.5)]
 #' g <- buildDirGraphFromKmers(seqs, x)
 #' 
 #' @importFrom BiocParallel SerialParam
@@ -1297,7 +1297,7 @@ filterDirGraph <- function(g, edge_weight_thr) {
 #' seqs <- Biostrings::DNAStringSet(c("GCATGCATGC", "CATGCGCATG"))
 #' bins <- factor(1:2)
 #' se <- calcBinnedKmerEnr(seqs = seqs, bins = bins, kmerLen = 3)
-#' x <- rownames(se)[which(assay(se, "negLog10P")[, 2] > 0.5)]
+#' x <- rownames(se)[which(SummarizedExperiment::assay(se, "negLog10P")[, 2] > 0.5)]
 #' g <- buildDirGraphFromKmers(seqs, x)
 #' getMotifsFromDirGraph(seqs, g)
 #' 
