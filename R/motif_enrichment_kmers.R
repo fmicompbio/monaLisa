@@ -1036,7 +1036,7 @@ calcBinnedKmerEnr <- function(seqs,
 #'     TFBSTools::PFMatrix(name = "m1", profileMatrix = m),
 #'     TFBSTools::PFMatrix(name = "m2", profileMatrix = m[, c(2,1,3)])
 #' )
-#' se1 <- calcBinnedKmerEnr(x = seqs, b = bins, kmerLen = 3)
+#' se1 <- calcBinnedKmerEnr(seqs = seqs, bins = bins, kmerLen = 3)
 #' convertKmersToMotifs(se1, pfms)
 #' 
 #' @seealso \code{\link{calcBinnedKmerEnr}} for performing a k-mer enrichment
@@ -1119,7 +1119,7 @@ convertKmersToMotifs <- function(x, m, BPPARAM = SerialParam(), verbose = FALSE)
 #'
 #' @examples 
 #' s <- Biostrings::DNAStringSet(c("AAATTGG", "AATTTGG"))
-#' extractOverlappingKmerFrequecies(seqs = s, x = c("AA", "AT"))
+#' extractOverlappingKmerFrequencies(seqs = s, x = c("AA", "AT"))
 #' 
 #' @seealso \code{\link{calcBinnedKmerEnr}} for performing a k-mer enrichment
 #'     analysis, \code{\link[BiocParallel]{bplapply}} used for parallelization. 

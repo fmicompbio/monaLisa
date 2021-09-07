@@ -36,7 +36,7 @@ Using a set of k-mers, search input sequences for matches and
 }
 \examples{
 s <- Biostrings::DNAStringSet(c("AAATTGG", "AATTTGG"))
-extractOverlappingKmerFrequecies(seqs = s, x = c("AA", "AT"))
+extractOverlappingKmerFrequencies(seqs = s, x = c("AA", "AT"))
 
 }
 \seealso{

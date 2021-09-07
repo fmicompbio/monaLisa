@@ -41,7 +41,7 @@ pfms <- TFBSTools::PFMatrixList(
     TFBSTools::PFMatrix(name = "m1", profileMatrix = m),
     TFBSTools::PFMatrix(name = "m2", profileMatrix = m[, c(2,1,3)])
 )
-se1 <- calcBinnedKmerEnr(x = seqs, b = bins, kmerLen = 3)
+se1 <- calcBinnedKmerEnr(seqs = seqs, bins = bins, kmerLen = 3)
 convertKmersToMotifs(se1, pfms)
 
 }
