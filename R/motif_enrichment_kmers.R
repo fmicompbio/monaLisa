@@ -1026,7 +1026,7 @@ calcBinnedKmerEnr <- function(seqs,
 #'     with \code{length(m)} rows (motifs) and \code{ncol(x)} columns (bins).
 #'
 #' @examples 
-#' seqs <- Biostrings::DNAStringSet(c("GCATGCATGC", "CTAGCTAGCTG"))
+#' seqs <- Biostrings::DNAStringSet(c("GCATGCATGC", "CATGCGCATG"))
 #' bins <- factor(1:2)
 #' m <- rbind(A = c(2, 0, 0),
 #'            C = c(1, 1, 0),
