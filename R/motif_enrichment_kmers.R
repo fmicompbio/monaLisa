@@ -659,7 +659,7 @@ clusterKmers <- function(x,
 #' @examples 
 #' seqs <- Biostrings::DNAStringSet(c("GCATGCATGC", "CTAGCTAGCTG"))
 #' bins <- factor(1:2)
-#' calcBinnedKmerEnr(x = seqs, b = bins, kmerLen = 3)
+#' calcBinnedKmerEnr(seqs = seqs, bins = bins, kmerLen = 3)
 #' 
 #' @seealso \code{\link{getKmerFreq}} used to calculate k-mer enrichments;
 #'   \code{\link[BSgenome]{getSeq,BSgenome-method}} which is used to extract

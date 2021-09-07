@@ -269,8 +269,11 @@ test_that("calcBinnedKmerEnr works as expected", {
     expect_error(calcBinnedKmerEnr(DNAStringSet(rep("NNNNNNNNNN", 10)), background = "model"))
 
     expect_message(res1 <- calcBinnedKmerEnr(seqs, b, k, includeRevComp = FALSE, verbose = TRUE))
+    RNGkind("L'Ecuyer-CMRG")
+    set.seed(42L)
     res2 <- calcBinnedKmerEnr(seqs, b, k, background = "genome", genome = gnm,
                               includeRevComp = FALSE, verbose = FALSE, BPPARAM = pparams)
+    RNGkind("default")
     res3 <- calcBinnedKmerEnr(seqs, b, k, background = "model",
                               BPPARAM = pparams)
     res4 <- calcBinnedKmerEnr(seqs, b, k, background = "model",
@@ -294,7 +297,7 @@ test_that("calcBinnedKmerEnr works as expected", {
     expect_equal(colSums(assay(res1, "negLog10P")),
                  c(`[1,1.5]` = 33.1936891496806, `(1.5,2]` = 31.5395993919718))
     expect_equal(colSums(assay(res2, "negLog10P")),
-                 c(`[1,1.5]` = 34.5789076108342, `(1.5,2]` = 37.7387629738933))
+                 c(`[1,1.5]` = 37.1270049027622, `(1.5,2]` = 40.6593382003256))
     expect_equal(colSums(assay(res3, "negLog10P")),
                  c(`[1,1.5]` = 27.2409566382244, `(1.5,2]` = 23.5971145106083))
     expect_equal(colSums(assay(res4, "negLog10P")),
