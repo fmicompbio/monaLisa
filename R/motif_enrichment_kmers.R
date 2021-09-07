@@ -861,9 +861,9 @@ calcBinnedKmerEnr <- function(seqs,
 
             # if df is empty, then all seqs were filtered out in the GC weight calculation step
             if (nrow(df) == 0) {
-                stop(paste0("No sequences remained after the GC weight calculation step in bin ", levels(bins)[i], 
-                            " due to no GC bin containing both fore- and background sequences. ", 
-                            "Cannot proceed with the enrichment analysis ..."))
+                stop("No sequences remained after the GC weight calculation step in bin ", levels(bins)[i], 
+                     " due to no GC bin containing both fore- and background sequences. ", 
+                     "Cannot proceed with the enrichment analysis ...")
             }
 
             # update background sequence weights based on k-mer composition
