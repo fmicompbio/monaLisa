@@ -59,3 +59,10 @@ Given a set of sequences, calculate observed and expected k-mer
   frequencies. Expected frequencies are based on a Markov model of order
   \code{MMorder}.
 }
+\examples{
+res <- getKmerFreq(seqs = c("AAAAATT", "AAATTTT"), kmerLen = 3)
+names(res)
+head(res$freq.obs)
+head(res$freq.exp)
+
+}

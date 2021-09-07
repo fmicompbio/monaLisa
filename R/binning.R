@@ -104,7 +104,54 @@ bin <- function(x, binmode = c("equalN", "equalWidth", "breaks"),
     res <- cut(x, breaks = breaks, include.lowest = TRUE, ...)
     attr(res, "binmode") <- binmode
     attr(res, "breaks") <- unname(breaks)
-    attr(res, "bin0") <- if (binmode == "breaks") NA else attr(breaks, "bin0")
+    res <- setZeroBin(res, ifelse(binmode == "breaks",
+                                  NA, attr(breaks, "bin0")))
     res
 }
 
+#' Get and set the zero bin manually
+#' 
+#' @param bins Factor, typically the return value of \code{\link[monaLisa]{bin}}.
+#' @param zeroBin Numeric or character scalar indicating the level to use as 
+#'   the zero bin, or NA.
+#' 
+#' @examples 
+#' set.seed(1)
+#' x <- rnorm(100)
+#' bins <- bin(x, "equalN", nElements = 10, minAbsX = 0.5)
+#' getZeroBin(bins)
+#' bins <- setZeroBin(bins, 2)
+#' 
+#' @return 
+#' For \code{getZeroBin}, the index of the level representing the zero bin. 
+#' For \code{setZeroBin}, a modified factor with the zero bin set to the 
+#' provided value.
+#' 
+#' @name getSetZeroBin
+NULL
+
+#' @export
+#' @rdname getSetZeroBin
+getZeroBin <- function(bins) {
+    attr(bins, "bin0")
+}
+
+#' @export 
+#' @rdname getSetZeroBin
+setZeroBin <- function(bins, zeroBin) {
+    .assertVector(x = bins, type = "factor")
+    if (is.na(zeroBin) && length(zeroBin) == 1L) {
+        attr(bins, "bin0") <- NA
+    } else if (is.numeric(zeroBin)) {
+        .assertScalar(x = zeroBin, type = "numeric",
+                      validValues = seq_len(nlevels(bins)))
+        attr(bins, "bin0") <- as.integer(zeroBin)
+    } else if (is.character(zeroBin)) {
+        .assertScalar(x = zeroBin, type = "character",
+                      validValues = levels(bins))
+        attr(bins, "bin0") <- match(zeroBin, levels(bins))
+    } else {
+        stop("'zeroBin' must be of type 'character', 'numeric' or NA")
+    }
+    bins
+}

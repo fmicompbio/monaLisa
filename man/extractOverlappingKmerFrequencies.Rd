@@ -34,6 +34,11 @@ Using a set of k-mers, search input sequences for matches and
     Overlapping k-mer matches will result in extracted sequences that are
     longer than the input k-mers.
 }
+\examples{
+s <- Biostrings::DNAStringSet(c("AAATTGG", "AATTTGG"))
+extractOverlappingKmerFrequecies(seqs = s, x = c("AA", "AT"))
+
+}
 \seealso{
 \code{\link{calcBinnedKmerEnr}} for performing a k-mer enrichment
     analysis, \code{\link[BiocParallel]{bplapply}} used for parallelization.

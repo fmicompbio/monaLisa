@@ -44,6 +44,13 @@ Invisibly the return value of \code{hist(...)} that generated the plot.
 \description{
 Plot a histogram of binned elements with binning information.
 }
+\examples{
+set.seed(1)
+x <- rnorm(100)
+b <- bin(x, "equalN", nElements = 10)
+plotBinHist(x, b)
+
+}
 \seealso{
 \code{\link{getColsByBin}}, \code{\link[graphics]{hist}}
 }

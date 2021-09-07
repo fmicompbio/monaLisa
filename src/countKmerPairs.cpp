@@ -102,6 +102,8 @@ void calc_kmer_indices_for_seq(std::vector<int> &kidx,
 //' 
 //' @return A sparse numeric matrix (\code{\link[Matrix]{dgCMatrix-class}})
 //'     with observed k-mer pairs counts.
+//'     
+//' @import Rcpp
 //' @export
 // [[Rcpp::export(rng=false)]]
 Rcpp::RObject countKmerPairs(SEXP x,

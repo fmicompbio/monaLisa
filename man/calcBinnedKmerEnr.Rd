@@ -22,7 +22,6 @@ calcBinnedKmerEnr(
   genome = NULL,
   genome.regions = NULL,
   genome.oversample = 2,
-  genome.seed = 42L,
   BPPARAM = SerialParam(),
   verbose = FALSE
 )
@@ -80,7 +79,7 @@ foreground and background counts when calculating log2 motif enrichments}
 \item{pseudofreq.pearsonResid}{A numerical scalar with the pseudo-frequency
 to add to background frequencies when calculating Pearson residuals.
 The value needs to be in [0,1] and corresponds to the minimal expected
-frequency of background sequences that contain at least one motif hit.}
+fraction of background sequences that contain at least one motif hit.}
 
 \item{p.adjust.method}{A character scalar selecting the p value adjustment
 method (used in \code{\link[stats]{p.adjust}}).}
@@ -99,9 +98,6 @@ many background sequences will be sampled per foreground sequence for
 \code{background = "genome"}. Larger values will take longer but improve
 the sequence composition similarity between foreground and background
 (see \code{"Details"}).}
-
-\item{genome.seed}{An \code{integer} scalar used to seed the random number
-generator before sampling regions.}
 
 \item{BPPARAM}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
 instance determining the parallel back-end to be used during evaluation.}
@@ -151,7 +147,8 @@ This function implements a binned k-mer enrichment analysis. In each
       of the same size are sampled (on average). From these, one per
       foreground sequence is selected trying to match the G+C composition.
       In order to make the sampling deterministic, the random number
-      generator is seeded using \code{genome.seed}.}
+      generator has to be seeded using \code{set.seed} before calling 
+      this function.}
     \item{model}{: a Markov model of the order \code{MMorder} is estimated
       from the foreground sequences and used to estimate expected k-mer
       frequencies. K-mer enrichments are then calculated comparing observed
@@ -183,8 +180,16 @@ This function implements a binned k-mer enrichment analysis. In each
       lower.tail = FALSE, log.p = TRUE)}}
   }
 }
+\examples{
+seqs <- Biostrings::DNAStringSet(c("GCATGCATGC", "CTAGCTAGCTG"))
+bins <- factor(1:2)
+calcBinnedKmerEnr(x = seqs, b = bins, kmerLen = 3)
+
+}
 \seealso{
 \code{\link{getKmerFreq}} used to calculate k-mer enrichments;
+  \code{\link[BSgenome]{getSeq,BSgenome-method}} which is used to extract
+  sequences from \code{genomepkg} if \code{x} is a \code{GRanges} object;
   \code{\link[BiocParallel]{bplapply}} that is used for parallelization;
   \code{\link{bin}} for binning of regions
 }

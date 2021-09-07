@@ -4,12 +4,7 @@
 \alias{sample_random_regions}
 \title{Sample random regions of fixed length.}
 \usage{
-sample_random_regions(
-  allowedRegions = NULL,
-  N = 100L,
-  regWidth = 200L,
-  seed = 123
-)
+sample_random_regions(allowedRegions = NULL, N = 100L, regWidth = 200L)
 }
 \arguments{
 \item{allowedRegions}{An unstranded GRanges object of the "allowed" of the genome, usually the mappable regions.}
@@ -17,8 +12,6 @@ sample_random_regions(
 \item{N}{Number of regions to sample.}
 
 \item{regWidth}{Region width.}
-
-\item{seed}{Seed for seeding the random number generator.}
 }
 \value{
 A GRanges object with randomly sampled mappable regions of width \code{regWidth}
@@ -29,5 +22,14 @@ Sample random regions from the mappable parts of the genome with
      a given fraction from CpG islands.
 }
 \details{
-to be filled in.
+In order to make the results deterministic, set the random
+     number seet before calling \code{sample_random_regions} using \code{set.seed}.
+}
+\examples{
+regs <- GenomicRanges::GRanges(
+  seqnames = rep(c("chr1", "chr2"), each = 2), 
+  ranges = IRanges::IRanges(start = 1:4, end = 5:8))
+set.seed(123)
+sample_random_regions(regs, N = 2, regWidth = 3L)
+
 }

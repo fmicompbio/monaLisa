@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 bibliography: monaLisa-refs.bib
 output: BiocStyle::html_document
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{monaLisa - MOtif aNAlysis with Lisa}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -36,7 +36,7 @@ For example, `monaLisa` can be used to conveniently find motif hits in
 sequences (see section \@ref(findhits)), or to identify motifs that are likely
 associated to observed experimental data. This analysis is supposed to
 provide potential answers to the question "Which transcription factors are
-the drivers of my observed changes in expression/methylation/accessiblity?".
+the drivers of my observed changes in expression/methylation/accessibility?".
 
 Several other approaches have been described that also address this problem,
 among them REDUCE [@reduce] and ISMARA [@ismara]. In `monaLisa`, we aim to
@@ -90,9 +90,9 @@ library(monaLisa)
 peak_bins <- bin(x = peak_change, binmode = "equalN", nElement = 400)
 
 # calculate motif enrichments
-# (peak_seq is a DNAStringSet, pwms is a PWMatrixList)
-se <- calcBinnedMotifEnr(seqs = peaks_seqs,
-                         bins = peaks_bins,
+# (peak_seqs is a DNAStringSet, pwms is a PWMatrixList)
+se <- calcBinnedMotifEnr(seqs = peak_seqs,
+                         bins = peak_bins,
                          motifs = pwms)
 ```
 
@@ -105,7 +105,7 @@ with motifs (rows) by bins (columns). The values are:
   the `background` argument (by default: sequences in all other bins).  
 - *negLog10Padj*: Same as *negLog10P* but adjusted for multiple testing using the method of
   provided in the `p.adjust.method` argument, by default: Benjamini and Hochberg, 1995
-  (`p.adjust(..., method="fdr"`).  
+  (`p.adjust(..., method="fdr")`).  
 - *pearsonResid*: Pearson residuals, a measure for motif enrichments calculated
   as: $enr = (o - e) / \sqrt e$, where $o$ and $e$ are the observed and expected
   numbers of regions in the bin containing a given motif. These enrichments
@@ -140,7 +140,7 @@ We also developed a tool that systematically identifies such regions from
 genome-wide methylation data [@MethylSeekR]. Interestingly, a change in methylation
 of LMRs is indicative of altered transcription factor binding. We will therefore
 use these regions to identify transcription factor motifs that are enriched
-or depleted in LMR regions that change their methylation between ES and NP cell
+or depleted in LMRs that change their methylation between ES and NP cell
 states.
 
 
@@ -189,6 +189,16 @@ bins <- bin(x = lmrsel$deltaMeth, binmode = "equalN", nElement = 800, minAbsX = 
 table(bins)
 ```
 
+
+We can see which bin has been set to be the zero bin using `monaLisa::getZeroBin`, 
+or set it to a different bin using `monaLisa::setZeroBin`:
+```{r}
+# find the index of the level representing the zero bin 
+levels(bins)
+getZeroBin(bins)
+```
+
+
 Because of the asymmetry of methylation changes, there is only a single bin with LMRs
 that lost methylation and many that gained:  
 ```{r plotbins}
@@ -210,7 +220,7 @@ pwms <- getMatrixSet(JASPAR2018,
                                  tax_group = "vertebrates"))
 ```
 
-Furthermore, we need the sequences corresponding to our LMR regions, which
+Furthermore, we need the sequences corresponding to our LMRs, which
 we directly extract from the `r Biocpkg("BSgenome.Mmusculus.UCSC.mm10")`
 package:  
 ```{r getseqs}
@@ -255,7 +265,7 @@ assay(se, "log2enr")[1:5, 1:3]
 
 We can plot the results using the `plotMotifHeatmaps` function, e.g. selecting all
 transcription factor motifs that have an $-log_{10} FDR$ of at least 8.0 in any bin
-(corresponding to an $FDR < 10^{-8}$). FDR values are store in the `negLog10Padj` assay:  
+(corresponding to an $FDR < 10^{-8}$). FDR values are stored in the `negLog10Padj` assay:  
 ```{r plottfs}
 # select strongly enriched motifs
 sel <- apply(assay(se, "negLog10Padj"), 1, function(x) max(abs(x), 0, na.rm = TRUE)) > 8.0
@@ -263,7 +273,7 @@ sum(sel)
 seSel <- se[sel, ]
 
 # plot
-plotMotifHeatmaps(x = seSel, which.plots = c("log2enr","negLog10Padj"), width = 2.0,
+plotMotifHeatmaps(x = seSel, which.plots = c("log2enr", "negLog10Padj"), width = 2.0,
                   cluster = TRUE, maxEnr = 2, maxSig = 10, show_motif_GC = TRUE)
 ```
 
@@ -294,10 +304,58 @@ in the heatmap. The plotting of the dendrogram is controlled by the parameter
 ```{r plottfsclustered}
 # create hclust object, similarity defined by 1 - Pearson correlation
 hcl <- hclust(as.dist(1 - SimMatSel), method = "average")
-plotMotifHeatmaps(x = seSel, which.plots = c("log2enr","negLog10Padj"), width = 1.8,
+plotMotifHeatmaps(x = seSel, which.plots = c("log2enr", "negLog10Padj"), width = 1.8,
                   cluster = hcl, maxEnr = 2, maxSig = 10,
                   show_dendrogram = TRUE, show_seqlogo = TRUE,
                   width.seqlogo = 1.2)
+```
+
+
+## Convert between motif text file for `Homer` and motif objects in `R`
+
+`calcBinnedMotifEnr` is a wrapper function for `calcBinnedMotifEnrR` and `calcBinnedMotifEnrHomer`. `calcBinnedMotifEnrR` implements the binned motif enrichment analysis in `R`, similarly to `Homer` and does not require the user to have the `Homer` tool pre-installed. For more information on that function and how it resembles the `Homer` tool see the function documentation.
+
+A simple way to represent a DNA sequence motif that assumes independence of positions in the motif is a matrix with four rows (for the bases A, C, G and T) and `n` columns for the `n` positions in the motif. The values in that matrix can represent the sequence preferences of a binding protein in several different ways:  
+
+- **Position frequency matrices (PFM)** contain values that correspond to the number of times (frequency) that a given base has been observed in at a given position of the motif. It is usually obtained from a set of known, aligned binding site sequences, and depending on the number of sequences, the values will be lower or higher. In `R`, PFMs are often represented using `TFBSTools::PFMatrix` (single motif) or `TFBSTools::PFMatrixList` objects (set of motifs). This is the rawest way to represent a sequence motif and can be converted into any other representation.  
+- **Position probability matrices (PPM)** are obtained by dividing the counts in each column of a PFM by their sum. The values now give a probability of observing a given base at that position of the motif and sum up to one in each column. This is the representation used in motif text files for `Homer`. A PPM can only be converted back to a PFM by knowing or assuming how many binding site sequences were observed (see argument `n` in `homerToPFMatrixList`).  
+- **Position weight matrices (PWM)** (also known as position specific scoring matrices, PSSM) are obtained by comparing the base probabilities in a PPM to the probabilities of observing each base outside of a binding site (background base probabilities), for example by calculating log-odds scores (see `?toPWM` for details). This is a useful representation for scanning sequences for motif matches. In `R`, PWMs are often represented using `TFBSTools::PWMatrix` (single motif) or `TFBSTools::PWMatrixList` (set of motifs).
+
+`calcBinnedMotifEnrR` takes PWMs as a `PWMatrixList` object to scan for motif hits. `calcBinnedMotifEnrHomer` on the other hand takes a motif text file with PPMs, and requires the user to have `Homer` installed to use it for the binned motif enrichment analysis. Here, we show how one can get motif PFMs from `JASPAR2018` and convert them to a `Homer`-compatible text file with PPMs (`dumpJaspar`) and vice versa (`homerToPFMatrixList` ), and how to convert a `PFMatrixList` to a `PWMatrixList` for use with `calcBinnedMotifEnrR` or `findMotifHits`: 
+
+```{r}
+# get PFMs from JASPAR2018 package (vertebrate subset)
+pfms <- getMatrixSet(JASPAR2018,
+                     opts = list(matrixtype = "PFM",
+                                 tax_group = "vertebrates"))
+
+# convert PFMs to PWMs
+pwms <- toPWM(pfms)
+
+# convert JASPAR2018 PFMs (vertebrate subset) to Homer motif file
+tmp <- tempfile()
+convert <- dumpJaspar(filename = tmp,
+                      pkg = "JASPAR2018",
+                      pseudocount = 0,
+                      opts = list(tax_group = "vertebrates"))
+
+# convert Homer motif file to PFMatrixList
+pfms_ret <- homerToPFMatrixList(filename = tmp, n = 100L)
+
+# compare the first PFM
+# - notice the different magnitude of counts (controlled by `n`)
+# - notice that with the default (recommended) value of `pseudocount = 1.0`,
+#   there would be no zero values in pfms_ret matrices, making
+#   pfms and pfms_ret even more different
+as.matrix(pfms[[1]])
+as.matrix(pfms_ret[[1]])
+
+# compare position probability matrices with the original PFM 
+# (also adding a pseudo-count of 1.0 first)
+round(sweep(x = as.matrix(pfms[[1]]) + 1, MARGIN = 2, 
+            STATS = colSums(as.matrix(pfms[[1]]) + 1), FUN = "/"), 3)
+round(sweep(x = as.matrix(pfms_ret[[1]]), MARGIN = 2, 
+            STATS = colSums(as.matrix(pfms_ret[[1]])), FUN = "/"), 3)
 ```
 
 
@@ -320,7 +378,7 @@ seqs
 # (could also be a single PWMatrix, or the name of a motif file)
 library(JASPAR2018)
 library(TFBSTools)
-pfms <- getMatrixByID(JASPAR2018, c("MA0885.1","MA0099.3","MA0033.2","MA0037.3","MA0158.1"))
+pfms <- getMatrixByID(JASPAR2018, c("MA0885.1", "MA0099.3", "MA0033.2", "MA0037.3", "MA0158.1"))
 pwms <- toPWM(pfms)
 pwms
 name(pwms)
@@ -347,7 +405,7 @@ and that the order of sequences (rows) and motifs (columns) is identical to
 the order in `seqs` and `pwms`.
 
 
-# Motif Selection with Randomized Lasso Stability Selection{#stabsel}
+# Motif selection with Randomized Lasso Stability Selection{#stabsel}
 
 One can also select for important transcription factor (TF) motifs in a regression based approach with predictors consisting of the TF motif hits, and the response vector being the observed measure of interest, e.g. log-fold changes of accessibility for a set of regions. In `monaLisa`, we implement the randomized lasso stability selection proposed by @StabSel with the improved error bounds introduced by @compStabs. We have modified the `glmnet.lasso` function used by `stabsel` from the `r CRANpkg("stabs")` package to implement the randomized lasso.
 
@@ -417,7 +475,7 @@ hits <- findMotifHits(query = pwms, subject = peakSeq, min.score = 10.0,
 
 # get TFBS matrix
 TFBSmatrix <- unclass(table(factor(seqnames(hits), levels = seqlevels(hits)),
-                                  factor(hits$pwmname, levels = name(pwms))))
+                            factor(hits$pwmname, levels = name(pwms))))
 TFBSmatrix[1:6, 1:6]
 
 # remove TF motifs with 0 binding sites in all regions
@@ -428,8 +486,8 @@ TFBSmatrix <- TFBSmatrix[, !zero_TF]
 # calculate G+C and CpG obs/expected
 fMono <- oligonucleotideFrequency(peakSeq, width = 1L, as.prob = TRUE)
 fDi <- oligonucleotideFrequency(peakSeq, width = 2L, as.prob = TRUE)
-fracGC <- fMono[,"G"] + fMono[,"C"]
-oeCpG <- (fDi[,"CG"] + 0.01) / (fMono[,"G"] * fMono[,"C"] + 0.01)
+fracGC <- fMono[, "G"] + fMono[, "C"]
+oeCpG <- (fDi[, "CG"] + 0.01) / (fMono[, "G"] * fMono[, "C"] + 0.01)
 
 # add GC and oeCpG to predictor matrix
 TFBSmatrix <- cbind(fracGC, oeCpG, TFBSmatrix)

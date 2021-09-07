@@ -22,6 +22,8 @@
 #' 
 #' @return A sparse numeric matrix (\code{\link[Matrix]{dgCMatrix-class}})
 #'     with observed k-mer pairs counts.
+#'     
+#' @import Rcpp
 #' @export
 countKmerPairs <- function(x, k = 6L, n = 5L, zoops = FALSE) {
     .Call(`_monaLisa_countKmerPairs`, x, k, n, zoops)

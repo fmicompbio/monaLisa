@@ -19,7 +19,10 @@ NULL
 #'     directory provided in the environment variable \code{MONALISA_HOMER}. 
 #'
 #' @return Absolute path to \code{homerfile}, or \code{NA} if none or several were found.
-#'
+#' 
+#' @examples 
+#' homer_path <- findHomer()
+#' 
 #' @export
 findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
     if (is.null(dirs))
@@ -39,12 +42,19 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 
 #' @title Dump Jaspar motifs into a HOMER motif file.
 #'
-#' @description Get PWMs from the \code{JASPAR2016} or \code{JASPAR2018} package
-#'     and write them into a HOMER-compatible motif file.
+#' @description Get motifs from a Jaspar database package (e.g. \code{JASPAR2018})
+#'     and write them into a HOMER-compatible motif file as positional probability
+#'     matrices.
 #'
 #' @param filename Name of the output file to be created.
 #' @param pkg Name of the Jaspar package to use (default: \code{JASPAR2018}).
-#' @param opts a search options list used in \code{\link[TFBSTools]{getMatrixSet}}.
+#' @param opts A list with search options used in
+#'     \code{\link[TFBSTools]{getMatrixSet}}. By default, only vertebrate motifs
+#'     are included in the output using
+#'     \code{opts = list(tax_group = "vertebrates")}.
+#' @param pseudocount A numerical scalar with the pseudocount to be added to
+#'     each element of the position frequency matrix extracted from Jaspar,
+#'     before its conversion to a position probability matrix (default: 1.0).
 #' @param relScoreCutoff Currently ignored. numeric(1) in [0,1] that sets the default motif
 #'     log-odds score cutof to relScoreCutoff * maximal score for each PWM
 #'     (default: 0.8).
@@ -54,17 +64,25 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 #'
 #' @seealso \code{\link[TFBSTools]{getMatrixSet}} for details on the argument \code{opts}.
 #'     \code{\link{homerToPFMatrixList}} to read a file with HOMER-formatted
-#'     moitfs into a \code{\link[TFBSTools]{PFMatrixList}}.
+#'     motifs into a \code{\link[TFBSTools]{PFMatrixList}}.
 #'
+#' @examples 
+#' dumpJaspar(filename = tempfile(), pkg = "JASPAR2018", 
+#'            opts = list(ID = c("MA0006.1")))
+#' 
 #' @importFrom utils getFromNamespace
 #' @importFrom TFBSTools getMatrixSet Matrix ID name
 #'
 #' @export
-dumpJaspar <- function(filename, pkg = "JASPAR2018",
+dumpJaspar <- function(filename,
+                       pkg = "JASPAR2018",
                        opts = list(tax_group = "vertebrates"),
-                       relScoreCutoff = 0.8, verbose = FALSE) {
+                       pseudocount = 1,
+                       relScoreCutoff = 0.8,
+                       verbose = FALSE) {
     .assertScalar(x = filename, type = "character")
     stopifnot(!file.exists(filename))
+    .assertScalar(x = pseudocount, type = "numeric", rngIncl = c(0, Inf))
     .assertScalar(x = relScoreCutoff, type = "numeric", rngIncl = c(0, 1))
     if ("matrixtype" %in% names(opts) && opts[["matrixtype"]] != "PFM") {
       stop("opts[['matrixtype']] must be set to 'PFM'")
@@ -90,38 +108,24 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018",
         message("converting to HOMER format...", appendLF = FALSE)
     fh <- file(filename, "wb")
     for (i in seq_len(length(siteList))) {
-        pwm <- TFBSTools::Matrix(siteList[[i]]) + 1
-        pwm <- t(t(pwm) / colSums(pwm))
-        tmp.rn <- rownames(pwm)
-        #scorecut <- relScoreCutoff * sum(log(apply(pwm, 2, max) / 0.25))
+        ppm <- TFBSTools::Matrix(siteList[[i]]) + pseudocount
+        ppm <- t(t(ppm) / colSums(ppm))
+        tmp.rn <- rownames(ppm)
+        #scorecut <- relScoreCutoff * sum(log(apply(ppm, 2, max) / 0.25))
         scorecut <- log(2**10) # use constant cutoff for all motifs (ignore relScoreCutoff)
-        pwm <- apply(pwm, 2, function(x){sprintf("%.3f", x)})
-        rownames(pwm) <- tmp.rn
-        # wm.name <- paste(c(TFBSTools::name(siteList[[i]]),
-        #                    paste(TFBSTools::tags(siteList[[i]])$acc, collapse = "."),
-        #                    TFBSTools::tags(siteList[[i]])$type), collapse = "_")
-        # wm.name <- gsub("::", ".", wm.name)
-        # wm.name <- gsub("-", "", wm.name)
-        # wm.name <- gsub("\\s+", "", wm.name)
-        # if (length(grep("\\(var\\.\\d\\)", wm.name)) > 0) {
-        #   tmp.num <- gsub("\\S+\\(var\\.(\\d)\\)\\S+", "\\1", wm.name)
-        #   wm.name <- gsub(sprintf("\\(var\\.%s\\)", tmp.num),
-        #                   sprintf("var%s", tmp.num), wm.name)
-        # }
-        # wm.name <- gsub("\\(PBM\\)", "", wm.name)
-        # wm.name.conv <- make.names(wm.name)
-        # if (!(wm.name == wm.name.conv)) {
-        #   warning("Weight matrix name ", wm.name, " converted to ", wm.name.conv)
-        # }
-        # wm.name <- wm.name.conv
+        ppm <- apply(ppm, 2, function(x){sprintf("%.3f", x)})
+        rownames(ppm) <- tmp.rn
         wm.name <- paste0(TFBSTools::ID(siteList[[i]]), ":::", TFBSTools::name(siteList[[i]]))
 
-        #the -10 is added so that the motif file has 4 columns, which is needed to run compareMotifs.pl
-        #for weight matrix clustering (4th column not used, bug in compareMotifs.pl, I think)
+        # the -10 is added so that the motif file has 4 columns,
+        # which is needed to run compareMotifs.pl for weight matrix clustering
+        # (4th column not used, bug in compareMotifs.pl, I think)
         cat(sprintf(">%s\t%s\t%.2f\t-10\n",
-                    paste(apply(pwm, 2, function(x) { rownames(pwm)[which.max(x)] }), collapse = ""),
+                    paste(apply(ppm, 2, function(x) {
+                        rownames(ppm)[which.max(x)]
+                    }), collapse = ""),
                     wm.name, scorecut),  file = fh, append = TRUE)
-        write.table(file = fh, t(pwm), row.names = FALSE, col.names = FALSE,
+        write.table(file = fh, t(ppm), row.names = FALSE, col.names = FALSE,
                     sep = "\t", quote = FALSE, append = TRUE)
         flush(fh)
     }
@@ -133,10 +137,10 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018",
 }
 
 
-#' @title Read a HOMER motif file and create a TFMatrixList.
+#' @title Read a HOMER motif file and create a PFMatrixList
 #'
 #' @description Read motifs from a file in HOMER format and create
-#'     a TFMatrixList from them.
+#'     a PFMatrixList from them.
 #'
 #' @param filename Name of the input file with HOMER-formatted motifs.
 #' @param n The number of observations (multiplied with base frequencies to
@@ -144,6 +148,19 @@ dumpJaspar <- function(filename, pkg = "JASPAR2018",
 #'
 #' @return A \code{\link[TFBSTools]{PFMatrixList}} with motifs from the file.
 #'
+#' @examples 
+#' library(JASPAR2018)
+#' optsL <- list(ID = c("MA0006.1"))
+#' pfm1 <- TFBSTools::getMatrixSet(JASPAR2018, opts = optsL)
+#' TFBSTools::Matrix(pfm1)
+#' 
+#' tmpfn <- tempfile()
+#' dumpJaspar(filename = tmpfn, pkg = "JASPAR2018", opts = optsL)
+#' pfm2 <- homerToPFMatrixList(tmpfn)
+#' TFBSTools::Matrix(pfm2)
+#' 
+#' unlink(tmpfn)
+#' 
 #' @seealso \code{\link{dumpJaspar}} for writing motifs from a Jaspar database
 #'     package into a file in HOMER format.
 #'
@@ -207,6 +224,34 @@ homerToPFMatrixList <- function(filename, n = 100L) {
 #'
 #' @return The path and name of the script file to run the HOMER motif enrichment
 #'     analysis.
+#'     
+#' @examples
+#' # prepare genome directory (here: one dummy chromosome)
+#' genomedir <- tempfile()
+#' dir.create(genomedir)
+#' writeLines(c(">chr1", "ATGCATGCATCGATCGATCGATCGTACGTA"),
+#'            file.path(genomedir, "chr1.fa"))
+#' 
+#' # prepare motif file, regions and bins
+#' motiffile <- tempfile()
+#' dumpJaspar(filename = motiffile, pkg = "JASPAR2018", 
+#'            opts = list(ID = c("MA0006.1")))
+#' gr <- GenomicRanges::GRanges("chr1", IRanges::IRanges(1:4, width = 4))
+#' b <- bin(1:4, nElements = 2)
+#'
+#' # create dummy file (should point to local Homer installation)
+#' homerfile <- file.path(tempdir(), "findMotifsGenome.pl")
+#' writeLines("dummy", homerfile)
+#' 
+#' # run prepareHomer
+#' outdir <- tempfile()
+#' prepareHomer(gr = gr, b = b, genomedir = genomedir,
+#'              outdir = outdir, motifFile = motiffile,
+#'              homerfile = homerfile, verbose = TRUE) 
+#' list.files(outdir)
+#' 
+#' # clean up example
+#' unlink(c(genomedir, motiffile, homerfile, outdir))
 #'
 #' @importFrom GenomicRanges start end strand
 #' @export
@@ -291,6 +336,11 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
 #'     and motif enrichments as Pearson residuals (\code{pearsonResid}) and as
 #'     log2 ratios (\code{log2enr}).
 #'
+#' @examples 
+#' outfile <- system.file("extdata", "homer_output.txt.gz", package = "monaLisa")
+#' res <- parseHomerOutput(infiles = c(bin1 = outfile))
+#' head(res$negLog10P)
+#' 
 #' @importFrom stats p.adjust
 #'
 #' @export
@@ -328,12 +378,12 @@ parseHomerOutput <- function(infiles,
         enr[match(mnms, tab[, 1])]
     }))
     log2enr <- do.call(cbind, lapply(tabL, function(tab){
-      	numFgBgWithHits <- tab[, c(6, 8)] # number of target seqs and bg seqs with motif
-      	nTot <- as.numeric(gsub("\\S+\\.(\\d+)\\.", "\\1", colnames(numFgBgWithHits))) #total number of target and background sequences
-      	numFgBgWithHitsNorm <- t(min(nTot) * t(numFgBgWithHits) / nTot) # scale to smaller number (usually number of target sequences)
-      	numFgBgWithHitsNormLog <- log2(numFgBgWithHitsNorm + pseudocount.log2enr)
-      	lenr <- numFgBgWithHitsNormLog[, 1] - numFgBgWithHitsNormLog[, 2]
-      	lenr[match(mnms, tab[, 1])]
+        numFgBgWithHits <- tab[, c(6, 8)] # number of target seqs and bg seqs with motif
+        nTot <- as.numeric(gsub("\\S+\\.(\\d+)\\.", "\\1", colnames(numFgBgWithHits))) #total number of target and background sequences
+        numFgBgWithHitsNorm <- t(min(nTot) * t(numFgBgWithHits) / nTot) # scale to smaller number (usually number of target sequences)
+        numFgBgWithHitsNormLog <- log2(numFgBgWithHitsNorm + pseudocount.log2enr)
+        lenr <- numFgBgWithHitsNormLog[, 1] - numFgBgWithHitsNormLog[, 2]
+        lenr[match(mnms, tab[, 1])]
     }))
 
     sumFgWgt <- do.call(cbind, lapply(tabL, function(tab) tab[match(mnms, tab[, 1]), 6]))
@@ -387,7 +437,7 @@ parseHomerOutput <- function(infiles,
       df_list <- lapply(as.list(out_files), function(f){read.table(f, header = FALSE, sep = "\t", skip = 1)}) # skip the column names
       motifs_outdir_list <- lapply(df_list, function(df){ as.character(df[ ,1]) })
       # check the completeness of the run and that the number of output files equals number of bins
-      all(sapply(motifs_outdir_list, function(x){all(motifs_motifFile %in% x)})) & (length(out_files) == nbins)
+      all(vapply(motifs_outdir_list, function(x){all(motifs_motifFile %in% x)}, NA)) & (length(out_files) == nbins)
 
 }
 
@@ -523,7 +573,7 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
     pfms <- homerToPFMatrixList(motifFile)
     morder <- TFBSTools::name(pfms)
     o <- match(morder, rownames(resL[[1]]))
-    assayL <- lapply(resL[1:6], function(x) x[o, ])
+    assayL <- lapply(resL[seq_len(6)], function(x) x[o, ])
     ## ... ... colData
     if (is.null(attr(b, "breaks"))) {
         binL <- binH <- rep(NA, nlevels(b))
@@ -534,7 +584,7 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
     cdat <- S4Vectors::DataFrame(bin.names = levels(b),
                                  bin.lower = binL,
                                  bin.upper = binH,
-                                 bin.nochange = seq.int(nlevels(b)) %in% attr(b, "bin0"),
+                                 bin.nochange = seq.int(nlevels(b)) %in% getZeroBin(b),
                                  totalWgtForeground = resL$totalWgtForeground,
                                  totalWgtBackground = resL$totalWgtBackground)
     percentGC <- unlist(lapply(pfms, function(x) {
@@ -566,7 +616,7 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
                   bins = b,
                   bins.binmode = attr(b, "binmode"),
                   bins.breaks = as.vector(attr(b, "breaks")),
-                  bins.bin0 = attr(b, "bin0"),
+                  bins.bin0 = getZeroBin(b),
                   param = list(method = "Homer",
                                genomedir = genomedir,
                                outdir = outdir,

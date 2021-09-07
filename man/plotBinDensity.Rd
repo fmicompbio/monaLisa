@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotting.R
 \name{plotBinDensity}
 \alias{plotBinDensity}
-\title{Denstity plot of binned elements.}
+\title{Density plot of binned elements.}
 \usage{
 plotBinDensity(
   x,
@@ -40,6 +40,13 @@ Invisibly the return value of \code{density(x)} that generated the plot.
 }
 \description{
 Plot the density of binned elements with binning information.
+}
+\examples{
+set.seed(1)
+x <- rnorm(100)
+b <- bin(x, "equalN", nElements = 10)
+plotBinDensity(x, b)
+
 }
 \seealso{
 \code{\link{getColsByBin}}

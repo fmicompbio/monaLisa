@@ -49,6 +49,22 @@
 #'   \item{sumBackgroundWgtWithHits}{: Sum of background sequence weights
 #'     in a bin that have motif hits}
 #' }
+#' 
+#' @examples 
+#' seqs <- Biostrings::DNAStringSet(c("GTCAGTCGATC", "CAGTCTAGCTG",
+#'                                    "CGATCGTCAGT", "AGCTGCAGTCT"))
+#' bins <- factor(rep(1:2, each = 2))
+#' m <- rbind(A = c(2, 0, 0),
+#'            C = c(1, 1, 0),
+#'            G = c(0, 2, 0),
+#'            T = c(0, 0, 3))
+#' pwms <- TFBSTools::PWMatrixList(
+#'     TFBSTools::PWMatrix(ID = "m1", profileMatrix = m),
+#'     TFBSTools::PWMatrix(ID = "m2", profileMatrix = m[, 3:1])
+#' )
+#' calcBinnedMotifEnr(seqs = seqs, bins = bins, motifs = pwms,
+#'                    method = "R", min.score = 3)
+
 #'
 #' @seealso \code{\link{bin}} for binning of sequences;
 #'   \code{\link{calcBinnedMotifEnrR}} that is used for

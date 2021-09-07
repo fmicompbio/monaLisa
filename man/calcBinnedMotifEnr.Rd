@@ -39,7 +39,7 @@ foreground and background counts when calculating log2 motif enrichments}
 \item{pseudofreq.pearsonResid}{A numerical scalar with the pseudo-frequency
 to add to background frequencies when calculating Pearson residuals.
 The value needs to be in [0,1] and corresponds to the minimal expected
-frequency of background sequences that contain at least one motif hit.}
+fraction of background sequences that contain at least one motif hit.}
 
 \item{p.adjust.method}{A character scalar selecting the p value adjustment
 method (used in \code{\link[stats]{p.adjust}}).}
@@ -79,6 +79,22 @@ This function is a wrapper for
   \code{\link{calcBinnedMotifEnrR}} or
   \code{\link{calcBinnedMotifEnrHomer}}. For additional supported arguments
   (via \code{...}) please see the help pages of these functions.
+}
+\examples{
+seqs <- Biostrings::DNAStringSet(c("GTCAGTCGATC", "CAGTCTAGCTG",
+                                   "CGATCGTCAGT", "AGCTGCAGTCT"))
+bins <- factor(rep(1:2, each = 2))
+m <- rbind(A = c(2, 0, 0),
+           C = c(1, 1, 0),
+           G = c(0, 2, 0),
+           T = c(0, 0, 3))
+pwms <- TFBSTools::PWMatrixList(
+    TFBSTools::PWMatrix(ID = "m1", profileMatrix = m),
+    TFBSTools::PWMatrix(ID = "m2", profileMatrix = m[, 3:1])
+)
+calcBinnedMotifEnr(seqs = seqs, bins = bins, motifs = pwms,
+                   method = "R", min.score = 3)
+
 }
 \seealso{
 \code{\link{bin}} for binning of sequences;

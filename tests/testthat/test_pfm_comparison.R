@@ -15,19 +15,19 @@ pfmL <- TFBSTools::PFMatrixList(pfm1, pfm2, pfm3)
 FourMers <- Biostrings::mkAllStrings(c("A","C","G","T"), 4)
 
 
-test_that("compareMotifPair works as expected", {
-    res1 <- monaLisa:::compareMotifPair(m1, m2)
-    res2 <- monaLisa:::compareMotifPair(m1, m3)
-    res3 <- monaLisa:::compareMotifPair(m2, m3)
+test_that(".compareMotifPair works as expected", {
+    res1 <- .compareMotifPair(m1, m2)
+    res2 <- .compareMotifPair(m1, m3)
+    res3 <- .compareMotifPair(m2, m3)
 
     expect_identical(res1, list(bestScore = 1.0, bestOffset = 0L, bestDirection = "revcomp"))
     expect_identical(res2, list(bestScore = 0.63146007727884323479, bestOffset = 0L, bestDirection = "revcomp"))
     expect_identical(res3, list(bestScore = 0.63146007727884323479, bestOffset = 7L, bestDirection = "forward"))
 })
 
-test_that("compareMotifKmer works as expected", {
-    res1 <- monaLisa:::compareMotifKmer(m1, FourMers)
-    res2 <- monaLisa:::compareMotifKmer(m2, FourMers)
+test_that(".compareMotifKmer works as expected", {
+    res1 <- .compareMotifKmer(m1, FourMers)
+    res2 <- .compareMotifKmer(m2, FourMers)
 
     expect_is(res1, "list")
     expect_is(res2, "list")

@@ -63,6 +63,12 @@
 #' @return A \code{list} with observed and expected k-mer frequencies (\code{freq.obs}
 #'   and \code{freq.exp}, respectively), and enrichment statistics for each k-mer.
 #'
+#' @examples 
+#' res <- getKmerFreq(seqs = c("AAAAATT", "AAATTTT"), kmerLen = 3)
+#' names(res)
+#' head(res$freq.obs)
+#' head(res$freq.exp)
+#' 
 #' @importFrom Biostrings DNAStringSet oligonucleotideFrequency reverseComplement
 #' @importFrom XVector subseq
 #' @importFrom stats ppois kmeans
@@ -144,13 +150,13 @@ getKmerFreq <- function(seqs,
 
         ## ... expected k-mer frequencies (log2-probabilities with a pseudocount)
         n <- nchar(names(kmerFreq.stratum)[1]) - MMorder
-        log2pMM <- sapply(names(kmerFreq.stratum), function(current.kmer) {
+        log2pMM <- vapply(names(kmerFreq.stratum), function(current.kmer) {
             ii_long <- substr(rep(current.kmer, n),
                               start = seq_len(n), stop = seq_len(n) + MMorder)
             ii_short <- substr(rep(current.kmer, n - 1L),
                                start = seq(2, n), stop = seq_len(n - 1L) + MMorder)
             sum(lp_long[ii_long]) - sum(lp_short[ii_short])
-        })
+        }, numeric(1))
         kmerFreqMM.stratum <- (2 ** log2pMM) * sum(kmerFreq.stratum)
         cbind(obs = kmerFreq.stratum, exp = kmerFreqMM.stratum)
     })
@@ -245,6 +251,10 @@ getKmerFreq <- function(seqs,
 #'   indicating the k-mer cluster memberships. In \code{attr(y, "graph")} (where
 #'   \code{y} is the return value), you can get the k-mer graph on which the
 #'   clustering is based.
+#'   
+#' @examples
+#' clusterKmers(x = c("AAA", "AAT", "GGG"),
+#'              method = "similarity", minSim = 2)
 #'
 #' @seealso \code{\link{getKmerFreq}} for finding enriched k-mers in a set of
 #'   sequences; \code{\link{countKmerPairs}} for counting k-mer co-occurrences
@@ -574,8 +584,6 @@ clusterKmers <- function(x,
 #'   \code{background = "genome"}. Larger values will take longer but improve
 #'   the sequence composition similarity between foreground and background
 #'   (see \code{"Details"}).
-#' @param genome.seed An \code{integer} scalar used to seed the random number
-#'   generator before sampling regions.
 #' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
 #'     instance determining the parallel back-end to be used during evaluation.
 #' @param verbose A \code{logical} scalar. If \code{TRUE}, report on progress.
@@ -604,7 +612,8 @@ clusterKmers <- function(x,
 #'       of the same size are sampled (on average). From these, one per
 #'       foreground sequence is selected trying to match the G+C composition.
 #'       In order to make the sampling deterministic, the random number
-#'       generator is seeded using \code{genome.seed}.}
+#'       generator has to be seeded using \code{set.seed} before calling 
+#'       this function.}
 #'     \item{model}{: a Markov model of the order \code{MMorder} is estimated
 #'       from the foreground sequences and used to estimate expected k-mer
 #'       frequencies. K-mer enrichments are then calculated comparing observed
@@ -647,8 +656,14 @@ clusterKmers <- function(x,
 #'   \item{sumBackgroundWgtWithHits}{: Sum of background sequence weights
 #'     in a bin that have k-mer occurrences}
 #' }
-#'
+#' @examples 
+#' seqs <- Biostrings::DNAStringSet(c("GCATGCATGC", "CTAGCTAGCTG"))
+#' bins <- factor(1:2)
+#' calcBinnedKmerEnr(x = seqs, b = bins, kmerLen = 3)
+#' 
 #' @seealso \code{\link{getKmerFreq}} used to calculate k-mer enrichments;
+#'   \code{\link[BSgenome]{getSeq,BSgenome-method}} which is used to extract
+#'   sequences from \code{genomepkg} if \code{x} is a \code{GRanges} object;
 #'   \code{\link[BiocParallel]{bplapply}} that is used for parallelization;
 #'   \code{\link{bin}} for binning of regions
 #'
@@ -678,7 +693,6 @@ calcBinnedKmerEnr <- function(seqs,
                               genome = NULL,
                               genome.regions = NULL,
                               genome.oversample = 2,
-                              genome.seed = 42L,
                               BPPARAM = SerialParam(),
                               verbose = FALSE) {
     ## pre-flight checks
@@ -699,7 +713,7 @@ calcBinnedKmerEnr <- function(seqs,
     .assertScalar(x = pseudofreq.pearsonResid, type = "numeric", rngIncl = c(0, 1))
     .assertScalar(x = p.adjust.method, type = "character", validValues = stats::p.adjust.methods)
     if (identical(background, "zeroBin") &&
-        (!"bin0" %in% names(attributes(bins)) || is.na(attr(bins, "bin0")))) {
+        (is.null(getZeroBin(bins)) || is.na(getZeroBin(bins)))) {
         stop("For background = 'zeroBin', 'bins' has to define a zero bin (see ",
              "'maxAbsX' arugment of 'bin' function).")
     }
@@ -718,7 +732,6 @@ calcBinnedKmerEnr <- function(seqs,
             }
         }
         .assertScalar(x = genome.oversample, type = "numeric", rngIncl = c(1, Inf))
-        .assertScalar(x = genome.seed, type = "integer")
     }
     .assertVector(x = BPPARAM, type = "BiocParallelParam")
     .assertScalar(x = verbose, type = "logical")
@@ -733,10 +746,13 @@ calcBinnedKmerEnr <- function(seqs,
         names(seqsrc) <- paste0(names(seqs), "_rc")
         
         battr <- attributes(bins) # rescue attributes dropped by c()
+        bin0 <- getZeroBin(bins)
         bins <- c(bins, bins)
         attr(bins, "binmode") <- battr$binmode
         attr(bins, "breaks") <- battr$breaks
-        attr(bins, "bin0") <- battr$bin0
+        if (!is.null(bin0)) {
+            bins <- setZeroBin(bins, bin0)
+        }
         seqs <- c(seqs, seqsrc)
     }
 
@@ -747,10 +763,13 @@ calcBinnedKmerEnr <- function(seqs,
     }
     keep <- .filterSeqs(seqs, maxFracN = maxFracN, verbose = verbose)
     battr <- attributes(bins) # rescue attributes dropped by subsetting
+    bin0 <- getZeroBin(bins)
     bins <- bins[keep]
     attr(bins, "binmode") <- battr$binmode
     attr(bins, "breaks") <- battr$breaks
-    attr(bins, "bin0") <- battr$bin0
+    if (!is.null(bin0)) {
+        bins <- setZeroBin(bins, bin0)
+    }
     seqs <- seqs[keep]
     
     # stop if all sequences were filtered out
@@ -830,7 +849,6 @@ calcBinnedKmerEnr <- function(seqs,
                                     gnm = genome,
                                     gnm.regions = genome.regions,
                                     gnm.oversample = genome.oversample,
-                                    gnm.seed = genome.seed + i,
                                     maxFracN = maxFracN)
 
             # calculate initial background sequence weights based on G+C composition
@@ -845,7 +863,7 @@ calcBinnedKmerEnr <- function(seqs,
             if (nrow(df) == 0) {
                 stop(paste0("No sequences remained after the GC weight calculation step in bin ", levels(bins)[i], 
                             " due to no GC bin containing both fore- and background sequences. ", 
-                            "Cannot proceed with the ernichment analysis ..."))
+                            "Cannot proceed with the enrichment analysis ..."))
             }
 
             # update background sequence weights based on k-mer composition
@@ -938,13 +956,13 @@ calcBinnedKmerEnr <- function(seqs,
     cdat <- DataFrame(bin.names = levels(bins),
                       bin.lower = binL,
                       bin.upper = binH,
-                      bin.nochange = seq.int(nlevels(bins)) %in% attr(bins, "bin0"),
+                      bin.nochange = seq.int(nlevels(bins)) %in% getZeroBin(bins),
                       totalWgtForeground = do.call(c, lapply(enrichL, function(x){x$totalWgtForeground[1]})), 
                       totalWgtBackground = do.call(c, lapply(enrichL, function(x){x$totalWgtBackground[1]})))
     mdat <- list(bins = bins,
                  bins.binmode = attr(bins, "binmode"),
                  bins.breaks = as.vector(attr(bins, "breaks")),
-                 bins.bin0 = attr(bins, "bin0"),
+                 bins.bin0 = getZeroBin(bins),
                  param = list(kmerLen = kmerLen,
                               background = background,
                               MMorder = MMorder,
@@ -960,7 +978,6 @@ calcBinnedKmerEnr <- function(seqs,
                               genome.class = class(genome),
                               genome.regions = genome.regions,
                               genome.oversample = genome.oversample,
-                              genome.seed = genome.seed,
                               BPPARAM.class = class(BPPARAM),
                               BPPARAM.bpnworkers = bpnworkers(BPPARAM),
                               verbose = verbose))
@@ -1005,6 +1022,23 @@ calcBinnedKmerEnr <- function(seqs,
 #'     instance determining the parallel back-end to be used during evaluation.
 #' @param verbose A logical scalar. If \code{TRUE}, report on progress.
 #'
+#' @return A \code{\link[SummarizedExperiment]{SummarizedExperiment}}
+#'     with \code{length(m)} rows (motifs) and \code{ncol(x)} columns (bins).
+#'
+#' @examples 
+#' seqs <- Biostrings::DNAStringSet(c("GCATGCATGC", "CTAGCTAGCTG"))
+#' bins <- factor(1:2)
+#' m <- rbind(A = c(2, 0, 0),
+#'            C = c(1, 1, 0),
+#'            G = c(0, 0, 3),
+#'            T = c(0, 2, 0))
+#' pfms <- TFBSTools::PFMatrixList(
+#'     TFBSTools::PFMatrix(name = "m1", profileMatrix = m),
+#'     TFBSTools::PFMatrix(name = "m2", profileMatrix = m[, c(2,1,3)])
+#' )
+#' se1 <- calcBinnedKmerEnr(x = seqs, b = bins, kmerLen = 3)
+#' convertKmersToMotifs(se1, pfms)
+#' 
 #' @seealso \code{\link{calcBinnedKmerEnr}} for performing a k-mer enrichment
 #'   analysis, \code{\link[BiocParallel]{bplapply}} used for parallelization.
 #'
@@ -1083,6 +1117,10 @@ convertKmersToMotifs <- function(x, m, BPPARAM = SerialParam(), verbose = FALSE)
 #'   sequences overlapping enriched k-mers. The sequences are given as the
 #'   names, and the elements are sorted by decreasing frequency.
 #'
+#' @examples 
+#' s <- Biostrings::DNAStringSet(c("AAATTGG", "AATTTGG"))
+#' extractOverlappingKmerFrequecies(seqs = s, x = c("AA", "AT"))
+#' 
 #' @seealso \code{\link{calcBinnedKmerEnr}} for performing a k-mer enrichment
 #'     analysis, \code{\link[BiocParallel]{bplapply}} used for parallelization. 
 #'

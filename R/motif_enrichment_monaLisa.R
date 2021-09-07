@@ -125,7 +125,6 @@
 #'   foreground sequences.
 #' @param gnm,gnm.regions,gnm.oversample The \code{genome}, \code{genome.regions}
 #'   and \code{genome.oversample} arguments from \code{calcBinnedMotifEnrR}.
-#' @param gnm.seed An \code{integer} scalar to seed the random number generator.
 #' @param maxFracN The \code{maxFracN} argument from \code{calcBinnedMotifEnrR}.
 #' @param GCbreaks The breaks between GC bins. The default value is based on
 #'   the hard-coded bins used in Homer.
@@ -151,7 +150,6 @@
                               gnm,
                               gnm.regions,
                               gnm.oversample,
-                              gnm.seed,
                               maxFracN = 0.7,
                               GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4,
                                            0.45, 0.5, 0.6, 0.7, 0.8)) {
@@ -174,7 +172,6 @@
                                    ranges = IRanges(start = 1, end = slen))
         }
         gnm.regions.width <- width(gnm.regions)
-        set.seed(gnm.seed)
         gnmsqs <- DNAStringSet()
         
         iter <- 0
@@ -251,7 +248,7 @@
             gcf <- c(gcf[inCurrBin], gcf)
 
         } else if (identical(bg, "zeroBin")) {
-            inZeroBin <- as.integer(bns) == attr(bns, "bin0")
+            inZeroBin <- as.integer(bns) == getZeroBin(bns)
             isFg <- rep(c(TRUE, FALSE),
                         c(sum(inCurrBin), sum(inZeroBin)))
             sqs <- c(sqs[inCurrBin], sqs[inZeroBin])
@@ -285,6 +282,10 @@
 #' @param df a \code{DataFrame} with sequence information.
 #' @param GCbreaks The breaks between GC bins. The default value is based on
 #'   the hard-coded bins used in Homer.
+#' @param normalizeByLength A logical scalar. If \code{TRUE}, the weight calculated
+#'   for each background sequence in a specific GC bin, to account for GC differences 
+#'   between foreground and background, is multiplied by the length of the background
+#'   sequence divided by the median length of foreground sequences in that GC bin.
 #' @param verbose A logical scalar. If \code{TRUE}, report on GC weight
 #'   calculation.
 #'
@@ -294,6 +295,8 @@
 #'   correct differences in GC distributions between foreground and background
 #'   sequences.
 #'
+#' @importFrom BiocGenerics width
+#' @importFrom stats median
 #' @importFrom Biostrings oligonucleotideFrequency DNAStringSet
 #' @importFrom S4Vectors DataFrame
 #' 
@@ -301,6 +304,7 @@
 .calculateGCweight <- function(df,
                                GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4,
                                             0.45, 0.5, 0.6, 0.7, 0.8),
+                               normalizeByLength = TRUE, 
                                verbose = FALSE) {
 
     .checkDfValidity(df)
@@ -309,6 +313,7 @@
     if (length(GCbreaks) < 2) {
         stop("'GCbreaks' must be of length 2 or greater")
     }
+    .assertScalar(x = normalizeByLength, type = "logical")
     .assertScalar(x = verbose,   type = "logical")
   
     # calculate G+C frequencies
@@ -348,7 +353,28 @@
     df$GCwgt <- ifelse(df$isForeground,
                        1.0,
                        weight_per_bin[as.character(df$GCbin)])
-
+    
+    # adjust for sequence lengths (per GC bin)
+    if (normalizeByLength) {
+        # ... get sequence lengths
+        seq_lengths <- width(df$seqs)
+        # ... get median length of foreground sequences per GC bin
+        median_FG_length_per_GCbin <- vapply(
+            X = as.character(names(weight_per_bin)), 
+            FUN = function(x){
+                stats::median(seq_lengths[df$isForeground & as.character(df$GCbin) == x])
+            }, 
+            FUN.VALUE = 0)
+        median_FG_length_per_GCbin_vector <- 
+            ifelse(df$isForeground,
+                   NA,
+                   median_FG_length_per_GCbin[as.character(df$GCbin)])
+        # ... correct background sequence weights
+        w_bg <- !df$isForeground
+        df$GCwgt[w_bg] <- df$GCwgt[w_bg] * seq_lengths[w_bg] / median_FG_length_per_GCbin_vector[w_bg]
+    }
+    
+    # return df
     return(df)
 }
 
@@ -544,7 +570,8 @@
 
     if (res$err >= lastErr) {
         if (verbose) {
-          message("    detected increasing error - stopping after ", i, " iterations")
+          tmpmsg <- paste0("    detected increasing error - stopping after ", i, " iterations")
+          message(tmpmsg)
         }
         break
     } else {
@@ -732,6 +759,9 @@
 #'   \code{method} parameter in \code{\link[monaLisa]{findMotifHits}}.
 #' @param GCbreaks The breaks between GC bins. The default value is based on
 #'   the hard-coded bins used in Homer.
+#' @param normalizeByLength A logical scalar. If \code{TRUE}, account for 
+#'   sequence length differences between foreground and background sequences
+#'   (see Details).
 #' @param pseudocount.log2enr A numerical scalar with the pseudocount to add to
 #'   foreground and background counts when calculating log2 motif enrichments
 #' @param pseudofreq.pearsonResid A numerical scalar with the pseudo-frequency
@@ -752,8 +782,6 @@
 #'   \code{background = "genome"}. Larger values will take longer but improve
 #'   the sequence composition similarity between foreground and background
 #'   (see \code{"Details"}).
-#' @param genome.seed An \code{integer} scalar used to seed the random number
-#'   generator before sampling regions.
 #' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
 #'     instance determining the parallel back-end to be used during evaluation.
 #' @param verbose A logical scalar. If \code{TRUE}, print progress messages.
@@ -765,9 +793,11 @@
 #'   (defined by \code{background}, see below). The logic follows the
 #'   \code{findMotifsGenome.pl} tool from \code{Homer} version 4.11, with
 #'   \code{-size given -nomotif -mknown} and additionally \code{-h} if using 
-#'   \code{test = "fisher"}, and gives very similar results.
-#'   As in the \code{Homer} tool, sequences are weighted to correct for GC and
-#'   k-mer composition differences between fore- and background sets.
+#'   \code{test = "fisher"}, and gives very similar results when 
+#'   \code{normalizeByLength = FALSE}. As in the \code{Homer} tool, sequences 
+#'   are weighted to correct for GC and k-mer composition differences between 
+#'   fore- and background sets. With \code{normalizeByLength = TRUE}, the sequence
+#'   weights are additionally corrected for length differences.
 #'   
 #'   The background sequences are defined according to the value of the
 #'   \code{background} argument:
@@ -784,8 +814,9 @@
 #'       foreground sequence, \code{genome.oversample} background sequences
 #'       of the same size are sampled (on average). From these, one per
 #'       foreground sequence is selected trying to match the G+C composition.
-#'       In order to make the sampling deterministic, the random number
-#'       generator is seeded using \code{genome.seed}.}
+#'       In order to make the sampling deterministic, seed the random number
+#'       generator before calling \code{calcBinnedMotifEnrR} using
+#'       \code{set.seed}.}
 #'   }
 #'
 #'   Motif hits are predicted using \code{\link[monaLisa]{findMotifHits}} and
@@ -825,6 +856,21 @@
 #'     in a bin that have motif hits}
 #' }
 #'
+#' @examples
+#' seqs <- Biostrings::DNAStringSet(c("GTCAGTCGATC", "CAGTCTAGCTG",
+#'                                    "CGATCGTCAGT", "AGCTGCAGTCT"))
+#' bins <- factor(rep(1:2, each = 2))
+#' m <- rbind(A = c(2, 0, 0),
+#'            C = c(1, 1, 0),
+#'            G = c(0, 2, 0),
+#'            T = c(0, 0, 3))
+#' pwms <- TFBSTools::PWMatrixList(
+#'     TFBSTools::PWMatrix(ID = "m1", profileMatrix = m),
+#'     TFBSTools::PWMatrix(ID = "m2", profileMatrix = m[, 3:1])
+#' )
+#' calcBinnedMotifEnrR(seqs = seqs, bins = bins, pwmL = pwms,
+#'                     min.score = 3)
+#'
 #' @importFrom TFBSTools ID name
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom S4Vectors DataFrame
@@ -844,13 +890,13 @@ calcBinnedMotifEnrR <- function(seqs,
                                 matchMethod = "matchPWM",
                                 GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4,
                                              0.45, 0.5, 0.6, 0.7, 0.8),
+                                normalizeByLength = TRUE, 
                                 pseudocount.log2enr = 8,
                                 pseudofreq.pearsonResid = 0.001,
                                 p.adjust.method = "BH",
                                 genome = NULL,
                                 genome.regions = NULL,
                                 genome.oversample = 2,
-                                genome.seed = 42L,
                                 BPPARAM = SerialParam(),
                                 verbose = FALSE,
                                 ...) {
@@ -870,7 +916,7 @@ calcBinnedMotifEnrR <- function(seqs,
     .assertScalar(x = pseudofreq.pearsonResid, type = "numeric", rngIncl = c(0, 1))
     .assertScalar(x = p.adjust.method, type = "character", validValues = stats::p.adjust.methods)
     if (identical(background, "zeroBin") &&
-        (!"bin0" %in% names(attributes(bins)) || is.na(attr(bins, "bin0")))) {
+        (is.null(getZeroBin(bins)) || is.na(getZeroBin(bins)))) {
         stop("For background = 'zeroBin', 'bins' has to define a zero bin (see ",
              "'maxAbsX' arugment of 'bin' function).")
     }
@@ -889,7 +935,6 @@ calcBinnedMotifEnrR <- function(seqs,
             }
         }
         .assertScalar(x = genome.oversample, type = "numeric", rngIncl = c(1, Inf))
-        .assertScalar(x = genome.seed, type = "integer")
     }
     .assertVector(x = BPPARAM, type = "BiocParallelParam")
     .assertScalar(x = verbose, type = "logical")
@@ -904,10 +949,13 @@ calcBinnedMotifEnrR <- function(seqs,
     }
     keep <- .filterSeqs(seqs, maxFracN = maxFracN, verbose = verbose)
     battr <- attributes(bins) # rescue attributes dropped by subsetting
+    bin0 <- getZeroBin(bins)
     bins <- bins[keep]
     attr(bins, "binmode") <- battr$binmode
     attr(bins, "breaks") <- battr$breaks
-    attr(bins, "bin0") <- battr$bin0
+    if (!is.null(bin0)) {
+        bins <- setZeroBin(bins, bin0)
+    }
     seqs <- seqs[keep]
     
     # stop if all sequences were filtered out
@@ -954,7 +1002,6 @@ calcBinnedMotifEnrR <- function(seqs,
                                 gnm = genome,
                                 gnm.regions = genome.regions,
                                 gnm.oversample = genome.oversample,
-                                gnm.seed = genome.seed + i,
                                 maxFracN = maxFracN)
 
         # for background = "genome", scan sampled background sequences for motifs
@@ -989,13 +1036,14 @@ calcBinnedMotifEnrR <- function(seqs,
         }
         df <- .calculateGCweight(df = df,
                                  GCbreaks = GCbreaks,
+                                 normalizeByLength = normalizeByLength, 
                                  verbose = verbose1)
         
         # if df is empty, then all seqs were filtered out in the GC weight calculation step
         if (nrow(df) == 0) {
-          stop(paste0("No sequences remained after the GC weight calculation step in bin ", levels(bins)[i], 
-                      " due to no GC bin containing both fore- and background sequences. ", 
-                      "Cannot proceed with the ernichment analysis ..."))
+          stop("No sequences remained after the GC weight calculation step in bin ", levels(bins)[i], 
+               " due to no GC bin containing both fore- and background sequences. ", 
+               "Cannot proceed with the enrichment analysis ...")
         }
 
         # update background sequence weights based on k-mer composition
@@ -1087,13 +1135,13 @@ calcBinnedMotifEnrR <- function(seqs,
     cdat <- DataFrame(bin.names = levels(bins),
                       bin.lower = binL,
                       bin.upper = binH,
-                      bin.nochange = seq.int(nlevels(bins)) %in% attr(bins, "bin0"),
+                      bin.nochange = seq.int(nlevels(bins)) %in% getZeroBin(bins),
                       totalWgtForeground = do.call(c, lapply(enrichL, function(x){x$totalWgtForeground[1]})), 
                       totalWgtBackground = do.call(c, lapply(enrichL, function(x){x$totalWgtBackground[1]})))
     mdat <- list(bins = bins,
                  bins.binmode = attr(bins, "binmode"),
                  bins.breaks = as.vector(attr(bins, "breaks")),
-                 bins.bin0 = attr(bins, "bin0"),
+                 bins.bin0 = getZeroBin(bins),
                  param = list(method = "R",
                               background = background,
                               test = test,
@@ -1107,7 +1155,6 @@ calcBinnedMotifEnrR <- function(seqs,
                               genome.class = class(genome),
                               genome.regions = genome.regions,
                               genome.oversample = genome.oversample,
-                              genome.seed = genome.seed,
                               BPPARAM.class = class(BPPARAM),
                               BPPARAM.bpnworkers = bpnworkers(BPPARAM),
                               verbose = verbose))

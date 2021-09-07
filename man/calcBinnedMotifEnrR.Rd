@@ -15,13 +15,13 @@ calcBinnedMotifEnrR(
   min.score = 10,
   matchMethod = "matchPWM",
   GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.7, 0.8),
+  normalizeByLength = TRUE,
   pseudocount.log2enr = 8,
   pseudofreq.pearsonResid = 0.001,
   p.adjust.method = "BH",
   genome = NULL,
   genome.regions = NULL,
   genome.oversample = 2,
-  genome.seed = 42L,
   BPPARAM = SerialParam(),
   verbose = FALSE,
   ...
@@ -63,6 +63,10 @@ and tri-mer composition.}
 \item{GCbreaks}{The breaks between GC bins. The default value is based on
 the hard-coded bins used in Homer.}
 
+\item{normalizeByLength}{A logical scalar. If \code{TRUE}, account for 
+sequence length differences between foreground and background sequences
+(see Details).}
+
 \item{pseudocount.log2enr}{A numerical scalar with the pseudocount to add to
 foreground and background counts when calculating log2 motif enrichments}
 
@@ -88,9 +92,6 @@ many background sequences will be sampled per foreground sequence for
 \code{background = "genome"}. Larger values will take longer but improve
 the sequence composition similarity between foreground and background
 (see \code{"Details"}).}
-
-\item{genome.seed}{An \code{integer} scalar used to seed the random number
-generator before sampling regions.}
 
 \item{BPPARAM}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
 instance determining the parallel back-end to be used during evaluation.}
@@ -124,9 +125,11 @@ This function implements a binned motif enrichment analysis. In each
   (defined by \code{background}, see below). The logic follows the
   \code{findMotifsGenome.pl} tool from \code{Homer} version 4.11, with
   \code{-size given -nomotif -mknown} and additionally \code{-h} if using 
-  \code{test = "fisher"}, and gives very similar results.
-  As in the \code{Homer} tool, sequences are weighted to correct for GC and
-  k-mer composition differences between fore- and background sets.
+  \code{test = "fisher"}, and gives very similar results when 
+  \code{normalizeByLength = FALSE}. As in the \code{Homer} tool, sequences 
+  are weighted to correct for GC and k-mer composition differences between 
+  fore- and background sets. With \code{normalizeByLength = TRUE}, the sequence
+  weights are additionally corrected for length differences.
   
   The background sequences are defined according to the value of the
   \code{background} argument:
@@ -143,8 +146,9 @@ This function implements a binned motif enrichment analysis. In each
       foreground sequence, \code{genome.oversample} background sequences
       of the same size are sampled (on average). From these, one per
       foreground sequence is selected trying to match the G+C composition.
-      In order to make the sampling deterministic, the random number
-      generator is seeded using \code{genome.seed}.}
+      In order to make the sampling deterministic, seed the random number
+      generator before calling \code{calcBinnedMotifEnrR} using
+      \code{set.seed}.}
   }
 
   Motif hits are predicted using \code{\link[monaLisa]{findMotifHits}} and
@@ -171,4 +175,20 @@ This function implements a binned motif enrichment analysis. In each
       totalWgtForeground, prob = sumBackgroundWgtWithHits / totalWgtBackground,
       lower.tail = FALSE, log.p = TRUE)}}
   }
+}
+\examples{
+seqs <- Biostrings::DNAStringSet(c("GTCAGTCGATC", "CAGTCTAGCTG",
+                                   "CGATCGTCAGT", "AGCTGCAGTCT"))
+bins <- factor(rep(1:2, each = 2))
+m <- rbind(A = c(2, 0, 0),
+           C = c(1, 1, 0),
+           G = c(0, 2, 0),
+           T = c(0, 0, 3))
+pwms <- TFBSTools::PWMatrixList(
+    TFBSTools::PWMatrix(ID = "m1", profileMatrix = m),
+    TFBSTools::PWMatrix(ID = "m2", profileMatrix = m[, 3:1])
+)
+calcBinnedMotifEnrR(seqs = seqs, bins = bins, pwmL = pwms,
+                    min.score = 3)
+
 }
