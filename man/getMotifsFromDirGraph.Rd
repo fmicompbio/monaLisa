@@ -26,3 +26,12 @@ A \code{DNAStringSet} with potential motifs.
 \description{
 Infer putative motifs from a directed graph
 }
+\examples{
+seqs <- Biostrings::DNAStringSet(c("GCATGCATGC", "CATGCGCATG"))
+bins <- factor(1:2)
+se <- calcBinnedKmerEnr(seqs = seqs, bins = bins, kmerLen = 3)
+x <- rownames(se)[which(assay(se, "negLog10P")[, 2] > 0.5)]
+g <- buildDirGraphFromKmers(seqs, x)
+getMotifsFromDirGraph(seqs, g)
+
+}

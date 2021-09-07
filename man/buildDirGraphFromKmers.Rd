@@ -32,10 +32,10 @@ Putative motifs can be found by only retaining edges with weight above a
 user-defined threshold (see \code{getMotifsFromDirGraph}).
 }
 \examples{
-\dontrun{
+seqs <- Biostrings::DNAStringSet(c("GCATGCATGC", "CATGCGCATG"))
+bins <- factor(1:2)
+se <- calcBinnedKmerEnr(seqs = seqs, bins = bins, kmerLen = 3)
+x <- rownames(se)[which(assay(se, "negLog10P")[, 2] > 0.5)]
 g <- buildDirGraphFromKmers(seqs, x)
-hist(E(g)$weights)
-getMotifsFromDirGraph(g, 10)
-}
 
 }

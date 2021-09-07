@@ -1195,11 +1195,11 @@ extractOverlappingKmerFrequencies <- function(seqs,
 #' @return A directed graph with nodes corresponding to k-mers.
 #' 
 #' @examples 
-#' \dontrun{
+#' seqs <- Biostrings::DNAStringSet(c("GCATGCATGC", "CATGCGCATG"))
+#' bins <- factor(1:2)
+#' se <- calcBinnedKmerEnr(seqs = seqs, bins = bins, kmerLen = 3)
+#' x <- rownames(se)[which(assay(se, "negLog10P")[, 2] > 0.5)]
 #' g <- buildDirGraphFromKmers(seqs, x)
-#' hist(E(g)$weights)
-#' getMotifsFromDirGraph(g, 10)
-#' }
 #' 
 #' @importFrom BiocParallel SerialParam
 #' @importFrom Biostrings DNAStringSet
@@ -1292,6 +1292,14 @@ filterDirGraph <- function(g, edge_weight_thr) {
 #' @export
 #' 
 #' @return A \code{DNAStringSet} with potential motifs. 
+#' 
+#' @examples 
+#' seqs <- Biostrings::DNAStringSet(c("GCATGCATGC", "CATGCGCATG"))
+#' bins <- factor(1:2)
+#' se <- calcBinnedKmerEnr(seqs = seqs, bins = bins, kmerLen = 3)
+#' x <- rownames(se)[which(assay(se, "negLog10P")[, 2] > 0.5)]
+#' g <- buildDirGraphFromKmers(seqs, x)
+#' getMotifsFromDirGraph(seqs, g)
 #' 
 #' @importFrom igraph vertex_attr components
 #' @importFrom BiocParallel SerialParam
