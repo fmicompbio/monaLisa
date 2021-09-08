@@ -668,55 +668,18 @@
 
     # calculate motif enrichment
     if (identical(test, "binomial")) {
-
-      if (verbose) {
-          message("using binomial test to calculate ",
-                  "log(p-values) for motif enrichments")
-      }
-
-      prob <- TFmatchedSeqCountBackground / totalWgtBackground
-      minProb <- 1 / totalWgtBackground
-      maxProb <- (totalWgtBackground - 1) / totalWgtBackground
-      if (any(i <- (prob < minProb))) {
-          # warning("some background TF match probabilities are below ",
-          #         "minProb (for example when there were zero hits) ",
-          #         "and will be given a value of minProb=1/totalWgtBackground")
-          prob[i] <- minProb
-      }
-      if (any(i <- (prob > maxProb))) {
-          # warning("some TF match probabilities a above",
-          #         "maxProb (for example when all sequences had hits) ",
-          #         "and will be givena value of ",
-          #         "maxProb=(totalWgtBackground-1)/totalWgtBackground")
-          prob[i] <- maxProb
-      }
-
-      logP <- pbinom(q = TFmatchedSeqCountForeground - 1,
-                     size = totalWgtForeground,
-                     prob = prob, lower.tail = FALSE, log.p = TRUE)
-
+        logP <- .binomEnrichmentTest(matchCountBg = TFmatchedSeqCountBackground,
+                                     totalWeightBg = totalWgtBackground,
+                                     matchCountFg = TFmatchedSeqCountForeground,
+                                     totalWeightFg = totalWgtForeground,
+                                     verbose = verbose)
+        
     } else if (identical(test, "fisher")) {
-
-        if (verbose) {
-            message("using fisher's exact test (one-sided) to calculate ",
-                    "log(p-values) for motif enrichments")
-        }
-
-        # contingency table per motif for fisher's exact test (rounded to integer):
-        #              withHit  noHit
-        #   foreground    x       y
-        #   background    z       w
-        #
-        logP <- log(vapply(structure(seq_along(TFmatchedSeqCountForeground),
-                                     names = names(TFmatchedSeqCountForeground)),
-                               function(i) {
-            ctab <- rbind(c(TFmatchedSeqCountForeground[i],
-                            totalWgtForeground - TFmatchedSeqCountForeground[i]),
-                          c(TFmatchedSeqCountBackground[i],
-                            totalWgtBackground - TFmatchedSeqCountBackground[i]))
-            ctab <- round(ctab)
-            fisher.test(x = ctab, alternative = "greater")$p.value
-        }, FUN.VALUE = numeric(1)))
+        logP <- .fisherEnrichmentTest(matchCountBg = TFmatchedSeqCountBackground, 
+                                      totalWeightBg = totalWgtBackground,
+                                      matchCountFg = TFmatchedSeqCountForeground,
+                                      totalWeightFg = totalWgtForeground,
+                                      verbose = verbose)
     }
 
     return(data.frame(motifName = names(logP),

@@ -465,55 +465,17 @@ clusterKmers <- function(x,
     
     # calculate k-mer enrichment
     if (identical(test, "binomial")) {
-        
-        if (verbose) {
-            message("using binomial test to calculate ",
-                    "log(p-values) for k-mer enrichments")
-        }
-        
-        prob <- KmatchedSeqCountBackground / totalWgtBackground
-        minProb <- 1 / totalWgtBackground
-        maxProb <- (totalWgtBackground - 1) / totalWgtBackground
-        if (any(i <- (prob < minProb))) {
-            # warning("some background k-mer match probabilities are below ",
-            #         "minProb (for example when there were zero hits) ",
-            #         "and will be given a value of minProb=1/totalWgtBackground")
-            prob[i] <- minProb
-        }
-        if (any(i <- (prob > maxProb))) {
-            # warning("some k-mer match probabilities a above",
-            #         "maxProb (for example when all sequences had hits) ",
-            #         "and will be givena value of ",
-            #         "maxProb=(totalWgtBackground-1)/totalWgtBackground")
-            prob[i] <- maxProb
-        }
-        
-        logP <- pbinom(q = KmatchedSeqCountForeground - 1,
-                       size = totalWgtForeground,
-                       prob = prob, lower.tail = FALSE, log.p = TRUE)
-        
+        logP <- .binomEnrichmentTest(matchCountBg = KmatchedSeqCountBackground,
+                                     totalWeightBg = totalWgtBackground,
+                                     matchCountFg = KmatchedSeqCountForeground,
+                                     totalWeightFg = totalWgtForeground,
+                                     verbose = verbose)
     } else if (identical(test, "fisher")) {
-        
-        if (verbose) {
-            message("using fisher's exact test (one-sided) to calculate ",
-                    "log(p-values) for motif enrichments")
-        }
-        
-        # contingency table per motif for fisher's exact test (rounded to integer):
-        #              withHit  noHit
-        #   foreground    x       y
-        #   background    z       w
-        #
-        logP <- log(vapply(structure(seq_along(KmatchedSeqCountForeground),
-                                     names = names(KmatchedSeqCountForeground)),
-                           function(i) {
-                               ctab <- rbind(c(KmatchedSeqCountForeground[i],
-                                               totalWgtForeground - KmatchedSeqCountForeground[i]),
-                                             c(KmatchedSeqCountBackground[i],
-                                               totalWgtBackground - KmatchedSeqCountBackground[i]))
-                               ctab <- round(ctab)
-                               fisher.test(x = ctab, alternative = "greater")$p.value
-                           }, FUN.VALUE = numeric(1)))
+        logP <- .fisherEnrichmentTest(matchCountBg = KmatchedSeqCountBackground, 
+                                      totalWeightBg = totalWgtBackground,
+                                      matchCountFg = KmatchedSeqCountForeground,
+                                      totalWeightFg = totalWgtForeground,
+                                      verbose = verbose)
     }
     
     return(data.frame(motifName = names(logP),
@@ -800,36 +762,17 @@ calcBinnedKmerEnr <- function(seqs,
                                 includeRevComp = FALSE)
 
             if (identical(test, "binomial")) {
-                prob <- res1$freq.exp / Nfg
-                minProb <- 1 / Nfg
-                maxProb <- (Nfg - 1) / Nfg
-                if (any(i <- (prob < minProb))) {
-                    prob[i] <- minProb
-                }
-                if (any(i <- (prob > maxProb))) {
-                    prob[i] <- maxProb
-                }
-                
-                logP <- pbinom(q = res1$freq.obs - 1,
-                               size = Nfg,
-                               prob = prob, lower.tail = FALSE, log.p = TRUE)
-                
+                logP <- .binomEnrichmentTest(matchCountBg = res1$freq.exp, 
+                                             totalWeightBg = Nfg,
+                                             matchCountFg = res1$freq.obs, 
+                                             totalWeightFg = Nfg, 
+                                             verbose = FALSE)
             } else if (identical(test, "fisher")) {
-                # contingency table per motif for fisher's exact test (rounded to integer):
-                #              withHit  noHit
-                #   foreground    x       y
-                #   background    z       w
-                #
-                logP <- log(vapply(structure(seq_along(res1$freq.obs),
-                                             names = names(res1$freq.obs)),
-                                   function(i) {
-                                       ctab <- rbind(c(res1$freq.obs[i],
-                                                       Nfg - res1$freq.obs[i]),
-                                                     c(res1$freq.exp[i],
-                                                       Nfg - res1$freq.exp[i]))
-                                       ctab <- round(ctab)
-                                       fisher.test(x = ctab, alternative = "greater")$p.value
-                                   }, FUN.VALUE = numeric(1)))
+                logP <- .fisherEnrichmentTest(matchCountBg = res1$freq.exp,
+                                              totalWeightBg = Nfg,
+                                              matchCountFg = res1$freq.obs,
+                                              totalWeightFg = Nfg,
+                                              verbose = FALSE)
             }
 
             return(data.frame(motifName = names(logP),
