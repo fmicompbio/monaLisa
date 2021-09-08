@@ -27,28 +27,16 @@ library(BiocStyle)
 
 # Introduction
 
-
-# Motif selection with Randomized Lasso Stability Selection{#stabsel}
-
-One can also select for important transcription factor (TF) motifs in a regression based approach with predictors consisting of the TF motif hits, and the response vector being the observed measure of interest, e.g. log-fold changes of accessibility for a set of regions. In `monaLisa`, we implement the randomized lasso stability selection proposed by @StabSel with the improved error bounds introduced by @compStabs. We have modified the `glmnet.lasso` function used by `stabsel` from the `r CRANpkg("stabs")` package to implement the randomized lasso.
+Identifying important transcription factor (TF) motifs, as shown in vignette (reference monaLisa.Rmd), could also be done using a regression based approach, where motifs are selected and have to compete against each other for selection. In this framework, the response vector can be the observed experimental measure of interest, e.g. log-fold changes of accessibility for a set of regions, and the predictors consist of the TF motif hits across those regions. In `monaLisa`, we implement the randomized lasso stability selection proposed by @StabSel with the improved error bounds introduced by @compStabs. We have modified the `glmnet.lasso` function used by `stabsel` from the `r CRANpkg("stabs")` package to implement the randomized lasso.
 
 Lasso stability selection implements the lasso regression multiple times on subsamples of the data, and returns a selection probability for each predictor (number of times selected divided by number of regressions done). With the randomized lasso, a weakness parameter is additionally used  to vary the lasso penalty term $\lambda$ to a randomly chosen value between [$\lambda$, $\lambda$/weakness] for each predictor. Although the main appeal of stability selection is in cases where the number of predictors exceeds the number of observations, it also performs better variable selection with noisy data [@StabSel].
 
-With this approach, TF motifs compete against each other to explain the response, and we can also include additional predictors like GC content to compete against the TF motifs for selection. This is especially useful if the response is biased by sequence composition, for example if regions with higher GC content tend to have higher response values.
+With this approach, TF motifs compete against each other to explain the response vector, and we can also include additional predictors like GC content to compete against the TF motifs for selection. This is especially useful if the response is biased by sequence composition, for example if regions with higher GC content tend to have higher response values.
 
-In the example below, we select for TF motifs explaining log-fold changes in chromatin accessibility (ATAC-seq) across the enhancers between mouse liver and lung tissue at P0, but this can be applied to other data types as well (ChIP-seq, RNA-seq, methylation etc.).
 
-<!--
+# Motif selection with Randomized Lasso Stability Selection{#stabsel}
 
-Selecting Transcription Factors Likely to Explain Changes in Chromatin Accessibility Using Stability Selection
-
-Randomized Lasso stability selection proposed by Meinshausen and Bühlmann [@StabSel] applies the lasso regression on several subsamples of the data using a weakness parameter that adds additional variation to the lambda parameter and allows for more correlated variables to be selected together. Although the main appeal of stability selection is that it allows for selection of predictors when the number of predictors exceeds the number of observations, the authors also argue for this as a way of slightly overcoming the problem of lasso only selecting variables that are not correlated, and performing better in a noisy dataset depending on how strongly one sets the weakness parameter. Shah and Samworth [@compStabs] have further improved error control for stability selection using complementary pairs stability selection. The R `stabs` package [@stabs] implements the Shah and Samworth version of stability selection. `monaLisa` uses a modified version of the `stabsel` function in `stabs` that performs randomized lasso stability selection.
-
-Here we demonstrate the use of randomized lasso stability selection to select transcription factors (TFs) that are likely to explain changes in chromatin accessibility from ATAC-seq data. One can also use stability selection on any other type of data like ChIP-seq of specific histone marks for example. We are given a vector of log-fold changes (logFC) in chromatin accessibility between two conditions that we consider to be our response vector. The predictor matrix will consist of the number of transcription factor binding sites (TFBS) that each TF has across the peaks. The example data set comes from ENCODE [@encode] and consists of bam files for ATAC-seq from mouse postnatal (P0) liver (identifiers: ENCFF146ZCO, ENCFF109LQF) and lung (identifiers: ENCFF203DOC, ENCFF823PTD) tissues. Each condition had 2 replicates, and the peak calling was done per condition using MACS2 [@macs]. The peaks from both conditions were merged and used to calculate ATAC-seq counts for all samples with QuasR [@QuasR]. Counts per million (CPM) were calculated per sample and averaged across replicates. The logFC was calculated as [log2(CPM(Liver)+8) - log2(CPM(Lung)+8)].
-
-Only distal autosomal peaks (distance > 1kb from any TSS) were kept since promoter peaks tend not to change so much in accessibility, and we are interested in selecting TFs that likely explain logFC in enhancer regions. The `.rds` files used in monaLisa's example dataset consist of peaks that had an absolute logFC greater than 2 and less than 2.2. This was done to reduce the number of peaks and speed up runtime to demonstrate the functions used in `monaLisa` that apply randomized lasso stability selection [@StabSel].
-
--->
+In the example below, we select for TF motifs explaining log-fold changes in chromatin accessibility (ATAC-seq) across the enhancers between mouse liver and lung tissue at P0, but this can be applied to other data types as well (ChIP-seq, RNA-seq, methylation etc.). Positive log2-fold changes indicate more accessibility in the liver tissue, whereas negative values indicate more accessibility in the lung tissue.
 
 ## Load packages
 
