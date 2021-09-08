@@ -296,8 +296,10 @@ test_that("calcBinnedKmerEnr works as expected", {
                            function(x) names(x)[x > 1]), m2)
     expect_equal(colSums(assay(res1, "negLog10P")),
                  c(`[1,1.5]` = 33.1936891496806, `(1.5,2]` = 31.5395993919718))
-    expect_equal(colSums(assay(res2, "negLog10P")),
-                 c(`[1,1.5]` = 37.1270049027622, `(1.5,2]` = 40.6593382003256))
+    if(.Platform$OS.type == "unix") {
+        expect_equal(colSums(assay(res2, "negLog10P")),
+                     c(`[1,1.5]` = 37.1270049027622, `(1.5,2]` = 40.6593382003256))
+    }
     expect_equal(colSums(assay(res3, "negLog10P")),
                  c(`[1,1.5]` = 27.2409566382244, `(1.5,2]` = 23.5971145106083))
     expect_equal(colSums(assay(res4, "negLog10P")),
