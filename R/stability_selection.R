@@ -54,7 +54,7 @@ NULL
   
   # modify the function here to make it a randomized-lasso using the weakness parameter
   if (type == "conservative")
-    fit <- suppressWarnings(glmnet::glmnet(x, y, pmax = q, penalty.factor = 1/stats::runif(ncol(x), weakness,  1),  ...))
+    fit <- glmnet::glmnet(x, y, pmax = q, penalty.factor = 1/stats::runif(ncol(x), weakness,  1),  ...)
   if (type == "anticonservative")
     fit <- glmnet::glmnet(x, y, dfmax = q - 1, penalty.factor = 1/stats::runif(ncol(x), weakness,  1), ...)
   
