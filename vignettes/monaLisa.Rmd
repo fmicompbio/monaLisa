@@ -443,7 +443,7 @@ sekm <- calcBinnedKmerEnr(seqs = lmrseqs, bins = bins, kmerLen = 6,
 ```
 
 ```{r binnedkmerenr-load}
-sekm <- readRDS(system.file("extdata", "se_6mers.rds"), package = "monaLisa")
+sekm <- readRDS(system.file("extdata", "se_6mers.rds", package = "monaLisa"))
 ```
 
 Just as for the motif enrichment analysis, the return value is a 
