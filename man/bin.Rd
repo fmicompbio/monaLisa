@@ -24,7 +24,7 @@ bin(
 \code{binmode="equalN"}). The width of bins is adjusted accordingly.}
 
 \item{nBins}{The number of bins (only for \code{binmode="equalWidth"}). The
-number of elments per bin will be variable.}
+number of elements per bin will be variable.}
 
 \item{minAbsX}{The minimal absolute value in \code{x} for elements to be
 binned using the \code{binmode="equalN"} or \code{binmode="equalWidth"}
@@ -47,20 +47,24 @@ The return value from \code{cut(x, ...)}, typically a factor of the
 }
 \description{
 \code{bin} groups elements of \code{x} into bins with either a
-  constant number of elments per bin, a constant bin width or according to
+  constant number of elements per bin, a constant bin width or according to
   user-provided bin boundaries.
 }
 \details{
 Elements are binned according to the values in \code{x} depending on
-  \code{binmode}: \describe{ \item{equalN}{Items are grouped into a variable
+  \code{binmode}: 
+  \describe{ 
+  \item{equalN}{Items are grouped into a variable
   number of bins with \code{nElements} elements each. If \code{minAbsX} is
   not \code{NULL}, elements with \code{x}-values in \code{[-minAbsX,minAbsX]}
   will first be collected in a single bin before binning the remaining
   elements. The boundaries of this single bin may be slightly adjusted in
   order to respect the \code{nElements} elements in the other bins.}
   \item{equalWidth}{Items are group into \code{nBins} bins with a variable
-  number of elements each.} \item{breaks}{Items are grouped into bins using
-  \code{cut(x, breaks, include.lowest = TRUE)}} }
+  number of elements each.} 
+  \item{breaks}{Items are grouped into bins using
+  \code{cut(x, breaks, include.lowest = TRUE)}} 
+  }
 }
 \examples{
 set.seed(1)
