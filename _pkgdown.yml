@@ -41,7 +41,6 @@ reference:
   contents:
     - '`bin`'
     - '`getZeroBin`'
-    - '`setZeroBin`'
     - '`calcBinnedMotifEnr`'
     - '`calcBinnedMotifEnrHomer`'
     - '`calcBinnedMotifEnrR`'
