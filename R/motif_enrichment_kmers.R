@@ -530,10 +530,6 @@ clusterKmers <- function(x,
 #'   observed and expected counts for each k-mer to avoid zero values.
 #' @param pseudocount.log2enr A numerical scalar with the pseudocount to add to
 #'   foreground and background counts when calculating log2 motif enrichments
-#' @param pseudofreq.pearsonResid A numerical scalar with the pseudo-frequency
-#'   to add to background frequencies when calculating Pearson residuals.
-#'   The value needs to be in [0,1] and corresponds to the minimal expected
-#'   fraction of background sequences that contain at least one motif hit.
 #' @param p.adjust.method A character scalar selecting the p value adjustment
 #'   method (used in \code{\link[stats]{p.adjust}}).
 #' @param genome A \code{BSgenome} or \code{DNAStringSet} object with the
@@ -614,6 +610,8 @@ clusterKmers <- function(x,
 #'   \item{negLog10P}{: -log10 P values}
 #'   \item{negLog10Padj}{: -log10 adjusted P values}
 #'   \item{pearsonResid}{: k-mer enrichments as Pearson residuals}
+#'   \item{expForegroundWgtWithHits}{: expected number of foreground 
+#'     sequences with motif hits}
 #'   \item{log2enr}{: k-mer enrichments as log2 ratios}
 #'   \item{sumForegroundWgtWithHits}{: Sum of foreground sequence weights
 #'     in a bin that have k-mer occurrences}
@@ -652,7 +650,6 @@ calcBinnedKmerEnr <- function(seqs,
                                            0.45, 0.5, 0.6, 0.7, 0.8),
                               pseudocount.kmers = 1,
                               pseudocount.log2enr = 8,
-                              pseudofreq.pearsonResid = 0.001,
                               p.adjust.method = "BH",
                               genome = NULL,
                               genome.regions = NULL,
@@ -674,7 +671,6 @@ calcBinnedKmerEnr <- function(seqs,
     .assertScalar(x = includeRevComp, type = "logical")
     .assertScalar(x = pseudocount.kmers, type = "numeric", rngIncl = c(0, Inf))
     .assertScalar(x = pseudocount.log2enr, type = "numeric", rngIncl = c(0, Inf))
-    .assertScalar(x = pseudofreq.pearsonResid, type = "numeric", rngIncl = c(0, 1))
     .assertScalar(x = p.adjust.method, type = "character", validValues = stats::p.adjust.methods)
     if (identical(background, "zeroBin") &&
         (is.null(getZeroBin(bins)) || is.na(getZeroBin(bins)))) {
@@ -845,35 +841,41 @@ calcBinnedKmerEnr <- function(seqs,
     dimnames(padj) <- dimnames(P)
     padj[which(padj == Inf, arr.ind = TRUE)] <- max(padj[is.finite(padj)])
     
-    # ... Pearson residuals
-    #     assuming expTF to be a Binomial random variable, with
-    #       mean     = N_fg * p_bg
-    #       variance = N_fg * p_bg * (1 - p_bg)
-    #     idea: each sequence is one trial with outcomes "hit" or "no hit"
-    #     (zoops), with a constant "hit" rate within a sequence set
-    #     (p_bg in the background); expTF thus follows a binomial distribution
-    #     with the number of trials corresponding to the (weighted) number of
-    #     sequences (e.g. N_fg)
+    # ... Pearson residuals for a contingency table (fg/bg vs hit/no hit)
     enrTF <- do.call(cbind, lapply(enrichL, function(enrich1) {
-        fracBackground <-
-            pmin(1, enrich1[, "sumBackgroundWgtWithHits"] /
-                     enrich1[, "totalWgtBackground"] + pseudofreq.pearsonResid)
-        obsTF <- enrich1[, "sumForegroundWgtWithHits"]
-        expTF <- enrich1[, "totalWgtForeground"] * fracBackground
-        enr <- (obsTF - expTF) / sqrt(expTF * (1 - fracBackground))
-        enr[ is.na(enr) ] <- 0 # needed for fracBackground == 1
+        enr <- .calcPearsonResiduals(
+            matchCountBg = enrich1[, "sumBackgroundWgtWithHits"], 
+            totalWeightBg = unique(enrich1[, "totalWgtBackground"]),
+            matchCountFg = enrich1[, "sumForegroundWgtWithHits"],
+            totalWeightFg = unique(enrich1[, "totalWgtForeground"])
+        )
         names(enr) <- enrich1[, "motifName"]
         enr
     }))
 
+    # expected foreground weights
+    expFG <- do.call(cbind, lapply(enrichL, function(enrich1) {
+        expfg <- .calcExpFg(
+            matchCountBg = enrich1[, "sumBackgroundWgtWithHits"], 
+            totalWeightBg = unique(enrich1[, "totalWgtBackground"]),
+            matchCountFg = enrich1[, "sumForegroundWgtWithHits"],
+            totalWeightFg = unique(enrich1[, "totalWgtForeground"])
+        )
+        names(expfg) <- enrich1[, "motifName"]
+        expfg
+    }))
+    
     # log2 enrichments
     log2enr <- do.call(cbind, lapply(enrichL, function(enrich1) {
-        D <- enrich1[, c("sumForegroundWgtWithHits", "sumBackgroundWgtWithHits")]
-        nTot <- unlist(enrich1[1, c("totalWgtForeground", "totalWgtBackground")])
-        D.norm <- t(t(D) / nTot * min(nTot))
-        DL <- log2(D.norm + pseudocount.log2enr)
-        log2enr <- DL[, 1] - DL[, 2]
-        log2enr
+        l2e <- .calcLog2Enr(
+            matchCountBg = enrich1[, "sumBackgroundWgtWithHits"],
+            totalWeightBg = unique(enrich1[, "totalWgtBackground"]),
+            matchCountFg = enrich1[, "sumForegroundWgtWithHits"],
+            totalWeightFg = unique(enrich1[, "totalWgtForeground"]), 
+            pseudocount = pseudocount.log2enr
+        )
+        names(l2e) <- enrich1[, "motifName"]
+        l2e
     }))
     
     # return SummarizedExperiment
@@ -902,8 +904,12 @@ calcBinnedKmerEnr <- function(seqs,
                       bin.lower = binL,
                       bin.upper = binH,
                       bin.nochange = seq.int(nlevels(bins)) %in% getZeroBin(bins),
-                      totalWgtForeground = do.call(c, lapply(enrichL, function(x){x$totalWgtForeground[1]})), 
-                      totalWgtBackground = do.call(c, lapply(enrichL, function(x){x$totalWgtBackground[1]})))
+                      totalWgtForeground = do.call(c, lapply(enrichL, function(x) {
+                          x$totalWgtForeground[1]
+                      })), 
+                      totalWgtBackground = do.call(c, lapply(enrichL, function(x) {
+                          x$totalWgtBackground[1]
+                      })))
     mdat <- list(bins = bins,
                  bins.binmode = attr(bins, "binmode"),
                  bins.breaks = as.vector(attr(bins, "breaks")),
@@ -917,7 +923,6 @@ calcBinnedKmerEnr <- function(seqs,
                               maxKmerSize = maxKmerSize,
                               pseudocount.kmers = pseudocount.kmers,
                               pseudocount.log2enr = pseudocount.log2enr,
-                              pseudofreq.pearsonResid = pseudofreq.pearsonResid,
                               zoops = TRUE,
                               p.adj.method = p.adjust.method,
                               genome.class = class(genome),
@@ -936,14 +941,18 @@ calcBinnedKmerEnr <- function(seqs,
     padj[set_NA] <- NA
     enrTF[set_NA] <- NA
     log2enr[set_NA] <- NA
+    expFG[set_NA] <- NA
     
-    se <- SummarizedExperiment(assays = list(negLog10P = P, 
-                                             negLog10Padj = padj, 
-                                             pearsonResid = enrTF,
-                                             log2enr = log2enr, 
-                                             sumForegroundWgtWithHits = assaySumForegroundWgtWithHits, 
-                                             sumBackgroundWgtWithHits = assaySumBackgroundWgtWithHits),
-                               rowData = rdat, colData = cdat, metadata = mdat)
+    se <- SummarizedExperiment(
+        assays = list(negLog10P = P, 
+                      negLog10Padj = padj, 
+                      pearsonResid = enrTF,
+                      expForegroundWgtWithHits = expFG,
+                      log2enr = log2enr, 
+                      sumForegroundWgtWithHits = assaySumForegroundWgtWithHits, 
+                      sumBackgroundWgtWithHits = assaySumBackgroundWgtWithHits),
+        rowData = rdat, colData = cdat, metadata = mdat
+    )
     rownames(se) <- kmers
     
     return(se)

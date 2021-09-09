@@ -96,9 +96,9 @@ test_that("parseHomerOutput() works properly", {
     expect_error(parseHomerOutput(outfile, p.adjust.method = "error"))
     
     res <- parseHomerOutput(structure(c(outfile, outfile), names = c("bin1", "bin2")))
-    expect_length(res, 8L)
+    expect_length(res, 9L)
     expect_identical(names(res), c("negLog10P", "negLog10Padj",
-                                   "pearsonResid", "log2enr",
+                                   "pearsonResid", "expForegroundWgtWithHits", "log2enr",
                                    "sumForegroundWgtWithHits",
                                    "sumBackgroundWgtWithHits",
                                    "totalWgtForeground",
@@ -106,11 +106,11 @@ test_that("parseHomerOutput() works properly", {
     expect_identical(colnames(res[[1]]), c("bin1", "bin2"))
     expect_identical(res$p[,1], res$p[,2])
     expect_true(all(sapply(res[1:6], dim) == c(579L, 2L)))
-    expect_length(res[[7]], 2L)
     expect_length(res[[8]], 2L)
-    expect_equal(sum(res$pearsonResid), 5551.72765321722)
+    expect_length(res[[9]], 2L)
+    expect_equal(sum(res$pearsonResid), 5646.01883770411)
     expect_equal(sum(res$log2enr), 447.056685196643)
-    expect_identical(res[[8]], c(bin1 = 43339, bin2 = 43339))
+    expect_identical(res[[9]], c(bin1 = 43339, bin2 = 43339))
 })
 
 test_that("calcBinnedMotifEnrHomer() works properly (synthetic data)", {
@@ -194,9 +194,10 @@ test_that("calcBinnedMotifEnrHomer() works properly (synthetic data)", {
         S4Vectors::metadata(res)[c(2,4)] <- S4Vectors::metadata(res1)[c(2,4)]
         expect_identical(res, res1)
         expect_identical(rownames(res), selids)
-        expect_length(SummarizedExperiment::assays(res), 6L)
+        expect_length(SummarizedExperiment::assays(res), 7L)
         expect_identical(SummarizedExperiment::assayNames(res),
-                         c("negLog10P", "negLog10Padj", "pearsonResid", "log2enr",
+                         c("negLog10P", "negLog10Padj", "pearsonResid", 
+                           "expForegroundWgtWithHits", "log2enr",
                            "sumForegroundWgtWithHits", "sumBackgroundWgtWithHits"))
         expect_identical(dim(res), c(5L, 3L))
         expect_identical(rownames(res), SummarizedExperiment::rowData(res)[, "motif.id"])
@@ -204,7 +205,7 @@ test_that("calcBinnedMotifEnrHomer() works properly (synthetic data)", {
         expect_identical(apply(SummarizedExperiment::assay(res, "negLog10P"), 2, which.max),
                          c(chr1 = 1L, chr2 = 2L, chr3 = 3L))
         expect_equal(sum(SummarizedExperiment::assay(res, "negLog10P")), 65.132971396505)
-        expect_equal(sum(SummarizedExperiment::assay(res, "pearsonResid")), 55.5841704935281)
+        expect_equal(sum(SummarizedExperiment::assay(res, "pearsonResid")), -0.23617661811598)
         
         unlink(c(mfile, outdir, genomedir), recursive = TRUE, force = TRUE)
     }

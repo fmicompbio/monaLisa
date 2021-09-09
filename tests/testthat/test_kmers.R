@@ -288,7 +288,8 @@ test_that("calcBinnedKmerEnr works as expected", {
     expect_is(res3, "SummarizedExperiment")
     expect_is(res4, "SummarizedExperiment")
     expect_identical(assayNames(res1),
-                     c("negLog10P", "negLog10Padj", "pearsonResid", "log2enr",
+                     c("negLog10P", "negLog10Padj", "pearsonResid",
+                       "expForegroundWgtWithHits", "log2enr",
                        "sumForegroundWgtWithHits", "sumBackgroundWgtWithHits"))
     expect_identical(apply(assay(res1, "negLog10Padj"), 2,
                            function(x) names(x)[x > 3]), m)
@@ -361,7 +362,8 @@ test_that("convertKmersToMotifs works as expected", {
     expect_is(a1, "SummarizedExperiment")
     expect_is(a2, "SummarizedExperiment")
     expect_identical(a1, a2)
-    expect_equal(rowSums(assay(a1, "pearsonResid")), c(`m1:::m1` = 52.7476459257492, `m2:::m2` = -0.101202243464047))
+    expect_equal(rowSums(assay(a1, "pearsonResid")), 
+                 c(`m1:::m1` = 38.4516918511957, `m2:::m2` = 0.247011525306279))
 })
 
 test_that("extractOverlappingKmerFrequencies works as expected", {

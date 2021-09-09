@@ -323,10 +323,6 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
 #' @param infiles HOMER output files to be parsed.
 #' @param pseudocount.log2enr A numerical scalar with the pseudocount to add to
 #'   foreground and background counts when calculating log2 motif enrichments
-#' @param pseudofreq.pearsonResid A numerical scalar with the pseudo-frequency
-#'   to add to background frequencies when calculating Pearson residuals.
-#'   The value needs to be in [0,1] and corresponds to the minimal expected
-#'   fraction of background sequences that contain at least one motif hit.
 #' @param p.adjust.method A character scalar selecting the p value adjustment
 #'   method (used in \code{\link[stats]{p.adjust}}).
 #'
@@ -346,44 +342,53 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
 #' @export
 parseHomerOutput <- function(infiles,
                              pseudocount.log2enr = 8,
-                             pseudofreq.pearsonResid = 0.001,
                              p.adjust.method = "BH") {
     stopifnot(all(file.exists(infiles)))
     .assertScalar(x = pseudocount.log2enr, type = "numeric", rngIncl = c(0, Inf))
-    .assertScalar(x = pseudofreq.pearsonResid, type = "numeric", rngIncl = c(0, 1))
     .assertScalar(x = p.adjust.method, type = "character", validValues = stats::p.adjust.methods)
 
     tabL <- lapply(infiles, read.delim)
     mnms <- sort(tabL[[1]][, 1])
     names(tabL) <- if (is.null(names(infiles))) infiles else names(infiles)
     P <- do.call(cbind, lapply(tabL, function(x) -x[match(mnms, x[, 1]), 4] / log(10)))
-    # ... Pearson residuals
-    #     assuming expTF to be a Binomial random variable, with
-    #       mean     = N_fg * p_bg
-    #       variance = N_fg * p_bg * (1 - p_bg)
-    #     idea: each sequence is one trial with outcomes "hit" or "no hit"
-    #     (zoops), with a constant "hit" rate within a sequence set
-    #     (p_bg in the background); expTF thus follows a binomial distribution
-    #     with the number of trials corresponding to the (weighted) number of
-    #     sequences (e.g. N_fg)
+    # ... Pearson residuals for contingency table
     presid <- do.call(cbind, lapply(tabL, function(tab) {
-        nTotFg <- as.numeric(gsub("\\S+\\.(\\d+)\\.", "\\1", colnames(tab)[6])) #total number of target (foreground) sequences
-        fracBgWithMotif <-
-          pmin(1, as.numeric(sub("%$","", tab[, 9])) / 100 +
-                 pseudofreq.pearsonResid)
-        obsTF <- tab[, 6]
-        expTF <- nTotFg * fracBgWithMotif
-        enr <- (obsTF - expTF) / sqrt(expTF * (1 - fracBgWithMotif))
-        enr[ is.na(enr) ] <- 0
+        numFgBgWithHits <- tab[, c(6, 8)] # number of target seqs and bg seqs with motif
+        nTot <- as.numeric(gsub("\\S+\\.(\\d+)\\.", "\\1", colnames(numFgBgWithHits))) #total number of target and background sequences
+        enr <- .calcPearsonResiduals(
+            matchCountBg = numFgBgWithHits[, 2],
+            totalWeightBg = nTot[2],
+            matchCountFg = numFgBgWithHits[, 1],
+            totalWeightFg = nTot[1]
+        )
+        enr[is.na(enr)] <- 0
         enr[match(mnms, tab[, 1])]
     }))
+    
+    # expected foreground weights
+    expFG <- do.call(cbind, lapply(tabL, function(tab) {
+        numFgBgWithHits <- tab[, c(6, 8)] # number of target seqs and bg seqs with motif
+        nTot <- as.numeric(gsub("\\S+\\.(\\d+)\\.", "\\1", colnames(numFgBgWithHits))) #total number of target and background sequences
+        expfg <- .calcExpFg(
+            matchCountBg = numFgBgWithHits[, 2],
+            totalWeightBg = nTot[2],
+            matchCountFg = numFgBgWithHits[, 1],
+            totalWeightFg = nTot[1]
+        )
+        expfg[match(mnms, tab[, 1])]
+    }))
+    
     log2enr <- do.call(cbind, lapply(tabL, function(tab){
         numFgBgWithHits <- tab[, c(6, 8)] # number of target seqs and bg seqs with motif
         nTot <- as.numeric(gsub("\\S+\\.(\\d+)\\.", "\\1", colnames(numFgBgWithHits))) #total number of target and background sequences
-        numFgBgWithHitsNorm <- t(min(nTot) * t(numFgBgWithHits) / nTot) # scale to smaller number (usually number of target sequences)
-        numFgBgWithHitsNormLog <- log2(numFgBgWithHitsNorm + pseudocount.log2enr)
-        lenr <- numFgBgWithHitsNormLog[, 1] - numFgBgWithHitsNormLog[, 2]
-        lenr[match(mnms, tab[, 1])]
+        log2enr <- .calcLog2Enr(
+            matchCountBg = numFgBgWithHits[, 2],
+            totalWeightBg = nTot[2],
+            matchCountFg = numFgBgWithHits[, 1],
+            totalWeightFg = nTot[1], 
+            pseudocount = pseudocount.log2enr
+        )
+        log2enr[match(mnms, tab[, 1])]
     }))
 
     sumFgWgt <- do.call(cbind, lapply(tabL, function(tab) tab[match(mnms, tab[, 1]), 6]))
@@ -400,10 +405,11 @@ parseHomerOutput <- function(infiles,
     padj[which(padj == Inf, arr.ind = TRUE)] <- max(padj[is.finite(padj)])
     
     rownames(P) <- rownames(padj) <- rownames(presid) <- rownames(log2enr) <-
-        rownames(sumFgWgt) <- rownames(sumBgWgt) <- mnms
+        rownames(expFG) <- rownames(sumFgWgt) <- rownames(sumBgWgt) <- mnms
     
     return(list(negLog10P = P, negLog10Padj = padj,
-                pearsonResid = presid, log2enr = log2enr,
+                pearsonResid = presid, 
+                expForegroundWgtWithHits = expFG, log2enr = log2enr,
                 sumForegroundWgtWithHits = sumFgWgt, 
                 sumBackgroundWgtWithHits = sumBgWgt,
                 totalWgtForeground = totWgt[, 1],
@@ -459,10 +465,6 @@ parseHomerOutput <- function(infiles,
 #'     region, an integer value will keep only that many bases in the region center).
 #' @param pseudocount.log2enr A numerical scalar with the pseudocount to add to
 #'   foreground and background counts when calculating log2 motif enrichments
-#' @param pseudofreq.pearsonResid A numerical scalar with the pseudo-frequency
-#'   to add to background frequencies when calculating Pearson residuals.
-#'   The value needs to be in [0,1] and corresponds to the minimal expected
-#'   fraction of background sequences that contain at least one motif hit.
 #' @param p.adjust.method A character scalar selecting the p value adjustment
 #'   method (used in \code{\link[stats]{p.adjust}}).
 #' @param Ncpu Number of parallel threads that HOMER can use.
@@ -479,6 +481,8 @@ parseHomerOutput <- function(infiles,
 #'   \item{negLog10P}{: -log10 P values}
 #'   \item{negLog10Padj}{: -log10 adjusted P values}
 #'   \item{pearsonResid}{: motif enrichments as Pearson residuals}
+#'   \item{expForegroundWgtWithHits}{: expected number of foreground 
+#'     sequences with motif hits}
 #'   \item{log2enr}{: motif enrichments as log2 ratios}
 #'   \item{sumForegroundWgtWithHits}{: Sum of foreground sequence weights
 #'     in a bin that have motif hits}
@@ -495,7 +499,6 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
                                     homerfile = findHomer(),
                                     regionsize = "given",
                                     pseudocount.log2enr = 8,
-                                    pseudofreq.pearsonResid = 0.001,
                                     p.adjust.method = "BH",
                                     Ncpu = 2L,
                                     verbose = FALSE,
@@ -573,7 +576,7 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
     pfms <- homerToPFMatrixList(motifFile)
     morder <- TFBSTools::name(pfms)
     o <- match(morder, rownames(resL[[1]]))
-    assayL <- lapply(resL[seq_len(6)], function(x) x[o, ])
+    assayL <- lapply(resL[seq_len(7)], function(x) x[o, ])
     ## ... ... colData
     if (is.null(attr(b, "breaks"))) {
         binL <- binH <- rep(NA, nlevels(b))

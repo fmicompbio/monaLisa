@@ -16,7 +16,6 @@ calcBinnedMotifEnrR(
   matchMethod = "matchPWM",
   GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.7, 0.8),
   pseudocount.log2enr = 8,
-  pseudofreq.pearsonResid = 0.001,
   p.adjust.method = "BH",
   genome = NULL,
   genome.regions = NULL,
@@ -65,11 +64,6 @@ the hard-coded bins used in Homer.}
 \item{pseudocount.log2enr}{A numerical scalar with the pseudocount to add to
 foreground and background counts when calculating log2 motif enrichments}
 
-\item{pseudofreq.pearsonResid}{A numerical scalar with the pseudo-frequency
-to add to background frequencies when calculating Pearson residuals.
-The value needs to be in [0,1] and corresponds to the minimal expected
-frequency of background sequences that contain at least one motif hit.}
-
 \item{p.adjust.method}{A character scalar selecting the p value adjustment
 method (used in \code{\link[stats]{p.adjust}}).}
 
@@ -101,6 +95,8 @@ A \code{\link[SummarizedExperiment]{SummarizedExperiment}} object
   \item{negLog10P}{: -log10 P values}
   \item{negLog10Padj}{: -log10 adjusted P values}
   \item{pearsonResid}{: motif enrichments as Pearson residuals}
+  \item{expForegroundWgtWithHits}{: expected number of foreground 
+    sequences with motif hits}
   \item{log2enr}{: motif enrichments as log2 ratios}
   \item{sumForegroundWgtWithHits}{: Sum of foreground sequence weights
     in a bin that have motif hits}

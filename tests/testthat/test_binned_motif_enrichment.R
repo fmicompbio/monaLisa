@@ -406,8 +406,8 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
     expect_identical(metadata(res2)$param$test, "fisher")
     expect_identical(metadata(res1)$param[-3], metadata(res2)$param[-3])
     expect_identical(metadata(res2)$bins, b)
-    expect_identical(assayNames(res1), c("negLog10P", "negLog10Padj", "pearsonResid", "log2enr", "sumForegroundWgtWithHits", "sumBackgroundWgtWithHits"))
-    expect_identical(assayNames(res2), c("negLog10P", "negLog10Padj", "pearsonResid", "log2enr", "sumForegroundWgtWithHits", "sumBackgroundWgtWithHits"))
+    expect_identical(assayNames(res1), c("negLog10P", "negLog10Padj", "pearsonResid", "expForegroundWgtWithHits", "log2enr", "sumForegroundWgtWithHits", "sumBackgroundWgtWithHits"))
+    expect_identical(assayNames(res2), c("negLog10P", "negLog10Padj", "pearsonResid", "expForegroundWgtWithHits", "log2enr", "sumForegroundWgtWithHits", "sumBackgroundWgtWithHits"))
     expect_identical(colnames(rowData(res1)), c("motif.id", "motif.name", "motif.pfm", "motif.pwm", "motif.percentGC"))
     expect_identical(rowData(res1), rowData(res2))
     expect_identical(dim(colData(res1)), c(3L, 6L))
@@ -428,7 +428,7 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
                                dim = c(length(pwm), nlevels(b)),
                                dimnames = list(names(pwm), levels(b))))
     expect_identical(round(assay(res1, "pearsonResid"), 3),
-                     structure(c(10.933, -4.413, -4.374, 13.933, -5.387, -6.211),
+                     structure(c(7.827, -3.847, -3.902, 8.878, -4.541, -5.114),
                                dim = c(length(pwm), nlevels(b)),
                                dimnames = list(names(pwm), levels(b))))
     expect_identical(round(assay(res1, "log2enr"), 3),
@@ -444,7 +444,7 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
                                dim = c(length(pwm), nlevels(b)),
                                dimnames = list(names(pwm), levels(b))))
     expect_identical(round(assay(res2, "pearsonResid"), 3),
-                     structure(c(10.933, -4.413, -4.374, 13.933, -5.387, -6.211),
+                     structure(c(7.827, -3.847, -3.902, 8.878, -4.541, -5.114),
                                dim = c(length(pwm), nlevels(b)),
                                dimnames = list(names(pwm), levels(b))))
     expect_identical(round(assay(res2, "log2enr"), 3),
