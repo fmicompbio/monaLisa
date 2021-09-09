@@ -162,7 +162,7 @@ We start by loading the needed packages:
 ```{r loadlib, message=FALSE}
 library(GenomicRanges)
 library(SummarizedExperiment)
-library(JASPAR2018)
+library(JASPAR2020)
 library(TFBSTools)
 library(BSgenome.Mmusculus.UCSC.mm10)
 library(monaLisa)
@@ -238,11 +238,11 @@ They have been adjusted to have the required 800 LMRs per bin.
 
 Next we prepare the motif enrichment analysis. We first need known motifs
 representing transcription factor binding site preferences. We extract all
-vertebrate motifs from the `r Biocpkg("JASPAR2018")` package as positional
+vertebrate motifs from the `r Biocpkg("JASPAR2020")` package as positional
 weight matrices (PWMs):  
 
 ```{r getmotifs}
-pwms <- getMatrixSet(JASPAR2018,
+pwms <- getMatrixSet(JASPAR2020,
                      opts = list(matrixtype = "PWM",
                                  tax_group = "vertebrates"))
 ```
@@ -389,24 +389,24 @@ matches. In `R`, PWMs are often represented using `TFBSTools::PWMatrix`
 hits. `calcBinnedMotifEnrHomer` on the other hand takes a motif text file with 
 PPMs, and requires the user to have `Homer` installed to use it for the binned 
 motif enrichment analysis. Here, we show how one can get motif PFMs from 
-`r Biocpkg("JASPAR2018")` and convert them to a `Homer`-compatible text file 
+`r Biocpkg("JASPAR2020")` and convert them to a `Homer`-compatible text file 
 with PPMs (`dumpJaspar`) and vice versa (`homerToPFMatrixList` ), and how to 
 convert a `PFMatrixList` to a `PWMatrixList` for use with `calcBinnedMotifEnrR` 
 or `findMotifHits`: 
 
 ```{r}
-# get PFMs from JASPAR2018 package (vertebrate subset)
-pfms <- getMatrixSet(JASPAR2018,
+# get PFMs from JASPAR2020 package (vertebrate subset)
+pfms <- getMatrixSet(JASPAR2020,
                      opts = list(matrixtype = "PFM",
                                  tax_group = "vertebrates"))
 
 # convert PFMs to PWMs
 pwms <- toPWM(pfms)
 
-# convert JASPAR2018 PFMs (vertebrate subset) to Homer motif file
+# convert JASPAR2020 PFMs (vertebrate subset) to Homer motif file
 tmp <- tempfile()
 convert <- dumpJaspar(filename = tmp,
-                      pkg = "JASPAR2018",
+                      pkg = "JASPAR2020",
                       pseudocount = 0,
                       opts = list(tax_group = "vertebrates"))
 
@@ -510,9 +510,9 @@ seqs
 
 # get motifs as a PWMatrixList
 # (could also be a single PWMatrix, or the name of a motif file)
-library(JASPAR2018)
+library(JASPAR2020)
 library(TFBSTools)
-pfms <- getMatrixByID(JASPAR2018, c("MA0885.1", "MA0099.3", "MA0033.2", 
+pfms <- getMatrixByID(JASPAR2020, c("MA0885.1", "MA0099.3", "MA0033.2", 
                                     "MA0037.3", "MA0158.1"))
 pwms <- toPWM(pfms)
 pwms

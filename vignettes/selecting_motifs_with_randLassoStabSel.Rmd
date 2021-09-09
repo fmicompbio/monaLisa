@@ -43,7 +43,7 @@ In the example below, we select for TF motifs explaining log-fold changes in chr
 We start by loading the needed packages: 
 ```{r libs, message=FALSE}
 library(monaLisa)
-library(JASPAR2018)
+library(JASPAR2020)
 library(TFBSTools)
 library(BSgenome.Mmusculus.UCSC.mm10)
 library(Biostrings)
@@ -70,7 +70,7 @@ As mentioned, this framework offers the flexibility to add additional predictors
 
 ```{r predictorMatrix}
 # get PFMs (vertebrate TFs from Jaspar)
-pfms <- getMatrixSet(JASPAR2018, list(matrixtype = "PFM", tax_group = "vertebrates"))
+pfms <- getMatrixSet(JASPAR2020, list(matrixtype = "PFM", tax_group = "vertebrates"))
 
 # randomly sample 200 PFMs for illustration purposes (for quick runtime)
 set.seed(6698)

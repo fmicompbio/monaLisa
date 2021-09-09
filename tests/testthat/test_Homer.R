@@ -42,10 +42,10 @@ test_that("dumpJaspar() works properly", {
 
 test_that("homerToPFMatrixList() works properly", {
     tmp1 <- tempfile()
-    library(JASPAR2018)
+    library(JASPAR2020)
     optsL <- list(ID = c("MA0006.1", "MA0007.3", "MA0019.1", "MA0025.1", "MA0029.1", "MA0030.1"))
-    pfms <- TFBSTools::getMatrixSet(JASPAR2018, opts = optsL)
-    expect_true(dumpJaspar(filename = tmp1, pkg = "JASPAR2018", opts = optsL))
+    pfms <- TFBSTools::getMatrixSet(JASPAR2020, opts = optsL)
+    expect_true(dumpJaspar(filename = tmp1, pkg = "JASPAR2020", opts = optsL))
 
     expect_error(homerToPFMatrixList("does_not_exist"))
     expect_error(homerToPFMatrixList(tmp1, "error"))
@@ -119,7 +119,7 @@ test_that("calcBinnedMotifEnrHomer() works properly (synthetic data)", {
         homerbin <- findHomer("findMotifsGenome.pl", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.11/bin")
     }
     
-    if (!is.na(homerbin) && require("JASPAR2018")) {
+    if (!is.na(homerbin) && require("JASPAR2020")) {
         # genome
         set.seed(42)
         genomedir <- tempfile()
@@ -138,13 +138,13 @@ test_that("calcBinnedMotifEnrHomer() works properly (synthetic data)", {
         
         # motifs
         selids <- c("MA0139.1", "MA1102.1", "MA0740.1", "MA0493.1", "MA0856.1")
-        pfm <- TFBSTools::getMatrixSet(JASPAR2018, opts = list(ID = selids))
+        pfm <- TFBSTools::getMatrixSet(JASPAR2020, opts = list(ID = selids))
         cons <- unlist(lapply(Matrix(pfm), function(x) paste(rownames(x)[apply(x, 2, which.max)], collapse = "")))
         #              MA0139.1          MA1102.1          MA0740.1       MA0493.1          MA0856.1 
         # "TGGCCACCAGGGGGCGCTA"  "CACCAGGGGGCACC"  "GGCCACGCCCCCTT"  "GGCCACACCCA"  "GGGGTCAAAGGTCA" 
         # ... dump to file for Homer
         mfile <- tempfile(fileext = ".motifs")
-        expect_true(dumpJaspar(filename = mfile, pkg = "JASPAR2018",
+        expect_true(dumpJaspar(filename = mfile, pkg = "JASPAR2020",
                                opts = list(ID = selids)))
         # ... plant motifs
         for (chr1 in names(chrsstr)) {

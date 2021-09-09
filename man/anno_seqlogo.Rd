@@ -40,8 +40,8 @@ create an annotation for a \code{\link[ComplexHeatmap]{Heatmap}}
   containing sequence logos.
 }
 \examples{
-if (require(JASPAR2018) && require(TFBSTools) && require(gridExtra)) {
-    pfm1 <- getMatrixByID(JASPAR2018, "MA0139")
+if (require(JASPAR2020) && require(TFBSTools) && require(gridExtra)) {
+    pfm1 <- getMatrixByID(JASPAR2020, "MA0139")
 
     g1 <- seqLogoGrob(pfm1)
 

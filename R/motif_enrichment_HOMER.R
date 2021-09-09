@@ -42,12 +42,12 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 
 #' @title Dump Jaspar motifs into a HOMER motif file.
 #'
-#' @description Get motifs from a Jaspar database package (e.g. \code{JASPAR2018})
+#' @description Get motifs from a Jaspar database package (e.g. \code{JASPAR2020})
 #'     and write them into a HOMER-compatible motif file as positional probability
 #'     matrices.
 #'
 #' @param filename Name of the output file to be created.
-#' @param pkg Name of the Jaspar package to use (default: \code{JASPAR2018}).
+#' @param pkg Name of the Jaspar package to use (default: \code{JASPAR2020}).
 #' @param opts A list with search options used in
 #'     \code{\link[TFBSTools]{getMatrixSet}}. By default, only vertebrate motifs
 #'     are included in the output using
@@ -67,7 +67,7 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 #'     motifs into a \code{\link[TFBSTools]{PFMatrixList}}.
 #'
 #' @examples 
-#' dumpJaspar(filename = tempfile(), pkg = "JASPAR2018", 
+#' dumpJaspar(filename = tempfile(), pkg = "JASPAR2020", 
 #'            opts = list(ID = c("MA0006.1")))
 #' 
 #' @importFrom utils getFromNamespace
@@ -75,7 +75,7 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 #'
 #' @export
 dumpJaspar <- function(filename,
-                       pkg = "JASPAR2018",
+                       pkg = "JASPAR2020",
                        opts = list(tax_group = "vertebrates"),
                        pseudocount = 1,
                        relScoreCutoff = 0.8,
@@ -149,13 +149,13 @@ dumpJaspar <- function(filename,
 #' @return A \code{\link[TFBSTools]{PFMatrixList}} with motifs from the file.
 #'
 #' @examples 
-#' library(JASPAR2018)
+#' library(JASPAR2020)
 #' optsL <- list(ID = c("MA0006.1"))
-#' pfm1 <- TFBSTools::getMatrixSet(JASPAR2018, opts = optsL)
+#' pfm1 <- TFBSTools::getMatrixSet(JASPAR2020, opts = optsL)
 #' TFBSTools::Matrix(pfm1)
 #' 
 #' tmpfn <- tempfile()
-#' dumpJaspar(filename = tmpfn, pkg = "JASPAR2018", opts = optsL)
+#' dumpJaspar(filename = tmpfn, pkg = "JASPAR2020", opts = optsL)
 #' pfm2 <- homerToPFMatrixList(tmpfn)
 #' TFBSTools::Matrix(pfm2)
 #' 
@@ -234,7 +234,7 @@ homerToPFMatrixList <- function(filename, n = 100L) {
 #' 
 #' # prepare motif file, regions and bins
 #' motiffile <- tempfile()
-#' dumpJaspar(filename = motiffile, pkg = "JASPAR2018", 
+#' dumpJaspar(filename = motiffile, pkg = "JASPAR2020", 
 #'            opts = list(ID = c("MA0006.1")))
 #' gr <- GenomicRanges::GRanges("chr1", IRanges::IRanges(1:4, width = 4))
 #' b <- bin(1:4, nElements = 2)
