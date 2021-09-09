@@ -41,7 +41,8 @@ Imports:
     igraph,
     GenomeInfoDb,
     Rcpp,
-    tools
+    tools,
+    vioplot
 Suggests: 
     JASPAR2018, 
     BSgenome.Mmusculus.UCSC.mm10, 
