@@ -7,7 +7,8 @@ set.seed(1)
 x <- rnorm(1000)
 b1 <- bin(x, binmode = "equalN", nElements = 100)
 b2 <- bin(x, binmode = "equalN", nElements = 50, minAbsX = 0.6)
-se <- readRDS(system.file("extdata", "se.rds", package = "monaLisa"))[1:10, 1:8]
+se <- readRDS(system.file("extdata", "results.binned_motif_enrichment_LMRs.rds", 
+                          package = "monaLisa"))[1:10, 1:8]
 seqs <- Biostrings::DNAStringSet(
     vapply(seq_along(x), 
            function(i) paste(sample(c("A", "C", "G", "T"), 10, 

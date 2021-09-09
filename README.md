@@ -13,7 +13,7 @@ to look for enriched motifs in sets (bins) of genomic regions, compared to all o
 regions ("binned motif enrichment analysis").
 
 It uses known motifs representing transcription factor binding preferences,
-for example for the `JASPAR2018` Bioconductor package. The regions are for
+for example for the `JASPAR2020` Bioconductor package. The regions are for
 example promoters or accessible regions, which are grouped into bins according
 to a numerical value assigned to each region, such as change of expression
 or accessibility. The goal of the analysis is to identify transcription
@@ -62,9 +62,9 @@ seqs <- getSeq(BSgenome.Mmusculus.UCSC.mm10, atacPeaks)
 bins <- monaLisa::bin(x = atacPeaksChange, binmode = "equalN", nElement = 400)
 
 # obtain known motifs from Jaspar
-library(JASPAR2018)
+library(JASPAR2020)
 library(TFBSTools)
-pwms <- getMatrixSet(JASPAR2018, list(matrixtype = "PWM", tax_group = "vertebrates"))
+pwms <- getMatrixSet(JASPAR2020, list(matrixtype = "PWM", tax_group = "vertebrates"))
 ```
 
 The results can be conveniently visualized:

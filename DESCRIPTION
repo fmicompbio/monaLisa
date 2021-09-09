@@ -44,7 +44,7 @@ Imports:
     tools,
     vioplot
 Suggests: 
-    JASPAR2018, 
+    JASPAR2020, 
     BSgenome.Mmusculus.UCSC.mm10, 
     TxDb.Mmusculus.UCSC.mm10.knownGene,
     knitr, 

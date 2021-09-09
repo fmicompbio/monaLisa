@@ -92,8 +92,8 @@ The heatmaps are created using the \pkg{ComplexHeatmap} package
     the graphics device.
 }
 \examples{
-se <- readRDS(system.file("extdata", "se.rds", package = "monaLisa"))
-i <- which(SummarizedExperiment::assay(se, "negLog10Padj")[, 8] > 10)
+se <- readRDS(system.file("extdata", "results.binned_motif_enrichment_LMRs.rds", package = "monaLisa"))
+i <- which(SummarizedExperiment::assay(se, "negLog10Padj")[, 8] > 4)
 plotMotifHeatmaps(se[i, ], which.plots = "pearsonResid",
                   width = 2, show_seqlogo = TRUE)
 

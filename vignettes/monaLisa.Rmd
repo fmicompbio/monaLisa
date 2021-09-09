@@ -59,6 +59,10 @@ accessibility or methylation. Motif enrichments are then calculated for
 each bin, normalizing for differences in sequence composition very similarly
 as it was originally done by [Homer](http://homer.ucsd.edu/homer/index.html)
 [@homer]. This approach has for example been used in @ginno2018 and @barisic2019.
+`calcBinnedMotifEnrHomer()` implements the same analysis using Homer and
+therefore requires a local installation of Homer, and `calcBinnedKmerEnr()`
+(see section \@ref(binnedkmers)) implements the analysis for k-mers instead
+of motifs, to study sequence enrichments without the requirement of known motifs.
 
 - In **randomized Lasso stability selection** (`randLassoStabSel()`, see
 `r Biocpkg("monaLisa", vignette="selecting_motifs_with_randLassoStabSel.html", label="the stability selection vignette")`, 
@@ -162,7 +166,7 @@ We start by loading the needed packages:
 ```{r loadlib, message=FALSE}
 library(GenomicRanges)
 library(SummarizedExperiment)
-library(JASPAR2018)
+library(JASPAR2020)
 library(TFBSTools)
 library(BSgenome.Mmusculus.UCSC.mm10)
 library(monaLisa)
@@ -238,23 +242,53 @@ They have been adjusted to have the required 800 LMRs per bin.
 
 Next we prepare the motif enrichment analysis. We first need known motifs
 representing transcription factor binding site preferences. We extract all
-vertebrate motifs from the `r Biocpkg("JASPAR2018")` package as positional
+vertebrate motifs from the `r Biocpkg("JASPAR2020")` package as positional
 weight matrices (PWMs):  
 
 ```{r getmotifs}
-pwms <- getMatrixSet(JASPAR2018,
+pwms <- getMatrixSet(JASPAR2020,
                      opts = list(matrixtype = "PWM",
                                  tax_group = "vertebrates"))
 ```
 
-Furthermore, we need the sequences corresponding to our LMRs, which
-we directly extract from the `r Biocpkg("BSgenome.Mmusculus.UCSC.mm10")`
-package:  
+Furthermore, we need the sequences corresponding to our LMRs. As sequences
+in one bin are compared to the sequences in other bins, we would not want
+differences of sequence lengths or composition between bins that might bias
+our motif enrichment results.
 
+In general, we would recommend to use regions of similar or even equal lengths
+to avoid length bias, for example by using a fixed-size region around the
+midpoint of each region of interest using `resize`. In addition, the resized
+regions may have to be constrained to the chromosome boundaries using trim:
+```{r makewidthequal}
+summary(width(lmrsel))
+lmrsel <- trim(resize(lmrsel, width = median(width(lmrsel)), fix = "center"))
+summary(width(lmrsel))
+```
+
+Now that all regions are of the same length, we can directly extract the
+corresponding sequences from the `r Biocpkg("BSgenome.Mmusculus.UCSC.mm10")`
+package:  
 ```{r getseqs}
 lmrseqs <- getSeq(BSgenome.Mmusculus.UCSC.mm10, lmrsel)
 ```
 
+We can check for differences in sequence composition between bins using
+the `plotBinDiagnostics` function. "GCfrac" will plot the distributions
+of the fraction of G+C bases, and "dinucfreq" creates a heatmap of average
+di-nucleotide frequencies in each bin, relative to the overall average.
+
+```{r bindiag}
+plotBinDiagnostics(seqs = lmrseqs, bins = bins, aspect = "GCfrac")
+plotBinDiagnostics(seqs = lmrseqs, bins = bins, aspect = "dinucfreq")
+```
+
+From these plot, we can see that LMRs with lower methylation in NP cells
+compared to ES cells (bin `r levels(bins)[1]`) tend to be GC-poorer than
+LMRs in other bins. A strong bias of this kind could give rise to false
+positives in that bin, e.g. enrichments of AT-rich motifs. In this example,
+the bias is however not very strong and the built-in sequence composition
+correction in `calcBinnedMotifEnrR` should be able to handle it.
 
 ## Run motif enrichment analysis
 
@@ -270,8 +304,9 @@ se <- calcBinnedMotifEnrR(seqs = lmrseqs, bins = bins, pwmL = pwms)
 
 In case you did not run the above code, let's now read in the results:  
 
-```{r gethomerresults}
-se <- readRDS(system.file("extdata", "se.rds", package = "monaLisa"))
+```{r getresults}
+se <- readRDS(system.file("extdata", "results.binned_motif_enrichment_LMRs.rds",
+                          package = "monaLisa"))
 ```
 
 `se` is a `SummarizedExperiment` object which nicely keeps motifs, bins and
@@ -296,14 +331,14 @@ assay(se, "log2enr")[1:5, 1:3]
 ```
 
 We can plot the results using the `plotMotifHeatmaps` function, e.g. selecting 
-all transcription factor motifs that have an $-log_{10} FDR$ of at least 8.0 in 
-any bin (corresponding to an $FDR < 10^{-8}$). FDR values are stored in the 
+all transcription factor motifs that have an $-log_{10} FDR$ of at least 4.0 in 
+any bin (corresponding to an $FDR < 10^{-4}$). FDR values are stored in the 
 `negLog10Padj` assay:  
 
-```{r plottfs}
+```{r plottfs, fig.height=10}
 # select strongly enriched motifs
 sel <- apply(assay(se, "negLog10Padj"), 1, 
-             function(x) max(abs(x), 0, na.rm = TRUE)) > 8.0
+             function(x) max(abs(x), 0, na.rm = TRUE)) > 4.0
 sum(sel)
 seSel <- se[sel, ]
 
@@ -313,14 +348,29 @@ plotMotifHeatmaps(x = seSel, which.plots = c("log2enr", "negLog10Padj"),
                   show_motif_GC = TRUE)
 ```
 
-Setting `cluster = TRUE` has re-ordered the rows using hierarchical clustering
-of the `"pearsonResid"` assay. As many transcription factor binding motifs 
-are similar to each other, it is also helpful to show the enrichment heatmap 
-clustered by motif similarity. To this end, we first calculate all pairwise 
-motif similarities (measured as maximum Pearson correlation of all possible 
-shifted alignments). This can be quickly calculated for the few selected motifs 
-using the `motifSimilarity` function. For many motifs, this step may take a 
-while, and it may be useful to parallelize it using the `BPPARAM` argument 
+In order to select only motifs with significant enrichments in a specific
+bin, or in any bin except the "zero" bin, you could use:  
+```{r selsigvariants}
+# significantly enriched in bin 8
+levels(bins)[8]
+sel.bin8 <- assay(se, "negLog10Padj")[, 8] > 4.0
+sum(sel.bin8, na.rm = TRUE)
+
+# significantly enriched in any "non-zero" bin
+getZeroBin(bins)
+sel.nonZero <- apply(assay(se, "negLog10Padj")[, -getZeroBin(bins), drop = FALSE], 1,
+                     function(x) max(abs(x), 0, na.rm = TRUE)) > 4.0
+sum(sel.nonZero)
+```
+
+Setting `cluster = TRUE` in `plotMotifHeatmaps` has re-ordered the rows using
+hierarchical clustering of the `"pearsonResid"` assay. As many transcription
+factor binding motifs  are similar to each other, it is also helpful to show
+the enrichment heatmap  clustered by motif similarity. To this end, we first
+calculate all pairwise motif similarities (measured as maximum Pearson correlation
+of all possible  shifted alignments). This can be quickly calculated for the few
+selected motifs using the `motifSimilarity` function. For many motifs, this step
+may take a while, and it may be useful to parallelize it using the `BPPARAM` argument 
 (e.g. to run on `n` parallel threads using the multi-core backend, you can use:
 `motifSimilarity(..., BPPARAM = BiocParallel::MulticoreParam(n))`).
 
@@ -338,7 +388,7 @@ in the heatmap. The plotting of the dendrogram is controlled by the parameter
 `show_dendrogram`, and we also display the motifs as sequence logos using
 `show_seqlogo`: 
 
-```{r plottfsclustered}
+```{r plottfsclustered, fig.height=10}
 # create hclust object, similarity defined by 1 - Pearson correlation
 hcl <- hclust(as.dist(1 - SimMatSel), method = "average")
 plotMotifHeatmaps(x = seSel, which.plots = c("log2enr", "negLog10Padj"), 
@@ -351,7 +401,7 @@ plotMotifHeatmaps(x = seSel, which.plots = c("log2enr", "negLog10Padj"),
 ## Convert between motif text file for `Homer` and motif objects in `R`
 
 `monaLisa` provides two functions for performing binned motif enrichment 
-analysis (`calcBinnedMotifEnrHomer` and `calcBinnedMotifEnrR`). 
+analysis (`calcBinnedMotifEnrR` and `calcBinnedMotifEnrHomer`). 
 `calcBinnedMotifEnrR` implements the binned motif enrichment analysis 
 in `R`, similarly to `Homer` and does not require the user to have the `Homer` 
 tool pre-installed. For more information on that function and how it resembles 
@@ -380,7 +430,7 @@ site sequences were observed (see argument `n` in `homerToPFMatrixList`).
 - **Position weight matrices (PWM)** (also known as position specific scoring 
 matrices, PSSM) are obtained by comparing the base probabilities in a PPM to 
 the probabilities of observing each base outside of a binding site (background 
-base probabilities), for example by calculating log-odds scores (see `?toPWM` 
+base probabilities), for example by calculating log-odds scores (see `TFBSTools::toPWM` 
 for details). This is a useful representation for scanning sequences for motif 
 matches. In `R`, PWMs are often represented using `TFBSTools::PWMatrix` 
 (single motif) or `TFBSTools::PWMatrixList` (set of motifs).
@@ -389,24 +439,24 @@ matches. In `R`, PWMs are often represented using `TFBSTools::PWMatrix`
 hits. `calcBinnedMotifEnrHomer` on the other hand takes a motif text file with 
 PPMs, and requires the user to have `Homer` installed to use it for the binned 
 motif enrichment analysis. Here, we show how one can get motif PFMs from 
-`r Biocpkg("JASPAR2018")` and convert them to a `Homer`-compatible text file 
+`r Biocpkg("JASPAR2020")` and convert them to a `Homer`-compatible text file 
 with PPMs (`dumpJaspar`) and vice versa (`homerToPFMatrixList` ), and how to 
 convert a `PFMatrixList` to a `PWMatrixList` for use with `calcBinnedMotifEnrR` 
 or `findMotifHits`: 
 
 ```{r}
-# get PFMs from JASPAR2018 package (vertebrate subset)
-pfms <- getMatrixSet(JASPAR2018,
+# get PFMs from JASPAR2020 package (vertebrate subset)
+pfms <- getMatrixSet(JASPAR2020,
                      opts = list(matrixtype = "PFM",
                                  tax_group = "vertebrates"))
 
 # convert PFMs to PWMs
 pwms <- toPWM(pfms)
 
-# convert JASPAR2018 PFMs (vertebrate subset) to Homer motif file
+# convert JASPAR2020 PFMs (vertebrate subset) to Homer motif file
 tmp <- tempfile()
 convert <- dumpJaspar(filename = tmp,
-                      pkg = "JASPAR2018",
+                      pkg = "JASPAR2020",
                       pseudocount = 0,
                       opts = list(tax_group = "vertebrates"))
 
@@ -429,7 +479,7 @@ round(sweep(x = as.matrix(pfms_ret[[1]]), MARGIN = 2,
             STATS = colSums(as.matrix(pfms_ret[[1]])), FUN = "/"), 3)
 ```
 
-# Binned k-mer enrichment analysis
+# Binned k-mer enrichment analysis{#binnedkmers}
 
 In some situations it may be beneficial to perform the enrichment analysis in 
 a more 'unbiased' way, using k-mers rather than annotated motifs. Here, we 
@@ -444,7 +494,8 @@ sekm <- calcBinnedKmerEnr(seqs = lmrseqs, bins = bins, kmerLen = 6,
 ```
 
 ```{r binnedkmerenr-load}
-sekm <- readRDS(system.file("extdata", "se_6mers.rds", package = "monaLisa"))
+sekm <- readRDS(system.file("extdata", "results.binned_6mer_enrichment_LMRs.rds",
+                            package = "monaLisa"))
 ```
 
 Just as for the motif enrichment analysis, the return value is a 
@@ -459,7 +510,7 @@ of the bins.
 
 ```{r}
 selkm <- apply(assay(sekm, "negLog10Padj"), 1, 
-               function(x) max(abs(x), 0, na.rm = TRUE)) > 0.5
+               function(x) max(abs(x), 0, na.rm = TRUE)) > 4
 sum(selkm)
 sekmSel <- sekm[selkm, ]
 ```
@@ -498,21 +549,21 @@ Heatmap(sims,
 As mentioned `monaLisa` can also be used to scan sequences for motifs. Here is 
 an example (just on a few sequences/motifs for illustration):
 
-```{r findMotifs}
+```{r findMotifs, warning=FALSE}
 # get sequences of promoters as a DNAStringSet
 # (could also be a single DNAString, or the name of a fasta file)
 library(TxDb.Mmusculus.UCSC.mm10.knownGene)
-gr <- promoters(TxDb.Mmusculus.UCSC.mm10.knownGene,
-                upstream = 1000, downstream = 500)[c(1, 4, 5, 10)]
+gr <- trim(promoters(TxDb.Mmusculus.UCSC.mm10.knownGene,
+                     upstream = 1000, downstream = 500)[c(1, 4, 5, 10)])
 library(BSgenome.Mmusculus.UCSC.mm10)
 seqs <- getSeq(BSgenome.Mmusculus.UCSC.mm10, gr)
 seqs
 
 # get motifs as a PWMatrixList
 # (could also be a single PWMatrix, or the name of a motif file)
-library(JASPAR2018)
+library(JASPAR2020)
 library(TFBSTools)
-pfms <- getMatrixByID(JASPAR2018, c("MA0885.1", "MA0099.3", "MA0033.2", 
+pfms <- getMatrixByID(JASPAR2020, c("MA0885.1", "MA0099.3", "MA0033.2", 
                                     "MA0037.3", "MA0158.1"))
 pwms <- toPWM(pfms)
 pwms
