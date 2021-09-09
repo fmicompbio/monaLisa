@@ -4,7 +4,14 @@
 \alias{motifKmerSimilarity}
 \title{Calculate similarities between motifs and k-mers.}
 \usage{
-motifKmerSimilarity(x, kmerLen = 5, BPPARAM = SerialParam(), verbose = FALSE)
+motifKmerSimilarity(
+  x,
+  kmerLen = 5,
+  kmers = NULL,
+  includeRevComp = FALSE,
+  BPPARAM = SerialParam(),
+  verbose = FALSE
+)
 }
 \arguments{
 \item{x}{Either a \code{\link[TFBSTools]{PFMatrixList}}, or a character
@@ -14,6 +21,14 @@ scalar with a file containing motifs in HOMER format (used directly
 for \code{method = "R"}).}
 
 \item{kmerLen}{A \code{numeric} scalar giving the k-mer length.}
+
+\item{kmers}{Either a character vector of k-mers for which to calculate 
+the similarity to each motif, or \code{NULL}, in which case all k-mers
+of length \code{kmerLen} are used.}
+
+\item{includeRevComp}{A \code{logical} scalar. If set to \code{TRUE}, each 
+k-mer as well as its reverse complement is compared to each motif, and the 
+larger of the two similarities is returned.}
 
 \item{BPPARAM}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
 instance determining the parallel back-end to be used during evaluation.}
