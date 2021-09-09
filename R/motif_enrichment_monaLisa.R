@@ -282,10 +282,6 @@
 #' @param df a \code{DataFrame} with sequence information.
 #' @param GCbreaks The breaks between GC bins. The default value is based on
 #'   the hard-coded bins used in Homer.
-#' @param normalizeByLength A logical scalar. If \code{TRUE}, the weight calculated
-#'   for each background sequence in a specific GC bin, to account for GC differences 
-#'   between foreground and background, is multiplied by the length of the background
-#'   sequence divided by the median length of foreground sequences in that GC bin.
 #' @param verbose A logical scalar. If \code{TRUE}, report on GC weight
 #'   calculation.
 #'
@@ -304,7 +300,6 @@
 .calculateGCweight <- function(df,
                                GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4,
                                             0.45, 0.5, 0.6, 0.7, 0.8),
-                               normalizeByLength = TRUE, 
                                verbose = FALSE) {
 
     .checkDfValidity(df)
@@ -313,7 +308,6 @@
     if (length(GCbreaks) < 2) {
         stop("'GCbreaks' must be of length 2 or greater")
     }
-    .assertScalar(x = normalizeByLength, type = "logical")
     .assertScalar(x = verbose,   type = "logical")
   
     # calculate G+C frequencies
@@ -353,26 +347,6 @@
     df$GCwgt <- ifelse(df$isForeground,
                        1.0,
                        weight_per_bin[as.character(df$GCbin)])
-    
-    # adjust for sequence lengths (per GC bin)
-    if (normalizeByLength) {
-        # ... get sequence lengths
-        seq_lengths <- width(df$seqs)
-        # ... get median length of foreground sequences per GC bin
-        median_FG_length_per_GCbin <- vapply(
-            X = as.character(names(weight_per_bin)), 
-            FUN = function(x){
-                stats::median(seq_lengths[df$isForeground & as.character(df$GCbin) == x])
-            }, 
-            FUN.VALUE = 0)
-        median_FG_length_per_GCbin_vector <- 
-            ifelse(df$isForeground,
-                   NA,
-                   median_FG_length_per_GCbin[as.character(df$GCbin)])
-        # ... correct background sequence weights
-        w_bg <- !df$isForeground
-        df$GCwgt[w_bg] <- df$GCwgt[w_bg] * seq_lengths[w_bg] / median_FG_length_per_GCbin_vector[w_bg]
-    }
     
     # return df
     return(df)
@@ -722,9 +696,6 @@
 #'   \code{method} parameter in \code{\link[monaLisa]{findMotifHits}}.
 #' @param GCbreaks The breaks between GC bins. The default value is based on
 #'   the hard-coded bins used in Homer.
-#' @param normalizeByLength A logical scalar. If \code{TRUE}, account for 
-#'   sequence length differences between foreground and background sequences
-#'   (see Details).
 #' @param pseudocount.log2enr A numerical scalar with the pseudocount to add to
 #'   foreground and background counts when calculating log2 motif enrichments
 #' @param pseudofreq.pearsonResid A numerical scalar with the pseudo-frequency
@@ -756,11 +727,9 @@
 #'   (defined by \code{background}, see below). The logic follows the
 #'   \code{findMotifsGenome.pl} tool from \code{Homer} version 4.11, with
 #'   \code{-size given -nomotif -mknown} and additionally \code{-h} if using 
-#'   \code{test = "fisher"}, and gives very similar results when 
-#'   \code{normalizeByLength = FALSE}. As in the \code{Homer} tool, sequences 
-#'   are weighted to correct for GC and k-mer composition differences between 
-#'   fore- and background sets. With \code{normalizeByLength = TRUE}, the sequence
-#'   weights are additionally corrected for length differences.
+#'   \code{test = "fisher"}, and gives very similar results. As in the \code{Homer} 
+#'   tool, sequences are weighted to correct for GC and k-mer composition differences 
+#'   between fore- and background sets.
 #'   
 #'   The background sequences are defined according to the value of the
 #'   \code{background} argument:
@@ -853,7 +822,6 @@ calcBinnedMotifEnrR <- function(seqs,
                                 matchMethod = "matchPWM",
                                 GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4,
                                              0.45, 0.5, 0.6, 0.7, 0.8),
-                                normalizeByLength = TRUE, 
                                 pseudocount.log2enr = 8,
                                 pseudofreq.pearsonResid = 0.001,
                                 p.adjust.method = "BH",
@@ -999,7 +967,6 @@ calcBinnedMotifEnrR <- function(seqs,
         }
         df <- .calculateGCweight(df = df,
                                  GCbreaks = GCbreaks,
-                                 normalizeByLength = normalizeByLength, 
                                  verbose = verbose1)
         
         # if df is empty, then all seqs were filtered out in the GC weight calculation step

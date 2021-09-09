@@ -15,7 +15,6 @@ calcBinnedMotifEnrR(
   min.score = 10,
   matchMethod = "matchPWM",
   GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.7, 0.8),
-  normalizeByLength = TRUE,
   pseudocount.log2enr = 8,
   pseudofreq.pearsonResid = 0.001,
   p.adjust.method = "BH",
@@ -62,10 +61,6 @@ and tri-mer composition.}
 
 \item{GCbreaks}{The breaks between GC bins. The default value is based on
 the hard-coded bins used in Homer.}
-
-\item{normalizeByLength}{A logical scalar. If \code{TRUE}, account for 
-sequence length differences between foreground and background sequences
-(see Details).}
 
 \item{pseudocount.log2enr}{A numerical scalar with the pseudocount to add to
 foreground and background counts when calculating log2 motif enrichments}
@@ -125,11 +120,9 @@ This function implements a binned motif enrichment analysis. In each
   (defined by \code{background}, see below). The logic follows the
   \code{findMotifsGenome.pl} tool from \code{Homer} version 4.11, with
   \code{-size given -nomotif -mknown} and additionally \code{-h} if using 
-  \code{test = "fisher"}, and gives very similar results when 
-  \code{normalizeByLength = FALSE}. As in the \code{Homer} tool, sequences 
-  are weighted to correct for GC and k-mer composition differences between 
-  fore- and background sets. With \code{normalizeByLength = TRUE}, the sequence
-  weights are additionally corrected for length differences.
+  \code{test = "fisher"}, and gives very similar results. As in the \code{Homer} 
+  tool, sequences are weighted to correct for GC and k-mer composition differences 
+  between fore- and background sets.
   
   The background sequences are defined according to the value of the
   \code{background} argument:
