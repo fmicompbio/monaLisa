@@ -1,5 +1,5 @@
 ---
-title: "selecting_motifs_with_randLassoStabSel"
+title: "Regression Based Approach for Motif Selection"
 author: "Dania Machlab, Lukas Burger, Michael Stadler"
 date: "`r Sys.Date()`"
 bibliography: monaLisa-refs.bib
@@ -57,7 +57,8 @@ library(circlize)
 In our example dataset, we have quantified ATAC-seq reads on enhancers in mouse P0 lung and liver tissues. The log2-fold change (our response vector in this example) is for liver vs lung chromatin accessibility. We are using a set of 10,000 randomly sampled enhancers to illustrate how randomized lasso stability selection can be used to select TFs.
 ```{r loadData}
 # load GRanges object with logFC and peaks
-gr_path <- system.file("extdata", "atac_liver_vs_lung.rds", package = "monaLisa")
+gr_path <- system.file("extdata", "atac_liver_vs_lung.rds", 
+                       package = "monaLisa")
 gr <- readRDS(gr_path)
 ```
 
@@ -70,11 +71,12 @@ As mentioned, this framework offers the flexibility to add additional predictors
 
 ```{r predictorMatrix}
 # get PFMs (vertebrate TFs from Jaspar)
-pfms <- getMatrixSet(JASPAR2020, list(matrixtype = "PFM", tax_group = "vertebrates"))
+pfms <- getMatrixSet(JASPAR2020, list(matrixtype = "PFM", 
+                                      tax_group = "vertebrates"))
 
-# randomly sample 200 PFMs for illustration purposes (for quick runtime)
-set.seed(6698)
-pfms <- pfms[sample(length(pfms), size = 200)]
+# randomly sample 300 PFMs for illustration purposes (for quick runtime)
+set.seed(4563)
+pfms <- pfms[sample(length(pfms), size = 300)]
 
 # convert PFMs to PWMs
 pwms <- toPWM(pfms)
@@ -111,15 +113,19 @@ TFBSmatrix[1:6, 1:6]
 We can now run randomized lasso stability selection to identify TFs that are likely to explain the log-fold changes in accessibility. 
 
 ```{r stabSelTFs}
-# # randLassoStabSel() is stochastic, so we set a seed to reproduce a parallel run
+# # randLassoStabSel() is stochastic, so we set a seed to reproduce 
+# # ... a parallel run
 # RNGkind("L'Ecuyer-CMRG")
 # set.seed(123)
-# se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung, cutoff = 0.8, mc.preschedule = TRUE, mc.set.seed = TRUE, mc.cores = 2L)
+# se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung, 
+#                        cutoff = 0.8, mc.preschedule = TRUE, 
+#                        mc.set.seed = TRUE, mc.cores = 2L)
 
-# if not running in parallel mode, it is enough to use set.seed() before using the function
-# ... to ensure reproducibility (with 1 core)
+# if not running in parallel mode, it is enough to use set.seed() before 
+# ... using the function to ensure reproducibility (with 1 core)
 set.seed(123)
-se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung, cutoff = 0.8)
+se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung, 
+                       cutoff = 0.8)
 se
 
 # selected TFs
@@ -140,7 +146,7 @@ We can also visualize the selection probabilities of the selected TF motifs, opt
 plotSelectionProb(se, directional = TRUE)
 ```
 
-Next, we visualize the correlation structure of the TFBS matrix and selected TF motifs. While the colinearity of predictors is generally an issue in regression-based approaches where variables are selected, randomized lasso stability selection generally does better at selecting correlated predictors. In practice, we still see it select predictors with correlations as high as 0.9. However, it is good to keep in mind that this can be an issue, and that predictors that are extremely correlated with each other might not end up being selected. In a bad case example, if we have two identical predictors, neither of them could end up being selected if half of the times the regressions are done, one would be randomly selected, and the other one in the other half, giving each a selection probability of 0.5. If many cases of high correlations exist or this is a concern, one may consider selecting a representative set of predictors to use. 
+Next, we visualize the correlation structure of the TFBS matrix and selected TF motifs. While the colinearity of predictors is generally an issue in regression-based approaches where variables are selected, randomized lasso stability selection generally does better at co-selecting correlated predictors. In practice, we still see it select predictors with correlations as high as 0.9. However, it is good to keep in mind that this can be an issue, and that predictors that are extremely correlated with each other might not end up being co-selected. In a bad case example, if we have two identical predictors, neither of them could end up being selected if half of the times the regressions are done, one would be randomly selected, and the other one in the other half, giving each a selection probability of 0.5. If many cases of high correlations exist or this is a concern, one may consider selecting a representative set of predictors to use. 
 ```{r TFBScor_selected, fig.width=10, fig.height=7}
 # subset the selected TFs
 sel <- colnames(se)[se$selected]
@@ -167,8 +173,10 @@ colAnn <- HeatmapAnnotation(AUC = se_sub$selAUC, selProb = se_sub$selProb,
                             show_legend = TRUE, 
                             show_annotation_name = TRUE,
                             col = list(
-                              AUC = colorRamp2(c(0, 1), c("white", "brown")),
-                              selProb = colorRamp2(c(0, 1), c("white", "steelblue")))
+                              AUC = colorRamp2(c(0, 1), 
+                                               c("white", "brown")),
+                              selProb = colorRamp2(c(0, 1), 
+                                                   c("white", "steelblue")))
 )
 
 Heatmap(TFBSmatrixCorSel, 
@@ -193,10 +201,13 @@ TFBSmatrixCorSel <- cor(TFBSmatrix[, colnames(se_sub)], method = "pearson")
 ann <- HeatmapAnnotation(selected = as.character(se_sub$selected), 
                          AUC = se_sub$selAUC, 
                          selProb = se_sub$selProb, 
-                         col = list(selected = c("TRUE"="forestgreen", "FALSE"="grey"), 
-                                    AUC = colorRamp2(c(0, 1), c("white", "brown")), 
-                                    selProb = colorRamp2(c(0, 1), c("white", "steelblue")))
-                         )
+                         col = list(selected = c("TRUE"="forestgreen", 
+                                                 "FALSE"="grey"), 
+                                    AUC = colorRamp2(c(0, 1), 
+                                                     c("white", "brown")), 
+                                    selProb = colorRamp2(c(0, 1), 
+                                                         c("white", "steelblue")))
+)
 
 # heatmap
 Heatmap(TFBSmatrixCorSel, show_row_names = FALSE, show_column_names = FALSE, 
@@ -213,7 +224,8 @@ TF <- sel[2]
 TF
 
 i <- which(assay(se, "x")[, TF] > 0) # peaks that contain TF hits...
-nm <- names(sort(abs(gr$logFC_liver_vs_lung[i]), decreasing = TRUE)) # ... order by |logFC|
+nm <- names(sort(abs(gr$logFC_liver_vs_lung[i]), 
+                 decreasing = TRUE)) # ... order by |logFC|
 
 head(gr[nm])
 ```
