@@ -7,7 +7,6 @@
 .calculateGCweight(
   df,
   GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.7, 0.8),
-  normalizeByLength = TRUE,
   verbose = FALSE
 )
 }
@@ -16,11 +15,6 @@
 
 \item{GCbreaks}{The breaks between GC bins. The default value is based on
 the hard-coded bins used in Homer.}
-
-\item{normalizeByLength}{A logical scalar. If \code{TRUE}, the weight calculated
-for each background sequence in a specific GC bin, to account for GC differences 
-between foreground and background, is multiplied by the length of the background
-sequence divided by the median length of foreground sequences in that GC bin.}
 
 \item{verbose}{A logical scalar. If \code{TRUE}, report on GC weight
 calculation.}
