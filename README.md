@@ -39,19 +39,18 @@ Here is a minimal example to run a `monaLisa` analysis:
 library(monaLisa)
 
 mcparams <- BiocParallel::MulticoreParam(10L)
-se <- calcBinnedMotifEnr(seqs = seqs,   # DNAStringSet (e.g. peak sequences)
-                         bins = bins,   # factor that groups 'seqs'
-                         motifs = pwms, # PWMatrixList (know motifs)
-                         method = "R",
-                         BPPARAM = mcparams,
-                         min.score = 10,
-                         verbose = TRUE)
+se <- calcBinnedMotifEnrR(seqs = seqs,   # DNAStringSet (e.g. peak sequences)
+                          bins = bins,   # factor that groups 'seqs'
+                          pwmL = pwms, # PWMatrixList (know motifs)
+                          BPPARAM = mcparams,
+                          min.score = 10,
+                          verbose = TRUE)
 ```
 
 The return value `se` is a `SummarizedExperiment` with motifs in rows and bins
 in columns, and multiple assays with significance and magnitude of the enrichments.
 
-The inputs for `calcBinnedMotifEnr` can be easily obtained using other
+The inputs for `calcBinnedMotifEnrR` can be easily obtained using other
 Bioconductor packages:  
 ```
 # get sequences ('atacPeaks' is a GRanges)
