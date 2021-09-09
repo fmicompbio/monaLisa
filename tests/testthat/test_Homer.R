@@ -16,11 +16,11 @@ test_that("findHomer() works properly", {
     Sys.unsetenv("MONALISA_HOMER")
     
     # test existing
-    res <- findHomer("se.rds", dirs = system.file("extdata", package = "monaLisa"))
+    res <- findHomer("results.binned_motif_enrichment_LMRs.rds", dirs = system.file("extdata", package = "monaLisa"))
     expect_true(file.exists(res))
     
     Sys.setenv(MONALISA_HOMER = system.file("extdata", package = "monaLisa"))
-    res <- findHomer("se.rds")
+    res <- findHomer("results.binned_motif_enrichment_LMRs.rds")
     expect_true(file.exists(res))
     Sys.unsetenv("MONALISA_HOMER")
     
@@ -32,7 +32,7 @@ test_that("findHomer() works properly", {
 test_that("dumpJaspar() works properly", {
     tmp1 <- tempfile()
 
-    expect_error(dumpJaspar(filename = system.file("extdata", "se.rds", package = "monaLisa")))
+    expect_error(dumpJaspar(filename = system.file("extdata", "results.binned_motif_enrichment_LMRs.rds", package = "monaLisa")))
     expect_error(dumpJaspar(filename = tmp1, opts = list(matrixtype = "PWM")))
     expect_error(dumpJaspar(filename = tmp1, relScoreCutoff = "error"))
     expect_true(dumpJaspar(filename = tmp1, opts = list(ID = c("MA0006.1", "MA0007.3", "MA0828.1")), verbose = TRUE))
@@ -69,7 +69,7 @@ test_that("prepareHomer() works properly", {
     tmp1 <- tempfile()
     dir.create(tmp1)
     tmp2 <- tempfile()
-    fname <- system.file("extdata", "se.rds", package = "monaLisa")
+    fname <- system.file("extdata", "results.binned_motif_enrichment_LMRs.rds", package = "monaLisa")
 
     expect_error(prepareHomer(gr = gr, b = b, genomedir = "genomedir", outdir = tmp1,
                               motifFile = fname, homerfile = fname, regionsize = "given", Ncpu = 2))
