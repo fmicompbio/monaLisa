@@ -531,6 +531,7 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
     .assertScalar(x = Ncpu, type = "numeric", rngIncl = c(1, Inf))
     .assertScalar(x = verbose, type = "logical")
     .assertScalar(x = verbose.Homer, type = "logical")
+    .checkIfSeqsAreEqualLength(x = gr)
     
     ## ... check if the HOMER output is already there for all bins and if it ran completely:
     ## ... ... If yes, go to the 'parse output step', otherwise run homer and check again
