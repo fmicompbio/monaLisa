@@ -698,6 +698,7 @@ calcBinnedKmerEnr <- function(seqs,
     if (is.null(names(seqs))) {
         names(seqs) <- paste0("s", seq_along(seqs))
     }
+    .checkIfSeqsAreEqualLength(x = seqs)
 
     
     ## include reverse-complement sequences?

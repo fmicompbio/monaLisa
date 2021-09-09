@@ -673,3 +673,31 @@
     return(df)
 }
 
+#' @title Check if elements of `x` are have equal lengths
+#'
+#' @description Check if the elements of `x` are all equally long.
+#'   If not, generate a warning.
+#'
+#' @param x an object that implements a \code{width} method, typically a
+#'   \code{GRanges} or \code{DNAStringSet} object.
+#'
+#' @return \code{NULL} (invisibly). The function is called for its side-effect
+#'   of generating a warning if elements of the input are not of equal lengths.
+#'
+#' @importFrom BiocGenerics width
+#' 
+#' @keywords internal
+.checkIfSeqsAreEqualLength <- function(x) {
+    args <- lapply(sys.call()[-1], as.character)
+    xname <- if ("x" %in% names(args)) args$x else "argument"
+    xlen <- width(x)
+    if (!identical(xlen, rep(xlen[1], length(x)))) {
+        warning("Not all elements of ", xname, " have the same length.\n",
+                "It is recommended to adjust lengthes to be equal, in order ",
+                "to have homogeneous elements in each bin.\n",
+                "You can use `plotBinDiagnostics` to compare lengths or ",
+                "sequence compositon across bins.",
+                call. = FALSE)
+    }
+    return(invisible(NULL))
+}

@@ -306,4 +306,18 @@ test_that(".iterativeNormForKmers() works", {
 })
 
 
+test_that(".checkIfSeqsAreEqualLength works as expected", {
+    x1 <- Biostrings::DNAStringSet(c("AAA", "CCC", "GGGGGG"))
+    x2 <- GenomicRanges::GRanges("chr1",
+                                 IRanges::IRanges(start = c(1, 10, 20),
+                                                  width = c(3,  3,  6)))
+    
+    expect_warning(.checkIfSeqsAreEqualLength(x = x1),
+                   "Not all elements of x1 have the same length")
+    expect_warning(.checkIfSeqsAreEqualLength(x = x2),
+                   "Not all elements of x2 have the same length")
+    
+    expect_true(is.null(.checkIfSeqsAreEqualLength(x = x1[1:2])))
+    expect_true(is.null(.checkIfSeqsAreEqualLength(x = x2[1:2])))
+})
 
