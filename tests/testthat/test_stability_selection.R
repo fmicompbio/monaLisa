@@ -79,8 +79,10 @@ test_that(".glmnetRandomizedLasso() works properly", {
 
     # tests
     # ... x as data.frame
-    expect_message(.glmnetRandomizedLasso(x = as.data.frame(X), y = Y, q = 11),
-                   "coerced to a model matrix without intercept")
+    expect_warning(
+      expect_message(.glmnetRandomizedLasso(x = as.data.frame(X), y = Y, q = 11),
+                     "coerced to a model matrix without intercept"),
+      "Number of nonzero coefficients along the path exceeds")
   
     # ... with specific lambda
     expect_error(.glmnetRandomizedLasso(x = X, y = Y, q = 11, lambda = 5))

@@ -211,7 +211,11 @@ test_that(".calcKmerEnrichment works", {
 test_that("calcBinnedKmerEnr works as expected", {
     library(SummarizedExperiment)
     library(BiocParallel)
-    pparams <- MulticoreParam(2L)
+    if (.Platform$OS.type == "unix") {
+        pparams <- MulticoreParam(2L)
+    } else {
+        pparams <- SerialParam()
+    }
 
     set.seed(1)
     k <- 3L
@@ -296,10 +300,6 @@ test_that("calcBinnedKmerEnr works as expected", {
                            function(x) names(x)[x > 1]), m2)
     expect_equal(colSums(assay(res1, "negLog10P")),
                  c(`[1,1.5]` = 33.1936891496806, `(1.5,2]` = 31.5395993919718))
-    if(.Platform$OS.type == "unix") {
-        expect_equal(colSums(assay(res2, "negLog10P")),
-                     c(`[1,1.5]` = 37.1270049027622, `(1.5,2]` = 40.6593382003256))
-    }
     expect_equal(colSums(assay(res3, "negLog10P")),
                  c(`[1,1.5]` = 27.2409566382244, `(1.5,2]` = 23.5971145106083))
     expect_equal(colSums(assay(res4, "negLog10P")),
@@ -309,6 +309,12 @@ test_that("calcBinnedKmerEnr works as expected", {
     expect_identical(assay(res1, "sumForegroundWgtWithHits"),
                      assay(res2, "sumForegroundWgtWithHits"))
     expect_identical(assays(res3)[-c(1, 2)], assays(res4)[-c(1, 2)])
+    
+    skip_on_os("windows")
+    ## Note that all tests after this point (within the test_that block) will 
+    ## be skipped on windows.
+    expect_equal(colSums(assay(res2, "negLog10P")),
+                 c(`[1,1.5]` = 37.1270049027622, `(1.5,2]` = 40.6593382003256))
 })
 
 test_that("convertKmersToMotifs works as expected", {
