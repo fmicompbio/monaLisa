@@ -1,5 +1,11 @@
 .binomEnrichmentTest <- function(matchCountBg, totalWeightBg, matchCountFg,
                                  totalWeightFg, verbose) {
+    .assertVector(matchCountBg, type = "numeric")
+    .assertScalar(totalWeightBg, type = "numeric")
+    .assertVector(matchCountFg, type = "numeric")
+    .assertScalar(totalWeightFg, type = "numeric")
+    .assertScalar(verbose, type = "logical")
+    
     if (verbose) {
         message("using binomial test to calculate ",
                 "log(p-values) for enrichments")
@@ -29,6 +35,12 @@
 
 .fisherEnrichmentTest <- function(matchCountBg, totalWeightBg, matchCountFg,
                                   totalWeightFg, verbose) {
+    .assertVector(matchCountBg, type = "numeric")
+    .assertScalar(totalWeightBg, type = "numeric")
+    .assertVector(matchCountFg, type = "numeric")
+    .assertScalar(totalWeightFg, type = "numeric")
+    .assertScalar(verbose, type = "logical")
+    
     if (verbose) {
         message("using Fisher's exact test (one-sided) to calculate ",
                 "log(p-values) for enrichments")
@@ -53,6 +65,11 @@
 
 .calcPearsonResiduals <- function(matchCountBg, totalWeightBg, matchCountFg,
                                   totalWeightFg) {
+    .assertVector(matchCountBg, type = "numeric")
+    .assertScalar(totalWeightBg, type = "numeric")
+    .assertVector(matchCountFg, type = "numeric")
+    .assertScalar(totalWeightFg, type = "numeric")
+
     obsTF <- matchCountFg
     expTF <- totalWeightFg * (matchCountFg + matchCountBg) /
         (totalWeightFg + totalWeightBg)
@@ -66,12 +83,22 @@
 
 .calcExpFg <- function(matchCountBg, totalWeightBg, matchCountFg, 
                        totalWeightFg) {
+    .assertVector(matchCountBg, type = "numeric")
+    .assertScalar(totalWeightBg, type = "numeric")
+    .assertVector(matchCountFg, type = "numeric")
+    .assertScalar(totalWeightFg, type = "numeric")
+
     totalWeightFg * (matchCountFg + matchCountBg) / 
         (totalWeightFg + totalWeightBg)
 }
 
 .calcLog2Enr <- function(matchCountBg, totalWeightBg, matchCountFg, 
                          totalWeightFg, pseudocount) {
+    .assertVector(matchCountBg, type = "numeric")
+    .assertScalar(totalWeightBg, type = "numeric")
+    .assertVector(matchCountFg, type = "numeric")
+    .assertScalar(totalWeightFg, type = "numeric")
+
     minTot <- min(totalWeightFg, totalWeightBg)
     normFg <- log2(matchCountFg/totalWeightFg * minTot + pseudocount) 
     normBg <- log2(matchCountBg/totalWeightBg * minTot + pseudocount)
@@ -85,12 +112,4 @@
     # log2enr <- DL[, 1] - DL[, 2]
     # log2enr
 }
-
-# enr <- .calcPearsonResiduals(matchCountBg = enrich1[, "sumBackgroundWgtWithHits"],
-#                              totalWeightBg = enrich1[, "totalWgtBackground"],
-#                              matchCountFg = enrich1[, "sumForegroundWgtWithHits"],
-#                              totalWeightFg = enrich1[, "totalWgtForeground"])
-# names(enr) <- enrich1[, "motifName"]
-
-
 
