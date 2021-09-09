@@ -161,26 +161,26 @@ test_that("calcBinnedMotifEnrHomer() works properly (synthetic data)", {
 
         outdir <- tempfile()
         
-        expect_error(calcBinnedMotifEnr(seqs = gr, bins = bins, motifs = mfile,
-                                        method = "Homer", BPPARAM = "error"))
+        expect_error(calcBinnedMotifEnrHomer(gr = gr, b = bins, motifFile = mfile,
+                                             Ncpu = "error"))
         
-        expect_message(res <- calcBinnedMotifEnr(
-            seqs = as.character(gr), bins = as.character(bins),
-            motifs = mfile, method = "Homer", genomedir = genomedir,
+        expect_message(res <- calcBinnedMotifEnrHomer(
+            gr = as.character(gr), b = as.character(bins),
+            motifFile = mfile, genomedir = genomedir,
             outdir = outdir, homerfile = homerbin, regionsize = "given",
-            BPPARAM = 2, verbose = TRUE),
+            Ncpu = 2L, verbose = TRUE),
             "preparing input files")
         attr(bins, "breaks") <- seq(0.5, 3.5, by = 1)
-        expect_message(res1 <- calcBinnedMotifEnr(
-            seqs = as.character(gr), bins = bins,
-            motifs = mfile, method = "Homer", genomedir = genomedir,
+        expect_message(res1 <- calcBinnedMotifEnrHomer(
+            gr = as.character(gr), b = bins,
+            motifFile = mfile, genomedir = genomedir,
             outdir = outdir, homerfile = homerbin, regionsize = "given",
-            BPPARAM = BiocParallel::MulticoreParam(2L), verbose = TRUE),
+            Ncpu = 2L, verbose = TRUE),
                        "HOMER output files already exist, using existing files")
         unlink(dir(path = outdir, pattern = "knownResults.txt", full.names = TRUE, recursive = TRUE, ignore.case = FALSE)[1])
-        expect_error(calcBinnedMotifEnr(
-            seqs = as.character(gr), bins = as.character(bins),
-            motifs = mfile, method = "Homer", genomedir = genomedir,
+        expect_error(calcBinnedMotifEnrHomer(
+            gr = as.character(gr), b = as.character(bins),
+            motifFile = mfile, genomedir = genomedir,
             outdir = outdir, homerfile = homerbin, regionsize = "given"),
             "missing 'knownResults.txt' files for some bins")
 

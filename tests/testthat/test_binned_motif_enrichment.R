@@ -371,31 +371,28 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = TFBSTools::Matrix(pwm[[1]])), "PWMatrixList")
 
     # results correctness
-    expect_message(res1 <- calcBinnedMotifEnr(seqs = seqs,
-                                              bins = b,
-                                              motifs = pwm,
-                                              method = "R",
-                                              min.score = 6,
-                                              test = "binom",
-                                              verbose = TRUE))
+    expect_message(res1 <- calcBinnedMotifEnrR(seqs = seqs,
+                                               bins = b,
+                                               pwmL = pwm,
+                                               min.score = 6,
+                                               test = "binom",
+                                               verbose = TRUE))
     attr(b, "breaks") <- c(1:4 - 0.5)
-    expect_message(res2 <- calcBinnedMotifEnr(seqs = seqs,
-                                              bins = b,
-                                              motifs = pwm,
-                                              method = "R",
-                                              min.score = 6,
-                                              test = "fisher",
-                                              verbose = TRUE))
+    expect_message(res2 <- calcBinnedMotifEnrR(seqs = seqs,
+                                               bins = b,
+                                               pwmL = pwm,
+                                               min.score = 6,
+                                               test = "fisher",
+                                               verbose = TRUE))
     set.seed(42L)
-    expect_message(res3 <- calcBinnedMotifEnr(seqs = seqs,
-                                              bins = b,
-                                              motifs = pwm,
-                                              method = "R",
-                                              min.score = 6,
-                                              test = "fisher",
-                                              background = "genome",
-                                              genome = gnm,
-                                              verbose = TRUE))
+    expect_message(res3 <- calcBinnedMotifEnrR(seqs = seqs,
+                                               bins = b,
+                                               pwmL = pwm,
+                                               min.score = 6,
+                                               test = "fisher",
+                                               background = "genome",
+                                               genome = gnm,
+                                               verbose = TRUE))
     expect_is(res1, "SummarizedExperiment")
     expect_is(res2, "SummarizedExperiment")
     expect_is(res3, "SummarizedExperiment")

@@ -41,9 +41,8 @@ reference:
   contents:
     - '`bin`'
     - '`getZeroBin`'
-    - '`calcBinnedMotifEnr`'
-    - '`calcBinnedMotifEnrHomer`'
     - '`calcBinnedMotifEnrR`'
+    - '`calcBinnedMotifEnrHomer`'
     - '`plotBinDensity`'
     - '`plotBinHist`'
     - '`plotBinScatter`'

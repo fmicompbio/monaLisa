@@ -52,7 +52,7 @@ accessible regions for which experimental data is available.
 
 Two independent approaches are implemented to identify interesting motifs:
 
-- In **binned motif enrichment analysis** (`calcBinnedMotifEnr()`, see
+- In **binned motif enrichment analysis** (`calcBinnedMotifEnrR()`, see
 section \@ref(binned)), genomic regions are grouped into bins according to a
 numerical value assigned to each region, such as change of expression,
 accessibility or methylation. Motif enrichments are then calculated for
@@ -97,9 +97,9 @@ peak_bins <- bin(x = peak_change, binmode = "equalN", nElement = 400)
 
 # calculate motif enrichments
 # (peak_seqs is a DNAStringSet, pwms is a PWMatrixList)
-se <- calcBinnedMotifEnr(seqs = peak_seqs,
-                         bins = peak_bins,
-                         motifs = pwms)
+se <- calcBinnedMotifEnrR(seqs = peak_seqs,
+                          bins = peak_bins,
+                          pwmL = pwms)
 ```
 
 The returned `se` is a `SummarizedExperiment` with `assays` *negLog10P*, 
@@ -265,7 +265,7 @@ argument to run it with parallelization. For this example however, you can just
 load the pre-computed results as shown below.  
 
 ```{r runbinned, eval=FALSE}
-se <- calcBinnedMotifEnr(seqs = lmrseqs, bins = bins, motifs = pwms)
+se <- calcBinnedMotifEnrR(seqs = lmrseqs, bins = bins, pwmL = pwms)
 ```
 
 In case you did not run the above code, let's now read in the results:  
