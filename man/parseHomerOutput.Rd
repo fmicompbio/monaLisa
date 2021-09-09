@@ -16,11 +16,17 @@ foreground and background counts when calculating log2 motif enrichments}
 method (used in \code{\link[stats]{p.adjust}}).}
 }
 \value{
-A list of four components (\code{negLog10P}, \code{negLog10Padj},
-    \code{pearsonResid} and \code{log2enr}), containing each a motif (rows)
-    by bin (columns) matrix with raw -log10 P values, -log10 adjusted P values,
+A list of nine components (\code{negLog10P}, \code{negLog10Padj},
+    \code{pearsonResid}, \code{expForegroundWgtWithHits}, \code{log2enr},
+    \code{sumForegroundWgtWithHits} and \code{sumBackgroundWgtWithHits}), 
+    seven containing each a motif (rows) by bin (columns) matrix with raw 
+    -log10 P values, -log10 adjusted P values, the expected number of 
+    foreground sequences with hits, the observed number of foreground and 
+    background sequences with hits, 
     and motif enrichments as Pearson residuals (\code{pearsonResid}) and as
-    log2 ratios (\code{log2enr}).
+    log2 ratios (\code{log2enr}), and two containing the total foreground 
+    and background weight (\code{totalWgtForeground}, 
+    \code{totalWgtBackground}).
 }
 \description{
 Parse HOMER output files into R data structures.

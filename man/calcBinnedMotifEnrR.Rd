@@ -91,7 +91,7 @@ instance determining the parallel back-end to be used during evaluation.}
 }
 \value{
 A \code{\link[SummarizedExperiment]{SummarizedExperiment}} object
-  with motifs in rows and bins in columns, containing six assays: \itemize{
+  with motifs in rows and bins in columns, containing seven assays: \itemize{
   \item{negLog10P}{: -log10 P values}
   \item{negLog10Padj}{: -log10 adjusted P values}
   \item{pearsonResid}{: motif enrichments as Pearson residuals}
@@ -103,6 +103,9 @@ A \code{\link[SummarizedExperiment]{SummarizedExperiment}} object
   \item{sumBackgroundWgtWithHits}{: Sum of background sequence weights
     in a bin that have motif hits}
 }
+The \code{rowData} of the object contains annotations (name, PFMs, PWMs 
+and GC fraction) for the motifs, while the \code{colData} slot contains 
+summary information about the bins.
 }
 \description{
 This function performs a motif enrichment analysis on bins of

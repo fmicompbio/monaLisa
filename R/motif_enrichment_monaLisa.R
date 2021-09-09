@@ -773,7 +773,7 @@
 #'   }
 #'   
 #' @return A \code{\link[SummarizedExperiment]{SummarizedExperiment}} object
-#'   with motifs in rows and bins in columns, containing six assays: \itemize{
+#'   with motifs in rows and bins in columns, containing seven assays: \itemize{
 #'   \item{negLog10P}{: -log10 P values}
 #'   \item{negLog10Padj}{: -log10 adjusted P values}
 #'   \item{pearsonResid}{: motif enrichments as Pearson residuals}
@@ -785,6 +785,9 @@
 #'   \item{sumBackgroundWgtWithHits}{: Sum of background sequence weights
 #'     in a bin that have motif hits}
 #' }
+#' The \code{rowData} of the object contains annotations (name, PFMs, PWMs 
+#' and GC fraction) for the motifs, while the \code{colData} slot contains 
+#' summary information about the bins. 
 #'
 #' @examples
 #' seqs <- Biostrings::DNAStringSet(c("GTCAGTCGATC", "CAGTCTAGCTG",
@@ -1004,7 +1007,7 @@ calcBinnedMotifEnrR <- function(seqs,
     dimnames(padj) <- dimnames(P)
     padj[which(padj == Inf, arr.ind = TRUE)] <- max(padj[is.finite(padj)])
 
-    # ... Pearson residuals for contingency table (fg/bg vs hit/no hit)
+    # ... Pearson residuals
     enrTF <- do.call(cbind, lapply(enrichL, function(enrich1) {
         enr <- .calcPearsonResiduals(
             matchCountBg = enrich1[, "sumBackgroundWgtWithHits"], 

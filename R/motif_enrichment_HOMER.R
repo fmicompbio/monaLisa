@@ -326,11 +326,17 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
 #' @param p.adjust.method A character scalar selecting the p value adjustment
 #'   method (used in \code{\link[stats]{p.adjust}}).
 #'
-#' @return A list of four components (\code{negLog10P}, \code{negLog10Padj},
-#'     \code{pearsonResid} and \code{log2enr}), containing each a motif (rows)
-#'     by bin (columns) matrix with raw -log10 P values, -log10 adjusted P values,
+#' @return A list of nine components (\code{negLog10P}, \code{negLog10Padj},
+#'     \code{pearsonResid}, \code{expForegroundWgtWithHits}, \code{log2enr},
+#'     \code{sumForegroundWgtWithHits} and \code{sumBackgroundWgtWithHits}), 
+#'     seven containing each a motif (rows) by bin (columns) matrix with raw 
+#'     -log10 P values, -log10 adjusted P values, the expected number of 
+#'     foreground sequences with hits, the observed number of foreground and 
+#'     background sequences with hits, 
 #'     and motif enrichments as Pearson residuals (\code{pearsonResid}) and as
-#'     log2 ratios (\code{log2enr}).
+#'     log2 ratios (\code{log2enr}), and two containing the total foreground 
+#'     and background weight (\code{totalWgtForeground}, 
+#'     \code{totalWgtBackground}).
 #'
 #' @examples 
 #' outfile <- system.file("extdata", "homer_output.txt.gz", package = "monaLisa")
@@ -351,7 +357,7 @@ parseHomerOutput <- function(infiles,
     mnms <- sort(tabL[[1]][, 1])
     names(tabL) <- if (is.null(names(infiles))) infiles else names(infiles)
     P <- do.call(cbind, lapply(tabL, function(x) -x[match(mnms, x[, 1]), 4] / log(10)))
-    # ... Pearson residuals for contingency table
+    # ... Pearson residuals
     presid <- do.call(cbind, lapply(tabL, function(tab) {
         numFgBgWithHits <- tab[, c(6, 8)] # number of target seqs and bg seqs with motif
         nTot <- as.numeric(gsub("\\S+\\.(\\d+)\\.", "\\1", colnames(numFgBgWithHits))) #total number of target and background sequences
@@ -381,14 +387,14 @@ parseHomerOutput <- function(infiles,
     log2enr <- do.call(cbind, lapply(tabL, function(tab){
         numFgBgWithHits <- tab[, c(6, 8)] # number of target seqs and bg seqs with motif
         nTot <- as.numeric(gsub("\\S+\\.(\\d+)\\.", "\\1", colnames(numFgBgWithHits))) #total number of target and background sequences
-        log2enr <- .calcLog2Enr(
+        l2e <- .calcLog2Enr(
             matchCountBg = numFgBgWithHits[, 2],
             totalWeightBg = nTot[2],
             matchCountFg = numFgBgWithHits[, 1],
             totalWeightFg = nTot[1], 
             pseudocount = pseudocount.log2enr
         )
-        log2enr[match(mnms, tab[, 1])]
+        l2e[match(mnms, tab[, 1])]
     }))
 
     sumFgWgt <- do.call(cbind, lapply(tabL, function(tab) tab[match(mnms, tab[, 1]), 6]))
@@ -477,7 +483,7 @@ parseHomerOutput <- function(infiles,
 #'     \code{\link{bin}} for binning of regions
 #'
 #' @return A \code{SummarizedExperiment} object with motifs in rows and bins
-#'   in columns, containing six assays: \itemize{
+#'   in columns, containing seven assays: \itemize{
 #'   \item{negLog10P}{: -log10 P values}
 #'   \item{negLog10Padj}{: -log10 adjusted P values}
 #'   \item{pearsonResid}{: motif enrichments as Pearson residuals}
@@ -489,6 +495,10 @@ parseHomerOutput <- function(infiles,
 #'   \item{sumBackgroundWgtWithHits}{: Sum of background sequence weights
 #'     in a bin that have motif hits}
 #' }
+#' The \code{rowData} of the object contains annotations (name, PFMs, PWMs 
+#' and GC fraction) for the motifs, while the \code{colData} slot contains 
+#' summary information about the bins. 
+
 #'
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom S4Vectors DataFrame
@@ -531,7 +541,8 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
 
     } else {
 
-      ## ... case: all/some files exist and/or HOMER didn't run correctly: warn the User to remove all existing files and rerun
+      ## ... case: all/some files exist and/or HOMER didn't run correctly: 
+      ## warn the User to remove all existing files and rerun
       if (any(file.exists(dir(path = outdir, pattern = "knownResults.txt",
                               full.names = TRUE, recursive = TRUE, ignore.case = FALSE)))) {
 
@@ -576,7 +587,12 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
     pfms <- homerToPFMatrixList(motifFile)
     morder <- TFBSTools::name(pfms)
     o <- match(morder, rownames(resL[[1]]))
-    assayL <- lapply(resL[seq_len(7)], function(x) x[o, ])
+    
+    ## Find the assays (the matrices) of the list and reorder
+    assayidx <- vapply(resL, function(x) !is.null(dim(x)), FALSE)
+    assayL <- lapply(resL[assayidx], function(x) x[o, ])
+    # assayL <- lapply(resL[seq_len(7)], function(x) x[o, ])
+    
     ## ... ... colData
     if (is.null(attr(b, "breaks"))) {
         binL <- binH <- rep(NA, nlevels(b))
