@@ -472,9 +472,8 @@ as.matrix(pfms[[1]])
 as.matrix(pfms_ret[[1]])
 
 # compare position probability matrices with the original PFM 
-# (also adding a pseudo-count of 1.0 first)
-round(sweep(x = as.matrix(pfms[[1]]) + 1, MARGIN = 2, 
-            STATS = colSums(as.matrix(pfms[[1]]) + 1), FUN = "/"), 3)
+round(sweep(x = as.matrix(pfms[[1]]), MARGIN = 2, 
+            STATS = colSums(as.matrix(pfms[[1]])), FUN = "/"), 3)
 round(sweep(x = as.matrix(pfms_ret[[1]]), MARGIN = 2, 
             STATS = colSums(as.matrix(pfms_ret[[1]])), FUN = "/"), 3)
 ```
@@ -518,25 +517,24 @@ sekmSel <- sekm[selkm, ]
 Next, let's compare the enriched k-mers to the motifs that were found earlier. 
 This can be done using the `motifKmerSimilarity` function. By showing the 
 similarity between the enriched k-mers and motifs, we can see whether, e.g., 
-strongly enriched motifs do not seem to correspond to an annotated motif. 
+strongly enriched k-mers do not seem to correspond to an annotated motif. 
 
 ```{r}
 pfmSel <- rowData(seSel)$motif.pfm
-sims0 <- motifKmerSimilarity(x = pfmSel, kmerLen = 6)
-sims <- sims0[, rownames(sekmSel)]
-# simsrevcomp <- sims0[, as.character(reverseComplement(DNAStringSet(rownames(sekmSel))))]
-# sims <- pmax(sims, simsrevcomp)
+sims <- motifKmerSimilarity(x = pfmSel,
+                            kmers = rownames(sekmSel),
+                            includeRevComp = TRUE)
 dim(sims)
 
 maxwidth <- max(sapply(TFBSTools::Matrix(pfmSel), ncol))
 seqlogoGrobs <- lapply(pfmSel, seqLogoGrob, xmax = maxwidth)
 hmSeqlogo <- rowAnnotation(logo = anno_seqlogo(seqlogoGrobs, which = "row"),
-                           annotation_width = unit(2, "inch"), 
+                           annotation_width = unit(1.5, "inch"), 
                            show_annotation_name = FALSE
 )
 Heatmap(sims, 
-        show_row_names = TRUE, 
-        show_column_names = TRUE, 
+        show_row_names = TRUE, row_names_gp = gpar(fontsize = 8),
+        show_column_names = TRUE, column_names_gp = gpar(fontsize = 8),
         name = "Similarity", column_title = "Selected TFs and enriched k-mers",
         col = colorRamp2(c(0, 1), c("white", "red")), 
         right_annotation = hmSeqlogo)
