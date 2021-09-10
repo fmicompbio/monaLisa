@@ -693,11 +693,11 @@
     xlen <- width(x)
     if (!identical(xlen, rep(xlen[1], length(x)))) {
         warning("Not all elements of ", xname, " have the same length.\n",
-                "It is recommended to adjust lengthes to be equal, in order ",
+                "It is recommended to adjust lengths to be equal, in order ",
                 "to have homogeneous elements in each bin.\n",
                 "You can use `plotBinDiagnostics` to compare lengths or ",
-                "sequence compositon across bins.",
-                call. = FALSE)
+                "sequence composition across bins.",
+                call. = FALSE, immediate. = TRUE)
     }
     return(invisible(NULL))
 }

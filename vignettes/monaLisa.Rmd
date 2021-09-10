@@ -1,6 +1,6 @@
 ---
 title: "monaLisa - MOtif aNAlysis with Lisa"
-author: "Dania Machlab, Lukas Burger, Michael Stadler"
+author: "Dania Machlab, Lukas Burger, Charlotte Soneson, Michael Stadler"
 date: "`r Sys.Date()`"
 bibliography: monaLisa-refs.bib
 output: BiocStyle::html_document
