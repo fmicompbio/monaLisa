@@ -27,7 +27,7 @@ library(BiocStyle)
 
 # Introduction
 
-Identifying important transcription factor (TF) motifs, as shown in vignette (reference monaLisa.Rmd), could also be done using a regression based approach, where motifs are selected and have to compete against each other for selection. In this framework, the response vector can be the observed experimental measure of interest, e.g. log-fold changes of accessibility for a set of regions, and the predictors consist of the TF motif hits across those regions. In `monaLisa`, we implement the randomized lasso stability selection proposed by @StabSel with the improved error bounds introduced by @compStabs. We have modified the `glmnet.lasso` function used by `stabsel` from the `r CRANpkg("stabs")` package to implement the randomized lasso.
+Identifying important transcription factor (TF) motifs, as shown in vignette (reference monaLisa.Rmd), could also be done using a regression based approach, where motifs are selected and have to compete against each other for selection. In this framework, the response vector can be the observed experimental measure of interest, e.g. log-fold changes of accessibility for a set of regions, and the predictors consist of the TF motif hits across those regions. In `r Biocpkg("monaLisa")`, we implement the randomized lasso stability selection proposed by @StabSel with the improved error bounds introduced by @compStabs. We have modified the `stabs::glmnet.lasso` function used by `stabs::stabsel` from the `r CRANpkg("stabs")` package to implement the randomized lasso.
 
 Lasso stability selection implements the lasso regression multiple times on subsamples of the data, and returns a selection probability for each predictor (number of times selected divided by number of regressions done). With the randomized lasso, a weakness parameter is additionally used  to vary the lasso penalty term $\lambda$ to a randomly chosen value between [$\lambda$, $\lambda$/weakness] for each predictor. Although the main appeal of stability selection is in cases where the number of predictors exceeds the number of observations, it also performs better variable selection with noisy data [@StabSel].
 
@@ -65,7 +65,7 @@ gr <- readRDS(gr_path)
 
 ## Get TFBS per motif and peak
 
-We will now construct the transcription factor binding site (TFBS) matrix for known motifs (from a database like JASPAR) in peak regions. We use the `findMotifHits` function to scan for TF motif hits. This matrix will be the predictor matrix in our regression.
+We will now construct the transcription factor binding site (TFBS) matrix for known motifs (from a database like JASPAR) in peak regions. We use the `monaLisa::findMotifHits` function to scan for TF motif hits. This matrix will be the predictor matrix in our regression.
 
 As mentioned, this framework offers the flexibility to add additional predictors to compete against the TF motifs for selection. Here, we add the fraction of G+C and CpG observed/expected ratio as predictors, to ensure that selected TF motifs are not just detecting a simple trend in GC or CpG composition.
 
@@ -141,7 +141,7 @@ Each line corresponds to a predictor, and we can see the selection probabilities
 
 \ 
 
-We can also visualize the selection probabilities of the selected TF motifs, optionally multiplied by the sign of the correlation to the response vector, to know how the TF relates to the change of accessibility (`directional` parameter). Note that although one can vary the `selProbMinPlot` parameter which sets the selection probability cutoff, it is best to re-run randomized lasso stability selection with the new cutoff, as this influences other parameter choices the model uses internally. See @StabSel for more details.
+We can also visualize the selection probabilities of the selected TF motifs, optionally multiplied by the sign of the correlation to the response vector, to know how the TF relates to the change of accessibility (`directional` parameter). Note that although one can vary the `selProbMinPlot` argument which sets the selection probability cutoff, it is best to re-run randomized lasso stability selection with the new cutoff, as this influences other parameter choices the model uses internally. See @StabSel for more details.
 ```{r plotSelProbs, fig.width=15, fig.height=9}
 plotSelectionProb(se, directional = TRUE)
 ```
