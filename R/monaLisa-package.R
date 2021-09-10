@@ -18,6 +18,4 @@
 #' @keywords package
 #' 
 #' @docType package
-#' 
-#' @useDynLib monaLisa, .registration = TRUE
 NULL
