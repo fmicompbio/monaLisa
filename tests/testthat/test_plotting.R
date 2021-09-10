@@ -7,7 +7,13 @@ set.seed(1)
 x <- rnorm(1000)
 b1 <- bin(x, binmode = "equalN", nElements = 100)
 b2 <- bin(x, binmode = "equalN", nElements = 50, minAbsX = 0.6)
-se <- readRDS(system.file("extdata", "se.rds", package = "monaLisa"))[1:10, 1:8]
+se <- readRDS(system.file("extdata", "results.binned_motif_enrichment_LMRs.rds", 
+                          package = "monaLisa"))[1:10, 1:8]
+seqs <- Biostrings::DNAStringSet(
+    vapply(seq_along(x), 
+           function(i) paste(sample(c("A", "C", "G", "T"), 10, 
+                                    replace = TRUE), collapse = ""), "")
+)
 
 # ... stability selection
 Y <- rnorm(n = 100, mean = 2, sd = 1)
@@ -48,6 +54,25 @@ test_that("plotBinDensity() runs", {
     unlink(tf)
 })
 
+test_that("plotBinDiagnostics() runs", {
+    tf <- tempfile(fileext = ".pdf")
+    pdf(file = tf)
+    
+    expect_is(plotBinDiagnostics(seqs = seqs, bins = b1, aspect = "length"), 
+              "list")
+    expect_is(plotBinDiagnostics(seqs = seqs, bins = b1, aspect = "GCfrac"), 
+              "list")
+    expect_is(plotBinDiagnostics(seqs = seqs, bins = b1, aspect = "dinucfreq"), 
+              "Heatmap")
+    
+    dev.off()
+    unlink(tf)
+    
+    expect_error(plotBinDiagnostics(seqs = x, bins = b1))
+    expect_error(plotBinDiagnostics(seqs = seqs, bins = as.numeric(b1)))
+    expect_error(plotBinDiagnostics(seqs = seqs, bins = as.character(b1)))
+    expect_error(plotBinDiagnostics(seqs = seqs, bins = b1, aspect = "missing"))
+})
 
 test_that("plotBinScatter() runs", {
     tf <- tempfile(fileext = ".pdf")

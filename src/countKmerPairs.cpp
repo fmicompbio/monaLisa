@@ -23,6 +23,10 @@
 #include <math.h>
 #include <string>
 
+// beachmat (for sparse matrices, map for building them)
+#include "beachmat3/as_gCMatrix.h"
+#include <map>
+
 // package includes
 #include "Biostrings_interface.h"
 #include "_Biostrings_stubs.c"
@@ -61,8 +65,21 @@ int kmer_index_at(const char* seq_char, int k, int* pow4) {
     return index;
 }
 
-// Code for walking along each sequence of an XStringSet object
-// and read 1 character at a time.
+// calculate k-mer indices for a given XString sequence
+// and store them in kidx (grow size if necessary)
+void calc_kmer_indices_for_seq(std::vector<int> &kidx,
+                               Chars_holder &seq, int k, int* pow4) {
+    int i;
+    const char *seq_char;
+
+    if (kidx.size() < (size_t)seq.length)
+        kidx.resize(seq.length);
+
+    for (i = 0, seq_char = seq.ptr; i < seq.length - k + 1; i++, seq_char++) {
+        kidx[i] = kmer_index_at(seq_char, k, pow4);
+    }
+}
+
 
 //' Count k-mer pairs in sequences
 //'
@@ -78,16 +95,21 @@ int kmer_index_at(const char* seq_char, int k, int* pow4) {
 //'
 //' @examples
 //' countKmerPairs(Biostrings::DNAStringSet(c("AACCGGTT")), k = 2, n = 1)
+//'
+//' @seealso \code{\link{countKmerPairsSelected}} for counting co-occurrences
+//'     only amongst a set of selected k-mers. For a small set of selected
+//'     k-mers, this is much more efficient.
 //' 
+//' @return A sparse numeric matrix (\code{\link[Matrix]{dgCMatrix-class}})
+//'     with observed k-mer pairs counts.
+//'     
 //' @import Rcpp
-//' 
-//' @return A numeric matrix with observed k-mer pairs counts.
 //' @export
-// [[Rcpp::export]]
-Rcpp::NumericMatrix countKmerPairs(SEXP x,
-                                   int k = 6,
-                                   int n = 5,
-                                   bool zoops = false) {
+// [[Rcpp::export(rng=false)]]
+Rcpp::RObject countKmerPairs(SEXP x,
+                             int k = 6,
+                             int n = 5,
+                             bool zoops = false) {
     // pre-flight checks
     if (! ::Rf_inherits(x, "DNAStringSet"))
         ::Rf_error("'x' must be a DNAStringSet");
@@ -97,102 +119,311 @@ Rcpp::NumericMatrix countKmerPairs(SEXP x,
         ::Rf_warning("'k' (%d) is large - this might take long an use a lot of memory", k);
     if (n < 1)
         ::Rf_error("'n' must be greater than 0");
-
+    
     // prepare
     int i = 0, j = 0, l = 0, a = 0, b = 0, idx1 = 0, idx2 = 0;
-
+    std::vector<int> kidx;
+    
     int *pow4 = new int[k + 1];
     for (i = 0; i <= k; i++)
         pow4[i] = pow(4, i);
     int nk = pow4[k];
-
+    
     std::string* strkmers = new std::string[nk];
     int position = 0;
     populate(k, 0, "", strkmers, &position);
-
+    
     Rcpp::CharacterVector kmers(nk);
     for (i = 0; i < nk; i++) {
         kmers(i) = strkmers[i];
     }
-
-    Rcpp::NumericMatrix m(nk, nk);
-    rownames(m) = kmers;
-    colnames(m) = kmers;
-
+    
+    // storage: column/row/value triplets used later to create a sparse matrix
+    // from beachmat3/as_gCMatrix.h:
+    //  For an element `x` in the triplet store, we should obtain the zero-based _column_ index from `x.first.first`;
+    //  the zero-based _row_ index from `x.first.second`; and the value from `x.second`.
+    std::map<std::pair<int, int>, double> storage;
+    std::map<std::pair<int, int>, double>::iterator storageIt;
+    std::pair<int, int> kpair;
+    
     // loop through sequences
     const XStringSet_holder X = hold_XStringSet(x);
     const int x_len = get_XStringSet_length(x);
-
+    
     Chars_holder seq;
-    const char *seq_char1, *seq_char2;
     
     if (zoops) { // zoops == true
-
+        
         bool **seen = new bool*[nk];
         for (a = 0; a < nk; a++)
             seen[a] = new bool[nk];
-
+        
         for (i = 0; i < x_len; i++) {
             
             seq = get_elt_from_XStringSet_holder(&X, i);
             if (seq.length < k)
                 continue;
+            
+            // pre-calculate k-mer indices
+            calc_kmer_indices_for_seq(kidx, seq, k, pow4);
             
             // initialize seen matrix
             for (a = 0; a < nk; a++)
                 for (b = 0; b < nk; b++)
                     seen[a][b] = false; 
-
-            //Rprintf("seq %d (%d bp): ", i+1, seq.length);
-            for (j = 0, seq_char1 = seq.ptr; j < seq.length - k; j++, seq_char1++) {
-                //Rprintf("%x ", *seq_char1);
-                idx1 = kmer_index_at(seq_char1, k, pow4);
+            
+            //Rprintf("seq %d (%d bp)\n", i+1, seq.length);
+            for (j = 0; j < seq.length - k; j++) {
+                idx1 = kidx[j];
                 if (idx1 < 0)
                     continue; // ignore k-mers with non-ACGT characters
-                //Rprintf("%d(%s) ", idx, strkmers[idx].c_str());
-                for (l = j + 1, seq_char2 = seq_char1 + 1; l <= j+n && l <= seq.length - k; l++, seq_char2++) {
-                    idx2 = kmer_index_at(seq_char2, k, pow4);
+                for (l = j + 1; l <= j+n && l <= seq.length - k; l++) {
+                    idx2 = kidx[l];
                     if (idx2 < 0 || seen[idx1][idx2])
                         continue; // ignore seen k-mer pairs (zoops = true) and k-mers with non-ACGT characters
                     seen[idx1][idx2] = true; 
-                    m(idx1, idx2) += 1;
+                    kpair.first = idx2;
+                    kpair.second = idx1;
+                    storageIt = storage.find(kpair);
+                    if (storageIt == storage.end()) {
+                        // add new non-zero pair
+                        storage.insert(std::pair<std::pair<int, int>, int>(kpair, 1.0));
+                    } else {
+                        // increment existing pair
+                        storageIt->second = storageIt->second + 1.0;
+                    }
                 }
             }
-            //Rprintf("\n");
         }
         
         for (a = 0; a < nk; a++)
             delete [] seen[a];
         delete [] seen;
-
+        
     } else {     // zoops == false
         for (i = 0; i < x_len; i++) {
-
+            
             seq = get_elt_from_XStringSet_holder(&X, i);
             if (seq.length < k)
                 continue;
             
-            //Rprintf("seq %d (%d bp): ", i+1, seq.length);
-            for (j = 0, seq_char1 = seq.ptr; j < seq.length - k; j++, seq_char1++) {
-                //Rprintf("%x ", *seq_char1);
-                idx1 = kmer_index_at(seq_char1, k, pow4);
+            // pre-calculate k-mer indices
+            calc_kmer_indices_for_seq(kidx, seq, k, pow4);
+            
+            //Rprintf("seq %d (%d bp)\n", i+1, seq.length);
+            for (j = 0; j < seq.length - k; j++) {
+                idx1 = kidx[j];
                 if (idx1 < 0)
                     continue; // ignore k-mers with non-ACGT characters
-                //Rprintf("%d(%s) ", idx, strkmers[idx].c_str());
-                for (l = j + 1, seq_char2 = seq_char1 + 1; l <= j+n && l <= seq.length - k; l++, seq_char2++) {
-                    idx2 = kmer_index_at(seq_char2, k, pow4);
+                for (l = j + 1; l <= j+n && l <= seq.length - k; l++) {
+                    idx2 = kidx[l];
                     if (idx2 < 0)
                         continue; // ignore k-mers with non-ACGT characters
-                    m(idx1, idx2) += 1;
+                    kpair.first = idx2;
+                    kpair.second = idx1;
+                    storageIt = storage.find(kpair);
+                    if (storageIt == storage.end()) {
+                        // add new non-zero pair
+                        storage.insert(std::pair<std::pair<int, int>, int>(kpair, 1.0));
+                    } else {
+                        // increment existing pair
+                        storageIt->second = storageIt->second + 1.0;
+                    }
                 }
             }
-            //Rprintf("\n");
         }
     }
-
+    
     // clean up
     delete [] strkmers;
     delete [] pow4;
+    
+    // create dgCMatrix
+    Rcpp::RObject m = beachmat::as_gCMatrix<Rcpp::NumericVector>(nk, nk, storage);
+    m.slot("Dimnames") = Rcpp::List::create( kmers, kmers );
+    
+    return m;
+}
+
+
+//' Count selected k-mer pairs in sequences
+//'
+//' Over a set of sequences, for each k-mer a in a given set of k-mers A, count
+//' occurences of all k-mers b in A within a defined distance downstream of the
+//' start of a.
+//'
+//' @param x DNAStringSet with sequences.
+//' @param kmers DNAStringSet with k-mers.
+//' @param n An integer scalar defining the maximum downstream distance of
+//'     second k-mers, relative to the start position of the first k-mer.
+//' @param zoops A logical scalar. If TRUE, count each observed k-mer pair
+//'     only once per sequence.
+//'
+//' @examples
+//' countKmerPairs(Biostrings::DNAStringSet(c("AACCGGTT")), k = 2, n = 1)
+//'
+//' @seealso \code{\link{countKmerPairs}} for counting co-occurrences
+//'     amongst all k-mers of a given length. This is more efficient than
+//'     \code{countKmerPairsSelected} and setting \code{kmers} to all
+//'     possible k-mers of a given length.
+//' 
+//' @return A sparse numeric matrix (\code{\link[Matrix]{dgCMatrix-class}})
+//'     with observed k-mer pairs counts.
+//' @export
+// [[Rcpp::export(rng=false)]]
+Rcpp::RObject countKmerPairsSelected(SEXP x,
+                                     SEXP kmers,
+                                     int n = 5,
+                                     bool zoops = false) {
+    // pre-flight checks and declarations
+    int i = 0, j = 0, l = 0, a = 0, b = 0, idx1 = 0, idx2 = 0;
+    std::vector<int> kidx;
+    
+    Chars_holder seq;
+    
+    if (! ::Rf_inherits(x, "DNAStringSet"))
+        ::Rf_error("'x' must be a DNAStringSet");
+    const XStringSet_holder X = hold_XStringSet(x);
+    const int x_len = get_XStringSet_length(x);
+    
+    if (! ::Rf_inherits(kmers, "DNAStringSet"))
+        ::Rf_error("'kmers' must be a DNAStringSet");
+    const XStringSet_holder K = hold_XStringSet(kmers);
+    const int nk = get_XStringSet_length(kmers);
+    std::map<int,int> kmeridx2row;
+    std::map<int,int>::iterator kit1, kit2;
+    int k = get_elt_from_XStringSet_holder(&K, 0).length;
+    int *pow4 = new int[k + 1];
+    for (i = 0; i <= k; i++)
+        pow4[i] = pow(4, i);
+    
+    if (k <= 1)
+        ::Rf_error("'k' must be greater than 1");
+    if (nk > 60000)
+        ::Rf_warning("'kmers' (%d) is large - this might take long an use a lot of memory", nk);
+    if (n < 1)
+        ::Rf_error("'n' must be greater than 0");
+
+    char* seqbuffer = new char[k+1];
+    seqbuffer[k] = '\0';
+    Rcpp::CharacterVector kmersvect;
+    for (i = 0; i < nk; i++) {
+        seq = get_elt_from_XStringSet_holder(&K, i);
+        
+        if (seq.length != k)
+            ::Rf_error("all 'kmers' must be of the same length");
+        
+        for (j = 0; j < k; j++)
+            seqbuffer[j] = DNAdecode(seq.ptr[j]);
+        kmersvect.push_back(seqbuffer);
+        
+        idx1 = kmer_index_at(seq.ptr, k, pow4);
+        kmeridx2row[idx1] = i;
+    }
+    
+    // prepare
+    // storage: column/row/value triplets used later to create a sparse matrix
+    // from beachmat3/as_gCMatrix.h:
+    //  For an element `x` in the triplet store, we should obtain the zero-based _column_ index from `x.first.first`;
+    //  the zero-based _row_ index from `x.first.second`; and the value from `x.second`.
+    std::map<std::pair<int, int>, double> storage;
+    std::map<std::pair<int, int>, double>::iterator storageIt;
+    std::pair<int, int> kpair;
+    
+    // loop through sequences
+    
+    if (zoops) { // zoops == true
+        
+        bool **seen = new bool*[nk];
+        for (a = 0; a < nk; a++)
+            seen[a] = new bool[nk];
+        
+        for (i = 0; i < x_len; i++) {
+            
+            seq = get_elt_from_XStringSet_holder(&X, i);
+            if (seq.length < k)
+                continue;
+            
+            // pre-calculate k-mer indices
+            calc_kmer_indices_for_seq(kidx, seq, k, pow4);
+            
+            // initialize seen matrix
+            for (a = 0; a < nk; a++)
+                for (b = 0; b < nk; b++)
+                    seen[a][b] = false; 
+            
+            //Rprintf("seq %d (%d bp)\n", i+1, seq.length);
+            for (j = 0; j < seq.length - k; j++) {
+                idx1 = kidx[j];
+                kit1 = kmeridx2row.find(idx1);
+                if (idx1 < 0 || kit1 == kmeridx2row.end())
+                    continue; // ignore k-mers with non-ACGT characters or not in 'kmers'
+                for (l = j + 1; l <= j+n && l <= seq.length - k; l++) {
+                    idx2 = kidx[l];
+                    kit2 = kmeridx2row.find(idx2);
+                    if (idx2 < 0 || kit2 == kmeridx2row.end() || seen[kit1->second][kit2->second])
+                        continue; // ignore seen k-mer pairs (zoops = true) and k-mers with non-ACGT characters or not in 'kmers'
+                    seen[kit1->second][kit2->second] = true;
+                    kpair.first = kit2->second;
+                    kpair.second = kit1->second;
+                    storageIt = storage.find(kpair);
+                    if (storageIt == storage.end()) {
+                        // add new non-zero pair
+                        storage.insert(std::pair<std::pair<int, int>, int>(kpair, 1.0));
+                    } else {
+                        // increment existing pair
+                        storageIt->second = storageIt->second + 1.0;
+                    }
+                }
+            }
+        }
+        
+        for (a = 0; a < nk; a++)
+            delete [] seen[a];
+        delete [] seen;
+        
+    } else {     // zoops == false
+        for (i = 0; i < x_len; i++) {
+            
+            seq = get_elt_from_XStringSet_holder(&X, i);
+            if (seq.length < k)
+                continue;
+            
+            // pre-calculate k-mer indices
+            calc_kmer_indices_for_seq(kidx, seq, k, pow4);
+            
+            //Rprintf("seq %d (%d bp)\n", i+1, seq.length);
+            for (j = 0; j < seq.length - k; j++) {
+                idx1 = kidx[j];
+                kit1 = kmeridx2row.find(idx1);
+                if (idx1 < 0 || kit1 == kmeridx2row.end())
+                    continue; // ignore k-mers with non-ACGT characters or not in 'kmers'
+                for (l = j + 1; l <= j+n && l <= seq.length - k; l++) {
+                    idx2 = kidx[l];
+                    kit2 = kmeridx2row.find(idx2);
+                    if (idx2 < 0 || kit2 == kmeridx2row.end())
+                        continue; // ignore k-mers with non-ACGT characters or not in 'kmers'
+                    kpair.first = kit2->second;
+                    kpair.second = kit1->second;
+                    storageIt = storage.find(kpair);
+                    if (storageIt == storage.end()) {
+                        // add new non-zero pair
+                        storage.insert(std::pair<std::pair<int, int>, int>(kpair, 1.0));
+                    } else {
+                        // increment existing pair
+                        storageIt->second = storageIt->second + 1.0;
+                    }
+                }
+            }
+        }
+    }
+    
+    // clean up
+    delete [] pow4;
+    
+    // create dgCMatrix
+    Rcpp::RObject m = beachmat::as_gCMatrix<Rcpp::NumericVector>(nk, nk, storage);
+    m.slot("Dimnames") = Rcpp::List::create( kmersvect, kmersvect );
 
     return m;
 }

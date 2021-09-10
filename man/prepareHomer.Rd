@@ -66,7 +66,7 @@ writeLines(c(">chr1", "ATGCATGCATCGATCGATCGATCGTACGTA"),
 
 # prepare motif file, regions and bins
 motiffile <- tempfile()
-dumpJaspar(filename = motiffile, pkg = "JASPAR2018", 
+dumpJaspar(filename = motiffile, pkg = "JASPAR2020", 
            opts = list(ID = c("MA0006.1")))
 gr <- GenomicRanges::GRanges("chr1", IRanges::IRanges(1:4, width = 4))
 b <- bin(1:4, nElements = 2)

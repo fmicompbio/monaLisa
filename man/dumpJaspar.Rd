@@ -6,7 +6,7 @@
 \usage{
 dumpJaspar(
   filename,
-  pkg = "JASPAR2018",
+  pkg = "JASPAR2020",
   opts = list(tax_group = "vertebrates"),
   pseudocount = 1,
   relScoreCutoff = 0.8,
@@ -16,7 +16,7 @@ dumpJaspar(
 \arguments{
 \item{filename}{Name of the output file to be created.}
 
-\item{pkg}{Name of the Jaspar package to use (default: \code{JASPAR2018}).}
+\item{pkg}{Name of the Jaspar package to use (default: \code{JASPAR2020}).}
 
 \item{opts}{A list with search options used in
 \code{\link[TFBSTools]{getMatrixSet}}. By default, only vertebrate motifs
@@ -37,12 +37,12 @@ log-odds score cutof to relScoreCutoff * maximal score for each PWM
 \code{TRUE} if successful.
 }
 \description{
-Get motifs from a Jaspar database package (e.g. \code{JASPAR2018})
+Get motifs from a Jaspar database package (e.g. \code{JASPAR2020})
     and write them into a HOMER-compatible motif file as positional probability
     matrices.
 }
 \examples{
-dumpJaspar(filename = tempfile(), pkg = "JASPAR2018", 
+dumpJaspar(filename = tempfile(), pkg = "JASPAR2020", 
            opts = list(ID = c("MA0006.1")))
 
 }

@@ -13,7 +13,6 @@ calcBinnedMotifEnrHomer(
   homerfile = findHomer(),
   regionsize = "given",
   pseudocount.log2enr = 8,
-  pseudocount.pearsonResid = 0.001,
   p.adjust.method = "BH",
   Ncpu = 2L,
   verbose = FALSE,
@@ -41,10 +40,6 @@ region, an integer value will keep only that many bases in the region center).}
 \item{pseudocount.log2enr}{A numerical scalar with the pseudocount to add to
 foreground and background counts when calculating log2 motif enrichments}
 
-\item{pseudocount.pearsonResid}{A numerical scalar with the pseudocount to add
-to foreground and background frequencies when calculating expected counts
-and Pearson residuals.}
-
 \item{p.adjust.method}{A character scalar selecting the p value adjustment
 method (used in \code{\link[stats]{p.adjust}}).}
 
@@ -57,16 +52,21 @@ output when running Homer.}
 }
 \value{
 A \code{SummarizedExperiment} object with motifs in rows and bins
-  in columns, containing six assays: \itemize{
+  in columns, containing seven assays: \itemize{
   \item{negLog10P}{: -log10 P values}
   \item{negLog10Padj}{: -log10 adjusted P values}
   \item{pearsonResid}{: motif enrichments as Pearson residuals}
+  \item{expForegroundWgtWithHits}{: expected number of foreground 
+    sequences with motif hits}
   \item{log2enr}{: motif enrichments as log2 ratios}
   \item{sumForegroundWgtWithHits}{: Sum of foreground sequence weights
     in a bin that have motif hits}
   \item{sumBackgroundWgtWithHits}{: Sum of background sequence weights
     in a bin that have motif hits}
 }
+The \code{rowData} of the object contains annotations (name, PFMs, PWMs 
+and GC fraction) for the motifs, while the \code{colData} slot contains 
+summary information about the bins.
 }
 \description{
 Run complete HOMER motif enrichment analysis, consisting of

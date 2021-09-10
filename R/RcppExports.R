@@ -15,12 +15,45 @@
 #'
 #' @examples
 #' countKmerPairs(Biostrings::DNAStringSet(c("AACCGGTT")), k = 2, n = 1)
+#'
+#' @seealso \code{\link{countKmerPairsSelected}} for counting co-occurrences
+#'     only amongst a set of selected k-mers. For a small set of selected
+#'     k-mers, this is much more efficient.
 #' 
+#' @return A sparse numeric matrix (\code{\link[Matrix]{dgCMatrix-class}})
+#'     with observed k-mer pairs counts.
+#'     
 #' @import Rcpp
-#' 
-#' @return A numeric matrix with observed k-mer pairs counts.
 #' @export
 countKmerPairs <- function(x, k = 6L, n = 5L, zoops = FALSE) {
     .Call(`_monaLisa_countKmerPairs`, x, k, n, zoops)
+}
+
+#' Count selected k-mer pairs in sequences
+#'
+#' Over a set of sequences, for each k-mer a in a given set of k-mers A, count
+#' occurences of all k-mers b in A within a defined distance downstream of the
+#' start of a.
+#'
+#' @param x DNAStringSet with sequences.
+#' @param kmers DNAStringSet with k-mers.
+#' @param n An integer scalar defining the maximum downstream distance of
+#'     second k-mers, relative to the start position of the first k-mer.
+#' @param zoops A logical scalar. If TRUE, count each observed k-mer pair
+#'     only once per sequence.
+#'
+#' @examples
+#' countKmerPairs(Biostrings::DNAStringSet(c("AACCGGTT")), k = 2, n = 1)
+#'
+#' @seealso \code{\link{countKmerPairs}} for counting co-occurrences
+#'     amongst all k-mers of a given length. This is more efficient than
+#'     \code{countKmerPairsSelected} and setting \code{kmers} to all
+#'     possible k-mers of a given length.
+#' 
+#' @return A sparse numeric matrix (\code{\link[Matrix]{dgCMatrix-class}})
+#'     with observed k-mer pairs counts.
+#' @export
+countKmerPairsSelected <- function(x, kmers, n = 5L, zoops = FALSE) {
+    .Call(`_monaLisa_countKmerPairsSelected`, x, kmers, n, zoops)
 }
 

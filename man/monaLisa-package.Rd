@@ -15,7 +15,7 @@ and other algorithms to search for motif hits and look for enriched motifs in
 sets of genomic regions, compared to all other regions.
 
 Known motifs can for example be obtained from a collection of transcription
-factor binding site specificities, such as \pkg{JASPAR2018}.
+factor binding site specificities, such as \pkg{JASPAR2020}.
 }
 \author{
 Dania Machlab, Lukas Burger and Michael Stadler

@@ -5,6 +5,8 @@ authors:
     href: https://github.com/machlabd
   Lukas Burger:
     href: https://github.com/LukasBurger
+  Charlotte Soneson:
+    href: https://github.com/csoneson
 
 url: https://fmicompbio.github.io/monaLisa
 
@@ -26,8 +28,10 @@ navbar:
     articles:
       text: Articles
       menu:
-      - text: monaLisa
+      - text: "Binned motif enrichment analysis"
         href: articles/monaLisa.html
+      - text: "Identifying motifs by stability selection"
+        href: articles/selecting_motifs_with_randLassoStabSel.Rmd
     github:
       icon: fab fa-github fa-lg
       href: https://github.com/fmicompbio/monaLisa
@@ -41,10 +45,9 @@ reference:
   contents:
     - '`bin`'
     - '`getZeroBin`'
-    - '`setZeroBin`'
-    - '`calcBinnedMotifEnr`'
-    - '`calcBinnedMotifEnrHomer`'
     - '`calcBinnedMotifEnrR`'
+    - '`calcBinnedMotifEnrHomer`'
+    - '`plotBinDiagnostics`'
     - '`plotBinDensity`'
     - '`plotBinHist`'
     - '`plotBinScatter`'
@@ -57,7 +60,7 @@ reference:
     - '`calcBinnedKmerEnr`'
     - '`convertKmersToMotifs`'
     - '`clusterKmers`'
-    - '`extractOverlappingKmerFrequecies`'
+    - '`extractOverlappingKmerFrequencies`'
 - title: Identify predictive motifs using stability selection
   desc: "Functions for selecting motifs that explain observed changes using Stability Selection."
   contents:

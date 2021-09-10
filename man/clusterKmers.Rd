@@ -7,7 +7,7 @@
 clusterKmers(
   x,
   method = c("cooccurrence", "similarity"),
-  allowReverseComplement = FALSE,
+  includeRevComp = FALSE,
   nKmers = NULL,
   maxShift = NULL,
   minSim = NULL,
@@ -26,7 +26,7 @@ Currently, either \code{"cooccurrence"} (co-occurrence of k-mers in a
 set of sequences, the default) or \code{"similarity"} (using k-mer
 similarities, see Details below).}
 
-\item{allowReverseComplement}{A \code{logical} scalar. If \code{TRUE}, also
+\item{includeRevComp}{A \code{logical} scalar. If \code{TRUE}, also
 include the reverse complement of enriched k-mers in the analysis. For
 \code{method = "cooccurrence"}, this will extract also reverse complement
 k-mers from the co-occurrence count matrix for graph estimation. For
@@ -78,14 +78,14 @@ The clustering is performed depending on \code{method}.
   \code{countKmerPairs(x = seqs, k = k, n = 1, zoops = zoops)}
   will be used to first get a pairwise co-occurrence count matrix.
   Rows and columns corresponding to enriched k-mers from \code{x} (and their
-  reverse complements, if \code{allowReverseComplement = TRUE}) will
+  reverse complements, if \code{includeRevComp = TRUE}) will
   be extracted, and the resulting adjacency matrix will be converted to a
   graph, in which clusters will be identified as communities.
   For \code{method = "similarity"}, all pairwise k-mer distances for all
   possible shifts (defined by \code{maxShift}) are calculated, defined as
   the Hamming distance of the overlapping substring plus the number of shifts.
   For each k-mer pair, the minimal distance over shifts is retained. If
-  \code{allowReverseComplement == TRUE}, this procedure is repeated to compare
+  \code{includeRevComp == TRUE}, this procedure is repeated to compare
   each k-mer to all reverse-complemented k-mers, and replace it with the
   reverse-complemented version if this yields a lower sum of pairwise distances.
   The resulting distance matrix is then converted into a similarity matrix by

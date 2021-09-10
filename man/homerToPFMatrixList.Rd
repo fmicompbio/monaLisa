@@ -20,13 +20,13 @@ Read motifs from a file in HOMER format and create
     a PFMatrixList from them.
 }
 \examples{
-library(JASPAR2018)
+library(JASPAR2020)
 optsL <- list(ID = c("MA0006.1"))
-pfm1 <- TFBSTools::getMatrixSet(JASPAR2018, opts = optsL)
+pfm1 <- TFBSTools::getMatrixSet(JASPAR2020, opts = optsL)
 TFBSTools::Matrix(pfm1)
 
 tmpfn <- tempfile()
-dumpJaspar(filename = tmpfn, pkg = "JASPAR2018", opts = optsL)
+dumpJaspar(filename = tmpfn, pkg = "JASPAR2020", opts = optsL)
 pfm2 <- homerToPFMatrixList(tmpfn)
 TFBSTools::Matrix(pfm2)
 

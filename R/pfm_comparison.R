@@ -261,8 +261,14 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
 #'   \code{\link[TFBSTools]{PFMatrixList}} by \code{\link{homerToPFMatrixList}}
 #'   for \code{method = "R"}).
 #' @param kmerLen A \code{numeric} scalar giving the k-mer length.
+#' @param kmers Either a character vector of k-mers for which to calculate 
+#'   the similarity to each motif, or \code{NULL}, in which case all k-mers
+#'   of length \code{kmerLen} are used.
+#' @param includeRevComp A \code{logical} scalar. If set to \code{TRUE}, each 
+#'   k-mer as well as its reverse complement is compared to each motif, and the 
+#'   larger of the two similarities is returned. 
 #' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
-#'     instance determining the parallel back-end to be used during evaluation.
+#'   instance determining the parallel back-end to be used during evaluation.
 #' @param verbose A logical scalar. If \code{TRUE}, report on progress.
 #'
 #' @return A matrix of probabilties for each motif - k-mer pair.
@@ -281,14 +287,18 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
 #' @seealso \code{\link[BiocParallel]{bplapply}} used for parallelization.
 #'
 #' @importFrom BiocParallel bplapply SerialParam bpnworkers
+#' @importFrom Biostrings DNA_ALPHABET
 #' 
 #' @export
 motifKmerSimilarity <- function(x,
                                 kmerLen = 5,
+                                kmers = NULL,
+                                includeRevComp = FALSE, 
                                 BPPARAM = SerialParam(),
                                 verbose = FALSE) {
     ## pre-flight checks
     .assertScalar(x = verbose, type = "logical")
+    .assertScalar(x = includeRevComp, type = "logical")
     if (is.character(x) && length(x) == 1L && file.exists(x)) {
         if (verbose) {
             message("reading motifs from ", basename(x))
@@ -297,13 +307,20 @@ motifKmerSimilarity <- function(x,
     }
     .assertScalar(x = kmerLen, type = "numeric", rngExcl = c(0, Inf))
     stopifnot(exprs = {
+        is.null(kmers) || 
+            (.assertVector(kmers, type = "character") && 
+                 all(unlist(strsplit(kmers, "")) %in% Biostrings::DNA_ALPHABET))
+    })
+    stopifnot(exprs = {
         is(x, "PFMatrixList")
         round(kmerLen, 0L) == kmerLen
         is(BPPARAM, "BiocParallelParam")
     })
 
     xm <- lapply(TFBSTools::Matrix(x), function(x) sweep(x, 2, colSums(x), "/"))
-    kmers <- Biostrings::mkAllStrings(c("A","C","G","T"), kmerLen)
+    if (is.null(kmers)) {
+        kmers <- Biostrings::mkAllStrings(c("A", "C", "G", "T"), kmerLen)
+    }
 
     if (verbose) {
         message("calculating ", length(xm) * length(kmers),
@@ -311,9 +328,31 @@ motifKmerSimilarity <- function(x,
                 if (bpnworkers(BPPARAM) > 1) " cores..." else " core...",
                 appendLF = FALSE)
     }
-    M <- do.call(rbind, bplapply(xm, function(m) .compareMotifKmer(m = m, kmers = kmers)$bestScore,
-                                 BPPARAM = BPPARAM))
-    dimnames(M) <- list(name(x), kmers)
+    
+    if (includeRevComp) {
+        kmersrevcomp <- as.character(Biostrings::reverseComplement(
+            Biostrings::DNAStringSet(kmers)
+        ))
+        kmersall <- union(kmers, kmersrevcomp)
+    } else {
+        kmersall <- kmers
+    }
+    
+    M0 <- do.call(rbind, bplapply(
+        xm, function(m) .compareMotifKmer(m = m, kmers = kmersall)$bestScore,
+        BPPARAM = BPPARAM))
+    dimnames(M0) <- list(name(x), kmersall)
+    
+    ## Get the matrix for the originally specified k-mers
+    M <- M0[, kmers, drop = FALSE]
+    
+    if (includeRevComp) {
+        ## Get the matrix for the corresponding reverse complement k-mers, 
+        ## and take the maximum similarity for each motif
+        Mrev <- M0[, kmersrevcomp, drop = FALSE]
+        M <- pmax(M, Mrev)
+    }
+    
     if (verbose) {
         message("done")
     }

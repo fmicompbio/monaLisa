@@ -131,9 +131,9 @@ pfm2ic <- function(pfm) {
 #' @return A polygon grob.
 #'
 #' @examples
-#' if (require(JASPAR2018) && require(TFBSTools) && require(gridExtra)) {
-#'     pfm1 <- getMatrixByID(JASPAR2018, "MA0139")
-#'     pfm2 <- getMatrixByID(JASPAR2018, "MA0531")
+#' if (require(JASPAR2020) && require(TFBSTools) && require(gridExtra)) {
+#'     pfm1 <- getMatrixByID(JASPAR2020, "MA0139")
+#'     pfm2 <- getMatrixByID(JASPAR2020, "MA0531")
 #'
 #'     g1 <- seqLogoGrob(pfm1)
 #'     g2 <- seqLogoGrob(pfm2)
@@ -214,8 +214,8 @@ seqLogoGrob <- function(x, xmax = NULL, ymax = 2.0, xjust = c("left", "center", 
 #'   \code{\link[ComplexHeatmap]{HeatmapAnnotation}}.
 #'
 #' @examples
-#' if (require(JASPAR2018) && require(TFBSTools) && require(gridExtra)) {
-#'     pfm1 <- getMatrixByID(JASPAR2018, "MA0139")
+#' if (require(JASPAR2020) && require(TFBSTools) && require(gridExtra)) {
+#'     pfm1 <- getMatrixByID(JASPAR2020, "MA0139")
 #'
 #'     g1 <- seqLogoGrob(pfm1)
 #'

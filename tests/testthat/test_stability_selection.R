@@ -65,6 +65,7 @@ test_that("randLassoStabSel() is deterministic", {
 
 
 test_that(".glmnetRandomizedLasso() works properly", {
+    
     # create data set
     set.seed(555)
     Y <- rnorm(n = 500, mean = 2, sd = 1)
@@ -79,26 +80,24 @@ test_that(".glmnetRandomizedLasso() works properly", {
 
     # tests
     # ... x as data.frame
-    expect_message(.glmnetRandomizedLasso(x = as.data.frame(X), y = Y, q = 11),
-                   "coerced to a model matrix without intercept")
+    expect_warning(
+      expect_message(.glmnetRandomizedLasso(x = as.data.frame(X), y = Y, q = 11),
+                     "coerced to a model matrix without intercept"),
+      "Number of nonzero coefficients along the path exceeds")
   
     # ... with specific lambda
     expect_error(.glmnetRandomizedLasso(x = X, y = Y, q = 11, lambda = 5))
   
     # ... with type="anticonservative"
+    set.seed(123)
     rl <- .glmnetRandomizedLasso(x = X, y = Y, q = 11, type = "anticonservative")
     expect_is(rl, "list")
     expect_identical(names(rl), c("selected", "path"))
     expect_is(rl$selected, "logical")
     expect_is(rl$path, "matrix")
   
-    # outputs differ depending on R version due to random number generator with 'sample' function (check RNGkind) --> different as of R 3.6.0
-    Rmajor <- as.numeric(R.version$major)
-    Rminor <- as.numeric(R.version$minor)
-    if (Rmajor == 3 & Rminor == 5) { # we are supporting R >= 3.5.0
-        expect_identical(sum(rl$selected), 12L)
-    } else {
-        expect_identical(sum(rl$selected), 11L)
-    }
+    # expected number of selected variables
+    expect_identical(sum(rl$selected), 11L)
+    
 })
 

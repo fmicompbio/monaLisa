@@ -15,9 +15,7 @@ calcBinnedMotifEnrR(
   min.score = 10,
   matchMethod = "matchPWM",
   GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.7, 0.8),
-  normalizeByLength = TRUE,
   pseudocount.log2enr = 8,
-  pseudocount.pearsonResid = 0.001,
   p.adjust.method = "BH",
   genome = NULL,
   genome.regions = NULL,
@@ -28,7 +26,7 @@ calcBinnedMotifEnrR(
 )
 }
 \arguments{
-\item{seqs}{DNAStringSet object with sequences to test}
+\item{seqs}{\code{\link[Biostrings]{DNAStringSet}} object with sequences to test}
 
 \item{bins}{factor of the same length and order as \code{seqs}, indicating
 the bin for each sequence. Typically the return value of
@@ -63,16 +61,8 @@ and tri-mer composition.}
 \item{GCbreaks}{The breaks between GC bins. The default value is based on
 the hard-coded bins used in Homer.}
 
-\item{normalizeByLength}{A logical scalar. If \code{TRUE}, account for 
-sequence length differences between foreground and background sequences
-(see Details).}
-
 \item{pseudocount.log2enr}{A numerical scalar with the pseudocount to add to
 foreground and background counts when calculating log2 motif enrichments}
-
-\item{pseudocount.pearsonResid}{A numerical scalar with the pseudocount to add
-to foreground and background frequencies when calculating expected counts
-and Pearson residuals.}
 
 \item{p.adjust.method}{A character scalar selecting the p value adjustment
 method (used in \code{\link[stats]{p.adjust}}).}
@@ -100,17 +90,22 @@ instance determining the parallel back-end to be used during evaluation.}
 \item{...}{Additional arguments for  \code{\link[monaLisa]{findMotifHits}}.}
 }
 \value{
-A \code{SummarizedExperiment} object with motifs in rows and bins
-  in columns, containing six assays: \itemize{
+A \code{\link[SummarizedExperiment]{SummarizedExperiment}} object
+  with motifs in rows and bins in columns, containing seven assays: \itemize{
   \item{negLog10P}{: -log10 P values}
   \item{negLog10Padj}{: -log10 adjusted P values}
   \item{pearsonResid}{: motif enrichments as Pearson residuals}
+  \item{expForegroundWgtWithHits}{: expected number of foreground 
+    sequences with motif hits}
   \item{log2enr}{: motif enrichments as log2 ratios}
   \item{sumForegroundWgtWithHits}{: Sum of foreground sequence weights
     in a bin that have motif hits}
   \item{sumBackgroundWgtWithHits}{: Sum of background sequence weights
     in a bin that have motif hits}
 }
+The \code{rowData} of the object contains annotations (name, PFMs, PWMs 
+and GC fraction) for the motifs, while the \code{colData} slot contains 
+summary information about the bins.
 }
 \description{
 This function performs a motif enrichment analysis on bins of
@@ -120,15 +115,13 @@ This function performs a motif enrichment analysis on bins of
 \details{
 This function implements a binned motif enrichment analysis. In each
   enrichment analysis, the sequences in a specific bin are used as foreground
-  sequences to test for motif enrichment comparing to background sequences
+  sequences to test for motif enrichments comparing to background sequences
   (defined by \code{background}, see below). The logic follows the
   \code{findMotifsGenome.pl} tool from \code{Homer} version 4.11, with
   \code{-size given -nomotif -mknown} and additionally \code{-h} if using 
-  \code{test = "fisher"}, and gives very similar results when 
-  \code{normalizeByLength = FALSE}. As in the \code{Homer} tool, sequences 
-  are weighted to correct for GC and k-mer composition differences between 
-  fore- and background sets. With \code{normalizeByLength = TRUE}, the sequence
-  weights are additionally corrected for length differences.
+  \code{test = "fisher"}, and gives very similar results. As in the \code{Homer} 
+  tool, sequences are weighted to correct for GC and k-mer composition differences 
+  between fore- and background sets.
   
   The background sequences are defined according to the value of the
   \code{background} argument:
@@ -157,7 +150,7 @@ This function implements a binned motif enrichment analysis. In each
   (\code{sumBackgroundWgtWithHits}). The total foreground 
   (\code{totalWgtForeground}) and background (\code{totalWgtBackground})
   sum of sequence weights is also calculated. If a motif has zero 
-  (\code{sumForegroundWgtWithHits}) and (\code{sumBackgroundWgtWithHits}), 
+  \code{sumForegroundWgtWithHits} and \code{sumBackgroundWgtWithHits},
   then any values (p-values and enrichment) that are calculated using 
   these two numbers are set to NA.
 
