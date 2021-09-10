@@ -41,7 +41,7 @@
 
 <meta property="og:title" content="Bin elements of x. — bin" />
 <meta property="og:description" content="bin groups elements of x into bins with either a
-  constant number of elments per bin, a constant bin width or according to
+  constant number of elements per bin, a constant bin width or according to
   user-provided bin boundaries." />
 
 
@@ -82,7 +82,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.0</span>
       </span>
     </div>
 
@@ -102,7 +102,10 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/monaLisa.html">monaLisa</a>
+      <a href="../articles/monaLisa.html">Binned motif enrichment analysis</a>
+    </li>
+    <li>
+      <a href="../articles/selecting_motifs_with_randLassoStabSel.Rmd">Identifying motifs by stability selection</a>
     </li>
   </ul>
 </li>
@@ -137,7 +140,7 @@
 
     <div class="ref-description">
     <p><code>bin</code> groups elements of <code>x</code> into bins with either a
-  constant number of elments per bin, a constant bin width or according to
+  constant number of elements per bin, a constant bin width or according to
   user-provided bin boundaries.</p>
     </div>
 
@@ -171,7 +174,7 @@
     <tr>
       <th>nBins</th>
       <td><p>The number of bins (only for <code>binmode="equalWidth"</code>). The
-number of elments per bin will be variable.</p></td>
+number of elements per bin will be variable.</p></td>
     </tr>
     <tr>
       <th>minAbsX</th>
@@ -204,15 +207,17 @@ include.lowest = TRUE, ...)</code>, such as <code>labels=FALSE</code>.</p></td>
 
     <p>Elements are binned according to the values in <code>x</code> depending on
   <code>binmode</code>:</p><dl>
-<dt>equalN</dt><dd><p>Items are grouped into a variable
+  <dt>equalN</dt><dd><p>Items are grouped into a variable
   number of bins with <code>nElements</code> elements each. If <code>minAbsX</code> is
   not <code>NULL</code>, elements with <code>x</code>-values in <code>[-minAbsX,minAbsX]</code>
   will first be collected in a single bin before binning the remaining
   elements. The boundaries of this single bin may be slightly adjusted in
   order to respect the <code>nElements</code> elements in the other bins.</p></dd>
   <dt>equalWidth</dt><dd><p>Items are group into <code>nBins</code> bins with a variable
-  number of elements each.</p></dd> <dt>breaks</dt><dd><p>Items are grouped into bins using
+  number of elements each.</p></dd> 
+  <dt>breaks</dt><dd><p>Items are grouped into bins using
   <code>cut(x, breaks, include.lowest = TRUE)</code></p></dd> 
+  
 </dl>
 
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
@@ -253,7 +258,7 @@ include.lowest = TRUE, ...)</code>, such as <code>labels=FALSE</code>.</p></td>
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, Charlotte Soneson, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
+  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, <a href="https://github.com/csoneson" class="external-link">Charlotte Soneson</a>, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
 </div>
 
 <div class="pkgdown">

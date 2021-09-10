@@ -85,7 +85,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.0</span>
       </span>
     </div>
 
@@ -105,7 +105,10 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/monaLisa.html">monaLisa</a>
+      <a href="../articles/monaLisa.html">Binned motif enrichment analysis</a>
+    </li>
+    <li>
+      <a href="../articles/selecting_motifs_with_randLassoStabSel.Rmd">Identifying motifs by stability selection</a>
     </li>
   </ul>
 </li>
@@ -147,7 +150,14 @@
   all bases to have a frequency of 0.25).</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>motifKmerSimilarity</span><span class='op'>(</span><span class='va'>x</span>, kmerLen <span class='op'>=</span> <span class='fl'>5</span>, BPPARAM <span class='op'>=</span> <span class='fu'>SerialParam</span><span class='op'>(</span><span class='op'>)</span>, verbose <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></code></pre></div>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>motifKmerSimilarity</span><span class='op'>(</span>
+  <span class='va'>x</span>,
+  kmerLen <span class='op'>=</span> <span class='fl'>5</span>,
+  kmers <span class='op'>=</span> <span class='cn'>NULL</span>,
+  includeRevComp <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  BPPARAM <span class='op'>=</span> <span class='fu'>SerialParam</span><span class='op'>(</span><span class='op'>)</span>,
+  verbose <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -163,6 +173,18 @@ for <code>method = "R"</code>).</p></td>
     <tr>
       <th>kmerLen</th>
       <td><p>A <code>numeric</code> scalar giving the k-mer length.</p></td>
+    </tr>
+    <tr>
+      <th>kmers</th>
+      <td><p>Either a character vector of k-mers for which to calculate 
+the similarity to each motif, or <code>NULL</code>, in which case all k-mers
+of length <code>kmerLen</code> are used.</p></td>
+    </tr>
+    <tr>
+      <th>includeRevComp</th>
+      <td><p>A <code>logical</code> scalar. If set to <code>TRUE</code>, each 
+k-mer as well as its reverse complement is compared to each motif, and the 
+larger of the two similarities is returned.</p></td>
     </tr>
     <tr>
       <th>BPPARAM</th>
@@ -208,7 +230,7 @@ instance determining the parallel back-end to be used during evaluation.</p></td
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, Charlotte Soneson, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
+  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, <a href="https://github.com/csoneson" class="external-link">Charlotte Soneson</a>, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
 </div>
 
 <div class="pkgdown">

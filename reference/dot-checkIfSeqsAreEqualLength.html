@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Count k-mer pairs in sequences — countKmerPairs • monaLisa</title>
+<title>Check if elements of `x` are have equal lengths — .checkIfSeqsAreEqualLength • monaLisa</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,9 @@
 
 
 
-<meta property="og:title" content="Count k-mer pairs in sequences — countKmerPairs" />
-<meta property="og:description" content="Over a set of sequences, for each k-mer a, count occurences of all k-mers b
-within a defined distance downstream of the start of a." />
+<meta property="og:title" content="Check if elements of `x` are have equal lengths — .checkIfSeqsAreEqualLength" />
+<meta property="og:description" content="Check if the elements of `x` are all equally long.
+  If not, generate a warning." />
 
 
 
@@ -81,7 +81,7 @@ within a defined distance downstream of the start of a." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.0</span>
       </span>
     </div>
 
@@ -101,7 +101,10 @@ within a defined distance downstream of the start of a." />
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/monaLisa.html">monaLisa</a>
+      <a href="../articles/monaLisa.html">Binned motif enrichment analysis</a>
+    </li>
+    <li>
+      <a href="../articles/selecting_motifs_with_randLassoStabSel.Rmd">Identifying motifs by stability selection</a>
     </li>
   </ul>
 </li>
@@ -129,66 +132,33 @@ within a defined distance downstream of the start of a." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Count k-mer pairs in sequences</h1>
+    <h1>Check if elements of `x` are have equal lengths</h1>
     
-    <div class="hidden name"><code>countKmerPairs.Rd</code></div>
+    <div class="hidden name"><code>dot-checkIfSeqsAreEqualLength.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Over a set of sequences, for each k-mer a, count occurences of all k-mers b
-within a defined distance downstream of the start of a.</p>
+    <p>Check if the elements of `x` are all equally long.
+  If not, generate a warning.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>countKmerPairs</span><span class='op'>(</span><span class='va'>x</span>, k <span class='op'>=</span> <span class='fl'>6L</span>, n <span class='op'>=</span> <span class='fl'>5L</span>, zoops <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></code></pre></div>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>.checkIfSeqsAreEqualLength</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>DNAStringSet with sequences.</p></td>
-    </tr>
-    <tr>
-      <th>k</th>
-      <td><p>An integer scalar with the length of sequences.</p></td>
-    </tr>
-    <tr>
-      <th>n</th>
-      <td><p>An integer scalar defining the maximum downstream distance of
-second k-mers, relative to the start position of the first k-mer.</p></td>
-    </tr>
-    <tr>
-      <th>zoops</th>
-      <td><p>A logical scalar. If TRUE, count each observed k-mer pair
-only once per sequence.</p></td>
+      <td><p>an object that implements a <code>width</code> method, typically a
+<code>GRanges</code> or <code>DNAStringSet</code> object.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A numeric matrix with observed k-mer pairs counts.</p>
+    <p><code>NULL</code> (invisibly). The function is called for its side-effect
+  of generating a warning if elements of the input are not of equal lengths.</p>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='fu'>countKmerPairs</span><span class='op'>(</span><span class='fu'>Biostrings</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html'>DNAStringSet</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"AACCGGTT"</span><span class='op'>)</span><span class='op'>)</span>, k <span class='op'>=</span> <span class='fl'>2</span>, n <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>    AA AC AG AT CA CC CG CT GA GC GG GT TA TC TG TT</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> AA  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> AC  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> AG  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> AT  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> CA  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> CC  0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> CG  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> CT  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> GA  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> GC  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> GG  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> GT  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> TA  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> TC  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> TG  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> TT  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0</span>
-<span class='r-in'></span>
-</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -200,7 +170,7 @@ only once per sequence.</p></td>
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, Charlotte Soneson, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
+  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, <a href="https://github.com/csoneson" class="external-link">Charlotte Soneson</a>, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
 </div>
 
 <div class="pkgdown">

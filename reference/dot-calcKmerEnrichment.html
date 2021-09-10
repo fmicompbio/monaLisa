@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>monaLisa - MOtif aNAlysis with Lisa. — monaLisa-package • monaLisa</title>
+<title>Calculate k-mer enrichment — .calcKmerEnrichment • monaLisa</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,19 @@
 
 
 
-<meta property="og:title" content="monaLisa - MOtif aNAlysis with Lisa. — monaLisa-package" />
-<meta property="og:description" content="monaLisa is a collection of tools that simplify motif enrichment
-analyses in genomic regions of interest." />
+<meta property="og:title" content="Calculate k-mer enrichment — .calcKmerEnrichment" />
+<meta property="og:description" content="Given sequences, foreground/background labels and
+  weights, calculate the enrichment of each k-mer
+  in foreground compared to background. This function is called by
+  calcBinnedKmerEnr() for each bin if background != &quot;model&quot;.
+The default type of test is &quot;fisher&quot;.
+  Alternatively, a binomial test can be used by test = &quot;binomial&quot;.
+  Using Fisher's exact test has the advantage that special cases such as
+  zero background counts are handled without ad-hoc adjustments to the
+  k-mer frequencies.
+For test = &quot;fisher&quot;, fisher.test is used with
+  alternative = &quot;greater&quot;, making it a one-sided test for enrichment,
+  as is the case with the binomial test." />
 
 
 
@@ -132,28 +142,72 @@ analyses in genomic regions of interest." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>monaLisa - MOtif aNAlysis with Lisa.</h1>
+    <h1>Calculate k-mer enrichment</h1>
     
-    <div class="hidden name"><code>monaLisa-package.Rd</code></div>
+    <div class="hidden name"><code>dot-calcKmerEnrichment.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p><span class="pkg">monaLisa</span> is a collection of tools that simplify motif enrichment
-analyses in genomic regions of interest.</p>
+    <p>Given sequences, foreground/background labels and
+  weights, calculate the enrichment of each k-mer
+  in foreground compared to background. This function is called by
+  <code><a href='calcBinnedKmerEnr.html'>calcBinnedKmerEnr()</a></code> for each bin if <code>background != "model"</code>.</p>
+<p>The default type of test is <code>"fisher"</code>.
+  Alternatively, a binomial test can be used by <code>test = "binomial"</code>.
+  Using Fisher's exact test has the advantage that special cases such as
+  zero background counts are handled without ad-hoc adjustments to the
+  k-mer frequencies.</p>
+<p>For <code>test = "fisher"</code>, <code>fisher.test</code> is used with
+  <code>alternative = "greater"</code>, making it a one-sided test for enrichment,
+  as is the case with the binomial test.</p>
     </div>
 
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>.calcKmerEnrichment</span><span class='op'>(</span><span class='va'>k</span>, <span class='va'>df</span>, test <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"fisher"</span>, <span class='st'>"binomial"</span><span class='op'>)</span>, verbose <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></code></pre></div>
 
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>k</th>
+      <td><p>Numeric scalar giving the length of k-mers to analyze.</p></td>
+    </tr>
+    <tr>
+      <th>df</th>
+      <td><p>a <code>DataFrame</code> with sequence information as returned by
+<code><a href='dot-iterativeNormForKmers.html'>.iterativeNormForKmers()</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>test</th>
+      <td><p>type of motif enrichment test to perform.</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>A logical scalar. If <code>TRUE</code>, report on progress.</p></td>
+    </tr>
+    </table>
+
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>A <code>data.frame</code> containing the motifs as rows and the columns:</p><ul>
+<li><p>motifName: the motif name</p></li>
+<li><p>logP: the log p-value for enrichment (natural logarithm).
+       If <code>test="binomial"</code> (default), this log p-value is identical to
+       the one returned by Homer.</p></li>
+<li><p>sumForegroundWgtWithHits: the weighted number of k-mer hits in
+       foreground sequences.</p></li>
+<li><p>sumBackgroundWgtWithHits: the weighted number of k-mer hits in
+       background sequences.</p></li>
+<li><p>totalWgtForeground: the total sum of weights of foreground
+       sequences.</p></li>
+<li><p>totalWgtBackground: the total sum of weights of background
+       sequences.</p></li>
+</ul>
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>She makes use of her father Homer (http://homer.ucsd.edu/homer/index.html)
-and other algorithms to search for motif hits and look for enriched motifs in
-sets of genomic regions, compared to all other regions.</p>
-<p>Known motifs can for example be obtained from a collection of transcription
-factor binding site specificities, such as <span class="pkg">JASPAR2020</span>.</p>
-    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
-
-    <p>Dania Machlab, Lukas Burger and Michael Stadler</p>
+    <p>The function works in ZOOPS mode, which means only one
+  or zero occurrences of a k-mer are considered per sequence. This is helpful
+  to reduce the impact of simple sequence repeats occurring in few sequences.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

@@ -82,7 +82,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.0</span>
       </span>
     </div>
 
@@ -102,7 +102,10 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/monaLisa.html">monaLisa</a>
+      <a href="../articles/monaLisa.html">Binned motif enrichment analysis</a>
+    </li>
+    <li>
+      <a href="../articles/selecting_motifs_with_randLassoStabSel.Rmd">Identifying motifs by stability selection</a>
     </li>
   </ul>
 </li>
@@ -150,7 +153,6 @@
   homerfile <span class='op'>=</span> <span class='fu'><a href='findHomer.html'>findHomer</a></span><span class='op'>(</span><span class='op'>)</span>,
   regionsize <span class='op'>=</span> <span class='st'>"given"</span>,
   pseudocount.log2enr <span class='op'>=</span> <span class='fl'>8</span>,
-  pseudocount.pearsonResid <span class='op'>=</span> <span class='fl'>0.001</span>,
   p.adjust.method <span class='op'>=</span> <span class='st'>"BH"</span>,
   Ncpu <span class='op'>=</span> <span class='fl'>2L</span>,
   verbose <span class='op'>=</span> <span class='cn'>FALSE</span>,
@@ -197,12 +199,6 @@ region, an integer value will keep only that many bases in the region center).</
 foreground and background counts when calculating log2 motif enrichments</p></td>
     </tr>
     <tr>
-      <th>pseudocount.pearsonResid</th>
-      <td><p>A numerical scalar with the pseudocount to add
-to foreground and background frequencies when calculating expected counts
-and Pearson residuals.</p></td>
-    </tr>
-    <tr>
       <th>p.adjust.method</th>
       <td><p>A character scalar selecting the p value adjustment
 method (used in <code><a href='https://rdrr.io/r/stats/p.adjust.html'>p.adjust</a></code>).</p></td>
@@ -225,17 +221,20 @@ output when running Homer.</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A <code>SummarizedExperiment</code> object with motifs in rows and bins
-  in columns, containing six assays:</p><ul>
+  in columns, containing seven assays:</p><ul>
 <li><p>negLog10P: -log10 P values</p></li>
 <li><p>negLog10Padj: -log10 adjusted P values</p></li>
 <li><p>pearsonResid: motif enrichments as Pearson residuals</p></li>
+<li><p>expForegroundWgtWithHits: expected number of foreground 
+    sequences with motif hits</p></li>
 <li><p>log2enr: motif enrichments as log2 ratios</p></li>
 <li><p>sumForegroundWgtWithHits: Sum of foreground sequence weights
     in a bin that have motif hits</p></li>
 <li><p>sumBackgroundWgtWithHits: Sum of background sequence weights
     in a bin that have motif hits</p></li>
-</ul>
-
+</ul><p>The <code>rowData</code> of the object contains annotations (name, PFMs, PWMs 
+and GC fraction) for the motifs, while the <code>colData</code> slot contains 
+summary information about the bins.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>The functions that are wrapped: <code><a href='prepareHomer.html'>prepareHomer</a></code>,
@@ -253,7 +252,7 @@ output when running Homer.</p></td>
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, Charlotte Soneson, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
+  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, <a href="https://github.com/csoneson" class="external-link">Charlotte Soneson</a>, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
 </div>
 
 <div class="pkgdown">

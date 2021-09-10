@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Filter Sequences — .filterSeqs • monaLisa</title>
+<title>Plot diagnostics of binned sequences — plotBinDiagnostics • monaLisa</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,20 @@
 
 
 
-<meta property="og:title" content="Filter Sequences — .filterSeqs" />
-<meta property="og:description" content="Filter sequences that are unlikely to be useful for motif
-  enrichment analysis. The current defaults are based on HOMER (version 4.11)." />
+<meta property="og:title" content="Plot diagnostics of binned sequences — plotBinDiagnostics" />
+<meta property="og:description" content="Plot various diagnostics of binned sequences. Three plot types are 
+available:
+length plots the distribution of sequence lengths within 
+  each bin.
+GCfrac plots the distribution of GC fractions within each 
+  bin.
+dinucfreq plots a heatmap of the relative frequency of each 
+  dinucleotide, averaged across the sequences within each bin. The values 
+  are centered for each dinucleotide to better highlight differences 
+  between the bins. The average relative frequency of each dinucleotide 
+  (across the bins) is indicated as well.
+
+" />
 
 
 
@@ -132,22 +143,32 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Filter Sequences</h1>
+    <h1>Plot diagnostics of binned sequences</h1>
     
-    <div class="hidden name"><code>dot-filterSeqs.Rd</code></div>
+    <div class="hidden name"><code>plotBinDiagnostics.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Filter sequences that are unlikely to be useful for motif
-  enrichment analysis. The current defaults are based on HOMER (version 4.11).</p>
+    <p>Plot various diagnostics of binned sequences. Three plot types are 
+available:</p><ul>
+<li><p><code>length</code> plots the distribution of sequence lengths within 
+  each bin.</p></li>
+<li><p><code>GCfrac</code> plots the distribution of GC fractions within each 
+  bin.</p></li>
+<li><p><code>dinucfreq</code> plots a heatmap of the relative frequency of each 
+  dinucleotide, averaged across the sequences within each bin. The values 
+  are centered for each dinucleotide to better highlight differences 
+  between the bins. The average relative frequency of each dinucleotide 
+  (across the bins) is indicated as well.</p></li>
+</ul>
+
     </div>
 
-    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>.filterSeqs</span><span class='op'>(</span>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>plotBinDiagnostics</span><span class='op'>(</span>
   <span class='va'>seqs</span>,
-  maxFracN <span class='op'>=</span> <span class='fl'>0.7</span>,
-  minLength <span class='op'>=</span> <span class='fl'>5L</span>,
-  maxLength <span class='op'>=</span> <span class='fl'>100000L</span>,
-  verbose <span class='op'>=</span> <span class='cn'>FALSE</span>
+  <span class='va'>bins</span>,
+  aspect <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"length"</span>, <span class='st'>"GCfrac"</span>, <span class='st'>"dinucfreq"</span><span class='op'>)</span>,
+  <span class='va'>...</span>
 <span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -155,37 +176,42 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>seqs</th>
-      <td><p>a <code>DNAStringSet</code> object.</p></td>
+      <td><p>DNAStringSet object with sequences.</p></td>
     </tr>
     <tr>
-      <th>maxFracN</th>
-      <td><p>A numeric scalar with the maximal fraction of N bases allowed
-in a sequence (defaults to 0.7).</p></td>
+      <th>bins</th>
+      <td><p>factor of the same length and order as seqs, indicating the bin 
+for each sequence. Typically the return value of <code>bin</code>.</p></td>
     </tr>
     <tr>
-      <th>minLength</th>
-      <td><p>The minimum sequence length (default from Homer).
-Sequences shorter than this will be filtered out.</p></td>
+      <th>aspect</th>
+      <td><p>The diagnostic to plot. Should be one of <code>"length"</code>, 
+<code>"GCfrac"</code> and <code>"dinucfreq"</code>, to plot the distribution of 
+sequence lengths, the distribution of GC fractions and the average 
+relative dinucleotide frequencies across the bins.</p></td>
     </tr>
     <tr>
-      <th>maxLength</th>
-      <td><p>The maximum sequence length (default from Homer).
-Sequences bigger than this will be filtered out.</p></td>
-    </tr>
-    <tr>
-      <th>verbose</th>
-      <td><p>A logical scalar. If <code>TRUE</code>, report on filtering.</p></td>
+      <th>...</th>
+      <td><p>Additional argument passed to <code>getColsByBin</code>.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a logical vector of the same length as <code>seqs</code> with <code>TRUE</code>
-  indicated to keep the sequence and <code>FALSE</code> to filter it out.</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+    <p>Does not return anything, but generates a plot.</p>
 
-    <p>The filtering logic is based on <code>removePoorSeq.pl</code> from Homer.</p>
-
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='va'>seqs</span> <span class='op'>&lt;-</span> <span class='fu'>Biostrings</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html'>DNAStringSet</a></span><span class='op'>(</span></span>
+<span class='r-in'>  <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>vapply</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>100</span>, <span class='kw'>function</span><span class='op'>(</span><span class='va'>i</span><span class='op'>)</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"A"</span>, <span class='st'>"C"</span>, <span class='st'>"G"</span>, <span class='st'>"T"</span><span class='op'>)</span>, <span class='fl'>10</span>, </span>
+<span class='r-in'>                                         replace <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>, collapse <span class='op'>=</span> <span class='st'>""</span><span class='op'>)</span>, <span class='st'>""</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>bins</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span>, each <span class='op'>=</span> <span class='fl'>50</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'>plotBinDiagnostics</span><span class='op'>(</span><span class='va'>seqs</span>, <span class='va'>bins</span>, aspect <span class='op'>=</span> <span class='st'>"GCfrac"</span><span class='op'>)</span></span>
+<span class='r-plt'><img src='plotBinDiagnostics-1.png' alt='' width='700' height='433' /></span>
+<span class='r-in'><span class='fu'>plotBinDiagnostics</span><span class='op'>(</span><span class='va'>seqs</span>, <span class='va'>bins</span>, aspect <span class='op'>=</span> <span class='st'>"dinucfreq"</span><span class='op'>)</span></span>
+<span class='r-plt'><img src='plotBinDiagnostics-2.png' alt='' width='700' height='433' /></span>
+<span class='r-in'></span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

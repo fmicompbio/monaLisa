@@ -10,6 +10,9 @@
     <loc>https://fmicompbio.github.io/monaLisa/articles/monaLisa.html</loc>
   </url>
   <url>
+    <loc>https://fmicompbio.github.io/monaLisa/articles/selecting_motifs_with_randLassoStabSel.html</loc>
+  </url>
+  <url>
     <loc>https://fmicompbio.github.io/monaLisa/authors.html</loc>
   </url>
   <url>
@@ -28,22 +31,13 @@
     <loc>https://fmicompbio.github.io/monaLisa/reference/calcBinnedKmerEnr.html</loc>
   </url>
   <url>
-    <loc>https://fmicompbio.github.io/monaLisa/reference/calcBinnedMotifEnr.html</loc>
-  </url>
-  <url>
     <loc>https://fmicompbio.github.io/monaLisa/reference/calcBinnedMotifEnrHomer.html</loc>
   </url>
   <url>
     <loc>https://fmicompbio.github.io/monaLisa/reference/calcBinnedMotifEnrR.html</loc>
   </url>
   <url>
-    <loc>https://fmicompbio.github.io/monaLisa/reference/clusterKmers.html</loc>
-  </url>
-  <url>
-    <loc>https://fmicompbio.github.io/monaLisa/reference/convertKmersToMotifs.html</loc>
-  </url>
-  <url>
-    <loc>https://fmicompbio.github.io/monaLisa/reference/countKmerPairs.html</loc>
+    <loc>https://fmicompbio.github.io/monaLisa/reference/dot-calcKmerEnrichment.html</loc>
   </url>
   <url>
     <loc>https://fmicompbio.github.io/monaLisa/reference/dot-calcMotifEnrichment.html</loc>
@@ -53,6 +47,12 @@
   </url>
   <url>
     <loc>https://fmicompbio.github.io/monaLisa/reference/dot-checkDfValidity.html</loc>
+  </url>
+  <url>
+    <loc>https://fmicompbio.github.io/monaLisa/reference/dot-checkIfSeqsAreEqualLength.html</loc>
+  </url>
+  <url>
+    <loc>https://fmicompbio.github.io/monaLisa/reference/dot-cons2matrix.html</loc>
   </url>
   <url>
     <loc>https://fmicompbio.github.io/monaLisa/reference/dot-defineBackground.html</loc>
@@ -71,9 +71,6 @@
   </url>
   <url>
     <loc>https://fmicompbio.github.io/monaLisa/reference/dumpJaspar.html</loc>
-  </url>
-  <url>
-    <loc>https://fmicompbio.github.io/monaLisa/reference/extractOverlappingKmerFrequecies.html</loc>
   </url>
   <url>
     <loc>https://fmicompbio.github.io/monaLisa/reference/findHomer.html</loc>
@@ -110,6 +107,9 @@
   </url>
   <url>
     <loc>https://fmicompbio.github.io/monaLisa/reference/plotBinDensity.html</loc>
+  </url>
+  <url>
+    <loc>https://fmicompbio.github.io/monaLisa/reference/plotBinDiagnostics.html</loc>
   </url>
   <url>
     <loc>https://fmicompbio.github.io/monaLisa/reference/plotBinHist.html</loc>

@@ -82,7 +82,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.0</span>
       </span>
     </div>
 
@@ -102,7 +102,10 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/monaLisa.html">monaLisa</a>
+      <a href="../articles/monaLisa.html">Binned motif enrichment analysis</a>
+    </li>
+    <li>
+      <a href="../articles/selecting_motifs_with_randLassoStabSel.Rmd">Identifying motifs by stability selection</a>
     </li>
   </ul>
 </li>
@@ -145,10 +148,11 @@
   <span class='va'>seqs</span>,
   kmerLen <span class='op'>=</span> <span class='fl'>5</span>,
   MMorder <span class='op'>=</span> <span class='fl'>1</span>,
-  pseudoCount <span class='op'>=</span> <span class='fl'>1</span>,
+  pseudocount <span class='op'>=</span> <span class='fl'>1</span>,
   zoops <span class='op'>=</span> <span class='cn'>TRUE</span>,
   strata <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fl'>1L</span>, <span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span><span class='op'>(</span><span class='va'>seqs</span><span class='op'>)</span><span class='op'>)</span>,
-  p.adjust.method <span class='op'>=</span> <span class='st'>"BH"</span>
+  p.adjust.method <span class='op'>=</span> <span class='st'>"BH"</span>,
+  includeRevComp <span class='op'>=</span> <span class='cn'>TRUE</span>
 <span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -169,7 +173,7 @@
 used to calculate the expected frequencies.</p></td>
     </tr>
     <tr>
-      <th>pseudoCount</th>
+      <th>pseudocount</th>
       <td><p>A <code>numeric</code> scalar - will be added to the observed
 counts for each k-mer to avoid zero values.</p></td>
     </tr>
@@ -192,6 +196,18 @@ observed-over-expected counts using <code>kmeans(CpGoe, centers = strata)</code>
       <td><p>A character scalar selecting the p value adjustment
 method (used in <code><a href='https://rdrr.io/r/stats/p.adjust.html'>p.adjust</a></code>).</p></td>
     </tr>
+    <tr>
+      <th>includeRevComp</th>
+      <td><p>A <code>logical</code> scalar. If <code>TRUE</code> (default),
+count k-mer occurrences in both <code>seqs</code> and their reverse-complement,
+by concatenating <code>seqs</code> and their reverse-complemented versions
+before the counting. This is useful if motifs can be expected to occur
+on any strand (e.g. DNA sequences of ChIP-seq peaks). If motifs are only
+expected on the forward strand (e.g. RNA sequences of CLIP-seq peaks),
+<code>includeRevComp = FALSE</code> should be used. Note that if <code>strata</code>
+is a vector of the same length as <code>seqs</code>, each reverse-complemented
+sequence will be assigned to the same stratum as the forward sequence.</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -206,10 +222,10 @@ method (used in <code><a href='https://rdrr.io/r/stats/p.adjust.html'>p.adjust</
 <span class='r-out co'><span class='r-pr'>#&gt;</span>  [6] "p"           "padj"        "strata"      "freq.strata" "CpGoe"      </span>
 <span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>res</span><span class='op'>$</span><span class='va'>freq.obs</span><span class='op'>)</span></span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> AAA AAC AAG AAT ACA ACC </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>   2   0   0   2   0   0 </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   3   0   0   4   0   0 </span>
 <span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>res</span><span class='op'>$</span><span class='va'>freq.exp</span><span class='op'>)</span></span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>       AAA       AAC       AAG       AAT       ACA       ACC </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> 0.7329060 0.1047009 0.1047009 0.5235043 0.1944444 0.1944444 </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 1.8295455 0.1663223 0.1663223 1.4969008 0.3326446 0.3326446 </span>
 <span class='r-in'></span>
 </code></pre></div>
   </div>
@@ -223,7 +239,7 @@ method (used in <code><a href='https://rdrr.io/r/stats/p.adjust.html'>p.adjust</
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, Charlotte Soneson, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
+  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, <a href="https://github.com/csoneson" class="external-link">Charlotte Soneson</a>, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
 </div>
 
 <div class="pkgdown">

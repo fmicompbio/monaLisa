@@ -82,7 +82,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.0</span>
       </span>
     </div>
 
@@ -102,7 +102,10 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/monaLisa.html">monaLisa</a>
+      <a href="../articles/monaLisa.html">Binned motif enrichment analysis</a>
+    </li>
+    <li>
+      <a href="../articles/selecting_motifs_with_randLassoStabSel.Rmd">Identifying motifs by stability selection</a>
     </li>
   </ul>
 </li>
@@ -142,15 +145,22 @@
     </div>
 
     <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>calcBinnedKmerEnr</span><span class='op'>(</span>
-  <span class='va'>x</span>,
-  <span class='va'>b</span>,
-  genomepkg <span class='op'>=</span> <span class='cn'>NULL</span>,
+  <span class='va'>seqs</span>,
+  bins <span class='op'>=</span> <span class='cn'>NULL</span>,
   kmerLen <span class='op'>=</span> <span class='fl'>5</span>,
-  background <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"other"</span>, <span class='st'>"model"</span><span class='op'>)</span>,
+  background <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"otherBins"</span>, <span class='st'>"allBins"</span>, <span class='st'>"zeroBin"</span>, <span class='st'>"genome"</span>, <span class='st'>"model"</span><span class='op'>)</span>,
   MMorder <span class='op'>=</span> <span class='fl'>1</span>,
-  zoops <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  test <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"fisher"</span>, <span class='st'>"binomial"</span><span class='op'>)</span>,
+  includeRevComp <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  maxFracN <span class='op'>=</span> <span class='fl'>0.7</span>,
+  maxKmerSize <span class='op'>=</span> <span class='fl'>3L</span>,
+  GCbreaks <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.2</span>, <span class='fl'>0.25</span>, <span class='fl'>0.3</span>, <span class='fl'>0.35</span>, <span class='fl'>0.4</span>, <span class='fl'>0.45</span>, <span class='fl'>0.5</span>, <span class='fl'>0.6</span>, <span class='fl'>0.7</span>, <span class='fl'>0.8</span><span class='op'>)</span>,
+  pseudocount.kmers <span class='op'>=</span> <span class='fl'>1</span>,
+  pseudocount.log2enr <span class='op'>=</span> <span class='fl'>8</span>,
   p.adjust.method <span class='op'>=</span> <span class='st'>"BH"</span>,
-  pseudoCount <span class='op'>=</span> <span class='fl'>1</span>,
+  genome <span class='op'>=</span> <span class='cn'>NULL</span>,
+  genome.regions <span class='op'>=</span> <span class='cn'>NULL</span>,
+  genome.oversample <span class='op'>=</span> <span class='fl'>2</span>,
   BPPARAM <span class='op'>=</span> <span class='fu'>SerialParam</span><span class='op'>(</span><span class='op'>)</span>,
   verbose <span class='op'>=</span> <span class='cn'>FALSE</span>
 <span class='op'>)</span></code></pre></div>
@@ -159,22 +169,15 @@
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
-      <td><p>A <code>character</code> vector, <code><a href='https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html'>DNAStringSet</a></code> or
-a <code><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></code> object with the sequences to
-analyze.</p></td>
+      <th>seqs</th>
+      <td><p><code><a href='https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html'>DNAStringSet</a></code> object with sequences to test</p></td>
     </tr>
     <tr>
-      <th>b</th>
-      <td><p>A vector of the same length as <code>x</code> that groups its elements
-into bins (typically a factor, such as the one returned by
-<code><a href='bin.html'>bin</a></code>).</p></td>
-    </tr>
-    <tr>
-      <th>genomepkg</th>
-      <td><p>Only used if <code>x</code> is a <code>GRanges</code> object: A
-<code>character</code> scalar with the name of a <code>BSgenome</code> package from
-which to extract the sequences.</p></td>
+      <th>bins</th>
+      <td><p>factor of the same length and order as <code>seqs</code>, indicating
+the bin for each sequence. Typically the return value of
+<code><a href='bin.html'>bin</a></code>. For <code>background = "genome"</code> or
+<code>background = "model"</code>, <code>bins</code> can be omitted.</p></td>
     </tr>
     <tr>
       <th>kmerLen</th>
@@ -182,10 +185,9 @@ which to extract the sequences.</p></td>
     </tr>
     <tr>
       <th>background</th>
-      <td><p>A <code>character</code> scalar. If <code>"other"</code> (the default),
-the enrichments in a bin are calculated compared to the sequences in all
-other bins. If <code>"model"</code>, the enrichments are relative to the expected
-frequencies obtained from a Markov model of order <code>MMorder</code>.</p></td>
+      <td><p>A <code>character</code> scalar specifying the background sequences
+to use. One of <code>"otherBins"</code> (default), <code>"allBins"</code>, <code>"zeroBin"</code>,
+<code>"genome"</code> or <code>"model"</code> (see "Details").</p></td>
     </tr>
     <tr>
       <th>MMorder</th>
@@ -193,10 +195,51 @@ frequencies obtained from a Markov model of order <code>MMorder</code>.</p></td>
 used to calculate the expected frequencies for <code>background = "model"</code>.</p></td>
     </tr>
     <tr>
-      <th>zoops</th>
-      <td><p>A <code>logical</code> scalar. If <code>TRUE</code> (the default), only one
-or zero occurences of a k-mer are considered per sequence. This is helpful
-to reduce the impact of simple sequence repeats occurring in few sequences.</p></td>
+      <th>test</th>
+      <td><p>A <code>character</code> scalar specifying the type of enrichment test
+to perform. One of <code>"fisher"</code> (default) or <code>"binomial"</code>. The
+enrichment test is one-sided (enriched in foreground).</p></td>
+    </tr>
+    <tr>
+      <th>includeRevComp</th>
+      <td><p>A <code>logical</code> scalar. If <code>TRUE</code> (default),
+count k-mer occurrences in both <code>seqs</code> and their reverse-complement,
+by concatenating <code>seqs</code> and their reverse-complemented versions
+before the counting. This is useful if motifs can be expected to occur
+on any strand (e.g. DNA sequences of ChIP-seq peaks). If motifs are only
+expected on the forward strand (e.g. RNA sequences of CLIP-seq peaks),
+<code>includeRevComp = FALSE</code> should be used. Note that <code>bins</code>
+will be recycled for the reverse complemented sequences, which means that
+each reverse-complemented sequence will be assigned to the same bib as the
+corresponding forward sequence.</p></td>
+    </tr>
+    <tr>
+      <th>maxFracN</th>
+      <td><p>A numeric scalar with the maximal fraction of N bases allowed
+in a sequence (defaults to 0.7). Sequences with higher fractions are
+excluded from the analysis.</p></td>
+    </tr>
+    <tr>
+      <th>maxKmerSize</th>
+      <td><p>the maximum k-mer size to consider, when adjusting
+background sequence weights for k-mer composition compared to the
+foreground sequences. The default value (3) will correct for mono-, di-
+and tri-mer composition.</p></td>
+    </tr>
+    <tr>
+      <th>GCbreaks</th>
+      <td><p>The breaks between GC bins. The default value is based on
+the hard-coded bins used in Homer.</p></td>
+    </tr>
+    <tr>
+      <th>pseudocount.kmers</th>
+      <td><p>A <code>numeric</code> scalar - will be added to the
+observed and expected counts for each k-mer to avoid zero values.</p></td>
+    </tr>
+    <tr>
+      <th>pseudocount.log2enr</th>
+      <td><p>A numerical scalar with the pseudocount to add to
+foreground and background counts when calculating log2 motif enrichments</p></td>
     </tr>
     <tr>
       <th>p.adjust.method</th>
@@ -204,9 +247,25 @@ to reduce the impact of simple sequence repeats occurring in few sequences.</p><
 method (used in <code><a href='https://rdrr.io/r/stats/p.adjust.html'>p.adjust</a></code>).</p></td>
     </tr>
     <tr>
-      <th>pseudoCount</th>
-      <td><p>A <code>numeric</code> scalar - will be added to the observed
-counts for each k-mer to avoid zero values.</p></td>
+      <th>genome</th>
+      <td><p>A <code>BSgenome</code> or <code>DNAStringSet</code> object with the
+genome sequence. Only used for <code>background = "genome"</code> for extracting
+background sequences.</p></td>
+    </tr>
+    <tr>
+      <th>genome.regions</th>
+      <td><p>An optional <code><a href='https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html'>GRanges</a></code> object
+defining the intervals in <code>genome</code> from which background sequences are
+sampled for <code>background = "genome"</code>. If <code>NULL</code>, background
+sequences are sampled randomly from <code>genome</code>.</p></td>
+    </tr>
+    <tr>
+      <th>genome.oversample</th>
+      <td><p>A <code>numeric</code> scalar of at least 1.0 defining how
+many background sequences will be sampled per foreground sequence for
+<code>background = "genome"</code>. Larger values will take longer but improve
+the sequence composition similarity between foreground and background
+(see <code>"Details"</code>).</p></td>
     </tr>
     <tr>
       <th>BPPARAM</th>
@@ -221,16 +280,76 @@ instance determining the parallel back-end to be used during evaluation.</p></td
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A <code><a href='https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html'>SummarizedExperiment</a></code> object with
-  k-mers in rows and bins in columns, containing four assays:</p><ul>
+    <p>A <code><a href='https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html'>SummarizedExperiment</a></code> object
+  with motifs in rows and bins in columns, containing seven assays:</p><ul>
 <li><p>negLog10P: -log10 P values</p></li>
 <li><p>negLog10Padj: -log10 adjusted P values</p></li>
-<li><p>pearsonResid: motif enrichments as Pearson residuals</p></li>
-<li><p>log2enr: motif enrichments as log2 ratios</p></li>
-</ul><p>.
-rowData(x) contains information about the k-mers, colData(x) contains
-information about the bins, and metaData(x) contains meta data on the object
-and how it was generated (e.g. parameter values).</p>
+<li><p>pearsonResid: k-mer enrichments as Pearson residuals</p></li>
+<li><p>expForegroundWgtWithHits: expected number of foreground 
+    sequences with motif hits</p></li>
+<li><p>log2enr: k-mer enrichments as log2 ratios</p></li>
+<li><p>sumForegroundWgtWithHits: Sum of foreground sequence weights
+    in a bin that have k-mer occurrences</p></li>
+<li><p>sumBackgroundWgtWithHits: Sum of background sequence weights
+    in a bin that have k-mer occurrences</p></li>
+</ul><p>#' The <code>rowData</code> of the object contains annotations (name, PFMs, PWMs 
+and GC fraction) for the k-mers, while the <code>colData</code> slot contains 
+summary information about the bins.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>This function implements a binned k-mer enrichment analysis. In each
+  enrichment analysis, the sequences in a specific bin are used as foreground
+  sequences to test for k-mer enrichments comparing to background sequences
+  (defined by <code>background</code>, see below), similarly as in done for motifs
+  in <code><a href='calcBinnedMotifEnrR.html'>calcBinnedMotifEnrR</a></code>. Sequences are weighted to correct for
+  GC and shorter k-mer composition differences between fore- and background
+  sets.</p>  
+<p>The background sequences are defined according to the value of the
+  <code>background</code> argument:</p><ul>
+<li><p>otherBins: sequences from all other bins (excluding the current bin)</p></li>
+<li><p>allBins: sequences from all bins (including the current bin)</p></li>
+<li><p>zeroBin: sequences from the "zero bin", defined by the
+      <code>maxAbsX</code> argument of <code><a href='bin.html'>bin</a></code>. If <code>bins</code>
+      does not define a "zero bin", for example because it was created by
+      <code>bin(..., maxAbsX = NULL)</code>, selecting this background definition
+      will abort with an error.</p></li>
+<li><p>genome: sequences randomly sampled from the genome (or the
+      intervals defined in <code>genome.regions</code> if given). For each
+      foreground sequence, <code>genome.oversample</code> background sequences
+      of the same size are sampled (on average). From these, one per
+      foreground sequence is selected trying to match the G+C composition.
+      In order to make the sampling deterministic, the random number
+      generator has to be seeded using <code>set.seed</code> before calling 
+      this function.</p></li>
+<li><p>model: a Markov model of the order <code>MMorder</code> is estimated
+      from the foreground sequences and used to estimate expected k-mer
+      frequencies. K-mer enrichments are then calculated comparing observed
+      to these expected frequencies.</p></li>
+</ul>
+
+<p>For each k-mer, the weights of sequences is multiplied with the number
+  of k-mer occurrences in each sequence and summed, separately for foreground
+  (<code>sumForegroundWgtWithHits</code>) and background
+  (<code>sumBackgroundWgtWithHits</code>) sequences. The function works in ZOOPS
+  (Zero-Or-One-Per-Sequence) mode, so at most one occurrence per
+  sequence is counted, which helps reduce the impact of sequence repeats.
+  The total foreground (<code>totalWgtForeground</code>) and background
+  (<code>totalWgtBackground</code>) sum of sequence weights is also calculated. If
+  a k-mer has zero <code>sumForegroundWgtWithHits</code> and
+  <code>sumBackgroundWgtWithHits</code>, then any values (p-values and enrichment)
+  that are calculated using these two numbers are set to NA.</p>
+<p>Two statistical tests for the calculation of enrichment log p-value are
+  available: <code>test = "fisher"</code> (default) to perform Fisher's exact
+  tests, or <code>test = "binomial"</code> to perform binomial tests, using:</p><ul>
+<li><p>fisher: <code>fisher.test(x = tab, alternative =
+      "greater")</code>, where <code>tab</code> is the contingency table with the summed
+      weights of sequences in foreground or background sets (rows), and with
+      or without a occurrences of a particular k-mer (columns).</p></li>
+<li><p>binomial: <code>pbinom(q = sumForegroundWgtWithHits - 1, size =
+      totalWgtForeground, prob = sumBackgroundWgtWithHits / totalWgtBackground,
+      lower.tail = FALSE, log.p = TRUE)</code></p></li>
+</ul>
+
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='getKmerFreq.html'>getKmerFreq</a></code> used to calculate k-mer enrichments;
@@ -240,17 +359,20 @@ and how it was generated (e.g. parameter values).</p>
   <code><a href='bin.html'>bin</a></code> for binning of regions</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='va'>seqs</span> <span class='op'>&lt;-</span> <span class='fu'>Biostrings</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html'>DNAStringSet</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"GCATGCATGC"</span>, <span class='st'>"CTAGCTAGCTG"</span><span class='op'>)</span><span class='op'>)</span></span>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='va'>seqs</span> <span class='op'>&lt;-</span> <span class='fu'>Biostrings</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html'>DNAStringSet</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"GCATGCATGC"</span>, <span class='st'>"CATGCGCATG"</span><span class='op'>)</span><span class='op'>)</span></span>
 <span class='r-in'><span class='va'>bins</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>2</span><span class='op'>)</span></span>
-<span class='r-in'><span class='fu'>calcBinnedKmerEnr</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>seqs</span>, b <span class='op'>=</span> <span class='va'>bins</span>, kmerLen <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'>calcBinnedKmerEnr</span><span class='op'>(</span>seqs <span class='op'>=</span> <span class='va'>seqs</span>, bins <span class='op'>=</span> <span class='va'>bins</span>, kmerLen <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span></span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> class: SummarizedExperiment </span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> dim: 64 2 </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> metadata(6): bins bins.binmode ... param motif.distances</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> assays(4): negLog10P negLog10Padj pearsonResid log2enr</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> metadata(5): bins bins.binmode bins.breaks bins.bin0 param</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> assays(7): negLog10P negLog10Padj ... sumForegroundWgtWithHits</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   sumBackgroundWgtWithHits</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> rownames(64): AAA AAC ... TTG TTT</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> rowData names(3): motif.name motif.pfm motif.percentGC</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> rowData names(5): motif.id motif.name motif.pfm motif.pwm</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   motif.percentGC</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> colnames(2): 1 2</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> colData names(4): bin.names bin.lower bin.upper bin.nochange</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> colData names(6): bin.names bin.lower ... totalWgtForeground</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   totalWgtBackground</span>
 <span class='r-in'></span>
 </code></pre></div>
   </div>
@@ -264,7 +386,7 @@ and how it was generated (e.g. parameter values).</p>
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, Charlotte Soneson, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
+  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, <a href="https://github.com/csoneson" class="external-link">Charlotte Soneson</a>, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
 </div>
 
 <div class="pkgdown">

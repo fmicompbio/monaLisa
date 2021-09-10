@@ -82,7 +82,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.0</span>
       </span>
     </div>
 
@@ -102,7 +102,10 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/monaLisa.html">monaLisa</a>
+      <a href="../articles/monaLisa.html">Binned motif enrichment analysis</a>
+    </li>
+    <li>
+      <a href="../articles/selecting_motifs_with_randLassoStabSel.Rmd">Identifying motifs by stability selection</a>
     </li>
   </ul>
 </li>
@@ -152,9 +155,7 @@
   min.score <span class='op'>=</span> <span class='fl'>10</span>,
   matchMethod <span class='op'>=</span> <span class='st'>"matchPWM"</span>,
   GCbreaks <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.2</span>, <span class='fl'>0.25</span>, <span class='fl'>0.3</span>, <span class='fl'>0.35</span>, <span class='fl'>0.4</span>, <span class='fl'>0.45</span>, <span class='fl'>0.5</span>, <span class='fl'>0.6</span>, <span class='fl'>0.7</span>, <span class='fl'>0.8</span><span class='op'>)</span>,
-  normalizeByLength <span class='op'>=</span> <span class='cn'>TRUE</span>,
   pseudocount.log2enr <span class='op'>=</span> <span class='fl'>8</span>,
-  pseudocount.pearsonResid <span class='op'>=</span> <span class='fl'>0.001</span>,
   p.adjust.method <span class='op'>=</span> <span class='st'>"BH"</span>,
   genome <span class='op'>=</span> <span class='cn'>NULL</span>,
   genome.regions <span class='op'>=</span> <span class='cn'>NULL</span>,
@@ -169,7 +170,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>seqs</th>
-      <td><p>DNAStringSet object with sequences to test</p></td>
+      <td><p><code><a href='https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html'>DNAStringSet</a></code> object with sequences to test</p></td>
     </tr>
     <tr>
       <th>bins</th>
@@ -223,21 +224,9 @@ and tri-mer composition.</p></td>
 the hard-coded bins used in Homer.</p></td>
     </tr>
     <tr>
-      <th>normalizeByLength</th>
-      <td><p>A logical scalar. If <code>TRUE</code>, account for 
-sequence length differences between foreground and background sequences
-(see Details).</p></td>
-    </tr>
-    <tr>
       <th>pseudocount.log2enr</th>
       <td><p>A numerical scalar with the pseudocount to add to
 foreground and background counts when calculating log2 motif enrichments</p></td>
-    </tr>
-    <tr>
-      <th>pseudocount.pearsonResid</th>
-      <td><p>A numerical scalar with the pseudocount to add
-to foreground and background frequencies when calculating expected counts
-and Pearson residuals.</p></td>
     </tr>
     <tr>
       <th>p.adjust.method</th>
@@ -282,31 +271,32 @@ instance determining the parallel back-end to be used during evaluation.</p></td
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A <code>SummarizedExperiment</code> object with motifs in rows and bins
-  in columns, containing six assays:</p><ul>
+    <p>A <code><a href='https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html'>SummarizedExperiment</a></code> object
+  with motifs in rows and bins in columns, containing seven assays:</p><ul>
 <li><p>negLog10P: -log10 P values</p></li>
 <li><p>negLog10Padj: -log10 adjusted P values</p></li>
 <li><p>pearsonResid: motif enrichments as Pearson residuals</p></li>
+<li><p>expForegroundWgtWithHits: expected number of foreground 
+    sequences with motif hits</p></li>
 <li><p>log2enr: motif enrichments as log2 ratios</p></li>
 <li><p>sumForegroundWgtWithHits: Sum of foreground sequence weights
     in a bin that have motif hits</p></li>
 <li><p>sumBackgroundWgtWithHits: Sum of background sequence weights
     in a bin that have motif hits</p></li>
-</ul>
-
+</ul><p>The <code>rowData</code> of the object contains annotations (name, PFMs, PWMs 
+and GC fraction) for the motifs, while the <code>colData</code> slot contains 
+summary information about the bins.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This function implements a binned motif enrichment analysis. In each
   enrichment analysis, the sequences in a specific bin are used as foreground
-  sequences to test for motif enrichment comparing to background sequences
+  sequences to test for motif enrichments comparing to background sequences
   (defined by <code>background</code>, see below). The logic follows the
   <code>findMotifsGenome.pl</code> tool from <code>Homer</code> version 4.11, with
   <code>-size given -nomotif -mknown</code> and additionally <code>-h</code> if using 
-  <code>test = "fisher"</code>, and gives very similar results when 
-  <code>normalizeByLength = FALSE</code>. As in the <code>Homer</code> tool, sequences 
-  are weighted to correct for GC and k-mer composition differences between 
-  fore- and background sets. With <code>normalizeByLength = TRUE</code>, the sequence
-  weights are additionally corrected for length differences.</p>  
+  <code>test = "fisher"</code>, and gives very similar results. As in the <code>Homer</code> 
+  tool, sequences are weighted to correct for GC and k-mer composition differences 
+  between fore- and background sets.</p>  
 <p>The background sequences are defined according to the value of the
   <code>background</code> argument:</p><ul>
 <li><p>otherBins: sequences from all other bins (excluding the current bin)</p></li>
@@ -333,7 +323,7 @@ instance determining the parallel back-end to be used during evaluation.</p></td
   (<code>sumBackgroundWgtWithHits</code>). The total foreground 
   (<code>totalWgtForeground</code>) and background (<code>totalWgtBackground</code>)
   sum of sequence weights is also calculated. If a motif has zero 
-  (<code>sumForegroundWgtWithHits</code>) and (<code>sumBackgroundWgtWithHits</code>), 
+  <code>sumForegroundWgtWithHits</code> and <code>sumBackgroundWgtWithHits</code>,
   then any values (p-values and enrichment) that are calculated using 
   these two numbers are set to NA.</p>
 <p>Two statistical tests for the calculation of enrichment log p-value are
@@ -367,7 +357,7 @@ instance determining the parallel back-end to be used during evaluation.</p></td
 <span class='r-out co'><span class='r-pr'>#&gt;</span> class: SummarizedExperiment </span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> dim: 2 2 </span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> metadata(5): bins bins.binmode bins.breaks bins.bin0 param</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> assays(6): negLog10P negLog10Padj ... sumForegroundWgtWithHits</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> assays(7): negLog10P negLog10Padj ... sumForegroundWgtWithHits</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span>   sumBackgroundWgtWithHits</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> rownames(2): m1 m2</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> rowData names(5): motif.id motif.name motif.pfm motif.pwm</span>
@@ -388,7 +378,7 @@ instance determining the parallel back-end to be used during evaluation.</p></td
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, Charlotte Soneson, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
+  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, <a href="https://github.com/csoneson" class="external-link">Charlotte Soneson</a>, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
 </div>
 
 <div class="pkgdown">

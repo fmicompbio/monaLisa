@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.0</span>
       </span>
     </div>
 
@@ -100,7 +100,10 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/monaLisa.html">monaLisa</a>
+      <a href="../articles/monaLisa.html">Binned motif enrichment analysis</a>
+    </li>
+    <li>
+      <a href="../articles/selecting_motifs_with_randLassoStabSel.Rmd">Identifying motifs by stability selection</a>
     </li>
   </ul>
 </li>
@@ -137,12 +140,7 @@
     <p>Parse HOMER output files into R data structures.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>parseHomerOutput</span><span class='op'>(</span>
-  <span class='va'>infiles</span>,
-  pseudocount.log2enr <span class='op'>=</span> <span class='fl'>8</span>,
-  pseudocount.pearsonResid <span class='op'>=</span> <span class='fl'>0.001</span>,
-  p.adjust.method <span class='op'>=</span> <span class='st'>"BH"</span>
-<span class='op'>)</span></code></pre></div>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>parseHomerOutput</span><span class='op'>(</span><span class='va'>infiles</span>, pseudocount.log2enr <span class='op'>=</span> <span class='fl'>8</span>, p.adjust.method <span class='op'>=</span> <span class='st'>"BH"</span><span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -157,12 +155,6 @@
 foreground and background counts when calculating log2 motif enrichments</p></td>
     </tr>
     <tr>
-      <th>pseudocount.pearsonResid</th>
-      <td><p>A numerical scalar with the pseudocount to add
-to foreground and background frequencies when calculating expected counts
-and Pearson residuals.</p></td>
-    </tr>
-    <tr>
       <th>p.adjust.method</th>
       <td><p>A character scalar selecting the p value adjustment
 method (used in <code><a href='https://rdrr.io/r/stats/p.adjust.html'>p.adjust</a></code>).</p></td>
@@ -171,11 +163,17 @@ method (used in <code><a href='https://rdrr.io/r/stats/p.adjust.html'>p.adjust</
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A list of four components (<code>negLog10P</code>, <code>negLog10Padj</code>,
-    <code>pearsonResid</code> and <code>log2enr</code>), containing each a motif (rows)
-    by bin (columns) matrix with raw -log10 P values, -log10 adjusted P values,
+    <p>A list of nine components (<code>negLog10P</code>, <code>negLog10Padj</code>,
+    <code>pearsonResid</code>, <code>expForegroundWgtWithHits</code>, <code>log2enr</code>,
+    <code>sumForegroundWgtWithHits</code> and <code>sumBackgroundWgtWithHits</code>), 
+    seven containing each a motif (rows) by bin (columns) matrix with raw 
+    -log10 P values, -log10 adjusted P values, the expected number of 
+    foreground sequences with hits, the observed number of foreground and 
+    background sequences with hits, 
     and motif enrichments as Pearson residuals (<code>pearsonResid</code>) and as
-    log2 ratios (<code>log2enr</code>).</p>
+    log2 ratios (<code>log2enr</code>), and two containing the total foreground 
+    and background weight (<code>totalWgtForeground</code>, 
+    <code>totalWgtBackground</code>).</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='va'>outfile</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span><span class='op'>(</span><span class='st'>"extdata"</span>, <span class='st'>"homer_output.txt.gz"</span>, package <span class='op'>=</span> <span class='st'>"monaLisa"</span><span class='op'>)</span></span>
@@ -201,7 +199,7 @@ method (used in <code><a href='https://rdrr.io/r/stats/p.adjust.html'>p.adjust</
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, Charlotte Soneson, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
+  <p><p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, <a href="https://github.com/csoneson" class="external-link">Charlotte Soneson</a>, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p></p>
 </div>
 
 <div class="pkgdown">
