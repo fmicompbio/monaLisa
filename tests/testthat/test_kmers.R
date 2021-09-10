@@ -307,15 +307,15 @@ test_that("calcBinnedKmerEnr works as expected", {
                  c(`[1,1.5]` = 37.2309483817477, `(1.5,2]` = 30.1142668663514))
     expect_identical(nrow(res1), as.integer(4^k))
     expect_identical(ncol(res1), nlevels(b))
-    expect_identical(assay(res1, "sumForegroundWgtWithHits"),
-                     assay(res2, "sumForegroundWgtWithHits"))
+    expect_identical(assay(res1, "sumForegroundWgtWithHits")[,1],
+                     assay(res2, "sumForegroundWgtWithHits")[,1])
     expect_identical(assays(res3)[-c(1, 2)], assays(res4)[-c(1, 2)])
     
     skip_on_os("windows")
     ## Note that all tests after this point (within the test_that block) will 
     ## be skipped on windows.
     expect_equal(colSums(assay(res2, "negLog10P")),
-                 c(`[1,1.5]` = 37.1270049027622, `(1.5,2]` = 40.6593382003256))
+                 c(`[1,1.5]` = 24.5599369371223, `(1.5,2]` = 41.9051486968493))
 })
 
 test_that("convertKmersToMotifs works as expected", {
