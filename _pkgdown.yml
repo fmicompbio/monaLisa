@@ -47,6 +47,7 @@ reference:
     - '`getZeroBin`'
     - '`calcBinnedMotifEnrR`'
     - '`calcBinnedMotifEnrHomer`'
+    - '`plotBinDiagnostics`'
     - '`plotBinDensity`'
     - '`plotBinHist`'
     - '`plotBinScatter`'
