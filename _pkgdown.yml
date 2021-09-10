@@ -56,11 +56,7 @@ reference:
   desc: "Functions for analysing word (k-mer) occurrences in sequences."
   contents:
     - '`getKmerFreq`'
-    - '`countKmerPairs`'
     - '`calcBinnedKmerEnr`'
-    - '`convertKmersToMotifs`'
-    - '`clusterKmers`'
-    - '`extractOverlappingKmerFrequencies`'
 - title: Identify predictive motifs using stability selection
   desc: "Functions for selecting motifs that explain observed changes using Stability Selection."
   contents:

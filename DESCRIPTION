@@ -37,10 +37,7 @@ Imports:
     circlize,
     ComplexHeatmap (>= 2.0.0),
     XVector,
-    stringdist,
-    igraph,
     GenomeInfoDb,
-    Rcpp,
     tools,
     vioplot
 Suggests: 
@@ -58,13 +55,6 @@ LazyData: false
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
 SystemRequirements: C++11
-LinkingTo: 
-    Rcpp,
-    beachmat,
-    IRanges,
-    XVector,
-    S4Vectors,
-    Biostrings
 biocViews: 
     MotifAnnotation, 
     Visualization, 
