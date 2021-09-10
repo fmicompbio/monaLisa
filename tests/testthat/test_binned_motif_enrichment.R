@@ -159,10 +159,13 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
     expect_identical(assayNames(res2), c("negLog10P", "negLog10Padj", "pearsonResid", "expForegroundWgtWithHits", "log2enr", "sumForegroundWgtWithHits", "sumBackgroundWgtWithHits"))
     expect_identical(colnames(rowData(res1)), c("motif.id", "motif.name", "motif.pfm", "motif.pwm", "motif.percentGC"))
     expect_identical(rowData(res1), rowData(res2))
-    expect_identical(dim(colData(res1)), c(3L, 6L))
-    expect_identical(colData(res1)[, -c(2,3)], colData(res2)[, -c(2,3)])
-    expect_identical(colData(res2)[, 2], attr(b, "breaks")[-4])
-    expect_identical(colData(res2)[, 3], attr(b, "breaks")[-1])
+    expect_identical(dim(SummarizedExperiment::colData(res1)), c(3L, 6L))
+    expect_identical(SummarizedExperiment::colData(res1)[, -c(2,3)],
+                     SummarizedExperiment::colData(res2)[, -c(2,3)])
+    expect_identical(SummarizedExperiment::colData(res2)[, 2],
+                     attr(b, "breaks")[-4])
+    expect_identical(SummarizedExperiment::colData(res2)[, 3],
+                     attr(b, "breaks")[-1])
     expect_equal(-pbinom(q = assay(res1, "sumForegroundWgtWithHits")[, 3] - 1,
                          size = res1$totalWgtForeground[3],
                          prob = assay(res1, "sumBackgroundWgtWithHits")[, 3] /

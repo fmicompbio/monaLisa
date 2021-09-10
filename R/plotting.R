@@ -455,7 +455,7 @@ plotMotifHeatmaps <- function(x,
 #'
 #' @seealso \code{\link[stabs]{stabsel}} and \code{\link[graphics]{matplot}}
 #'
-#' @importFrom SummarizedExperiment assay rowData
+#' @importFrom SummarizedExperiment assay rowData colData
 #' @importFrom graphics matplot
 #'
 #' @export
