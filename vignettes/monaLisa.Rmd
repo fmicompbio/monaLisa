@@ -82,6 +82,18 @@ analysis. If you prefer to actually compute enrichments on real data, you can
 find below a detailed example for a binned motif enrichment analysis (section
 \@ref(binned)).
 
+# Installation
+
+`r Biocpkg("monaLisa")` can be installed from Bioconductor via the 
+`r CRANpkg("BiocManager")` package:
+
+```{r, eval=FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("monaLisa")
+```
+
 
 # Quick example: Identify enriched motifs in bins{#quick}
 
