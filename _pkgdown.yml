@@ -31,7 +31,7 @@ navbar:
       - text: "Binned motif enrichment analysis"
         href: articles/monaLisa.html
       - text: "Identifying motifs by stability selection"
-        href: articles/selecting_motifs_with_randLassoStabSel.Rmd
+        href: articles/selecting_motifs_with_randLassoStabSel.html
     github:
       icon: fab fa-github fa-lg
       href: https://github.com/fmicompbio/monaLisa
