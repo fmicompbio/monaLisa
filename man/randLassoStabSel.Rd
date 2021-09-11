@@ -111,11 +111,11 @@ ss <- randLassoStabSel(x = X, y = Y)
   
 ## reproducible randLassoStabSel() in parallel mode 
 ## (only works on non-windows machines)
-\donttest{
-RNGkind("L'Ecuyer-CMRG")
-set.seed(123)
-ss <- randLassoStabSel(x = X, y = Y, mc.preschedule = TRUE, 
-                       mc.set.seed = TRUE, mc.cores = 2L)
+if (.Platform$OS.type == "unix") {
+    RNGkind("L'Ecuyer-CMRG")
+    set.seed(123)
+    ss <- randLassoStabSel(x = X, y = Y, mc.preschedule = TRUE, 
+                           mc.set.seed = TRUE, mc.cores = 2L)
 }
 
 }
