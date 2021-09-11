@@ -39,6 +39,25 @@ plot of stability paths.
 Plot the stability paths of each variable (predictor), showing the selection probability
   as a function of the regularization step.
 }
+\examples{
+## create data set
+Y <- rnorm(n = 500, mean = 2, sd = 1)
+X <- matrix(data = NA, nrow = length(Y), ncol = 50)
+for (i in seq_len(ncol(X))) {
+  X[ ,i] <- runif(n = 500, min = 0, max = 3)
+}
+s_cols <- sample(x = seq_len(ncol(X)), size = 10, 
+  replace = FALSE)
+for (i in seq_along(s_cols)) {
+  X[ ,s_cols[i]] <- X[ ,s_cols[i]] + Y
+}
+  
+## reproducible randLassoStabSel() with 1 core
+set.seed(123)
+ss <- randLassoStabSel(x = X, y = Y)
+plotStabilityPaths(ss)
+
+}
 \seealso{
 \code{\link[stabs]{stabsel}} and \code{\link[graphics]{matplot}}
 }
