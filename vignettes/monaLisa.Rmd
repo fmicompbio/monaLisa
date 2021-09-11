@@ -531,7 +531,7 @@ This can be done using the `monaLisa::motifKmerSimilarity` function. By showing 
 similarity between the enriched k-mers and motifs, we can see whether, e.g., 
 strongly enriched k-mers do not seem to correspond to an annotated motif. 
 
-```{r}
+```{r, fig.width=10, fig.height=10}
 pfmSel <- rowData(seSel)$motif.pfm
 sims <- motifKmerSimilarity(x = pfmSel,
                             kmers = rownames(sekmSel),
