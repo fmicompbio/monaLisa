@@ -77,4 +77,4 @@ reference:
     - '`motifKmerSimilarity`'
     - '`seqLogoGrob`'
     - '`getColsByBin`'
-    - '`sample_random_regions`'
+    - '`sampleRandomRegions`'
