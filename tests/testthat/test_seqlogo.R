@@ -37,8 +37,8 @@ test_that("sequence logo can be drawn", {
     g1 <- seqLogoGrob(pfm, xmax = 5L)
     g2 <- seqLogoGrob(pfm, xmax = 5L, xjust = "center")
     g3 <- seqLogoGrob(pfm, xmax = 5L, xjust = "right")
-    hmr <- anno_seqlogo(list(g0, g1, g2, g3), which = "row")
-    hmc <- anno_seqlogo(list(g0, g1, g2, g3), which = "column")
+    hmr <- annoSeqlogo(list(g0, g1, g2, g3), which = "row")
+    hmc <- annoSeqlogo(list(g0, g1, g2, g3), which = "column")
 
     expect_is(g0, "polygon")
     expect_is(g1, "polygon")

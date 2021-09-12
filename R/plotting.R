@@ -370,9 +370,9 @@ plotMotifHeatmaps <- function(x,
         maxwidth <- max(vapply(TFBSTools::Matrix(pfms), ncol, 0L))
         grobL <- lapply(pfms, seqLogoGrob, xmax = maxwidth, xjust = "center")
         hmSeqlogo <- HeatmapAnnotation(
-            logo = anno_seqlogo(grobL = grobL, which = "row",
-                                space = unit(0.5, "mm"),
-                                width = unit(width.seqlogo, "inch")),
+            logo = annoSeqlogo(grobL = grobL, which = "row",
+                               space = unit(0.5, "mm"),
+                               width = unit(width.seqlogo, "inch")),
             show_legend = FALSE, show_annotation_name = FALSE, which = "row")
     }
     hmMotifs <- Heatmap(matrix = tmp, name = "names",

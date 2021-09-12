@@ -67,7 +67,7 @@ reference:
   desc: "Various utilites and helper functions, typically used in the functions above."
   contents:
     - '`findMotifHits`'
-    - '`anno_seqlogo`'
+    - '`annoSeqlogo`'
     - '`dumpJaspar`'
     - '`homerToPFMatrixList`'
     - '`findHomer`'

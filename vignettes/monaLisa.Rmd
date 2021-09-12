@@ -540,7 +540,7 @@ dim(sims)
 
 maxwidth <- max(sapply(TFBSTools::Matrix(pfmSel), ncol))
 seqlogoGrobs <- lapply(pfmSel, seqLogoGrob, xmax = maxwidth)
-hmSeqlogo <- rowAnnotation(logo = anno_seqlogo(seqlogoGrobs, which = "row"),
+hmSeqlogo <- rowAnnotation(logo = annoSeqlogo(seqlogoGrobs, which = "row"),
                            annotation_width = unit(1.5, "inch"), 
                            show_annotation_name = FALSE
 )

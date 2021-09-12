@@ -219,16 +219,16 @@ seqLogoGrob <- function(x, xmax = NULL, ymax = 2.0, xjust = c("left", "center", 
 #'
 #'     g1 <- seqLogoGrob(pfm1)
 #'
-#'     anno <- anno_seqlogo(list(g1))
+#'     anno <- annoSeqlogo(list(g1))
 #' }
 #' 
 #' @importFrom grid unit grid.rect viewport pushViewport popViewport grid.draw
 #' @importFrom ComplexHeatmap AnnotationFunction subset_gp
 #'
 #' @export 
-anno_seqlogo <- function(grobL, which = c("column", "row"),
-                         space = unit(0.5, "mm"), width = NULL, height = NULL,
-                         gp = gpar(fill = NA, col = NA)) {
+annoSeqlogo <- function(grobL, which = c("column", "row"),
+                        space = unit(0.5, "mm"), width = NULL, height = NULL,
+                        gp = gpar(fill = NA, col = NA)) {
     stopifnot(is(grobL, "list"))
     stopifnot(all(vapply(grobL, function(x) is(x, "grob"), FALSE)))
 
@@ -281,7 +281,7 @@ anno_seqlogo <- function(grobL, which = c("column", "row"),
     fun <- switch(which,
                   row = row_fun,
                   column = column_fun)
-    anno = AnnotationFunction(fun = fun, fun_name = "anno_seqlogo", which = which,
+    anno = AnnotationFunction(fun = fun, fun_name = "annoSeqlogo", which = which,
                               width = anno_size$width, height = anno_size$height,
                               n = n_seqlogo, data_scale = c(0.5, 1.5),
                               var_import = list(gp, space, grobL))
