@@ -130,6 +130,7 @@ jobs:
 
       - name: Check NEWS.md
         run: |
+          BiocManager::install(c("commonmark", "xml2"))
           tools:::.build_news_db_from_package_NEWS_md("monaLisa/NEWS.md")
         shell: Rscript {0}
         
