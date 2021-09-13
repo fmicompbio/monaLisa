@@ -58,7 +58,7 @@ numerical value assigned to each region, such as change of expression,
 accessibility or methylation. Motif enrichments are then calculated for
 each bin, normalizing for differences in sequence composition very similarly
 as it was originally done by [Homer](http://homer.ucsd.edu/homer/index.html)
-[@homer]. This approach has for example been used in @ginno2018 and @barisic2019.
+[@homer]. This approach was first introduced in @ginno2018 and subsequently applied in e.g. @barisic2019.
 `monaLisa::calcBinnedMotifEnrHomer` implements the same analysis using Homer and
 therefore requires a local installation of Homer, and `monaLisa::calcBinnedKmerEnr`
 (see section \@ref(binnedkmers)) implements the analysis for k-mers instead
