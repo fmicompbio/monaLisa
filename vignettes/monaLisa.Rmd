@@ -134,11 +134,9 @@ matrix with motifs (rows) by bins (columns). The values are:
 - *expForegroundWgt*: The expected number of regions in the bin containing a 
   given motif. 
 - *pearsonResid*: Pearson residuals, a measure for motif enrichments calculated
-  as: $enr = (o - e) / \sqrt e$, where $o$ and $e$ are the observed and expected
-  numbers of regions in the bin containing a given motif. These enrichments
-  correspond to $z$ values ($z = (o - \mu)/\sigma$), assuming that the numbers 
-  of regions in a bin that contain a motif are independent Poisson random 
-  variables with mean and variance $e$.
+  as $enr = (o - \mu)/\sigma$), where $\mu$ are the expected counts and $\sigma$
+  the standard deviation in counts based on a hypergeometric distribution that assumes
+  no difference between foreground and background.
 - *log2enr*: Motif enrichments, calculated as: 
   $log2enr = log2((o + c)/(e + c))$, where $o$ and $e$ are the observed and 
   expected numbers of regions in the bin containing a given motif, and $c$ is 
