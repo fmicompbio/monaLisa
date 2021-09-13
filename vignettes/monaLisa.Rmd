@@ -268,7 +268,7 @@ differences of sequence lengths or composition between bins that might bias
 our motif enrichment results.
 
 In general, we would recommend to use regions of similar or even equal lengths
-to avoid length bias, for example by using a fixed-size region around the
+to avoid a length bias, for example by using a fixed-size region around the
 midpoint of each region of interest using `GenomicRanges::resize`. In addition, the resized
 regions may have to be constrained to the chromosome boundaries using trim:
 ```{r makewidthequal}
@@ -277,14 +277,14 @@ lmrsel <- trim(resize(lmrsel, width = median(width(lmrsel)), fix = "center"))
 summary(width(lmrsel))
 ```
 
-Now that all regions are of the same length, we can directly extract the
+We can now directly extract the
 corresponding sequences from the `r Biocpkg("BSgenome.Mmusculus.UCSC.mm10")`
-package:  
+package  
 ```{r getseqs}
 lmrseqs <- getSeq(BSgenome.Mmusculus.UCSC.mm10, lmrsel)
 ```
 
-We can check for differences in sequence composition between bins using
+and check for differences in sequence composition between bins using
 the `monaLisa::plotBinDiagnostics` function. "GCfrac" will plot the distributions
 of the fraction of G+C bases, and "dinucfreq" creates a heatmap of average
 di-nucleotide frequencies in each bin, relative to the overall average.
@@ -296,7 +296,7 @@ plotBinDiagnostics(seqs = lmrseqs, bins = bins, aspect = "dinucfreq")
 
 From these plot, we can see that LMRs with lower methylation in NP cells
 compared to ES cells (bin `r levels(bins)[1]`) tend to be GC-poorer than
-LMRs in other bins. A strong bias of this kind could give rise to false
+LMRs in other bins. A strong bias of this kind can give rise to false
 positives in that bin, e.g. enrichments of AT-rich motifs. In this example,
 the bias is however not very strong and the built-in sequence composition
 correction in `monaLisa::calcBinnedMotifEnrR` should be able to handle it.
