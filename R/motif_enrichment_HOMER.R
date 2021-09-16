@@ -500,27 +500,34 @@ parseHomerOutput <- function(infiles,
 #' summary information about the bins. 
 #' 
 #' @examples 
-#' if (!is.na(findHomer())) {
-#'   # prepare genome directory (here: one dummy chromosome)
-#'   genomedir <- tempfile()
-#'   dir.create(genomedir)
-#'   writeLines(c(">chr1", "ATGCATGCATCGATCGATCGATCGTACGTA"),
-#'              file.path(genomedir, "chr1.fa"))
+#' if (!is.na(findHomer())){
 #' 
-#'   # prepare motif file, regions and bins
+#'   # genome dir
+#'   genomedir <- system.file("extdata", package = "monaLisa")
+#'   
+#'   # create motif file for Homer
 #'   motiffile <- tempfile()
+#'   motifIDs <- c("MA0139.1", "MA1102.1", "MA0740.1")
 #'   dumpJaspar(filename = motiffile, pkg = "JASPAR2020", 
-#'              opts = list(ID = c("MA0006.1")))
-#'   gr <- GenomicRanges::GRanges("chr1", IRanges::IRanges(1:4, width = 4))
-#'   b <- bin(1:4, nElements = 2)
-#'
+#'              opts = list(ID = motifIDs))
+#'              
+#'   # GRanges of regions used in binned motif enrichment analysis 
+#'   gr <- GenomicRanges::tileGenome(
+#'       seqlengths = c(chr1 = 10000L, chr2 = 10000L, chr3 = 10000L),
+#'       tilewidth = 200, cut.last.tile.in.chrom = TRUE)
+#'       
+#'   # create bins (motif enrichment analysis will be per bin)
+#'   bins <- factor(GenomicRanges::seqnames(gr))
+#'   table(bins)
+#'   
 #'   # run calcBinnedMotifEnrHomer
 #'   outdir <- tempfile()
-#'   se <- calcBinnedMotifEnrHomer(gr = gr, b = b, genomedir = genomedir,
-#'                                 outdir = outdir, motifFile = motiffile)
+#'   se <- calcBinnedMotifEnrHomer(gr = gr, b = bins, genomedir = genomedir,
+#'       outdir = outdir, motifFile = motiffile)
 #'   list.files(outdir)
-#' }
-#'
+#'   
+#'   }
+#'   
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom S4Vectors DataFrame
 #' @importFrom TFBSTools ID name Matrix
