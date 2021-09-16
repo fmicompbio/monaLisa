@@ -73,6 +73,36 @@ Run complete HOMER motif enrichment analysis, consisting of
     calls to \code{\link{prepareHomer}}, \code{\link[base]{system2}} and
     \code{\link{parseHomerOutput}}.
 }
+\examples{
+if (!is.na(findHomer())){
+
+  # genome dir
+  genomedir <- system.file("extdata", package = "monaLisa")
+  
+  # create motif file for Homer
+  motiffile <- tempfile()
+  motifIDs <- c("MA0139.1", "MA1102.1", "MA0740.1")
+  dumpJaspar(filename = motiffile, pkg = "JASPAR2020", 
+             opts = list(ID = motifIDs))
+             
+  # GRanges of regions used in binned motif enrichment analysis 
+  gr <- GenomicRanges::tileGenome(
+      seqlengths = c(chr1 = 10000L, chr2 = 10000L, chr3 = 10000L),
+      tilewidth = 200, cut.last.tile.in.chrom = TRUE)
+      
+  # create bins (motif enrichment analysis will be per bin)
+  bins <- factor(GenomicRanges::seqnames(gr))
+  table(bins)
+  
+  # run calcBinnedMotifEnrHomer
+  outdir <- tempfile()
+  se <- calcBinnedMotifEnrHomer(gr = gr, b = bins, genomedir = genomedir,
+      outdir = outdir, motifFile = motiffile)
+  list.files(outdir)
+  
+  }
+  
+}
 \seealso{
 The functions that are wrapped: \code{\link{prepareHomer}},
     \code{\link[base]{system2}} and \code{\link{parseHomerOutput}},
