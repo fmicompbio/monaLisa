@@ -619,7 +619,7 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
     
     ## Find the assays (the matrices) of the list and reorder
     assayidx <- vapply(resL, function(x) !is.null(dim(x)), FALSE)
-    assayL <- lapply(resL[assayidx], function(x) x[o, ])
+    assayL <- lapply(resL[assayidx], function(x) x[o, , drop=FALSE])
     # assayL <- lapply(resL[seq_len(7)], function(x) x[o, ])
     
     ## ... ... colData
