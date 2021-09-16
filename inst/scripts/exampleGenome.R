@@ -64,7 +64,6 @@ cons
 ## plant motifs
 for (chr1 in names(chrsstr)) {
     i <- which(as.character(GenomeInfoDb::seqnames(gr)) == chr1)
-    set.seed(42)
     j <- sample(x = GenomicRanges::start(gr)[i], size = round(length(i) / 3))
     m <- match(chr1, names(chrsstr))
     for (j1 in j)
@@ -74,9 +73,9 @@ chrs <- Biostrings::DNAStringSet(chrsstr)
 chrs
 # DNAStringSet object of length 3:
 #     width seq                                                                                                                             names               
-# [1] 10000 TGGCCACCAGGGGGCGCTATCACCATTCTCGCTGACAACGTTACTCCGCGTTTGAGGAATGC...GTGAATGAAACCGCCATTTCGCGAACTTACCATCGATAGTGTCCCAGATATTGGAACGGTGG chr1
-# [2] 10000 CACCAGGGGGCACCTCTATAACGGCCATTATAAGTGAGTGCAAAACTCCACATGAGGCTTGC...TAAAGGGAGTAAAAACAAGGTAACCTGGATACTAAACTTATTGTGTCTGTCAACACTATGGC chr2
-# [3] 10000 GGCCACGCCCCCTTACCGTACTAGTGTCGTATTCAAGATCGACCTAGATCTTGATATAATCA...CGGCAAGACAAATCAACAGTACGCCAACCTTGGATTAGATCTACTAAATGTGACTATTCGGT chr3
+# [1] 10000 CCACGTGAGGTGCATCCATTCACCATTCTCGCTGACAACGTTACTCCGCGTTTGAGGAATGC...GTGAATGAAACCGCCATTTCGCGAACTTACCATCGATAGTGTCCCAGATATTGGAACGGTGG chr1
+# [2] 10000 TGCTGGTGTATCCATCTATAACGGCCATTATAAGTGAGTGCAAAACTCCACATGAGGCTTGC...TAAAGGGAGTAAAAACAAGGTAACCTGGATACTAAACTTATTGTGTCTGTCAACACTATGGC chr2
+# [3] 10000 CTTCTTTAGTAGGGACCGTACTAGTGTCGTATTCAAGATCGACCTAGATCTTGATATAATCA...CGGCAAGACAAATCAACAGTACGCCAACCTTGGATTAGATCTACTAAATGTGACTATTCGGT chr3
 
 ## save created genome
 dir.create(genomedir)
@@ -85,7 +84,7 @@ Biostrings::writeXStringSet(x = chrs, filepath = genomefile, format = "fasta")
 
 ## session
 date()
-# [1] "Thu Sep 16 16:22:12 2021"
+# [1] "Thu Sep 16 18:47:34 2021"
 sessionInfo()
 # R version 4.1.1 (2021-08-10)
 # Platform: x86_64-pc-linux-gnu (64-bit)
@@ -109,7 +108,7 @@ sessionInfo()
 # loaded via a namespace (and not attached):
 #     [1] colorspace_2.0-2            rjson_0.2.20                ellipsis_0.3.2              circlize_0.4.13             GlobalOptions_0.1.2        
 # [6] clue_0.3-59                 rstudioapi_0.13             bit64_4.0.5                 AnnotationDbi_1.54.1        fansi_0.5.0                
-# [11] codetools_0.2-18            splines_4.1.1               R.methodsS3_1.8.1           doParallel_1.0.16           cachem_1.0.6               
+# [11] splines_4.1.1               codetools_0.2-18            R.methodsS3_1.8.1           doParallel_1.0.16           cachem_1.0.6               
 # [16] knitr_1.34                  Rsamtools_2.8.0             Cairo_1.5-12.2              seqLogo_1.58.0              annotate_1.70.0            
 # [21] cluster_2.1.2               GO.db_3.13.0                png_0.1-7                   R.oo_1.24.0                 readr_2.0.1                
 # [26] compiler_4.1.1              httr_1.4.2                  assertthat_0.2.1            Matrix_1.3-4                fastmap_1.1.0              
@@ -117,7 +116,7 @@ sessionInfo()
 # [36] glue_1.4.2                  TFMPvalue_0.0.8             GenomeInfoDbData_1.2.6      reshape2_1.4.4              dplyr_1.0.7                
 # [41] Rcpp_1.0.7                  Biobase_2.52.0              vctrs_0.3.8                 rtracklayer_1.52.1          iterators_1.0.13           
 # [46] xfun_0.25                   CNEr_1.28.0                 stringr_1.4.0               lifecycle_1.0.0             restfulr_0.0.13            
-# [51] poweRlaw_0.70.6             gtools_3.9.2                XML_3.99-0.7                stringdist_0.9.8            zlibbioc_1.38.0            
+# [51] poweRlaw_0.70.6             gtools_3.9.2                stringdist_0.9.8            XML_3.99-0.7                zlibbioc_1.38.0            
 # [56] scales_1.1.1                BSgenome_1.60.0             hms_1.1.0                   MatrixGenerics_1.4.3        SummarizedExperiment_1.22.0
 # [61] RColorBrewer_1.1-2          ComplexHeatmap_2.8.0        yaml_2.2.1                  memoise_2.0.0               ggplot2_3.3.5              
 # [66] stabs_0.6-4                 stringi_1.7.4               RSQLite_2.2.8               BiocIO_1.2.0                foreach_1.5.1              

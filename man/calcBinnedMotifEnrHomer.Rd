@@ -76,8 +76,8 @@ Run complete HOMER motif enrichment analysis, consisting of
 \examples{
 if (!is.na(findHomer())){
 
-  # genome dir
-  genomedir <- system.file("extdata", package = "monaLisa")
+  # genome
+  genome <-  system.file("extdata", "exampleGenome.fa", package = "monaLisa")
   
   # create motif file for Homer
   motiffile <- tempfile()
@@ -96,7 +96,7 @@ if (!is.na(findHomer())){
   
   # run calcBinnedMotifEnrHomer
   outdir <- tempfile()
-  se <- calcBinnedMotifEnrHomer(gr = gr, b = bins, genomedir = genomedir,
+  se <- calcBinnedMotifEnrHomer(gr = gr, b = bins, genomedir = genome,
       outdir = outdir, motifFile = motiffile)
   list.files(outdir)
   

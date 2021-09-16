@@ -502,8 +502,8 @@ parseHomerOutput <- function(infiles,
 #' @examples 
 #' if (!is.na(findHomer())){
 #' 
-#'   # genome dir
-#'   genomedir <- system.file("extdata", package = "monaLisa")
+#'   # genome
+#'   genome <-  system.file("extdata", "exampleGenome.fa", package = "monaLisa")
 #'   
 #'   # create motif file for Homer
 #'   motiffile <- tempfile()
@@ -522,7 +522,7 @@ parseHomerOutput <- function(infiles,
 #'   
 #'   # run calcBinnedMotifEnrHomer
 #'   outdir <- tempfile()
-#'   se <- calcBinnedMotifEnrHomer(gr = gr, b = bins, genomedir = genomedir,
+#'   se <- calcBinnedMotifEnrHomer(gr = gr, b = bins, genomedir = genome,
 #'       outdir = outdir, motifFile = motiffile)
 #'   list.files(outdir)
 #'   
