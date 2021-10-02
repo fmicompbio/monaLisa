@@ -134,10 +134,14 @@ matrix with motifs (rows) by bins (columns). The values are:
   Benjamini and Hochberg, 1995 (`p.adjust(..., method="fdr")`).  
 - *expForegroundWgt*: The expected number of regions in the bin containing a 
   given motif. 
-- *pearsonResid*: Pearson residuals, a measure for motif enrichments calculated
-  as $enr = (o - \mu)/\sigma$), where $\mu$ are the expected counts and $\sigma$
-  the standard error in counts based on a hypergeometric distribution that assumes
-  no difference between foreground and background.
+- *pearsonResid*: Standardized Pearson residuals, a measure of motif enrichment
+  akin to a z-score for the number of regions in the bin containing the motif. 
+  The standardized Pearson residuals are given by  
+  $resid = (o - \mu)/\sigma$, where $\mu$ is the expected count and $\sigma$
+  the standard deviation of the expression in the numerator, under the null 
+  hypothesis that the probability of containing a motif is independent of 
+  whether the sequence is in the foreground or the background (see e.g. 
+  @agresti2007, section 2.4.5). 
 - *log2enr*: Motif enrichments, calculated as: 
   $log2enr = log2((o + c)/(e + c))$, where $o$ and $e$ are the observed and 
   expected numbers of regions in the bin containing a given motif, and $c$ is 
