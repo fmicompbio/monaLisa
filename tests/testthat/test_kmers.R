@@ -217,6 +217,6 @@ test_that("calcBinnedKmerEnr works as expected", {
     ## Note that all tests after this point (within the test_that block) will 
     ## be skipped on windows.
     expect_equal(colSums(assay(res2, "negLog10P")),
-                 c(`[1,1.5]` = 37.6745182714968, `(1.5,2]` = 32.6409973372953))
+                 c(`[1,1.5]` = 34.8521231337902, `(1.5,2]` = 35.6739828473288))
 })
 
