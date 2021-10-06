@@ -176,13 +176,10 @@ test_that("calcBinnedKmerEnr works as expected", {
                                    genome = gnm, genome.seed = "error"))
     expect_error(calcBinnedKmerEnr(seqs, b, k, BPPARAM = "error"))
     expect_error(calcBinnedKmerEnr(DNAStringSet(rep("NNNNNNNNNN", 10)), background = "model"))
-
     expect_message(res1 <- calcBinnedKmerEnr(seqs, b, k, includeRevComp = FALSE, verbose = TRUE))
-    RNGkind("L'Ecuyer-CMRG")
-    set.seed(42L)
+
     res2 <- calcBinnedKmerEnr(seqs, b, k, background = "genome", genome = gnm,
                               includeRevComp = FALSE, verbose = FALSE, BPPARAM = pparams)
-    RNGkind("default")
     res3 <- calcBinnedKmerEnr(seqs, b, k, background = "model",
                               BPPARAM = pparams)
     res4 <- calcBinnedKmerEnr(seqs, b, k, background = "model",
