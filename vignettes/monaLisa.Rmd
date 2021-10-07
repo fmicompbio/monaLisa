@@ -593,7 +593,7 @@ res <- findMotifHits(query = pwms,
                      subject = seqs,
                      min.score = 6.0,
                      method = "matchPWM",
-                     BPPARAM = BiocParallel::MulticoreParam(2))
+                     BPPARAM = BiocParallel::SerialParam())
 res
 
 # create hit matrix:
