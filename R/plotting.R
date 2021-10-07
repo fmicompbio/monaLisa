@@ -542,11 +542,16 @@ plotStabilityPaths <- function(se,
 #' @param ylimext A numeric scalar defining how much the y axis limits should be
 #'   expanded beyond the plotted probabilities to allow for space for the
 #'   bar labels.
-#' @param ... additional parameters passed to \code{\link[graphics]{barplot}}.
+#' @param ... additional parameters passed to \code{\link[graphics]{barplot}}. 
 #'
-#' @return \code{TRUE} (invisible). The function is called to create a barplot
-#'   indicating the selection probability and optionally directionality of the
-#'   predictors (motifs).
+#' @details This function creates a bar plot using the \code{\link[graphics]{barplot}} function.
+#'   Each bar corresponds to a predictor (motif) and the colors correspond to 
+#'   whether or not it was selected. The y-axis shows the selection probabilities 
+#'   (\code{directional=FALSE}) or selection probabilities with the 
+#'   sign of the marginal correlation to the response (\code{directional=TRUE}). 
+#'
+#' @return a \code{matrix} with one column, containing the coordinates of the 
+#'   bar midpoints, or \code{NULL} if no bar plot is drawn. 
 #'
 #' @examples 
 #' ## create data set
