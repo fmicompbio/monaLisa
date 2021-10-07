@@ -13,6 +13,8 @@ plotSelectionProb(
   col = c("cadetblue", "grey", "red"),
   method = c("pearson", "kendall", "spearman"),
   ylimext = 0.25,
+  legend = "topright",
+  legend.cex = 1,
   ...
 )
 }
@@ -53,12 +55,17 @@ calculation of predictor-response marginal correlations. One of "pearson",
 expanded beyond the plotted probabilities to allow for space for the
 bar labels.}
 
+\item{legend}{the position of the legend in the bar plot (will
+be passed to \code{legend(x=legend)} to control legend position).}
+
+\item{legend.cex}{A scalar that controls the text size in the legend relative
+to the current \code{par("cex")} (see \code{\link{legend}}).}
+
 \item{...}{additional parameters passed to \code{\link[graphics]{barplot}}.}
 }
 \value{
-\code{TRUE} (invisible). The function is called to create a barplot
-  indicating the selection probability and optionally directionality of the
-  predictors (motifs).
+a \code{matrix} with one column, containing the coordinates of the 
+  bar midpoints, or \code{NULL} if no bar plot is drawn.
 }
 \description{
 This function plots the selection probabilities of predictors
@@ -66,6 +73,13 @@ This function plots the selection probabilities of predictors
   -1 to give a sense of both the strength and the directionality of the
   associated effects. The directionality is estimated from the sign of the
   correlation coefficient between each predictor and the response vector.
+}
+\details{
+This function creates a bar plot using the \code{\link[graphics]{barplot}} function.
+  Each bar corresponds to a predictor (motif) and the colors correspond to 
+  whether or not it was selected. The y-axis shows the selection probabilities 
+  (\code{directional=FALSE}) or selection probabilities with the 
+  sign of the marginal correlation to the response (\code{directional=TRUE}).
 }
 \examples{
 ## create data set
