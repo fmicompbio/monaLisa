@@ -3,7 +3,9 @@ title: "Regression Based Approach for Motif Selection"
 author: "Dania Machlab, Lukas Burger, Charlotte Soneson, Michael Stadler"
 date: "`r Sys.Date()`"
 bibliography: monaLisa-refs.bib
-output: BiocStyle::html_document
+output: 
+  BiocStyle::html_document:
+    toc_float: true
 vignette: >
   %\VignetteIndexEntry{selecting_motifs_with_randLassoStabSel}
   %\VignetteEngine{knitr::rmarkdown}

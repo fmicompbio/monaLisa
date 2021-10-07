@@ -3,7 +3,9 @@ title: "monaLisa - MOtif aNAlysis with Lisa"
 author: "Dania Machlab, Lukas Burger, Charlotte Soneson, Michael Stadler"
 date: "`r Sys.Date()`"
 bibliography: monaLisa-refs.bib
-output: BiocStyle::html_document
+output: 
+  BiocStyle::html_document: 
+    toc_float: true
 vignette: >
   %\VignetteIndexEntry{monaLisa - MOtif aNAlysis with Lisa}
   %\VignetteEngine{knitr::rmarkdown}
