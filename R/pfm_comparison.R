@@ -5,11 +5,6 @@
 #' 
 #' @keywords internal
 .compareMotifPair <- function(m1, m2) {
-    # stopifnot(is.matrix(m1) && is.matrix(m2) &&
-    #               nrow(m1) == 4L && nrow(m2) == 4L &&
-    #               all.equal(rep(1.0, ncol(m1)), colSums(m1)) &&
-    #               all.equal(rep(1.0, ncol(m2)), colSums(m2)))
-
     bestScore <- -2
     bestOffset <- 0
     bestDirection <- ""
@@ -60,16 +55,6 @@
 #' 
 #' @keywords internal
 .compareMotifKmer <- function(m, kmers) {
-    # stopifnot(exprs = {
-    #     is.matrix(m)
-    #     is.character(kmers)
-    #     nrow(m) == 4L
-    #     rownames(m) == c("A","C","G","T")
-    #     all.equal(rep(1.0, ncol(m)), colSums(m))
-    #     all(nchar(kmers[1]) == nchar(kmers))
-    #     all(grepl("^[ACGT]+$", kmers))
-    # })
-
     bestScore <- rep(-2, length(kmers))
     bestOffset <- rep(0, length(kmers))
 

@@ -68,8 +68,8 @@
     totalWgtBackground <- sum(df$seqWgt[!df$isForeground])
 
     motifHitMatrixWeighted <- motifHitMatrix * df$seqWgt
-    TFmatchedSeqCountForeground <- colSums(motifHitMatrixWeighted[df$isForeground, , drop=FALSE])
-    TFmatchedSeqCountBackground <- colSums(motifHitMatrixWeighted[!df$isForeground, , drop=FALSE])
+    TFmatchedSeqCountForeground <- colSums(motifHitMatrixWeighted[df$isForeground, , drop = FALSE])
+    TFmatchedSeqCountBackground <- colSums(motifHitMatrixWeighted[!df$isForeground, , drop = FALSE])
 
     # calculate motif enrichment
     if (identical(test, "binomial")) {
@@ -419,7 +419,7 @@ calcBinnedMotifEnrR <- function(seqs,
         if (verbose1) {
             message("Calculating motif enrichment...")
         }
-        enrich1 <- .calcMotifEnrichment(motifHitMatrix = hitmatrix2[rownames(df), , drop=FALSE],
+        enrich1 <- .calcMotifEnrichment(motifHitMatrix = hitmatrix2[rownames(df), , drop = FALSE],
                                         df = df, test = test, verbose = verbose1)
         return(enrich1)
 

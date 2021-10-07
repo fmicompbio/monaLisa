@@ -15,16 +15,9 @@
     minProb <- 1 / totalWeightBg
     maxProb <- (totalWeightBg - 1) / totalWeightBg
     if (any(i <- (prob < minProb))) {
-        # warning("some background match probabilities are below ",
-        #         "minProb (for example when there were zero hits) ",
-        #         "and will be given a value of minProb=1/totalWeightBg")
         prob[i] <- minProb
     }
     if (any(i <- (prob > maxProb))) {
-        # warning("some match probabilities a above",
-        #         "maxProb (for example when all sequences had hits) ",
-        #         "and will be given a value of ",
-        #         "maxProb=(totalWeightBg-1)/totalWeightBg")
         prob[i] <- maxProb
     }
     
@@ -104,13 +97,6 @@
     normBg <- log2(matchCountBg/totalWeightBg * minTot + pseudocount)
     log2enr <- normFg - normBg
     log2enr
-    
-    # D <- enrich1[, c("sumForegroundWgtWithHits", "sumBackgroundWgtWithHits")]
-    # nTot <- unlist(enrich1[1, c("totalWgtForeground", "totalWgtBackground")])
-    # D.norm <- t(t(D) / nTot * min(nTot))
-    # DL <- log2(D.norm + pseudocount.log2enr)
-    # log2enr <- DL[, 1] - DL[, 2]
-    # log2enr
 }
 
 #' @title Check if seqinfo DataFrame is valid

@@ -1,5 +1,5 @@
 # Coordinates for an A-polygon (internal)
-letterA <- function (x.pos, y.pos, ht, wt) {
+letterA <- function(x.pos, y.pos, ht, wt) {
     x <- 0.1 * c(0, 4, 6, 10, 8, 6.8, 3.2, 2, 0, 3.6, 5, 6.4, 3.6)
     y <- 0.1 * c(0, 10, 10, 0, 0, 3, 3, 0, 0, 4, 7.5, 4, 4)
     x <- x.pos + wt * x
@@ -9,7 +9,7 @@ letterA <- function (x.pos, y.pos, ht, wt) {
 }
 
 # Coordinates for an C-polygon (internal)
-letterC <- function (x.pos, y.pos, ht, wt) {
+letterC <- function(x.pos, y.pos, ht, wt) {
     angle1 <- seq(0.3 + pi/2, pi, length = 100)
     angle2 <- seq(pi, 1.5 * pi, length = 100)
     x.l1 <- 0.5 + 0.5 * sin(angle1)
@@ -40,7 +40,7 @@ letterC <- function (x.pos, y.pos, ht, wt) {
 }
 
 # Coordinates for an G-polygon (internal)
-letterG <- function (x.pos, y.pos, ht, wt) {
+letterG <- function(x.pos, y.pos, ht, wt) {
     angle1 <- seq(0.3 + pi/2, pi, length = 100)
     angle2 <- seq(pi, 1.5 * pi, length = 100)
     x.l1 <- 0.5 + 0.5 * sin(angle1)
@@ -78,7 +78,7 @@ letterG <- function (x.pos, y.pos, ht, wt) {
 }
 
 # Coordinates for an T-polygon (internal)
-letterT <- function (x.pos, y.pos, ht, wt) {
+letterT <- function(x.pos, y.pos, ht, wt) {
     x <- 0.1 * c(0, 10, 10, 6, 6, 4, 4, 0)
     y <- 0.1 * c(10, 10, 9, 9, 0, 0, 9, 9)
     x <- x.pos + wt * x
@@ -88,7 +88,7 @@ letterT <- function (x.pos, y.pos, ht, wt) {
 }
 
 # Add coordinates for a new base polygon to the coordinaes in 'letters' (internal)
-addLetter <- function (letters, which = c("A", "C", "G", "T"), x.pos, y.pos, ht, wt) {
+addLetter <- function(letters, which = c("A", "C", "G", "T"), x.pos, y.pos, ht, wt) {
     which <- match.arg(which)
     letter <- switch(which,
                      "A" = letterA(x.pos, y.pos, ht, wt),
