@@ -284,9 +284,9 @@ annoSeqlogo <- function(grobL, which = c("column", "row"),
     anno = AnnotationFunction(fun = fun, fun_name = "annoSeqlogo", which = which,
                               width = anno_size$width, height = anno_size$height,
                               n = n_seqlogo, data_scale = c(0.5, 1.5),
-                              var_import = list(gp, space, grobL))
-    anno@subset_rule$gp = ComplexHeatmap::subset_gp
-    anno@subset_rule$grobL = ComplexHeatmap::subset_vector
-    anno@subsetable = TRUE
+                              var_import = list(gp, space, grobL),
+                              subset_rule = list(gp = ComplexHeatmap::subset_gp,
+                                                 grobL = ComplexHeatmap::subset_vector), 
+                              subsetable = TRUE)
     return(anno)
 }
