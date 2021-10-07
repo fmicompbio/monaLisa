@@ -61,11 +61,14 @@ accessibility or methylation. Motif enrichments are then calculated for
 each bin, normalizing for differences in sequence composition in a very similar way
 as originally done by [Homer](http://homer.ucsd.edu/homer/index.html)
 [@homer]. The binned motif enrichment approach was first introduced in @ginno2018
-and subsequently applied in e.g. @barisic2019.
-`monaLisa::calcBinnedMotifEnrHomer` implements the same analysis using Homer and
-therefore requires a local installation of Homer, and `monaLisa::calcBinnedKmerEnr`
-(see section \@ref(binnedkmers)) implements the analysis for k-mers instead
-of motifs, to study sequence enrichments without the requirement of known motifs.
+and subsequently applied in e.g. @barisic2019. To see more details on how 
+`calcBinnedMotifEnrR` resembles `Homer`, check the function help page. We 
+recommend using this function to do the binned motif enrichment analysis, since 
+it corrects for sequence composition differences similarly to `Homer`, but is 
+implemented more efficiently. `monaLisa::calcBinnedMotifEnrHomer` implements 
+the same analysis using Homer and therefore requires a local [installation of Homer](http://homer.ucsd.edu/homer/introduction/install.html), and `monaLisa::calcBinnedKmerEnr`(see section \@ref(binnedkmers)) 
+implements the analysis for k-mers instead of motifs, to study sequence 
+enrichments without the requirement of known motifs.
 
 - **Randomized Lasso stability selection** (`monaLisa::randLassoStabSel`, see
 `r Biocpkg("monaLisa", vignette="selecting_motifs_with_randLassoStabSel.html", label="the stability selection vignette")`, 
