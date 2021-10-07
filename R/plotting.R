@@ -290,7 +290,7 @@ plotBinScatter <- function(x, y, b,
 #' @importFrom grDevices colorRampPalette
 #' @importFrom S4Vectors metadata
 #' @importFrom SummarizedExperiment assayNames assay rowData
-#' @importFrom ComplexHeatmap HeatmapAnnotation Heatmap add_heatmap
+#' @importFrom ComplexHeatmap HeatmapAnnotation Heatmap add_heatmap show
 #' @importFrom grid unit
 #' @importFrom circlize colorRamp2
 #'
