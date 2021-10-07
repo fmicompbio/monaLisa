@@ -589,7 +589,7 @@ plotSelectionProb <- function(se,
     .assertScalar(x = showSelProbMin, type = "logical")
     stopifnot(exprs = {
         is(se, "SummarizedExperiment")
-        selProbMin > selProbMinPlot
+        selProbMin >= selProbMinPlot
     })
     .assertVector(x = col, len = 3L)
     method <- match.arg(method)
@@ -615,14 +615,14 @@ plotSelectionProb <- function(se,
 
     # plot
     if (any(keep)) {
-        bar <- graphics::barplot(probs, col = cols, border = NA,
-                                 ylab = ifelse(directional,
-                                               "Directional selection probability",
-                                               "Selection probability"),
-                                 names.arg = NA, axes = FALSE,
-                                 ylim = c(min(probs) - ylimext,
-                                          max(probs) + ylimext),
-                                 ...)
+        ret <- graphics::barplot(probs, col = cols, border = NA,
+                                        ylab = ifelse(directional, 
+                                                      "Directional selection probability",
+                                                      "Selection probability"),
+                                        names.arg = NA, axes = FALSE,
+                                        ylim = c(min(probs) - ylimext,
+                                                 max(probs) + ylimext),
+                                        ...)
         ys <- pretty(x = c(0, probs))
         graphics::axis(side = 2, at = ys)
         if (showSelProbMin) {
@@ -632,16 +632,17 @@ plotSelectionProb <- function(se,
         graphics::legend("topright", bty = "n", fill = col[seq_len(2)], border = NA,
                          legend = c("selected", "not selected"))
         if (any(up)) {
-            graphics::text(x = bar[up], y = probs[up] + par("cxy")[2] / 3,
+            graphics::text(x = ret[up], y = probs[up] + par("cxy")[2] / 3,
                            labels = predNames[up], col = cols[up],
                            xpd = TRUE, srt = 90, adj = c(0, 0.5))
         }
         if (any(!up)) {
-            graphics::text(x = bar[!up], y = probs[!up] - par("cxy")[2] / 3,
+            graphics::text(x = ret[!up], y = probs[!up] - par("cxy")[2] / 3,
                            labels = predNames[!up], col = cols[!up],
                            xpd = TRUE, srt = 90, adj = c(1, 0.5))
         }
+    } else{
+        ret <- NULL
     }
-
-    invisible(TRUE)
+    ret
 }
