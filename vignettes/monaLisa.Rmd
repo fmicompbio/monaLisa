@@ -316,8 +316,10 @@ correction in `monaLisa::calcBinnedMotifEnrR` should be able to handle it.
 Finally, we run the binned motif enrichment analysis.
 
 This step will take a while, and typically you would use the `BPPARAM`
-argument to run it with parallelization. For this example however, you can just
-load the pre-computed results as shown below.  
+argument to run it with parallelization using `n` cores as follows: 
+`calcBinnedMotifEnrR(..., BPPARAM = BiocParallel::MulticoreParam(n)))`. 
+For this example however, you can just load the pre-computed results as 
+shown below.  
 
 ```{r runbinned, eval=FALSE}
 se <- calcBinnedMotifEnrR(seqs = lmrseqs, bins = bins, pwmL = pwms)

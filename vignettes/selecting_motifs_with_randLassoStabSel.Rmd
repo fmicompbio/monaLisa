@@ -67,7 +67,7 @@ gr <- readRDS(gr_path)
 
 ## Get TFBS per motif and peak
 
-We will now construct the transcription factor binding site (TFBS) matrix for known motifs (from a database like JASPAR) in peak regions. We use the `monaLisa::findMotifHits` function to scan for TF motif hits. This matrix will be the predictor matrix in our regression.
+We will now construct the transcription factor binding site (TFBS) matrix for known motifs (from a database like JASPAR) in peak regions. We use the `monaLisa::findMotifHits` function to scan for TF motif hits. This matrix will be the predictor matrix in our regression. This step may take a while, and it may be useful to parallelize it using the `BPPARAM` argument (e.g. to run on `n` parallel threads using the multi-core backend, you can use: `findMotifHits(..., BPPARAM = BiocParallel::MulticoreParam(n))`).
 
 As mentioned, this framework offers the flexibility to add additional predictors to compete against the TF motifs for selection. Here, we add the fraction of G+C and CpG observed/expected ratio as predictors, to ensure that selected TF motifs are not just detecting a simple trend in GC or CpG composition.
 
