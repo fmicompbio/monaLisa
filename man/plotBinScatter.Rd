@@ -43,7 +43,7 @@ to the current \code{par("cex")} (see \code{\link{legend}}).}
 \item{...}{Further arguments passed to \code{plot(x, y, ...)}.}
 }
 \value{
-Invisibly the return value of \code{plot(x, y, ...)} that generated the plot.
+\code{TRUE} (invisibly).
 }
 \description{
 Plot a scatter (xy-plot) of binned elements with binning information.
