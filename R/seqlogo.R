@@ -105,10 +105,11 @@ addLetter <- function (letters, which = c("A", "C", "G", "T"), x.pos, y.pos, ht,
 
 # Calculate the information content for each position in a PFMatrix (internal)
 pfm2ic <- function(pfm) {
-    npos <- ncol(pfm)
-    ic <- numeric(length = npos)
-    for (i in seq_len(npos))
-        ic[i] <- 2 + sum(vapply(pfm[, i], function(x) if (x > 0) (x * log2(x)) else 0, 0))
+    ic <- vapply(X = seq_len(ncol(pfm)),
+                 FUN = function(i) 2 + sum(ifelse(pfm[, i] > 0,
+                                                  pfm[, i] * log2(pfm[, i]),
+                                                  0)),
+                 FUN.VALUE = 0)
     ic
 }
 
