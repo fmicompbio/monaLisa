@@ -136,9 +136,9 @@ test_that("plotSelectionProb() runs", {
     expect_error(plotSelectionProb(se = ss, col = "error"), "length 3")
     expect_error(plotSelectionProb(se = ss, method = "error"), "should be one of")
 
-    expect_true(plotSelectionProb(ss, selProbMin = 1.0, selProbMinPlot = 0.99))
-    expect_true(plotSelectionProb(ss))
-    expect_true(plotSelectionProb(ss, FALSE))
+    expect_null(plotSelectionProb(ss, selProbMin = 1.0, selProbMinPlot = 0.99))
+    expect_is(plotSelectionProb(ss), "matrix")
+    expect_is(plotSelectionProb(ss, FALSE), "matrix")
     
     dev.off()
     unlink(tf)
