@@ -23,36 +23,41 @@ with the genomic regions to analyze.}
 \item{b}{A vector of the same length as \code{gr} that groups its elements
 into bins (typically a factor).}
 
-\item{genomedir}{Directory containing sequence files in Fasta format (one per chromosome).}
+\item{genomedir}{Directory containing sequence files in Fasta format (one 
+per chromosome).}
 
 \item{outdir}{A path specifying the folder into which the output files (two
 files per unique value of \code{b}) will be written.}
 
-\item{motifFile}{A file with HOMER formatted PWMs to be used in the enrichment analysis.}
+\item{motifFile}{A file with HOMER formatted PWMs to be used in the 
+enrichment analysis.}
 
-\item{homerfile}{Path and file name of the \code{findMotifsGenome.pl} HOMER script.}
+\item{homerfile}{Path and file name of the \code{findMotifsGenome.pl} HOMER 
+script.}
 
-\item{regionsize}{The peak size to use in HOMER (\code{"given"} keeps the coordinate
-region, an integer value will keep only that many bases in the region center).}
+\item{regionsize}{The peak size to use in HOMER (\code{"given"} keeps the 
+coordinate region, an integer value will keep only that many bases in 
+the region center).}
 
 \item{Ncpu}{Number of parallel threads that HOMER can use.}
 
 \item{verbose}{A logical scalar. If \code{TRUE}, print progress messages.}
 }
 \value{
-The path and name of the script file to run the HOMER motif enrichment
-    analysis.
+The path and name of the script file to run the HOMER motif 
+    enrichment analysis.
 }
 \description{
 For each bin, write genomic coordinates for foreground and
     background regions into files for HOMER motif enrichment analysis.
 }
 \details{
-For each bin (unique value of \code{b}) this functions creates two files
-    in \code{outdir} (\code{outdir/bin_N_foreground.tab} and \code{outdir/bin_N_background.tab},
-    where \code{N} is the number of the bin and foreground/background correspond to
-    the ranges that are/are not within the current bin). The files are in the
-    HOMER peak file format (see http://homer.ucsd.edu/homer/ngs/peakMotifs.html for details).
+For each bin (unique value of \code{b}) this functions creates two 
+    files in \code{outdir} (\code{outdir/bin_N_foreground.tab} and 
+    \code{outdir/bin_N_background.tab}, where \code{N} is the number of the 
+    bin and foreground/background correspond to the ranges that are/are not 
+    within the current bin). The files are in the HOMER peak file format 
+    (see http://homer.ucsd.edu/homer/ngs/peakMotifs.html for details).
 
     In addition, a shell script file is created containing the shell commands
     to run the HOMER motif enrichment analysis.

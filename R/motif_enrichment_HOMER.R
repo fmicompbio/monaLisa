@@ -437,12 +437,16 @@ parseHomerOutput <- function(infiles,
                                                        8]))
 
     totWgt <- do.call(rbind, lapply(tabL, function(tab) {
-        numFgBgWithHits <- tab[, c(6, 8)] # number of target seqs and bg seqs with motif
-        nTot <- as.numeric(gsub("\\S+\\.(\\d+)\\.", "\\1", colnames(numFgBgWithHits))) #total number of target and background sequences
+        # number of target seqs and bg seqs with motif
+        numFgBgWithHits <- tab[, c(6, 8)] 
+        #total number of target and background sequences
+        nTot <- as.numeric(gsub("\\S+\\.(\\d+)\\.", "\\1", 
+                                colnames(numFgBgWithHits))) 
         nTot
     }))
 
-    padj <- matrix(-log10(p.adjust(as.vector(10^(-P)), method = p.adjust.method)),
+    padj <- matrix(-log10(p.adjust(as.vector(10^(-P)), 
+                                   method = p.adjust.method)),
                   nrow = nrow(P), dimnames = dimnames(P))
     padj[which(padj == Inf, arr.ind = TRUE)] <- max(padj[is.finite(padj)])
     
@@ -458,7 +462,8 @@ parseHomerOutput <- function(infiles,
                 totalWgtBackground = totWgt[, 2]))
 }
 
-# internal function:  Check if all the HOMER output files already exist and if the run was successful.
+# internal function:  Check if all the HOMER output files already exist 
+# and if the run was successful.
 # - needs the motifFile and outdir inputs to calcBinnedMotifEnrHomer.
 #' @importFrom utils read.table
 .checkHomerRun <- function(motifFile, outdir, nbins){
@@ -475,18 +480,27 @@ parseHomerOutput <- function(infiles,
       return(FALSE)
     }
 
-    # case 2: at least one file exists, so we check HOMER ran correctly and that the number of output files matches the number of bins
+    # case 2: at least one file exists, so we check HOMER ran correctly and 
+    # that the number of output files matches the number of bins
 
       # get motif names from motifFile
       lns <- readLines(motifFile)
-      motifs_motifFile <- unlist(lapply(strsplit(lns[grep("^>", lns)], "\t"), "[", 2))
+      motifs_motifFile <- unlist(lapply(strsplit(lns[grep("^>", lns)], "\t"),
+                                        "[", 2))
 
       # get motif names from resultsfile
-      df_list <- lapply(as.list(out_files), function(f){read.table(f, header = FALSE, sep = "\t", skip = 1)}) # skip the column names
-      motifs_outdir_list <- lapply(df_list, function(df){ as.character(df[ ,1]) })
-      # check the completeness of the run and that the number of output files equals number of bins
-      all(vapply(motifs_outdir_list, function(x){all(motifs_motifFile %in% x)}, NA)) & (length(out_files) == nbins)
-
+      df_list <- lapply(as.list(out_files), function(f) {
+          read.table(f, header = FALSE, sep = "\t", skip = 1)
+      }) # skip the column names
+      motifs_outdir_list <- lapply(df_list, function(df){ 
+          as.character(df[ ,1]) 
+      })
+      # check the completeness of the run and that the number of output files 
+      # equals number of bins
+      all(vapply(motifs_outdir_list, function(x) {
+          all(motifs_motifFile %in% x)
+      }, NA)) & (length(out_files) == nbins)
+      
 }
 
 #' @title Prepare and run HOMER motif enrichment analysis.
@@ -499,13 +513,19 @@ parseHomerOutput <- function(infiles,
 #' @param gr A \code{GRanges} object (or an object that can be coerced to one)
 #'     with the genomic regions to analyze.
 #' @param b A vector of the same length as \code{gr} that groups its elements
-#'     into bins (typically a factor, such as the one returned by \code{\link{bin}}).
-#' @param genomedir Directory containing sequence files in Fasta format (one per chromosome).
-#' @param outdir A path specifying the folder into which the output files will be written.
-#' @param motifFile A file with HOMER formatted PWMs to be used in the enrichment analysis.
-#' @param homerfile Path and file name of the \code{findMotifsGenome.pl} HOMER script.
-#' @param regionsize The peak size to use in HOMER (\code{"given"} keeps the coordinate
-#'     region, an integer value will keep only that many bases in the region center).
+#'     into bins (typically a factor, such as the one returned by 
+#'     \code{\link{bin}}).
+#' @param genomedir Directory containing sequence files in Fasta format 
+#'     (one per chromosome).
+#' @param outdir A path specifying the folder into which the output files will 
+#'     be written.
+#' @param motifFile A file with HOMER formatted PWMs to be used in the 
+#'     enrichment analysis.
+#' @param homerfile Path and file name of the \code{findMotifsGenome.pl} 
+#'     HOMER script.
+#' @param regionsize The peak size to use in HOMER (\code{"given"} keeps the 
+#'     coordinate region, an integer value will keep only that many bases in 
+#'     the region center).
 #' @param pseudocount.log2enr A numerical scalar with the pseudocount to add to
 #'   foreground and background counts when calculating log2 motif enrichments
 #' @param p.adjust.method A character scalar selecting the p value adjustment
@@ -591,38 +611,45 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
         file.exists(genomedir)
         file.exists(motifFile)
         file.exists(homerfile)
-        regionsize == "given" || (is.numeric(regionsize) && length(regionsize) == 1L && regionsize > 0)
+        regionsize == "given" || (is.numeric(regionsize) && 
+                                      length(regionsize) == 1L && 
+                                      regionsize > 0)
     })
     .assertScalar(x = Ncpu, type = "numeric", rngIncl = c(1, Inf))
     .assertScalar(x = verbose, type = "logical")
     .assertScalar(x = verbose.Homer, type = "logical")
     .checkIfSeqsAreEqualLength(x = gr)
     
-    ## ... check if the HOMER output is already there for all bins and if it ran completely:
-    ## ... ... If yes, go to the 'parse output step', otherwise run homer and check again
-    if (.checkHomerRun(motifFile = motifFile, outdir = outdir, nbins = nlevels(b))) {
-
+    ## ... check if the HOMER output is already there for all bins and if it 
+    ##     ran completely:
+    ## ... ... If yes, go to the 'parse output step', otherwise run homer and 
+    ##         check again
+    if (.checkHomerRun(motifFile = motifFile, outdir = outdir, 
+                       nbins = nlevels(b))) {
         if (verbose)
-            message("\nHOMER output files already exist, using existing files...")
-
+            message("\nHOMER output files already exist, ", 
+                    "using existing files...")
     } else {
 
       ## ... case: all/some files exist and/or HOMER didn't run correctly: 
       ## warn the User to remove all existing files and rerun
       if (any(file.exists(dir(path = outdir, pattern = "knownResults.txt",
-                              full.names = TRUE, recursive = TRUE, ignore.case = FALSE)))) {
+                              full.names = TRUE, recursive = TRUE, 
+                              ignore.case = FALSE)))) {
 
           stop("\nThere are existing 'knownResults.txt' file(s) in outdir. ",
                "There may be missing 'knownResults.txt' files for some bins ",
-               "and/or the existing files are incomplete (cases where the HOMER ",
-               "run failed). Please delete these files and rerun 'calcBinnedMotifEnrHomer'.")
+               "and/or the existing files are incomplete (cases where the ",
+               "HOMER run failed). Please delete these files and rerun ", 
+               "'calcBinnedMotifEnrHomer'.")
 
       }
 
       ## ... prepare
       if (verbose)
           message("\npreparing input files...")
-      runfile <- prepareHomer(gr = gr, b = b, genomedir = genomedir, outdir = outdir,
+      runfile <- prepareHomer(gr = gr, b = b, genomedir = genomedir, 
+                              outdir = outdir,
                               motifFile = motifFile, homerfile = homerfile,
                               regionsize = regionsize, Ncpu = Ncpu)
 
@@ -632,17 +659,20 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
       system2(command = "sh", args = runfile,
               stdout = ifelse(verbose.Homer, "", FALSE),
               stderr = ifelse(verbose.Homer, "", FALSE),
-              env = paste0("PATH=", dirname(homerfile), ":", Sys.getenv("PATH"), ";"))
+              env = paste0("PATH=", dirname(homerfile), ":", 
+                           Sys.getenv("PATH"), ";"))
 
       ## ... check HOMER ran correctly
-      if (!.checkHomerRun(motifFile = motifFile, outdir = outdir, nbins = length(levels(b)))) {
+      if (!.checkHomerRun(motifFile = motifFile, outdir = outdir, 
+                          nbins = length(levels(b)))) {
           stop("HOMER output wasn't complete. Try running again.")
       }
 
     }
 
     ## ... parse output
-    resfiles <- sprintf("%s/bin_%03d_output/knownResults.txt", outdir, seq_along(levels(b)))
+    resfiles <- sprintf("%s/bin_%03d_output/knownResults.txt", outdir, 
+                        seq_along(levels(b)))
     names(resfiles) <- levels(b)
     resL <- parseHomerOutput(infiles = resfiles,
                              pseudocount.log2enr = pseudocount.log2enr,
@@ -666,12 +696,14 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
         binL <- attr(b, "breaks")[-(nlevels(b) + 1)]
         binH <- attr(b, "breaks")[-1]
     }
-    cdat <- S4Vectors::DataFrame(bin.names = levels(b),
-                                 bin.lower = binL,
-                                 bin.upper = binH,
-                                 bin.nochange = seq.int(nlevels(b)) %in% getZeroBin(b),
-                                 totalWgtForeground = resL$totalWgtForeground,
-                                 totalWgtBackground = resL$totalWgtBackground)
+    cdat <- S4Vectors::DataFrame(
+        bin.names = levels(b),
+        bin.lower = binL,
+        bin.upper = binH,
+        bin.nochange = seq.int(nlevels(b)) %in% getZeroBin(b),
+        totalWgtForeground = resL$totalWgtForeground,
+        totalWgtBackground = resL$totalWgtBackground
+    )
     percentGC <- unlist(lapply(pfms, function(x) {
         m <- TFBSTools::Matrix(x)
         100 * sum(m[c("C","G"), ]) / sum(m)
@@ -717,10 +749,5 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
       assays = assayL, colData = cdat, rowData = rdat,
       metadata = mdatL)
 }
-
-
-
-
-
 
 
