@@ -1,4 +1,3 @@
-#' @import GenomicRanges
 #' @importFrom tools file_path_as_absolute
 #' @importFrom utils read.delim write.table getFromNamespace
 #' @importFrom stats p.adjust
@@ -253,7 +252,7 @@ homerToPFMatrixList <- function(filename, n = 100L) {
 #' # clean up example
 #' unlink(c(genomedir, motiffile, homerfile, outdir))
 #'
-#' @importFrom GenomicRanges start end strand
+#' @importFrom GenomicRanges start end strand seqnames
 #' @export
 prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
                          homerfile = findHomer(), regionsize = "given",
