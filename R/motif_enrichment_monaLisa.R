@@ -29,12 +29,12 @@
 #'     \item{logP}{: the log p-value for enrichment (natural logarithm).
 #'        If \code{test="binomial"} (default), this log p-value is identical to
 #'        the one returned by Homer.}
-#'     \item{sumForegroundWgtWithHits}{: the sum of the weights of the foreground
-#'        sequences that have at least one instance of a specific motif
-#'        (ZOOPS mode).}
-#'     \item{sumBackgroundWgtWithHits}{: the sum of the weights of the background
-#'        sequences that have at least one instance of a specific motif
-#'        (ZOOPS mode).}
+#'     \item{sumForegroundWgtWithHits}{: the sum of the weights of the 
+#'        foreground sequences that have at least one instance of a specific 
+#'        motif (ZOOPS mode).}
+#'     \item{sumBackgroundWgtWithHits}{: the sum of the weights of the 
+#'        background sequences that have at least one instance of a specific 
+#'        motif (ZOOPS mode).}
 #'     \item{totalWgtForeground}{: the total sum of weights of foreground
 #'        sequences.}
 #'     \item{totalWgtBackground}{: the total sum of weights of background
@@ -68,23 +68,28 @@
     totalWgtBackground <- sum(df$seqWgt[!df$isForeground])
 
     motifHitMatrixWeighted <- motifHitMatrix * df$seqWgt
-    TFmatchedSeqCountForeground <- colSums(motifHitMatrixWeighted[df$isForeground, , drop = FALSE])
-    TFmatchedSeqCountBackground <- colSums(motifHitMatrixWeighted[!df$isForeground, , drop = FALSE])
+    TFmatchedSeqCountForeground <- 
+      colSums(motifHitMatrixWeighted[df$isForeground, , drop = FALSE])
+    TFmatchedSeqCountBackground <- 
+      colSums(motifHitMatrixWeighted[!df$isForeground, , drop = FALSE])
 
     # calculate motif enrichment
     if (identical(test, "binomial")) {
-        logP <- .binomEnrichmentTest(matchCountBg = TFmatchedSeqCountBackground,
-                                     totalWeightBg = totalWgtBackground,
-                                     matchCountFg = TFmatchedSeqCountForeground,
-                                     totalWeightFg = totalWgtForeground,
-                                     verbose = verbose)
-        
+        logP <- .binomEnrichmentTest(
+            matchCountBg = TFmatchedSeqCountBackground,
+            totalWeightBg = totalWgtBackground,
+            matchCountFg = TFmatchedSeqCountForeground,
+            totalWeightFg = totalWgtForeground,
+            verbose = verbose
+        )
     } else if (identical(test, "fisher")) {
-        logP <- .fisherEnrichmentTest(matchCountBg = TFmatchedSeqCountBackground, 
-                                      totalWeightBg = totalWgtBackground,
-                                      matchCountFg = TFmatchedSeqCountForeground,
-                                      totalWeightFg = totalWgtForeground,
-                                      verbose = verbose)
+        logP <- .fisherEnrichmentTest(
+            matchCountBg = TFmatchedSeqCountBackground, 
+            totalWeightBg = totalWgtBackground,
+            matchCountFg = TFmatchedSeqCountForeground,
+            totalWeightFg = totalWgtForeground,
+            verbose = verbose
+        )
     }
 
     return(data.frame(motifName = names(logP),
@@ -102,15 +107,16 @@
 #'   sequences. For each bin, the sequences in all other bins are used as
 #'   background.
 #'
-#' @param seqs \code{\link[Biostrings]{DNAStringSet}} object with sequences to test
+#' @param seqs \code{\link[Biostrings]{DNAStringSet}} object with sequences to 
+#'   test
 #' @param bins factor of the same length and order as \code{seqs}, indicating
 #'   the bin for each sequence. Typically the return value of
 #'   \code{\link[monaLisa]{bin}}. For \code{background = "genome"}, \code{bins}
 #'   can be omitted.
 #' @param pwmL PWMatrixList with motifs for which to calculate enrichments.
-#' @param background A \code{character} scalar specifying the background sequences
-#'   to use. One of \code{"otherBins"} (default), \code{"allBins"}, \code{"zeroBin"}
-#'   or \code{"genome"} (see "Details").
+#' @param background A \code{character} scalar specifying the background 
+#'   sequences to use. One of \code{"otherBins"} (default), \code{"allBins"}, 
+#'   \code{"zeroBin"} or \code{"genome"} (see "Details").
 #' @param test A \code{character} scalar specifying the type of enrichment test
 #'   to perform. One of \code{"fisher"} (default) or \code{"binomial"}. The
 #'   enrichment test is one-sided (enriched in foreground).
@@ -154,14 +160,15 @@
 #'   (defined by \code{background}, see below). The logic follows the
 #'   \code{findMotifsGenome.pl} tool from \code{Homer} version 4.11, with
 #'   \code{-size given -nomotif -mknown} and additionally \code{-h} if using 
-#'   \code{test = "fisher"}, and gives very similar results. As in the \code{Homer} 
-#'   tool, sequences are weighted to correct for GC and k-mer composition differences 
-#'   between fore- and background sets.
+#'   \code{test = "fisher"}, and gives very similar results. As in the 
+#'   \code{Homer} tool, sequences are weighted to correct for GC and k-mer 
+#'   composition differences between fore- and background sets.
 #'   
 #'   The background sequences are defined according to the value of the
 #'   \code{background} argument:
 #'   \itemize{
-#'     \item{otherBins}{: sequences from all other bins (excluding the current bin)}
+#'     \item{otherBins}{: sequences from all other bins (excluding the current 
+#'       bin)}
 #'     \item{allBins}{: sequences from all bins (including the current bin)}
 #'     \item{zeroBin}{: sequences from the "zero bin", defined by the
 #'       \code{maxAbsX} argument of \code{\link[monaLisa]{bin}}. If \code{bins}
@@ -174,7 +181,8 @@
 #'       of the same size are sampled (on average). From these, one per
 #'       foreground sequence is selected trying to match the G+C composition.
 #'       In order to make the sampling deterministic, a seed number needs to be
-#'       provided to the \code{RNGseed} parameter in \code{\link[BiocParallel]{SerialParam}}
+#'       provided to the \code{RNGseed} parameter in 
+#'       \code{\link[BiocParallel]{SerialParam}}
 #'       or \code{\link[BiocParallel]{MulticoreParam}} when creating the 
 #'       \code{BiocParallelParam} instance in \code{BPPARAM}.}
 #'   }
@@ -200,7 +208,8 @@
 #'       weights of sequences in foreground or background sets (rows), and with
 #'       or without a hit for a particular motif (columns).}
 #'     \item{binomial}{: \code{pbinom(q = sumForegroundWgtWithHits - 1, size =
-#'       totalWgtForeground, prob = sumBackgroundWgtWithHits / totalWgtBackground,
+#'       totalWgtForeground, 
+#'       prob = sumBackgroundWgtWithHits / totalWgtBackground,
 #'       lower.tail = FALSE, log.p = TRUE)}}
 #'   }
 #'   
@@ -247,7 +256,8 @@
 calcBinnedMotifEnrR <- function(seqs,
                                 bins = NULL,
                                 pwmL = NULL,
-                                background = c("otherBins", "allBins", "zeroBin", "genome"),
+                                background = c("otherBins", "allBins", 
+                                               "zeroBin", "genome"),
                                 test = c("fisher", "binomial"),
                                 maxFracN = 0.7,
                                 maxKmerSize = 3L,
@@ -275,28 +285,33 @@ calcBinnedMotifEnrR <- function(seqs,
     }
     .assertVector(x = pwmL, type = "PWMatrixList")
     background <- match.arg(background)
-    .assertScalar(x = pseudocount.log2enr, type = "numeric", rngIncl = c(0, Inf))
-    .assertScalar(x = p.adjust.method, type = "character", validValues = stats::p.adjust.methods)
+    .assertScalar(x = pseudocount.log2enr, type = "numeric", 
+                  rngIncl = c(0, Inf))
+    .assertScalar(x = p.adjust.method, type = "character", 
+                  validValues = stats::p.adjust.methods)
     if (identical(background, "zeroBin") &&
         (is.null(getZeroBin(bins)) || is.na(getZeroBin(bins)))) {
-        stop("For background = 'zeroBin', 'bins' has to define a zero bin (see ",
-             "'maxAbsX' arugment of 'bin' function).")
+        stop("For background = 'zeroBin', 'bins' has to define a zero bin ",
+             "(see 'maxAbsX' arugment of 'bin' function).")
     }
     if (identical(background, "genome")) {
-        if (is.null(genome) || !(is(genome, "DNAStringSet") || is(genome, "BSgenome"))) {
+        if (is.null(genome) || !(is(genome, "DNAStringSet") || 
+                                 is(genome, "BSgenome"))) {
             stop("For background = 'genome', 'genome' must be either a ",
                  "DNAStringSet or a BSgenome object.")
         }
         if (!is.null(genome.regions)) {
             if (!is(genome.regions, "GRanges")) {
-                stop("For background = 'genome', 'genome.regions' must be either ",
-                     "NULL or a GRanges object.")
+                stop("For background = 'genome', 'genome.regions' must be ",
+                     "either NULL or a GRanges object.")
             }
             if (!all(seqlevels(genome.regions) %in% names(genome))) {
-                stop("'genome.regions' contains seqlevels not contained in 'genome'")
+                stop("'genome.regions' contains seqlevels not contained in ", 
+                     "'genome'")
             }
         }
-        .assertScalar(x = genome.oversample, type = "numeric", rngIncl = c(1, Inf))
+        .assertScalar(x = genome.oversample, type = "numeric", 
+                      rngIncl = c(1, Inf))
     }
     .assertVector(x = BPPARAM, type = "BiocParallelParam")
     .assertScalar(x = verbose, type = "logical")
@@ -323,7 +338,8 @@ calcBinnedMotifEnrR <- function(seqs,
     
     # stop if all sequences were filtered out
     if (sum(keep) == 0) {
-      stop("No sequence passed the filtering step. Cannot proceed with the enrichment analysis ...")
+      stop("No sequence passed the filtering step. Cannot proceed with the ", 
+           "enrichment analysis ...")
     }
     
     # scan sequences with motif
@@ -341,8 +357,10 @@ calcBinnedMotifEnrR <- function(seqs,
     if (verbose) {
         message("Create motif hit matrix...")
     }
-    hitmatrix <- unclass(table(factor(seqnames(hits), levels = seqlevels(hits)),
-                               factor(hits$pwmid, levels = TFBSTools::ID(pwmL))))
+    hitmatrix <- unclass(table(
+        factor(seqnames(hits), levels = seqlevels(hits)),
+        factor(hits$pwmid, levels = TFBSTools::ID(pwmL))
+    ))
     # zoops (zero or one per sequence) mode
     hitmatrix[hitmatrix > 0] <- 1
 
@@ -367,23 +385,28 @@ calcBinnedMotifEnrR <- function(seqs,
                                 gnm.oversample = genome.oversample,
                                 maxFracN = maxFracN)
 
-        # for background = "genome", scan sampled background sequences for motifs
+        # for background = "genome", scan sampled background sequences for 
+        # motifs
         if (identical(background, "genome")) {
             if (verbose1) {
               message("Scanning genomic background sequences for motif hits...")
             }
-            hits.genome <- findMotifHits(query = pwmL, subject = df$seqs[!df$isForeground],
-                                         min.score = min.score, method = matchMethod,
-                                         BPPARAM = BPPARAM, ...)
+            hits.genome <- findMotifHits(
+                query = pwmL, subject = df$seqs[!df$isForeground],
+                min.score = min.score, method = matchMethod,
+                BPPARAM = BPPARAM, ...)
             if (isEmpty(hits.genome)) {
-              stop("No motif hits found in any of the genomic background sequences - aborting.")
+              stop("No motif hits found in any of the genomic background ", 
+                   "sequences - aborting.")
             }
 
             # create motif hit matrix
-            hitmatrix.genome <- unclass(table(factor(seqnames(hits.genome),
-                                                     levels = seqlevels(hits.genome)),
-                                        factor(hits.genome$pwmid,
-                                               levels = TFBSTools::ID(pwmL))))
+            hitmatrix.genome <- unclass(
+                table(factor(seqnames(hits.genome),
+                             levels = seqlevels(hits.genome)),
+                      factor(hits.genome$pwmid,
+                             levels = TFBSTools::ID(pwmL)))
+            )
             # zoops (zero or one per sequence) mode
             hitmatrix.genome[hitmatrix.genome > 0] <- 1
             
@@ -395,22 +418,26 @@ calcBinnedMotifEnrR <- function(seqs,
         
         # calculate initial background sequence weights based on G+C composition
         if (verbose1) {
-            message("Correcting for GC differences to the background sequences...")
+            message("Correcting for GC differences to the background ", 
+                    "sequences...")
         }
         df <- .calculateGCweight(df = df,
                                  GCbreaks = GCbreaks,
                                  verbose = verbose1)
         
-        # if df is empty, then all seqs were filtered out in the GC weight calculation step
+        # if df is empty, then all seqs were filtered out in the GC weight 
+        # calculation step
         if (nrow(df) == 0) {
-          stop("No sequences remained after the GC weight calculation step in bin ", levels(bins)[i], 
-               " due to no GC bin containing both fore- and background sequences. ", 
-               "Cannot proceed with the enrichment analysis ...")
+          stop("No sequences remained after the GC weight calculation ", 
+               "step in bin ", levels(bins)[i], 
+               " due to no GC bin containing both fore- and background ", 
+               "sequences. Cannot proceed with the enrichment analysis ...")
         }
 
         # update background sequence weights based on k-mer composition
         if (verbose1) {
-            message("Correcting for k-mer differences between fore- and background sequences...")
+            message("Correcting for k-mer differences between fore- and ", 
+                    "background sequences...")
         }
         df <- .iterativeNormForKmers(df = df,
                                      maxKmerSize = maxKmerSize,
@@ -420,8 +447,10 @@ calcBinnedMotifEnrR <- function(seqs,
         if (verbose1) {
             message("Calculating motif enrichment...")
         }
-        enrich1 <- .calcMotifEnrichment(motifHitMatrix = hitmatrix2[rownames(df), , drop = FALSE],
-                                        df = df, test = test, verbose = verbose1)
+        enrich1 <- .calcMotifEnrichment(
+            motifHitMatrix = hitmatrix2[rownames(df), , drop = FALSE],
+            df = df, test = test, verbose = verbose1
+        )
         return(enrich1)
 
     }, BPPARAM = BPPARAM)
@@ -436,7 +465,8 @@ calcBinnedMotifEnrR <- function(seqs,
     }))
 
     # ... -log10 of adjusted P value
-    padj <- matrix(-log10(p.adjust(as.vector(10**(-P)), method = p.adjust.method)), nrow = nrow(P))
+    padj <- matrix(-log10(p.adjust(as.vector(10**(-P)), 
+                                   method = p.adjust.method)), nrow = nrow(P))
     dimnames(padj) <- dimnames(P)
     padj[which(padj == Inf, arr.ind = TRUE)] <- max(padj[is.finite(padj)])
 
@@ -500,12 +530,17 @@ calcBinnedMotifEnrR <- function(seqs,
         binL <- attr(bins, "breaks")[-(nlevels(bins) + 1)]
         binH <- attr(bins, "breaks")[-1]
     }
-    cdat <- DataFrame(bin.names = levels(bins),
-                      bin.lower = binL,
-                      bin.upper = binH,
-                      bin.nochange = seq.int(nlevels(bins)) %in% getZeroBin(bins),
-                      totalWgtForeground = do.call(c, lapply(enrichL, function(x){x$totalWgtForeground[1]})), 
-                      totalWgtBackground = do.call(c, lapply(enrichL, function(x){x$totalWgtBackground[1]})))
+    cdat <- DataFrame(
+        bin.names = levels(bins),
+        bin.lower = binL,
+        bin.upper = binH,
+        bin.nochange = seq.int(nlevels(bins)) %in% getZeroBin(bins),
+        totalWgtForeground = do.call(c, lapply(enrichL, function(x) {
+            x$totalWgtForeground[1]
+        })), 
+        totalWgtBackground = do.call(c, lapply(enrichL, function(x) {
+            x$totalWgtBackground[1]
+        })))
     mdat <- list(bins = bins,
                  bins.binmode = attr(bins, "binmode"),
                  bins.breaks = as.vector(attr(bins, "breaks")),
@@ -525,11 +560,14 @@ calcBinnedMotifEnrR <- function(seqs,
                               BPPARAM.class = class(BPPARAM),
                               BPPARAM.bpnworkers = bpnworkers(BPPARAM),
                               verbose = verbose))
-    assaySumForegroundWgtWithHits <- do.call(cbind, lapply(enrichL, function(x){x$sumForegroundWgtWithHits}))
-    assaySumBackgroundWgtWithHits <- do.call(cbind, lapply(enrichL, function(x){x$sumBackgroundWgtWithHits}))
+    assaySumForegroundWgtWithHits <- 
+        do.call(cbind, lapply(enrichL, function(x){x$sumForegroundWgtWithHits}))
+    assaySumBackgroundWgtWithHits <- 
+        do.call(cbind, lapply(enrichL, function(x){x$sumBackgroundWgtWithHits}))
     
     # ... set motifs with zero fore- and background sums to NA
-    assayFgBgSum <- assaySumForegroundWgtWithHits + assaySumBackgroundWgtWithHits
+    assayFgBgSum <- assaySumForegroundWgtWithHits + 
+        assaySumBackgroundWgtWithHits
     set_NA <- assayFgBgSum == 0
     P[set_NA] <- NA
     padj[set_NA] <- NA
