@@ -78,9 +78,9 @@ test_that("plotBinScatter() runs", {
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)
 
-    expect_null(plotBinScatter(x = x, y = x, b = b1))
+    expect_true(plotBinScatter(x = x, y = x, b = b1))
     expect_error(plotBinScatter(x = x, y = x, b = b1, cols = "gray"))
-    expect_null(plotBinScatter(x = x, y = x, b = b1, cols = "gray", legend = FALSE))
+    expect_true(plotBinScatter(x = x, y = x, b = b1, cols = "gray", legend = FALSE))
 
     dev.off()
     unlink(tf)
@@ -143,3 +143,4 @@ test_that("plotSelectionProb() runs", {
     dev.off()
     unlink(tf)
 })
+
