@@ -360,13 +360,18 @@ getKmerFreq <- function(seqs,
 #'       foreground sequence, \code{genome.oversample} background sequences
 #'       of the same size are sampled (on average). From these, one per
 #'       foreground sequence is selected trying to match the G+C composition.
-#'       In order to make the sampling deterministic, the random number
-#'       generator has to be seeded using \code{set.seed} before calling 
-#'       this function.}
+#'       In order to make the sampling deterministic, a seed number needs to be
+#'       provided to the \code{RNGseed} parameter in \code{\link[BiocParallel]{SerialParam}}
+#'       or \code{\link[BiocParallel]{MulticoreParam}} when creating the 
+#'       \code{BiocParallelParam} instance in \code{BPPARAM}.}
 #'     \item{model}{: a Markov model of the order \code{MMorder} is estimated
 #'       from the foreground sequences and used to estimate expected k-mer
 #'       frequencies. K-mer enrichments are then calculated comparing observed
-#'       to these expected frequencies.}
+#'       to these expected frequencies. In order to make the process 
+#'       deterministic, a seed number needs to be provided to the \code{RNGseed} 
+#'       parameter in \code{\link[BiocParallel]{SerialParam}} or 
+#'       \code{\link[BiocParallel]{MulticoreParam}} when creating the 
+#'       \code{BiocParallelParam} instance in \code{BPPARAM}.}
 #'   }
 #'
 #'   For each k-mer, the weights of sequences is multiplied with the number

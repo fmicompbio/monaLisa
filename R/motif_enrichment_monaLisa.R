@@ -173,9 +173,10 @@
 #'       foreground sequence, \code{genome.oversample} background sequences
 #'       of the same size are sampled (on average). From these, one per
 #'       foreground sequence is selected trying to match the G+C composition.
-#'       In order to make the sampling deterministic, seed the random number
-#'       generator before calling \code{calcBinnedMotifEnrR} using
-#'       \code{set.seed}.}
+#'       In order to make the sampling deterministic, a seed number needs to be
+#'       provided to the \code{RNGseed} parameter in \code{\link[BiocParallel]{SerialParam}}
+#'       or \code{\link[BiocParallel]{MulticoreParam}} when creating the 
+#'       \code{BiocParallelParam} instance in \code{BPPARAM}.}
 #'   }
 #'
 #'   Motif hits are predicted using \code{\link[monaLisa]{findMotifHits}} and
