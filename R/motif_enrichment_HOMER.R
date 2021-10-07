@@ -1,4 +1,3 @@
-#' @import GenomicRanges
 #' @importFrom tools file_path_as_absolute
 #' @importFrom utils read.delim write.table getFromNamespace
 #' @importFrom stats p.adjust
@@ -27,7 +26,8 @@ NULL
 findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
     if (is.null(dirs))
         dirs <- strsplit(x = Sys.getenv("PATH"), split = ":")[[1]]
-    if (!is.na(monalisa_homer <- Sys.getenv("MONALISA_HOMER", unset = NA)))
+    monalisa_homer <- Sys.getenv("MONALISA_HOMER", unset = NA)
+    if (!is.na(monalisa_homer))
         dirs <- c(strsplit(x = monalisa_homer, split = ":")[[1]], dirs)
     dirs <- unique(dirs)
     res <- list.files(path = dirs, pattern = paste0("^",homerfile,"$"),
@@ -253,7 +253,7 @@ homerToPFMatrixList <- function(filename, n = 100L) {
 #' # clean up example
 #' unlink(c(genomedir, motiffile, homerfile, outdir))
 #'
-#' @importFrom GenomicRanges start end strand
+#' @importFrom GenomicRanges start end strand seqnames
 #' @export
 prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
                          homerfile = findHomer(), regionsize = "given",
@@ -619,7 +619,7 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
     
     ## Find the assays (the matrices) of the list and reorder
     assayidx <- vapply(resL, function(x) !is.null(dim(x)), FALSE)
-    assayL <- lapply(resL[assayidx], function(x) x[o, , drop=FALSE])
+    assayL <- lapply(resL[assayidx], function(x) x[o, , drop = FALSE])
     # assayL <- lapply(resL[seq_len(7)], function(x) x[o, ])
     
     ## ... ... colData

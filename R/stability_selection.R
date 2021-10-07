@@ -1,9 +1,3 @@
-#' @importFrom stabs stabsel
-#' @importFrom glmnet glmnet predict.glmnet
-#' @importFrom TFBSTools PWMatrixList
-#' @importFrom stats model.matrix runif
-NULL
-
 #' @title Randomized Lasso
 #'
 #' @description This function performs randomized lasso using the \code{glmnet} package. The

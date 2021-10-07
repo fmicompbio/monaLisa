@@ -23,7 +23,7 @@
 #' sampleRandomRegions(regs, N = 2, regWidth = 3L)
 #' 
 #' @importFrom GenomeInfoDb seqlengths
-#' @importFrom GenomicRanges width end start seqnames GRanges sort
+#' @importFrom GenomicRanges width end end<- start seqnames GRanges sort
 #' @importFrom IRanges IRanges
 #'
 #' @export

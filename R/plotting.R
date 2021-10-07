@@ -188,7 +188,7 @@ plotBinDensity <- function(x, b,
 #'
 #' @seealso \code{\link{bin}}, \code{\link{getColsByBin}}
 #'
-#' @return Invisibly the return value of \code{plot(x, y, ...)} that generated the plot.
+#' @return \code{TRUE} (invisibly).
 #'
 #' @examples 
 #' set.seed(1)
@@ -210,8 +210,8 @@ plotBinScatter <- function(x, y, b,
         cols <- rep(cols, length(x))
     stopifnot(length(x) == length(cols))
     par(mar = c(5, 4, 4 - if (main == "") 3 else 0, 2) + 0.1, cex = 1.25)
-    ret <- plot(x, y, pch = 16, cex = 0.6, col = cols,
-                xlab = xlab, ylab = ylab, main = main, axes = FALSE, ...)
+    plot(x, y, pch = 16, cex = 0.6, col = cols,
+         xlab = xlab, ylab = ylab, main = main, axes = FALSE, ...)
     axis(1)
     axis(2)
     pusr <- par('usr')
@@ -223,7 +223,7 @@ plotBinScatter <- function(x, y, b,
         legend(x = legend, legend = sprintf("%s : %d", levels(b), table(b)),
                fill = bincols, bty = "n", cex = legend.cex)
     }
-    invisible(ret)
+    invisible(TRUE)
 }
 
 
@@ -284,7 +284,7 @@ plotBinScatter <- function(x, y, b,
 #' plotMotifHeatmaps(se[i, ], which.plots = "pearsonResid",
 #'                   width = 2, show_seqlogo = TRUE)
 #' 
-#' @importFrom methods is
+#' @importFrom methods is show
 #' @importFrom stats hclust dist quantile
 #' @importFrom TFBSTools Matrix
 #' @importFrom grDevices colorRampPalette
@@ -451,7 +451,7 @@ plotMotifHeatmaps <- function(x,
 #' @param ylim limits for y-axis (default = c(0,1.1)).
 #' @param ... additional parameters to pass on to \code{matplot}.
 #'
-#' @return plot of stability paths.
+#' @return \code{TRUE} (invisibly).
 #' 
 #' @examples 
 #' ## create data set
@@ -481,20 +481,17 @@ plotStabilityPaths <- function(se,
                                selProbMin = metadata(se)$stabsel.params.cutoff,
                                col = "cadetblue", 
                                lwd = 1, lty = 1, ylim = c(0, 1.1), ...) {
-
     # checks
     if (!is(se, "SummarizedExperiment")) {
         stop("'se' must be a SummarizedExperiment")
     }
 
-   
     # set plot parameters
     mat <- as.matrix(colData(se))
     mat <- t(mat[, grep(pattern = "^regStep", x = colnames(mat))])
     cols <- rep("black", ncol(mat))
     sel <- se$selProb > selProbMin
     cols[sel] <- col
-  
   
     # plot stability paths
     graphics::matplot(mat, col = cols, type = "l", lty = lty,
@@ -503,7 +500,6 @@ plotStabilityPaths <- function(se,
     abline(h = selProbMin, lty = 5, col = "red", lwd = lwd)
     legend("topleft", legend = c("not selected", "selected", "selProbMin"),
            col = c("black", col, "red"), lty = c(1, 1, 5), bty = "n", lwd = lwd)
-    
     
     # return TRUE
     invisible(TRUE)

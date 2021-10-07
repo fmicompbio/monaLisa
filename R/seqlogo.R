@@ -1,5 +1,5 @@
 # Coordinates for an A-polygon (internal)
-letterA <- function (x.pos, y.pos, ht, wt) {
+letterA <- function(x.pos, y.pos, ht, wt) {
     x <- 0.1 * c(0, 4, 6, 10, 8, 6.8, 3.2, 2, 0, 3.6, 5, 6.4, 3.6)
     y <- 0.1 * c(0, 10, 10, 0, 0, 3, 3, 0, 0, 4, 7.5, 4, 4)
     x <- x.pos + wt * x
@@ -9,7 +9,7 @@ letterA <- function (x.pos, y.pos, ht, wt) {
 }
 
 # Coordinates for an C-polygon (internal)
-letterC <- function (x.pos, y.pos, ht, wt) {
+letterC <- function(x.pos, y.pos, ht, wt) {
     angle1 <- seq(0.3 + pi/2, pi, length = 100)
     angle2 <- seq(pi, 1.5 * pi, length = 100)
     x.l1 <- 0.5 + 0.5 * sin(angle1)
@@ -40,7 +40,7 @@ letterC <- function (x.pos, y.pos, ht, wt) {
 }
 
 # Coordinates for an G-polygon (internal)
-letterG <- function (x.pos, y.pos, ht, wt) {
+letterG <- function(x.pos, y.pos, ht, wt) {
     angle1 <- seq(0.3 + pi/2, pi, length = 100)
     angle2 <- seq(pi, 1.5 * pi, length = 100)
     x.l1 <- 0.5 + 0.5 * sin(angle1)
@@ -78,7 +78,7 @@ letterG <- function (x.pos, y.pos, ht, wt) {
 }
 
 # Coordinates for an T-polygon (internal)
-letterT <- function (x.pos, y.pos, ht, wt) {
+letterT <- function(x.pos, y.pos, ht, wt) {
     x <- 0.1 * c(0, 10, 10, 6, 6, 4, 4, 0)
     y <- 0.1 * c(10, 10, 9, 9, 0, 0, 9, 9)
     x <- x.pos + wt * x
@@ -88,7 +88,7 @@ letterT <- function (x.pos, y.pos, ht, wt) {
 }
 
 # Add coordinates for a new base polygon to the coordinaes in 'letters' (internal)
-addLetter <- function (letters, which = c("A", "C", "G", "T"), x.pos, y.pos, ht, wt) {
+addLetter <- function(letters, which = c("A", "C", "G", "T"), x.pos, y.pos, ht, wt) {
     which <- match.arg(which)
     letter <- switch(which,
                      "A" = letterA(x.pos, y.pos, ht, wt),
@@ -105,10 +105,11 @@ addLetter <- function (letters, which = c("A", "C", "G", "T"), x.pos, y.pos, ht,
 
 # Calculate the information content for each position in a PFMatrix (internal)
 pfm2ic <- function(pfm) {
-    npos <- ncol(pfm)
-    ic <- numeric(length = npos)
-    for (i in seq_len(npos))
-        ic[i] <- 2 + sum(vapply(pfm[, i], function(x) if (x > 0) (x * log2(x)) else 0, 0))
+    ic <- vapply(X = seq_len(ncol(pfm)),
+                 FUN = function(i) 2 + sum(ifelse(pfm[, i] > 0,
+                                                  pfm[, i] * log2(pfm[, i]),
+                                                  0)),
+                 FUN.VALUE = 0)
     ic
 }
 
@@ -284,9 +285,9 @@ annoSeqlogo <- function(grobL, which = c("column", "row"),
     anno = AnnotationFunction(fun = fun, fun_name = "annoSeqlogo", which = which,
                               width = anno_size$width, height = anno_size$height,
                               n = n_seqlogo, data_scale = c(0.5, 1.5),
-                              var_import = list(gp, space, grobL))
-    anno@subset_rule$gp = ComplexHeatmap::subset_gp
-    anno@subset_rule$grobL = ComplexHeatmap::subset_vector
-    anno@subsetable = TRUE
+                              var_import = list(gp, space, grobL),
+                              subset_rule = list(gp = ComplexHeatmap::subset_gp,
+                                                 grobL = ComplexHeatmap::subset_vector), 
+                              subsetable = TRUE)
     return(anno)
 }

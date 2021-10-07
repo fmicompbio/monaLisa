@@ -33,7 +33,7 @@ color is defined by the \code{col} argument.}
 \item{...}{additional parameters to pass on to \code{matplot}.}
 }
 \value{
-plot of stability paths.
+\code{TRUE} (invisibly).
 }
 \description{
 Plot the stability paths of each variable (predictor), showing the selection probability
