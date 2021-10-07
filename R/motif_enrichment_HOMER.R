@@ -26,7 +26,8 @@ NULL
 findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
     if (is.null(dirs))
         dirs <- strsplit(x = Sys.getenv("PATH"), split = ":")[[1]]
-    if (!is.na(monalisa_homer <- Sys.getenv("MONALISA_HOMER", unset = NA)))
+    monalisa_homer <- Sys.getenv("MONALISA_HOMER", unset = NA)
+    if (!is.na(monalisa_homer))
         dirs <- c(strsplit(x = monalisa_homer, split = ":")[[1]], dirs)
     dirs <- unique(dirs)
     res <- list.files(path = dirs, pattern = paste0("^",homerfile,"$"),
