@@ -542,6 +542,10 @@ plotStabilityPaths <- function(se,
 #' @param ylimext A numeric scalar defining how much the y axis limits should be
 #'   expanded beyond the plotted probabilities to allow for space for the
 #'   bar labels.
+#' @param legend the position of the legend in the bar plot (will
+#'     be passed to \code{legend(x=legend)} to control legend position).
+#' @param legend.cex A scalar that controls the text size in the legend relative
+#'     to the current \code{par("cex")} (see \code{\link{legend}}).
 #' @param ... additional parameters passed to \code{\link[graphics]{barplot}}. 
 #'
 #' @details This function creates a bar plot using the \code{\link[graphics]{barplot}} function.
@@ -585,6 +589,8 @@ plotSelectionProb <- function(se,
                               col = c("cadetblue", "grey", "red"),
                               method = c("pearson", "kendall", "spearman"),
                               ylimext = 0.25,
+                              legend = "topright", 
+                              legend.cex = 1.0, 
                               ...) {
     
     # checks
@@ -592,6 +598,8 @@ plotSelectionProb <- function(se,
     .assertScalar(x = selProbMin, type = "numeric", rngIncl = c(0, 1))
     .assertScalar(x = selProbMinPlot, type = "numeric", rngIncl = c(0, 1))
     .assertScalar(x = showSelProbMin, type = "logical")
+    .assertScalar(x = legend, type = "character")
+    .assertScalar(x = legend.cex, type = "numeric", rngExcl = c(0, Inf))
     stopifnot(exprs = {
         is(se, "SummarizedExperiment")
         selProbMin >= selProbMinPlot
@@ -634,8 +642,9 @@ plotSelectionProb <- function(se,
             hval <- if (directional) c(-1, 1) * selProbMin else selProbMin
             graphics::abline(h = hval, lty = 5, col = col[3])
         }
-        graphics::legend("topright", bty = "n", fill = col[seq_len(2)], border = NA,
-                         legend = c("selected", "not selected"))
+        graphics::legend(x = legend, bty = "n", fill = col[seq_len(2)], 
+                         border = NA, legend = c("selected", "not selected"), 
+                         cex = legend.cex)
         if (any(up)) {
             graphics::text(x = ret[up], y = probs[up] + par("cxy")[2] / 3,
                            labels = predNames[up], col = cols[up],
@@ -649,5 +658,5 @@ plotSelectionProb <- function(se,
     } else{
         ret <- NULL
     }
-    ret
+    invisible(ret)
 }

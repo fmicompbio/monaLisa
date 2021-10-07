@@ -135,6 +135,7 @@ test_that("plotSelectionProb() runs", {
     expect_error(plotSelectionProb(se = ss, showSelProbMin = "error"))
     expect_error(plotSelectionProb(se = ss, col = "error"), "length 3")
     expect_error(plotSelectionProb(se = ss, method = "error"), "should be one of")
+    expect_error(plotSelectionProb(se = ss, legend = "error"))
 
     expect_null(plotSelectionProb(ss, selProbMin = 1.0, selProbMinPlot = 0.99))
     expect_is(plotSelectionProb(ss), "matrix")
