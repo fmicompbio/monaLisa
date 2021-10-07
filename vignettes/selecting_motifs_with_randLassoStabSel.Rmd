@@ -141,7 +141,6 @@ plotStabilityPaths(se)
 ```
 Each line corresponds to a predictor, and we can see the selection probabilities as a function of the regularization steps, corresponding to decreasing values for the lambda regularization parameter in lasso. The predictor (TF motif) selection happens at the last step, given the specified minimum probability.
 
-\ 
 
 We can also visualize the selection probabilities of the selected TF motifs, optionally multiplied by the sign of the correlation to the response vector, to know how the TF relates to the change of accessibility (`directional` parameter). Note that although one can vary the `selProbMinPlot` argument which sets the selection probability cutoff, it is best to re-run randomized lasso stability selection with the new cutoff, as this influences other parameter choices the model uses internally. See @StabSel for more details.
 ```{r plotSelProbs, fig.width=15, fig.height=9}
