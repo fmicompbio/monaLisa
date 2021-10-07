@@ -284,13 +284,13 @@ plotBinScatter <- function(x, y, b,
 #' plotMotifHeatmaps(se[i, ], which.plots = "pearsonResid",
 #'                   width = 2, show_seqlogo = TRUE)
 #' 
-#' @importFrom methods is
+#' @importFrom methods is show
 #' @importFrom stats hclust dist quantile
 #' @importFrom TFBSTools Matrix
 #' @importFrom grDevices colorRampPalette
 #' @importFrom S4Vectors metadata
 #' @importFrom SummarizedExperiment assayNames assay rowData
-#' @importFrom ComplexHeatmap HeatmapAnnotation Heatmap add_heatmap show
+#' @importFrom ComplexHeatmap HeatmapAnnotation Heatmap add_heatmap
 #' @importFrom grid unit
 #' @importFrom circlize colorRamp2
 #'
