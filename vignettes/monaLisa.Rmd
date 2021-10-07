@@ -100,11 +100,13 @@ BiocManager::install("monaLisa")
 
 # Quick example: Identify enriched motifs in bins{#quick}
 
-For this example, we assume that you already have extracted a set of peaks. The 
-sequences of the peak regions are stored in a `Biostrings::DNAStringSet` (`peak_seqs`), and 
-additionally each peak is associated with a numeric value (e.g., the change of 
-methylation between two conditions, stored in the `peak_change` vector), that 
-will be used to bin the regions before finding motifs enriched in each bin. 
+The quick example below, which we do not run, illustrates how a binned motif 
+enrichment analysis can be performed in `monaLisa`. We assume that you already 
+have extracted a set of peaks. The sequences of the peak regions are stored 
+in a `Biostrings::DNAStringSet` (`peak_seqs`), and additionally each peak is 
+associated with a numeric value (e.g., the change of methylation between two 
+conditions, stored in the `peak_change` vector), that will be used to bin the 
+regions before finding motifs enriched in each bin. 
 
 ```{r, quick, eval=FALSE}
 # load package
@@ -112,10 +114,12 @@ library(monaLisa)
 
 # bin regions
 # (peak_change is a numerical vector)
+# (peak_change needs to be created by the user to run this code)
 peak_bins <- bin(x = peak_change, binmode = "equalN", nElement = 400)
 
 # calculate motif enrichments
 # (peak_seqs is a DNAStringSet, pwms is a PWMatrixList)
+# (peak_seqs and pwms need to be created by the user to run this code)
 se <- calcBinnedMotifEnrR(seqs = peak_seqs,
                           bins = peak_bins,
                           pwmL = pwms)
