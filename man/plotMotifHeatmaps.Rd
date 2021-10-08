@@ -28,47 +28,57 @@ plotMotifHeatmaps(
 )
 }
 \arguments{
-\item{x}{A \code{\link[SummarizedExperiment]{SummarizedExperiment}} with numerical matrices
-(motifs-by-bins) in its \code{assays()}, typically the return value
-of \code{\link{calcBinnedMotifEnrR}} or \code{\link{calcBinnedMotifEnrHomer}}.}
+\item{x}{A \code{\link[SummarizedExperiment]{SummarizedExperiment}} with 
+numerical matrices (motifs-by-bins) in its \code{assays()}, typically 
+the return value of \code{\link{calcBinnedMotifEnrR}} or 
+\code{\link{calcBinnedMotifEnrHomer}}.}
 
-\item{which.plots}{Selects which heatmaps to plot (one or several from \code{"negLog10P"},
-\code{"negLog10Padj"}, \code{"pearsonResid"} and \code{"log2enr"}).}
+\item{which.plots}{Selects which heatmaps to plot (one or several from 
+\code{"negLog10P"}, \code{"negLog10Padj"}, \code{"pearsonResid"} and 
+\code{"log2enr"}).}
 
-\item{width}{The width (in inches) of each individual heatmap, without legend.}
+\item{width}{The width (in inches) of each individual heatmap, without 
+legend.}
 
-\item{col.enr}{Colors used for enrichment heatmap ("pearsonResid" and "log2enr").}
+\item{col.enr}{Colors used for enrichment heatmap ("pearsonResid" and 
+"log2enr").}
 
-\item{col.sig}{Colors used for significance hetmaps ("negLog10P" and "negLog10Padj").}
+\item{col.sig}{Colors used for significance hetmaps ("negLog10P" and 
+"negLog10Padj").}
 
-\item{col.gc}{Colors used for motif GC content (for \code{show_motif_GC = TRUE}).}
+\item{col.gc}{Colors used for motif GC content (for 
+\code{show_motif_GC = TRUE}).}
 
-\item{maxEnr}{Cap color mapping at enrichment = \code{maxEnr} (default: 99.5th percentile).}
-
-\item{maxSig}{Cap color mapping at -log10 P value or -log10 FDR = \code{maxSig}
+\item{maxEnr}{Cap color mapping at enrichment = \code{maxEnr}
 (default: 99.5th percentile).}
+
+\item{maxSig}{Cap color mapping at -log10 P value or -log10 FDR = 
+\code{maxSig} (default: 99.5th percentile).}
 
 \item{highlight}{A logical vector indicating motifs to be highlighted.}
 
-\item{cluster}{If \code{TRUE}, the order of transcription factors will be determined by
-hierarchical clustering of the \code{"pearsonResid"} component. Alternatively, an
-\code{hclust}-object can be supplied which will determine the motif ordering.
+\item{cluster}{If \code{TRUE}, the order of transcription factors will be 
+determined by hierarchical clustering of the \code{"pearsonResid"} 
+component. Alternatively, an \code{hclust}-object can be supplied which 
+will determine the motif ordering.
 No reordering is done for \code{cluster = FALSE}.}
 
 \item{show_dendrogram}{If \code{cluster != FALSE}, controls whether to show
-a row dendrogram for the clustering of motifs. Ignored for \code{cluster = FALSE}.}
+a row dendrogram for the clustering of motifs. Ignored for 
+\code{cluster = FALSE}.}
 
-\item{show_motif_GC}{If \code{TRUE}, show a column with the percent G+C of the motif
-as part of the heatmap.}
+\item{show_motif_GC}{If \code{TRUE}, show a column with the percent G+C of 
+the motif as part of the heatmap.}
 
-\item{show_seqlogo}{If \code{TRUE}, show a sequence logo next to each motif label.
-This will likely only make sense for a heatmap with a low number of motifs.}
+\item{show_seqlogo}{If \code{TRUE}, show a sequence logo next to each motif 
+label. This will likely only make sense for a heatmap with a low number 
+of motifs.}
 
-\item{width.seqlogo}{The width (in inches) for the longest sequence logo (shorter
-logos are drawn to scale).}
+\item{width.seqlogo}{The width (in inches) for the longest sequence logo 
+(shorter logos are drawn to scale).}
 
-\item{use_raster}{\code{TRUE} or \code{FALSE} (default). Passed to \code{use_raster}
-of \code{\link[ComplexHeatmap]{Heatmap}}.}
+\item{use_raster}{\code{TRUE} or \code{FALSE} (default). Passed to 
+\code{use_raster} of \code{\link[ComplexHeatmap]{Heatmap}}.}
 
 \item{na_col}{"white" (default). Passed to \code{na_col} of 
 \code{\link[ComplexHeatmap]{Heatmap}}.}
@@ -80,27 +90,30 @@ when creating the main heatmaps selected by \code{which.plots}.}
 A list of \code{ComplexHeatmap::Heatmap} objects.
 }
 \description{
-Plot motif enrichments (e.g. significance or magnitude) as a heatmap.
+Plot motif enrichments (e.g. significance or magnitude) as a 
+    heatmap.
 }
 \details{
 The heatmaps are created using the \pkg{ComplexHeatmap} package
     and plotted side-by-side.
 
     Each heatmap will be \code{width} inches wide, so the total plot needs a
-    graphics device with a width of at least \code{length(which.plots) * width}
-    plus the space used for motif names and legend. The height will be auto-adjusted to
-    the graphics device.
+    graphics device with a width of at least 
+    \code{length(which.plots) * width} plus the space used for motif names 
+    and legend. The height will be auto-adjusted to the graphics device.
 }
 \examples{
-se <- readRDS(system.file("extdata", "results.binned_motif_enrichment_LMRs.rds", package = "monaLisa"))
+se <- readRDS(system.file("extdata", 
+                          "results.binned_motif_enrichment_LMRs.rds", 
+                          package = "monaLisa"))
 i <- which(SummarizedExperiment::assay(se, "negLog10Padj")[, 8] > 4)
 plotMotifHeatmaps(se[i, ], which.plots = "pearsonResid",
                   width = 2, show_seqlogo = TRUE)
 
 }
 \references{
-Gu, Z. Complex heatmaps reveal patterns and correlations in multidimensional
-    genomic data. Bioinformatics 2016.
+Gu, Z. Complex heatmaps reveal patterns and correlations in 
+    multidimensional genomic data. Bioinformatics 2016.
 }
 \seealso{
 \code{\link{bin}}, \code{\link[ComplexHeatmap]{Heatmap}}

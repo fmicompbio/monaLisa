@@ -25,7 +25,10 @@ relative dinucleotide frequencies across the bins.}
 \item{...}{Additional argument passed to \code{getColsByBin}.}
 }
 \value{
-Does not return anything, but generates a plot.
+For aspect=\code{"length"} or \code{"GCfrac"}, returns (invisibly) 
+  the output of \code{vioplot()}, which generates the plot. For 
+  aspect=\code{"dinucfreq"}, returns (invisibly) the ComplexHeatmap 
+  object.
 }
 \description{
 Plot various diagnostics of binned sequences. Three plot types are 

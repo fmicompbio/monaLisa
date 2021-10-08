@@ -10,7 +10,8 @@
 #'
 #'
 #' @details In order to make the results deterministic, set the random
-#'      number seed before calling \code{sampleRandomRegions} using \code{set.seed}.
+#'     number seed before calling \code{sampleRandomRegions} using 
+#'     \code{set.seed}.
 #'
 #' @return A GRanges object with randomly sampled mappable regions of width 
 #'     \code{regWidth} with \code{fractionCGI} coming from CpG islands.
@@ -70,7 +71,8 @@ sampleRandomRegions <- function(allowedRegions = NULL, N = 100L,
         sample(st.sampled[i]:end.sampled[i], 1)
     }))
     gr.sampled <- GRanges(seqnames = chr.sampled,
-                          ranges = IRanges(start = pos.sampled, width = regWidth),
+                          ranges = IRanges(start = pos.sampled, 
+                                           width = regWidth),
                           seqlengths = seqlengths(gr))
     sort(gr.sampled)
 }

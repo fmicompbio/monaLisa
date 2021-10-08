@@ -15,8 +15,8 @@ plotStabilityPaths(
 )
 }
 \arguments{
-\item{se}{the \code{SummarizedExperiment} object resulting from stability selection, 
-by running \code{\link[monaLisa]{randLassoStabSel}}.}
+\item{se}{the \code{SummarizedExperiment} object resulting from stability 
+selection, by running \code{\link[monaLisa]{randLassoStabSel}}.}
 
 \item{selProbMin}{A numerical scalar in [0,1]. Predictors with a selection
 probability greater than \code{selProbMin} are shown as colored lines. The
@@ -36,8 +36,8 @@ color is defined by the \code{col} argument.}
 \code{TRUE} (invisibly).
 }
 \description{
-Plot the stability paths of each variable (predictor), showing the selection probability
-  as a function of the regularization step.
+Plot the stability paths of each variable (predictor), 
+  showing the selection probability as a function of the regularization step.
 }
 \examples{
 ## create data set

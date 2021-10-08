@@ -24,7 +24,10 @@
 #' 
 #' @export
 #' 
-#' @return Does not return anything, but generates a plot.
+#' @return For aspect=\code{"length"} or \code{"GCfrac"}, returns (invisibly) 
+#'   the output of \code{vioplot()}, which generates the plot. For 
+#'   aspect=\code{"dinucfreq"}, returns (invisibly) the ComplexHeatmap 
+#'   object. 
 #' 
 #' @examples 
 #' seqs <- Biostrings::DNAStringSet(
@@ -51,20 +54,22 @@ plotBinDiagnostics <- function(seqs, bins,
     aspect <- match.arg(aspect)
     binCols <- getColsByBin(bins, ...)
     if (aspect == "length") {
-        vioplot::vioplot(width(seqs) ~ bins, ylab = "", 
-                         col = attr(binCols, "cols"), 
-                         xlab = "Length", axes = FALSE, las = 2, 
-                         horizontal = TRUE, cex = 0.5, cex.axis = 0.75,
-                         cex.names = 0.75, par(mar = c(4, 6, 2, 2) + 0.1))
+        vp <- vioplot::vioplot(width(seqs) ~ bins, ylab = "", 
+                               col = attr(binCols, "cols"), 
+                               xlab = "Length", axes = FALSE, las = 2, 
+                               horizontal = TRUE, cex = 0.5, cex.axis = 0.75,
+                               cex.names = 0.75, par(mar = c(4, 6, 2, 2) + 0.1))
+        return(invisible(vp))
     } else if (aspect == "GCfrac") {
         onf <- Biostrings::oligonucleotideFrequency(seqs, width = 1, 
                                                     as.prob = TRUE)
         gcfrac <- onf[, "G"] + onf[, "C"]
-        vioplot::vioplot(gcfrac ~ bins, ylab = "", 
-                         col = attr(binCols, "cols"),
-                         xlab = "GC fraction", axes = FALSE, las = 2, 
-                         horizontal = TRUE, cex = 0.5, cex.axis = 0.75,
-                         cex.names = 0.75, par(mar = c(4, 6, 2, 2) + 0.1))
+        vp <- vioplot::vioplot(gcfrac ~ bins, ylab = "", 
+                               col = attr(binCols, "cols"),
+                               xlab = "GC fraction", axes = FALSE, las = 2, 
+                               horizontal = TRUE, cex = 0.5, cex.axis = 0.75,
+                               cex.names = 0.75, par(mar = c(4, 6, 2, 2) + 0.1))
+        return(invisible(vp))
     } else if (aspect == "dinucfreq") {
         dnf <- Biostrings::oligonucleotideFrequency(seqs, width = 2, 
                                                     as.prob = TRUE)
@@ -72,7 +77,7 @@ plotBinDiagnostics <- function(seqs, bins,
         dnfmat <- t(do.call(rbind, dnfsplit))
         cols <- circlize::colorRamp2(breaks = range(rowMeans(dnfmat)),
                                      colors = c("white", "grey50"))
-        ComplexHeatmap::Heatmap(
+        hm <- ComplexHeatmap::Heatmap(
             t(scale(t(dnfmat), center = TRUE, scale = FALSE)), 
             right_annotation = ComplexHeatmap::rowAnnotation(
                 OverallFreq = rowMeans(dnfmat),
@@ -84,5 +89,7 @@ plotBinDiagnostics <- function(seqs, bins,
             cluster_columns = FALSE, 
             name = "Mean\nrelative\nfrequency\nin bin\n(centered)"
         )
+        show(hm)
+        return(invisible(hm))
     }
 }

@@ -29,12 +29,12 @@ a \code{data.frame} containing the motifs as rows and the columns:
     \item{logP}{: the log p-value for enrichment (natural logarithm).
        If \code{test="binomial"} (default), this log p-value is identical to
        the one returned by Homer.}
-    \item{sumForegroundWgtWithHits}{: the sum of the weights of the foreground
-       sequences that have at least one instance of a specific motif
-       (ZOOPS mode).}
-    \item{sumBackgroundWgtWithHits}{: the sum of the weights of the background
-       sequences that have at least one instance of a specific motif
-       (ZOOPS mode).}
+    \item{sumForegroundWgtWithHits}{: the sum of the weights of the 
+       foreground sequences that have at least one instance of a specific 
+       motif (ZOOPS mode).}
+    \item{sumBackgroundWgtWithHits}{: the sum of the weights of the 
+       background sequences that have at least one instance of a specific 
+       motif (ZOOPS mode).}
     \item{totalWgtForeground}{: the total sum of weights of foreground
        sequences.}
     \item{totalWgtBackground}{: the total sum of weights of background
@@ -51,8 +51,8 @@ Given motif counts, foreground/background labels and
   \code{Homer} uses if "-h" is specified for a hypergeometric test.
   Alternatively, a binomial test can be used by \code{test = "binomial"}
   (what \code{Homer} does by default). Using Fisher's exact test has 
-  the advantage that special cases such as zero background counts are handled 
-  without ad-hoc adjustments to the frequencies.
+  the advantage that special cases such as zero background counts are 
+  handled without ad-hoc adjustments to the frequencies.
 
   For \code{test = "fisher"}, \code{fisher.test} is used with
   \code{alternative = "greater"}, making it a one-sided test for enrichment,

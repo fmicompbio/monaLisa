@@ -41,10 +41,11 @@
 #'   or zero occurences of a k-mer are considered per sequence.
 #' @param strata A \code{factor} or a \code{numeric} scalar defining the strata
 #'   of sequences. A separate Markov model and expected k-mer frequencies are
-#'   estimated for the set of sequences in each stratum (level in a \code{strata}
-#'   factor). If \code{strata} is a scalar value, it will be interpreted as the
-#'   number of strata to split the sequences into according to their CpG
-#'   observed-over-expected counts using \code{kmeans(CpGoe, centers = strata)}.
+#'   estimated for the set of sequences in each stratum (level in a 
+#'   \code{strata} factor). If \code{strata} is a scalar value, it will be 
+#'   interpreted as the number of strata to split the sequences into according 
+#'   to their CpG observed-over-expected counts using 
+#'   \code{kmeans(CpGoe, centers = strata)}.
 #' @param p.adjust.method A character scalar selecting the p value adjustment
 #'   method (used in \code{\link[stats]{p.adjust}}).
 #' @param includeRevComp A \code{logical} scalar. If \code{TRUE} (default),
@@ -57,8 +58,9 @@
 #'   is a vector of the same length as \code{seqs}, each reverse-complemented
 #'   sequence will be assigned to the same stratum as the forward sequence.
 #'
-#' @return A \code{list} with observed and expected k-mer frequencies (\code{freq.obs}
-#'   and \code{freq.exp}, respectively), and enrichment statistics for each k-mer.
+#' @return A \code{list} with observed and expected k-mer frequencies 
+#'   (\code{freq.obs} and \code{freq.exp}, respectively), and enrichment 
+#'   statistics for each k-mer.
 #'
 #' @examples 
 #' res <- getKmerFreq(seqs = c("AAAAATT", "AAATTTT"), kmerLen = 3)
@@ -66,7 +68,8 @@
 #' head(res$freq.obs)
 #' head(res$freq.exp)
 #' 
-#' @importFrom Biostrings DNAStringSet oligonucleotideFrequency reverseComplement
+#' @importFrom Biostrings DNAStringSet oligonucleotideFrequency 
+#'   reverseComplement
 #' @importFrom XVector subseq
 #' @importFrom stats ppois kmeans
 #'
@@ -82,13 +85,14 @@ getKmerFreq <- function(seqs,
 
     ##comments
 
-    ## When plotting the log2 enrichments or something similar against observed frequencies,
-    ## there will be a correlation as several kmers have the same expected frequency and thus their
-    ## enrichment and observed frequencies will naturally correlate. It makes thus more sense to plot
+    ## When plotting the log2 enrichments or something similar against 
+    ## observed frequencies, there will be a correlation as several kmers have 
+    ## the same expected frequency and thus their enrichment and observed 
+    ## frequencies will naturally correlate. It makes thus more sense to plot
     ## the log2 enrichment against expected frequencies
 
-    ## Generally, higher MMorder will take care of CpG bias and similar effects. Zoops will take care of
-    ## higher-order repeats.
+    ## Generally, higher MMorder will take care of CpG bias and similar effects.
+    ## Zoops will take care of higher-order repeats.
 
     ## pre-flight checks
     if (is.character(seqs))
@@ -97,13 +101,15 @@ getKmerFreq <- function(seqs,
     .assertScalar(x = MMorder, type = "numeric", rngExcl = c(0, kmerLen - 1L))
     .assertScalar(x = pseudocount, type = "numeric", rngIncl = c(0, Inf))
     .assertScalar(x = zoops, type = "logical")
-    .assertScalar(x = p.adjust.method, type = "character", validValues = stats::p.adjust.methods)
+    .assertScalar(x = p.adjust.method, type = "character", 
+                  validValues = stats::p.adjust.methods)
     .assertScalar(x = includeRevComp, type = "logical")
     stopifnot(exprs = {
         is(seqs, "DNAStringSet")
         round(kmerLen, 0L) == kmerLen
         round(MMorder, 0L) == MMorder
-        length(strata) == length(seqs) || (is.numeric(strata) && length(strata) == 1L)
+        length(strata) == length(seqs) || (is.numeric(strata) && 
+                                               length(strata) == 1L)
     })
     
     ## include reverse-complement sequences?
@@ -130,28 +136,37 @@ getKmerFreq <- function(seqs,
     ## for each sequence stratum, calculate...
     res.strata <- lapply(split(seqs, strata), function(seqs.stratum) {
         ## ... observed k-mer frequencies
-        kmerFreqRaw.stratum <- oligonucleotideFrequency(seqs.stratum, width = kmerLen)
+        kmerFreqRaw.stratum <- oligonucleotideFrequency(seqs.stratum, 
+                                                        width = kmerLen)
         if (zoops) {
             kmerFreq.stratum <- colSums(kmerFreqRaw.stratum > 0)
             #make new sequences that are simply the kmers detected
-            seqs.stratum.zoops <- DNAStringSet(rep(names(kmerFreq.stratum), kmerFreq.stratum))
-            lp_long  <- colSums(oligonucleotideFrequency(seqs.stratum.zoops, width = MMorder + 1L)) + pseudocount
-            lp_short <- colSums(oligonucleotideFrequency(seqs.stratum.zoops, width = MMorder)     ) + pseudocount
+            seqs.stratum.zoops <- DNAStringSet(
+                rep(names(kmerFreq.stratum), kmerFreq.stratum)
+            )
+            lp_long  <- colSums(oligonucleotideFrequency(
+                seqs.stratum.zoops, width = MMorder + 1L)) + pseudocount
+            lp_short <- colSums(oligonucleotideFrequency(
+                seqs.stratum.zoops, width = MMorder)) + pseudocount
         } else {
             kmerFreq.stratum <- colSums(kmerFreqRaw.stratum)
-            lp_long  <- colSums(oligonucleotideFrequency(seqs.stratum, width = MMorder + 1L)) + pseudocount
-            lp_short <- colSums(oligonucleotideFrequency(seqs.stratum, width = MMorder))      + pseudocount
+            lp_long  <- colSums(oligonucleotideFrequency(
+                seqs.stratum, width = MMorder + 1L)) + pseudocount
+            lp_short <- colSums(oligonucleotideFrequency(
+                seqs.stratum, width = MMorder)) + pseudocount
         }
         lp_long  <- log2(lp_long / sum(lp_long))
         lp_short <- log2(lp_short / sum(lp_short))
 
-        ## ... expected k-mer frequencies (log2-probabilities with a pseudocount)
+        ## ... expected k-mer frequencies (log2-probabilities with a 
+        ##     pseudocount)
         n <- nchar(names(kmerFreq.stratum)[1]) - MMorder
         log2pMM <- vapply(names(kmerFreq.stratum), function(current.kmer) {
             ii_long <- substr(rep(current.kmer, n),
                               start = seq_len(n), stop = seq_len(n) + MMorder)
             ii_short <- substr(rep(current.kmer, n - 1L),
-                               start = seq(2, n), stop = seq_len(n - 1L) + MMorder)
+                               start = seq(2, n), stop = seq_len(n - 1L) + 
+                                   MMorder)
             sum(lp_long[ii_long]) - sum(lp_short[ii_short])
         }, numeric(1))
         kmerFreqMM.stratum <- (2 ** log2pMM) * sum(kmerFreq.stratum)
@@ -249,8 +264,10 @@ getKmerFreq <- function(seqs,
     
     kmerHitMatrix[kmerHitMatrix > 0] <- 1 # ZOOPS
     kmerHitMatrixWeighted <- kmerHitMatrix * df$seqWgt
-    KmatchedSeqCountForeground <- colSums(kmerHitMatrixWeighted[df$isForeground, ])
-    KmatchedSeqCountBackground <- colSums(kmerHitMatrixWeighted[!df$isForeground, ])
+    KmatchedSeqCountForeground <- 
+        colSums(kmerHitMatrixWeighted[df$isForeground, ])
+    KmatchedSeqCountBackground <- 
+        colSums(kmerHitMatrixWeighted[!df$isForeground, ])
     
     # calculate k-mer enrichment
     if (identical(test, "binomial")) {
@@ -260,7 +277,7 @@ getKmerFreq <- function(seqs,
                                      totalWeightFg = totalWgtForeground,
                                      verbose = verbose)
     } else if (identical(test, "fisher")) {
-        logP <- .fisherEnrichmentTest(matchCountBg = KmatchedSeqCountBackground, 
+        logP <- .fisherEnrichmentTest(matchCountBg = KmatchedSeqCountBackground,
                                       totalWeightBg = totalWgtBackground,
                                       matchCountFg = KmatchedSeqCountForeground,
                                       totalWeightFg = totalWgtForeground,
@@ -282,15 +299,16 @@ getKmerFreq <- function(seqs,
 #'   enriched k-mers (n-grams) in each bin. The sequences can be given either
 #'   directly or as genomic coordinates.
 #'
-#' @param seqs \code{\link[Biostrings]{DNAStringSet}} object with sequences to test
+#' @param seqs \code{\link[Biostrings]{DNAStringSet}} object with sequences to
+#'   test
 #' @param bins factor of the same length and order as \code{seqs}, indicating
 #'   the bin for each sequence. Typically the return value of
 #'   \code{\link[monaLisa]{bin}}. For \code{background = "genome"} or
 #'   \code{background = "model"}, \code{bins} can be omitted.
 #' @param kmerLen A \code{numeric} scalar giving the k-mer length.
-#' @param background A \code{character} scalar specifying the background sequences
-#'   to use. One of \code{"otherBins"} (default), \code{"allBins"}, \code{"zeroBin"},
-#'   \code{"genome"} or \code{"model"} (see "Details").
+#' @param background A \code{character} scalar specifying the background 
+#'   sequences to use. One of \code{"otherBins"} (default), \code{"allBins"}, 
+#'   \code{"zeroBin"}, \code{"genome"} or \code{"model"} (see "Details").
 #' @param MMorder A \code{numeric} scalar giving the order of the Markov model
 #'   used to calculate the expected frequencies for \code{background = "model"}.
 #' @param test A \code{character} scalar specifying the type of enrichment test
@@ -348,7 +366,8 @@ getKmerFreq <- function(seqs,
 #'   The background sequences are defined according to the value of the
 #'   \code{background} argument:
 #'   \itemize{
-#'     \item{otherBins}{: sequences from all other bins (excluding the current bin)}
+#'     \item{otherBins}{: sequences from all other bins (excluding the current  
+#'       bin)}
 #'     \item{allBins}{: sequences from all bins (including the current bin)}
 #'     \item{zeroBin}{: sequences from the "zero bin", defined by the
 #'       \code{maxAbsX} argument of \code{\link[monaLisa]{bin}}. If \code{bins}
@@ -361,15 +380,16 @@ getKmerFreq <- function(seqs,
 #'       of the same size are sampled (on average). From these, one per
 #'       foreground sequence is selected trying to match the G+C composition.
 #'       In order to make the sampling deterministic, a seed number needs to be
-#'       provided to the \code{RNGseed} parameter in \code{\link[BiocParallel]{SerialParam}}
+#'       provided to the \code{RNGseed} parameter in 
+#'       \code{\link[BiocParallel]{SerialParam}}
 #'       or \code{\link[BiocParallel]{MulticoreParam}} when creating the 
 #'       \code{BiocParallelParam} instance in \code{BPPARAM}.}
 #'     \item{model}{: a Markov model of the order \code{MMorder} is estimated
 #'       from the foreground sequences and used to estimate expected k-mer
 #'       frequencies. K-mer enrichments are then calculated comparing observed
 #'       to these expected frequencies. In order to make the process 
-#'       deterministic, a seed number needs to be provided to the \code{RNGseed} 
-#'       parameter in \code{\link[BiocParallel]{SerialParam}} or 
+#'       deterministic, a seed number needs to be provided to the 
+#'       \code{RNGseed} parameter in \code{\link[BiocParallel]{SerialParam}} or 
 #'       \code{\link[BiocParallel]{MulticoreParam}} when creating the 
 #'       \code{BiocParallelParam} instance in \code{BPPARAM}.}
 #'   }
@@ -395,7 +415,8 @@ getKmerFreq <- function(seqs,
 #'       weights of sequences in foreground or background sets (rows), and with
 #'       or without a occurrences of a particular k-mer (columns).}
 #'     \item{binomial}{: \code{pbinom(q = sumForegroundWgtWithHits - 1, size =
-#'       totalWgtForeground, prob = sumBackgroundWgtWithHits / totalWgtBackground,
+#'       totalWgtForeground, 
+#'       prob = sumBackgroundWgtWithHits / totalWgtBackground,
 #'       lower.tail = FALSE, log.p = TRUE)}}
 #'   }
 #'   
@@ -438,7 +459,8 @@ getKmerFreq <- function(seqs,
 calcBinnedKmerEnr <- function(seqs,
                               bins = NULL,
                               kmerLen = 5,
-                              background = c("otherBins", "allBins", "zeroBin", "genome", "model"),
+                              background = c("otherBins", "allBins", 
+                                             "zeroBin", "genome", "model"),
                               MMorder = 1,
                               test = c("fisher", "binomial"),
                               includeRevComp = TRUE,
@@ -468,28 +490,33 @@ calcBinnedKmerEnr <- function(seqs,
     test <- match.arg(test)
     .assertScalar(x = includeRevComp, type = "logical")
     .assertScalar(x = pseudocount.kmers, type = "numeric", rngIncl = c(0, Inf))
-    .assertScalar(x = pseudocount.log2enr, type = "numeric", rngIncl = c(0, Inf))
-    .assertScalar(x = p.adjust.method, type = "character", validValues = stats::p.adjust.methods)
+    .assertScalar(x = pseudocount.log2enr, type = "numeric", 
+                  rngIncl = c(0, Inf))
+    .assertScalar(x = p.adjust.method, type = "character", 
+                  validValues = stats::p.adjust.methods)
     if (identical(background, "zeroBin") &&
         (is.null(getZeroBin(bins)) || is.na(getZeroBin(bins)))) {
-        stop("For background = 'zeroBin', 'bins' has to define a zero bin (see ",
-             "'maxAbsX' arugment of 'bin' function).")
+        stop("For background = 'zeroBin', 'bins' has to define a zero bin ",
+             "(see 'maxAbsX' argument of 'bin' function).")
     }
     if (identical(background, "genome")) {
-        if (is.null(genome) || !(is(genome, "DNAStringSet") || is(genome, "BSgenome"))) {
+        if (is.null(genome) || !(is(genome, "DNAStringSet") || 
+                                 is(genome, "BSgenome"))) {
             stop("For background = 'genome', 'genome' must be either a ",
                  "DNAStringSet or a BSgenome object.")
         }
         if (!is.null(genome.regions)) {
             if (!is(genome.regions, "GRanges")) {
-                stop("For background = 'genome', 'genome.regions' must be either ",
-                     "NULL or a GRanges object.")
+                stop("For background = 'genome', 'genome.regions' must be ",
+                     "either NULL or a GRanges object.")
             }
             if (!all(seqlevels(genome.regions) %in% names(genome))) {
-                stop("'genome.regions' contains seqlevels not contained in 'genome'")
+                stop("'genome.regions' contains seqlevels not contained in ", 
+                     "'genome'")
             }
         }
-        .assertScalar(x = genome.oversample, type = "numeric", rngIncl = c(1, Inf))
+        .assertScalar(x = genome.oversample, type = "numeric", 
+                      rngIncl = c(1, Inf))
     }
     .assertVector(x = BPPARAM, type = "BiocParallelParam")
     .assertScalar(x = verbose, type = "logical")
@@ -533,7 +560,8 @@ calcBinnedKmerEnr <- function(seqs,
     
     # stop if all sequences were filtered out
     if (sum(keep) == 0) {
-        stop("No sequence passed the filtering step. Cannot proceed with the enrichment analysis ...")
+        stop("No sequence passed the filtering step. Cannot proceed ", 
+             "with the enrichment analysis ...")
     }
     
     
@@ -580,7 +608,8 @@ calcBinnedKmerEnr <- function(seqs,
         } else {
             # define background set and create sequence info data frame
             if (verbose1) {
-                message("Defining background sequence set (", background, ")...")
+                message("Defining background sequence set (", 
+                        background, ")...")
             }
             df <- .defineBackground(sqs = seqs,
                                     bns = bins,
@@ -591,24 +620,30 @@ calcBinnedKmerEnr <- function(seqs,
                                     gnm.oversample = genome.oversample,
                                     maxFracN = maxFracN)
 
-            # calculate initial background sequence weights based on G+C composition
+            # calculate initial background sequence weights based on G+C 
+            # composition
             if (verbose1) {
-                message("Correcting for GC differences to the background sequences...")
+                message("Correcting for GC differences to the ", 
+                        "background sequences...")
             }
             df <- .calculateGCweight(df = df,
                                      GCbreaks = GCbreaks,
                                      verbose = verbose1)
 
-            # if df is empty, then all seqs were filtered out in the GC weight calculation step
+            # if df is empty, then all seqs were filtered out in the 
+            # GC weight calculation step
             if (nrow(df) == 0) {
-                stop("No sequences remained after the GC weight calculation step in bin ", levels(bins)[i], 
-                     " due to no GC bin containing both fore- and background sequences. ", 
-                     "Cannot proceed with the enrichment analysis ...")
+                stop("No sequences remained after the GC weight calculation ", 
+                     "step in bin ", levels(bins)[i], 
+                     " due to no GC bin containing both fore- and background ", 
+                     "sequences. Cannot proceed with the enrichment ", 
+                     "analysis ...")
             }
 
             # update background sequence weights based on k-mer composition
             if (verbose1) {
-                message("Correcting for k-mer differences between fore- and background sequences...")
+                message("Correcting for k-mer differences between fore- ", 
+                        "and background sequences...")
             }
             df <- .iterativeNormForKmers(df = df,
                                          maxKmerSize = maxKmerSize,
@@ -699,16 +734,18 @@ calcBinnedKmerEnr <- function(seqs,
         binL <- attr(bins, "breaks")[-(nlevels(bins) + 1)]
         binH <- attr(bins, "breaks")[-1]
     }
-    cdat <- DataFrame(bin.names = levels(bins),
-                      bin.lower = binL,
-                      bin.upper = binH,
-                      bin.nochange = seq.int(nlevels(bins)) %in% getZeroBin(bins),
-                      totalWgtForeground = do.call(c, lapply(enrichL, function(x) {
-                          x$totalWgtForeground[1]
-                      })), 
-                      totalWgtBackground = do.call(c, lapply(enrichL, function(x) {
-                          x$totalWgtBackground[1]
-                      })))
+    cdat <- DataFrame(
+        bin.names = levels(bins),
+        bin.lower = binL,
+        bin.upper = binH,
+        bin.nochange = seq.int(nlevels(bins)) %in% getZeroBin(bins),
+        totalWgtForeground = do.call(c, lapply(enrichL, function(x) {
+            x$totalWgtForeground[1]
+        })), 
+        totalWgtBackground = do.call(c, lapply(enrichL, function(x) {
+            x$totalWgtBackground[1]
+        }))
+    )
     mdat <- list(bins = bins,
                  bins.binmode = attr(bins, "binmode"),
                  bins.breaks = as.vector(attr(bins, "breaks")),
@@ -730,11 +767,14 @@ calcBinnedKmerEnr <- function(seqs,
                               BPPARAM.class = class(BPPARAM),
                               BPPARAM.bpnworkers = bpnworkers(BPPARAM),
                               verbose = verbose))
-    assaySumForegroundWgtWithHits <- do.call(cbind, lapply(enrichL, function(x){x$sumForegroundWgtWithHits}))
-    assaySumBackgroundWgtWithHits <- do.call(cbind, lapply(enrichL, function(x){x$sumBackgroundWgtWithHits}))
+    assaySumForegroundWgtWithHits <- 
+        do.call(cbind, lapply(enrichL, function(x){x$sumForegroundWgtWithHits}))
+    assaySumBackgroundWgtWithHits <- 
+        do.call(cbind, lapply(enrichL, function(x){x$sumBackgroundWgtWithHits}))
     
     # ... set motifs with zero fore- and background sums to NA
-    assayFgBgSum <- assaySumForegroundWgtWithHits + assaySumBackgroundWgtWithHits
+    assayFgBgSum <- assaySumForegroundWgtWithHits + 
+        assaySumBackgroundWgtWithHits
     set_NA <- assayFgBgSum == 0
     P[set_NA] <- NA
     padj[set_NA] <- NA

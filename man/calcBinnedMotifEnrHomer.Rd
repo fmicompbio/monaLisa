@@ -24,18 +24,24 @@ calcBinnedMotifEnrHomer(
 with the genomic regions to analyze.}
 
 \item{b}{A vector of the same length as \code{gr} that groups its elements
-into bins (typically a factor, such as the one returned by \code{\link{bin}}).}
+into bins (typically a factor, such as the one returned by 
+\code{\link{bin}}).}
 
-\item{genomedir}{Directory containing sequence files in Fasta format (one per chromosome).}
+\item{genomedir}{Directory containing sequence files in Fasta format 
+(one per chromosome).}
 
-\item{outdir}{A path specifying the folder into which the output files will be written.}
+\item{outdir}{A path specifying the folder into which the output files will 
+be written.}
 
-\item{motifFile}{A file with HOMER formatted PWMs to be used in the enrichment analysis.}
+\item{motifFile}{A file with HOMER formatted PWMs to be used in the 
+enrichment analysis.}
 
-\item{homerfile}{Path and file name of the \code{findMotifsGenome.pl} HOMER script.}
+\item{homerfile}{Path and file name of the \code{findMotifsGenome.pl} 
+HOMER script.}
 
-\item{regionsize}{The peak size to use in HOMER (\code{"given"} keeps the coordinate
-region, an integer value will keep only that many bases in the region center).}
+\item{regionsize}{The peak size to use in HOMER (\code{"given"} keeps the 
+coordinate region, an integer value will keep only that many bases in 
+the region center).}
 
 \item{pseudocount.log2enr}{A numerical scalar with the pseudocount to add to
 foreground and background counts when calculating log2 motif enrichments}

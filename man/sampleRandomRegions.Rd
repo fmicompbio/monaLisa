@@ -24,7 +24,8 @@ Sample random regions from the mappable parts of the genome with
 }
 \details{
 In order to make the results deterministic, set the random
-     number seed before calling \code{sampleRandomRegions} using \code{set.seed}.
+    number seed before calling \code{sampleRandomRegions} using 
+    \code{set.seed}.
 }
 \examples{
 regs <- GenomicRanges::GRanges(
