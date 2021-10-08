@@ -1,5 +1,6 @@
 #' @importFrom grDevices colorRampPalette
-#' @importFrom graphics axis hist lines par plot rect rug segments barplot matplot abline legend text
+#' @importFrom graphics axis hist lines par plot rect rug segments barplot 
+#'   matplot abline legend text
 #' @importFrom stats density dist hclust
 #' @importFrom S4Vectors isEmpty
 NULL
@@ -30,8 +31,10 @@ NULL
 #' 
 #' @export
 getColsByBin <- function(b,
-                         col1 = c("#003C30", "#01665E", "#35978F", "#80CDC1", "#C7EAE5"),
-                         col2 = c("#F6E8C3", "#DFC27D", "#BF812D", "#8C510A", "#543005"),
+                         col1 = c("#003C30", "#01665E", "#35978F", 
+                                  "#80CDC1", "#C7EAE5"),
+                         col2 = c("#F6E8C3", "#DFC27D", "#BF812D", 
+                                  "#8C510A", "#543005"),
                          col0 = "#F5F5F5") {
     if (!is.factor(b)) {
         b <- factor(b, levels = unique(b))
@@ -61,21 +64,22 @@ getColsByBin <- function(b,
 #' @description Plot a histogram of binned elements with binning information.
 #'
 #' @param x A numerical vector with the values used for binning.
-#' @param b A factor that groups elements of \code{x} into bins (typically the output of
-#'     \code{\link{bin}}).
+#' @param b A factor that groups elements of \code{x} into bins (typically 
+#'     the output of \code{\link{bin}}).
 #' @param breaks Controls the histogram breaks (passed to \code{hist(...)}).
 #' @param xlab Label for x-axis.
 #' @param ylab Label for y-axis.
 #' @param main Main title.
-#' @param legend If not \code{NULL}, draw a legend with binning information (will
-#'     be passed to \code{legend(x=legend)} to control legend position).
+#' @param legend If not \code{NULL}, draw a legend with binning information 
+#'     (will be passed to \code{legend(x=legend)} to control legend position).
 #' @param legend.cex A scalar that controls the text size in the legend relative
 #'     to the current \code{par("cex")} (see \code{\link{legend}}).
 #' @param ... Further arguments passed to \code{\link{getColsByBin}}.
 #'
 #' @seealso \code{\link{getColsByBin}}, \code{\link[graphics]{hist}}
 #'
-#' @return Invisibly the return value of \code{hist(...)} that generated the plot.
+#' @return Invisibly the return value of \code{hist(...)} that generated the 
+#'     plot.
 #' 
 #' @examples 
 #' set.seed(1)
@@ -96,7 +100,9 @@ plotBinHist <- function(x, b, breaks = 10 * nlevels(b),
     bincols <- attr(cols, "cols")
     h <- hist(x, breaks = breaks, plot = FALSE)
     par(mar = c(5, 4, 4 - if (main == "") 3 else 0, 2) + 0.1, cex = 1.25)
-    ret <- hist(x, breaks = breaks, col = bincols[findInterval(h$mids, binbreaks, all.inside = TRUE)],
+    ret <- hist(x, breaks = breaks, 
+                col = bincols[findInterval(h$mids, binbreaks, 
+                                           all.inside = TRUE)],
                 xlab = xlab, ylab = ylab, main = main)
     pusr <- par('usr')
     segments(x0 = pusr[c(1,1)], y0 = pusr[c(4,3)],
@@ -114,20 +120,21 @@ plotBinHist <- function(x, b, breaks = 10 * nlevels(b),
 #' @description Plot the density of binned elements with binning information.
 #'
 #' @param x A numerical vector with the values used for binning.
-#' @param b A factor that groups elements of \code{x} into bins (typically the output of
-#'     \code{\link{bin}}).
+#' @param b A factor that groups elements of \code{x} into bins (typically the 
+#'     output of \code{\link{bin}}).
 #' @param xlab Label for x-axis.
 #' @param ylab Label for y-axis.
 #' @param main Main title.
-#' @param legend If not \code{NULL}, draw a legend with binning information (will
-#'     be passed to \code{legend(x=legend)} to control legend position).
+#' @param legend If not \code{NULL}, draw a legend with binning information
+#'     (will be passed to \code{legend(x=legend)} to control legend position).
 #' @param legend.cex A scalar that controls the text size in the legend relative
 #'     to the current \code{par("cex")} (see \code{\link{legend}}).
 #' @param ... Further arguments passed to \code{\link{getColsByBin}}.
 #'
 #' @seealso \code{\link{getColsByBin}}
 #'
-#' @return Invisibly the return value of \code{density(x)} that generated the plot.
+#' @return Invisibly the return value of \code{density(x)} that generated the 
+#'     plot.
 #'
 #' @examples 
 #' set.seed(1)
@@ -137,9 +144,11 @@ plotBinHist <- function(x, b, breaks = 10 * nlevels(b),
 #' 
 #' @export
 plotBinDensity <- function(x, b,
-                           xlab = deparse(substitute(x, env = as.environment(-1))),
+                           xlab = deparse(substitute(x, 
+                                                     env = as.environment(-1))),
                            ylab = "Density",
-                           main = "", legend = "topright", legend.cex = 1.0, ...) {
+                           main = "", legend = "topright", 
+                           legend.cex = 1.0, ...) {
     .assertVector(x = b, type = "factor", len = length(x))
     stopifnot("breaks" %in% names(attributes(b)))
     .assertScalar(x = legend.cex, type = "numeric", rngExcl = c(0, Inf))
@@ -148,7 +157,8 @@ plotBinDensity <- function(x, b,
     bincols <- attr(cols, "cols")
     par(mar = c(5, 4, 4 - if (main == "") 3 else 0, 2) + 0.1, cex = 1.25)
     ret <- density(x)
-    plot(ret$x, ret$y, type = "l", col = "black", xlab = xlab, ylab = ylab, main = main, axes = FALSE)
+    plot(ret$x, ret$y, type = "l", col = "black", xlab = xlab, ylab = ylab, 
+         main = main, axes = FALSE)
     axis(1)
     axis(2)
     pusr <- par('usr')
@@ -157,7 +167,8 @@ plotBinDensity <- function(x, b,
     rug(binbreaks, col = "black")
     dx <- diff(ret$x[seq_len(2)]) / 2
     rect(xleft = ret$x - dx, ybottom = 0, xright = ret$x + dx, ytop = ret$y,
-         col = bincols[findInterval(ret$x, binbreaks, all.inside = TRUE)], border = NA)
+         col = bincols[findInterval(ret$x, binbreaks, all.inside = TRUE)], 
+         border = NA)
     lines(ret$x, ret$y)
 
     if (!is.null(legend) && legend[1] != FALSE)
@@ -169,19 +180,20 @@ plotBinDensity <- function(x, b,
 
 #' @title Scatter plot (xy-plot) of binned elements.
 #'
-#' @description Plot a scatter (xy-plot) of binned elements with binning information.
+#' @description Plot a scatter (xy-plot) of binned elements with binning 
+#'     information.
 #'
 #' @param x A numerical vector with x values.
 #' @param y A numerical vector with y values (the values used for binning).
-#' @param b A factor that groups elements of \code{x,y} into bins (typically the output
-#'     of \code{\link{bin}(y)}).
-#' @param cols A color vector (will be computed based on \code{b} by default using
-#'     \code{\link{getColsByBin}(b)}).
+#' @param b A factor that groups elements of \code{x,y} into bins (typically 
+#'     the output of \code{\link{bin}(y)}).
+#' @param cols A color vector (will be computed based on \code{b} by default 
+#'     using \code{\link{getColsByBin}(b)}).
 #' @param xlab Label for x-axis.
 #' @param ylab Label for y-axis.
 #' @param main Main title.
-#' @param legend If not \code{NULL}, draw a legend with binning information (will
-#'     be passed to \code{legend(x=legend)} to control legend position).
+#' @param legend If not \code{NULL}, draw a legend with binning information 
+#'     (will be passed to \code{legend(x=legend)} to control legend position).
 #' @param legend.cex A scalar that controls the text size in the legend relative
 #'     to the current \code{par("cex")} (see \code{\link{legend}}).
 #' @param ... Further arguments passed to \code{plot(x, y, ...)}.
@@ -200,9 +212,12 @@ plotBinDensity <- function(x, b,
 #' @export
 plotBinScatter <- function(x, y, b,
                            cols = getColsByBin(b),
-                           xlab = deparse(substitute(x, env = as.environment(-1))),
-                           ylab = deparse(substitute(y, env = as.environment(-1))),
-                           main = "", legend = "topright", legend.cex = 1.0, ...) {
+                           xlab = deparse(substitute(x, 
+                                                     env = as.environment(-1))),
+                           ylab = deparse(substitute(y, 
+                                                     env = as.environment(-1))),
+                           main = "", legend = "topright", 
+                           legend.cex = 1.0, ...) {
     .assertVector(x = y, len = length(x))
     .assertVector(x = b, len = length(x))
     .assertScalar(x = legend.cex, type = "numeric", rngExcl = c(0, Inf))
@@ -229,35 +244,46 @@ plotBinScatter <- function(x, y, b,
 
 #' @title Heatmap of motif enrichments.
 #'
-#' @description Plot motif enrichments (e.g. significance or magnitude) as a heatmap.
+#' @description Plot motif enrichments (e.g. significance or magnitude) as a 
+#'     heatmap.
 #'
-#' @param x A \code{\link[SummarizedExperiment]{SummarizedExperiment}} with numerical matrices
-#'     (motifs-by-bins) in its \code{assays()}, typically the return value
-#'     of \code{\link{calcBinnedMotifEnrR}} or \code{\link{calcBinnedMotifEnrHomer}}.
-#' @param which.plots Selects which heatmaps to plot (one or several from \code{"negLog10P"},
-#'     \code{"negLog10Padj"}, \code{"pearsonResid"} and \code{"log2enr"}).
-#' @param width The width (in inches) of each individual heatmap, without legend.
-#' @param col.enr Colors used for enrichment heatmap ("pearsonResid" and "log2enr").
-#' @param col.sig Colors used for significance hetmaps ("negLog10P" and "negLog10Padj").
-#' @param col.gc Colors used for motif GC content (for \code{show_motif_GC = TRUE}).
-#' @param maxEnr Cap color mapping at enrichment = \code{maxEnr} (default: 99.5th percentile).
-#' @param maxSig Cap color mapping at -log10 P value or -log10 FDR = \code{maxSig}
+#' @param x A \code{\link[SummarizedExperiment]{SummarizedExperiment}} with 
+#'     numerical matrices (motifs-by-bins) in its \code{assays()}, typically 
+#'     the return value of \code{\link{calcBinnedMotifEnrR}} or 
+#'     \code{\link{calcBinnedMotifEnrHomer}}.
+#' @param which.plots Selects which heatmaps to plot (one or several from 
+#'     \code{"negLog10P"}, \code{"negLog10Padj"}, \code{"pearsonResid"} and 
+#'     \code{"log2enr"}).
+#' @param width The width (in inches) of each individual heatmap, without 
+#'     legend.
+#' @param col.enr Colors used for enrichment heatmap ("pearsonResid" and 
+#'     "log2enr").
+#' @param col.sig Colors used for significance hetmaps ("negLog10P" and 
+#'     "negLog10Padj").
+#' @param col.gc Colors used for motif GC content (for 
+#'     \code{show_motif_GC = TRUE}).
+#' @param maxEnr Cap color mapping at enrichment = \code{maxEnr}
 #'     (default: 99.5th percentile).
+#' @param maxSig Cap color mapping at -log10 P value or -log10 FDR = 
+#'     \code{maxSig} (default: 99.5th percentile).
 #' @param highlight A logical vector indicating motifs to be highlighted.
-#' @param cluster If \code{TRUE}, the order of transcription factors will be determined by
-#'     hierarchical clustering of the \code{"pearsonResid"} component. Alternatively, an
-#'     \code{hclust}-object can be supplied which will determine the motif ordering.
+#' @param cluster If \code{TRUE}, the order of transcription factors will be 
+#'     determined by hierarchical clustering of the \code{"pearsonResid"} 
+#'     component. Alternatively, an \code{hclust}-object can be supplied which 
+#'     will determine the motif ordering.
 #'     No reordering is done for \code{cluster = FALSE}.
 #' @param show_dendrogram If \code{cluster != FALSE}, controls whether to show
-#'     a row dendrogram for the clustering of motifs. Ignored for \code{cluster = FALSE}.
-#' @param show_motif_GC If \code{TRUE}, show a column with the percent G+C of the motif
-#'     as part of the heatmap.
-#' @param show_seqlogo If \code{TRUE}, show a sequence logo next to each motif label.
-#'     This will likely only make sense for a heatmap with a low number of motifs.
-#' @param width.seqlogo The width (in inches) for the longest sequence logo (shorter
-#'     logos are drawn to scale).
-#' @param use_raster \code{TRUE} or \code{FALSE} (default). Passed to \code{use_raster}
-#'     of \code{\link[ComplexHeatmap]{Heatmap}}.
+#'     a row dendrogram for the clustering of motifs. Ignored for 
+#'     \code{cluster = FALSE}.
+#' @param show_motif_GC If \code{TRUE}, show a column with the percent G+C of 
+#'     the motif as part of the heatmap.
+#' @param show_seqlogo If \code{TRUE}, show a sequence logo next to each motif 
+#'     label. This will likely only make sense for a heatmap with a low number 
+#'     of motifs.
+#' @param width.seqlogo The width (in inches) for the longest sequence logo 
+#'     (shorter logos are drawn to scale).
+#' @param use_raster \code{TRUE} or \code{FALSE} (default). Passed to 
+#'     \code{use_raster} of \code{\link[ComplexHeatmap]{Heatmap}}.
 #' @param na_col "white" (default). Passed to \code{na_col} of 
 #'     \code{\link[ComplexHeatmap]{Heatmap}}.
 #' @param ... Further arguments passed to \code{\link[ComplexHeatmap]{Heatmap}}
@@ -267,19 +293,21 @@ plotBinScatter <- function(x, y, b,
 #'     and plotted side-by-side.
 #'
 #'     Each heatmap will be \code{width} inches wide, so the total plot needs a
-#'     graphics device with a width of at least \code{length(which.plots) * width}
-#'     plus the space used for motif names and legend. The height will be auto-adjusted to
-#'     the graphics device.
+#'     graphics device with a width of at least 
+#'     \code{length(which.plots) * width} plus the space used for motif names 
+#'     and legend. The height will be auto-adjusted to the graphics device.
 #'
 #' @seealso \code{\link{bin}}, \code{\link[ComplexHeatmap]{Heatmap}}
 #'
-#' @references Gu, Z. Complex heatmaps reveal patterns and correlations in multidimensional
-#'     genomic data. Bioinformatics 2016.
+#' @references Gu, Z. Complex heatmaps reveal patterns and correlations in 
+#'     multidimensional genomic data. Bioinformatics 2016.
 #'
 #' @return A list of \code{ComplexHeatmap::Heatmap} objects.
 #'
 #' @examples 
-#' se <- readRDS(system.file("extdata", "results.binned_motif_enrichment_LMRs.rds", package = "monaLisa"))
+#' se <- readRDS(system.file("extdata", 
+#'                           "results.binned_motif_enrichment_LMRs.rds", 
+#'                           package = "monaLisa"))
 #' i <- which(SummarizedExperiment::assay(se, "negLog10Padj")[, 8] > 4)
 #' plotMotifHeatmaps(se[i, ], which.plots = "pearsonResid",
 #'                   width = 2, show_seqlogo = TRUE)
@@ -296,16 +324,19 @@ plotBinScatter <- function(x, y, b,
 #'
 #' @export
 plotMotifHeatmaps <- function(x,
-                              which.plots = c("negLog10P", "pearsonResid", "negLog10Padj", "log2enr"),
+                              which.plots = c("negLog10P", "pearsonResid", 
+                                              "negLog10Padj", "log2enr"),
                               width = 4,
-                              col.enr = c("#053061","#2166AC","#4393C3","#92C5DE",
-                                          "#D1E5F0","#F7F7F7","#FDDBC7","#F4A582",
-                                          "#D6604D","#B2182B","#67001F"),
-                              col.sig = c("#F0F0F0","#D9D9D9","#BDBDBD","#969696",
-                                          "#737373","#525252","#252525","#000000"),
-                              col.gc = c("#F7FCF5","#E5F5E0","#C7E9C0","#A1D99B",
-                                         "#74C476","#41AB5D","#238B45","#006D2C",
-                                         "#00441B"),
+                              col.enr = c("#053061", "#2166AC", "#4393C3",
+                                          "#92C5DE", "#D1E5F0", "#F7F7F7",
+                                          "#FDDBC7", "#F4A582", "#D6604D",
+                                          "#B2182B", "#67001F"),
+                              col.sig = c("#F0F0F0", "#D9D9D9", "#BDBDBD",
+                                          "#969696", "#737373", "#525252",
+                                          "#252525", "#000000"),
+                              col.gc = c("#F7FCF5", "#E5F5E0", "#C7E9C0",
+                                         "#A1D99B", "#74C476", "#41AB5D",
+                                         "#238B45", "#006D2C", "#00441B"),
                               maxEnr = NULL,
                               maxSig = NULL,
                               highlight = NULL,
@@ -333,8 +364,10 @@ plotMotifHeatmaps <- function(x,
     .assertScalar(x = na_col, type = "character")
     stopifnot(exprs = {
         ncol(x) == nlevels(b)
-        all(which.plots %in% c("negLog10P", "negLog10Padj", "pearsonResid", "log2enr"))
-        is.null(highlight) || (is.logical(highlight) && length(highlight) == nrow(x))
+        all(which.plots %in% c("negLog10P", "negLog10Padj", 
+                               "pearsonResid", "log2enr"))
+        is.null(highlight) || (is.logical(highlight) && 
+                                 length(highlight) == nrow(x))
     })
     bincols <- attr(getColsByBin(b), "cols")
     if (identical(cluster, TRUE)) {
@@ -362,8 +395,12 @@ plotMotifHeatmaps <- function(x,
                                which = "column", width = unit(width,"inch"),
                                annotation_height = unit(width / 16, "inch"),
                                show_legend = FALSE)
-    tmp <- matrix(if (!is.null(highlight)) as.character(highlight) else rep(NA, nrow(x)),
-                  ncol = 1, dimnames = list(unname(rowData(x)$motif.name), NULL))
+    tmp <- matrix(if (!is.null(highlight)) {
+        as.character(highlight) 
+    } else {
+        rep(NA, nrow(x))
+    },
+    ncol = 1, dimnames = list(unname(rowData(x)$motif.name), NULL))
     hmSeqlogo <- NULL
     if (show_seqlogo) {
         pfms <- rowData(x)$motif.pfm
@@ -375,13 +412,15 @@ plotMotifHeatmaps <- function(x,
                                width = unit(width.seqlogo, "inch")),
             show_legend = FALSE, show_annotation_name = FALSE, which = "row")
     }
-    hmMotifs <- Heatmap(matrix = tmp, name = "names",
-                        width = unit(if (!is.null(highlight)) .2 else 0, "inch"),
-                        na_col = NA, col = c("TRUE" = "green3", "FALSE" = "white"),
-                        cluster_rows = clres, show_row_dend = show_dendrogram,
-                        cluster_columns = FALSE, show_row_names = TRUE,
-                        row_names_side = "left", show_column_names = FALSE,
-                        show_heatmap_legend = FALSE, left_annotation = hmSeqlogo)
+    hmMotifs <- Heatmap(
+        matrix = tmp, name = "names",
+        width = unit(if (!is.null(highlight)) .2 else 0, "inch"),
+        na_col = NA, col = c("TRUE" = "green3", "FALSE" = "white"),
+        cluster_rows = clres, show_row_dend = show_dendrogram,
+        cluster_columns = FALSE, show_row_names = TRUE,
+        row_names_side = "left", show_column_names = FALSE,
+        show_heatmap_legend = FALSE, left_annotation = hmSeqlogo
+    )
 
     assayNameMap1 <- c(negLog10P = "P value",
                        negLog10Padj = "adj. P value",
@@ -394,42 +433,57 @@ plotMotifHeatmaps <- function(x,
     L <- list(labels = hmMotifs)
     if (show_motif_GC) {
         tmp <- as.matrix(rowData(x)[, "motif.percentGC", drop = FALSE])
-        hmPercentGC <- Heatmap(matrix = tmp, name = "Percent G+C",
-                               width = unit(0.2, "inch"), na_col = NA,
-                               col = colorRamp2(breaks = c(0, seq(20, 80, length.out = 254), 100),
-                                                colors = colorRampPalette(col.gc)(256)),
-                               cluster_rows = FALSE, cluster_columns = FALSE,
-                               show_row_names = FALSE, show_column_names = FALSE,
-                               show_heatmap_legend = TRUE,
-                               heatmap_legend_param = list(color_bar = "continuous"),
-                               use_raster = use_raster)
+        hmPercentGC <- Heatmap(
+            matrix = tmp, name = "Percent G+C",
+            width = unit(0.2, "inch"), na_col = NA,
+            col = colorRamp2(breaks = c(0, seq(20, 80, length.out = 254), 100),
+                             colors = colorRampPalette(col.gc)(256)),
+            cluster_rows = FALSE, cluster_columns = FALSE,
+            show_row_names = FALSE, show_column_names = FALSE,
+            show_heatmap_legend = TRUE,
+            heatmap_legend_param = list(color_bar = "continuous"),
+            use_raster = use_raster
+        )
         L <- c(L, list("percentGC" = hmPercentGC))
     }
     ret <- c(L, lapply(which.plots, function(w) {
         dat <- assay(x, w)
         if ((w == "pearsonResid") | (w == "log2enr")) {
-            rng <- c(-1, 1) * if (is.null(maxEnr)) quantile(abs(dat), .995, na.rm = TRUE) else maxEnr
+            rng <- c(-1, 1) * if (is.null(maxEnr)) {
+                quantile(abs(dat), .995, na.rm = TRUE) 
+            } else {
+                maxEnr
+            }
             cols <- col.enr
         } else {
-            rng <- c(0, if (is.null(maxSig)) quantile(dat, .995, na.rm = TRUE) else maxSig)
+            rng <- c(0, 
+                     if (is.null(maxSig)) {
+                         quantile(dat, .995, na.rm = TRUE) 
+                     } else {
+                         maxSig
+                     })
             cols <- col.sig
         }
-        Heatmap(matrix = dat,
-                name = assayNameMap1[w],
-                width = unit(width,"inch"),
-                column_title = assayNameMap2[w],
-                col = colorRamp2(breaks = seq(rng[1], rng[2], length.out = 256),
-                                 colors = colorRampPalette(cols)(256)),
-                cluster_rows = FALSE, cluster_columns = FALSE,
-                show_row_names = FALSE, show_column_names = FALSE,
-                ##column_names_side = "bottom", column_names_max_height = unit(1.5,"inch"),
-                top_annotation = hmBin, show_heatmap_legend = TRUE,
-                heatmap_legend_param = list(color_bar = "continuous"),
-                use_raster = use_raster,
-                na_col = na_col, 
-                ...)
+        Heatmap(
+            matrix = dat,
+            name = assayNameMap1[w],
+            width = unit(width,"inch"),
+            column_title = assayNameMap2[w],
+            col = colorRamp2(breaks = seq(rng[1], rng[2], length.out = 256),
+                             colors = colorRampPalette(cols)(256)),
+            cluster_rows = FALSE, cluster_columns = FALSE,
+            show_row_names = FALSE, show_column_names = FALSE,
+            # column_names_side = "bottom", 
+            # column_names_max_height = unit(1.5,"inch"),
+            top_annotation = hmBin, show_heatmap_legend = TRUE,
+            heatmap_legend_param = list(color_bar = "continuous"),
+            use_raster = use_raster,
+            na_col = na_col, 
+            ...
+        )
     }))
-    names(ret)[seq(length(ret) - length(which.plots) + 1L, length(ret))] <- which.plots
+    names(ret)[seq(length(ret) - length(which.plots) + 1L, length(ret))] <- 
+        which.plots
     show(Reduce(ComplexHeatmap::add_heatmap, ret))
     invisible(ret)
 }
@@ -437,11 +491,11 @@ plotMotifHeatmaps <- function(x,
 
 #' @title Plot Stability Paths
 #'
-#' @description Plot the stability paths of each variable (predictor), showing the selection probability
-#'   as a function of the regularization step.
+#' @description Plot the stability paths of each variable (predictor), 
+#'   showing the selection probability as a function of the regularization step.
 #'
-#' @param se the \code{SummarizedExperiment} object resulting from stability selection, 
-#'   by running \code{\link[monaLisa]{randLassoStabSel}}.
+#' @param se the \code{SummarizedExperiment} object resulting from stability 
+#'   selection, by running \code{\link[monaLisa]{randLassoStabSel}}.
 #' @param selProbMin A numerical scalar in [0,1]. Predictors with a selection
 #'   probability greater than \code{selProbMin} are shown as colored lines. The
 #'   color is defined by the \code{col} argument.
@@ -526,12 +580,13 @@ plotStabilityPaths <- function(se,
 #' @param selProbMinPlot A numerical scalar in [0,1] less than \code{selProbMin}.
 #'   Predictors with a selection probability greater than \code{selProbMinPlot}
 #'   but less than \code{selProbMin} are shown as bars with color \code{col[2]}.
-#'   \code{selProbMinPlot} is useful to include additional predictors in the plot
-#'   that were not selected according to \code{selProbMin} but may be close to
-#'   that cutoff. Setting \code{selProbMinPlot = 0} will create a plot including
-#'   all predictors.
+#'   \code{selProbMinPlot} is useful to include additional predictors in the 
+#'   plot that were not selected according to \code{selProbMin} but may be 
+#'   close to that cutoff. Setting \code{selProbMinPlot = 0} will create a plot 
+#'   including all predictors.
 #' @param showSelProbMin A logical scalar. If \code{TRUE}, the value of
-#'   \code{selProbMin} is shown by a horizontal dashed line of color \code{col[3]}.
+#'   \code{selProbMin} is shown by a horizontal dashed line of color 
+#'   \code{col[3]}.
 #' @param col A color vector giving the three colors used for predictors with
 #'   selection probability greater than \code{selProbMin}, additional predictors
 #'   with selection probability greater than \code{selProbMinPlot}, and the
@@ -548,11 +603,13 @@ plotStabilityPaths <- function(se,
 #'     to the current \code{par("cex")} (see \code{\link{legend}}).
 #' @param ... additional parameters passed to \code{\link[graphics]{barplot}}. 
 #'
-#' @details This function creates a bar plot using the \code{\link[graphics]{barplot}} function.
+#' @details This function creates a bar plot using the 
+#'   \code{\link[graphics]{barplot}} function.
 #'   Each bar corresponds to a predictor (motif) and the colors correspond to 
-#'   whether or not it was selected. The y-axis shows the selection probabilities 
-#'   (\code{directional=FALSE}) or selection probabilities with the 
-#'   sign of the marginal correlation to the response (\code{directional=TRUE}). 
+#'   whether or not it was selected. The y-axis shows the selection 
+#'   probabilities (\code{directional=FALSE}) or selection probabilities with 
+#'   the sign of the marginal correlation to the response 
+#'   (\code{directional=TRUE}). 
 #'
 #' @return a \code{matrix} with one column, containing the coordinates of the 
 #'   bar midpoints, or \code{NULL} if no bar plot is drawn. 
@@ -629,9 +686,11 @@ plotSelectionProb <- function(se,
     # plot
     if (any(keep)) {
         ret <- graphics::barplot(probs, col = cols, border = NA,
-                                        ylab = ifelse(directional, 
-                                                      "Directional selection probability",
-                                                      "Selection probability"),
+                                        ylab = ifelse(
+                                            directional, 
+                                            "Directional selection probability",
+                                            "Selection probability"
+                                        ),
                                         names.arg = NA, axes = FALSE,
                                         ylim = c(min(probs) - ylimext,
                                                  max(probs) + ylimext),

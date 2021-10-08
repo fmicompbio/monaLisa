@@ -34,13 +34,14 @@ extracted from the parameters stored in \code{se}.}
 \item{selProbMinPlot}{A numerical scalar in [0,1] less than \code{selProbMin}.
 Predictors with a selection probability greater than \code{selProbMinPlot}
 but less than \code{selProbMin} are shown as bars with color \code{col[2]}.
-\code{selProbMinPlot} is useful to include additional predictors in the plot
-that were not selected according to \code{selProbMin} but may be close to
-that cutoff. Setting \code{selProbMinPlot = 0} will create a plot including
-all predictors.}
+\code{selProbMinPlot} is useful to include additional predictors in the 
+plot that were not selected according to \code{selProbMin} but may be 
+close to that cutoff. Setting \code{selProbMinPlot = 0} will create a plot 
+including all predictors.}
 
 \item{showSelProbMin}{A logical scalar. If \code{TRUE}, the value of
-\code{selProbMin} is shown by a horizontal dashed line of color \code{col[3]}.}
+\code{selProbMin} is shown by a horizontal dashed line of color 
+\code{col[3]}.}
 
 \item{col}{A color vector giving the three colors used for predictors with
 selection probability greater than \code{selProbMin}, additional predictors
@@ -75,11 +76,13 @@ This function plots the selection probabilities of predictors
   correlation coefficient between each predictor and the response vector.
 }
 \details{
-This function creates a bar plot using the \code{\link[graphics]{barplot}} function.
+This function creates a bar plot using the 
+  \code{\link[graphics]{barplot}} function.
   Each bar corresponds to a predictor (motif) and the colors correspond to 
-  whether or not it was selected. The y-axis shows the selection probabilities 
-  (\code{directional=FALSE}) or selection probabilities with the 
-  sign of the marginal correlation to the response (\code{directional=TRUE}).
+  whether or not it was selected. The y-axis shows the selection 
+  probabilities (\code{directional=FALSE}) or selection probabilities with 
+  the sign of the marginal correlation to the response 
+  (\code{directional=TRUE}).
 }
 \examples{
 ## create data set
