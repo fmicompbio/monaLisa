@@ -51,8 +51,8 @@ Given motif counts, foreground/background labels and
   \code{Homer} uses if "-h" is specified for a hypergeometric test.
   Alternatively, a binomial test can be used by \code{test = "binomial"}
   (what \code{Homer} does by default). Using Fisher's exact test has 
-  the advantage that special cases such as zero background counts are handled 
-  without ad-hoc adjustments to the frequencies.
+  the advantage that special cases such as zero background counts are 
+  handled without ad-hoc adjustments to the frequencies.
 
   For \code{test = "fisher"}, \code{fisher.test} is used with
   \code{alternative = "greater"}, making it a one-sided test for enrichment,

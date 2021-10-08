@@ -25,12 +25,14 @@ knitr::opts_chunk$set(
 library(BiocStyle)
 ```
 
-<img src="monaLisa_logo_v1.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%; border: 0" />
+<img src="monaLisa_logo_v1.png" style="display: block; margin-left: auto;
+margin-right: auto; width: 50%; border: 0" />
 
 
 # Introduction
 
-`r Biocpkg("monaLisa")` is a collection of functions for working with biological sequences
+`r Biocpkg("monaLisa")` is a collection of functions for working with 
+biological sequences
 and motifs that represent the binding preferences of transcription factors or
 nucleic acid binding proteins.
 
@@ -207,7 +209,8 @@ library(circlize)
 
 ## Genomic regions of interest
 
-`r Biocpkg("monaLisa")` contains a file with genomic coordinates (mouse mm10 assembly) of 
+`r Biocpkg("monaLisa")` contains a file with genomic coordinates 
+(mouse mm10 assembly) of 
 LMRs, with the respective changes of methylation:  
 
 ```{r loadLMRs}
@@ -367,7 +370,8 @@ assayNames(se)
 assay(se, "log2enr")[1:5, 1:3]
 ```
 
-We can plot the results using the `monaLisa::plotMotifHeatmaps` function, e.g. selecting 
+We can plot the results using the `monaLisa::plotMotifHeatmaps` function, 
+e.g. selecting 
 all transcription factor motifs that have an $-log_{10} FDR$ of at least 4.0 in 
 any bin (corresponding to an $FDR < 10^{-4}$). FDR values are stored in the 
 `negLog10Padj` assay:  
@@ -471,7 +475,8 @@ site sequences were observed (see argument `n` in `homerToPFMatrixList`).
 - **Position weight matrices (PWM)** (also known as position specific scoring 
 matrices, PSSM) are obtained by comparing the base probabilities in a PPM to 
 the probabilities of observing each base outside of a binding site (background 
-base probabilities), for example by calculating log-odds scores (see `TFBSTools::toPWM` 
+base probabilities), for example by calculating log-odds scores 
+(see `TFBSTools::toPWM` 
 for details). This is a useful representation for scanning sequences for motif 
 matches. In `R`, PWMs are often represented using `TFBSTools::PWMatrix` 
 (single motif) or `TFBSTools::PWMatrixList` (set of motifs).

@@ -32,7 +32,8 @@ a logical vector of the same length as \code{seqs} with \code{TRUE}
 }
 \description{
 Filter sequences that are unlikely to be useful for motif
-  enrichment analysis. The current defaults are based on HOMER (version 4.11).
+  enrichment analysis. The current defaults are based on HOMER 
+  (version 4.11).
 }
 \details{
 The filtering logic is based on \code{removePoorSeq.pl} from Homer.

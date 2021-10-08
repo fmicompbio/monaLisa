@@ -256,17 +256,28 @@ setGeneric(name = "findMotifHits",
            valueClass = "GRanges")
 
 # method hierarchy:
-# 1. findMotifHits,character,character        --> if method=="homer2", use homer2; else --> 9.
-# 2. findMotifHits,character,DNAString        --> 3.
-# 3. findMotifHits,character,DNAStringSet     --> if method=="homer2" --> 1.     ; else --> 9.
-# 4. findMotifHits,PWMatrix,character         --> 7.
-# 5. findMotifHits,PWMatrix,DNAString         --> 9.
-# 6. findMotifHits,PWMatrix,DNAStringSet      --> 9.
-# 7. findMotifHits,PWMatrixList,character     --> if method=="homer2" --> 1.     ; else --> 9.
-# 8. findMotifHits,PWMatrixList,DNAString     --> 9.
-# 9. findMotifHits,PWMatrixList,DNAStringSet  --> if method=="homer2" --> 1.     ; else --> use matchPWM
-# 10. findMotifHits,PWMatrix,GRanges          --> 11.
-# 11. findMotifHits,PWMatrixList,GRanges      --> 9.
+# 1. findMotifHits,character,character        
+#    --> if method=="homer2", use homer2; else --> 9.
+# 2. findMotifHits,character,DNAString        
+#    --> 3.
+# 3. findMotifHits,character,DNAStringSet     
+#    --> if method=="homer2" --> 1.     ; else --> 9.
+# 4. findMotifHits,PWMatrix,character         
+#    --> 7.
+# 5. findMotifHits,PWMatrix,DNAString         
+#    --> 9.
+# 6. findMotifHits,PWMatrix,DNAStringSet      
+#    --> 9.
+# 7. findMotifHits,PWMatrixList,character     
+#    --> if method=="homer2" --> 1.     ; else --> 9.
+# 8. findMotifHits,PWMatrixList,DNAString     
+#    --> 9.
+# 9. findMotifHits,PWMatrixList,DNAStringSet  
+#    --> if method=="homer2" --> 1.     ; else --> use matchPWM
+# 10. findMotifHits,PWMatrix,GRanges          
+#    --> 11.
+# 11. findMotifHits,PWMatrixList,GRanges      
+#    --> 9.
 
 
 # 1.

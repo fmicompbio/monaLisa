@@ -46,7 +46,8 @@
 #' 
 #' @keywords internal
 .glmnetRandomizedLasso <- function(x, y, q, weakness=1, 
-                                   type = c("conservative", "anticonservative"), 
+                                   type = c("conservative", 
+                                            "anticonservative"), 
                                    ...) {
   if (is.data.frame(x)) {
     message("Note: ", sQuote("x"), 

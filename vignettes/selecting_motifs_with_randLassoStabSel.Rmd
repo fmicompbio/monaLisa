@@ -25,7 +25,8 @@ knitr::opts_chunk$set(
 library(BiocStyle)
 ```
 
-<img src="monaLisa_logo_v1.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%; border: 0" />
+<img src="monaLisa_logo_v1.png" style="display: block; margin-left: auto;
+margin-right: auto; width: 50%; border: 0" />
 
 # Introduction
 
@@ -305,8 +306,10 @@ head(gr[nm])
 
 
 # Session info and logo
-The monaLisa logo uses a drawing that was obtained from http://vectorish.com/lisa-simpson.html
-under the Creative Commons attribution - non-commercial 3.0 license: https://creativecommons.org/licenses/by-nc/3.0/.
+The monaLisa logo uses a drawing that was obtained from 
+http://vectorish.com/lisa-simpson.html
+under the Creative Commons attribution - non-commercial 3.0 license: 
+https://creativecommons.org/licenses/by-nc/3.0/.
 
 This vignette was built using:  
 ```{r, session}

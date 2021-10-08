@@ -157,7 +157,8 @@
 #' @title Filter Sequences
 #'
 #' @description Filter sequences that are unlikely to be useful for motif
-#'   enrichment analysis. The current defaults are based on HOMER (version 4.11).
+#'   enrichment analysis. The current defaults are based on HOMER 
+#'   (version 4.11).
 #'
 #' @param seqs a \code{DNAStringSet} object.
 #' @param maxFracN A numeric scalar with the maximal fraction of N bases allowed

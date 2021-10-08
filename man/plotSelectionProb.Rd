@@ -31,7 +31,8 @@ probability greater than \code{selProbMin} are shown as colored bars. The
 color is defined by \code{col[1]}. By default, \code{selProbMin} is
 extracted from the parameters stored in \code{se}.}
 
-\item{selProbMinPlot}{A numerical scalar in [0,1] less than \code{selProbMin}.
+\item{selProbMinPlot}{A numerical scalar in [0,1] less than 
+\code{selProbMin}.
 Predictors with a selection probability greater than \code{selProbMinPlot}
 but less than \code{selProbMin} are shown as bars with color \code{col[2]}.
 \code{selProbMinPlot} is useful to include additional predictors in the 
