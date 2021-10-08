@@ -156,8 +156,8 @@ This function implements a binned k-mer enrichment analysis. In each
       from the foreground sequences and used to estimate expected k-mer
       frequencies. K-mer enrichments are then calculated comparing observed
       to these expected frequencies. In order to make the process 
-      deterministic, a seed number needs to be provided to the \code{RNGseed} 
-      parameter in \code{\link[BiocParallel]{SerialParam}} or 
+      deterministic, a seed number needs to be provided to the 
+      \code{RNGseed} parameter in \code{\link[BiocParallel]{SerialParam}} or 
       \code{\link[BiocParallel]{MulticoreParam}} when creating the 
       \code{BiocParallelParam} instance in \code{BPPARAM}.}
   }

@@ -91,7 +91,7 @@ getKmerFreq <- function(seqs,
     ## frequencies will naturally correlate. It makes thus more sense to plot
     ## the log2 enrichment against expected frequencies
 
-    ## Generally, higher MMorder will take care of CpG bias and similar effects. 
+    ## Generally, higher MMorder will take care of CpG bias and similar effects.
     ## Zoops will take care of higher-order repeats.
 
     ## pre-flight checks
@@ -277,7 +277,7 @@ getKmerFreq <- function(seqs,
                                      totalWeightFg = totalWgtForeground,
                                      verbose = verbose)
     } else if (identical(test, "fisher")) {
-        logP <- .fisherEnrichmentTest(matchCountBg = KmatchedSeqCountBackground, 
+        logP <- .fisherEnrichmentTest(matchCountBg = KmatchedSeqCountBackground,
                                       totalWeightBg = totalWgtBackground,
                                       matchCountFg = KmatchedSeqCountForeground,
                                       totalWeightFg = totalWgtForeground,
@@ -388,8 +388,8 @@ getKmerFreq <- function(seqs,
 #'       from the foreground sequences and used to estimate expected k-mer
 #'       frequencies. K-mer enrichments are then calculated comparing observed
 #'       to these expected frequencies. In order to make the process 
-#'       deterministic, a seed number needs to be provided to the \code{RNGseed} 
-#'       parameter in \code{\link[BiocParallel]{SerialParam}} or 
+#'       deterministic, a seed number needs to be provided to the 
+#'       \code{RNGseed} parameter in \code{\link[BiocParallel]{SerialParam}} or 
 #'       \code{\link[BiocParallel]{MulticoreParam}} when creating the 
 #'       \code{BiocParallelParam} instance in \code{BPPARAM}.}
 #'   }
