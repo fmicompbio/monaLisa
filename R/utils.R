@@ -26,16 +26,19 @@
     
     if (!is.null(rngIncl) && is.numeric(rngIncl) && length(rngIncl) == 2L &&
         (x < rngIncl[1] || x > rngIncl[2])) {
-        stop("'", xname, "' must be within [", rngIncl[1], ",", rngIncl[2], "] (inclusive)")
+        stop("'", xname, "' must be within [", rngIncl[1], ",", 
+             rngIncl[2], "] (inclusive)")
     }
     
     if (!is.null(rngExcl) && is.numeric(rngExcl) && length(rngExcl) == 2L &&
         (x <= rngExcl[1] || x >= rngExcl[2])) {
-        stop("'", xname, "' must be within (", rngExcl[1], ",", rngExcl[2], ") (exclusive)")
+        stop("'", xname, "' must be within (", rngExcl[1], ",", 
+             rngExcl[2], ") (exclusive)")
     }
     
     if (!is.null(validValues) && !(x %in% validValues)) {
-        stop("'", xname, "' must be one of: ", paste(validValues, collapse = ", "))
+        stop("'", xname, "' must be one of: ", paste(validValues, 
+                                                     collapse = ", "))
     }
     
     return(invisible(TRUE))
@@ -60,15 +63,18 @@
     
     if (!is.null(rngIncl) && is.numeric(rngIncl) && length(rngIncl) == 2L &&
         any(x < rngIncl[1] | x > rngIncl[2])) {
-        stop("values in '", xname, "' must be within [", rngIncl[1], ",", rngIncl[2], "] (inclusive)")
+        stop("values in '", xname, "' must be within [", rngIncl[1], ",", 
+             rngIncl[2], "] (inclusive)")
     }
     
     if (!is.null(rngExcl) && is.numeric(rngExcl) && length(rngExcl) == 2L &&
         any(x <= rngExcl[1] | x >= rngExcl[2])) {
-        stop("values in '", xname, "' must be within (", rngExcl[1], ",", rngExcl[2], ") (exclusive)")
+        stop("values in '", xname, "' must be within (", rngExcl[1], ",", 
+             rngExcl[2], ") (exclusive)")
     }
 
-    if (!is.null(len) && is.numeric(len) && length(len) == 1L && length(x) != len) {
+    if (!is.null(len) && is.numeric(len) && length(len) == 1L && 
+        length(x) != len) {
         stop("'", xname, "' must have length ", len)
     }
     
