@@ -72,7 +72,8 @@ summary information about the bins.
 Run complete HOMER motif enrichment analysis, consisting of
     calls to \code{\link{prepareHomer}}, \code{\link[base]{system2}} and
     \code{\link{parseHomerOutput}}. This function requires \code{HOMER}
-    to be installed and the path to the tool to be provided.
+    to be installed (see \url{http://homer.ucsd.edu/homer/index.html})
+    and the path to the tool to be provided (\code{homerfile} argument).
 }
 \examples{
 if (!is.na(findHomer())){
