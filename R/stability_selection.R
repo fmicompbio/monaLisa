@@ -279,10 +279,8 @@ randLassoStabSel <- function(x, y, weakness=0.8, cutoff=0.8, PFER=2,
                                                      colData = cdat, 
                                                      metadata = mdat)
     
-   
     # return
     return(se)
-    
 }
 
 

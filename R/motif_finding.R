@@ -153,7 +153,6 @@ NULL
 }
 
 
-
 #' @title Find motif matches in sequences.
 #'
 #' @description \code{findMotifHits} scans sequences (either provided

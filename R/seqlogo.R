@@ -260,7 +260,7 @@ annoSeqlogo <- function(grobL, which = c("column", "row"),
         row    = list(height = if (is.null(height)) unit(1, "npc") else height,
                       width  = if (is.null(width))  unit(1, "cm")  else width)
     )
-    gp = .recycle_gp(gp, n_seqlogo)
+    gp <- .recycle_gp(gp, n_seqlogo)
     column_fun <- function(index) {
         n <- length(index)
         pushViewport(viewport())
@@ -294,7 +294,7 @@ annoSeqlogo <- function(grobL, which = c("column", "row"),
     fun <- switch(which,
                   row = row_fun,
                   column = column_fun)
-    anno = AnnotationFunction(
+    anno <- AnnotationFunction(
         fun = fun, fun_name = "annoSeqlogo", which = which,
         width = anno_size$width, height = anno_size$height,
         n = n_seqlogo, data_scale = c(0.5, 1.5),
