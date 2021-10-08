@@ -37,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.1</span>
       </span>
     </div>
 
@@ -60,7 +60,7 @@
       <a href="articles/monaLisa.html">Binned motif enrichment analysis</a>
     </li>
     <li>
-      <a href="articles/selecting_motifs_with_randLassoStabSel.Rmd">Identifying motifs by stability selection</a>
+      <a href="articles/selecting_motifs_with_randLassoStabSel.html">Identifying motifs by stability selection</a>
     </li>
   </ul>
 </li>
@@ -108,11 +108,20 @@
 <li><a href="https://github.com/csoneson" class="external-link">Charlotte Soneson</a></li>
 </ul>
 </div>
+<div id="installation" class="section level2">
+<h2 class="hasAnchor">
+<a href="#installation" class="anchor" aria-hidden="true"></a>Installation</h2>
+<p><code>monaLisa</code> can be installed from Bioconductor via the <code>BiocManager</code> package:</p>
+<pre><code>if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("monaLisa")</code></pre>
+</div>
 <div id="functionality" class="section level2">
 <h2 class="hasAnchor">
 <a href="#functionality" class="anchor" aria-hidden="true"></a>Functionality</h2>
 <p>Here is a minimal example to run a <code>monaLisa</code> analysis:</p>
-<pre><code><a href="https://rdrr.io/r/base/library.html" class="external-link">library(monaLisa)
+<pre><code><a href="https://github.com/fmicompbio/monaLisa" class="external-link">library(monaLisa)
 
 mcparams &lt;- BiocParallel::MulticoreParam(10L)
 se &lt;- calcBinnedMotifEnrR(seqs = seqs,   # DNAStringSet (e.g. peak sequences)
@@ -150,7 +159,17 @@ pwms &lt;- getMatrixSet(JASPAR2020, list(matrixtype = "PWM", tax_group = "verteb
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-    <div class="license">
+    <div class="links">
+<h2 data-toc-skip>Links</h2>
+<ul class="list-unstyled">
+<li>Browse source code at <br><a href="https://github.com/fmicompbio/monaLisa/">https://​github.com/​fmicompbio/​monaLisa/​</a>
+</li>
+<li>Report a bug at <br><a href="https://github.com/fmicompbio/monaLisa/issues">https://​github.com/​fmicompbio/​monaLisa/​issues</a>
+</li>
+</ul>
+</div>
+
+<div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li><a href="https://www.r-project.org/Licenses/GPL-3">GPL-3</a></li>
@@ -191,7 +210,7 @@ pwms &lt;- getMatrixSet(JASPAR2020, list(matrixtype = "PWM", tax_group = "verteb
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.9000.9000.9000.</p>
 </div>
 
       </footer>

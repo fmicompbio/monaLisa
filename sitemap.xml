@@ -22,7 +22,7 @@
     <loc>https://fmicompbio.github.io/monaLisa/news/index.html</loc>
   </url>
   <url>
-    <loc>https://fmicompbio.github.io/monaLisa/reference/anno_seqlogo.html</loc>
+    <loc>https://fmicompbio.github.io/monaLisa/reference/annoSeqlogo.html</loc>
   </url>
   <url>
     <loc>https://fmicompbio.github.io/monaLisa/reference/bin.html</loc>
@@ -133,7 +133,7 @@
     <loc>https://fmicompbio.github.io/monaLisa/reference/randLassoStabSel.html</loc>
   </url>
   <url>
-    <loc>https://fmicompbio.github.io/monaLisa/reference/sample_random_regions.html</loc>
+    <loc>https://fmicompbio.github.io/monaLisa/reference/sampleRandomRegions.html</loc>
   </url>
   <url>
     <loc>https://fmicompbio.github.io/monaLisa/reference/seqLogoGrob.html</loc>

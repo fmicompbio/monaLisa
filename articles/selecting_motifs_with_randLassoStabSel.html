@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.1</span>
       </span>
     </div>
 
@@ -56,7 +56,7 @@
       <a href="../articles/monaLisa.html">Binned motif enrichment analysis</a>
     </li>
     <li>
-      <a href="../articles/selecting_motifs_with_randLassoStabSel.Rmd">Identifying motifs by stability selection</a>
+      <a href="../articles/selecting_motifs_with_randLassoStabSel.html">Identifying motifs by stability selection</a>
     </li>
   </ul>
 </li>
@@ -87,16 +87,17 @@
       <h1 data-toc-skip>Regression Based Approach for Motif Selection</h1>
                         <h4 data-toc-skip class="author">Dania Machlab, Lukas Burger, Charlotte Soneson, Michael Stadler</h4>
             
-            <h4 data-toc-skip class="date">2021-09-10</h4>
+            <h4 data-toc-skip class="date">2021-10-08</h4>
       
-      
+      <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/master/vignettes/selecting_motifs_with_randLassoStabSel.Rmd" class="external-link"><code>vignettes/selecting_motifs_with_randLassoStabSel.Rmd</code></a></small>
       <div class="hidden name"><code>selecting_motifs_with_randLassoStabSel.Rmd</code></div>
 
     </div>
 
     
     
-<p><img src="monaLisa_logo_v1.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%; border: 0"></p>
+<p><img src="monaLisa_logo_v1.png" style="display: block; margin-left: auto;
+margin-right: auto; width: 50%; border: 0"></p>
 <div id="introduction" class="section level1">
 <h1 class="hasAnchor">
 <a href="#introduction" class="anchor" aria-hidden="true"></a>Introduction</h1>
@@ -113,9 +114,7 @@
 <a href="#load-packages" class="anchor" aria-hidden="true"></a>Load packages</h2>
 <p>We start by loading the needed packages:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">monaLisa</span><span class="op">)</span>
-<span class="co">#&gt; Warning in fun(libname, pkgname): no display name and no $DISPLAY environment</span>
-<span class="co">#&gt; variable</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/fmicompbio/monaLisa" class="external-link">monaLisa</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://jaspar.genereg.net/" class="external-link">JASPAR2020</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ge11232002/TFBSTools" class="external-link">TFBSTools</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">BSgenome.Mmusculus.UCSC.mm10</span><span class="op">)</span>
@@ -137,7 +136,7 @@
 <div id="get-tfbs-per-motif-and-peak" class="section level2">
 <h2 class="hasAnchor">
 <a href="#get-tfbs-per-motif-and-peak" class="anchor" aria-hidden="true"></a>Get TFBS per motif and peak</h2>
-<p>We will now construct the transcription factor binding site (TFBS) matrix for known motifs (from a database like JASPAR) in peak regions. We use the <code><a href="../reference/findMotifHits-methods.html">monaLisa::findMotifHits</a></code> function to scan for TF motif hits. This matrix will be the predictor matrix in our regression.</p>
+<p>We will now construct the transcription factor binding site (TFBS) matrix for known motifs (from a database like JASPAR) in peak regions. We use the <code><a href="../reference/findMotifHits-methods.html">monaLisa::findMotifHits</a></code> function to scan for TF motif hits. This matrix will be the predictor matrix in our regression. This step may take a while, and it may be useful to parallelize it using the <code>BPPARAM</code> argument (e.g. to run on <code>n</code> parallel threads using the multi-core backend, you can use: <code>findMotifHits(..., BPPARAM = BiocParallel::MulticoreParam(n))</code>).</p>
 <p>As mentioned, this framework offers the flexibility to add additional predictors to compete against the TF motifs for selection. Here, we add the fraction of G+C and CpG observed/expected ratio as predictors, to ensure that selected TF motifs are not just detecting a simple trend in GC or CpG composition.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># get PFMs (vertebrate TFs from Jaspar)</span>
@@ -154,7 +153,1806 @@
 <span class="co"># get TFBS on given GRanges (peaks)</span>
 <span class="va">peakSeq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Biostrings/man/getSeq.html" class="external-link">getSeq</a></span><span class="op">(</span><span class="va">BSgenome.Mmusculus.UCSC.mm10</span>, <span class="va">gr</span><span class="op">)</span>
 <span class="va">hits</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span><span class="op">(</span>query <span class="op">=</span> <span class="va">pwms</span>, subject <span class="op">=</span> <span class="va">peakSeq</span>, min.score <span class="op">=</span> <span class="fl">10.0</span>,
-                      BPPARAM <span class="op">=</span> <span class="fu">BiocParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocParallel/man/MulticoreParam-class.html" class="external-link">MulticoreParam</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>
+                      BPPARAM <span class="op">=</span> <span class="fu">BiocParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocParallel/man/SerialParam-class.html" class="external-link">SerialParam</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
+
+<span class="co">#&gt; Warning in .Call2("XString_match_PWM", pwm, subject, min.score, count.only, :</span>
+<span class="co">#&gt; 'subject' contains letters not in [ACGT] ==&gt; assigned weight 0 to them</span>
 
 <span class="co"># get TFBS matrix</span>
 <span class="va">TFBSmatrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">unclass</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html" class="external-link">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html" class="external-link">seqnames</a></span><span class="op">(</span><span class="va">hits</span><span class="op">)</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html" class="external-link">seqlevels</a></span><span class="op">(</span><span class="va">hits</span><span class="op">)</span><span class="op">)</span>,
@@ -168,6 +1966,7 @@
 <span class="co">#&gt;   peak_124022     0    0    0     0    0      0</span>
 <span class="co">#&gt;   peak_29925      0    2    0     1    0      0</span>
 <span class="co">#&gt;   peak_95246      0    0    0     0    0      0</span>
+
 <span class="co"># remove TF motifs with 0 binding sites in all regions</span>
 <span class="va">zero_TF</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="va">TFBSmatrix</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span>
 <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">zero_TF</span><span class="op">)</span>
@@ -219,6 +2018,7 @@
 <span class="co">#&gt; rowData names(1): y</span>
 <span class="co">#&gt; colnames(300): fracGC oeCpG ... CLOCK OLIG2</span>
 <span class="co">#&gt; colData names(20): selProb selected ... regStep16 regStep17</span>
+
 <span class="co"># selected TFs</span>
 <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span><span class="op">[</span><span class="va">se</span><span class="op">$</span><span class="va">selected</span><span class="op">]</span>
 <span class="co">#&gt;  [1] "NKX2-5"       "GATA1::TAL1"  "HNF1B"        "HNF4A(var.2)" "Nr2f6"       </span>
@@ -228,8 +2028,8 @@
 <p>The stability paths visualize how predictors get selected, decreasing regularization stringency (from left to right):</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plotStabilityPaths.html">plotStabilityPaths</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span></code></pre></div>
-<p><img src="selecting_motifs_with_randLassoStabSel_files/figure-html/plotStabilityPaths-1.png" width="80%" style="display: block; margin: auto;"> Each line corresponds to a predictor, and we can see the selection probabilities as a function of the regularization steps, corresponding to decreasing values for the lambda regularization parameter in lasso. The predictor (TF motif) selection happens at the last step, given the specified minimum probability.</p>
-<p> </p>
+<p><img src="selecting_motifs_with_randLassoStabSel_files/figure-html/plotStabilityPaths-1.png" width="80%" style="display: block; margin: auto;"></p>
+<p>Each line corresponds to a predictor, and we can see the selection probabilities as a function of the regularization steps, corresponding to decreasing values for the lambda regularization parameter in lasso. The predictor (TF motif) selection happens at the last step, given the specified minimum probability.</p>
 <p>We can also visualize the selection probabilities of the selected TF motifs, optionally multiplied by the sign of the correlation to the response vector, to know how the TF relates to the change of accessibility (<code>directional</code> parameter). Note that although one can vary the <code>selProbMinPlot</code> argument which sets the selection probability cutoff, it is best to re-run randomized lasso stability selection with the new cutoff, as this influences other parameter choices the model uses internally. See <span class="citation">Meinshausen and Bühlmann (2010)</span> for more details.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plotSelectionProb.html">plotSelectionProb</a></span><span class="op">(</span><span class="va">se</span>, directional <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
@@ -252,7 +2052,7 @@
 <span class="va">maxwidth</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fu">TFBSTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html" class="external-link">Matrix</a></span><span class="op">(</span><span class="va">pfmsSel</span><span class="op">)</span>, <span class="va">ncol</span><span class="op">)</span><span class="op">)</span>
 <span class="va">seqlogoGrobs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">pfmsSel</span>, <span class="va">seqLogoGrob</span>, xmax <span class="op">=</span> <span class="va">maxwidth</span><span class="op">)</span>
 
-<span class="va">hmSeqlogo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ComplexHeatmap/man/rowAnnotation.html" class="external-link">rowAnnotation</a></span><span class="op">(</span>logo <span class="op">=</span> <span class="fu"><a href="../reference/anno_seqlogo.html">anno_seqlogo</a></span><span class="op">(</span><span class="va">seqlogoGrobs</span>, which <span class="op">=</span> <span class="st">"row"</span><span class="op">)</span>,
+<span class="va">hmSeqlogo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ComplexHeatmap/man/rowAnnotation.html" class="external-link">rowAnnotation</a></span><span class="op">(</span>logo <span class="op">=</span> <span class="fu"><a href="../reference/annoSeqlogo.html">annoSeqlogo</a></span><span class="op">(</span><span class="va">seqlogoGrobs</span>, which <span class="op">=</span> <span class="st">"row"</span><span class="op">)</span>,
                            annotation_width <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">2</span>, <span class="st">"inch"</span><span class="op">)</span>, 
                            show_annotation_name <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span>
@@ -284,15 +2084,16 @@
 <span class="va">TFBSmatrixCorSel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">TFBSmatrix</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">se_sub</span><span class="op">)</span><span class="op">]</span>, method <span class="op">=</span> <span class="st">"pearson"</span><span class="op">)</span>
 
 <span class="co"># heatmap annotations</span>
-<span class="va">ann</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ComplexHeatmap/man/HeatmapAnnotation.html" class="external-link">HeatmapAnnotation</a></span><span class="op">(</span>selected <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">se_sub</span><span class="op">$</span><span class="va">selected</span><span class="op">)</span>, 
-                         AUC <span class="op">=</span> <span class="va">se_sub</span><span class="op">$</span><span class="va">selAUC</span>, 
-                         selProb <span class="op">=</span> <span class="va">se_sub</span><span class="op">$</span><span class="va">selProb</span>, 
-                         col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>selected <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TRUE"</span><span class="op">=</span><span class="st">"forestgreen"</span>, 
-                                                 <span class="st">"FALSE"</span><span class="op">=</span><span class="st">"grey"</span><span class="op">)</span>, 
-                                    AUC <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/circlize/man/colorRamp2.html" class="external-link">colorRamp2</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, 
-                                                     <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"white"</span>, <span class="st">"brown"</span><span class="op">)</span><span class="op">)</span>, 
-                                    selProb <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/circlize/man/colorRamp2.html" class="external-link">colorRamp2</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, 
-                                                         <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"white"</span>, <span class="st">"steelblue"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<span class="va">ann</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ComplexHeatmap/man/HeatmapAnnotation.html" class="external-link">HeatmapAnnotation</a></span><span class="op">(</span>
+    selected <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">se_sub</span><span class="op">$</span><span class="va">selected</span><span class="op">)</span>, 
+    AUC <span class="op">=</span> <span class="va">se_sub</span><span class="op">$</span><span class="va">selAUC</span>, 
+    selProb <span class="op">=</span> <span class="va">se_sub</span><span class="op">$</span><span class="va">selProb</span>, 
+    col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>selected <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TRUE"</span><span class="op">=</span><span class="st">"forestgreen"</span>, 
+                            <span class="st">"FALSE"</span><span class="op">=</span><span class="st">"grey"</span><span class="op">)</span>, 
+               AUC <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/circlize/man/colorRamp2.html" class="external-link">colorRamp2</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, 
+                                <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"white"</span>, <span class="st">"brown"</span><span class="op">)</span><span class="op">)</span>, 
+               selProb <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/circlize/man/colorRamp2.html" class="external-link">colorRamp2</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, 
+                                    <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"white"</span>, <span class="st">"steelblue"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
 <span class="op">)</span>
 
 <span class="co"># heatmap</span>
@@ -307,6 +2108,7 @@
 <code class="sourceCode R"><span class="va">TF</span> <span class="op">&lt;-</span> <span class="va">sel</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>
 <span class="va">TF</span>
 <span class="co">#&gt; [1] "GATA1::TAL1"</span>
+
 <span class="va">i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">se</span>, <span class="st">"x"</span><span class="op">)</span><span class="op">[</span>, <span class="va">TF</span><span class="op">]</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="co"># peaks that contain TF hits...</span>
 <span class="va">nm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">gr</span><span class="op">$</span><span class="va">logFC_liver_vs_lung</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span>, 
                  decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="co"># ... order by |logFC|</span>
@@ -349,15 +2151,15 @@
 <span class="co">#&gt; </span>
 <span class="co">#&gt; other attached packages:</span>
 <span class="co">#&gt;  [1] circlize_0.4.13                    ComplexHeatmap_2.9.4              </span>
-<span class="co">#&gt;  [3] SummarizedExperiment_1.23.4        Biobase_2.53.0                    </span>
-<span class="co">#&gt;  [5] MatrixGenerics_1.5.4               matrixStats_0.60.1                </span>
+<span class="co">#&gt;  [3] SummarizedExperiment_1.23.5        Biobase_2.53.0                    </span>
+<span class="co">#&gt;  [5] MatrixGenerics_1.5.4               matrixStats_0.61.0                </span>
 <span class="co">#&gt;  [7] BSgenome.Mmusculus.UCSC.mm10_1.4.3 BSgenome_1.61.0                   </span>
 <span class="co">#&gt;  [9] rtracklayer_1.53.1                 Biostrings_2.61.2                 </span>
 <span class="co">#&gt; [11] XVector_0.33.0                     GenomicRanges_1.45.0              </span>
 <span class="co">#&gt; [13] GenomeInfoDb_1.29.8                IRanges_2.27.2                    </span>
-<span class="co">#&gt; [15] S4Vectors_0.31.3                   BiocGenerics_0.39.2               </span>
-<span class="co">#&gt; [17] TFBSTools_1.31.1                   JASPAR2020_0.99.10                </span>
-<span class="co">#&gt; [19] monaLisa_0.99.0                    BiocStyle_2.21.3                  </span>
+<span class="co">#&gt; [15] S4Vectors_0.31.5                   BiocGenerics_0.39.2               </span>
+<span class="co">#&gt; [17] TFBSTools_1.31.2                   JASPAR2020_0.99.10                </span>
+<span class="co">#&gt; [19] monaLisa_0.99.1                    BiocStyle_2.21.3                  </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; loaded via a namespace (and not attached):</span>
 <span class="co">#&gt;   [1] vioplot_0.3.7               colorspace_2.0-2           </span>
@@ -368,55 +2170,55 @@
 <span class="co">#&gt;  [11] fansi_0.5.0                 splines_4.1.1              </span>
 <span class="co">#&gt;  [13] R.methodsS3_1.8.1           codetools_0.2-18           </span>
 <span class="co">#&gt;  [15] doParallel_1.0.16           cachem_1.0.6               </span>
-<span class="co">#&gt;  [17] knitr_1.34                  jsonlite_1.7.2             </span>
+<span class="co">#&gt;  [17] knitr_1.36                  jsonlite_1.7.2             </span>
 <span class="co">#&gt;  [19] Rsamtools_2.9.1             seqLogo_1.59.0             </span>
-<span class="co">#&gt;  [21] annotate_1.71.0             GO.db_3.13.0               </span>
+<span class="co">#&gt;  [21] annotate_1.71.0             GO.db_3.14.0               </span>
 <span class="co">#&gt;  [23] cluster_2.1.2               R.oo_1.24.0                </span>
 <span class="co">#&gt;  [25] png_0.1-7                   httr_1.4.2                 </span>
-<span class="co">#&gt;  [27] BiocManager_1.30.16         readr_2.0.1                </span>
+<span class="co">#&gt;  [27] BiocManager_1.30.16         readr_2.0.2                </span>
 <span class="co">#&gt;  [29] compiler_4.1.1              assertthat_0.2.1           </span>
 <span class="co">#&gt;  [31] Matrix_1.3-4                fastmap_1.1.0              </span>
-<span class="co">#&gt;  [33] htmltools_0.5.2             tools_4.1.1                </span>
-<span class="co">#&gt;  [35] gtable_0.3.0                glue_1.4.2                 </span>
-<span class="co">#&gt;  [37] TFMPvalue_0.0.8             GenomeInfoDbData_1.2.6     </span>
-<span class="co">#&gt;  [39] reshape2_1.4.4              dplyr_1.0.7                </span>
-<span class="co">#&gt;  [41] Rcpp_1.0.7                  jquerylib_0.1.4            </span>
-<span class="co">#&gt;  [43] pkgdown_1.6.1.9001          vctrs_0.3.8                </span>
-<span class="co">#&gt;  [45] iterators_1.0.13            xfun_0.25                  </span>
-<span class="co">#&gt;  [47] CNEr_1.29.0                 stringr_1.4.0              </span>
-<span class="co">#&gt;  [49] lifecycle_1.0.0             restfulr_0.0.13            </span>
-<span class="co">#&gt;  [51] poweRlaw_0.70.6             gtools_3.9.2               </span>
-<span class="co">#&gt;  [53] XML_3.99-0.7                zoo_1.8-9                  </span>
-<span class="co">#&gt;  [55] zlibbioc_1.39.0             scales_1.1.1               </span>
-<span class="co">#&gt;  [57] ragg_1.1.3                  hms_1.1.0                  </span>
-<span class="co">#&gt;  [59] parallel_4.1.1              RColorBrewer_1.1-2         </span>
-<span class="co">#&gt;  [61] yaml_2.2.1                  memoise_2.0.0              </span>
-<span class="co">#&gt;  [63] ggplot2_3.3.5               stabs_0.6-4                </span>
-<span class="co">#&gt;  [65] sass_0.4.0                  stringi_1.7.4              </span>
-<span class="co">#&gt;  [67] RSQLite_2.2.8               highr_0.9                  </span>
-<span class="co">#&gt;  [69] BiocIO_1.3.0                desc_1.3.0                 </span>
-<span class="co">#&gt;  [71] foreach_1.5.1               caTools_1.18.2             </span>
-<span class="co">#&gt;  [73] BiocParallel_1.27.6         shape_1.4.6                </span>
-<span class="co">#&gt;  [75] rlang_0.4.11                pkgconfig_2.0.3            </span>
-<span class="co">#&gt;  [77] systemfonts_1.0.2           bitops_1.0-7               </span>
-<span class="co">#&gt;  [79] pracma_2.3.3                evaluate_0.14              </span>
-<span class="co">#&gt;  [81] lattice_0.20-44             purrr_0.3.4                </span>
-<span class="co">#&gt;  [83] GenomicAlignments_1.29.0    bit_4.0.4                  </span>
-<span class="co">#&gt;  [85] tidyselect_1.1.1            plyr_1.8.6                 </span>
-<span class="co">#&gt;  [87] magrittr_2.0.1              bookdown_0.24              </span>
-<span class="co">#&gt;  [89] R6_2.5.1                    generics_0.1.0             </span>
-<span class="co">#&gt;  [91] sm_2.2-5.6                  DelayedArray_0.19.2        </span>
-<span class="co">#&gt;  [93] DBI_1.1.1                   pillar_1.6.2               </span>
-<span class="co">#&gt;  [95] survival_3.2-13             KEGGREST_1.33.0            </span>
-<span class="co">#&gt;  [97] RCurl_1.98-1.4              tibble_3.1.4               </span>
-<span class="co">#&gt;  [99] crayon_1.4.1                utf8_1.2.2                 </span>
-<span class="co">#&gt; [101] tzdb_0.1.2                  rmarkdown_2.10             </span>
-<span class="co">#&gt; [103] GetoptLong_1.0.5            blob_1.2.2                 </span>
-<span class="co">#&gt; [105] digest_0.6.27               xtable_1.8-4               </span>
-<span class="co">#&gt; [107] R.utils_2.10.1              textshaping_0.3.5          </span>
-<span class="co">#&gt; [109] glmnet_4.1-2                munsell_0.5.0              </span>
-<span class="co">#&gt; [111] DirichletMultinomial_1.35.0 bslib_0.3.0                </span>
-<span class="co">#&gt; [113] tcltk_4.1.1</span></code></pre></div>
+<span class="co">#&gt;  [33] cli_3.0.1                   htmltools_0.5.2            </span>
+<span class="co">#&gt;  [35] tools_4.1.1                 gtable_0.3.0               </span>
+<span class="co">#&gt;  [37] glue_1.4.2                  TFMPvalue_0.0.8            </span>
+<span class="co">#&gt;  [39] GenomeInfoDbData_1.2.7      reshape2_1.4.4             </span>
+<span class="co">#&gt;  [41] dplyr_1.0.7                 Rcpp_1.0.7                 </span>
+<span class="co">#&gt;  [43] jquerylib_0.1.4             pkgdown_1.9000.9000.9000   </span>
+<span class="co">#&gt;  [45] vctrs_0.3.8                 iterators_1.0.13           </span>
+<span class="co">#&gt;  [47] xfun_0.26                   CNEr_1.29.0                </span>
+<span class="co">#&gt;  [49] stringr_1.4.0               lifecycle_1.0.1            </span>
+<span class="co">#&gt;  [51] restfulr_0.0.13             poweRlaw_0.70.6            </span>
+<span class="co">#&gt;  [53] gtools_3.9.2                XML_3.99-0.8               </span>
+<span class="co">#&gt;  [55] zoo_1.8-9                   zlibbioc_1.39.0            </span>
+<span class="co">#&gt;  [57] scales_1.1.1                ragg_1.1.3                 </span>
+<span class="co">#&gt;  [59] hms_1.1.1                   parallel_4.1.1             </span>
+<span class="co">#&gt;  [61] RColorBrewer_1.1-2          yaml_2.2.1                 </span>
+<span class="co">#&gt;  [63] memoise_2.0.0               ggplot2_3.3.5              </span>
+<span class="co">#&gt;  [65] stabs_0.6-4                 sass_0.4.0                 </span>
+<span class="co">#&gt;  [67] stringi_1.7.5               RSQLite_2.2.8              </span>
+<span class="co">#&gt;  [69] highr_0.9                   BiocIO_1.3.0               </span>
+<span class="co">#&gt;  [71] desc_1.4.0                  foreach_1.5.1              </span>
+<span class="co">#&gt;  [73] caTools_1.18.2              BiocParallel_1.27.16       </span>
+<span class="co">#&gt;  [75] shape_1.4.6                 rlang_0.99.0.9000          </span>
+<span class="co">#&gt;  [77] pkgconfig_2.0.3             systemfonts_1.0.2          </span>
+<span class="co">#&gt;  [79] bitops_1.0-7                pracma_2.3.3               </span>
+<span class="co">#&gt;  [81] evaluate_0.14               lattice_0.20-45            </span>
+<span class="co">#&gt;  [83] purrr_0.3.4                 GenomicAlignments_1.29.0   </span>
+<span class="co">#&gt;  [85] bit_4.0.4                   tidyselect_1.1.1           </span>
+<span class="co">#&gt;  [87] plyr_1.8.6                  magrittr_2.0.1             </span>
+<span class="co">#&gt;  [89] bookdown_0.24               R6_2.5.1                   </span>
+<span class="co">#&gt;  [91] generics_0.1.0              sm_2.2-5.7                 </span>
+<span class="co">#&gt;  [93] DelayedArray_0.19.4         DBI_1.1.1                  </span>
+<span class="co">#&gt;  [95] pillar_1.6.3                survival_3.2-13            </span>
+<span class="co">#&gt;  [97] KEGGREST_1.33.0             RCurl_1.98-1.5             </span>
+<span class="co">#&gt;  [99] tibble_3.1.5                crayon_1.4.1               </span>
+<span class="co">#&gt; [101] utf8_1.2.2                  tzdb_0.1.2                 </span>
+<span class="co">#&gt; [103] rmarkdown_2.11              GetoptLong_1.0.5           </span>
+<span class="co">#&gt; [105] blob_1.2.2                  digest_0.6.28              </span>
+<span class="co">#&gt; [107] xtable_1.8-4                R.utils_2.11.0             </span>
+<span class="co">#&gt; [109] textshaping_0.3.5           glmnet_4.1-2               </span>
+<span class="co">#&gt; [111] munsell_0.5.0               DirichletMultinomial_1.35.0</span>
+<span class="co">#&gt; [113] bslib_0.3.1</span></code></pre></div>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1 class="hasAnchor">
@@ -449,7 +2251,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9001.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.9000.9000.9000.</p>
 </div>
 
       </footer>
