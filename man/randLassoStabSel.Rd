@@ -20,77 +20,102 @@ randLassoStabSel(
 \item{y}{the response vector.}
 
 \item{weakness}{value between 0 and 1 (default = 0.8). 
-It affects how strict the method will be in selecting predictors. The closer it is to 0, 
-the more stringent the selection. A weakness value of 1 is identical to performing 
-lasso stability selection (not the randomized version).}
+It affects how strict the method will be in selecting predictors. The 
+closer it is to 0, the more stringent the selection. A weakness value 
+of 1 is identical to performing lasso stability selection (not the 
+randomized version).}
 
-\item{cutoff}{value between 0 and 1 (default = 0.8) which is the cutoff for the selection probability. 
-Any variable with a selection probability that is higher than the set cutoff will be selected.}
+\item{cutoff}{value between 0 and 1 (default = 0.8) which is the cutoff 
+for the selection probability. Any variable with a selection probability 
+that is higher than the set cutoff will be selected.}
 
-\item{PFER}{integer (default = 2) representing the absolute number of false positives that we 
-allow for in the final list of selected variables. For details see Meinshausen and Bühlmann (2010).}
+\item{PFER}{integer (default = 2) representing the absolute number of 
+false positives that we allow for in the final list of selected 
+variables. For details see Meinshausen and Bühlmann (2010).}
 
-\item{mc.cores}{integer (default = 1) specifying the number of cores to use in 
-\code{\link[parallel]{mclapply}}, which is the default way \code{\link[stabs]{stabsel}} 
-does parallelization.}
+\item{mc.cores}{integer (default = 1) specifying the number of cores to 
+use in \code{\link[parallel]{mclapply}}, which is the default way 
+\code{\link[stabs]{stabsel}} does parallelization.}
 
-\item{...}{additional parameters that can be passed on to \code{\link[stabs]{stabsel}}.}
+\item{...}{additional parameters that can be passed on to 
+\code{\link[stabs]{stabsel}}.}
 }
 \value{
-A \code{SummarizedExperiment} object where the rows are the observations
-  and the columns the predictors (same dimnames as the predictor matrix \code{x}). 
-  It contains: \itemize{
-    \item{assays}{: \itemize{
-      \item{x}{: the predictor matrix.}
+A \code{SummarizedExperiment} object where the rows are the 
+    observations and the columns the predictors (same dimnames as the 
+    predictor matrix \code{x}). 
+    It contains: \itemize{
+      \item{assays}{: \itemize{
+        \item{x}{: the predictor matrix.}
+        }
       }
-    }
-    \item{rowData}{: a DataFrame with columns: \itemize{
-      \item{y}{: the response vector.}
+      \item{rowData}{: a DataFrame with columns: \itemize{
+        \item{y}{: the response vector.}
+        }
       }
-    }
-    \item{colData}{: a DataFrame with columns: \itemize{
-      \item{selProb}{: the final selection probabilities for the predictors (from the last regularization step).}
-      \item{selected}{: logical indicating the predictors that made the selection with the specified cutoff.}
-      \item{selAUC}{: the normalized area under the seletion curve (mean of selection probabilities over regulatization steps).}
-      \item{reg'\code{i}'}{: columns containing the selection probabilities for regularization step i. }
+      \item{colData}{: a DataFrame with columns: \itemize{
+        \item{selProb}{: the final selection probabilities for the 
+          predictors (from the last regularization step).}
+        \item{selected}{: logical indicating the predictors that made 
+          the selection with the specified cutoff.}
+        \item{selAUC}{: the normalized area under the seletion curve 
+          (mean of selection probabilities over regulatization steps).}
+        \item{reg'\code{i}'}{: columns containing the selection 
+          probabilities for regularization step i. }
+        }
       }
-    }
-    \item{metadata}{: a list of output returned from \code{\link[stabs]{stabsel}} and \code{randLassoStabSel}: \itemize{
-      \item{stabsel.params.cutoff}{: probability cutoff set for selection of predictors (see \code{\link[stabs]{stabsel}}).}
-      \item{stabsel.params.selected}{: elements with maximal selection probability greater \code{cutoff} (see \code{\link[stabs]{stabsel}}). }
-      \item{stabsel.params.max}{: maximum of selection probabilities (see \code{\link[stabs]{stabsel}}).}
-      \item{stabsel.params.q}{: average number of selected variables used (see \code{\link[stabs]{stabsel}}).}
-      \item{stabsel.params.PFER}{: (realized) upper bound for the per-family error rate (see \code{\link[stabs]{stabsel}}).}
-      \item{stabsel.params.specifiedPFER}{: specified upper bound for the per-family error rate (see \code{\link[stabs]{stabsel}}).}
-      \item{stabsel.params.p}{: the number of effects subject to selection (see \code{\link[stabs]{stabsel}}).}
-      \item{stabsel.params.B}{: the number of subsamples (see \code{\link[stabs]{stabsel}}).}
-      \item{stabsel.params.sampling.type}{: the sampling type used for stability selection (see \code{\link[stabs]{stabsel}}).}
-      \item{stabsel.params.assumption}{: the assumptions made on the selection probabilities (see \code{\link[stabs]{stabsel}}).}
-      \item{stabsel.params.call}{: \code{\link[stabs]{stabsel}} the call.}
-      \item{randStabsel.params.weakness}{: the weakness parameter in the randomized lasso stability selection.}
+      \item{metadata}{: a list of output returned from 
+        \code{\link[stabs]{stabsel}} and \code{randLassoStabSel}: \itemize{
+        \item{stabsel.params.cutoff}{: probability cutoff set for selection 
+          of predictors (see \code{\link[stabs]{stabsel}}).}
+        \item{stabsel.params.selected}{: elements with maximal selection 
+          probability greater \code{cutoff} 
+          (see \code{\link[stabs]{stabsel}}). }
+        \item{stabsel.params.max}{: maximum of selection probabilities 
+          (see \code{\link[stabs]{stabsel}}).}
+        \item{stabsel.params.q}{: average number of selected variables 
+          used (see \code{\link[stabs]{stabsel}}).}
+        \item{stabsel.params.PFER}{: (realized) upper bound for the 
+          per-family error rate (see \code{\link[stabs]{stabsel}}).}
+        \item{stabsel.params.specifiedPFER}{: specified upper bound for 
+          the per-family error rate (see \code{\link[stabs]{stabsel}}).}
+        \item{stabsel.params.p}{: the number of effects subject to 
+          selection (see \code{\link[stabs]{stabsel}}).}
+        \item{stabsel.params.B}{: the number of subsamples (see 
+          \code{\link[stabs]{stabsel}}).}
+        \item{stabsel.params.sampling.type}{: the sampling type used for 
+          stability selection (see \code{\link[stabs]{stabsel}}).}
+        \item{stabsel.params.assumption}{: the assumptions made on the 
+          selection probabilities (see \code{\link[stabs]{stabsel}}).}
+        \item{stabsel.params.call}{: \code{\link[stabs]{stabsel}} the call.}
+        \item{randStabsel.params.weakness}{: the weakness parameter in the 
+          randomized lasso stability selection.}
+        }
       }
-    }
   
-  }
+    }
 }
 \description{
-This function runs randomized lasso stability selection as presented by Meinshausen
-  and Bühlmann (2010) and with the improved error bounds introduced by Shah and Samworth (2013). The function
-  uses the \code{\link[stabs]{stabsel}} function from the \code{stabs} package, but implements the randomized lasso version.
+This function runs randomized lasso stability selection as 
+    presented by Meinshausen and Bühlmann (2010) and with the improved 
+    error bounds introduced by Shah and Samworth (2013). The function
+    uses the \code{\link[stabs]{stabsel}} function from the \code{stabs} 
+    package, but implements the randomized lasso version.
 }
 \details{
-Randomized lasso stability selection runs a randomized lasso regression 
-  several times on subsamples of the response variable and predictor matrix. 
-  N/2 elements from the response variable are randomly chosen in each regression, 
-  where N is the length of the vector. The corresponding section of the predictor matrix is
-  also chosen, and the internal \code{.glmnetRandomizedLasso} function is applied. 
-  Stability selection results in selection probabilities for each predictor. 
-  The probability of a specific predictor is the number of
-  times it was selected divided by the total number of subsamples that were done 
-  (total number of times the regression was performed).
+Randomized lasso stability selection runs a randomized lasso 
+    regression several times on subsamples of the response variable and 
+    predictor matrix. N/2 elements from the response variable are randomly 
+    chosen in each regression, where N is the length of the vector. The 
+    corresponding section of the predictor matrix is also chosen, and the 
+    internal \code{.glmnetRandomizedLasso} function is applied. 
+    Stability selection results in selection probabilities for each 
+    predictor. The probability of a specific predictor is the number of
+    times it was selected divided by the total number of subsamples that 
+    were done (total number of times the regression was performed).
 
-  We made use of the \code{stabs} package that implements lasso stability selection, 
-  and adapted it to run randomized lasso stability selection.
+    We made use of the \code{stabs} package that implements lasso stability 
+    selection, and adapted it to run randomized lasso stability selection.
 }
 \examples{
 ## create data set
@@ -120,9 +145,16 @@ if (.Platform$OS.type == "unix") {
 
 }
 \references{
-N. Meinshausen and P. Bühlmann (2010), Stability Selection, \emph{Journal of the Royal Statistical Society: Series B (Statistical Methodology)}, \strong{72}, 417–73. \cr
-  R.D. Shah and R.J. Samworth (2013), Variable Selection with Error Control: Another Look at Stability Selection, \emph{Journal of the Royal Statistical Society: Series B (Statistical Methodology)}, \strong{75}, 55–80. \cr
-  B. Hofner, L. Boccuto, and M. Göker (2015), Controlling False Discoveries in High-Dimensional Situations: Boosting with Stability Selection, \emph{BMC Bioinformatics}, \strong{16} 144.
+N. Meinshausen and P. Bühlmann (2010), Stability Selection, 
+    \emph{Journal of the Royal Statistical Society: Series B 
+    (Statistical Methodology)}, \strong{72}, 417–73. \cr
+    R.D. Shah and R.J. Samworth (2013), Variable Selection with Error 
+   Control: Another Look at Stability Selection, 
+   \emph{Journal of the Royal Statistical Society: Series B 
+   (Statistical Methodology)}, \strong{75}, 55–80. \cr
+    B. Hofner, L. Boccuto, and M. Göker (2015), Controlling False 
+    Discoveries in High-Dimensional Situations: Boosting with Stability 
+    Selection, \emph{BMC Bioinformatics}, \strong{16} 144.
 }
 \seealso{
 \code{\link[stabs]{stabsel}}
