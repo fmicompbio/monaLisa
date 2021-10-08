@@ -309,7 +309,8 @@ setMethod("findMotifHits",
                   # currently, homer2 only support sequences shorter than 1e6 
                   # bases (see cpp/Motif2.h:#define MOTIF2_BUFFER 10000100
                   #  and also char* curSeq = new char[1000000];)
-                  if (any(tooLong <- ((sl <- fasta.seqlengths(subject)) >= 1e6))) {
+                  if (any(
+                      tooLong <- ((sl <- fasta.seqlengths(subject)) >= 1e6))) {
                       stop("For method = 'homer2', 'subject' must only contain",
                            " sequences shorter than 1 Mb, the following",
                            " sequences are too long: ",
@@ -317,8 +318,9 @@ setMethod("findMotifHits",
                   }
 
                   # run homer2
-                  args <- sprintf("find -i %s -m %s -offset 1 -strand both -p %d",
-                                  subject, query, bpnworkers(BPPARAM))
+                  args <- 
+                      sprintf("find -i %s -m %s -offset 1 -strand both -p %d",
+                              subject, query, bpnworkers(BPPARAM))
                   res <- system2(command = homerfile, args = args,
                                  stdout = TRUE, stderr = FALSE, wait = TRUE)
 
