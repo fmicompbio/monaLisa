@@ -31,6 +31,18 @@ Current contributors include:
 - [Lukas Burger](https://github.com/LukasBurger)
 - [Charlotte Soneson](https://github.com/csoneson)
 
+## Installation
+
+`monaLisa` can be installed from Bioconductor via the 
+`BiocManager` package:
+
+```
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("monaLisa")
+```
+
 ## Functionality
 
 Here is a minimal example to run a `monaLisa` analysis:

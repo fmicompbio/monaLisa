@@ -1,32 +1,34 @@
 #' @title Sample random regions of fixed length.
 #'
 #' @description Sample random regions from the mappable parts of the genome with
-#'      a given fraction from CpG islands.
+#'     a given fraction from CpG islands.
 #'
-#' @param allowedRegions An unstranded GRanges object of the "allowed" of the genome, usually the mappable regions. 
+#' @param allowedRegions An unstranded GRanges object of the "allowed" of the 
+#'     genome, usually the mappable regions. 
 #' @param N Number of regions to sample.
 #' @param regWidth Region width.
 #'
 #'
 #' @details In order to make the results deterministic, set the random
-#'      number seet before calling \code{sample_random_regions} using \code{set.seed}.
+#'     number seed before calling \code{sampleRandomRegions} using 
+#'     \code{set.seed}.
 #'
-#' @return A GRanges object with randomly sampled mappable regions of width \code{regWidth}
-#'         with \code{fractionCGI} coming from CpG islands.
+#' @return A GRanges object with randomly sampled mappable regions of width 
+#'     \code{regWidth} with \code{fractionCGI} coming from CpG islands.
 #'
 #' @examples 
 #' regs <- GenomicRanges::GRanges(
 #'   seqnames = rep(c("chr1", "chr2"), each = 2), 
 #'   ranges = IRanges::IRanges(start = 1:4, end = 5:8))
 #' set.seed(123)
-#' sample_random_regions(regs, N = 2, regWidth = 3L)
+#' sampleRandomRegions(regs, N = 2, regWidth = 3L)
 #' 
 #' @importFrom GenomeInfoDb seqlengths
-#' @importFrom GenomicRanges width end start seqnames GRanges sort
+#' @importFrom GenomicRanges width end end<- start seqnames GRanges sort
 #' @importFrom IRanges IRanges
 #'
 #' @export
-sample_random_regions <- function(allowedRegions = NULL, N = 100L,
+sampleRandomRegions <- function(allowedRegions = NULL, N = 100L,
                                   regWidth = 200L){
 
     .assertScalar(x = N, type = "numeric")
@@ -69,7 +71,8 @@ sample_random_regions <- function(allowedRegions = NULL, N = 100L,
         sample(st.sampled[i]:end.sampled[i], 1)
     }))
     gr.sampled <- GRanges(seqnames = chr.sampled,
-                          ranges = IRanges(start = pos.sampled, width = regWidth),
+                          ranges = IRanges(start = pos.sampled, 
+                                           width = regWidth),
                           seqlengths = seqlengths(gr))
     sort(gr.sampled)
 }

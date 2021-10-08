@@ -78,9 +78,9 @@ test_that("plotBinScatter() runs", {
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)
 
-    expect_null(plotBinScatter(x = x, y = x, b = b1))
+    expect_true(plotBinScatter(x = x, y = x, b = b1))
     expect_error(plotBinScatter(x = x, y = x, b = b1, cols = "gray"))
-    expect_null(plotBinScatter(x = x, y = x, b = b1, cols = "gray", legend = FALSE))
+    expect_true(plotBinScatter(x = x, y = x, b = b1, cols = "gray", legend = FALSE))
 
     dev.off()
     unlink(tf)
@@ -135,11 +135,13 @@ test_that("plotSelectionProb() runs", {
     expect_error(plotSelectionProb(se = ss, showSelProbMin = "error"))
     expect_error(plotSelectionProb(se = ss, col = "error"), "length 3")
     expect_error(plotSelectionProb(se = ss, method = "error"), "should be one of")
+    expect_error(plotSelectionProb(se = ss, legend = "error"))
 
-    expect_true(plotSelectionProb(ss, selProbMin = 1.0, selProbMinPlot = 0.99))
-    expect_true(plotSelectionProb(ss))
-    expect_true(plotSelectionProb(ss, FALSE))
+    expect_null(plotSelectionProb(ss, selProbMin = 1.0, selProbMinPlot = 0.99))
+    expect_is(plotSelectionProb(ss), "matrix")
+    expect_is(plotSelectionProb(ss, FALSE), "matrix")
     
     dev.off()
     unlink(tf)
 })
+

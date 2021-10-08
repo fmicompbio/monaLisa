@@ -5,11 +5,6 @@
 #' 
 #' @keywords internal
 .compareMotifPair <- function(m1, m2) {
-    # stopifnot(is.matrix(m1) && is.matrix(m2) &&
-    #               nrow(m1) == 4L && nrow(m2) == 4L &&
-    #               all.equal(rep(1.0, ncol(m1)), colSums(m1)) &&
-    #               all.equal(rep(1.0, ncol(m2)), colSums(m2)))
-
     bestScore <- -2
     bestOffset <- 0
     bestDirection <- ""
@@ -28,13 +23,16 @@
         # padding of matrices
         mm1 <- cbind(matrix(0.25, nrow = 4, ncol = max(0, offset)),
                      m1,
-                     matrix(0.25, nrow = 4, ncol = max(0, len2 - (len1 + offset))))
+                     matrix(0.25, nrow = 4, 
+                            ncol = max(0, len2 - (len1 + offset))))
         mm2 <- cbind(matrix(0.25, nrow = 4, ncol = max(0, -offset)),
                      m2,
-                     matrix(0.25, nrow = 4, ncol = max(0, (len1 + offset) - len2)))
+                     matrix(0.25, nrow = 4, 
+                            ncol = max(0, (len1 + offset) - len2)))
         mm2r <- cbind(matrix(0.25, nrow = 4, ncol = max(0, -offset)),
                       rv2,
-                      matrix(0.25, nrow = 4, ncol = max(0, (len1 + offset) - len2)))
+                      matrix(0.25, nrow = 4, 
+                             ncol = max(0, (len1 + offset) - len2)))
 
         score <- cor(as.vector(mm1), as.vector(mm2))
         rvScore <- cor(as.vector(mm1), as.vector(mm2r))
@@ -51,25 +49,17 @@
         }
     }
 
-    return(list(bestScore = bestScore, bestOffset = bestOffset, bestDirection = bestDirection))
+    return(list(bestScore = bestScore, bestOffset = bestOffset, 
+                bestDirection = bestDirection))
 }
 
-# compare a PFM to all k-mer of any length (padd left/right with background positions)
+# compare a PFM to all k-mer of any length (padd left/right with 
+# background positions)
 # score := maximal probability of observing k-mer under (potentially padded) PFM
 # (internal function used by motifKmerSimilarity)
 #' 
 #' @keywords internal
 .compareMotifKmer <- function(m, kmers) {
-    # stopifnot(exprs = {
-    #     is.matrix(m)
-    #     is.character(kmers)
-    #     nrow(m) == 4L
-    #     rownames(m) == c("A","C","G","T")
-    #     all.equal(rep(1.0, ncol(m)), colSums(m))
-    #     all(nchar(kmers[1]) == nchar(kmers))
-    #     all(grepl("^[ACGT]+$", kmers))
-    # })
-
     bestScore <- rep(-2, length(kmers))
     bestOffset <- rep(0, length(kmers))
 
@@ -87,8 +77,10 @@
         # minimal overlap of 1
         # padding of matrix and kmers
         mm <- cbind(matrix(0.25, nrow = 4, ncol = max(0, offset)),
-                    m[, seq.int(min(len1 + offset, len2 - offset, len2)) + max(0, -offset)],
-                    matrix(0.25, nrow = 4, ncol = max(0, len2 - (len1 + offset))))
+                    m[, seq.int(min(len1 + offset, 
+                                    len2 - offset, len2)) + max(0, -offset)],
+                    matrix(0.25, nrow = 4, 
+                           ncol = max(0, len2 - (len1 + offset))))
         score <- unlist(lapply(kmersN, function(i) prod(mm[cbind(i, j)])))
         b <- score > bestScore
         if (any(b)) {
@@ -182,37 +174,49 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
             y <- x
         }
 
-        xm <- lapply(TFBSTools::Matrix(x), function(x) sweep(x, 2, colSums(x), "/"))
+        xm <- lapply(TFBSTools::Matrix(x), 
+                     function(x) sweep(x, 2, colSums(x), "/"))
 
         if (is.null(y)) { # compare x to itself, n*(n-1)/2 comparisons
             if (verbose) {
-                message("calculating ", length(xm) * (length(xm) - 1) / 2, " similarities...", appendLF = FALSE)
+                message("calculating ", length(xm) * (length(xm) - 1) / 2,
+                        " similarities...", appendLF = FALSE)
             }
-            M <- matrix(NA, nrow = length(xm), ncol = length(xm), dimnames = list(name(x), name(x)))
+            M <- matrix(NA, nrow = length(xm), ncol = length(xm), 
+                        dimnames = list(name(x), name(x)))
             diag(M) <- 1.0
             for (i in seq.int(length(x) - 1L)) {
                 for (j in seq(i + 1, length(x))) {
-                    M[i, j] <- M[j, i] <- .compareMotifPair(xm[[i]], xm[[j]])$bestScore
+                    M[i, j] <- M[j, i] <- 
+                        .compareMotifPair(xm[[i]], xm[[j]])$bestScore
                 }
             }
             if (verbose) {
                 message("done")
             }
         } else {#           compare x to y, n*m comparisons
-            ym <- lapply(TFBSTools::Matrix(y), function(x) sweep(x, 2, colSums(x), "/"))
+            ym <- lapply(TFBSTools::Matrix(y), 
+                         function(x) sweep(x, 2, colSums(x), "/"))
             if (verbose) {
-                message("calculating ", length(xm) * length(ym),
-                        " similarities using ", bpnworkers(BPPARAM),
-                        if (bpnworkers(BPPARAM) > 1) " cores..." else " core...",
-                        appendLF = FALSE)
+                message(
+                    "calculating ", length(xm) * length(ym),
+                    " similarities using ", bpnworkers(BPPARAM),
+                    if (bpnworkers(BPPARAM) > 1) " cores..." else " core...",
+                    appendLF = FALSE
+                )
             }
             if (bpnworkers(BPPARAM) > 1) {
                 M <- do.call(rbind, bplapply(seq_along(xm), function(i) {
-                    unlist(lapply(seq_along(ym), function(j) .compareMotifPair(xm[[i]], ym[[j]])$bestScore))
+                    unlist(lapply(
+                        seq_along(ym), 
+                        function(j) .compareMotifPair(xm[[i]], 
+                                                      ym[[j]])$bestScore
+                    ))
                 }, BPPARAM = BPPARAM))
                 dimnames(M) <- list(name(x), name(y))
             } else {
-                M <- matrix(NA, nrow = length(xm), ncol = length(ym), dimnames = list(name(x), name(y)))
+                M <- matrix(NA, nrow = length(xm), ncol = length(ym), 
+                            dimnames = list(name(x), name(y)))
                 for (i in seq_along(xm)) {
                     for (j in seq_along(ym)) {
                         M[i, j] <- .compareMotifPair(xm[[i]], ym[[j]])$bestScore
@@ -227,11 +231,13 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
     } else if (method == "HOMER") {
         ## pre-flight checks for "HOMER"
         stopifnot(exprs = {is.character(x); length(x) == 1L; file.exists(x)})
-        stopifnot(exprs = {!is.na(homerfile); is.character(homerfile); length(homerfile) == 1L; file.exists(homerfile)})
+        stopifnot(exprs = {!is.na(homerfile); is.character(homerfile); 
+            length(homerfile) == 1L; file.exists(homerfile)})
         if (is.null(homerOutfile)) {
             homerOutfile <- tempfile(fileext = ".simmat")
         }
-        stopifnot(exprs = {is.character(homerOutfile); length(homerOutfile) == 1L; !file.exists(homerOutfile)})
+        stopifnot(exprs = {is.character(homerOutfile); 
+            length(homerOutfile) == 1L; !file.exists(homerOutfile)})
 
         ## run
         if (verbose) {

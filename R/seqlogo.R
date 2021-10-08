@@ -1,5 +1,5 @@
 # Coordinates for an A-polygon (internal)
-letterA <- function (x.pos, y.pos, ht, wt) {
+letterA <- function(x.pos, y.pos, ht, wt) {
     x <- 0.1 * c(0, 4, 6, 10, 8, 6.8, 3.2, 2, 0, 3.6, 5, 6.4, 3.6)
     y <- 0.1 * c(0, 10, 10, 0, 0, 3, 3, 0, 0, 4, 7.5, 4, 4)
     x <- x.pos + wt * x
@@ -9,7 +9,7 @@ letterA <- function (x.pos, y.pos, ht, wt) {
 }
 
 # Coordinates for an C-polygon (internal)
-letterC <- function (x.pos, y.pos, ht, wt) {
+letterC <- function(x.pos, y.pos, ht, wt) {
     angle1 <- seq(0.3 + pi/2, pi, length = 100)
     angle2 <- seq(pi, 1.5 * pi, length = 100)
     x.l1 <- 0.5 + 0.5 * sin(angle1)
@@ -40,7 +40,7 @@ letterC <- function (x.pos, y.pos, ht, wt) {
 }
 
 # Coordinates for an G-polygon (internal)
-letterG <- function (x.pos, y.pos, ht, wt) {
+letterG <- function(x.pos, y.pos, ht, wt) {
     angle1 <- seq(0.3 + pi/2, pi, length = 100)
     angle2 <- seq(pi, 1.5 * pi, length = 100)
     x.l1 <- 0.5 + 0.5 * sin(angle1)
@@ -78,7 +78,7 @@ letterG <- function (x.pos, y.pos, ht, wt) {
 }
 
 # Coordinates for an T-polygon (internal)
-letterT <- function (x.pos, y.pos, ht, wt) {
+letterT <- function(x.pos, y.pos, ht, wt) {
     x <- 0.1 * c(0, 10, 10, 6, 6, 4, 4, 0)
     y <- 0.1 * c(10, 10, 9, 9, 0, 0, 9, 9)
     x <- x.pos + wt * x
@@ -87,8 +87,10 @@ letterT <- function (x.pos, y.pos, ht, wt) {
     list(x = x, y = y, id = id, fill = "#E41A1C")
 }
 
-# Add coordinates for a new base polygon to the coordinaes in 'letters' (internal)
-addLetter <- function (letters, which = c("A", "C", "G", "T"), x.pos, y.pos, ht, wt) {
+# Add coordinates for a new base polygon to the coordinaes in 'letters' 
+# (internal)
+addLetter <- function(letters, which = c("A", "C", "G", "T"),
+                      x.pos, y.pos, ht, wt) {
     which <- match.arg(which)
     letter <- switch(which,
                      "A" = letterA(x.pos, y.pos, ht, wt),
@@ -105,10 +107,11 @@ addLetter <- function (letters, which = c("A", "C", "G", "T"), x.pos, y.pos, ht,
 
 # Calculate the information content for each position in a PFMatrix (internal)
 pfm2ic <- function(pfm) {
-    npos <- ncol(pfm)
-    ic <- numeric(length = npos)
-    for (i in seq_len(npos))
-        ic[i] <- 2 + sum(vapply(pfm[, i], function(x) if (x > 0) (x * log2(x)) else 0, 0))
+    ic <- vapply(X = seq_len(ncol(pfm)),
+                 FUN = function(i) 2 + sum(ifelse(pfm[, i] > 0,
+                                                  pfm[, i] * log2(pfm[, i]),
+                                                  0)),
+                 FUN.VALUE = 0)
     ic
 }
 
@@ -120,13 +123,15 @@ pfm2ic <- function(pfm) {
 #'     example can be used to embedd sequence logos within other plots.
 #'
 #' @param x A \code{\link[TFBSTools]{PFMatrix}} object
-#' @param xmax A numeric scalar with the maximal width for the logo (in base-pairs).
-#'     A value of \code{NULL} will scale the logo to the full width of the viewport.
+#' @param xmax A numeric scalar with the maximal width for the logo 
+#'     (in base-pairs). A value of \code{NULL} will scale the logo to the 
+#'     full width of the viewport.
 #' @param ymax A numeric scalar with the maximal height for the logo (in bits)
-#'     A value of \code{NULL} will scale the logo to the full height of the viewport.
+#'     A value of \code{NULL} will scale the logo to the full height of the
+#'     viewport.
 #' @param xjust A character scalar specifying the horizontal adjustment of the
-#'     sequence log withint the viewport; one of \code{"left"}, \code{"center"} or
-#'     \code{"right"}.
+#'     sequence log withint the viewport; one of \code{"left"}, \code{"center"} 
+#'     or \code{"right"}.
 #'
 #' @return A polygon grob.
 #'
@@ -141,16 +146,19 @@ pfm2ic <- function(pfm) {
 #'     gridExtra::grid.arrange(g1, g2)
 #' }
 #'
-#' @seealso \code{\link[seqLogo]{seqLogo}} for the original, more flexible version
-#'     of this function.
+#' @seealso \code{\link[seqLogo]{seqLogo}} for the original, more flexible 
+#'     version of this function.
 #'
 #' @importFrom grid polygonGrob gpar
 #'
 #' @export
-seqLogoGrob <- function(x, xmax = NULL, ymax = 2.0, xjust = c("left", "center", 'right')) {
+seqLogoGrob <- function(x, xmax = NULL, ymax = 2.0, 
+                        xjust = c("left", "center", 'right')) {
     stopifnot(is(x, "PFMatrix"))
-    stopifnot(is.null(xmax) || (is.numeric(xmax) && length(xmax) == 1L && xmax > 0))
-    stopifnot(is.null(ymax) || (is.numeric(ymax) && length(ymax) == 1L && ymax > 0))
+    stopifnot(is.null(xmax) || 
+                  (is.numeric(xmax) && length(xmax) == 1L && xmax > 0))
+    stopifnot(is.null(ymax) || 
+                  (is.numeric(ymax) && length(ymax) == 1L && ymax > 0))
     xjust <- match.arg(xjust)
 
     xm <- TFBSTools::Matrix(x)
@@ -189,7 +197,8 @@ seqLogoGrob <- function(x, xmax = NULL, ymax = 2.0, xjust = c("left", "center", 
 
     x <- unit((letters$x + xoff) / xmax, "npc")
     y <- unit(letters$y / ymax, "npc")
-    grid::polygonGrob(x = x, y = y, id = letters$id, name = as.character(ncol(xm)),
+    grid::polygonGrob(x = x, y = y, id = letters$id, 
+                      name = as.character(ncol(xm)),
                       gp = grid::gpar(fill = letters$fill, col = "transparent"))
 }
 
@@ -219,23 +228,24 @@ seqLogoGrob <- function(x, xmax = NULL, ymax = 2.0, xjust = c("left", "center", 
 #'
 #'     g1 <- seqLogoGrob(pfm1)
 #'
-#'     anno <- anno_seqlogo(list(g1))
+#'     anno <- annoSeqlogo(list(g1))
 #' }
 #' 
 #' @importFrom grid unit grid.rect viewport pushViewport popViewport grid.draw
 #' @importFrom ComplexHeatmap AnnotationFunction subset_gp
 #'
 #' @export 
-anno_seqlogo <- function(grobL, which = c("column", "row"),
-                         space = unit(0.5, "mm"), width = NULL, height = NULL,
-                         gp = gpar(fill = NA, col = NA)) {
+annoSeqlogo <- function(grobL, which = c("column", "row"),
+                        space = unit(0.5, "mm"), width = NULL, height = NULL,
+                        gp = gpar(fill = NA, col = NA)) {
     stopifnot(is(grobL, "list"))
     stopifnot(all(vapply(grobL, function(x) is(x, "grob"), FALSE)))
 
     .recycle_gp <- function(gp, n = 1) {
         for (i in seq_along(gp)) {
             x <- gp[[i]]
-            gp[[i]] <- c(rep(x, floor(n / length(x))), x[seq_len(n %% length(x))])
+            gp[[i]] <- c(rep(x, floor(n / length(x))), 
+                         x[seq_len(n %% length(x))])
         }
         return(gp)
     }
@@ -243,12 +253,14 @@ anno_seqlogo <- function(grobL, which = c("column", "row"),
     n_seqlogo <- length(grobL)
     which <- match.arg(which)[1]
     space <- space[1]
-    anno_size <- switch(which,
-                        column = list(height = if (is.null(height)) unit(1, "cm")  else height,
-                                      width  = if (is.null(width))  unit(1, "npc") else width),
-                        row    = list(height = if (is.null(height)) unit(1, "npc") else height,
-                                      width  = if (is.null(width))  unit(1, "cm")  else width))
-    gp = .recycle_gp(gp, n_seqlogo)
+    anno_size <- switch(
+        which,
+        column = list(height = if (is.null(height)) unit(1, "cm")  else height,
+                      width  = if (is.null(width))  unit(1, "npc") else width),
+        row    = list(height = if (is.null(height)) unit(1, "npc") else height,
+                      width  = if (is.null(width))  unit(1, "cm")  else width)
+    )
+    gp <- .recycle_gp(gp, n_seqlogo)
     column_fun <- function(index) {
         n <- length(index)
         pushViewport(viewport())
@@ -257,7 +269,8 @@ anno_seqlogo <- function(grobL, which = c("column", "row"),
         for (i in seq_len(n)) {
             height <- unit(1, "npc") - space * 2
             width  <- unit(1 / n, "npc") - space * 2
-            pushViewport(viewport(x = (i - 0.5)/n, width = width, height = height))
+            pushViewport(viewport(x = (i - 0.5)/n, width = width, 
+                                  height = height))
             grid.draw(grobL[[index[i]]])
             popViewport()
         }
@@ -281,12 +294,14 @@ anno_seqlogo <- function(grobL, which = c("column", "row"),
     fun <- switch(which,
                   row = row_fun,
                   column = column_fun)
-    anno = AnnotationFunction(fun = fun, fun_name = "anno_seqlogo", which = which,
-                              width = anno_size$width, height = anno_size$height,
-                              n = n_seqlogo, data_scale = c(0.5, 1.5),
-                              var_import = list(gp, space, grobL))
-    anno@subset_rule$gp = ComplexHeatmap::subset_gp
-    anno@subset_rule$grobL = ComplexHeatmap::subset_vector
-    anno@subsetable = TRUE
+    anno <- AnnotationFunction(
+        fun = fun, fun_name = "annoSeqlogo", which = which,
+        width = anno_size$width, height = anno_size$height,
+        n = n_seqlogo, data_scale = c(0.5, 1.5),
+        var_import = list(gp, space, grobL),
+        subset_rule = list(gp = ComplexHeatmap::subset_gp,
+                           grobL = ComplexHeatmap::subset_vector), 
+        subsetable = TRUE
+    )
     return(anno)
 }

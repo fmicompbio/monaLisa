@@ -9,15 +9,17 @@ seqLogoGrob(x, xmax = NULL, ymax = 2, xjust = c("left", "center", "right"))
 \arguments{
 \item{x}{A \code{\link[TFBSTools]{PFMatrix}} object}
 
-\item{xmax}{A numeric scalar with the maximal width for the logo (in base-pairs).
-A value of \code{NULL} will scale the logo to the full width of the viewport.}
+\item{xmax}{A numeric scalar with the maximal width for the logo 
+(in base-pairs). A value of \code{NULL} will scale the logo to the 
+full width of the viewport.}
 
 \item{ymax}{A numeric scalar with the maximal height for the logo (in bits)
-A value of \code{NULL} will scale the logo to the full height of the viewport.}
+A value of \code{NULL} will scale the logo to the full height of the
+viewport.}
 
 \item{xjust}{A character scalar specifying the horizontal adjustment of the
-sequence log withint the viewport; one of \code{"left"}, \code{"center"} or
-\code{"right"}.}
+sequence log withint the viewport; one of \code{"left"}, \code{"center"} 
+or \code{"right"}.}
 }
 \value{
 A polygon grob.
@@ -41,6 +43,6 @@ if (require(JASPAR2020) && require(TFBSTools) && require(gridExtra)) {
 
 }
 \seealso{
-\code{\link[seqLogo]{seqLogo}} for the original, more flexible version
-    of this function.
+\code{\link[seqLogo]{seqLogo}} for the original, more flexible 
+    version of this function.
 }

@@ -15,16 +15,9 @@
     minProb <- 1 / totalWeightBg
     maxProb <- (totalWeightBg - 1) / totalWeightBg
     if (any(i <- (prob < minProb))) {
-        # warning("some background match probabilities are below ",
-        #         "minProb (for example when there were zero hits) ",
-        #         "and will be given a value of minProb=1/totalWeightBg")
         prob[i] <- minProb
     }
     if (any(i <- (prob > maxProb))) {
-        # warning("some match probabilities a above",
-        #         "maxProb (for example when all sequences had hits) ",
-        #         "and will be given a value of ",
-        #         "maxProb=(totalWeightBg-1)/totalWeightBg")
         prob[i] <- maxProb
     }
     
@@ -46,7 +39,8 @@
                 "log(p-values) for enrichments")
     }
     
-    # contingency table per sequence for Fisher's exact test (rounded to integer):
+    # contingency table per sequence for Fisher's exact test 
+    # (rounded to integer):
     #              withHit  noHit
     #   foreground    x       y
     #   background    z       w
@@ -59,7 +53,8 @@
                                          c(matchCountBg[i],
                                            totalWeightBg - matchCountBg[i]))
                            ctab <- round(ctab)
-                           fisher.test(x = ctab, alternative = "greater")$p.value
+                           fisher.test(x = ctab, 
+                                       alternative = "greater")$p.value
                        }, FUN.VALUE = numeric(1)))
 }
 
@@ -104,13 +99,6 @@
     normBg <- log2(matchCountBg/totalWeightBg * minTot + pseudocount)
     log2enr <- normFg - normBg
     log2enr
-    
-    # D <- enrich1[, c("sumForegroundWgtWithHits", "sumBackgroundWgtWithHits")]
-    # nTot <- unlist(enrich1[1, c("totalWgtForeground", "totalWgtBackground")])
-    # D.norm <- t(t(D) / nTot * min(nTot))
-    # DL <- log2(D.norm + pseudocount.log2enr)
-    # log2enr <- DL[, 1] - DL[, 2]
-    # log2enr
 }
 
 #' @title Check if seqinfo DataFrame is valid
@@ -169,7 +157,8 @@
 #' @title Filter Sequences
 #'
 #' @description Filter sequences that are unlikely to be useful for motif
-#'   enrichment analysis. The current defaults are based on HOMER (version 4.11).
+#'   enrichment analysis. The current defaults are based on HOMER 
+#'   (version 4.11).
 #'
 #' @param seqs a \code{DNAStringSet} object.
 #' @param maxFracN A numeric scalar with the maximal fraction of N bases allowed
@@ -197,7 +186,8 @@
     }
     .assertScalar(x = maxFracN,  type = "numeric", rngIncl = c(0, 1))
     .assertScalar(x = minLength, type = "numeric", rngIncl = c(0, Inf))
-    .assertScalar(x = maxLength, type = "numeric", rngIncl = c(max(minLength, 0), Inf))
+    .assertScalar(x = maxLength, type = "numeric", 
+                  rngIncl = c(max(minLength, 0), Inf))
     .assertScalar(x = verbose,   type = "logical")
     
     # fraction of N bases per sequence
@@ -226,18 +216,20 @@
     return(res)
 }
 
-#' @title Define background sequence set for a single motif enrichment calculation
+#' @title Define background sequence set for a single motif enrichment 
+#'   calculation
 #' 
 #' @description Define the background set for the motif enrichment calculation
 #'   in a single bin, depending on the background mode and given foreground
 #'   sequences.
 #' 
-#' @param sqs,bns,bg The \code{seqs}, \code{bins} and \code{background} arguments
-#'   from \code{calcBinnedMotifEnrR}.
+#' @param sqs,bns,bg The \code{seqs}, \code{bins} and \code{background} 
+#'   arguments from \code{calcBinnedMotifEnrR}.
 #' @param currbn An \code{integer} scalar with the current bin defining the
 #'   foreground sequences.
-#' @param gnm,gnm.regions,gnm.oversample The \code{genome}, \code{genome.regions}
-#'   and \code{genome.oversample} arguments from \code{calcBinnedMotifEnrR}.
+#' @param gnm,gnm.regions,gnm.oversample The \code{genome}, 
+#'   \code{genome.regions} and \code{genome.oversample} arguments from 
+#'   \code{calcBinnedMotifEnrR}.
 #' @param maxFracN The \code{maxFracN} argument from \code{calcBinnedMotifEnrR}.
 #' @param GCbreaks The breaks between GC bins. The default value is based on
 #'   the hard-coded bins used in Homer.
@@ -291,10 +283,11 @@
         while (length(gnmsqs) < n && iter < 10) {
             # sample coordinates
             n1 <- n - length(gnmsqs)
-            ridx <- sort(sample(x = length(gnm.regions), size = n1,
-                                replace = TRUE,
-                                prob = pmax(0, gnm.regions.width - mean(w) + 1)),
-                         decreasing = FALSE)
+            ridx <- sort(sample(
+                x = length(gnm.regions), size = n1,
+                replace = TRUE,
+                prob = pmax(0, gnm.regions.width - mean(w) + 1)),
+                decreasing = FALSE)
             rw <- sample(x = w, size = n1, replace = TRUE)
             rst <- start(gnm.regions)[ridx] +
                 unlist(lapply(pmax(gnm.regions.width[ridx] - rw, 0),
@@ -323,26 +316,34 @@
         gcf.gnm <- fmono.gnm[, "G"] + fmono.gnm[, "C"]
         
         # select a set that matches sqs[inCurrBin]
-        sqs.gcbin <- findInterval(x = gcf[inCurrBin], vec = GCbreaks, all.inside = TRUE)
-        gnm.gcbin <- findInterval(x = gcf.gnm, vec = GCbreaks, all.inside = TRUE)
-        sqs.tab <- tabulate(sqs.gcbin, nbins = length(GCbreaks) - 1) / length(sqs.gcbin)
-        gnm.tab <- tabulate(gnm.gcbin, nbins = length(GCbreaks) - 1) / length(gnm.gcbin)
-        sel <- sample(x = length(gnmsqs), size = sum(inCurrBin), replace = FALSE,
+        sqs.gcbin <- findInterval(x = gcf[inCurrBin], 
+                                  vec = GCbreaks, all.inside = TRUE)
+        gnm.gcbin <- findInterval(x = gcf.gnm, 
+                                  vec = GCbreaks, all.inside = TRUE)
+        sqs.tab <- tabulate(sqs.gcbin, 
+                            nbins = length(GCbreaks) - 1) / length(sqs.gcbin)
+        gnm.tab <- tabulate(gnm.gcbin, 
+                            nbins = length(GCbreaks) - 1) / length(gnm.gcbin)
+        sel <- sample(x = length(gnmsqs), size = sum(inCurrBin), 
+                      replace = FALSE,
                       prob = ((sqs.tab + 0.5) / (gnm.tab + 0.5))[gnm.gcbin])
         
-        gnm.tab.sel <- tabulate(gnm.gcbin[sel], nbins = length(GCbreaks) - 1) / length(sel)
+        gnm.tab.sel <- tabulate(gnm.gcbin[sel], 
+                                nbins = length(GCbreaks) - 1) / length(sel)
         gcdist <- sqrt(sum((sqs.tab - gnm.tab.sel)^2))
         if (gcdist > (3 / (length(GCbreaks) - 1))) {
-            warning("The background sequences sampled from 'genome' do not match ",
-                    "well\nthe G+C content of 'seqs' (normdist = ", round(gcdist, 3),
-                    ").\n\n",
-                    "Consider increasing 'genome.oversample', and/or focus the ",
-                    "sampling on a subset\nwith similar sequence composition as ",
-                    "'seqs' using 'genome.regions'.\n\n",
-                    "It may also be useful to split 'seqs' into subsets with ",
-                    "homogenous G+C\n(e.g. with/without CpG islands) and use ",
-                    "an appropriate 'genome' for them\n(e.g. all CpG islands and ",
-                    "the rest of the genome, respectively).")
+            warning(
+                "The background sequences sampled from 'genome' do not match ",
+                "well\nthe G+C content of 'seqs' (normdist = ", 
+                round(gcdist, 3), ").\n\n",
+                "Consider increasing 'genome.oversample', and/or focus the ",
+                "sampling on a subset\nwith similar sequence composition as ",
+                "'seqs' using 'genome.regions'.\n\n",
+                "It may also be useful to split 'seqs' into subsets with ",
+                "homogenous G+C\n(e.g. with/without CpG islands) and use ",
+                "an appropriate 'genome' for them\n(e.g. all CpG islands and ",
+                "the rest of the genome, respectively)."
+            )
         }
         
         isFg <- rep(c(TRUE, FALSE), each = sum(inCurrBin))
@@ -477,9 +478,9 @@
 #' @param kmerFreq a \code{list} with of matrices. The matrix at index \code{i}
 #'   in the list contains the probability of k-mers of length \code{i}, for each
 #'   k-mer (columns) and sequence (rows).
-#' @param goodKmers a \code{list} of \code{numeric} vectors; the element at index
-#'   \code{i} contains the number of good (non-N-containing) k-mers of length
-#'   \code{i} for each sequence.
+#' @param goodKmers a \code{list} of \code{numeric} vectors; the element at 
+#'   index \code{i} contains the number of good (non-N-containing) k-mers of 
+#'   length \code{i} for each sequence.
 #' @param kmerRC a \code{list} of character vectors; the element at index
 #'   \code{i} contains the reverse complement sequences of all k-mers of length
 #'   \code{i}.
@@ -524,10 +525,14 @@
         
         # average weight of a k-mer and its reverse complement
         # (cap at the bottom at 0.5 / total)
-        kmerWgtSumForeground <- pmax((kmerWgtSumForeground + kmerWgtSumForeground[kmerRC[[k]]]) / 2,
-                                     0.5 / totalWgtForeground)
-        kmerWgtSumBackground <- pmax((kmerWgtSumBackground + kmerWgtSumBackground[kmerRC[[k]]]) / 2,
-                                     0.5 / totalWgtBackground)
+        kmerWgtSumForeground <- pmax(
+            (kmerWgtSumForeground + kmerWgtSumForeground[kmerRC[[k]]]) / 2,
+            0.5 / totalWgtForeground
+        )
+        kmerWgtSumBackground <- pmax(
+            (kmerWgtSumBackground + kmerWgtSumBackground[kmerRC[[k]]]) / 2,
+            0.5 / totalWgtBackground
+        )
         
         
         # Calculate kmerNormFactors
@@ -539,8 +544,10 @@
         
         # calculate new weights for background sequences
         # ... sum the kmerNormFactors of all k-mers per background sequence
-        newSeqWgtBackground <- rowSums(sweep(x = kmerFreq[[k]][!isForeground, ],
-                                             MARGIN = 2, STATS = kmerNormFactors, FUN = "*"))
+        newSeqWgtBackground <- rowSums(
+            sweep(x = kmerFreq[[k]][!isForeground, ],
+                  MARGIN = 2, STATS = kmerNormFactors, FUN = "*")
+        )
         
         # ... new weight for each background sequence
         seqWgtBackground <- seqWgt[!isForeground]
@@ -651,7 +658,10 @@
         
         if (res$err >= lastErr) {
             if (verbose) {
-                tmpmsg <- paste0("    detected increasing error - stopping after ", i, " iterations")
+                tmpmsg <- paste0(
+                    "    detected increasing error - stopping after ", 
+                    i, " iterations"
+                )
                 message(tmpmsg)
             }
             break

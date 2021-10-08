@@ -18,8 +18,8 @@ plotBinDensity(
 \arguments{
 \item{x}{A numerical vector with the values used for binning.}
 
-\item{b}{A factor that groups elements of \code{x} into bins (typically the output of
-\code{\link{bin}}).}
+\item{b}{A factor that groups elements of \code{x} into bins (typically the 
+output of \code{\link{bin}}).}
 
 \item{xlab}{Label for x-axis.}
 
@@ -27,8 +27,8 @@ plotBinDensity(
 
 \item{main}{Main title.}
 
-\item{legend}{If not \code{NULL}, draw a legend with binning information (will
-be passed to \code{legend(x=legend)} to control legend position).}
+\item{legend}{If not \code{NULL}, draw a legend with binning information
+(will be passed to \code{legend(x=legend)} to control legend position).}
 
 \item{legend.cex}{A scalar that controls the text size in the legend relative
 to the current \code{par("cex")} (see \code{\link{legend}}).}
@@ -36,7 +36,8 @@ to the current \code{par("cex")} (see \code{\link{legend}}).}
 \item{...}{Further arguments passed to \code{\link{getColsByBin}}.}
 }
 \value{
-Invisibly the return value of \code{density(x)} that generated the plot.
+Invisibly the return value of \code{density(x)} that generated the 
+    plot.
 }
 \description{
 Plot the density of binned elements with binning information.

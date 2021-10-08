@@ -13,6 +13,8 @@ plotSelectionProb(
   col = c("cadetblue", "grey", "red"),
   method = c("pearson", "kendall", "spearman"),
   ylimext = 0.25,
+  legend = "topright",
+  legend.cex = 1,
   ...
 )
 }
@@ -29,16 +31,18 @@ probability greater than \code{selProbMin} are shown as colored bars. The
 color is defined by \code{col[1]}. By default, \code{selProbMin} is
 extracted from the parameters stored in \code{se}.}
 
-\item{selProbMinPlot}{A numerical scalar in [0,1] less than \code{selProbMin}.
+\item{selProbMinPlot}{A numerical scalar in [0,1] less than 
+\code{selProbMin}.
 Predictors with a selection probability greater than \code{selProbMinPlot}
 but less than \code{selProbMin} are shown as bars with color \code{col[2]}.
-\code{selProbMinPlot} is useful to include additional predictors in the plot
-that were not selected according to \code{selProbMin} but may be close to
-that cutoff. Setting \code{selProbMinPlot = 0} will create a plot including
-all predictors.}
+\code{selProbMinPlot} is useful to include additional predictors in the 
+plot that were not selected according to \code{selProbMin} but may be 
+close to that cutoff. Setting \code{selProbMinPlot = 0} will create a plot 
+including all predictors.}
 
 \item{showSelProbMin}{A logical scalar. If \code{TRUE}, the value of
-\code{selProbMin} is shown by a horizontal dashed line of color \code{col[3]}.}
+\code{selProbMin} is shown by a horizontal dashed line of color 
+\code{col[3]}.}
 
 \item{col}{A color vector giving the three colors used for predictors with
 selection probability greater than \code{selProbMin}, additional predictors
@@ -53,12 +57,17 @@ calculation of predictor-response marginal correlations. One of "pearson",
 expanded beyond the plotted probabilities to allow for space for the
 bar labels.}
 
+\item{legend}{the position of the legend in the bar plot (will
+be passed to \code{legend(x=legend)} to control legend position).}
+
+\item{legend.cex}{A scalar that controls the text size in the legend relative
+to the current \code{par("cex")} (see \code{\link{legend}}).}
+
 \item{...}{additional parameters passed to \code{\link[graphics]{barplot}}.}
 }
 \value{
-\code{TRUE} (invisible). The function is called to create a barplot
-  indicating the selection probability and optionally directionality of the
-  predictors (motifs).
+a \code{matrix} with one column, containing the coordinates of the 
+  bar midpoints, or \code{NULL} if no bar plot is drawn.
 }
 \description{
 This function plots the selection probabilities of predictors
@@ -66,4 +75,32 @@ This function plots the selection probabilities of predictors
   -1 to give a sense of both the strength and the directionality of the
   associated effects. The directionality is estimated from the sign of the
   correlation coefficient between each predictor and the response vector.
+}
+\details{
+This function creates a bar plot using the 
+  \code{\link[graphics]{barplot}} function.
+  Each bar corresponds to a predictor (motif) and the colors correspond to 
+  whether or not it was selected. The y-axis shows the selection 
+  probabilities (\code{directional=FALSE}) or selection probabilities with 
+  the sign of the marginal correlation to the response 
+  (\code{directional=TRUE}).
+}
+\examples{
+## create data set
+Y <- rnorm(n = 500, mean = 2, sd = 1)
+X <- matrix(data = NA, nrow = length(Y), ncol = 50)
+for (i in seq_len(ncol(X))) {
+  X[ ,i] <- runif(n = 500, min = 0, max = 3)
+}
+s_cols <- sample(x = seq_len(ncol(X)), size = 10, 
+  replace = FALSE)
+for (i in seq_along(s_cols)) {
+  X[ ,s_cols[i]] <- X[ ,s_cols[i]] + Y
+}
+  
+## reproducible randLassoStabSel() with 1 core
+set.seed(123)
+ss <- randLassoStabSel(x = X, y = Y)
+plotSelectionProb(ss)
+
 }

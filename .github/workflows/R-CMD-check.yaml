@@ -128,6 +128,12 @@ jobs:
           BiocCheck::BiocCheck(package = "${{env.PKG_PATH}}", `new-package`=TRUE)
         shell: Rscript {0}
 
+      - name: Check NEWS.md
+        run: |
+          BiocManager::install(c("commonmark", "xml2"))
+          tools:::.build_news_db_from_package_NEWS_md("monaLisa/NEWS.md")
+        shell: Rscript {0}
+        
       - name: Show testthat output
         if: always()
         run: find check -name 'testthat.Rout*' -exec cat '{}' \; || true

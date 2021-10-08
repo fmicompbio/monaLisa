@@ -117,9 +117,9 @@ test_that("calcBinnedKmerEnr works as expected", {
     library(SummarizedExperiment)
     library(BiocParallel)
     if (.Platform$OS.type == "unix") {
-        pparams <- MulticoreParam(2L)
+        pparams <- MulticoreParam(2L, RNGseed = 42L)
     } else {
-        pparams <- SerialParam()
+        pparams <- SerialParam(RNGseed = 42L)
     }
 
     set.seed(1)
@@ -176,13 +176,10 @@ test_that("calcBinnedKmerEnr works as expected", {
                                    genome = gnm, genome.seed = "error"))
     expect_error(calcBinnedKmerEnr(seqs, b, k, BPPARAM = "error"))
     expect_error(calcBinnedKmerEnr(DNAStringSet(rep("NNNNNNNNNN", 10)), background = "model"))
-
     expect_message(res1 <- calcBinnedKmerEnr(seqs, b, k, includeRevComp = FALSE, verbose = TRUE))
-    RNGkind("L'Ecuyer-CMRG")
-    set.seed(42L)
+
     res2 <- calcBinnedKmerEnr(seqs, b, k, background = "genome", genome = gnm,
                               includeRevComp = FALSE, verbose = FALSE, BPPARAM = pparams)
-    RNGkind("default")
     res3 <- calcBinnedKmerEnr(seqs, b, k, background = "model",
                               BPPARAM = pparams)
     res4 <- calcBinnedKmerEnr(seqs, b, k, background = "model",
@@ -220,6 +217,6 @@ test_that("calcBinnedKmerEnr works as expected", {
     ## Note that all tests after this point (within the test_that block) will 
     ## be skipped on windows.
     expect_equal(colSums(assay(res2, "negLog10P")),
-                 c(`[1,1.5]` = 24.5599369371223, `(1.5,2]` = 41.9051486968493))
+                 c(`[1,1.5]` = 34.8521231337902, `(1.5,2]` = 35.6739828473288))
 })
 

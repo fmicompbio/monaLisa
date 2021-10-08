@@ -26,7 +26,8 @@ calcBinnedMotifEnrR(
 )
 }
 \arguments{
-\item{seqs}{\code{\link[Biostrings]{DNAStringSet}} object with sequences to test}
+\item{seqs}{\code{\link[Biostrings]{DNAStringSet}} object with sequences to 
+test}
 
 \item{bins}{factor of the same length and order as \code{seqs}, indicating
 the bin for each sequence. Typically the return value of
@@ -35,9 +36,9 @@ can be omitted.}
 
 \item{pwmL}{PWMatrixList with motifs for which to calculate enrichments.}
 
-\item{background}{A \code{character} scalar specifying the background sequences
-to use. One of \code{"otherBins"} (default), \code{"allBins"}, \code{"zeroBin"}
-or \code{"genome"} (see "Details").}
+\item{background}{A \code{character} scalar specifying the background 
+sequences to use. One of \code{"otherBins"} (default), \code{"allBins"}, 
+\code{"zeroBin"} or \code{"genome"} (see "Details").}
 
 \item{test}{A \code{character} scalar specifying the type of enrichment test
 to perform. One of \code{"fisher"} (default) or \code{"binomial"}. The
@@ -119,14 +120,15 @@ This function implements a binned motif enrichment analysis. In each
   (defined by \code{background}, see below). The logic follows the
   \code{findMotifsGenome.pl} tool from \code{Homer} version 4.11, with
   \code{-size given -nomotif -mknown} and additionally \code{-h} if using 
-  \code{test = "fisher"}, and gives very similar results. As in the \code{Homer} 
-  tool, sequences are weighted to correct for GC and k-mer composition differences 
-  between fore- and background sets.
+  \code{test = "fisher"}, and gives very similar results. As in the 
+  \code{Homer} tool, sequences are weighted to correct for GC and k-mer 
+  composition differences between fore- and background sets.
   
   The background sequences are defined according to the value of the
   \code{background} argument:
   \itemize{
-    \item{otherBins}{: sequences from all other bins (excluding the current bin)}
+    \item{otherBins}{: sequences from all other bins (excluding the current 
+      bin)}
     \item{allBins}{: sequences from all bins (including the current bin)}
     \item{zeroBin}{: sequences from the "zero bin", defined by the
       \code{maxAbsX} argument of \code{\link[monaLisa]{bin}}. If \code{bins}
@@ -138,9 +140,11 @@ This function implements a binned motif enrichment analysis. In each
       foreground sequence, \code{genome.oversample} background sequences
       of the same size are sampled (on average). From these, one per
       foreground sequence is selected trying to match the G+C composition.
-      In order to make the sampling deterministic, seed the random number
-      generator before calling \code{calcBinnedMotifEnrR} using
-      \code{set.seed}.}
+      In order to make the sampling deterministic, a seed number needs to be
+      provided to the \code{RNGseed} parameter in 
+      \code{\link[BiocParallel]{SerialParam}}
+      or \code{\link[BiocParallel]{MulticoreParam}} when creating the 
+      \code{BiocParallelParam} instance in \code{BPPARAM}.}
   }
 
   Motif hits are predicted using \code{\link[monaLisa]{findMotifHits}} and
@@ -164,7 +168,8 @@ This function implements a binned motif enrichment analysis. In each
       weights of sequences in foreground or background sets (rows), and with
       or without a hit for a particular motif (columns).}
     \item{binomial}{: \code{pbinom(q = sumForegroundWgtWithHits - 1, size =
-      totalWgtForeground, prob = sumBackgroundWgtWithHits / totalWgtBackground,
+      totalWgtForeground, 
+      prob = sumBackgroundWgtWithHits / totalWgtBackground,
       lower.tail = FALSE, log.p = TRUE)}}
   }
 }
