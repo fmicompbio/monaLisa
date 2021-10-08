@@ -34,18 +34,20 @@ library(BiocStyle)
 and motifs that represent the binding preferences of transcription factors or
 nucleic acid binding proteins.
 
-For example, `r Biocpkg("monaLisa")` can be used to conveniently find motif hits in
-sequences (see section \@ref(findhits)), or to identify motifs that are likely
-associated with observed experimental data. Such analyses are supposed to
-provide potential answers to the question "Which transcription factors are
-the drivers of my observed changes in expression/methylation/accessibility?".
+For example, `r Biocpkg("monaLisa")` can be used to conveniently find motif 
+hits in sequences (see section \@ref(findhits)), or to identify motifs that 
+are likely associated with observed experimental data. Such analyses are 
+supposed to provide potential answers to the question "Which transcription 
+factors are the drivers of my observed changes in 
+expression/methylation/accessibility?".
 
 Several other approaches have been described that also address this problem,
-among them REDUCE [@reduce] and ISMARA [@ismara]. In `r Biocpkg("monaLisa")`, we aim to
-provide a flexible implementation that integrates well with other Bioconductor
-resources, makes use of the sequence composition correction developed for Homer
-[@homer] or stability selection [@StabSel] and provides several alternative ways
-to study the relationship between experimental measurements and sequence motifs.
+among them REDUCE [@reduce] and ISMARA [@ismara]. In `r Biocpkg("monaLisa")`, 
+we aim to provide a flexible implementation that integrates well with other 
+Bioconductor resources, makes use of the sequence composition correction 
+developed for Homer [@homer] or stability selection [@StabSel] and provides 
+several alternative ways to study the relationship between experimental 
+measurements and sequence motifs.
 
 You can use known motifs from collections of transcription factor binding 
 specificities such as `r Biocpkg("JASPAR2020")`, also available from 
@@ -58,15 +60,19 @@ Two independent approaches are implemented to identify interesting motifs:
 section \@ref(binned)), genomic regions are grouped into bins according to a
 numerical value assigned to each region, such as the change in expression,
 accessibility or methylation. Motif enrichments are then calculated for
-each bin, normalizing for differences in sequence composition in a very similar way
-as originally done by [Homer](http://homer.ucsd.edu/homer/index.html)
-[@homer]. The binned motif enrichment approach was first introduced in @ginno2018
-and subsequently applied in e.g. @barisic2019. To see more details on how 
-`calcBinnedMotifEnrR` resembles `Homer`, check the function help page. We 
-recommend using this function to do the binned motif enrichment analysis, since 
-it corrects for sequence composition differences similarly to `Homer`, but is 
-implemented more efficiently. `monaLisa::calcBinnedMotifEnrHomer` implements 
-the same analysis using Homer and therefore requires a local [installation of Homer](http://homer.ucsd.edu/homer/introduction/install.html), and `monaLisa::calcBinnedKmerEnr`(see section \@ref(binnedkmers)) 
+each bin, normalizing for differences in sequence composition in a very 
+similar way as originally done by 
+[Homer](http://homer.ucsd.edu/homer/index.html)
+[@homer]. The binned motif enrichment approach was first introduced in 
+@ginno2018 and subsequently applied in e.g. @barisic2019. To see more 
+details on how `calcBinnedMotifEnrR` resembles `Homer`, check the function 
+help page. We recommend using this function to do the binned motif enrichment 
+analysis, since it corrects for sequence composition differences similarly 
+to `Homer`, but is implemented more efficiently. 
+`monaLisa::calcBinnedMotifEnrHomer` implements 
+the same analysis using Homer and therefore requires a local 
+[installation of Homer](http://homer.ucsd.edu/homer/introduction/install.html),
+and `monaLisa::calcBinnedKmerEnr`(see section \@ref(binnedkmers)) 
 implements the analysis for k-mers instead of motifs, to study sequence 
 enrichments without the requirement of known motifs.
 
@@ -76,8 +82,8 @@ enrichments without the requirement of known motifs.
 selection, @StabSel) to predict what transcription factors can explain
 experimental measurements, for example changes in chromatin accessibility
 between two conditions. Also this approach allows to correct for sequence
-composition. In addition, similar motifs have to "compete" with each other to be
-selected.
+composition. In addition, similar motifs have to "compete" with each other to 
+be selected.
 
 For both approaches, functions that allow visualization of obtained results
 are provided.
@@ -205,7 +211,8 @@ library(circlize)
 LMRs, with the respective changes of methylation:  
 
 ```{r loadLMRs}
-lmrfile <- system.file("extdata", "LMRsESNPmerged.gr.rds", package = "monaLisa")
+lmrfile <- system.file("extdata", "LMRsESNPmerged.gr.rds", 
+                       package = "monaLisa")
 lmr <- readRDS(lmrfile)
 lmr
 ```
@@ -282,8 +289,10 @@ our motif enrichment results.
 
 In general, we would recommend to use regions of similar or even equal lengths
 to avoid a length bias, for example by using a fixed-size region around the
-midpoint of each region of interest using `GenomicRanges::resize`. In addition, the resized
-regions may have to be constrained to the chromosome boundaries using trim:
+midpoint of each region of interest using `GenomicRanges::resize`. In addition, 
+the resized regions may have to be constrained to the chromosome boundaries 
+using trim:
+
 ```{r makewidthequal}
 summary(width(lmrsel))
 lmrsel <- trim(resize(lmrsel, width = median(width(lmrsel)), fix = "center"))
@@ -293,14 +302,16 @@ summary(width(lmrsel))
 We can now directly extract the
 corresponding sequences from the `r Biocpkg("BSgenome.Mmusculus.UCSC.mm10")`
 package  
+
 ```{r getseqs}
 lmrseqs <- getSeq(BSgenome.Mmusculus.UCSC.mm10, lmrsel)
 ```
 
 and check for differences in sequence composition between bins using
-the `monaLisa::plotBinDiagnostics` function. "GCfrac" will plot the distributions
-of the fraction of G+C bases, and "dinucfreq" creates a heatmap of average
-di-nucleotide frequencies in each bin, relative to the overall average.
+the `monaLisa::plotBinDiagnostics` function. "GCfrac" will plot the 
+distributions of the fraction of G+C bases, and "dinucfreq" creates a 
+heatmap of average di-nucleotide frequencies in each bin, relative to 
+the overall average.
 
 ```{r bindiag}
 plotBinDiagnostics(seqs = lmrseqs, bins = bins, aspect = "GCfrac")
@@ -384,20 +395,23 @@ sum(sel.bin8, na.rm = TRUE)
 
 # significantly enriched in any "non-zero" bin
 getZeroBin(bins)
-sel.nonZero <- apply(assay(se, "negLog10Padj")[, -getZeroBin(bins), drop = FALSE], 1,
-                     function(x) max(abs(x), 0, na.rm = TRUE)) > 4.0
+sel.nonZero <- apply(
+    assay(se, "negLog10Padj")[, -getZeroBin(bins), drop = FALSE], 1,
+    function(x) max(abs(x), 0, na.rm = TRUE)) > 4.0
 sum(sel.nonZero)
 ```
 
-Setting `cluster = TRUE` in `monaLisa::plotMotifHeatmaps` has re-ordered the rows using
-hierarchical clustering of the `"pearsonResid"` assay. As many transcription
-factor binding motifs  are similar to each other, it is also helpful to show
-the enrichment heatmap  clustered by motif similarity. To this end, we first
-calculate all pairwise motif similarities (measured as maximum Pearson correlation
-of all possible  shifted alignments). This can be quickly calculated for the few
-selected motifs using the `monaLisa::motifSimilarity` function. For many motifs, this step
-may take a while, and it may be useful to parallelize it using the `BPPARAM` argument 
-(e.g. to run on `n` parallel threads using the multi-core backend, you can use:
+Setting `cluster = TRUE` in `monaLisa::plotMotifHeatmaps` has re-ordered the 
+rows using hierarchical clustering of the `"pearsonResid"` assay. As many 
+transcription factor binding motifs  are similar to each other, it is also 
+helpful to show the enrichment heatmap clustered by motif similarity. 
+To this end, we first calculate all pairwise motif similarities 
+(measured as maximum Pearson correlation of all possible  shifted alignments). 
+This can be quickly calculated for the few selected motifs using the 
+`monaLisa::motifSimilarity` function. For many motifs, this step
+may take a while, and it may be useful to parallelize it using the `BPPARAM` 
+argument (e.g. to run on `n` parallel threads using the multi-core backend, 
+you can use:
 `motifSimilarity(..., BPPARAM = BiocParallel::MulticoreParam(n))`).
 
 ```{r wmclustering}
@@ -408,11 +422,11 @@ range(SimMatSel)
 The order of the TFs in the resulting matrix is consistent with the elements of
 `seSel`, and the maximal similarity between any pair of motifs is 1.0. By
 subtracting these similarities from 1.0, we obtain distances that we use
-to perform a hierarchical clustering with the `stats::hclust` function. The returned
-object is then passed to the `cluster` argument to define the order of the rows
-in the heatmap. The plotting of the dendrogram is controlled by the argument
-`show_dendrogram`, and we also display the motifs as sequence logos using
-`show_seqlogo`: 
+to perform a hierarchical clustering with the `stats::hclust` function. The 
+returned object is then passed to the `cluster` argument to define the order 
+of the rows in the heatmap. The plotting of the dendrogram is controlled by 
+the argument `show_dendrogram`, and we also display the motifs as sequence 
+logos using `show_seqlogo`: 
 
 ```{r plottfsclustered, fig.height=10}
 # create hclust object, similarity defined by 1 - Pearson correlation
@@ -426,8 +440,9 @@ plotMotifHeatmaps(x = seSel, which.plots = c("log2enr", "negLog10Padj"),
 
 ## Convert between motif text file for `Homer` and motif objects in `R`
 
-`r Biocpkg("monaLisa")` provides two functions for performing binned motif enrichment 
-analysis (`monaLisa::calcBinnedMotifEnrR` and `monaLisa::calcBinnedMotifEnrHomer`). 
+`r Biocpkg("monaLisa")` provides two functions for performing binned motif 
+enrichment analysis (`monaLisa::calcBinnedMotifEnrR` and 
+`monaLisa::calcBinnedMotifEnrHomer`). 
 `monaLisa::calcBinnedMotifEnrR` implements the binned motif enrichment analysis 
 in `R`, similarly to `Homer` and does not require the user to have the `Homer` 
 tool pre-installed. For more information on that function and how it resembles 
@@ -461,12 +476,15 @@ for details). This is a useful representation for scanning sequences for motif
 matches. In `R`, PWMs are often represented using `TFBSTools::PWMatrix` 
 (single motif) or `TFBSTools::PWMatrixList` (set of motifs).
 
-`monaLisa::calcBinnedMotifEnrR` takes PWMs as a `TFBSTools::PWMatrixList` object
-to scan for motif hits. `monaLisa::calcBinnedMotifEnrHomer` on the other hand
-takes a motif text file with PPMs, and requires the user to have `Homer`
-installed to use it for the binned motif enrichment analysis. Here, we show
-how one can get motif PFMs from `r Biocpkg("JASPAR2020")` and convert them to a `Homer`-compatible text file with PPMs (`monaLisa::dumpJaspar`) and vice versa
-(`monaLisa::homerToPFMatrixList` ), and how to convert a `TFBSTools::PFMatrixList`
+`monaLisa::calcBinnedMotifEnrR` takes PWMs as a `TFBSTools::PWMatrixList` 
+object to scan for motif hits. `monaLisa::calcBinnedMotifEnrHomer` on the 
+other hand takes a motif text file with PPMs, and requires the user to 
+have `Homer` installed to use it for the binned motif enrichment analysis. 
+Here, we show how one can get motif PFMs from `r Biocpkg("JASPAR2020")` and 
+convert them to a `Homer`-compatible text file with PPMs 
+(`monaLisa::dumpJaspar`) and vice versa
+(`monaLisa::homerToPFMatrixList` ), and how to convert a 
+`TFBSTools::PFMatrixList`
 to a `TFBSTools::PWMatrixList` for use with `monaLisa::calcBinnedMotifEnrR` 
 or `monaLisa::findMotifHits`: 
 
@@ -519,8 +537,10 @@ sekm <- calcBinnedKmerEnr(seqs = lmrseqs, bins = bins, kmerLen = 6,
 ```
 
 ```{r binnedkmerenr-load}
-sekm <- readRDS(system.file("extdata", "results.binned_6mer_enrichment_LMRs.rds",
-                            package = "monaLisa"))
+sekm <- readRDS(system.file(
+    "extdata", "results.binned_6mer_enrichment_LMRs.rds",
+    package = "monaLisa"
+))
 ```
 
 Just as for the motif enrichment analysis, the return value is a 
@@ -541,9 +561,10 @@ sekmSel <- sekm[selkm, ]
 ```
 
 Next, let's compare the enriched k-mers to the motifs that were found earlier. 
-This can be done using the `monaLisa::motifKmerSimilarity` function. By showing the 
-similarity between the enriched k-mers and motifs, we can see whether, e.g., 
-strongly enriched k-mers do not seem to correspond to an annotated motif. 
+This can be done using the `monaLisa::motifKmerSimilarity` function. By 
+showing the similarity between the enriched k-mers and motifs, we can see 
+whether, e.g., strongly enriched k-mers do not seem to correspond to an 
+annotated motif. 
 
 ```{r, fig.width=10, fig.height=10}
 pfmSel <- rowData(seSel)$motif.pfm
@@ -570,8 +591,8 @@ Heatmap(sims,
 
 # Use `r Biocpkg("monaLisa")` to annotate genomic regions with predicted motifs{#findhits}
 
-As mentioned `r Biocpkg("monaLisa")` can also be used to scan sequences for motifs. Here is 
-an example (just on a few sequences/motifs for illustration):
+As mentioned `r Biocpkg("monaLisa")` can also be used to scan sequences for 
+motifs. Here is an example (just on a few sequences/motifs for illustration):
 
 ```{r findMotifs, warning=FALSE}
 # get sequences of promoters as a DNAStringSet
