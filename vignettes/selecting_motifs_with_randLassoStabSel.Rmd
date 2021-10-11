@@ -30,8 +30,8 @@ margin-right: auto; width: 50%; border: 0" />
 
 # Introduction
 
-Identifying important transcription factor (TF) motifs, as shown in vignette 
-(reference monaLisa.Rmd), could also be done using a regression based approach, 
+Identifying important transcription factor (TF) motifs, as shown in 
+`r Biocpkg("monaLisa", vignette="monaLisa.html", label="the main vignette")`, could also be done using a regression based approach, 
 where motifs are selected and have to compete against each other for selection. 
 In this framework, the response vector can be the observed experimental measure 
 of interest, e.g. log-fold changes of accessibility for a set of regions, and 
