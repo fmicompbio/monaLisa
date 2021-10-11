@@ -114,7 +114,7 @@ fraction of G+C and CpG observed/expected ratio as predictors, to ensure that
 selected TF motifs are not just detecting a simple trend in GC or CpG 
 composition.
 
-```{r predictorMatrix}
+```{r predictorMatrix, warning=FALSE}
 # get PFMs (vertebrate TFs from Jaspar)
 pfms <- getMatrixSet(JASPAR2020, list(matrixtype = "PFM", 
                                       tax_group = "vertebrates"))
