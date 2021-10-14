@@ -276,6 +276,7 @@ calcBinnedMotifEnrR <- function(seqs,
 
     # checks
     .assertVector(x = seqs, type = "DNAStringSet")
+    background <- match.arg(background)
     if (is.null(bins) && identical(background, "genome")) {
         bins <- factor(rep(1, length(seqs)))
     }
@@ -284,7 +285,6 @@ calcBinnedMotifEnrR <- function(seqs,
         stop("'seqs' and 'bins' must be of equal length and in the same order")
     }
     .assertVector(x = pwmL, type = "PWMatrixList")
-    background <- match.arg(background)
     .assertScalar(x = pseudocount.log2enr, type = "numeric", 
                   rngIncl = c(0, Inf))
     .assertScalar(x = p.adjust.method, type = "character", 
