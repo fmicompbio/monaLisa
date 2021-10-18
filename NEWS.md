@@ -1,3 +1,12 @@
+# monaLisa 0.99.3
+
+* updated `README.md` file
+
+# monaLisa 0.99.2
+
+* added fixes to the regression vignette
+* addressed failing test in `calcBinnedKmerEnr`
+
 # monaLisa 0.99.1
 
 * Added examples where missing for exported functions
