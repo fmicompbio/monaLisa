@@ -478,6 +478,7 @@ calcBinnedKmerEnr <- function(seqs,
                               verbose = FALSE) {
     ## pre-flight checks
     .assertVector(x = seqs, type = "DNAStringSet")
+    background <- match.arg(background)
     if (is.null(bins) && (background %in% c("genome", "model"))) {
         bins <- factor(rep(1, length(seqs)))
     }
@@ -486,7 +487,6 @@ calcBinnedKmerEnr <- function(seqs,
         stop("'seqs' and 'bins' must be of equal length and in the same order")
     }
     .assertScalar(x = kmerLen, type = "numeric", rngIncl = c(1, Inf))
-    background <- match.arg(background)
     test <- match.arg(test)
     .assertScalar(x = includeRevComp, type = "logical")
     .assertScalar(x = pseudocount.kmers, type = "numeric", rngIncl = c(0, Inf))
