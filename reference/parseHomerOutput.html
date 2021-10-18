@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.2</span>
       </span>
     </div>
 
@@ -70,7 +70,8 @@
 
     <div class="ref-usage sourceCode"><pre class="sourceCode r"><code><span class="fu">parseHomerOutput</span><span class="op">(</span><span class="va">infiles</span>, pseudocount.log2enr <span class="op">=</span> <span class="fl">8</span>, p.adjust.method <span class="op">=</span> <span class="st">"BH"</span><span class="op">)</span></code></pre></div>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <div id="arguments">
+    <h2>Arguments</h2>
     <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>infiles</th>
       <td><p>HOMER output files to be parsed.</p></td>
     </tr><tr><th>pseudocount.log2enr</th>
@@ -79,8 +80,10 @@ foreground and background counts when calculating log2 motif enrichments</p></td
     </tr><tr><th>p.adjust.method</th>
       <td><p>A character scalar selecting the p value adjustment
 method (used in <code><a href="https://rdrr.io/r/stats/p.adjust.html">p.adjust</a></code>).</p></td>
-    </tr></table><h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    </tr></table></div>
 
+    <div id="value">
+    <h2>Value</h2>
     <p>A list of nine components (<code>negLog10P</code>, <code>negLog10Padj</code>,
     <code>pearsonResid</code>, <code>expForegroundWgtWithHits</code>, <code>log2enr</code>,
     <code>sumForegroundWgtWithHits</code> and <code>sumBackgroundWgtWithHits</code>), 
@@ -92,8 +95,10 @@ method (used in <code><a href="https://rdrr.io/r/stats/p.adjust.html">p.adjust</
     log2 ratios (<code>log2enr</code>), and two containing the total foreground 
     and background weight (<code>totalWgtForeground</code>, 
     <code>totalWgtBackground</code>).</p>
+    </div>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <div id="examples">
+    <h2>Examples</h2>
     <div class="ref-examples sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">outfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"homer_output.txt.gz"</span>, </span>
 <span class="r-in">                       package <span class="op">=</span> <span class="st">"monaLisa"</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">parseHomerOutput</span><span class="op">(</span>infiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>bin1 <span class="op">=</span> <span class="va">outfile</span><span class="op">)</span><span class="op">)</span></span>
@@ -107,6 +112,7 @@ method (used in <code><a href="https://rdrr.io/r/stats/p.adjust.html">p.adjust</
 <span class="r-out co"><span class="r-pr">#&gt;</span> MA0009.2:::T          0.5172447</span>
 <span class="r-in"></span>
 </code></pre></div>
+    </div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top"><h2 data-toc-skip>Contents</h2>

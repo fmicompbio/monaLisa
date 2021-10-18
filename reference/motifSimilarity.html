@@ -22,7 +22,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.2</span>
       </span>
     </div>
 
@@ -88,7 +88,8 @@
   verbose <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span></code></pre></div>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <div id="arguments">
+    <h2>Arguments</h2>
     <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>x</th>
       <td><p>Either a <code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html">PFMatrixList</a></code>, or a character
 scalar with a file containing motifs in HOMER format (used directly
@@ -120,18 +121,23 @@ instance determining the parallel back-end to be used during evaluation
 (only used for <code>method = "R"</code>).</p></td>
     </tr><tr><th>verbose</th>
       <td><p>A logical scalar. If <code>TRUE</code>, report on progress.</p></td>
-    </tr></table><h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    </tr></table></div>
 
+    <div id="value">
+    <h2>Value</h2>
     <p>A matrix of Pearson's correlation coefficients for each pair of
   motifs.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
+    </div>
+    <div id="see-also">
+    <h2>See also</h2>
     <div class="dont-index"><p><code><a href="https://rdrr.io/pkg/BiocParallel/man/bplapply.html">bplapply</a></code> used for parallelization for
   <code>method = "R"</code>,
   documentation of HOMER's <code>compareMotifs.pl</code> for details on
   <code>method = "HOMER"</code>.</p></div>
+    </div>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <div id="examples">
+    <h2>Examples</h2>
     <div class="ref-examples sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span>A <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">12</span>,  <span class="fl">0</span>,  <span class="fl">0</span><span class="op">)</span>,</span>
 <span class="r-in">           C <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span> <span class="fl">3</span>,  <span class="fl">2</span>,  <span class="fl">0</span><span class="op">)</span>,</span>
 <span class="r-in">           G <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span> <span class="fl">0</span>, <span class="fl">14</span>,  <span class="fl">0</span><span class="op">)</span>,</span>
@@ -148,6 +154,7 @@ instance determining the parallel back-end to be used during evaluation
 <span class="r-out co"><span class="r-pr">#&gt;</span> m3 0.4382761 0.4317897 1.0000000</span>
 <span class="r-in"></span>
 </code></pre></div>
+    </div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top"><h2 data-toc-skip>Contents</h2>

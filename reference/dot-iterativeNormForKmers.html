@@ -23,7 +23,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.2</span>
       </span>
     </div>
 
@@ -88,7 +88,8 @@
   verbose <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span></code></pre></div>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <div id="arguments">
+    <h2>Arguments</h2>
     <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>df</th>
       <td><p>a <code>DataFrame</code> with sequence information as returned by
 <code>.calculateGCweight</code>.</p></td>
@@ -107,8 +108,10 @@ times to run <code>.normForKmers</code>. the default is set to 160 (as in
     </tr><tr><th>verbose</th>
       <td><p>A logical scalar. If <code>TRUE</code>, report on k-mer composition
 adjustment.</p></td>
-    </tr></table><h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    </tr></table></div>
 
+    <div id="value">
+    <h2>Value</h2>
     <p>a DataFrame containing:</p><ul><li><p>sequenceWeights: a
   <code>dataframe</code> containing the sequence GC content, GC bins they were
   assigned to, the weight to correct for GC differences between foreGround
@@ -117,6 +120,8 @@ adjustment.</p></td>
 <li><p>sequenceNucleotides: a <code>DNAStringSet</code>
   object containing the raw sequences</p></li>
 </ul></div>
+
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top"><h2 data-toc-skip>Contents</h2>
     </nav></div>

@@ -29,7 +29,7 @@ For test = &quot;fisher&quot;, fisher.test is used with
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.2</span>
       </span>
     </div>
 
@@ -99,7 +99,8 @@ For test = &quot;fisher&quot;, fisher.test is used with
   verbose <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span></code></pre></div>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <div id="arguments">
+    <h2>Arguments</h2>
     <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>motifHitMatrix</th>
       <td><p>matrix with 0 and 1 entries for absence or presence of
 motif hits in each sequence.</p></td>
@@ -110,8 +111,10 @@ motif hits in each sequence.</p></td>
       <td><p>type of motif enrichment test to perform.</p></td>
     </tr><tr><th>verbose</th>
       <td><p>A logical scalar. If <code>TRUE</code>, report on progress.</p></td>
-    </tr></table><h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    </tr></table></div>
 
+    <div id="value">
+    <h2>Value</h2>
     <p>a <code>data.frame</code> containing the motifs as rows and the columns:</p><ul><li><p>motifName: the motif name</p></li>
 <li><p>logP: the log p-value for enrichment (natural logarithm).
        If <code>test="binomial"</code> (default), this log p-value is identical to
@@ -127,6 +130,8 @@ motif hits in each sequence.</p></td>
 <li><p>totalWgtBackground: the total sum of weights of background
        sequences.</p></li>
 </ul></div>
+
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top"><h2 data-toc-skip>Contents</h2>
     </nav></div>

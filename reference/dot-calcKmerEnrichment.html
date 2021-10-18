@@ -28,7 +28,7 @@ For test = &quot;fisher&quot;, fisher.test is used with
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.2</span>
       </span>
     </div>
 
@@ -92,7 +92,8 @@ For test = &quot;fisher&quot;, fisher.test is used with
 
     <div class="ref-usage sourceCode"><pre class="sourceCode r"><code><span class="fu">.calcKmerEnrichment</span><span class="op">(</span><span class="va">k</span>, <span class="va">df</span>, test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"fisher"</span>, <span class="st">"binomial"</span><span class="op">)</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <div id="arguments">
+    <h2>Arguments</h2>
     <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>k</th>
       <td><p>Numeric scalar giving the length of k-mers to analyze.</p></td>
     </tr><tr><th>df</th>
@@ -102,8 +103,10 @@ For test = &quot;fisher&quot;, fisher.test is used with
       <td><p>type of motif enrichment test to perform.</p></td>
     </tr><tr><th>verbose</th>
       <td><p>A logical scalar. If <code>TRUE</code>, report on progress.</p></td>
-    </tr></table><h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    </tr></table></div>
 
+    <div id="value">
+    <h2>Value</h2>
     <p>A <code>data.frame</code> containing the motifs as rows and the columns:</p><ul><li><p>motifName: the motif name</p></li>
 <li><p>logP: the log p-value for enrichment (natural logarithm).
        If <code>test="binomial"</code> (default), this log p-value is identical to
@@ -116,11 +119,13 @@ For test = &quot;fisher&quot;, fisher.test is used with
        sequences.</p></li>
 <li><p>totalWgtBackground: the total sum of weights of background
        sequences.</p></li>
-</ul><h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
+</ul></div>
+    <div id="details">
+    <h2>Details</h2>
     <p>The function works in ZOOPS mode, which means only one
   or zero occurrences of a k-mer are considered per sequence. This is helpful
   to reduce the impact of simple sequence repeats occurring in few sequences.</p>
+    </div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

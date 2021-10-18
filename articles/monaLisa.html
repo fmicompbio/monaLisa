@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.2</span>
       </span>
     </div>
 
@@ -87,7 +87,7 @@
       <h1 data-toc-skip>monaLisa - MOtif aNAlysis with Lisa</h1>
                         <h4 data-toc-skip class="author">Dania Machlab, Lukas Burger, Charlotte Soneson, Michael Stadler</h4>
             
-            <h4 data-toc-skip class="date">2021-10-08</h4>
+            <h4 data-toc-skip class="date">2021-10-18</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/master/vignettes/monaLisa.Rmd" class="external-link"><code>vignettes/monaLisa.Rmd</code></a></small>
       <div class="hidden name"><code>monaLisa.Rmd</code></div>
@@ -98,9 +98,9 @@
     
 <p><img src="monaLisa_logo_v1.png" style="display: block; margin-left: auto;
 margin-right: auto; width: 50%; border: 0"></p>
-<div id="introduction" class="section level1">
-<h1 class="hasAnchor">
-<a href="#introduction" class="anchor" aria-hidden="true"></a>Introduction</h1>
+<div class="section level1">
+<h1 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h1>
 <p><em><a href="https://bioconductor.org/packages/3.14/monaLisa" class="external-link">monaLisa</a></em> is a collection of functions for working with biological sequences and motifs that represent the binding preferences of transcription factors or nucleic acid binding proteins.</p>
 <p>For example, <em><a href="https://bioconductor.org/packages/3.14/monaLisa" class="external-link">monaLisa</a></em> can be used to conveniently find motif hits in sequences (see section @ref(findhits)), or to identify motifs that are likely associated with observed experimental data. Such analyses are supposed to provide potential answers to the question “Which transcription factors are the drivers of my observed changes in expression/methylation/accessibility?”.</p>
 <p>Several other approaches have been described that also address this problem, among them REDUCE <span class="citation">(Roven and Bussemaker 2003)</span> and ISMARA <span class="citation">(Balwierz et al. 2014)</span>. In <em><a href="https://bioconductor.org/packages/3.14/monaLisa" class="external-link">monaLisa</a></em>, we aim to provide a flexible implementation that integrates well with other Bioconductor resources, makes use of the sequence composition correction developed for Homer <span class="citation">(Heinz et al. 2010)</span> or stability selection <span class="citation">(Meinshausen and Bühlmann 2010)</span> and provides several alternative ways to study the relationship between experimental measurements and sequence motifs.</p>
@@ -113,9 +113,9 @@ margin-right: auto; width: 50%; border: 0"></p>
 <p>For both approaches, functions that allow visualization of obtained results are provided.</p>
 <p>If you prefer to jump right in, you can continue with section @ref(quick) that shows a quick hypothetical example of how to run a binned motif enrichment analysis. If you prefer to actually compute enrichments on real data, you can find below a detailed example for a binned motif enrichment analysis (section @ref(binned)).</p>
 </div>
-<div id="installation" class="section level1">
-<h1 class="hasAnchor">
-<a href="#installation" class="anchor" aria-hidden="true"></a>Installation</h1>
+<div class="section level1">
+<h1 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h1>
 <p><em><a href="https://bioconductor.org/packages/3.14/monaLisa" class="external-link">monaLisa</a></em> can be installed from Bioconductor via the <em><a href="https://CRAN.R-project.org/package=BiocManager" class="external-link">BiocManager</a></em> package:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"BiocManager"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>
@@ -123,9 +123,9 @@ margin-right: auto; width: 50%; border: 0"></p>
 
 <span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"monaLisa"</span><span class="op">)</span></code></pre></div>
 </div>
-<div id="quick" class="section level1">
-<h1 class="hasAnchor">
-<a href="#quick" class="anchor" aria-hidden="true"></a>Quick example: Identify enriched motifs in bins</h1>
+<div class="section level1">
+<h1 id="quick">Quick example: Identify enriched motifs in bins<a class="anchor" aria-label="anchor" href="#quick"></a>
+</h1>
 <p>The quick example below, which we do not run, illustrates how a binned motif enrichment analysis can be performed in <code>monaLisa</code>. We assume that you already have extracted a set of peaks. The sequences of the peak regions are stored in a <code><a href="https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html" class="external-link">Biostrings::DNAStringSet</a></code> (<code>peak_seqs</code>), and additionally each peak is associated with a numeric value (e.g., the change of methylation between two conditions, stored in the <code>peak_change</code> vector), that will be used to bin the regions before finding motifs enriched in each bin.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># load package</span>
@@ -162,14 +162,14 @@ margin-right: auto; width: 50%; border: 0"></p>
 </ul>
 <p>In addition, <code>rowData(se)</code> and <code>colData(se)</code> give information about the used motifs and bins, respectively. In <code>metadata(se)</code> you can find information about parameter values.</p>
 </div>
-<div id="binned" class="section level1">
-<h1 class="hasAnchor">
-<a href="#binned" class="anchor" aria-hidden="true"></a>Binned motif enrichment analysis: Finding TFs enriched in differentially methylated regions</h1>
+<div class="section level1">
+<h1 id="binned">Binned motif enrichment analysis: Finding TFs enriched in differentially methylated regions<a class="anchor" aria-label="anchor" href="#binned"></a>
+</h1>
 <p>This example is based on an <em>in vitro</em> differentiation system, in which mouse embryonic stem (ES) cells are differentiated into neuronal progenitors (NP). In an earlier study <span class="citation">(Stadler et al. 2011)</span>, we have analyzed the genome-wide CpG methylation patterns in these cell types and identified so called <em>low methylated regions</em> (LMRs), that have reduced methylation levels and correspond to regions bound by transcription factors.</p>
 <p>We also developed a tool that systematically identifies such regions from genome-wide methylation data <span class="citation">(Burger et al. 2013)</span>. Interestingly, a change in methylation of LMRs is indicative of altered transcription factor binding. We will therefore use these regions to identify transcription factor motifs that are enriched or depleted in LMRs that change their methylation between ES and NP cell states.</p>
-<div id="load-packages" class="section level2">
-<h2 class="hasAnchor">
-<a href="#load-packages" class="anchor" aria-hidden="true"></a>Load packages</h2>
+<div class="section level2">
+<h2 id="load-packages">Load packages<a class="anchor" aria-label="anchor" href="#load-packages"></a>
+</h2>
 <p>We start by loading the needed packages:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/GenomicRanges" class="external-link">GenomicRanges</a></span><span class="op">)</span>
@@ -181,9 +181,9 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/jokergoo/ComplexHeatmap" class="external-link">ComplexHeatmap</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/jokergoo/circlize" class="external-link">circlize</a></span><span class="op">)</span></code></pre></div>
 </div>
-<div id="genomic-regions-of-interest" class="section level2">
-<h2 class="hasAnchor">
-<a href="#genomic-regions-of-interest" class="anchor" aria-hidden="true"></a>Genomic regions of interest</h2>
+<div class="section level2">
+<h2 id="genomic-regions-of-interest">Genomic regions of interest<a class="anchor" aria-label="anchor" href="#genomic-regions-of-interest"></a>
+</h2>
 <p><em><a href="https://bioconductor.org/packages/3.14/monaLisa" class="external-link">monaLisa</a></em> contains a file with genomic coordinates (mouse mm10 assembly) of LMRs, with the respective changes of methylation:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">lmrfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"LMRsESNPmerged.gr.rds"</span>, 
@@ -216,9 +216,9 @@ margin-right: auto; width: 50%; border: 0"></p>
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
 <span class="va">lmrsel</span> <span class="op">&lt;-</span> <span class="va">lmr</span><span class="op">[</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">lmr</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">10000</span>, replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">]</span></code></pre></div>
 </div>
-<div id="bin-genomic-regions" class="section level2">
-<h2 class="hasAnchor">
-<a href="#bin-genomic-regions" class="anchor" aria-hidden="true"></a>Bin genomic regions</h2>
+<div class="section level2">
+<h2 id="bin-genomic-regions">Bin genomic regions<a class="anchor" aria-label="anchor" href="#bin-genomic-regions"></a>
+</h2>
 <p>Now let’s bin our LMRs by how much they change methylation, using the <code>bin</code> function. We are not interested in small changes of methylation, say less than 0.3, so we’ll use the <code>minAbsX</code> argument to create a <em>no-change</em> bin in [-0.3, 0.3). The remaining LMRs are put into bins of 800 each:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">bins</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bin.html">bin</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">lmrsel</span><span class="op">$</span><span class="va">deltaMeth</span>, binmode <span class="op">=</span> <span class="st">"equalN"</span>, nElement <span class="op">=</span> <span class="fl">800</span>, 
@@ -243,9 +243,9 @@ margin-right: auto; width: 50%; border: 0"></p>
 <p><img src="monaLisa_files/figure-html/plotbins-1.png" width="80%" style="display: block; margin: auto;"></p>
 <p>Note that the bin breaks around the <em>no-change</em> bin are not exactly -0.3 to 0.3. They have been adjusted to have the required 800 LMRs per bin.</p>
 </div>
-<div id="prepare-motif-enrichment-analysis" class="section level2">
-<h2 class="hasAnchor">
-<a href="#prepare-motif-enrichment-analysis" class="anchor" aria-hidden="true"></a>Prepare motif enrichment analysis</h2>
+<div class="section level2">
+<h2 id="prepare-motif-enrichment-analysis">Prepare motif enrichment analysis<a class="anchor" aria-label="anchor" href="#prepare-motif-enrichment-analysis"></a>
+</h2>
 <p>Next we prepare the motif enrichment analysis. We first need known motifs representing transcription factor binding site preferences. We extract all vertebrate motifs from the <em><a href="https://bioconductor.org/packages/3.14/JASPAR2020" class="external-link">JASPAR2020</a></em> package as positional weight matrices (PWMs):</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">pwms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/getMatrixSet-methods.html" class="external-link">getMatrixSet</a></span><span class="op">(</span><span class="va">JASPAR2020</span>,
@@ -273,9 +273,9 @@ margin-right: auto; width: 50%; border: 0"></p>
 <p><img src="monaLisa_files/figure-html/bindiag-2.png" width="80%" style="display: block; margin: auto;"></p>
 <p>From these plot, we can see that LMRs with lower methylation in NP cells compared to ES cells (bin [-0.935,-0.242]) tend to be GC-poorer than LMRs in other bins. A strong bias of this kind can give rise to false positives in that bin, e.g. enrichments of AT-rich motifs. In this example, the bias is however not very strong and the built-in sequence composition correction in <code><a href="../reference/calcBinnedMotifEnrR.html">monaLisa::calcBinnedMotifEnrR</a></code> should be able to handle it.</p>
 </div>
-<div id="run-motif-enrichment-analysis" class="section level2">
-<h2 class="hasAnchor">
-<a href="#run-motif-enrichment-analysis" class="anchor" aria-hidden="true"></a>Run motif enrichment analysis</h2>
+<div class="section level2">
+<h2 id="run-motif-enrichment-analysis">Run motif enrichment analysis<a class="anchor" aria-label="anchor" href="#run-motif-enrichment-analysis"></a>
+</h2>
 <p>Finally, we run the binned motif enrichment analysis.</p>
 <p>This step will take a while, and typically you would use the <code>BPPARAM</code> argument to run it with parallelization using <code>n</code> cores as follows: <code>calcBinnedMotifEnrR(..., BPPARAM = BiocParallel::MulticoreParam(n)))</code>. For this example however, you can just load the pre-computed results as shown below.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
@@ -433,9 +433,8 @@ margin-right: auto; width: 50%; border: 0"></p>
                   width.seqlogo <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span></code></pre></div>
 <p><img src="monaLisa_files/figure-html/plottfsclustered-1.png" width="80%" style="display: block; margin: auto;"></p>
 </div>
-<div id="convert-between-motif-text-file-for-homer-and-motif-objects-in-r" class="section level2">
-<h2 class="hasAnchor">
-<a href="#convert-between-motif-text-file-for-homer-and-motif-objects-in-r" class="anchor" aria-hidden="true"></a>Convert between motif text file for <code>Homer</code> and motif objects in <code>R</code>
+<div class="section level2">
+<h2 id="convert-between-motif-text-file-for-homer-and-motif-objects-in-r">Convert between motif text file for <code>Homer</code> and motif objects in <code>R</code><a class="anchor" aria-label="anchor" href="#convert-between-motif-text-file-for-homer-and-motif-objects-in-r"></a>
 </h2>
 <p><em><a href="https://bioconductor.org/packages/3.14/monaLisa" class="external-link">monaLisa</a></em> provides two functions for performing binned motif enrichment analysis (<code><a href="../reference/calcBinnedMotifEnrR.html">monaLisa::calcBinnedMotifEnrR</a></code> and <code><a href="../reference/calcBinnedMotifEnrHomer.html">monaLisa::calcBinnedMotifEnrHomer</a></code>). <code><a href="../reference/calcBinnedMotifEnrR.html">monaLisa::calcBinnedMotifEnrR</a></code> implements the binned motif enrichment analysis in <code>R</code>, similarly to <code>Homer</code> and does not require the user to have the <code>Homer</code> tool pre-installed. For more information on that function and how it resembles the <code>Homer</code> tool see the function documentation.</p>
 <p>A simple way to represent a DNA sequence motif that assumes independence of positions in the motif is a matrix with four rows (for the bases A, C, G and T) and <code>n</code> columns for the <code>n</code> positions in the motif. The values in that matrix can represent the sequence preferences of a binding protein in several different ways:</p>
@@ -504,9 +503,9 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span class="co">#&gt; T  0.0 0.00    0    0    1    0</span></code></pre></div>
 </div>
 </div>
-<div id="binnedkmers" class="section level1">
-<h1 class="hasAnchor">
-<a href="#binnedkmers" class="anchor" aria-hidden="true"></a>Binned k-mer enrichment analysis</h1>
+<div class="section level1">
+<h1 id="binnedkmers">Binned k-mer enrichment analysis<a class="anchor" aria-label="anchor" href="#binnedkmers"></a>
+</h1>
 <p>In some situations it may be beneficial to perform the enrichment analysis in a more ‘unbiased’ way, using k-mers rather than annotated motifs. Here, we will illustrate the process using the same LMR data set as used for the motif enrichment analysis above. Similarly to the motif enrichment, this step takes a while to perform, and we can also load the processed object directly.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">sekm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calcBinnedKmerEnr.html">calcBinnedKmerEnr</a></span><span class="op">(</span>seqs <span class="op">=</span> <span class="va">lmrseqs</span>, bins <span class="op">=</span> <span class="va">bins</span>, kmerLen <span class="op">=</span> <span class="fl">6</span>, 
@@ -561,9 +560,9 @@ margin-right: auto; width: 50%; border: 0"></p>
         right_annotation <span class="op">=</span> <span class="va">hmSeqlogo</span><span class="op">)</span></code></pre></div>
 <p><img src="monaLisa_files/figure-html/unnamed-chunk-6-1.png" width="80%" style="display: block; margin: auto;"></p>
 </div>
-<div id="findhits" class="section level1">
-<h1 class="hasAnchor">
-<a href="#findhits" class="anchor" aria-hidden="true"></a>Use <em><a href="https://bioconductor.org/packages/3.14/monaLisa" class="external-link">monaLisa</a></em> to annotate genomic regions with predicted motifs</h1>
+<div class="section level1">
+<h1 id="findhits">Use <em><a href="https://bioconductor.org/packages/3.14/monaLisa" class="external-link">monaLisa</a></em> to annotate genomic regions with predicted motifs<a class="anchor" aria-label="anchor" href="#findhits"></a>
+</h1>
 <p>As mentioned <em><a href="https://bioconductor.org/packages/3.14/monaLisa" class="external-link">monaLisa</a></em> can also be used to scan sequences for motifs. Here is an example (just on a few sequences/motifs for illustration):</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># get sequences of promoters as a DNAStringSet</span>
@@ -647,9 +646,9 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span class="co">#&gt;   ENSMUST00000195361.1   11        1     5     0    10</span></code></pre></div>
 <p>The transformation of sequence and PWM names to factors with defined levels in the creation of the hit matrix above is not strictly needed, but it ensures that even sequences or motifs without any hits are reported in the matrix, and that the order of sequences (rows) and motifs (columns) is identical to the order in <code>seqs</code> and <code>pwms</code>.</p>
 </div>
-<div id="session-info-and-logo" class="section level1">
-<h1 class="hasAnchor">
-<a href="#session-info-and-logo" class="anchor" aria-hidden="true"></a>Session info and logo</h1>
+<div class="section level1">
+<h1 id="session-info-and-logo">Session info and logo<a class="anchor" aria-label="anchor" href="#session-info-and-logo"></a>
+</h1>
 <p>The monaLisa logo uses a drawing that was obtained from <a href="http://vectorish.com/lisa-simpson.html" class="external-link uri">http://vectorish.com/lisa-simpson.html</a> under the Creative Commons attribution - non-commercial 3.0 license: <a href="https://creativecommons.org/licenses/by-nc/3.0/" class="external-link uri">https://creativecommons.org/licenses/by-nc/3.0/</a>.</p>
 <p>This vignette was built using:</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
@@ -675,7 +674,7 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span class="co">#&gt;  [3] AnnotationDbi_1.55.1                     </span>
 <span class="co">#&gt;  [4] circlize_0.4.13                          </span>
 <span class="co">#&gt;  [5] ComplexHeatmap_2.9.4                     </span>
-<span class="co">#&gt;  [6] monaLisa_0.99.1                          </span>
+<span class="co">#&gt;  [6] monaLisa_0.99.2                          </span>
 <span class="co">#&gt;  [7] BSgenome.Mmusculus.UCSC.mm10_1.4.3       </span>
 <span class="co">#&gt;  [8] BSgenome_1.61.0                          </span>
 <span class="co">#&gt;  [9] rtracklayer_1.53.1                       </span>
@@ -692,12 +691,12 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span class="co">#&gt; [20] IRanges_2.27.2                           </span>
 <span class="co">#&gt; [21] S4Vectors_0.31.5                         </span>
 <span class="co">#&gt; [22] BiocGenerics_0.39.2                      </span>
-<span class="co">#&gt; [23] BiocStyle_2.21.3                         </span>
+<span class="co">#&gt; [23] BiocStyle_2.21.4                         </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; loaded via a namespace (and not attached):</span>
 <span class="co">#&gt;   [1] BiocFileCache_2.1.1         sm_2.2-5.7                 </span>
-<span class="co">#&gt;   [3] systemfonts_1.0.2           plyr_1.8.6                 </span>
-<span class="co">#&gt;   [5] splines_4.1.1               BiocParallel_1.27.16       </span>
+<span class="co">#&gt;   [3] systemfonts_1.0.3           plyr_1.8.6                 </span>
+<span class="co">#&gt;   [5] splines_4.1.1               BiocParallel_1.27.17       </span>
 <span class="co">#&gt;   [7] ggplot2_3.3.5               digest_0.6.28              </span>
 <span class="co">#&gt;   [9] foreach_1.5.1               htmltools_0.5.2            </span>
 <span class="co">#&gt;  [11] GO.db_3.14.0                fansi_0.5.0                </span>
@@ -707,7 +706,7 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span class="co">#&gt;  [19] annotate_1.71.0             R.utils_2.11.0             </span>
 <span class="co">#&gt;  [21] pkgdown_1.9000.9000.9000    prettyunits_1.1.1          </span>
 <span class="co">#&gt;  [23] colorspace_2.0-2            rappdirs_0.3.3             </span>
-<span class="co">#&gt;  [25] blob_1.2.2                  textshaping_0.3.5          </span>
+<span class="co">#&gt;  [25] blob_1.2.2                  textshaping_0.3.6          </span>
 <span class="co">#&gt;  [27] xfun_0.26                   dplyr_1.0.7                </span>
 <span class="co">#&gt;  [29] crayon_1.4.1                RCurl_1.98-1.5             </span>
 <span class="co">#&gt;  [31] jsonlite_1.7.2              TFMPvalue_0.0.8            </span>
@@ -757,9 +756,9 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span class="co">#&gt; [119] rmarkdown_2.11              vioplot_0.3.7              </span>
 <span class="co">#&gt; [121] restfulr_0.0.13</span></code></pre></div>
 </div>
-<div id="references" class="section level1 unnumbered">
-<h1 class="hasAnchor">
-<a href="#references" class="anchor" aria-hidden="true"></a>References</h1>
+<div class="section level1 unnumbered">
+<h1 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h1>
 <div id="refs" class="references">
 <div id="ref-agresti2007">
 <p>Agresti, A. 2007. <em>An Introduction to Categorical Data Analysis</em>. Wiley-Blackwell.</p>

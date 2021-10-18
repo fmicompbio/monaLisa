@@ -21,7 +21,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.2</span>
       </span>
     </div>
 
@@ -91,7 +91,8 @@
   verbose.Homer <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span></code></pre></div>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <div id="arguments">
+    <h2>Arguments</h2>
     <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>gr</th>
       <td><p>A <code>GRanges</code> object (or an object that can be coerced to one)
 with the genomic regions to analyze.</p></td>
@@ -128,8 +129,10 @@ method (used in <code><a href="https://rdrr.io/r/stats/p.adjust.html">p.adjust</
     </tr><tr><th>verbose.Homer</th>
       <td><p>A logical scalar. If <code>TRUE</code>, print the console
 output when running Homer.</p></td>
-    </tr></table><h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    </tr></table></div>
 
+    <div id="value">
+    <h2>Value</h2>
     <p>A <code>SummarizedExperiment</code> object with motifs in rows and bins
   in columns, containing seven assays:</p><ul><li><p>negLog10P: -log10 P values</p></li>
 <li><p>negLog10Padj: -log10 adjusted P values</p></li>
@@ -144,13 +147,16 @@ output when running Homer.</p></td>
 </ul><p>The <code>rowData</code> of the object contains annotations (name, PFMs, PWMs 
 and GC fraction) for the motifs, while the <code>colData</code> slot contains 
 summary information about the bins.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
+    </div>
+    <div id="see-also">
+    <h2>See also</h2>
     <div class="dont-index"><p>The functions that are wrapped: <code><a href="prepareHomer.html">prepareHomer</a></code>,
     <code><a href="https://rdrr.io/r/base/system2.html">system2</a></code> and <code><a href="parseHomerOutput.html">parseHomerOutput</a></code>,
     <code><a href="bin.html">bin</a></code> for binning of regions</p></div>
+    </div>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <div id="examples">
+    <h2>Examples</h2>
     <div class="ref-examples sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="fu"><a href="findHomer.html">findHomer</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
 <span class="r-in"></span>
 <span class="r-in">  <span class="co"># genome</span></span>
@@ -180,6 +186,7 @@ summary information about the bins.</p>
 <span class="r-in">  <span class="op">}</span></span>
 <span class="r-in">  </span>
 </code></pre></div>
+    </div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top"><h2 data-toc-skip>Contents</h2>

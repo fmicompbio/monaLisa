@@ -21,7 +21,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.2</span>
       </span>
     </div>
 
@@ -87,7 +87,8 @@
   GCbreaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">0.25</span>, <span class="fl">0.3</span>, <span class="fl">0.35</span>, <span class="fl">0.4</span>, <span class="fl">0.45</span>, <span class="fl">0.5</span>, <span class="fl">0.6</span>, <span class="fl">0.7</span>, <span class="fl">0.8</span><span class="op">)</span>
 <span class="op">)</span></code></pre></div>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <div id="arguments">
+    <h2>Arguments</h2>
     <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>sqs, bns, bg</th>
       <td><p>The <code>seqs</code>, <code>bins</code> and <code>background</code> 
 arguments from <code>calcBinnedMotifEnrR</code>.</p></td>
@@ -103,11 +104,14 @@ foreground sequences.</p></td>
     </tr><tr><th>GCbreaks</th>
       <td><p>The breaks between GC bins. The default value is based on
 the hard-coded bins used in Homer.</p></td>
-    </tr></table><h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    </tr></table></div>
 
+    <div id="value">
+    <h2>Value</h2>
     <p>a <code>DataFrame</code> with sequences represented by rows and columns
   <code>seqs</code>, <code>isForeground</code>, <code>GCfrac</code>, <code>GCbin</code>, <code>GCwgt</code>
   and <code>seqWgt</code>. Only the first three are already filled in.</p>
+    </div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

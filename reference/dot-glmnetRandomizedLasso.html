@@ -21,7 +21,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.2</span>
       </span>
     </div>
 
@@ -85,7 +85,8 @@
   <span class="va">...</span>
 <span class="op">)</span></code></pre></div>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <div id="arguments">
+    <h2>Arguments</h2>
     <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>x</th>
       <td><p>the predictor matrix. Passed to <code>x</code>
 of <code>glmnet.lasso</code> from <code>stabs</code> package.</p></td>
@@ -106,25 +107,30 @@ number of selected variables per subsample is &lt;= q. If type is
 is &gt;= q.</p></td>
     </tr><tr><th>...</th>
       <td><p>additional parameters for <code>glmnet</code>.</p></td>
-    </tr></table><h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    </tr></table></div>
 
+    <div id="value">
+    <h2>Value</h2>
     <p>the regression output which consists of a list of length 2. The 
     list contains the following:</p><ul><li><p>selected - a logical vector of length equal to the total number 
         of predictors. The predictors that were chosen have a value of TRUE.</p></li>
 <li><p>path - a logical matrix containing the regularization steps as 
         columns and the predictors as rows. An entry of TRUE indicates 
         selection.</p></li>
-</ul><h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
+</ul></div>
+    <div id="details">
+    <h2>Details</h2>
     <p>This function is identical to <code>glmnet.lasso</code> from the 
     <code>stabs</code> package. The only addition/modification is the weakness 
     parameter which has been added when calling the 
     <code>glmnet</code> function by setting 
     penalty.factor = 1/runif(ncol(x), weakness, 1), 
     where ncol(x) is the number of predictors.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
+    </div>
+    <div id="see-also">
+    <h2>See also</h2>
     <div class="dont-index"><p><code><a href="https://rdrr.io/pkg/stabs/man/fitfuns.html">glmnet.lasso</a></code> and <code><a href="https://glmnet.stanford.edu/reference/glmnet.html">glmnet</a></code></p></div>
+    </div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

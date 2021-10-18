@@ -18,7 +18,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.2</span>
       </span>
     </div>
 
@@ -82,7 +82,8 @@
   verbose <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span></code></pre></div>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <div id="arguments">
+    <h2>Arguments</h2>
     <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>gr</th>
       <td><p>A <code>GRanges</code> object (or an object that can be coerced to one)
 with the genomic regions to analyze.</p></td>
@@ -109,12 +110,15 @@ the region center).</p></td>
       <td><p>Number of parallel threads that HOMER can use.</p></td>
     </tr><tr><th>verbose</th>
       <td><p>A logical scalar. If <code>TRUE</code>, print progress messages.</p></td>
-    </tr></table><h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    </tr></table></div>
 
+    <div id="value">
+    <h2>Value</h2>
     <p>The path and name of the script file to run the HOMER motif 
     enrichment analysis.</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
+    </div>
+    <div id="details">
+    <h2>Details</h2>
     <p>For each bin (unique value of <code>b</code>) this functions creates two 
     files in <code>outdir</code> (<code>outdir/bin_N_foreground.tab</code> and 
     <code>outdir/bin_N_background.tab</code>, where <code>N</code> is the number of the 
@@ -123,8 +127,10 @@ the region center).</p></td>
     (see http://homer.ucsd.edu/homer/ngs/peakMotifs.html for details).</p>
 <p>In addition, a shell script file is created containing the shell commands
     to run the HOMER motif enrichment analysis.</p>
+    </div>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <div id="examples">
+    <h2>Examples</h2>
     <div class="ref-examples sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># prepare genome directory (here: one dummy chromosome)</span></span>
 <span class="r-in"><span class="va">genomedir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempfile</a></span><span class="op">(</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/files2.html">dir.create</a></span><span class="op">(</span><span class="va">genomedir</span><span class="op">)</span></span>
@@ -151,7 +157,7 @@ the region center).</p></td>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> creating foreground/background region files for HOMER</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   bin [1,2.5]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   bin (2.5,4]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T//RtmpPV02Ii/file23756d765e53/run.sh"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T//Rtmpv0fQ2A/filea56277036e5b/run.sh"</span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/list.files.html">list.files</a></span><span class="op">(</span><span class="va">outdir</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "bin_001_background.tab" "bin_001_foreground.tab" "bin_002_background.tab"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [4] "bin_002_foreground.tab" "run.sh"                </span>
@@ -160,6 +166,7 @@ the region center).</p></td>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/unlink.html">unlink</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">genomedir</span>, <span class="va">motiffile</span>, <span class="va">homerfile</span>, <span class="va">outdir</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"></span>
 </code></pre></div>
+    </div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top"><h2 data-toc-skip>Contents</h2>

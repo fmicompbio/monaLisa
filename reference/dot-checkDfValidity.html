@@ -19,7 +19,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.2</span>
       </span>
     </div>
 
@@ -74,7 +74,8 @@
 
     <div class="ref-usage sourceCode"><pre class="sourceCode r"><code><span class="fu">.checkDfValidity</span><span class="op">(</span><span class="va">df</span><span class="op">)</span></code></pre></div>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <div id="arguments">
+    <h2>Arguments</h2>
     <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>df</th>
       <td><p>Input object to be checked. It should have an attribute <code>err</code>
 and columns:</p><ul><li><p><code>seqs</code>: a <code>DNAStringSet</code> object.</p></li>
@@ -87,10 +88,13 @@ and columns:</p><ul><li><p><code>seqs</code>: a <code>DNAStringSet</code> object
 <li><p><code>seqWgt</code>: the sequence weight to adjust for k-mer
     differences between foreground and background sequences.</p></li>
 </ul></td>
-    </tr></table><h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    </tr></table></div>
 
+    <div id="value">
+    <h2>Value</h2>
     <p><code>TRUE</code> (invisibly) if <code>df</code> is valid, otherwise it
   raises an exception using <code><a href="https://rdrr.io/r/base/stop.html">stop()</a></code></p>
+    </div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

@@ -19,7 +19,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.2</span>
       </span>
     </div>
 
@@ -82,7 +82,8 @@
   <span class="va">...</span>
 <span class="op">)</span></code></pre></div>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <div id="arguments">
+    <h2>Arguments</h2>
     <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>x</th>
       <td><p>A numerical vector with the values used for binning.</p></td>
     </tr><tr><th>binmode</th>
@@ -106,15 +107,18 @@ increasing, and has to be of length (number of bins) + 1.</p></td>
     </tr><tr><th>...</th>
       <td><p>further arguments to be passed to <code>cut(x, breaks,
 include.lowest = TRUE, ...)</code>, such as <code>labels=FALSE</code>.</p></td>
-    </tr></table><h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    </tr></table></div>
 
+    <div id="value">
+    <h2>Value</h2>
     <p>The return value from <code>cut(x, ...)</code>, typically a factor of the
   same length as <code>x</code>. Binning mode, bin boundaries and the "neutral" bin
   are available from <code>attr(..., "binmode")</code>, <code>attr(..., "breaks")</code>
   and <code>attr(..., "bin0")</code>. For <code>binmode = "breaks"</code>, the latter
   will be <code>NA</code>.</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
+    </div>
+    <div id="details">
+    <h2>Details</h2>
     <p>Elements are binned according to the values in <code>x</code> depending on
   <code>binmode</code>:</p><dl><dt>equalN</dt><dd><p>Items are grouped into a variable
   number of bins with <code>nElements</code> elements each. If <code>minAbsX</code> is
@@ -127,11 +131,14 @@ include.lowest = TRUE, ...)</code>, such as <code>labels=FALSE</code>.</p></td>
   <dt>breaks</dt><dd><p>Items are grouped into bins using
   <code>cut(x, breaks, include.lowest = TRUE)</code></p></dd> 
   
-</dl><h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
+</dl></div>
+    <div id="see-also">
+    <h2>See also</h2>
     <div class="dont-index"><p><code><a href="https://rdrr.io/r/base/cut.html">cut</a></code> which is used internally.</p></div>
+    </div>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <div id="examples">
+    <h2>Examples</h2>
     <div class="ref-examples sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="fu">bin</span><span class="op">(</span><span class="va">x</span>, <span class="st">"equalN"</span>, nElements<span class="op">=</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
@@ -154,6 +161,7 @@ include.lowest = TRUE, ...)</code>, such as <code>labels=FALSE</code>.</p></td>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       11       35       39       15 </span>
 <span class="r-in"></span>
 </code></pre></div>
+    </div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top"><h2 data-toc-skip>Contents</h2>

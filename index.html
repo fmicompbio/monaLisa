@@ -37,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.2</span>
       </span>
     </div>
 
@@ -90,13 +90,14 @@
 
 <p><img src="articles/monaLisa_logo_v1.png" align="right" alt="monaLisa" width="200px"></p>
 <p><br></p>
-<div id="monalisa-motif-analysis-with-lisa" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#monalisa-motif-analysis-with-lisa" class="anchor" aria-hidden="true"></a><code>monaLisa</code>: MOtif aNAlysis with Lisa</h1></div>
+<div class="section level1">
+<div class="page-header"><h1 id="monalisa-motif-analysis-with-lisa">
+<code>monaLisa</code>: MOtif aNAlysis with Lisa<a class="anchor" aria-label="anchor" href="#monalisa-motif-analysis-with-lisa"></a>
+</h1></div>
 <p><br></p>
-<div id="overview" class="section level2">
-<h2 class="hasAnchor">
-<a href="#overview" class="anchor" aria-hidden="true"></a>Overview</h2>
+<div class="section level2">
+<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+</h2>
 <p><code>monaLisa</code> was inspired by her father <a href="http://homer.ucsd.edu/homer/index.html" class="external-link">Homer</a> to look for enriched motifs in sets (bins) of genomic regions, compared to all other regions (“binned motif enrichment analysis”).</p>
 <p>It uses known motifs representing transcription factor binding preferences, for example for the <code>JASPAR2020</code> Bioconductor package. The regions are for example promoters or accessible regions, which are grouped into bins according to a numerical value assigned to each region, such as change of expression or accessibility. The goal of the analysis is to identify transcription factors that are associated to that numerical value and thus candidates to be drivers in the underlying biological process.</p>
 <p>In addition to the “binned motif enrichment analysis”, <code>monaLisa</code> can also be used to address the above question using stability selection (a form of linear regression), or to look for motif matches in sequences.</p>
@@ -108,18 +109,18 @@
 <li><a href="https://github.com/csoneson" class="external-link">Charlotte Soneson</a></li>
 </ul>
 </div>
-<div id="installation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installation" class="anchor" aria-hidden="true"></a>Installation</h2>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
 <p><code>monaLisa</code> can be installed from Bioconductor via the <code>BiocManager</code> package:</p>
 <pre><code>if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
 BiocManager::install("monaLisa")</code></pre>
 </div>
-<div id="functionality" class="section level2">
-<h2 class="hasAnchor">
-<a href="#functionality" class="anchor" aria-hidden="true"></a>Functionality</h2>
+<div class="section level2">
+<h2 id="functionality">Functionality<a class="anchor" aria-label="anchor" href="#functionality"></a>
+</h2>
 <p>Here is a minimal example to run a <code>monaLisa</code> analysis:</p>
 <pre><code><a href="https://github.com/fmicompbio/monaLisa" class="external-link">library(monaLisa)
 
@@ -162,6 +163,8 @@ pwms &lt;- getMatrixSet(JASPAR2020, list(matrixtype = "PWM", tax_group = "verteb
     <div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
+<li>Download from BIOC at <br><a href="https://www.bioconductor.org/packages/monaLisa">https://​www.bioconductor.org/​packages/​monaLisa</a>
+</li>
 <li>Browse source code at <br><a href="https://github.com/fmicompbio/monaLisa/">https://​github.com/​fmicompbio/​monaLisa/​</a>
 </li>
 <li>Report a bug at <br><a href="https://github.com/fmicompbio/monaLisa/issues">https://​github.com/​fmicompbio/​monaLisa/​issues</a>

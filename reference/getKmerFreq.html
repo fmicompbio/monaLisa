@@ -19,7 +19,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.2</span>
       </span>
     </div>
 
@@ -83,7 +83,8 @@
   includeRevComp <span class="op">=</span> <span class="cn">TRUE</span>
 <span class="op">)</span></code></pre></div>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <div id="arguments">
+    <h2>Arguments</h2>
     <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>seqs</th>
       <td><p>Set of sequences, either a <code>character</code> vector or a
 <code>DNAStringSet</code>.</p></td>
@@ -119,13 +120,17 @@ expected on the forward strand (e.g. RNA sequences of CLIP-seq peaks),
 <code>includeRevComp = FALSE</code> should be used. Note that if <code>strata</code>
 is a vector of the same length as <code>seqs</code>, each reverse-complemented
 sequence will be assigned to the same stratum as the forward sequence.</p></td>
-    </tr></table><h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    </tr></table></div>
 
+    <div id="value">
+    <h2>Value</h2>
     <p>A <code>list</code> with observed and expected k-mer frequencies 
   (<code>freq.obs</code> and <code>freq.exp</code>, respectively), and enrichment 
   statistics for each k-mer.</p>
+    </div>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <div id="examples">
+    <h2>Examples</h2>
     <div class="ref-examples sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">getKmerFreq</span><span class="op">(</span>seqs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"AAAAATT"</span>, <span class="st">"AAATTTT"</span><span class="op">)</span>, kmerLen <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "freq.obs"    "freq.exp"    "log2enr"     "sqrtDelta"   "z"          </span>
@@ -138,6 +143,7 @@ sequence will be assigned to the same stratum as the forward sequence.</p></td>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1.8295455 0.1663223 0.1663223 1.4969008 0.3326446 0.3326446 </span>
 <span class="r-in"></span>
 </code></pre></div>
+    </div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top"><h2 data-toc-skip>Contents</h2>
