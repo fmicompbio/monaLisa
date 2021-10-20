@@ -28,7 +28,7 @@ For test = &quot;fisher&quot;, fisher.test is used with
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.4</span>
       </span>
     </div>
 
@@ -56,7 +56,7 @@ For test = &quot;fisher&quot;, fisher.test is used with
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
-  <a href="https://github.com/fmicompbio/monaLisa">
+  <a href="https://github.com/fmicompbio/monaLisa" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -71,7 +71,7 @@ For test = &quot;fisher&quot;, fisher.test is used with
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Calculate k-mer enrichment</h1>
-    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/master/R/motif_enrichment_kmers.R"><code>R/motif_enrichment_kmers.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/master/R/motif_enrichment_kmers.R" class="external-link"><code>R/motif_enrichment_kmers.R</code></a></small>
     <div class="hidden name"><code>dot-calcKmerEnrichment.Rd</code></div>
     </div>
 
@@ -90,11 +90,12 @@ For test = &quot;fisher&quot;, fisher.test is used with
   as is the case with the binomial test.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class="sourceCode r"><code><span class="fu">.calcKmerEnrichment</span><span class="op">(</span><span class="va">k</span>, <span class="va">df</span>, test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"fisher"</span>, <span class="st">"binomial"</span><span class="op">)</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+    <div class="ref-usage sourceCode"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/dot-calcKmerEnrichment.html">.calcKmerEnrichment</a></span><span class="op">(</span><span class="va">k</span>, <span class="va">df</span>, test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fisher"</span>, <span class="st">"binomial"</span><span class="op">)</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>k</th>
+    <table class="table ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>k</th>
       <td><p>Numeric scalar giving the length of k-mers to analyze.</p></td>
     </tr><tr><th>df</th>
       <td><p>a <code>DataFrame</code> with sequence information as returned by

@@ -22,7 +22,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.4</span>
       </span>
     </div>
 
@@ -50,7 +50,7 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
-  <a href="https://github.com/fmicompbio/monaLisa">
+  <a href="https://github.com/fmicompbio/monaLisa" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -65,7 +65,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Calculate similarities between pairs of motifs.</h1>
-    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/master/R/pfm_comparison.R"><code>R/pfm_comparison.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/master/R/pfm_comparison.R" class="external-link"><code>R/pfm_comparison.R</code></a></small>
     <div class="hidden name"><code>motifSimilarity.Rd</code></div>
     </div>
 
@@ -78,11 +78,12 @@
   0.25) to enable comparison of all positions in both matrices.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class="sourceCode r"><code><span class="fu">motifSimilarity</span><span class="op">(</span>
+    <div class="ref-usage sourceCode"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/motifSimilarity.html">motifSimilarity</a></span><span class="op">(</span>
   <span class="va">x</span>,
   y <span class="op">=</span> <span class="cn">NULL</span>,
-  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"R"</span>, <span class="st">"HOMER"</span><span class="op">)</span>,
-  homerfile <span class="op">=</span> <span class="fu"><a href="findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"compareMotifs.pl"</span><span class="op">)</span>,
+  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"R"</span>, <span class="st">"HOMER"</span><span class="op">)</span>,
+  homerfile <span class="op">=</span> <span class="fu"><a href="../reference/findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"compareMotifs.pl"</span><span class="op">)</span>,
   homerOutfile <span class="op">=</span> <span class="cn">NULL</span>,
   BPPARAM <span class="op">=</span> <span class="fu">SerialParam</span><span class="op">(</span><span class="op">)</span>,
   verbose <span class="op">=</span> <span class="cn">FALSE</span>
@@ -90,14 +91,14 @@
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>x</th>
-      <td><p>Either a <code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html">PFMatrixList</a></code>, or a character
+    <table class="table ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>x</th>
+      <td><p>Either a <code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html" class="external-link">PFMatrixList</a></code>, or a character
 scalar with a file containing motifs in HOMER format (used directly
 <code>method = "HOMER"</code>, loaded into a
-<code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html">PFMatrixList</a></code> by <code><a href="homerToPFMatrixList.html">homerToPFMatrixList</a></code>
+<code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html" class="external-link">PFMatrixList</a></code> by <code><a href="homerToPFMatrixList.html">homerToPFMatrixList</a></code>
 for <code>method = "R"</code>).</p></td>
     </tr><tr><th>y</th>
-      <td><p>Either a <code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html">PFMatrixList</a></code> or <code>NULL</code>
+      <td><p>Either a <code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html" class="external-link">PFMatrixList</a></code> or <code>NULL</code>
 (default). If <code>y = NULL</code>, then similarities will be calucalted for all
 pairs of motifs within <code>x</code>. Otherwise, <code>method</code> must be
 <code>"R"</code> and similarities will be calculated between any motif from
@@ -116,7 +117,7 @@ for <code>method = "HOMER"</code>.</p></td>
 scores (only for <code>metho = "HOMER"</code>). If <code>NULL</code>, scores will be
 stored into a temporary file.</p></td>
     </tr><tr><th>BPPARAM</th>
-      <td><p>An optional <code><a href="https://rdrr.io/pkg/BiocParallel/man/BiocParallelParam-class.html">BiocParallelParam</a></code>
+      <td><p>An optional <code><a href="https://rdrr.io/pkg/BiocParallel/man/BiocParallelParam-class.html" class="external-link">BiocParallelParam</a></code>
 instance determining the parallel back-end to be used during evaluation
 (only used for <code>method = "R"</code>).</p></td>
     </tr><tr><th>verbose</th>
@@ -130,7 +131,7 @@ instance determining the parallel back-end to be used during evaluation
     </div>
     <div id="see-also">
     <h2>See also</h2>
-    <div class="dont-index"><p><code><a href="https://rdrr.io/pkg/BiocParallel/man/bplapply.html">bplapply</a></code> used for parallelization for
+    <div class="dont-index"><p><code><a href="https://rdrr.io/pkg/BiocParallel/man/bplapply.html" class="external-link">bplapply</a></code> used for parallelization for
   <code>method = "R"</code>,
   documentation of HOMER's <code>compareMotifs.pl</code> for details on
   <code>method = "HOMER"</code>.</p></div>
@@ -138,21 +139,22 @@ instance determining the parallel back-end to be used during evaluation
 
     <div id="examples">
     <h2>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span>A <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">12</span>,  <span class="fl">0</span>,  <span class="fl">0</span><span class="op">)</span>,</span>
-<span class="r-in">           C <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span> <span class="fl">3</span>,  <span class="fl">2</span>,  <span class="fl">0</span><span class="op">)</span>,</span>
-<span class="r-in">           G <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span> <span class="fl">0</span>, <span class="fl">14</span>,  <span class="fl">0</span><span class="op">)</span>,</span>
-<span class="r-in">           T <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span> <span class="fl">0</span>,  <span class="fl">0</span>, <span class="fl">15</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">pfms</span> <span class="op">&lt;-</span> <span class="fu">TFBSTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html">PFMatrixList</a></span><span class="op">(</span></span>
-<span class="r-in">    <span class="fu">TFBSTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html">PFMatrix</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"m1"</span>, profileMatrix <span class="op">=</span> <span class="va">m</span><span class="op">)</span>,</span>
-<span class="r-in">    <span class="fu">TFBSTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html">PFMatrix</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"m2"</span>, profileMatrix <span class="op">=</span> <span class="va">m</span> <span class="op">+</span> <span class="fl">10</span><span class="op">)</span>,</span>
-<span class="r-in">    <span class="fu">TFBSTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html">PFMatrix</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"m3"</span>, profileMatrix <span class="op">=</span> <span class="va">m</span><span class="op">[</span>, <span class="fl">3</span><span class="op">:</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"><span class="fu">motifSimilarity</span><span class="op">(</span><span class="va">pfms</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           m1        m2        m3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> m1 1.0000000 0.9997644 0.4382761</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> m2 0.9997644 1.0000000 0.4317897</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> m3 0.4382761 0.4317897 1.0000000</span>
-<span class="r-in"></span>
+    <div class="ref-examples sourceCode"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>A <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">12</span>,  <span class="fl">0</span>,  <span class="fl">0</span><span class="op">)</span>,
+           C <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="fl">3</span>,  <span class="fl">2</span>,  <span class="fl">0</span><span class="op">)</span>,
+           G <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="fl">0</span>, <span class="fl">14</span>,  <span class="fl">0</span><span class="op">)</span>,
+           T <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="fl">0</span>,  <span class="fl">0</span>, <span class="fl">15</span><span class="op">)</span><span class="op">)</span>
+<span class="va">pfms</span> <span class="op">&lt;-</span> <span class="fu">TFBSTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html" class="external-link">PFMatrixList</a></span><span class="op">(</span>
+    <span class="fu">TFBSTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html" class="external-link">PFMatrix</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"m1"</span>, profileMatrix <span class="op">=</span> <span class="va">m</span><span class="op">)</span>,
+    <span class="fu">TFBSTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html" class="external-link">PFMatrix</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"m2"</span>, profileMatrix <span class="op">=</span> <span class="va">m</span> <span class="op">+</span> <span class="fl">10</span><span class="op">)</span>,
+    <span class="fu">TFBSTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html" class="external-link">PFMatrix</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"m3"</span>, profileMatrix <span class="op">=</span> <span class="va">m</span><span class="op">[</span>, <span class="fl">3</span><span class="op">:</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>
+<span class="op">)</span>
+<span class="fu"><a href="../reference/motifSimilarity.html">motifSimilarity</a></span><span class="op">(</span><span class="va">pfms</span><span class="op">)</span>
+<span class="co">#&gt;           m1        m2        m3</span>
+<span class="co">#&gt; m1 1.0000000 0.9997644 0.4382761</span>
+<span class="co">#&gt; m2 0.9997644 1.0000000 0.4317897</span>
+<span class="co">#&gt; m3 0.4382761 0.4317897 1.0000000</span>
+
 </code></pre></div>
     </div>
   </div>

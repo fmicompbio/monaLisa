@@ -19,7 +19,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.4</span>
       </span>
     </div>
 
@@ -47,7 +47,7 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
-  <a href="https://github.com/fmicompbio/monaLisa">
+  <a href="https://github.com/fmicompbio/monaLisa" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -62,7 +62,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Calculate observed and expected k-mer frequencies</h1>
-    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/master/R/motif_enrichment_kmers.R"><code>R/motif_enrichment_kmers.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/master/R/motif_enrichment_kmers.R" class="external-link"><code>R/motif_enrichment_kmers.R</code></a></small>
     <div class="hidden name"><code>getKmerFreq.Rd</code></div>
     </div>
 
@@ -72,20 +72,21 @@
   <code>MMorder</code>.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class="sourceCode r"><code><span class="fu">getKmerFreq</span><span class="op">(</span>
+    <div class="ref-usage sourceCode"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/getKmerFreq.html">getKmerFreq</a></span><span class="op">(</span>
   <span class="va">seqs</span>,
   kmerLen <span class="op">=</span> <span class="fl">5</span>,
   MMorder <span class="op">=</span> <span class="fl">1</span>,
   pseudocount <span class="op">=</span> <span class="fl">1</span>,
   zoops <span class="op">=</span> <span class="cn">TRUE</span>,
-  strata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">seqs</span><span class="op">)</span><span class="op">)</span>,
+  strata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">seqs</span><span class="op">)</span><span class="op">)</span>,
   p.adjust.method <span class="op">=</span> <span class="st">"BH"</span>,
   includeRevComp <span class="op">=</span> <span class="cn">TRUE</span>
 <span class="op">)</span></code></pre></div>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>seqs</th>
+    <table class="table ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>seqs</th>
       <td><p>Set of sequences, either a <code>character</code> vector or a
 <code>DNAStringSet</code>.</p></td>
     </tr><tr><th>kmerLen</th>
@@ -109,7 +110,7 @@ to their CpG observed-over-expected counts using
 <code>kmeans(CpGoe, centers = strata)</code>.</p></td>
     </tr><tr><th>p.adjust.method</th>
       <td><p>A character scalar selecting the p value adjustment
-method (used in <code><a href="https://rdrr.io/r/stats/p.adjust.html">p.adjust</a></code>).</p></td>
+method (used in <code><a href="https://rdrr.io/r/stats/p.adjust.html" class="external-link">p.adjust</a></code>).</p></td>
     </tr><tr><th>includeRevComp</th>
       <td><p>A <code>logical</code> scalar. If <code>TRUE</code> (default),
 count k-mer occurrences in both <code>seqs</code> and their reverse-complement,
@@ -131,17 +132,18 @@ sequence will be assigned to the same stratum as the forward sequence.</p></td>
 
     <div id="examples">
     <h2>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">getKmerFreq</span><span class="op">(</span>seqs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"AAAAATT"</span>, <span class="st">"AAATTTT"</span><span class="op">)</span>, kmerLen <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "freq.obs"    "freq.exp"    "log2enr"     "sqrtDelta"   "z"          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6] "p"           "padj"        "strata"      "freq.strata" "CpGoe"      </span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">freq.obs</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AAA AAC AAG AAT ACA ACC </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   3   0   0   4   0   0 </span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">freq.exp</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       AAA       AAC       AAG       AAT       ACA       ACC </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.8295455 0.1663223 0.1663223 1.4969008 0.3326446 0.3326446 </span>
-<span class="r-in"></span>
+    <div class="ref-examples sourceCode"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getKmerFreq.html">getKmerFreq</a></span><span class="op">(</span>seqs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AAAAATT"</span>, <span class="st">"AAATTTT"</span><span class="op">)</span>, kmerLen <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span>
+<span class="co">#&gt;  [1] "freq.obs"    "freq.exp"    "log2enr"     "sqrtDelta"   "z"          </span>
+<span class="co">#&gt;  [6] "p"           "padj"        "strata"      "freq.strata" "CpGoe"      </span>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">freq.obs</span><span class="op">)</span>
+<span class="co">#&gt; AAA AAC AAG AAT ACA ACC </span>
+<span class="co">#&gt;   3   0   0   4   0   0 </span>
+<span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">freq.exp</span><span class="op">)</span>
+<span class="co">#&gt;       AAA       AAC       AAG       AAT       ACA       ACC </span>
+<span class="co">#&gt; 1.8295455 0.1663223 0.1663223 1.4969008 0.3326446 0.3326446 </span>
+
 </code></pre></div>
     </div>
   </div>
