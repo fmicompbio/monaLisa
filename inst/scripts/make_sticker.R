@@ -12,10 +12,10 @@ for (frmt in c("png", "pdf")) {
                    p_family = "Aller_Lt", p_size = 7.2, ## package font, size
                    h_fill = colr_fill, h_color = colr_border, h_size = 1.8, ## color to fill hexagon, hexagon border color, border width
                    spotlight = TRUE, l_x = 1, l_y = 1.4, ## spotlight position
-                   filename = paste0("../www/monaLisa.", frmt),
+                   filename = paste0("../../man/figures/monaLisa.", frmt),
                    url = "www.bioconductor.org")
     stk <- stk + geom_url("Image credit: http://vectorish.com/lisa-simpson.html",
                           x = 1, y = 0.45, color = "grey", 
                           family = "Aller_Rg", size = 0.75, angle = 0, hjust = 0.8)
-    save_sticker(paste0("../www/monaLisa.", frmt), stk, dpi = 300)
+    save_sticker(paste0("../../man/figures/monaLisa.", frmt), stk, dpi = 300)
 }

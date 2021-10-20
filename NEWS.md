@@ -1,11 +1,15 @@
+# monaLisa 0.99.4
+
+* Suppressed warnings from matchPWM (due to presence of Ns) in regression vignette
+
 # monaLisa 0.99.3
 
-* updated `README.md` file
+* Updated `README.md` file
 
 # monaLisa 0.99.2
 
-* added fixes to the regression vignette
-* addressed failing test in `calcBinnedKmerEnr`
+* Added fixes to the regression vignette
+* Addressed failing test in `calcBinnedKmerEnr`
 
 # monaLisa 0.99.1
 
