@@ -1,4 +1,4 @@
-<img src="inst/www/monaLisa.png" align="right" alt="monaLisa" width="150"/>
+<img src="man/figures/monaLisa.png" align="right" alt="monaLisa" width="150"/>
 
 <br>
 
