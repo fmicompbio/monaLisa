@@ -1,3 +1,7 @@
+# monaLisa 0.99.5
+
+* Updated `R/monaLisa-package.R` file
+
 # monaLisa 0.99.4
 
 * Suppressed warnings from matchPWM (due to presence of Ns) in regression vignette

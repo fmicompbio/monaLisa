@@ -18,6 +18,6 @@ Known motifs can for example be obtained from a collection of transcription
 factor binding site specificities, such as \pkg{JASPAR2020}.
 }
 \author{
-Dania Machlab, Lukas Burger and Michael Stadler
+Dania Machlab, Lukas Burger, Charlotte Soneson and Michael Stadler
 }
 \keyword{package}
