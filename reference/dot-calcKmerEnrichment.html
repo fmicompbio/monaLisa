@@ -28,7 +28,7 @@ For test = &quot;fisher&quot;, fisher.test is used with
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.5</span>
       </span>
     </div>
 
@@ -90,12 +90,11 @@ For test = &quot;fisher&quot;, fisher.test is used with
   as is the case with the binomial test.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/dot-calcKmerEnrichment.html">.calcKmerEnrichment</a></span><span class="op">(</span><span class="va">k</span>, <span class="va">df</span>, test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fisher"</span>, <span class="st">"binomial"</span><span class="op">)</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+    <div class="ref-usage sourceCode"><pre class="sourceCode r"><code><span class="fu">.calcKmerEnrichment</span><span class="op">(</span><span class="va">k</span>, <span class="va">df</span>, test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fisher"</span>, <span class="st">"binomial"</span><span class="op">)</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <table class="table ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>k</th>
+    <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>k</th>
       <td><p>Numeric scalar giving the length of k-mers to analyze.</p></td>
     </tr><tr><th>df</th>
       <td><p>a <code>DataFrame</code> with sequence information as returned by
@@ -106,6 +105,7 @@ For test = &quot;fisher&quot;, fisher.test is used with
       <td><p>A logical scalar. If <code>TRUE</code>, report on progress.</p></td>
     </tr></table></div>
 
+    <div id="ref-sections">
     <div id="value">
     <h2>Value</h2>
     <p>A <code>data.frame</code> containing the motifs as rows and the columns:</p><ul><li><p>motifName: the motif name</p></li>
@@ -126,6 +126,7 @@ For test = &quot;fisher&quot;, fisher.test is used with
     <p>The function works in ZOOPS mode, which means only one
   or zero occurrences of a k-mer are considered per sequence. This is helpful
   to reduce the impact of simple sequence repeats occurring in few sequences.</p>
+    </div>
     </div>
 
   </div>

@@ -19,7 +19,7 @@ positional weight matrices (provided as a file or as R objects)"><!-- mathjax --
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.5</span>
       </span>
     </div>
 
@@ -72,141 +72,140 @@ as a file, an R object or genomic coordinates)  for matches to
 positional weight matrices (provided as a file or as R objects)</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span><span class="op">(</span>
+    <div class="ref-usage sourceCode"><pre class="sourceCode r"><code><span class="fu">findMotifHits</span><span class="op">(</span>
   <span class="va">query</span>,
   <span class="va">subject</span>,
   <span class="va">min.score</span>,
   method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"matchPWM"</span>, <span class="st">"homer2"</span><span class="op">)</span>,
-  homerfile <span class="op">=</span> <span class="fu"><a href="../reference/findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"homer2"</span><span class="op">)</span>,
+  homerfile <span class="op">=</span> <span class="fu"><a href="findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"homer2"</span><span class="op">)</span>,
   BPPARAM <span class="op">=</span> <span class="fu">SerialParam</span><span class="op">(</span><span class="op">)</span>,
   genome <span class="op">=</span> <span class="cn">NULL</span>
 <span class="op">)</span>
 
 <span class="co"># S4 method for character,character</span>
-<span class="fu"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span><span class="op">(</span>
+<span class="fu">findMotifHits</span><span class="op">(</span>
   <span class="va">query</span>,
   <span class="va">subject</span>,
   <span class="va">min.score</span>,
   method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"matchPWM"</span>, <span class="st">"homer2"</span><span class="op">)</span>,
-  homerfile <span class="op">=</span> <span class="fu"><a href="../reference/findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"homer2"</span><span class="op">)</span>,
+  homerfile <span class="op">=</span> <span class="fu"><a href="findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"homer2"</span><span class="op">)</span>,
   BPPARAM <span class="op">=</span> <span class="fu">SerialParam</span><span class="op">(</span><span class="op">)</span>,
   genome <span class="op">=</span> <span class="cn">NULL</span>
 <span class="op">)</span>
 
 <span class="co"># S4 method for character,DNAString</span>
-<span class="fu"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span><span class="op">(</span>
+<span class="fu">findMotifHits</span><span class="op">(</span>
   <span class="va">query</span>,
   <span class="va">subject</span>,
   <span class="va">min.score</span>,
   method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"matchPWM"</span>, <span class="st">"homer2"</span><span class="op">)</span>,
-  homerfile <span class="op">=</span> <span class="fu"><a href="../reference/findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"homer2"</span><span class="op">)</span>,
+  homerfile <span class="op">=</span> <span class="fu"><a href="findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"homer2"</span><span class="op">)</span>,
   BPPARAM <span class="op">=</span> <span class="fu">SerialParam</span><span class="op">(</span><span class="op">)</span>,
   genome <span class="op">=</span> <span class="cn">NULL</span>
 <span class="op">)</span>
 
 <span class="co"># S4 method for character,DNAStringSet</span>
-<span class="fu"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span><span class="op">(</span>
+<span class="fu">findMotifHits</span><span class="op">(</span>
   <span class="va">query</span>,
   <span class="va">subject</span>,
   <span class="va">min.score</span>,
   method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"matchPWM"</span>, <span class="st">"homer2"</span><span class="op">)</span>,
-  homerfile <span class="op">=</span> <span class="fu"><a href="../reference/findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"homer2"</span><span class="op">)</span>,
+  homerfile <span class="op">=</span> <span class="fu"><a href="findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"homer2"</span><span class="op">)</span>,
   BPPARAM <span class="op">=</span> <span class="fu">SerialParam</span><span class="op">(</span><span class="op">)</span>,
   genome <span class="op">=</span> <span class="cn">NULL</span>
 <span class="op">)</span>
 
 <span class="co"># S4 method for PWMatrix,character</span>
-<span class="fu"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span><span class="op">(</span>
+<span class="fu">findMotifHits</span><span class="op">(</span>
   <span class="va">query</span>,
   <span class="va">subject</span>,
   <span class="va">min.score</span>,
   method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"matchPWM"</span>, <span class="st">"homer2"</span><span class="op">)</span>,
-  homerfile <span class="op">=</span> <span class="fu"><a href="../reference/findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"homer2"</span><span class="op">)</span>,
+  homerfile <span class="op">=</span> <span class="fu"><a href="findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"homer2"</span><span class="op">)</span>,
   BPPARAM <span class="op">=</span> <span class="fu">SerialParam</span><span class="op">(</span><span class="op">)</span>,
   genome <span class="op">=</span> <span class="cn">NULL</span>
 <span class="op">)</span>
 
 <span class="co"># S4 method for PWMatrix,DNAString</span>
-<span class="fu"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span><span class="op">(</span>
+<span class="fu">findMotifHits</span><span class="op">(</span>
   <span class="va">query</span>,
   <span class="va">subject</span>,
   <span class="va">min.score</span>,
   method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"matchPWM"</span>, <span class="st">"homer2"</span><span class="op">)</span>,
-  homerfile <span class="op">=</span> <span class="fu"><a href="../reference/findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"homer2"</span><span class="op">)</span>,
+  homerfile <span class="op">=</span> <span class="fu"><a href="findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"homer2"</span><span class="op">)</span>,
   BPPARAM <span class="op">=</span> <span class="fu">SerialParam</span><span class="op">(</span><span class="op">)</span>,
   genome <span class="op">=</span> <span class="cn">NULL</span>
 <span class="op">)</span>
 
 <span class="co"># S4 method for PWMatrix,DNAStringSet</span>
-<span class="fu"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span><span class="op">(</span>
+<span class="fu">findMotifHits</span><span class="op">(</span>
   <span class="va">query</span>,
   <span class="va">subject</span>,
   <span class="va">min.score</span>,
   method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"matchPWM"</span>, <span class="st">"homer2"</span><span class="op">)</span>,
-  homerfile <span class="op">=</span> <span class="fu"><a href="../reference/findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"homer2"</span><span class="op">)</span>,
+  homerfile <span class="op">=</span> <span class="fu"><a href="findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"homer2"</span><span class="op">)</span>,
   BPPARAM <span class="op">=</span> <span class="fu">SerialParam</span><span class="op">(</span><span class="op">)</span>,
   genome <span class="op">=</span> <span class="cn">NULL</span>
 <span class="op">)</span>
 
 <span class="co"># S4 method for PWMatrixList,character</span>
-<span class="fu"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span><span class="op">(</span>
+<span class="fu">findMotifHits</span><span class="op">(</span>
   <span class="va">query</span>,
   <span class="va">subject</span>,
   <span class="va">min.score</span>,
   method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"matchPWM"</span>, <span class="st">"homer2"</span><span class="op">)</span>,
-  homerfile <span class="op">=</span> <span class="fu"><a href="../reference/findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"homer2"</span><span class="op">)</span>,
+  homerfile <span class="op">=</span> <span class="fu"><a href="findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"homer2"</span><span class="op">)</span>,
   BPPARAM <span class="op">=</span> <span class="fu">SerialParam</span><span class="op">(</span><span class="op">)</span>,
   genome <span class="op">=</span> <span class="cn">NULL</span>
 <span class="op">)</span>
 
 <span class="co"># S4 method for PWMatrixList,DNAString</span>
-<span class="fu"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span><span class="op">(</span>
+<span class="fu">findMotifHits</span><span class="op">(</span>
   <span class="va">query</span>,
   <span class="va">subject</span>,
   <span class="va">min.score</span>,
   method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"matchPWM"</span>, <span class="st">"homer2"</span><span class="op">)</span>,
-  homerfile <span class="op">=</span> <span class="fu"><a href="../reference/findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"homer2"</span><span class="op">)</span>,
+  homerfile <span class="op">=</span> <span class="fu"><a href="findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"homer2"</span><span class="op">)</span>,
   BPPARAM <span class="op">=</span> <span class="fu">SerialParam</span><span class="op">(</span><span class="op">)</span>,
   genome <span class="op">=</span> <span class="cn">NULL</span>
 <span class="op">)</span>
 
 <span class="co"># S4 method for PWMatrixList,DNAStringSet</span>
-<span class="fu"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span><span class="op">(</span>
+<span class="fu">findMotifHits</span><span class="op">(</span>
   <span class="va">query</span>,
   <span class="va">subject</span>,
   <span class="va">min.score</span>,
   method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"matchPWM"</span>, <span class="st">"homer2"</span><span class="op">)</span>,
-  homerfile <span class="op">=</span> <span class="fu"><a href="../reference/findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"homer2"</span><span class="op">)</span>,
+  homerfile <span class="op">=</span> <span class="fu"><a href="findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"homer2"</span><span class="op">)</span>,
   BPPARAM <span class="op">=</span> <span class="fu">SerialParam</span><span class="op">(</span><span class="op">)</span>,
   genome <span class="op">=</span> <span class="cn">NULL</span>
 <span class="op">)</span>
 
 <span class="co"># S4 method for PWMatrix,GRanges</span>
-<span class="fu"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span><span class="op">(</span>
+<span class="fu">findMotifHits</span><span class="op">(</span>
   <span class="va">query</span>,
   <span class="va">subject</span>,
   <span class="va">min.score</span>,
   method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"matchPWM"</span>, <span class="st">"homer2"</span><span class="op">)</span>,
-  homerfile <span class="op">=</span> <span class="fu"><a href="../reference/findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"homer2"</span><span class="op">)</span>,
+  homerfile <span class="op">=</span> <span class="fu"><a href="findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"homer2"</span><span class="op">)</span>,
   BPPARAM <span class="op">=</span> <span class="fu">SerialParam</span><span class="op">(</span><span class="op">)</span>,
   genome <span class="op">=</span> <span class="cn">NULL</span>
 <span class="op">)</span>
 
 <span class="co"># S4 method for PWMatrixList,GRanges</span>
-<span class="fu"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span><span class="op">(</span>
+<span class="fu">findMotifHits</span><span class="op">(</span>
   <span class="va">query</span>,
   <span class="va">subject</span>,
   <span class="va">min.score</span>,
   method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"matchPWM"</span>, <span class="st">"homer2"</span><span class="op">)</span>,
-  homerfile <span class="op">=</span> <span class="fu"><a href="../reference/findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"homer2"</span><span class="op">)</span>,
+  homerfile <span class="op">=</span> <span class="fu"><a href="findHomer.html">findHomer</a></span><span class="op">(</span><span class="st">"homer2"</span><span class="op">)</span>,
   BPPARAM <span class="op">=</span> <span class="fu">SerialParam</span><span class="op">(</span><span class="op">)</span>,
   genome <span class="op">=</span> <span class="cn">NULL</span>
 <span class="op">)</span></code></pre></div>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <table class="table ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>query</th>
+    <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>query</th>
       <td><p>The motifs to search for, either a</p><ul><li><p><code>character(1)</code> with the path and file name of a motif
           file with PWM in HOMER format (currently only
           supported for <code>method="homer2"</code>)</p></li>
@@ -243,6 +242,7 @@ necessary to specify the genome so that the function can internally
 convert the genomic regions into a <code>DNAStringSet</code> object.</p></td>
     </tr></table></div>
 
+    <div id="ref-sections">
     <div id="value">
     <h2>Value</h2>
     <p>A <code>GRanges</code> object with the matches to <code>query</code> in
@@ -272,33 +272,33 @@ convert the genomic regions into a <code>DNAStringSet</code> object.</p></td>
     function), and thus can give rise to differences in reported motif hits
     and hit scores (typically only low-scoring hits).</p>
     </div>
+    </div>
 
     <div id="examples">
     <h2>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">seqs</span> <span class="op">&lt;-</span> <span class="fu">Biostrings</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html" class="external-link">DNAStringSet</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>s1 <span class="op">=</span> <span class="st">"GTCAGTCGATC"</span>, s2 <span class="op">=</span> <span class="st">"CAGTCTAGCTG"</span>,
-                                   s3 <span class="op">=</span> <span class="st">"CGATCGTCAGT"</span>, s4 <span class="op">=</span> <span class="st">"AGCTGCAGTCT"</span><span class="op">)</span><span class="op">)</span>
-<span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>A <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,
-           C <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>,
-           G <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">0</span><span class="op">)</span>,
-           T <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span>
-<span class="va">pwms</span> <span class="op">&lt;-</span> <span class="fu">TFBSTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html" class="external-link">PWMatrixList</a></span><span class="op">(</span>
-    <span class="fu">TFBSTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html" class="external-link">PWMatrix</a></span><span class="op">(</span>ID <span class="op">=</span> <span class="st">"m1"</span>, profileMatrix <span class="op">=</span> <span class="va">m</span><span class="op">)</span>,
-    <span class="fu">TFBSTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html" class="external-link">PWMatrix</a></span><span class="op">(</span>ID <span class="op">=</span> <span class="st">"m2"</span>, profileMatrix <span class="op">=</span> <span class="va">m</span><span class="op">[</span>, <span class="fl">3</span><span class="op">:</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>
-<span class="op">)</span>
-<span class="fu"><a href="../reference/findMotifHits-methods.html">findMotifHits</a></span><span class="op">(</span><span class="va">pwms</span>, <span class="va">seqs</span>, min.score <span class="op">=</span> <span class="fl">7</span><span class="op">)</span>
-<span class="co">#&gt; GRanges object with 6 ranges and 4 metadata columns:</span>
-<span class="co">#&gt;       seqnames    ranges strand |     matchedSeq pwmid pwmname     score</span>
-<span class="co">#&gt;          &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;DNAStringSet&gt; &lt;Rle&gt;   &lt;Rle&gt; &lt;numeric&gt;</span>
-<span class="co">#&gt;   [1]       s1       4-6      + |            AGT    m1 Unknown         7</span>
-<span class="co">#&gt;   [2]       s1       2-4      - |            TGA    m2 Unknown         7</span>
-<span class="co">#&gt;   [3]       s2       2-4      + |            AGT    m1 Unknown         7</span>
-<span class="co">#&gt;   [4]       s3      9-11      + |            AGT    m1 Unknown         7</span>
-<span class="co">#&gt;   [5]       s3       7-9      - |            TGA    m2 Unknown         7</span>
-<span class="co">#&gt;   [6]       s4       7-9      + |            AGT    m1 Unknown         7</span>
-<span class="co">#&gt;   -------</span>
-<span class="co">#&gt;   seqinfo: 4 sequences from an unspecified genome</span>
-
+    <div class="ref-examples sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">seqs</span> <span class="op">&lt;-</span> <span class="fu">Biostrings</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html" class="external-link">DNAStringSet</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>s1 <span class="op">=</span> <span class="st">"GTCAGTCGATC"</span>, s2 <span class="op">=</span> <span class="st">"CAGTCTAGCTG"</span>,</span>
+<span class="r-in">                                   s3 <span class="op">=</span> <span class="st">"CGATCGTCAGT"</span>, s4 <span class="op">=</span> <span class="st">"AGCTGCAGTCT"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>A <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,</span>
+<span class="r-in">           C <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>,</span>
+<span class="r-in">           G <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">0</span><span class="op">)</span>,</span>
+<span class="r-in">           T <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">pwms</span> <span class="op">&lt;-</span> <span class="fu">TFBSTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html" class="external-link">PWMatrixList</a></span><span class="op">(</span></span>
+<span class="r-in">    <span class="fu">TFBSTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html" class="external-link">PWMatrix</a></span><span class="op">(</span>ID <span class="op">=</span> <span class="st">"m1"</span>, profileMatrix <span class="op">=</span> <span class="va">m</span><span class="op">)</span>,</span>
+<span class="r-in">    <span class="fu">TFBSTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html" class="external-link">PWMatrix</a></span><span class="op">(</span>ID <span class="op">=</span> <span class="st">"m2"</span>, profileMatrix <span class="op">=</span> <span class="va">m</span><span class="op">[</span>, <span class="fl">3</span><span class="op">:</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
+<span class="r-in"><span class="op">)</span></span>
+<span class="r-in"><span class="fu">findMotifHits</span><span class="op">(</span><span class="va">pwms</span>, <span class="va">seqs</span>, min.score <span class="op">=</span> <span class="fl">7</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GRanges object with 6 ranges and 4 metadata columns:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       seqnames    ranges strand |     matchedSeq pwmid pwmname     score</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;DNAStringSet&gt; &lt;Rle&gt;   &lt;Rle&gt; &lt;numeric&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [1]       s1       4-6      + |            AGT    m1 Unknown         7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [2]       s1       2-4      - |            TGA    m2 Unknown         7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [3]       s2       2-4      + |            AGT    m1 Unknown         7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [4]       s3      9-11      + |            AGT    m1 Unknown         7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [5]       s3       7-9      - |            TGA    m2 Unknown         7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [6]       s4       7-9      + |            AGT    m1 Unknown         7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   seqinfo: 4 sequences from an unspecified genome</span>
+<span class="r-in"></span>
 </code></pre></div>
     </div>
   </div>

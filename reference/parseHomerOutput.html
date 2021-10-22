@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.5</span>
       </span>
     </div>
 
@@ -68,12 +68,11 @@
     <p>Parse HOMER output files into R data structures.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/parseHomerOutput.html">parseHomerOutput</a></span><span class="op">(</span><span class="va">infiles</span>, pseudocount.log2enr <span class="op">=</span> <span class="fl">8</span>, p.adjust.method <span class="op">=</span> <span class="st">"BH"</span><span class="op">)</span></code></pre></div>
+    <div class="ref-usage sourceCode"><pre class="sourceCode r"><code><span class="fu">parseHomerOutput</span><span class="op">(</span><span class="va">infiles</span>, pseudocount.log2enr <span class="op">=</span> <span class="fl">8</span>, p.adjust.method <span class="op">=</span> <span class="st">"BH"</span><span class="op">)</span></code></pre></div>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <table class="table ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>infiles</th>
+    <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>infiles</th>
       <td><p>HOMER output files to be parsed.</p></td>
     </tr><tr><th>pseudocount.log2enr</th>
       <td><p>A numerical scalar with the pseudocount to add to
@@ -83,6 +82,7 @@ foreground and background counts when calculating log2 motif enrichments</p></td
 method (used in <code><a href="https://rdrr.io/r/stats/p.adjust.html" class="external-link">p.adjust</a></code>).</p></td>
     </tr></table></div>
 
+    <div id="ref-sections">
     <div id="value">
     <h2>Value</h2>
     <p>A list of nine components (<code>negLog10P</code>, <code>negLog10Padj</code>,
@@ -97,22 +97,22 @@ method (used in <code><a href="https://rdrr.io/r/stats/p.adjust.html" class="ext
     and background weight (<code>totalWgtForeground</code>, 
     <code>totalWgtBackground</code>).</p>
     </div>
+    </div>
 
     <div id="examples">
     <h2>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">outfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"homer_output.txt.gz"</span>, 
-                       package <span class="op">=</span> <span class="st">"monaLisa"</span><span class="op">)</span>
-<span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/parseHomerOutput.html">parseHomerOutput</a></span><span class="op">(</span>infiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>bin1 <span class="op">=</span> <span class="va">outfile</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">negLog10P</span><span class="op">)</span>
-<span class="co">#&gt;                            bin1</span>
-<span class="co">#&gt; MA0002.2:::RUNX1     18.8006081</span>
-<span class="co">#&gt; MA0003.3:::TFAP2A     5.6458283</span>
-<span class="co">#&gt; MA0004.1:::Arnt       6.9530547</span>
-<span class="co">#&gt; MA0006.1:::Ahr::Arnt  5.0378160</span>
-<span class="co">#&gt; MA0007.3:::Ar         0.5815203</span>
-<span class="co">#&gt; MA0009.2:::T          0.5172447</span>
-
+    <div class="ref-examples sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">outfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"homer_output.txt.gz"</span>, </span>
+<span class="r-in">                       package <span class="op">=</span> <span class="st">"monaLisa"</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">parseHomerOutput</span><span class="op">(</span>infiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>bin1 <span class="op">=</span> <span class="va">outfile</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">negLog10P</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                            bin1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> MA0002.2:::RUNX1     18.8006081</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> MA0003.3:::TFAP2A     5.6458283</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> MA0004.1:::Arnt       6.9530547</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> MA0006.1:::Ahr::Arnt  5.0378160</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> MA0007.3:::Ar         0.5815203</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> MA0009.2:::T          0.5172447</span>
+<span class="r-in"></span>
 </code></pre></div>
     </div>
   </div>

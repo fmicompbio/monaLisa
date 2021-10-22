@@ -19,7 +19,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.5</span>
       </span>
     </div>
 
@@ -72,12 +72,11 @@
   columns and attributes.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/dot-checkDfValidity.html">.checkDfValidity</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span></code></pre></div>
+    <div class="ref-usage sourceCode"><pre class="sourceCode r"><code><span class="fu">.checkDfValidity</span><span class="op">(</span><span class="va">df</span><span class="op">)</span></code></pre></div>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <table class="table ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>df</th>
+    <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>df</th>
       <td><p>Input object to be checked. It should have an attribute <code>err</code>
 and columns:</p><ul><li><p><code>seqs</code>: a <code>DNAStringSet</code> object.</p></li>
 <li><p><code>isForeground</code> that indicates if a sequence is in the
@@ -91,10 +90,12 @@ and columns:</p><ul><li><p><code>seqs</code>: a <code>DNAStringSet</code> object
 </ul></td>
     </tr></table></div>
 
+    <div id="ref-sections">
     <div id="value">
     <h2>Value</h2>
     <p><code>TRUE</code> (invisibly) if <code>df</code> is valid, otherwise it
   raises an exception using <code><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop()</a></code></p>
+    </div>
     </div>
 
   </div>

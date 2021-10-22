@@ -22,7 +22,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.5</span>
       </span>
     </div>
 
@@ -78,8 +78,7 @@
   number_fg_seqs_total)</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/dot-calculateGCweight.html">.calculateGCweight</a></span><span class="op">(</span>
+    <div class="ref-usage sourceCode"><pre class="sourceCode r"><code><span class="fu">.calculateGCweight</span><span class="op">(</span>
   <span class="va">df</span>,
   GCbreaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">0.25</span>, <span class="fl">0.3</span>, <span class="fl">0.35</span>, <span class="fl">0.4</span>, <span class="fl">0.45</span>, <span class="fl">0.5</span>, <span class="fl">0.6</span>, <span class="fl">0.7</span>, <span class="fl">0.8</span><span class="op">)</span>,
   verbose <span class="op">=</span> <span class="cn">FALSE</span>
@@ -87,7 +86,7 @@
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <table class="table ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>df</th>
+    <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>df</th>
       <td><p>a <code>DataFrame</code> with sequence information.</p></td>
     </tr><tr><th>GCbreaks</th>
       <td><p>The breaks between GC bins. The default value is based on
@@ -97,6 +96,7 @@ the hard-coded bins used in Homer.</p></td>
 calculation.</p></td>
     </tr></table></div>
 
+    <div id="ref-sections">
     <div id="value">
     <h2>Value</h2>
     <p>a <code>DataFrame</code> of the same dimensions as the input <code>df</code>,
@@ -104,6 +104,7 @@ calculation.</p></td>
   filled in with the sequence GC content, assigned GC bins and weights to
   correct differences in GC distributions between foreground and background
   sequences.</p>
+    </div>
     </div>
 
   </div>

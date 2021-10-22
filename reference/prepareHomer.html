@@ -18,7 +18,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.5</span>
       </span>
     </div>
 
@@ -70,14 +70,13 @@
     background regions into files for HOMER motif enrichment analysis.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/prepareHomer.html">prepareHomer</a></span><span class="op">(</span>
+    <div class="ref-usage sourceCode"><pre class="sourceCode r"><code><span class="fu">prepareHomer</span><span class="op">(</span>
   <span class="va">gr</span>,
   <span class="va">b</span>,
   <span class="va">genomedir</span>,
   <span class="va">outdir</span>,
   <span class="va">motifFile</span>,
-  homerfile <span class="op">=</span> <span class="fu"><a href="../reference/findHomer.html">findHomer</a></span><span class="op">(</span><span class="op">)</span>,
+  homerfile <span class="op">=</span> <span class="fu"><a href="findHomer.html">findHomer</a></span><span class="op">(</span><span class="op">)</span>,
   regionsize <span class="op">=</span> <span class="st">"given"</span>,
   Ncpu <span class="op">=</span> <span class="fl">2L</span>,
   verbose <span class="op">=</span> <span class="cn">FALSE</span>
@@ -85,7 +84,7 @@
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <table class="table ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>gr</th>
+    <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>gr</th>
       <td><p>A <code>GRanges</code> object (or an object that can be coerced to one)
 with the genomic regions to analyze.</p></td>
     </tr><tr><th>b</th>
@@ -113,6 +112,7 @@ the region center).</p></td>
       <td><p>A logical scalar. If <code>TRUE</code>, print progress messages.</p></td>
     </tr></table></div>
 
+    <div id="ref-sections">
     <div id="value">
     <h2>Value</h2>
     <p>The path and name of the script file to run the HOMER motif 
@@ -129,44 +129,44 @@ the region center).</p></td>
 <p>In addition, a shell script file is created containing the shell commands
     to run the HOMER motif enrichment analysis.</p>
     </div>
+    </div>
 
     <div id="examples">
     <h2>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># prepare genome directory (here: one dummy chromosome)</span>
-<span class="va">genomedir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">genomedir</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"&gt;chr1"</span>, <span class="st">"ATGCATGCATCGATCGATCGATCGTACGTA"</span><span class="op">)</span>,
-           <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">genomedir</span>, <span class="st">"chr1.fa"</span><span class="op">)</span><span class="op">)</span>
-
-<span class="co"># prepare motif file, regions and bins</span>
-<span class="va">motiffile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>
-<span class="fu"><a href="../reference/dumpJaspar.html">dumpJaspar</a></span><span class="op">(</span>filename <span class="op">=</span> <span class="va">motiffile</span>, pkg <span class="op">=</span> <span class="st">"JASPAR2020"</span>, 
-           opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MA0006.1"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt; [1] TRUE</span>
-<span class="va">gr</span> <span class="op">&lt;-</span> <span class="fu">GenomicRanges</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></span><span class="op">(</span><span class="st">"chr1"</span>, <span class="fu">IRanges</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/IRanges-constructor.html" class="external-link">IRanges</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, width <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span>
-<span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bin.html">bin</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, nElements <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>
-
-<span class="co"># create dummy file (should point to local Homer installation)</span>
-<span class="va">homerfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"findMotifsGenome.pl"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="st">"dummy"</span>, <span class="va">homerfile</span><span class="op">)</span>
-
-<span class="co"># run prepareHomer</span>
-<span class="va">outdir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>
-<span class="fu"><a href="../reference/prepareHomer.html">prepareHomer</a></span><span class="op">(</span>gr <span class="op">=</span> <span class="va">gr</span>, b <span class="op">=</span> <span class="va">b</span>, genomedir <span class="op">=</span> <span class="va">genomedir</span>,
-             outdir <span class="op">=</span> <span class="va">outdir</span>, motifFile <span class="op">=</span> <span class="va">motiffile</span>,
-             homerfile <span class="op">=</span> <span class="va">homerfile</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> 
-<span class="co">#&gt; creating foreground/background region files for HOMER</span>
-<span class="co">#&gt;   bin [1,2.5]</span>
-<span class="co">#&gt;   bin (2.5,4]</span>
-<span class="co">#&gt; [1] "/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T//Rtmp5Htn1D/file982d249351fe/run.sh"</span>
-<span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">outdir</span><span class="op">)</span>
-<span class="co">#&gt; [1] "bin_001_background.tab" "bin_001_foreground.tab" "bin_002_background.tab"</span>
-<span class="co">#&gt; [4] "bin_002_foreground.tab" "run.sh"                </span>
-
-<span class="co"># clean up example</span>
-<span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">genomedir</span>, <span class="va">motiffile</span>, <span class="va">homerfile</span>, <span class="va">outdir</span><span class="op">)</span><span class="op">)</span>
-
+    <div class="ref-examples sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># prepare genome directory (here: one dummy chromosome)</span></span>
+<span class="r-in"><span class="va">genomedir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">genomedir</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"&gt;chr1"</span>, <span class="st">"ATGCATGCATCGATCGATCGATCGTACGTA"</span><span class="op">)</span>,</span>
+<span class="r-in">           <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">genomedir</span>, <span class="st">"chr1.fa"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="co"># prepare motif file, regions and bins</span></span>
+<span class="r-in"><span class="va">motiffile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="dumpJaspar.html">dumpJaspar</a></span><span class="op">(</span>filename <span class="op">=</span> <span class="va">motiffile</span>, pkg <span class="op">=</span> <span class="st">"JASPAR2020"</span>, </span>
+<span class="r-in">           opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MA0006.1"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-in"><span class="va">gr</span> <span class="op">&lt;-</span> <span class="fu">GenomicRanges</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></span><span class="op">(</span><span class="st">"chr1"</span>, <span class="fu">IRanges</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/IRanges-constructor.html" class="external-link">IRanges</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, width <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="bin.html">bin</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, nElements <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="co"># create dummy file (should point to local Homer installation)</span></span>
+<span class="r-in"><span class="va">homerfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"findMotifsGenome.pl"</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="st">"dummy"</span>, <span class="va">homerfile</span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="co"># run prepareHomer</span></span>
+<span class="r-in"><span class="va">outdir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu">prepareHomer</span><span class="op">(</span>gr <span class="op">=</span> <span class="va">gr</span>, b <span class="op">=</span> <span class="va">b</span>, genomedir <span class="op">=</span> <span class="va">genomedir</span>,</span>
+<span class="r-in">             outdir <span class="op">=</span> <span class="va">outdir</span>, motifFile <span class="op">=</span> <span class="va">motiffile</span>,</span>
+<span class="r-in">             homerfile <span class="op">=</span> <span class="va">homerfile</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> creating foreground/background region files for HOMER</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   bin [1,2.5]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   bin (2.5,4]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T//Rtmpc7xTNZ/file9a477fb16da4/run.sh"</span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">outdir</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "bin_001_background.tab" "bin_001_foreground.tab" "bin_002_background.tab"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4] "bin_002_foreground.tab" "run.sh"                </span>
+<span class="r-in"></span>
+<span class="r-in"><span class="co"># clean up example</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">genomedir</span>, <span class="va">motiffile</span>, <span class="va">homerfile</span>, <span class="va">outdir</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"></span>
 </code></pre></div>
     </div>
   </div>

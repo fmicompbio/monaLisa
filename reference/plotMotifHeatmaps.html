@@ -18,7 +18,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.5</span>
       </span>
     </div>
 
@@ -70,8 +70,7 @@
     heatmap.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plotMotifHeatmaps.html">plotMotifHeatmaps</a></span><span class="op">(</span>
+    <div class="ref-usage sourceCode"><pre class="sourceCode r"><code><span class="fu">plotMotifHeatmaps</span><span class="op">(</span>
   <span class="va">x</span>,
   which.plots <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"negLog10P"</span>, <span class="st">"pearsonResid"</span>, <span class="st">"negLog10Padj"</span>, <span class="st">"log2enr"</span><span class="op">)</span>,
   width <span class="op">=</span> <span class="fl">4</span>,
@@ -96,7 +95,7 @@
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <table class="table ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>x</th>
+    <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>x</th>
       <td><p>A <code><a href="https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html" class="external-link">SummarizedExperiment</a></code> with 
 numerical matrices (motifs-by-bins) in its <code>assays()</code>, typically 
 the return value of <code><a href="calcBinnedMotifEnrR.html">calcBinnedMotifEnrR</a></code> or 
@@ -156,6 +155,7 @@ of motifs.</p></td>
 when creating the main heatmaps selected by <code>which.plots</code>.</p></td>
     </tr></table></div>
 
+    <div id="ref-sections">
     <div id="value">
     <h2>Value</h2>
     <p>A list of <code><a href="https://rdrr.io/pkg/ComplexHeatmap/man/Heatmap.html" class="external-link">ComplexHeatmap::Heatmap</a></code> objects.</p>
@@ -178,18 +178,18 @@ when creating the main heatmaps selected by <code>which.plots</code>.</p></td>
     <h2>See also</h2>
     <div class="dont-index"><p><code><a href="bin.html">bin</a></code>, <code><a href="https://rdrr.io/pkg/ComplexHeatmap/man/Heatmap.html" class="external-link">Heatmap</a></code></p></div>
     </div>
+    </div>
 
     <div id="examples">
     <h2>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, 
-                          <span class="st">"results.binned_motif_enrichment_LMRs.rds"</span>, 
-                          package <span class="op">=</span> <span class="st">"monaLisa"</span><span class="op">)</span><span class="op">)</span>
-<span class="va">i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu">SummarizedExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">se</span>, <span class="st">"negLog10Padj"</span><span class="op">)</span><span class="op">[</span>, <span class="fl">8</span><span class="op">]</span> <span class="op">&gt;</span> <span class="fl">4</span><span class="op">)</span>
-<span class="fu"><a href="../reference/plotMotifHeatmaps.html">plotMotifHeatmaps</a></span><span class="op">(</span><span class="va">se</span><span class="op">[</span><span class="va">i</span>, <span class="op">]</span>, which.plots <span class="op">=</span> <span class="st">"pearsonResid"</span>,
-                  width <span class="op">=</span> <span class="fl">2</span>, show_seqlogo <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-
-
+    <div class="ref-examples sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, </span>
+<span class="r-in">                          <span class="st">"results.binned_motif_enrichment_LMRs.rds"</span>, </span>
+<span class="r-in">                          package <span class="op">=</span> <span class="st">"monaLisa"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu">SummarizedExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">se</span>, <span class="st">"negLog10Padj"</span><span class="op">)</span><span class="op">[</span>, <span class="fl">8</span><span class="op">]</span> <span class="op">&gt;</span> <span class="fl">4</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu">plotMotifHeatmaps</span><span class="op">(</span><span class="va">se</span><span class="op">[</span><span class="va">i</span>, <span class="op">]</span>, which.plots <span class="op">=</span> <span class="st">"pearsonResid"</span>,</span>
+<span class="r-in">                  width <span class="op">=</span> <span class="fl">2</span>, show_seqlogo <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span class="r-plt"><img src="plotMotifHeatmaps-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"></span>
 </code></pre></div>
     </div>
   </div>

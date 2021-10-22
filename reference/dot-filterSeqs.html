@@ -19,7 +19,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.5</span>
       </span>
     </div>
 
@@ -72,8 +72,7 @@
   (version 4.11).</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/dot-filterSeqs.html">.filterSeqs</a></span><span class="op">(</span>
+    <div class="ref-usage sourceCode"><pre class="sourceCode r"><code><span class="fu">.filterSeqs</span><span class="op">(</span>
   <span class="va">seqs</span>,
   maxFracN <span class="op">=</span> <span class="fl">0.7</span>,
   minLength <span class="op">=</span> <span class="fl">5L</span>,
@@ -83,7 +82,7 @@
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <table class="table ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>seqs</th>
+    <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>seqs</th>
       <td><p>a <code>DNAStringSet</code> object.</p></td>
     </tr><tr><th>maxFracN</th>
       <td><p>A numeric scalar with the maximal fraction of N bases allowed
@@ -98,6 +97,7 @@ Sequences bigger than this will be filtered out.</p></td>
       <td><p>A logical scalar. If <code>TRUE</code>, report on filtering.</p></td>
     </tr></table></div>
 
+    <div id="ref-sections">
     <div id="value">
     <h2>Value</h2>
     <p>a logical vector of the same length as <code>seqs</code> with <code>TRUE</code>
@@ -106,6 +106,7 @@ Sequences bigger than this will be filtered out.</p></td>
     <div id="details">
     <h2>Details</h2>
     <p>The filtering logic is based on <code>removePoorSeq.pl</code> from Homer.</p>
+    </div>
     </div>
 
   </div>
