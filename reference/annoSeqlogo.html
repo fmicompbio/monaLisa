@@ -18,7 +18,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -61,7 +61,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Sequence logo annotation</h1>
-    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/master/R/seqlogo.R" class="external-link"><code>R/seqlogo.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/HEAD/R/seqlogo.R" class="external-link"><code>R/seqlogo.R</code></a></small>
     <div class="hidden name"><code>annoSeqlogo.Rd</code></div>
     </div>
 
@@ -72,39 +72,38 @@
 
     <div class="ref-usage sourceCode"><pre class="sourceCode r"><code><span class="fu">annoSeqlogo</span><span class="op">(</span>
   <span class="va">grobL</span>,
-  which <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"column"</span>, <span class="st">"row"</span><span class="op">)</span>,
+  which <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"column"</span>, <span class="st">"row"</span><span class="op">)</span>,
   space <span class="op">=</span> <span class="fu">unit</span><span class="op">(</span><span class="fl">0.5</span>, <span class="st">"mm"</span><span class="op">)</span>,
   width <span class="op">=</span> <span class="cn">NULL</span>,
   height <span class="op">=</span> <span class="cn">NULL</span>,
   gp <span class="op">=</span> <span class="fu">gpar</span><span class="op">(</span>fill <span class="op">=</span> <span class="cn">NA</span>, col <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span>
 <span class="op">)</span></code></pre></div>
 
+    <div id="ref-sections">
     <div id="arguments">
     <h2>Arguments</h2>
-    <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>grobL</th>
-      <td><p>A <code>list</code> of sequence logo grobs, typically created using
-<code><a href="seqLogoGrob.html">seqLogoGrob</a></code>.</p></td>
-    </tr><tr><th>which</th>
-      <td><p>Whether it is a column annotation or a row annotation?</p></td>
-    </tr><tr><th>space</th>
-      <td><p>The space around the image to the annotation grid borders. The
-value should be a unit object.</p></td>
-    </tr><tr><th>width</th>
-      <td><p>Width of the annotation. The value should be an absolute unit.
-Width is not allowed to be set for column annotation.</p></td>
-    </tr><tr><th>height</th>
-      <td><p>Height of the annotation. The value should be an absolute unit.
-Height is not allowed to be set for row annotation.</p></td>
-    </tr><tr><th>gp</th>
-      <td><p>Graphic parameters for annotation grids. Can be used to control the
-background color in the annotation grids.</p></td>
-    </tr></table></div>
-
-    <div id="ref-sections">
+    <dl><dt>grobL</dt>
+<dd><p>A <code>list</code> of sequence logo grobs, typically created using
+<code><a href="seqLogoGrob.html">seqLogoGrob</a></code>.</p></dd>
+<dt>which</dt>
+<dd><p>Whether it is a column annotation or a row annotation?</p></dd>
+<dt>space</dt>
+<dd><p>The space around the image to the annotation grid borders. The
+value should be a unit object.</p></dd>
+<dt>width</dt>
+<dd><p>Width of the annotation. The value should be an absolute unit.
+Width is not allowed to be set for column annotation.</p></dd>
+<dt>height</dt>
+<dd><p>Height of the annotation. The value should be an absolute unit.
+Height is not allowed to be set for row annotation.</p></dd>
+<dt>gp</dt>
+<dd><p>Graphic parameters for annotation grids. Can be used to control the
+background color in the annotation grids.</p></dd>
+</dl></div>
     <div id="value">
     <h2>Value</h2>
     <p>An annotation function which can be used in
-  <code><a href="https://rdrr.io/pkg/ComplexHeatmap/man/HeatmapAnnotation.html" class="external-link">HeatmapAnnotation</a></code>.</p>
+<code><a href="https://rdrr.io/pkg/ComplexHeatmap/man/HeatmapAnnotation.html" class="external-link">HeatmapAnnotation</a></code>.</p>
     </div>
     </div>
 

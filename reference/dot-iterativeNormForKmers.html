@@ -23,7 +23,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -66,7 +66,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Adjust for k-mer composition (multiple iterations)</h1>
-    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/master/R/utils_enrichment.R" class="external-link"><code>R/utils_enrichment.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/HEAD/R/utils_enrichment.R" class="external-link"><code>R/utils_enrichment.R</code></a></small>
     <div class="hidden name"><code>dot-iterativeNormForKmers.Rd</code></div>
     </div>
 
@@ -88,29 +88,28 @@
   verbose <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span></code></pre></div>
 
+    <div id="ref-sections">
     <div id="arguments">
     <h2>Arguments</h2>
-    <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>df</th>
-      <td><p>a <code>DataFrame</code> with sequence information as returned by
-<code>.calculateGCweight</code>.</p></td>
-    </tr><tr><th>maxKmerSize</th>
-      <td><p>Integer scalar giving the maximum k-mer size to
+    <dl><dt>df</dt>
+<dd><p>a <code>DataFrame</code> with sequence information as returned by
+<code>.calculateGCweight</code>.</p></dd>
+<dt>maxKmerSize</dt>
+<dd><p>Integer scalar giving the maximum k-mer size to
 consider. The default is set to 3 (like in <code>HOMER</code>), meaning that
-k-mers of size 1, 2 and 3 are considered.</p></td>
-    </tr><tr><th>minSeqWgt</th>
-      <td><p>Numeric scalar greater than zero giving the
+k-mers of size 1, 2 and 3 are considered.</p></dd>
+<dt>minSeqWgt</dt>
+<dd><p>Numeric scalar greater than zero giving the
 minimal weight of a sequence. The default value (0.001) was also used by
-<code>HOMER</code> (HOMER_MINIMUM_SEQ_WEIGHT  constant in Motif2.h).</p></td>
-    </tr><tr><th>maxIter</th>
-      <td><p>An integer scalar giving the maximum number if
+<code>HOMER</code> (HOMER_MINIMUM_SEQ_WEIGHT  constant in Motif2.h).</p></dd>
+<dt>maxIter</dt>
+<dd><p>An integer scalar giving the maximum number if
 times to run <code>.normForKmers</code>. the default is set to 160 (as in
-<code>HOMER</code>).</p></td>
-    </tr><tr><th>verbose</th>
-      <td><p>A logical scalar. If <code>TRUE</code>, report on k-mer composition
-adjustment.</p></td>
-    </tr></table></div>
-
-    <div id="ref-sections">
+<code>HOMER</code>).</p></dd>
+<dt>verbose</dt>
+<dd><p>A logical scalar. If <code>TRUE</code>, report on k-mer composition
+adjustment.</p></dd>
+</dl></div>
     <div id="value">
     <h2>Value</h2>
     <p>a DataFrame containing:</p><ul><li><p>sequenceWeights: a

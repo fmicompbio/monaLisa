@@ -19,7 +19,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -62,7 +62,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Check if seqinfo DataFrame is valid</h1>
-    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/master/R/utils_enrichment.R" class="external-link"><code>R/utils_enrichment.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/HEAD/R/utils_enrichment.R" class="external-link"><code>R/utils_enrichment.R</code></a></small>
     <div class="hidden name"><code>dot-checkDfValidity.Rd</code></div>
     </div>
 
@@ -74,10 +74,11 @@
 
     <div class="ref-usage sourceCode"><pre class="sourceCode r"><code><span class="fu">.checkDfValidity</span><span class="op">(</span><span class="va">df</span><span class="op">)</span></code></pre></div>
 
+    <div id="ref-sections">
     <div id="arguments">
     <h2>Arguments</h2>
-    <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>df</th>
-      <td><p>Input object to be checked. It should have an attribute <code>err</code>
+    <dl><dt>df</dt>
+<dd><p>Input object to be checked. It should have an attribute <code>err</code>
 and columns:</p><ul><li><p><code>seqs</code>: a <code>DNAStringSet</code> object.</p></li>
 <li><p><code>isForeground</code> that indicates if a sequence is in the
                               foreground group.</p></li>
@@ -87,10 +88,8 @@ and columns:</p><ul><li><p><code>seqs</code>: a <code>DNAStringSet</code> object
     differences between foreground and background sequences.</p></li>
 <li><p><code>seqWgt</code>: the sequence weight to adjust for k-mer
     differences between foreground and background sequences.</p></li>
-</ul></td>
-    </tr></table></div>
-
-    <div id="ref-sections">
+</ul></dd>
+</dl></div>
     <div id="value">
     <h2>Value</h2>
     <p><code>TRUE</code> (invisibly) if <code>df</code> is valid, otherwise it

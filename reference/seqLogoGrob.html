@@ -20,7 +20,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -63,7 +63,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Create a simple sequence logo grob.</h1>
-    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/master/R/seqlogo.R" class="external-link"><code>R/seqlogo.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/HEAD/R/seqlogo.R" class="external-link"><code>R/seqlogo.R</code></a></small>
     <div class="hidden name"><code>seqLogoGrob.Rd</code></div>
     </div>
 
@@ -74,27 +74,26 @@
     example can be used to embedd sequence logos within other plots.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class="sourceCode r"><code><span class="fu">seqLogoGrob</span><span class="op">(</span><span class="va">x</span>, xmax <span class="op">=</span> <span class="cn">NULL</span>, ymax <span class="op">=</span> <span class="fl">2</span>, xjust <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"left"</span>, <span class="st">"center"</span>, <span class="st">"right"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-
-    <div id="arguments">
-    <h2>Arguments</h2>
-    <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>x</th>
-      <td><p>A <code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html" class="external-link">PFMatrix</a></code> object</p></td>
-    </tr><tr><th>xmax</th>
-      <td><p>A numeric scalar with the maximal width for the logo 
-(in base-pairs). A value of <code>NULL</code> will scale the logo to the 
-full width of the viewport.</p></td>
-    </tr><tr><th>ymax</th>
-      <td><p>A numeric scalar with the maximal height for the logo (in bits)
-A value of <code>NULL</code> will scale the logo to the full height of the
-viewport.</p></td>
-    </tr><tr><th>xjust</th>
-      <td><p>A character scalar specifying the horizontal adjustment of the
-sequence log withint the viewport; one of <code>"left"</code>, <code>"center"</code> 
-or <code>"right"</code>.</p></td>
-    </tr></table></div>
+    <div class="ref-usage sourceCode"><pre class="sourceCode r"><code><span class="fu">seqLogoGrob</span><span class="op">(</span><span class="va">x</span>, xmax <span class="op">=</span> <span class="cn">NULL</span>, ymax <span class="op">=</span> <span class="fl">2</span>, xjust <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"left"</span>, <span class="st">"center"</span>, <span class="st">"right"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 
     <div id="ref-sections">
+    <div id="arguments">
+    <h2>Arguments</h2>
+    <dl><dt>x</dt>
+<dd><p>A <code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html" class="external-link">PFMatrix</a></code> object</p></dd>
+<dt>xmax</dt>
+<dd><p>A numeric scalar with the maximal width for the logo 
+(in base-pairs). A value of <code>NULL</code> will scale the logo to the 
+full width of the viewport.</p></dd>
+<dt>ymax</dt>
+<dd><p>A numeric scalar with the maximal height for the logo (in bits)
+A value of <code>NULL</code> will scale the logo to the full height of the
+viewport.</p></dd>
+<dt>xjust</dt>
+<dd><p>A character scalar specifying the horizontal adjustment of the
+sequence log withint the viewport; one of <code>"left"</code>, <code>"center"</code> 
+or <code>"right"</code>.</p></dd>
+</dl></div>
     <div id="value">
     <h2>Value</h2>
     <p>A polygon grob.</p>

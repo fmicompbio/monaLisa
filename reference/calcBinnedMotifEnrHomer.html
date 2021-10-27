@@ -21,7 +21,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -64,7 +64,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Prepare and run HOMER motif enrichment analysis.</h1>
-    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/master/R/motif_enrichment_HOMER.R" class="external-link"><code>R/motif_enrichment_HOMER.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/HEAD/R/motif_enrichment_HOMER.R" class="external-link"><code>R/motif_enrichment_HOMER.R</code></a></small>
     <div class="hidden name"><code>calcBinnedMotifEnrHomer.Rd</code></div>
     </div>
 
@@ -91,47 +91,46 @@
   verbose.Homer <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span></code></pre></div>
 
+    <div id="ref-sections">
     <div id="arguments">
     <h2>Arguments</h2>
-    <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>gr</th>
-      <td><p>A <code>GRanges</code> object (or an object that can be coerced to one)
-with the genomic regions to analyze.</p></td>
-    </tr><tr><th>b</th>
-      <td><p>A vector of the same length as <code>gr</code> that groups its elements
+    <dl><dt>gr</dt>
+<dd><p>A <code>GRanges</code> object (or an object that can be coerced to one)
+with the genomic regions to analyze.</p></dd>
+<dt>b</dt>
+<dd><p>A vector of the same length as <code>gr</code> that groups its elements
 into bins (typically a factor, such as the one returned by 
-<code><a href="bin.html">bin</a></code>).</p></td>
-    </tr><tr><th>genomedir</th>
-      <td><p>Directory containing sequence files in Fasta format 
-(one per chromosome).</p></td>
-    </tr><tr><th>outdir</th>
-      <td><p>A path specifying the folder into which the output files will 
-be written.</p></td>
-    </tr><tr><th>motifFile</th>
-      <td><p>A file with HOMER formatted PWMs to be used in the 
-enrichment analysis.</p></td>
-    </tr><tr><th>homerfile</th>
-      <td><p>Path and file name of the <code>findMotifsGenome.pl</code> 
-HOMER script.</p></td>
-    </tr><tr><th>regionsize</th>
-      <td><p>The peak size to use in HOMER (<code>"given"</code> keeps the 
+<code><a href="bin.html">bin</a></code>).</p></dd>
+<dt>genomedir</dt>
+<dd><p>Directory containing sequence files in Fasta format 
+(one per chromosome).</p></dd>
+<dt>outdir</dt>
+<dd><p>A path specifying the folder into which the output files will 
+be written.</p></dd>
+<dt>motifFile</dt>
+<dd><p>A file with HOMER formatted PWMs to be used in the 
+enrichment analysis.</p></dd>
+<dt>homerfile</dt>
+<dd><p>Path and file name of the <code>findMotifsGenome.pl</code> 
+HOMER script.</p></dd>
+<dt>regionsize</dt>
+<dd><p>The peak size to use in HOMER (<code>"given"</code> keeps the 
 coordinate region, an integer value will keep only that many bases in 
-the region center).</p></td>
-    </tr><tr><th>pseudocount.log2enr</th>
-      <td><p>A numerical scalar with the pseudocount to add to
-foreground and background counts when calculating log2 motif enrichments</p></td>
-    </tr><tr><th>p.adjust.method</th>
-      <td><p>A character scalar selecting the p value adjustment
-method (used in <code><a href="https://rdrr.io/r/stats/p.adjust.html" class="external-link">p.adjust</a></code>).</p></td>
-    </tr><tr><th>Ncpu</th>
-      <td><p>Number of parallel threads that HOMER can use.</p></td>
-    </tr><tr><th>verbose</th>
-      <td><p>A logical scalar. If <code>TRUE</code>, print progress messages.</p></td>
-    </tr><tr><th>verbose.Homer</th>
-      <td><p>A logical scalar. If <code>TRUE</code>, print the console
-output when running Homer.</p></td>
-    </tr></table></div>
-
-    <div id="ref-sections">
+the region center).</p></dd>
+<dt>pseudocount.log2enr</dt>
+<dd><p>A numerical scalar with the pseudocount to add to
+foreground and background counts when calculating log2 motif enrichments</p></dd>
+<dt>p.adjust.method</dt>
+<dd><p>A character scalar selecting the p value adjustment
+method (used in <code><a href="https://rdrr.io/r/stats/p.adjust.html" class="external-link">p.adjust</a></code>).</p></dd>
+<dt>Ncpu</dt>
+<dd><p>Number of parallel threads that HOMER can use.</p></dd>
+<dt>verbose</dt>
+<dd><p>A logical scalar. If <code>TRUE</code>, print progress messages.</p></dd>
+<dt>verbose.Homer</dt>
+<dd><p>A logical scalar. If <code>TRUE</code>, print the console
+output when running Homer.</p></dd>
+</dl></div>
     <div id="value">
     <h2>Value</h2>
     <p>A <code>SummarizedExperiment</code> object with motifs in rows and bins
@@ -166,18 +165,18 @@ summary information about the bins.</p>
 <span class="r-in">  </span>
 <span class="r-in">  <span class="co"># create motif file for Homer</span></span>
 <span class="r-in">  <span class="va">motiffile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span></span>
-<span class="r-in">  <span class="va">motifIDs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MA0139.1"</span>, <span class="st">"MA1102.1"</span>, <span class="st">"MA0740.1"</span><span class="op">)</span></span>
+<span class="r-in">  <span class="va">motifIDs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MA0139.1"</span>, <span class="st">"MA1102.1"</span>, <span class="st">"MA0740.1"</span><span class="op">)</span></span>
 <span class="r-in">  <span class="fu"><a href="dumpJaspar.html">dumpJaspar</a></span><span class="op">(</span>filename <span class="op">=</span> <span class="va">motiffile</span>, pkg <span class="op">=</span> <span class="st">"JASPAR2020"</span>, </span>
 <span class="r-in">             opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ID <span class="op">=</span> <span class="va">motifIDs</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in">             </span>
 <span class="r-in">  <span class="co"># GRanges of regions used in binned motif enrichment analysis </span></span>
 <span class="r-in">  <span class="va">gr</span> <span class="op">&lt;-</span> <span class="fu">GenomicRanges</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/tileGenome.html" class="external-link">tileGenome</a></span><span class="op">(</span></span>
-<span class="r-in">      seqlengths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>chr1 <span class="op">=</span> <span class="fl">10000L</span>, chr2 <span class="op">=</span> <span class="fl">10000L</span>, chr3 <span class="op">=</span> <span class="fl">10000L</span><span class="op">)</span>,</span>
+<span class="r-in">      seqlengths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span>chr1 <span class="op">=</span> <span class="fl">10000L</span>, chr2 <span class="op">=</span> <span class="fl">10000L</span>, chr3 <span class="op">=</span> <span class="fl">10000L</span><span class="op">)</span>,</span>
 <span class="r-in">      tilewidth <span class="op">=</span> <span class="fl">200</span>, cut.last.tile.in.chrom <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span class="r-in">      </span>
 <span class="r-in">  <span class="co"># create bins (motif enrichment analysis will be per bin)</span></span>
 <span class="r-in">  <span class="va">bins</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu">GenomicRanges</span><span class="fu">::</span><span class="fu">seqnames</span><span class="op">(</span><span class="va">gr</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in">  <span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">bins</span><span class="op">)</span></span>
+<span class="r-in">  <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">bins</span><span class="op">)</span></span>
 <span class="r-in">  </span>
 <span class="r-in">  <span class="co"># run calcBinnedMotifEnrHomer</span></span>
 <span class="r-in">  <span class="va">outdir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span></span>

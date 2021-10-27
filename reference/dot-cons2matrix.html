@@ -20,7 +20,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -63,7 +63,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Create matrix from consensus sequence</h1>
-    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/master/R/motif_enrichment_kmers.R" class="external-link"><code>R/motif_enrichment_kmers.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/HEAD/R/motif_enrichment_kmers.R" class="external-link"><code>R/motif_enrichment_kmers.R</code></a></small>
     <div class="hidden name"><code>dot-cons2matrix.Rd</code></div>
     </div>
 
@@ -76,16 +76,15 @@
 
     <div class="ref-usage sourceCode"><pre class="sourceCode r"><code><span class="fu">.cons2matrix</span><span class="op">(</span><span class="va">x</span>, n <span class="op">=</span> <span class="fl">100L</span><span class="op">)</span></code></pre></div>
 
+    <div id="ref-sections">
     <div id="arguments">
     <h2>Arguments</h2>
-    <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>x</th>
-      <td><p>Character scalar with the motif the consensus sequence.</p></td>
-    </tr><tr><th>n</th>
-      <td><p>Integer scalar giving the columns sums in the constructed
-matrix (number of observed bases at each position).</p></td>
-    </tr></table></div>
-
-    <div id="ref-sections">
+    <dl><dt>x</dt>
+<dd><p>Character scalar with the motif the consensus sequence.</p></dd>
+<dt>n</dt>
+<dd><p>Integer scalar giving the columns sums in the constructed
+matrix (number of observed bases at each position).</p></dd>
+</dl></div>
     <div id="value">
     <h2>Value</h2>
     <p>A positional frequency matrix.</p>

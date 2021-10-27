@@ -19,7 +19,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -62,7 +62,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Bin elements of <code>x</code>.</h1>
-    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/master/R/binning.R" class="external-link"><code>R/binning.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/HEAD/R/binning.R" class="external-link"><code>R/binning.R</code></a></small>
     <div class="hidden name"><code>bin.Rd</code></div>
     </div>
 
@@ -74,7 +74,7 @@
 
     <div class="ref-usage sourceCode"><pre class="sourceCode r"><code><span class="fu">bin</span><span class="op">(</span>
   <span class="va">x</span>,
-  binmode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"equalN"</span>, <span class="st">"equalWidth"</span>, <span class="st">"breaks"</span><span class="op">)</span>,
+  binmode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"equalN"</span>, <span class="st">"equalWidth"</span>, <span class="st">"breaks"</span><span class="op">)</span>,
   nElements <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">/</span><span class="fl">5</span><span class="op">)</span>,
   nBins <span class="op">=</span> <span class="cn">NULL</span>,
   minAbsX <span class="op">=</span> <span class="cn">NULL</span>,
@@ -82,55 +82,59 @@
   <span class="va">...</span>
 <span class="op">)</span></code></pre></div>
 
+    <div id="ref-sections">
     <div id="arguments">
     <h2>Arguments</h2>
-    <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>x</th>
-      <td><p>A numerical vector with the values used for binning.</p></td>
-    </tr><tr><th>binmode</th>
-      <td><p>The algorithm to be used for binning. Possible values are:
-"equalN" (default), "equalWidth" or "breaks" (see Details).</p></td>
-    </tr><tr><th>nElements</th>
-      <td><p>The number of elements per bin (only for
-<code>binmode="equalN"</code>). The width of bins is adjusted accordingly.</p></td>
-    </tr><tr><th>nBins</th>
-      <td><p>The number of bins (only for <code>binmode="equalWidth"</code>). The
-number of elements per bin will be variable.</p></td>
-    </tr><tr><th>minAbsX</th>
-      <td><p>The minimal absolute value in <code>x</code> for elements to be
+    <dl><dt>x</dt>
+<dd><p>A numerical vector with the values used for binning.</p></dd>
+<dt>binmode</dt>
+<dd><p>The algorithm to be used for binning. Possible values are:
+"equalN" (default), "equalWidth" or "breaks" (see Details).</p></dd>
+<dt>nElements</dt>
+<dd><p>The number of elements per bin (only for
+<code>binmode="equalN"</code>). The width of bins is adjusted accordingly.</p></dd>
+<dt>nBins</dt>
+<dd><p>The number of bins (only for <code>binmode="equalWidth"</code>). The
+number of elements per bin will be variable.</p></dd>
+<dt>minAbsX</dt>
+<dd><p>The minimal absolute value in <code>x</code> for elements to be
 binned using the <code>binmode="equalN"</code> or <code>binmode="equalWidth"</code>
 (ignored for other values of <code>binmode</code>). Elements with <code>x</code> values
-in <code>[-minAbsX,minAbsX]</code> will be collected in a single bin.</p></td>
-    </tr><tr><th>breaks</th>
-      <td><p>Numerical vector with bin boundaries (only for
+in <code>[-minAbsX,minAbsX]</code> will be collected in a single bin.</p></dd>
+<dt>breaks</dt>
+<dd><p>Numerical vector with bin boundaries (only for
 <code>binmode="breaks"</code>). <code>breaks</code> has to be ordered and strictly
-increasing, and has to be of length (number of bins) + 1.</p></td>
-    </tr><tr><th>...</th>
-      <td><p>further arguments to be passed to <code>cut(x, breaks,
-include.lowest = TRUE, ...)</code>, such as <code>labels=FALSE</code>.</p></td>
-    </tr></table></div>
-
-    <div id="ref-sections">
+increasing, and has to be of length (number of bins) + 1.</p></dd>
+<dt>...</dt>
+<dd><p>further arguments to be passed to <code>cut(x, breaks,
+include.lowest = TRUE, ...)</code>, such as <code>labels=FALSE</code>.</p></dd>
+</dl></div>
     <div id="value">
     <h2>Value</h2>
     <p>The return value from <code>cut(x, ...)</code>, typically a factor of the
   same length as <code>x</code>. Binning mode, bin boundaries and the "neutral" bin
-  are available from <code>attr(..., "binmode")</code>, <code>attr(..., "breaks")</code>
-  and <code>attr(..., "bin0")</code>. For <code>binmode = "breaks"</code>, the latter
+  are available from <code>attr(..., "binmode")</code>, <code>attr(..., "breaks")</code>  and <code>attr(..., "bin0")</code>. For <code>binmode = "breaks"</code>, the latter
   will be <code>NA</code>.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
     <p>Elements are binned according to the values in <code>x</code> depending on
-  <code>binmode</code>:</p><dl><dt>equalN</dt><dd><p>Items are grouped into a variable
+  <code>binmode</code>:</p><dl><dt>equalN</dt>
+<dd><p>Items are grouped into a variable
   number of bins with <code>nElements</code> elements each. If <code>minAbsX</code> is
   not <code>NULL</code>, elements with <code>x</code>-values in <code>[-minAbsX,minAbsX]</code>
   will first be collected in a single bin before binning the remaining
   elements. The boundaries of this single bin may be slightly adjusted in
   order to respect the <code>nElements</code> elements in the other bins.</p></dd>
-  <dt>equalWidth</dt><dd><p>Items are group into <code>nBins</code> bins with a variable
-  number of elements each.</p></dd> 
-  <dt>breaks</dt><dd><p>Items are grouped into bins using
-  <code>cut(x, breaks, include.lowest = TRUE)</code></p></dd> 
+
+  <dt>equalWidth</dt>
+<dd><p>Items are group into <code>nBins</code> bins with a variable
+  number of elements each.</p></dd>
+ 
+  <dt>breaks</dt>
+<dd><p>Items are grouped into bins using
+  <code>cut(x, breaks, include.lowest = TRUE)</code></p></dd>
+ 
   
 </dl></div>
     <div id="see-also">
@@ -158,7 +162,7 @@ include.lowest = TRUE, ...)</code>, such as <code>labels=FALSE</code>.</p></td>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu">bin</span><span class="op">(</span><span class="va">x</span>, <span class="st">"equalWidth"</span>, nBins<span class="op">=</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [-2.21,-1.29] (-1.29,-0.368] (-0.368,0.555]   (0.555,1.48]     (1.48,2.4] </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>              6             24             36             28              6 </span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu">bin</span><span class="op">(</span><span class="va">x</span>, <span class="st">"breaks"</span>, breaks<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">10</span>,<span class="op">-</span><span class="fl">1</span>,<span class="fl">0</span>,<span class="fl">1</span>,<span class="fl">10</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu">bin</span><span class="op">(</span><span class="va">x</span>, <span class="st">"breaks"</span>, breaks<span class="op">=</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">10</span>,<span class="op">-</span><span class="fl">1</span>,<span class="fl">0</span>,<span class="fl">1</span>,<span class="fl">10</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [-10,-1]   (-1,0]    (0,1]   (1,10] </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       11       35       39       15 </span>
 <span class="r-in"></span>

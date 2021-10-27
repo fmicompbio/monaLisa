@@ -20,7 +20,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -63,7 +63,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Get colors by bin.</h1>
-    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/master/R/plotting.R" class="external-link"><code>R/plotting.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/HEAD/R/plotting.R" class="external-link"><code>R/plotting.R</code></a></small>
     <div class="hidden name"><code>getColsByBin.Rd</code></div>
     </div>
 
@@ -76,25 +76,24 @@
 
     <div class="ref-usage sourceCode"><pre class="sourceCode r"><code><span class="fu">getColsByBin</span><span class="op">(</span>
   <span class="va">b</span>,
-  col1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#003C30"</span>, <span class="st">"#01665E"</span>, <span class="st">"#35978F"</span>, <span class="st">"#80CDC1"</span>, <span class="st">"#C7EAE5"</span><span class="op">)</span>,
-  col2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#F6E8C3"</span>, <span class="st">"#DFC27D"</span>, <span class="st">"#BF812D"</span>, <span class="st">"#8C510A"</span>, <span class="st">"#543005"</span><span class="op">)</span>,
+  col1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#003C30"</span>, <span class="st">"#01665E"</span>, <span class="st">"#35978F"</span>, <span class="st">"#80CDC1"</span>, <span class="st">"#C7EAE5"</span><span class="op">)</span>,
+  col2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#F6E8C3"</span>, <span class="st">"#DFC27D"</span>, <span class="st">"#BF812D"</span>, <span class="st">"#8C510A"</span>, <span class="st">"#543005"</span><span class="op">)</span>,
   col0 <span class="op">=</span> <span class="st">"#F5F5F5"</span>
 <span class="op">)</span></code></pre></div>
 
+    <div id="ref-sections">
     <div id="arguments">
     <h2>Arguments</h2>
-    <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>b</th>
-      <td><p>A factor that groups elements into bins (typically the output of
-<code><a href="bin.html">bin</a></code>).</p></td>
-    </tr><tr><th>col1</th>
-      <td><p>First color.</p></td>
-    </tr><tr><th>col2</th>
-      <td><p>Second color.</p></td>
-    </tr><tr><th>col0</th>
-      <td><p>Neutral color.</p></td>
-    </tr></table></div>
-
-    <div id="ref-sections">
+    <dl><dt>b</dt>
+<dd><p>A factor that groups elements into bins (typically the output of
+<code><a href="bin.html">bin</a></code>).</p></dd>
+<dt>col1</dt>
+<dd><p>First color.</p></dd>
+<dt>col2</dt>
+<dd><p>Second color.</p></dd>
+<dt>col0</dt>
+<dd><p>Neutral color.</p></dd>
+</dl></div>
     <div id="value">
     <h2>Value</h2>
     <p>A character vector with colors for the elements in <code>b</code>.</p>

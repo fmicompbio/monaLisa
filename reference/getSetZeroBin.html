@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -60,7 +60,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Get and set the zero bin manually</h1>
-    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/master/R/binning.R" class="external-link"><code>R/binning.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/HEAD/R/binning.R" class="external-link"><code>R/binning.R</code></a></small>
     <div class="hidden name"><code>getSetZeroBin.Rd</code></div>
     </div>
 
@@ -72,17 +72,16 @@
 
 <span class="fu">setZeroBin</span><span class="op">(</span><span class="va">bins</span>, <span class="va">zeroBin</span><span class="op">)</span></code></pre></div>
 
+    <div id="ref-sections">
     <div id="arguments">
     <h2>Arguments</h2>
-    <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>bins</th>
-      <td><p>Factor, typically the return value of 
-<code><a href="bin.html">bin</a></code>.</p></td>
-    </tr><tr><th>zeroBin</th>
-      <td><p>Numeric or character scalar indicating the level to use as 
-the zero bin, or NA.</p></td>
-    </tr></table></div>
-
-    <div id="ref-sections">
+    <dl><dt>bins</dt>
+<dd><p>Factor, typically the return value of 
+<code><a href="bin.html">bin</a></code>.</p></dd>
+<dt>zeroBin</dt>
+<dd><p>Numeric or character scalar indicating the level to use as 
+the zero bin, or NA.</p></dd>
+</dl></div>
     <div id="value">
     <h2>Value</h2>
     <p>For <code>getZeroBin</code>, the index of the level representing the zero bin. 

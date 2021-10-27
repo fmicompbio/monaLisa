@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -60,7 +60,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Find HOMER script file.</h1>
-    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/master/R/motif_enrichment_HOMER.R" class="external-link"><code>R/motif_enrichment_HOMER.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/HEAD/R/motif_enrichment_HOMER.R" class="external-link"><code>R/motif_enrichment_HOMER.R</code></a></small>
     <div class="hidden name"><code>findHomer.Rd</code></div>
     </div>
 
@@ -70,17 +70,16 @@
 
     <div class="ref-usage sourceCode"><pre class="sourceCode r"><code><span class="fu">findHomer</span><span class="op">(</span>homerfile <span class="op">=</span> <span class="st">"findMotifsGenome.pl"</span>, dirs <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></code></pre></div>
 
+    <div id="ref-sections">
     <div id="arguments">
     <h2>Arguments</h2>
-    <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>homerfile</th>
-      <td><p>Name of the script file to search.</p></td>
-    </tr><tr><th>dirs</th>
-      <td><p>Directory names to look for <code>homerfile</code>. If 
+    <dl><dt>homerfile</dt>
+<dd><p>Name of the script file to search.</p></dd>
+<dt>dirs</dt>
+<dd><p>Directory names to look for <code>homerfile</code>. If 
 <code>dirs=NULL</code>, all directories listed in the <code>PATH</code> environment 
-variable will be searched.</p></td>
-    </tr></table></div>
-
-    <div id="ref-sections">
+variable will be searched.</p></dd>
+</dl></div>
     <div id="value">
     <h2>Value</h2>
     <p>Absolute path to <code>homerfile</code>, or <code>NA</code> if none or several 

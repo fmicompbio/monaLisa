@@ -19,7 +19,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -62,7 +62,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Calculate k-mer enrichment in bins of sequences.</h1>
-    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/master/R/motif_enrichment_kmers.R" class="external-link"><code>R/motif_enrichment_kmers.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/HEAD/R/motif_enrichment_kmers.R" class="external-link"><code>R/motif_enrichment_kmers.R</code></a></small>
     <div class="hidden name"><code>calcBinnedKmerEnr.Rd</code></div>
     </div>
 
@@ -76,13 +76,13 @@
   <span class="va">seqs</span>,
   bins <span class="op">=</span> <span class="cn">NULL</span>,
   kmerLen <span class="op">=</span> <span class="fl">5</span>,
-  background <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"otherBins"</span>, <span class="st">"allBins"</span>, <span class="st">"zeroBin"</span>, <span class="st">"genome"</span>, <span class="st">"model"</span><span class="op">)</span>,
+  background <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"otherBins"</span>, <span class="st">"allBins"</span>, <span class="st">"zeroBin"</span>, <span class="st">"genome"</span>, <span class="st">"model"</span><span class="op">)</span>,
   MMorder <span class="op">=</span> <span class="fl">1</span>,
-  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fisher"</span>, <span class="st">"binomial"</span><span class="op">)</span>,
+  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fisher"</span>, <span class="st">"binomial"</span><span class="op">)</span>,
   includeRevComp <span class="op">=</span> <span class="cn">TRUE</span>,
   maxFracN <span class="op">=</span> <span class="fl">0.7</span>,
   maxKmerSize <span class="op">=</span> <span class="fl">3L</span>,
-  GCbreaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">0.25</span>, <span class="fl">0.3</span>, <span class="fl">0.35</span>, <span class="fl">0.4</span>, <span class="fl">0.45</span>, <span class="fl">0.5</span>, <span class="fl">0.6</span>, <span class="fl">0.7</span>, <span class="fl">0.8</span><span class="op">)</span>,
+  GCbreaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">0.25</span>, <span class="fl">0.3</span>, <span class="fl">0.35</span>, <span class="fl">0.4</span>, <span class="fl">0.45</span>, <span class="fl">0.5</span>, <span class="fl">0.6</span>, <span class="fl">0.7</span>, <span class="fl">0.8</span><span class="op">)</span>,
   pseudocount.kmers <span class="op">=</span> <span class="fl">1</span>,
   pseudocount.log2enr <span class="op">=</span> <span class="fl">8</span>,
   p.adjust.method <span class="op">=</span> <span class="st">"BH"</span>,
@@ -93,31 +93,32 @@
   verbose <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span></code></pre></div>
 
+    <div id="ref-sections">
     <div id="arguments">
     <h2>Arguments</h2>
-    <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>seqs</th>
-      <td><p><code><a href="https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html" class="external-link">DNAStringSet</a></code> object with sequences to
-test</p></td>
-    </tr><tr><th>bins</th>
-      <td><p>factor of the same length and order as <code>seqs</code>, indicating
+    <dl><dt>seqs</dt>
+<dd><p><code><a href="https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html" class="external-link">DNAStringSet</a></code> object with sequences to
+test</p></dd>
+<dt>bins</dt>
+<dd><p>factor of the same length and order as <code>seqs</code>, indicating
 the bin for each sequence. Typically the return value of
 <code><a href="bin.html">bin</a></code>. For <code>background = "genome"</code> or
-<code>background = "model"</code>, <code>bins</code> can be omitted.</p></td>
-    </tr><tr><th>kmerLen</th>
-      <td><p>A <code>numeric</code> scalar giving the k-mer length.</p></td>
-    </tr><tr><th>background</th>
-      <td><p>A <code>character</code> scalar specifying the background 
+<code>background = "model"</code>, <code>bins</code> can be omitted.</p></dd>
+<dt>kmerLen</dt>
+<dd><p>A <code>numeric</code> scalar giving the k-mer length.</p></dd>
+<dt>background</dt>
+<dd><p>A <code>character</code> scalar specifying the background 
 sequences to use. One of <code>"otherBins"</code> (default), <code>"allBins"</code>, 
-<code>"zeroBin"</code>, <code>"genome"</code> or <code>"model"</code> (see "Details").</p></td>
-    </tr><tr><th>MMorder</th>
-      <td><p>A <code>numeric</code> scalar giving the order of the Markov model
-used to calculate the expected frequencies for <code>background = "model"</code>.</p></td>
-    </tr><tr><th>test</th>
-      <td><p>A <code>character</code> scalar specifying the type of enrichment test
+<code>"zeroBin"</code>, <code>"genome"</code> or <code>"model"</code> (see "Details").</p></dd>
+<dt>MMorder</dt>
+<dd><p>A <code>numeric</code> scalar giving the order of the Markov model
+used to calculate the expected frequencies for <code>background = "model"</code>.</p></dd>
+<dt>test</dt>
+<dd><p>A <code>character</code> scalar specifying the type of enrichment test
 to perform. One of <code>"fisher"</code> (default) or <code>"binomial"</code>. The
-enrichment test is one-sided (enriched in foreground).</p></td>
-    </tr><tr><th>includeRevComp</th>
-      <td><p>A <code>logical</code> scalar. If <code>TRUE</code> (default),
+enrichment test is one-sided (enriched in foreground).</p></dd>
+<dt>includeRevComp</dt>
+<dd><p>A <code>logical</code> scalar. If <code>TRUE</code> (default),
 count k-mer occurrences in both <code>seqs</code> and their reverse-complement,
 by concatenating <code>seqs</code> and their reverse-complemented versions
 before the counting. This is useful if motifs can be expected to occur
@@ -126,51 +127,49 @@ expected on the forward strand (e.g. RNA sequences of CLIP-seq peaks),
 <code>includeRevComp = FALSE</code> should be used. Note that <code>bins</code>
 will be recycled for the reverse complemented sequences, which means that
 each reverse-complemented sequence will be assigned to the same bib as the
-corresponding forward sequence.</p></td>
-    </tr><tr><th>maxFracN</th>
-      <td><p>A numeric scalar with the maximal fraction of N bases allowed
+corresponding forward sequence.</p></dd>
+<dt>maxFracN</dt>
+<dd><p>A numeric scalar with the maximal fraction of N bases allowed
 in a sequence (defaults to 0.7). Sequences with higher fractions are
-excluded from the analysis.</p></td>
-    </tr><tr><th>maxKmerSize</th>
-      <td><p>the maximum k-mer size to consider, when adjusting
+excluded from the analysis.</p></dd>
+<dt>maxKmerSize</dt>
+<dd><p>the maximum k-mer size to consider, when adjusting
 background sequence weights for k-mer composition compared to the
 foreground sequences. The default value (3) will correct for mono-, di-
-and tri-mer composition.</p></td>
-    </tr><tr><th>GCbreaks</th>
-      <td><p>The breaks between GC bins. The default value is based on
-the hard-coded bins used in Homer.</p></td>
-    </tr><tr><th>pseudocount.kmers</th>
-      <td><p>A <code>numeric</code> scalar - will be added to the
-observed and expected counts for each k-mer to avoid zero values.</p></td>
-    </tr><tr><th>pseudocount.log2enr</th>
-      <td><p>A numerical scalar with the pseudocount to add to
-foreground and background counts when calculating log2 motif enrichments</p></td>
-    </tr><tr><th>p.adjust.method</th>
-      <td><p>A character scalar selecting the p value adjustment
-method (used in <code><a href="https://rdrr.io/r/stats/p.adjust.html" class="external-link">p.adjust</a></code>).</p></td>
-    </tr><tr><th>genome</th>
-      <td><p>A <code>BSgenome</code> or <code>DNAStringSet</code> object with the
+and tri-mer composition.</p></dd>
+<dt>GCbreaks</dt>
+<dd><p>The breaks between GC bins. The default value is based on
+the hard-coded bins used in Homer.</p></dd>
+<dt>pseudocount.kmers</dt>
+<dd><p>A <code>numeric</code> scalar - will be added to the
+observed and expected counts for each k-mer to avoid zero values.</p></dd>
+<dt>pseudocount.log2enr</dt>
+<dd><p>A numerical scalar with the pseudocount to add to
+foreground and background counts when calculating log2 motif enrichments</p></dd>
+<dt>p.adjust.method</dt>
+<dd><p>A character scalar selecting the p value adjustment
+method (used in <code><a href="https://rdrr.io/r/stats/p.adjust.html" class="external-link">p.adjust</a></code>).</p></dd>
+<dt>genome</dt>
+<dd><p>A <code>BSgenome</code> or <code>DNAStringSet</code> object with the
 genome sequence. Only used for <code>background = "genome"</code> for extracting
-background sequences.</p></td>
-    </tr><tr><th>genome.regions</th>
-      <td><p>An optional <code><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></code> object
+background sequences.</p></dd>
+<dt>genome.regions</dt>
+<dd><p>An optional <code><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></code> object
 defining the intervals in <code>genome</code> from which background sequences are
 sampled for <code>background = "genome"</code>. If <code>NULL</code>, background
-sequences are sampled randomly from <code>genome</code>.</p></td>
-    </tr><tr><th>genome.oversample</th>
-      <td><p>A <code>numeric</code> scalar of at least 1.0 defining how
+sequences are sampled randomly from <code>genome</code>.</p></dd>
+<dt>genome.oversample</dt>
+<dd><p>A <code>numeric</code> scalar of at least 1.0 defining how
 many background sequences will be sampled per foreground sequence for
 <code>background = "genome"</code>. Larger values will take longer but improve
 the sequence composition similarity between foreground and background
-(see <code>"Details"</code>).</p></td>
-    </tr><tr><th>BPPARAM</th>
-      <td><p>An optional <code><a href="https://rdrr.io/pkg/BiocParallel/man/BiocParallelParam-class.html" class="external-link">BiocParallelParam</a></code>
-instance determining the parallel back-end to be used during evaluation.</p></td>
-    </tr><tr><th>verbose</th>
-      <td><p>A <code>logical</code> scalar. If <code>TRUE</code>, report on progress.</p></td>
-    </tr></table></div>
-
-    <div id="ref-sections">
+(see <code>"Details"</code>).</p></dd>
+<dt>BPPARAM</dt>
+<dd><p>An optional <code><a href="https://rdrr.io/pkg/BiocParallel/man/BiocParallelParam-class.html" class="external-link">BiocParallelParam</a></code>
+instance determining the parallel back-end to be used during evaluation.</p></dd>
+<dt>verbose</dt>
+<dd><p>A <code>logical</code> scalar. If <code>TRUE</code>, report on progress.</p></dd>
+</dl></div>
     <div id="value">
     <h2>Value</h2>
     <p>A <code><a href="https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html" class="external-link">SummarizedExperiment</a></code> object
@@ -258,7 +257,7 @@ summary information about the bins.</p>
 
     <div id="examples">
     <h2>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">seqs</span> <span class="op">&lt;-</span> <span class="fu">Biostrings</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html" class="external-link">DNAStringSet</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GCATGCATGC"</span>, <span class="st">"CATGCGCATG"</span><span class="op">)</span><span class="op">)</span></span>
+    <div class="ref-examples sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">seqs</span> <span class="op">&lt;-</span> <span class="fu">Biostrings</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html" class="external-link">DNAStringSet</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GCATGCATGC"</span>, <span class="st">"CATGCGCATG"</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">bins</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu">calcBinnedKmerEnr</span><span class="op">(</span>seqs <span class="op">=</span> <span class="va">seqs</span>, bins <span class="op">=</span> <span class="va">bins</span>, kmerLen <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> class: SummarizedExperiment </span>

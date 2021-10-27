@@ -18,7 +18,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -61,7 +61,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Scatter plot (xy-plot) of binned elements.</h1>
-    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/master/R/plotting.R" class="external-link"><code>R/plotting.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/HEAD/R/plotting.R" class="external-link"><code>R/plotting.R</code></a></small>
     <div class="hidden name"><code>plotBinScatter.Rd</code></div>
     </div>
 
@@ -83,35 +83,34 @@
   <span class="va">...</span>
 <span class="op">)</span></code></pre></div>
 
+    <div id="ref-sections">
     <div id="arguments">
     <h2>Arguments</h2>
-    <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>x</th>
-      <td><p>A numerical vector with x values.</p></td>
-    </tr><tr><th>y</th>
-      <td><p>A numerical vector with y values (the values used for binning).</p></td>
-    </tr><tr><th>b</th>
-      <td><p>A factor that groups elements of <code>x,y</code> into bins (typically 
-the output of <code><a href="bin.html">bin</a>(y)</code>).</p></td>
-    </tr><tr><th>cols</th>
-      <td><p>A color vector (will be computed based on <code>b</code> by default 
-using <code><a href="getColsByBin.html">getColsByBin</a>(b)</code>).</p></td>
-    </tr><tr><th>xlab</th>
-      <td><p>Label for x-axis.</p></td>
-    </tr><tr><th>ylab</th>
-      <td><p>Label for y-axis.</p></td>
-    </tr><tr><th>main</th>
-      <td><p>Main title.</p></td>
-    </tr><tr><th>legend</th>
-      <td><p>If not <code>NULL</code>, draw a legend with binning information 
-(will be passed to <code>legend(x=legend)</code> to control legend position).</p></td>
-    </tr><tr><th>legend.cex</th>
-      <td><p>A scalar that controls the text size in the legend relative
-to the current <code>par("cex")</code> (see <code><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></code>).</p></td>
-    </tr><tr><th>...</th>
-      <td><p>Further arguments passed to <code>plot(x, y, ...)</code>.</p></td>
-    </tr></table></div>
-
-    <div id="ref-sections">
+    <dl><dt>x</dt>
+<dd><p>A numerical vector with x values.</p></dd>
+<dt>y</dt>
+<dd><p>A numerical vector with y values (the values used for binning).</p></dd>
+<dt>b</dt>
+<dd><p>A factor that groups elements of <code>x,y</code> into bins (typically 
+the output of <code><a href="bin.html">bin</a>(y)</code>).</p></dd>
+<dt>cols</dt>
+<dd><p>A color vector (will be computed based on <code>b</code> by default 
+using <code><a href="getColsByBin.html">getColsByBin</a>(b)</code>).</p></dd>
+<dt>xlab</dt>
+<dd><p>Label for x-axis.</p></dd>
+<dt>ylab</dt>
+<dd><p>Label for y-axis.</p></dd>
+<dt>main</dt>
+<dd><p>Main title.</p></dd>
+<dt>legend</dt>
+<dd><p>If not <code>NULL</code>, draw a legend with binning information 
+(will be passed to <code>legend(x=legend)</code> to control legend position).</p></dd>
+<dt>legend.cex</dt>
+<dd><p>A scalar that controls the text size in the legend relative
+to the current <code>par("cex")</code> (see <code><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></code>).</p></dd>
+<dt>...</dt>
+<dd><p>Further arguments passed to <code>plot(x, y, ...)</code>.</p></dd>
+</dl></div>
     <div id="value">
     <h2>Value</h2>
     <p><code>TRUE</code> (invisibly).</p>

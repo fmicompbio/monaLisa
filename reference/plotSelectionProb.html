@@ -21,7 +21,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -64,7 +64,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Plot selection probabilities of predictors</h1>
-    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/master/R/plotting.R" class="external-link"><code>R/plotting.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/HEAD/R/plotting.R" class="external-link"><code>R/plotting.R</code></a></small>
     <div class="hidden name"><code>plotSelectionProb.Rd</code></div>
     </div>
 
@@ -79,68 +79,67 @@
     <div class="ref-usage sourceCode"><pre class="sourceCode r"><code><span class="fu">plotSelectionProb</span><span class="op">(</span>
   <span class="va">se</span>,
   directional <span class="op">=</span> <span class="cn">TRUE</span>,
-  selProbMin <span class="op">=</span> <span class="fu">metadata</span><span class="op">(</span><span class="va">se</span><span class="op">)</span><span class="op">$</span><span class="va">stabsel.params.cutoff</span>,
+  selProbMin <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Annotated-class.html" class="external-link">metadata</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span><span class="op">$</span><span class="va">stabsel.params.cutoff</span>,
   selProbMinPlot <span class="op">=</span> <span class="fl">0.4</span>,
   showSelProbMin <span class="op">=</span> <span class="cn">TRUE</span>,
-  col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cadetblue"</span>, <span class="st">"grey"</span>, <span class="st">"red"</span><span class="op">)</span>,
-  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pearson"</span>, <span class="st">"kendall"</span>, <span class="st">"spearman"</span><span class="op">)</span>,
+  col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cadetblue"</span>, <span class="st">"grey"</span>, <span class="st">"red"</span><span class="op">)</span>,
+  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pearson"</span>, <span class="st">"kendall"</span>, <span class="st">"spearman"</span><span class="op">)</span>,
   ylimext <span class="op">=</span> <span class="fl">0.25</span>,
   legend <span class="op">=</span> <span class="st">"topright"</span>,
   legend.cex <span class="op">=</span> <span class="fl">1</span>,
   <span class="va">...</span>
 <span class="op">)</span></code></pre></div>
 
+    <div id="ref-sections">
     <div id="arguments">
     <h2>Arguments</h2>
-    <table class="ref-arguments"><colgroup><col class="name"><col class="desc"></colgroup><tr><th>se</th>
-      <td><p>The <code>SummarizedExperiment</code> object with the results from
-stability selection (typically returned by <code><a href="randLassoStabSel.html">randLassoStabSel</a></code>).</p></td>
-    </tr><tr><th>directional</th>
-      <td><p>A logical scalar. If <code>TRUE</code>, selection probabilities
+    <dl><dt>se</dt>
+<dd><p>The <code>SummarizedExperiment</code> object with the results from
+stability selection (typically returned by <code><a href="randLassoStabSel.html">randLassoStabSel</a></code>).</p></dd>
+<dt>directional</dt>
+<dd><p>A logical scalar. If <code>TRUE</code>, selection probabilities
 are plotted with the sign of the marginal correlation between a predictor
-and the response.</p></td>
-    </tr><tr><th>selProbMin</th>
-      <td><p>A numerical scalar in [0,1]. Predictors with a selection
+and the response.</p></dd>
+<dt>selProbMin</dt>
+<dd><p>A numerical scalar in [0,1]. Predictors with a selection
 probability greater than <code>selProbMin</code> are shown as colored bars. The
 color is defined by <code>col[1]</code>. By default, <code>selProbMin</code> is
-extracted from the parameters stored in <code>se</code>.</p></td>
-    </tr><tr><th>selProbMinPlot</th>
-      <td><p>A numerical scalar in [0,1] less than 
+extracted from the parameters stored in <code>se</code>.</p></dd>
+<dt>selProbMinPlot</dt>
+<dd><p>A numerical scalar in [0,1] less than 
 <code>selProbMin</code>.
 Predictors with a selection probability greater than <code>selProbMinPlot</code>
 but less than <code>selProbMin</code> are shown as bars with color <code>col[2]</code>.
 <code>selProbMinPlot</code> is useful to include additional predictors in the 
 plot that were not selected according to <code>selProbMin</code> but may be 
 close to that cutoff. Setting <code>selProbMinPlot = 0</code> will create a plot 
-including all predictors.</p></td>
-    </tr><tr><th>showSelProbMin</th>
-      <td><p>A logical scalar. If <code>TRUE</code>, the value of
+including all predictors.</p></dd>
+<dt>showSelProbMin</dt>
+<dd><p>A logical scalar. If <code>TRUE</code>, the value of
 <code>selProbMin</code> is shown by a horizontal dashed line of color 
-<code>col[3]</code>.</p></td>
-    </tr><tr><th>col</th>
-      <td><p>A color vector giving the three colors used for predictors with
+<code>col[3]</code>.</p></dd>
+<dt>col</dt>
+<dd><p>A color vector giving the three colors used for predictors with
 selection probability greater than <code>selProbMin</code>, additional predictors
 with selection probability greater than <code>selProbMinPlot</code>, and the
-selection probability cutoff line.</p></td>
-    </tr><tr><th>method</th>
-      <td><p>A character scalar with the correlation method to use in the
+selection probability cutoff line.</p></dd>
+<dt>method</dt>
+<dd><p>A character scalar with the correlation method to use in the
 calculation of predictor-response marginal correlations. One of "pearson",
-"kendall" or "spearman" (see <code><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></code>).</p></td>
-    </tr><tr><th>ylimext</th>
-      <td><p>A numeric scalar defining how much the y axis limits should be
+"kendall" or "spearman" (see <code><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></code>).</p></dd>
+<dt>ylimext</dt>
+<dd><p>A numeric scalar defining how much the y axis limits should be
 expanded beyond the plotted probabilities to allow for space for the
-bar labels.</p></td>
-    </tr><tr><th>legend</th>
-      <td><p>the position of the legend in the bar plot (will
-be passed to <code>legend(x=legend)</code> to control legend position).</p></td>
-    </tr><tr><th>legend.cex</th>
-      <td><p>A scalar that controls the text size in the legend relative
-to the current <code>par("cex")</code> (see <code><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></code>).</p></td>
-    </tr><tr><th>...</th>
-      <td><p>additional parameters passed to <code><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></code>.</p></td>
-    </tr></table></div>
-
-    <div id="ref-sections">
+bar labels.</p></dd>
+<dt>legend</dt>
+<dd><p>the position of the legend in the bar plot (will
+be passed to <code>legend(x=legend)</code> to control legend position).</p></dd>
+<dt>legend.cex</dt>
+<dd><p>A scalar that controls the text size in the legend relative
+to the current <code>par("cex")</code> (see <code><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></code>).</p></dd>
+<dt>...</dt>
+<dd><p>additional parameters passed to <code><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></code>.</p></dd>
+</dl></div>
     <div id="value">
     <h2>Value</h2>
     <p>a <code>matrix</code> with one column, containing the coordinates of the 
@@ -163,10 +162,10 @@ to the current <code>par("cex")</code> (see <code><a href="https://rdrr.io/r/gra
     <div class="ref-examples sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co">## create data set</span></span>
 <span class="r-in"><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">500</span>, mean <span class="op">=</span> <span class="fl">2</span>, sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span>data <span class="op">=</span> <span class="cn">NA</span>, nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
-<span class="r-in"><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span class="r-in"><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span class="r-in">  <span class="va">X</span><span class="op">[</span> ,<span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">500</span>, min <span class="op">=</span> <span class="fl">0</span>, max <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span class="r-in"><span class="op">}</span></span>
-<span class="r-in"><span class="va">s_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">10</span>, </span>
+<span class="r-in"><span class="va">s_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">10</span>, </span>
 <span class="r-in">  replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span class="r-in"><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">s_cols</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span class="r-in">  <span class="va">X</span><span class="op">[</span> ,<span class="va">s_cols</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op">[</span> ,<span class="va">s_cols</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">+</span> <span class="va">Y</span></span>
