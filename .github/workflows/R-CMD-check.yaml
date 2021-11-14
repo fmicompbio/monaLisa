@@ -108,16 +108,17 @@ jobs:
       - name: Install Rhtslib on Windows (test)
         if: matrix.config.os == 'windows-latest'
         env:
-          CPATH: ${{ env.GITHUB_WORKSPACE }}/xz-5.2.5-windows/include
-          LIBRARY_PATH: ${{ env.GITHUB_WORKSPACE  }}/xz-5.2.5-windows/bin_x86-64
+          CPATH: ${{github.workspace}}/xz-5.2.5-windows/include
+          LIBRARY_PATH: ${{github.workspace}}/xz-5.2.5-windows/bin_x86-64
         run: |
+          Sys.getenv("GITHUB_WORKSPACE")
           BiocManager::install("Rhtslib")
         shell: Rscript {0}
 
       - name: Install dependencies (R packages)
         env:
-          CPATH: ${{ env.GITHUB_WORKSPACE }}/xz-5.2.5-windows/include
-          LIBRARY_PATH: ${{ env.GITHUB_WORKSPACE  }}/xz-5.2.5-windows/bin_x86-64
+          CPATH: ${{github.workspace}}/xz-5.2.5-windows/include
+          LIBRARY_PATH: ${{github.workspace}}/xz-5.2.5-windows/bin_x86-64
         run: |
           local_deps <- remotes::local_package_deps(pkgdir = "${{env.PKG_PATH}}", dependencies = TRUE)
           deps <- remotes::dev_package_deps(pkgdir = "${{env.PKG_PATH}}", dependencies = TRUE, repos = BiocManager::repositories())
