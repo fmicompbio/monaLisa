@@ -104,6 +104,10 @@ jobs:
         run: | 
           Invoke-WebRequest -Uri "https://tukaani.org/xz/xz-5.2.5-windows.zip" -OutFile "xz-5.2.5-windows.zip"
           Expand-Archive xz-5.2.5-windows.zip
+          choco install --no-progress openssl
+          choco install --no-progress curl
+          Write-Host "::add-path::C:\ProgramData\chocolatey\bin"
+          Write-Host "::set-env name=LIBRARY_PATH::C:\ProgramData\chocolatey\lib\curl\tools:$($env:LIBRARY_PATH)"
 
       - name: Install Rhtslib on Windows (test)
         if: matrix.config.os == 'windows-latest'
