@@ -113,7 +113,7 @@ jobs:
         if: matrix.config.os == 'windows-latest'
         env:
           CPATH: ${{github.workspace}}/xz-5.2.5-windows/include
-          LIBRARY_PATH: ${{github.workspace}}/xz-5.2.5-windows/bin_x86-64
+          LIBRARY_PATH: ${{github.workspace}}/xz-5.2.5-windows/bin_x86-64;C:/ProgramData/chocolatey/lib/curl/tools
         run: |
           Sys.getenv("GITHUB_WORKSPACE")
           BiocManager::install("Rhtslib")
@@ -122,7 +122,7 @@ jobs:
       - name: Install dependencies (R packages)
         env:
           CPATH: ${{github.workspace}}/xz-5.2.5-windows/include
-          LIBRARY_PATH: ${{github.workspace}}/xz-5.2.5-windows/bin_x86-64
+          LIBRARY_PATH: ${{github.workspace}}/xz-5.2.5-windows/bin_x86-64;C:/ProgramData/chocolatey/lib/curl/tools
         run: |
           local_deps <- remotes::local_package_deps(pkgdir = "${{env.PKG_PATH}}", dependencies = TRUE)
           deps <- remotes::dev_package_deps(pkgdir = "${{env.PKG_PATH}}", dependencies = TRUE, repos = BiocManager::repositories())
