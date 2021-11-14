@@ -105,6 +105,15 @@ jobs:
           Invoke-WebRequest -Uri "https://tukaani.org/xz/xz-5.2.5-windows.zip" -OutFile "xz-5.2.5-windows.zip"
           Expand-Archive xz-5.2.5-windows.zip
 
+      - name: Install Rhtslib on Windows (test)
+        if: matrix.config.os == 'windows-latest'
+        env:
+          CPATH: ${{ env.GITHUB_WORKSPACE }}/xz-5.2.5-windows/include
+          LIBRARY_PATH: ${{ env.GITHUB_WORKSPACE  }}/xz-5.2.5-windows/bin_x86-64
+        run: |
+          BiocManager::install("Rhtslib")
+        shell: Rscript {0}
+
       - name: Install dependencies (R packages)
         env:
           CPATH: ${{ env.GITHUB_WORKSPACE }}/xz-5.2.5-windows/include
