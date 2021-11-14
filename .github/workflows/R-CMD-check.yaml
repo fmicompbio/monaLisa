@@ -99,6 +99,12 @@ jobs:
           brew install fribidi
           brew install --cask xquartz
 
+      - name: Install system dependencies for Windows
+        if: matrix.config.os == 'windows-latest'
+        run: | 
+          Invoke-WebRequest -Uri "https://tukaani.org/xz/xz-5.2.5-windows.zip" -OutFile "xz-5.2.5-windows.zip"
+          Expand-Archive xz-5.2.5-windows.zip
+
       - name: Install dependencies (R packages)
         run: |
           local_deps <- remotes::local_package_deps(pkgdir = "${{env.PKG_PATH}}", dependencies = TRUE)
