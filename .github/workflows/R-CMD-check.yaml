@@ -106,6 +106,9 @@ jobs:
           Expand-Archive xz-5.2.5-windows.zip
 
       - name: Install dependencies (R packages)
+        env:
+          CPATH: ${{ env.GITHUB_WORKSPACE }}/xz-5.2.5-windows/include
+          LIBRARY_PATH: ${{ env.GITHUB_WORKSPACE  }}/xz-5.2.5-windows/bin_x86-64
         run: |
           local_deps <- remotes::local_package_deps(pkgdir = "${{env.PKG_PATH}}", dependencies = TRUE)
           deps <- remotes::dev_package_deps(pkgdir = "${{env.PKG_PATH}}", dependencies = TRUE, repos = BiocManager::repositories())
