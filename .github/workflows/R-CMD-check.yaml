@@ -101,6 +101,7 @@ jobs:
 
       - name: Install system dependencies for Windows
         if: matrix.config.os == 'windows-latest'
+        shell: pwsh
         run: | 
           Invoke-WebRequest -Uri "https://tukaani.org/xz/xz-5.2.5-windows.zip" -OutFile "xz-5.2.5-windows.zip"
           Expand-Archive xz-5.2.5-windows.zip
