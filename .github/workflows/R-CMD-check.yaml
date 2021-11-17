@@ -105,13 +105,13 @@ jobs:
           Invoke-WebRequest -Uri "https://tukaani.org/xz/xz-5.2.5-windows.zip" -OutFile "xz-5.2.5-windows.zip"
           Expand-Archive xz-5.2.5-windows.zip
           vcpkg install curl
-          Get-ChildItem -Path $Env:VCPKG_INSTALLATION_ROOT -Recurse -Directory
+          Get-ChildItem -Path $Env:VCPKG_INSTALLATION_ROOT\installed\x86-windows -Recurse
 
       - name: Install Rhtslib on Windows (test)
         if: matrix.config.os == 'windows-latest'
         env:
-          CPATH: ${{github.workspace}}/xz-5.2.5-windows/include;${{env.VCPKG_INSTALLATION_ROOT}}/installed/x64-windows/include
-          LIBRARY_PATH: ${{github.workspace}}/xz-5.2.5-windows/bin_x86-64;${{env.VCPKG_INSTALLATION_ROOT}}/installed/x64-windows/lib
+          CPATH: ${{github.workspace}}/xz-5.2.5-windows/include;${{env.VCPKG_INSTALLATION_ROOT}}/installed/x86-windows/include
+          LIBRARY_PATH: ${{github.workspace}}/xz-5.2.5-windows/bin_x86-64;${{env.VCPKG_INSTALLATION_ROOT}}/installed/x86-windows/lib
         run: |
           Sys.getenv("GITHUB_WORKSPACE")
           BiocManager::install("Rhtslib")
