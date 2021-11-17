@@ -105,7 +105,8 @@ jobs:
           Invoke-WebRequest -Uri "https://tukaani.org/xz/xz-5.2.5-windows.zip" -OutFile "xz-5.2.5-windows.zip"
           Expand-Archive xz-5.2.5-windows.zip
           vcpkg install curl
-          dir /s /b $Env:VCPKG_INSTALLATION_ROOT
+          cd $Env:VCPKG_INSTALLATION_ROOT
+          dir /s /b
 
       - name: Install Rhtslib on Windows (test)
         if: matrix.config.os == 'windows-latest'
