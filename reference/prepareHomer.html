@@ -70,7 +70,8 @@
     background regions into files for HOMER motif enrichment analysis.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class="sourceCode r"><code><span class="fu">prepareHomer</span><span class="op">(</span>
+    <div id="ref-usage">
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">prepareHomer</span><span class="op">(</span>
   <span class="va">gr</span>,
   <span class="va">b</span>,
   <span class="va">genomedir</span>,
@@ -81,8 +82,8 @@
   Ncpu <span class="op">=</span> <span class="fl">2L</span>,
   verbose <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span></code></pre></div>
+    </div>
 
-    <div id="ref-sections">
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>gr</dt>
@@ -128,11 +129,10 @@ the region center).</p></dd>
 <p>In addition, a shell script file is created containing the shell commands
     to run the HOMER motif enrichment analysis.</p>
     </div>
-    </div>
 
-    <div id="examples">
+    <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># prepare genome directory (here: one dummy chromosome)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># prepare genome directory (here: one dummy chromosome)</span></span>
 <span class="r-in"><span class="va">genomedir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">genomedir</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"&gt;chr1"</span>, <span class="st">"ATGCATGCATCGATCGATCGATCGTACGTA"</span><span class="op">)</span>,</span>
@@ -158,7 +158,7 @@ the region center).</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> creating foreground/background region files for HOMER</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   bin [1,2.5]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   bin (2.5,4]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T//RtmpfRezRX/file20b6612f1e2a/run.sh"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T//Rtmp1gmWnN/file3e986ecf519a/run.sh"</span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">outdir</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "bin_001_background.tab" "bin_001_foreground.tab" "bin_002_background.tab"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [4] "bin_002_foreground.tab" "run.sh"                </span>
@@ -180,7 +180,7 @@ the region center).</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.9000.9000.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.9000.</p>
 </div>
 
       </footer></div>
