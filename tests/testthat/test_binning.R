@@ -24,6 +24,8 @@ test_that("bin() works properly", {
     b4 <- bin(x, binmode = "equalWidth", nBins = 5, minAbsX = 0.6)
     expect_true(table(b4)[getZeroBin(b4)] == 440L)
     
+    expect_warning(b5 <- bin(x, binmode = "equalN", nBins = 5, minAbsX = 3))
+    
     # asymmetric distribution
     set.seed(2)
     x <- c(rnorm(225, 0.006424305, 0.0792525),
@@ -33,14 +35,14 @@ test_that("bin() works properly", {
     expect_equal(nlevels(a1), 10L)
     expect_true(all(table(a1) == 100))
     
-    a2 <- bin(x, binmode = "equalN", nElements = 50, minAbsX = 0.6)
+    expect_warning(a2 <- bin(x, binmode = "equalN", nElements = 50, minAbsX = 0.6))
     expect_true(table(a2)[getZeroBin(a2)] == 550L)
     
     a3 <- bin(x, binmode = "equalWidth", nBins = 5)
     expect_equal(nlevels(a3), 5L)
     expect_equal(diff(attr(a3, "breaks")), rep(0.6648299, 5L), tolerance = 1e-6)
     
-    a4 <- bin(x, binmode = "equalWidth", nBins = 5, minAbsX = 0.6)
+    expect_warning(a4 <- bin(x, binmode = "equalWidth", nBins = 5, minAbsX = 0.6))
     expect_true(table(a4)[getZeroBin(a4)] == 526L)
 })
 

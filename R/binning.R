@@ -136,6 +136,15 @@ bin <- function(x, binmode = c("equalN", "equalWidth", "breaks"),
     attr(res, "breaks") <- unname(breaks)
     res <- setZeroBin(res, ifelse(binmode == "breaks",
                                   NA, attr(breaks, "bin0")))
+    if (!is.na(getZeroBin(res)) &&
+        any(abs(attr(res, "breaks")[getZeroBin(res) + c(0, 1)] -
+                c(-1, 1) * minAbsX) > 0.2 * minAbsX)) {
+        warning("Zero-bin breaks ",  levels(res)[getZeroBin(res)],
+                " have been adjusted by more than 20% compared to `minAbsX` ",
+                "to best respect `binmode`.\n",
+                'Please use `bin(..., binmode = "breaks", breaks = X)` and ',
+                "optionally `setZeroBin(...)` to enforce breaks as defined by `X`.")
+    }
     res
 }
 
