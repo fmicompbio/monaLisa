@@ -1,3 +1,13 @@
+# monaLisa 1.1.1
+
+* added link to pre-print manuscript on biorXiv to `README.md`
+* added warning to `bin(..., minAbsX = val)` if adjusted zero-bin breaks deviate more than 20% from `val`
+* added `doPlot` argument to `plotMotifHeatmaps` to select if heatmaps should be plotted or just generated and returned
+
+# monaLisa 1.0.0
+
+* Initial release of `monaLisa` as part of Bioconductor 3.14
+
 # monaLisa 0.99.5
 
 * Updated `R/monaLisa-package.R` file
