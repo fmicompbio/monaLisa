@@ -3,6 +3,7 @@
 * added link to pre-print manuscript on biorXiv to `README.md`
 * added warning to `bin(..., minAbsX = val)` if adjusted zero-bin breaks deviate more than 20% from `val`
 * added `doPlot` argument to `plotMotifHeatmaps` to select if heatmaps should be plotted or just generated and returned
+* added `LICENSE.md` file
 
 # monaLisa 1.0.0
 
