@@ -57,6 +57,18 @@ to compete against the TF motifs for selection. This is especially useful if
 the response is biased by sequence composition, for example if regions with 
 higher GC content tend to have higher response values.
 
+It is worth noting that, as with any regression analysis, the interpretability 
+of the results depends strongly on the quality of the predictors. Hence, 
+increasing the size of the motif database is not, in itself, a guarantee for 
+more interpretable results, since the added motifs may be unrelated to the 
+signal of interest. In addition, as discussed elsewhere in this vignette, a 
+high level of redundancy, resulting in strong correlations among the motifs, 
+may result in more ambiguous selection probabilities in the regression 
+approach. In fact, also for the binned approach, although the motifs are 
+evaluated independently for association with the outcome, a high degree of 
+redundancy can lead to large collections of very similar motifs passing the 
+significance threshold, complicating interpretability. 
+
 
 # Motif selection with Randomized Lasso Stability Selection{#stabsel}
 
