@@ -281,35 +281,6 @@ Heatmap(TFBSmatrixCorSel,
         top_annotation = colAnn)
 ```
 
-
-```{r TFBScor_all}
-# exclude oeCpG and fracGC
-excl <- colnames(se) %in% c("oeCpG", "fracGC")
-se_sub <- se[, !excl]
-
-# correlation matrix 
-TFBSmatrixCorSel <- cor(TFBSmatrix[, colnames(se_sub)], method = "pearson")
-
-# heatmap annotations
-ann <- HeatmapAnnotation(
-    selected = as.character(se_sub$selected), 
-    AUC = se_sub$selAUC, 
-    selProb = se_sub$selProb, 
-    col = list(selected = c("TRUE"="forestgreen", 
-                            "FALSE"="grey"), 
-               AUC = colorRamp2(c(0, 1), 
-                                c("white", "brown")), 
-               selProb = colorRamp2(c(0, 1), 
-                                    c("white", "steelblue")))
-)
-
-# heatmap
-Heatmap(TFBSmatrixCorSel, show_row_names = FALSE, show_column_names = FALSE, 
-        name = "Pear. Cor.", column_title = "All TFs",
-        col = colorRamp2(c(-1, 0, 1), c("blue", "white", "red")), 
-        top_annotation = ann)
-```
-
 \  
 
 We can examine the peaks that have hits for a selected TF motif of interest, 
