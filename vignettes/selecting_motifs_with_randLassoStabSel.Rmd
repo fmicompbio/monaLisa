@@ -236,7 +236,7 @@ representative set of predictors to use. As the Jaspar database contains many
 highly similar motifs and will thus create many correlated predictors, one may
 alternatively consider clustering the weight matrices beforehand and using only
 one representative motif per cluster for running the regression, using tools
-such as RSAT [@RSAT] or TOMTOM [@TOMTOM] (RSAT-derived clusters of Jaspar weight
+such as for example RSAT [@RSAT] (RSAT-derived clusters of Jaspar weight
 matrices can be found here
 https://jaspar.genereg.net/matrix-clusters/vertebrates/).
 
