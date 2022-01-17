@@ -207,34 +207,39 @@ library(circlize)
 ```
 
 
-## Genomic regions of interest
+## Genomic regions or sequences of interest
 
-`r Biocpkg("monaLisa")` contains a file with genomic coordinates (mouse mm10
+`r Biocpkg("monaLisa")` provides a file with genomic coordinates (mouse mm10
 assembly) of LMRs, with the respective changes of methylation. We load this
-`GRanges` object into `R`. The user may also start the analysis with a given set
-of `bed` files containing the genomic coordinates or with raw sequences, for
-example from `FASTA` files.
+`GRanges` object into `R`.
 
 ```{r loadLMRs}
 lmrfile <- system.file("extdata", "LMRsESNPmerged.gr.rds", 
                        package = "monaLisa")
 lmr <- readRDS(lmrfile)
 lmr
+```
 
-# # if starting from a bed file
-# # ... we can read it in as a `GRanges` object
-# # ... this needs to be later converted into a `DNAStringSet`
-# # ... object as input to monaLisa::calcBinnedMotifEnrR
-# lmr <- rtracklayer::import(con = "file.bed", format = "bed")
-# 
-# # if starting from a set of sequences
-# # ... we can read them in as a `DNAStringSet` object 
-# # ... and it can be directly used as input to 
-# # ... monaLisa::calcBinnedMotifEnrR
-# lmr <- Biostrings::readDNAStringSet(
-#   filepath = c("file1.fa", "file2.fa", "file3.fa"), 
-#   format = "fasta"
-# )
+Alternatively, the user may also start the analysis with genomic regions
+contained in a `bed` file, or directly with sequences in a `FASTA` file.
+The following example code illustrates how to do this, but should not be
+run if you are following the examples in this vignette.
+
+```{r alternativeInputs, eval=FALSE}
+# starting from a bed file
+#   import as `GRanges` using `rtracklayer::import`
+#   remark: if the bed file also contains scores (5th column), these will be
+#           also be imported and available in the "score" metadata column,
+#           in this example in `lmr$score`
+lmr <- rtracklayer::import(con = "file.bed", format = "bed")
+
+# starting from sequences in a FASTA file
+#   import as `DNAStringSet` using `Biostrings::readDNAStringSet`
+#   remark: contrary to the coordinates in a `GRanges` object like `lmr` above,
+#           the sequences in `lmrseqs` can be directly used as input to
+#           monaLisa::calcBinnedMotifEnrR (no need to extract sequences from
+#           the genome, just skip that step below)
+lmrseqs <- Biostrings::readDNAStringSet(filepath = "myfile.fa", format = "fasta")
 ```
 
 We can see there are `r length(lmr)` LMRs, most of which gain methylation 
