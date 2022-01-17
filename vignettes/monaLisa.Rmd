@@ -250,7 +250,9 @@ bins <- bin(x = lmrsel$deltaMeth, binmode = "equalN", nElement = 800,
 table(bins)
 ```
 
-Generally speaking, we recommend a minimum of ~100 sequences per bin as fewer sequences may lead to small motif counts and thus either small or unstable enrichments. 
+Generally speaking, we recommend a minimum of ~100 sequences per bin as fewer
+sequences may lead to small motif counts and thus either small or unstable
+enrichments.
 
 We can see which bin has been set to be the zero bin using 
 `monaLisa::getZeroBin`, or set it to a different bin using 
