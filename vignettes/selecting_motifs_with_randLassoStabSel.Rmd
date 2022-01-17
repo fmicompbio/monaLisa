@@ -192,8 +192,16 @@ more clearly.
 
 ## Identify important TFs
 
-We can now run randomized lasso stability selection to identify TFs that are 
-likely to explain the log-fold changes in accessibility. 
+We can now run randomized lasso stability selection to identify TFs that are
+likely to explain the log-fold changes in accessibility. The exact choice of
+parameter values for this approach will depend largely on how stringent the user
+wishes to be and how much signal there is in the data. For example, for more
+stringent selections, one may decrease the value of the weakness parameter which
+will make it harder for a variable to get selected. The user is in control of
+false discovery with the PFER parameter, which indicates the number of falsely
+selected variables. As for the probability cutoff, @StabSel argue that values in
+the range of [0.6, 0.9] should give similar results. See the `randLassoStabSel`
+function for more details and default parameter values.
 
 ```{r stabSelTFs}
 # # randLassoStabSel() is stochastic, so we set a seed to reproduce 
