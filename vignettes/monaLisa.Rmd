@@ -210,14 +210,31 @@ library(circlize)
 ## Genomic regions of interest
 
 `r Biocpkg("monaLisa")` contains a file with genomic coordinates 
-(mouse mm10 assembly) of 
-LMRs, with the respective changes of methylation:  
+(mouse mm10 assembly) of LMRs, with the respective changes of 
+methylation. We load this `GRanges` object into R. The user 
+may also start the analysis with a given set of `bed` files containing the 
+genomic coordinates or with raw sequences, for example from a `FASTA` file.
 
 ```{r loadLMRs}
 lmrfile <- system.file("extdata", "LMRsESNPmerged.gr.rds", 
                        package = "monaLisa")
 lmr <- readRDS(lmrfile)
 lmr
+
+# # if starting from a bed file
+# # ... we can read it in as a `GRanges` object
+# # ... this needs to be later converted into a `DNAStringSet`
+# # ... object as input to monaLisa::calcBinnedMotifEnrR
+# lmr <- rtracklayer::import(con = "file.bed", format = "bed")
+# 
+# # if starting from a set of sequences
+# # ... we can read them in as a `DNAStringSet` object 
+# # ... and it can be directly used as input to 
+# # ... monaLisa::calcBinnedMotifEnrR
+# lmr <- Biostrings::readDNAStringSet(
+#   filepath = c("file1.fa", "file2.fa", "file3.fa"), 
+#   format = "fasta"
+# )
 ```
 
 We can see there are `r length(lmr)` LMRs, most of which gain methylation 
