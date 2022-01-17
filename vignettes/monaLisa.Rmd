@@ -346,12 +346,23 @@ plotBinDiagnostics(seqs = lmrseqs, bins = bins, aspect = "GCfrac")
 plotBinDiagnostics(seqs = lmrseqs, bins = bins, aspect = "dinucfreq")
 ```
 
-From these plot, we can see that LMRs with lower methylation in NP cells
+From these plots, we can see that LMRs with lower methylation in NP cells
 compared to ES cells (bin `r levels(bins)[1]`) tend to be GC-poorer than
-LMRs in other bins. A strong bias of this kind can give rise to false
-positives in that bin, e.g. enrichments of AT-rich motifs. In this example,
-the bias is however not very strong and the built-in sequence composition
-correction in `monaLisa::calcBinnedMotifEnrR` should be able to handle it.
+LMRs in other bins. A strong bias of this kind could give rise to false
+positives in that bin, e.g. enrichments of AT-rich motifs.
+
+At this point in the analysis, it is difficult to decide if this bias should be
+addressed here (for example by subsampling sequences of more comparable GC
+composition), or if the bias can be ignored because the built-in sequence
+composition correction in `monaLisa::calcBinnedMotifEnrR` will be able to
+account for it. Our recommendation would be to take a mental note at this point
+and remember that sequences in the `r levels(bins)[1]` bin tend to be GC-poorer.
+Later, we should check if AT-rich motifs are specifically enriched in that bin,
+and if that is the case, we should critically assess if that result is robust
+and can be reproduced in an analysis that uses more balanced sequences in all
+bins, or an analysis with `background = "genome"`. The `show_motif_GC` and
+`show_seqlogo` arguments of `monaLisa::plotMotifHeatmaps` can help to visually
+identify motif sequence composition in an enrichment result (see below).
 
 ## Run motif enrichment analysis
 
@@ -466,6 +477,14 @@ plotMotifHeatmaps(x = seSel, which.plots = c("log2enr", "negLog10Padj"),
                   width.seqlogo = 1.2)
 ```
 
+We have seen above that sequences in the `r levels(bins)[1]` bin (first column
+from the left in the heatmap) were GC-poorer than the sequences in other bins.
+While some of the enriched motifs in that bin are not GC-poor (for example RARA,
+NR2F1 and similar motifs), other more weakly enriched motifs are clearly AT-rich
+(for example HOXA2 and similar motifs). To verify that these are not false
+positive results, the motif analysis should be repeated after sequences have
+been subsampled in each bin to have similar GC composition in all bins, or with
+`monaLisa::calcBinnedMotifEnrR(..., background = "genome")`. 
 
 ## Convert between motif text file for `Homer` and motif objects in `R`
 
