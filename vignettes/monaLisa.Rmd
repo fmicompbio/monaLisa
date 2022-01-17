@@ -271,7 +271,11 @@ plotBinDensity(lmrsel$deltaMeth, bins, legend = "topleft")
 ```
 
 Note that the bin breaks around the *no-change* bin are not exactly -0.3 to 0.3.
-They have been adjusted to have the required 800 LMRs per bin.
+They have been adjusted to have the required 800 LMRs per bin below and above
+it. `r Biocpkg("monaLisa")` will give a warning if the adjusted bin breaks are
+strongly deviating from the requested `minAbsX` value, and
+`monaLisa::bin(..., model = "breaks")` can be used in cases where exactly
+defined bin boundaries are required.
 
 
 ## Prepare motif enrichment analysis
