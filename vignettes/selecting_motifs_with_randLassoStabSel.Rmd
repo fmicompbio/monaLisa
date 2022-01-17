@@ -96,11 +96,12 @@ library(circlize)
 
 ## Load dataset
 
-In our example dataset, we have quantified ATAC-seq reads on enhancers in 
-mouse P0 lung and liver tissues. The log2-fold change (our response vector in 
-this example) is for liver vs lung chromatin accessibility. We are using a set 
-of 10,000 randomly sampled enhancers to illustrate how randomized lasso 
-stability selection can be used to select TFs.
+In this example dataset from ENCODE [@encode2012], and available in `r
+Biocpkg("monaLisa")`, we have quantified ATAC-seq reads on enhancers in mouse P0
+lung and liver tissues. The log2-fold change (our response vector in this
+example) is for liver vs lung chromatin accessibility. We are using a set of
+10,000 randomly sampled enhancers to illustrate how randomized lasso stability
+selection can be used to select TF motifs.
 
 ```{r loadData}
 # load GRanges object with logFC and peaks
@@ -112,13 +113,13 @@ gr <- readRDS(gr_path)
 
 ## Get TFBS per motif and peak
 
-We will now construct the transcription factor binding site (TFBS) matrix for 
-known motifs (from a database like JASPAR) in peak regions. We use the 
+We will now construct the transcription factor binding site (TFBS) matrix for
+known motifs (from a database like JASPAR) in the given peak regions. We use the
 `monaLisa::findMotifHits` function to scan for TF motif hits. This matrix will
-be the predictor matrix in our regression. This step may take a while, and it 
-may be useful to parallelize it using the `BPPARAM` argument (e.g. to run on 
-`n` parallel threads using the multi-core backend, you can use: 
-`findMotifHits(..., BPPARAM = BiocParallel::MulticoreParam(n))`).
+be the predictor matrix in our regression. This step may take a while, and it
+may be useful to parallelize it using the `BPPARAM` argument (e.g. to run on `n`
+parallel threads using the multi-core backend, you can use: `findMotifHits(...,
+BPPARAM = BiocParallel::MulticoreParam(n))`).
 
 As mentioned, this framework offers the flexibility to add additional 
 predictors to compete against the TF motifs for selection. Here, we add the 
@@ -167,6 +168,26 @@ oeCpG <- (fDi[, "CG"] + 0.01) / (fMono[, "G"] * fMono[, "C"] + 0.01)
 TFBSmatrix <- cbind(fracGC, oeCpG, TFBSmatrix)
 TFBSmatrix[1:6, 1:6]
 ```
+
+### A note on collinearity
+At this point it is useful for the user to get an overall feeling of the
+collinearity structure in the TFBS matrix. Motifs that share a lot of similar
+binding sites across the peaks will be highly correlated. High collinearity
+between predictors is a well known problem in linear regression (if possible
+find a good citation?). It particularly manifests itself in the lasso regression
+for example, where variables that are highly correlated with each other are not
+all co-selected as predictors. Instead, one is arbitrarily chosen while the
+others' coefficients are set to zero. The rationale is that the non-selected
+correlated predictors do not provide much additional information to explain the
+response. It is good to be aware of these properties of regression, and to place
+more weight on the meaning of the selected motif itself, rather than the
+specific TF name. Another option is for the user to do some pre-grouping, to
+have a representative TF motif per TF family for instance, to use as predictors.
+If the user is interested in selecting all correlated motifs, the binned
+approach is preferable, as the motifs are tested independently for significance.
+In the regression based approach on the other hand, we can understand the
+relative contributions of TF motifs to the response in context of each other
+more clearly.
 
 
 ## Identify important TFs
