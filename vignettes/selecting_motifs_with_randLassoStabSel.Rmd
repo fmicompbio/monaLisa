@@ -221,7 +221,7 @@ plotSelectionProb(se, directional = TRUE)
 ```
 
 Next, we visualize the correlation structure of the TFBS matrix and selected TF 
-motifs. While the colinearity of predictors is generally an issue in 
+motifs. While the collinearity of predictors is generally an issue in 
 regression-based approaches where variables are selected, randomized lasso 
 stability selection generally does better at co-selecting correlated 
 predictors. In practice, we still see it select predictors with correlations as 
@@ -232,7 +232,13 @@ predictors, neither of them could end up being selected if half of the times
 the regressions are done, one would be randomly selected, and the other one 
 in the other half, giving each a selection probability of 0.5. If many cases 
 of high correlations exist or this is a concern, one may consider selecting a 
-representative set of predictors to use. 
+representative set of predictors to use. As the Jaspar database contains many
+highly similar motifs and will thus create many correlated predictors, one may
+alternatively consider clustering the weight matrices beforehand and using only
+one representative motif per cluster for running the regression, using tools
+such as RSAT [@RSAT] or TOMTOM [@TOMTOM] (RSAT-derived clusters of Jaspar weight
+matrices can be found here
+https://jaspar.genereg.net/matrix-clusters/vertebrates/).
 
 ```{r TFBScor_selected, fig.width=10, fig.height=7}
 # subset the selected TFs
