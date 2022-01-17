@@ -44,12 +44,12 @@ factors are the drivers of my observed changes in
 expression/methylation/accessibility?".
 
 Several other approaches have been described that also address this problem,
-among them REDUCE [@reduce] and ISMARA [@ismara]. In `r Biocpkg("monaLisa")`, 
-we aim to provide a flexible implementation that integrates well with other 
-Bioconductor resources, makes use of the sequence composition correction 
-developed for Homer [@homer] or stability selection [@StabSel] and provides 
-several alternative ways to study the relationship between experimental 
-measurements and sequence motifs.
+among them REDUCE [@reduce], AME [@ame] and ISMARA [@ismara]. In `r
+Biocpkg("monaLisa")`, we aim to provide a flexible implementation that
+integrates well with other Bioconductor resources, makes use of the sequence
+composition correction developed for Homer [@homer] or stability selection
+[@StabSel] and provides several alternative ways to study the relationship
+between experimental measurements and sequence motifs.
 
 You can use known motifs from collections of transcription factor binding 
 specificities such as `r Biocpkg("JASPAR2020")`, also available from 
