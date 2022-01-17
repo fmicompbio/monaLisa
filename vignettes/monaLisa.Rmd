@@ -209,11 +209,11 @@ library(circlize)
 
 ## Genomic regions of interest
 
-`r Biocpkg("monaLisa")` contains a file with genomic coordinates 
-(mouse mm10 assembly) of LMRs, with the respective changes of 
-methylation. We load this `GRanges` object into R. The user 
-may also start the analysis with a given set of `bed` files containing the 
-genomic coordinates or with raw sequences, for example from a `FASTA` file.
+`r Biocpkg("monaLisa")` contains a file with genomic coordinates (mouse mm10
+assembly) of LMRs, with the respective changes of methylation. We load this
+`GRanges` object into `R`. The user may also start the analysis with a given set
+of `bed` files containing the genomic coordinates or with raw sequences, for
+example from `FASTA` files.
 
 ```{r loadLMRs}
 lmrfile <- system.file("extdata", "LMRsESNPmerged.gr.rds", 
