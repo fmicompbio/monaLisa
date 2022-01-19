@@ -94,7 +94,10 @@ If you prefer to jump right in, you can continue with section \@ref(quick) that
 shows a quick hypothetical example of how to run a binned motif enrichment
 analysis. If you prefer to actually compute enrichments on real data, you can
 find below a detailed example for a binned motif enrichment analysis (section
-\@ref(binned)).
+\@ref(binned)). The special cases of analyzing just two sets of sequences
+(binary motif enrichment analysis) or a single set of sequences (comparing it
+to a suitable background sampled from the genome) is illustrated in
+\@ref(nobins).
 
 # Installation
 
@@ -173,15 +176,21 @@ In addition, `rowData(se)` and `colData(se)` give information about the used
 motifs and bins, respectively. In `metadata(se)` you can find information 
 about parameter values.
 
+# Binned motif enrichment analysis with multiple sets of sequences (more than two): Finding TFs enriched in differentially methylated regions{#binned}
 
-# Binned motif enrichment analysis: Finding TFs enriched in differentially methylated regions{#binned}
+This section illustrates the use of `r Biocpkg("monaLisa")` to analyze regions
+or sequences with associated numerical values (here: changes of DNA
+methylation), grouped into several bins according to these values. The
+special cases of just two sets of sequences (binary motif enrichment analysis)
+or a single set of sequences (comparing it to a suitable background sampled from
+the genome) are illustrated in the section \@ref(nobins).
 
-This example is based on an *in vitro* differentiation system, in which mouse 
-embryonic stem (ES) cells are differentiated into neuronal progenitors (NP).
-In an earlier study [@LMRs], we have analyzed the genome-wide CpG methylation 
-patterns in these cell types and identified so called *low methylated regions* 
-(LMRs), that have reduced methylation levels and correspond to regions bound by 
-transcription factors.
+This example is based on experimental data from an *in vitro* differentiation
+system, in which mouse embryonic stem (ES) cells are differentiated into
+neuronal progenitors (NP). In an earlier study [@LMRs], we have analyzed the
+genome-wide CpG methylation patterns in these cell types and identified so
+called *low methylated regions* (LMRs), that have reduced methylation levels and
+correspond to regions bound by transcription factors.
 
 We also developed a tool that systematically identifies such regions from
 genome-wide methylation data [@MethylSeekR]. Interestingly, a change in 
@@ -486,10 +495,11 @@ We have seen above that sequences in the `r levels(bins)[1]` bin (first column
 from the left in the heatmap) were GC-poorer than the sequences in other bins.
 While some of the enriched motifs in that bin are not GC-poor (for example RARA,
 NR2F1 and similar motifs), other more weakly enriched motifs are clearly AT-rich
-(for example HOXA2 and similar motifs). To verify that these are not false
-positive results, the motif analysis should be repeated after sequences have
-been subsampled in each bin to have similar GC composition in all bins, or with
-`monaLisa::calcBinnedMotifEnrR(..., background = "genome")`. 
+(for example HOX family motifs). To verify that these are not false positive
+results, the motif analysis should be repeated after sequences have been
+subsampled in each bin to have similar GC composition in all bins, or with
+`monaLisa::calcBinnedMotifEnrR(..., background = "genome")`. The latter is
+illustrated in the section \@ref(vsgenome).
 
 ## Convert between motif text file for `Homer` and motif objects in `R`
 
@@ -575,6 +585,187 @@ round(sweep(x = as.matrix(pfms[[1]]), MARGIN = 2,
 round(sweep(x = as.matrix(pfms_ret[[1]]), MARGIN = 2, 
             STATS = colSums(as.matrix(pfms_ret[[1]])), FUN = "/"), 3)
 ```
+
+# Motif enrichment analysis with only one or two sets of sequences{#nobins}
+
+In some cases, enriched motifs should be identified between just two sets of
+sequences (binary motif enrichment), for example between ATAC peaks with
+increased and decreased accessibility. Numerical values that could be used
+for grouping the regions in multiple bins may not be available. Or maybe you
+want to analyze just a single set of sequences (for example a set of ChIP-seq
+peaks), relative to some neutral background. In this section, we show how
+such binary or single-set motif enrichment analyses can be performed using
+`r Biocpkg("monaLisa")`.
+
+## Binary motif enrichment analysis: comparing two sets of sequences{#binary}
+
+The binary motif enrichment analysis is a simple special case of the general
+binned motif analysis described in section \@ref(binned), where the two sets
+to be compared are defining the two bins.
+
+Let's re-use the DNA methylation data from section \@ref(binned) and assume that
+we just want to compare the sequences that don't show large changes in their
+methylation levels (`lmr.unchanged`, changes smaller than 5%) to those that
+gain more than 60% methylation (`lmr.up`):
+
+```{r defineSetsBinary}
+lmr.unchanged <- lmrsel[abs(lmrsel$deltaMeth) < 0.05]
+length(lmr.unchanged)
+
+lmr.up <- lmrsel[lmrsel$deltaMeth > 0.6]
+length(lmr.up)
+```
+
+As before, we need a single sequence object (`lmrseqs2`, which is a
+`DNAStringSet`) that we obtain by combining these two groups into a single
+`GRanges` object (`lmrsel2`) and extract the corresponding sequences from the
+genome (`lmrseqs2`). If you already have two sequence objects, they can be just
+concatenated using `lmrseqs2 <- c(seqs.group1, seqs.group2)`.
+```{r fuseSetsBinary}
+# combine the two sets or genomic regions
+lmrsel2 <- c(lmr.unchanged, lmr.up)
+
+# extract sequences from the genome
+lmrseqs2 <- getSeq(BSgenome.Mmusculus.UCSC.mm10, lmrsel2)
+```
+
+Finally, we manually create a binning factor (`bins2`) that defines the group
+membership for each element in `lmrseqs2`:
+```{r createBins2}
+# define binning vector
+bins2 <- rep(c("unchanged", "up"), c(length(lmr.unchanged), length(lmr.up)))
+bins2 <- factor(bins2)
+table(bins2)
+```
+
+Now we can run the binned motif enrichment analysis. To keep the calculation
+time short, we will just run it on the motifs that we had selected above in
+`seSel`:
+```{r enrBinary}
+se2 <- calcBinnedMotifEnrR(seqs = lmrseqs2, bins = bins2,
+                           pwmL = pwms[rownames(seSel)])
+se2
+```
+
+We visualize the results for motifs that are enriched in one of the
+two groups with an adjusted p value of less than $10^{-4}$ (the order of the
+columns in the heatmap is defined by the order of the factor levels in `bins2`,
+given by `levels(bins2)` and can also be obtained from `colnames(se2)`; here it
+is `r levels(bins2)`):
+```{r plotBinary, fig.height=6}
+sel2 <- apply(assay(se2, "negLog10Padj"), 1, 
+             function(x) max(abs(x), 0, na.rm = TRUE)) > 4.0
+sum(sel2)
+
+plotMotifHeatmaps(x = se2[sel2,], which.plots = c("log2enr", "negLog10Padj"), 
+                  width = 1.8, cluster = TRUE, maxEnr = 2, maxSig = 10,
+                  show_seqlogo = TRUE)
+```
+
+## Single set motif enrichment analysis: comparing a set of sequences to a suitable background{#vsgenome}
+
+Motif enrichments can also be obtained from a single set of genomic regions or
+sequences (foreground set), by comparing it to a suitable background set. A
+suitable background set could be for example sequences with a similar sequence
+composition that are randomly selected from the same genome, or sequences
+obtained by randomization of the foreground sequences by shuffling or
+permutation.
+
+A noteworthy package in this context is `r Biocpkg("nullranges")` that focuses
+on the selection of such background ranges (representing the null hypothesis),
+for example controlling for confounding covariates like GC composition. After
+a suitable background set has been identified using `r Biocpkg("nullranges")`,
+a binary motif enrichment analysis as described in section \@ref(binary) can
+be performed. Manually defining the background set is recommended to control for
+covariates other than GC composition and to verify if the selected background
+sequences are indeed similar to the foreground sequences for those covariates.
+
+A quick alternative with less flexibility in the background set definition is
+available directly in `r Biocpkg("monaLisa")`, by using
+`monaLisa::calcBinnedMotifEnrR(..., background = "genome")`. This will select
+the background set by randomly sampling sequences from the genome (given by the
+`genome` argument, optionally restricted to the intervals defined in the
+`genome.regions` argument). For each foreground sequence, `genome.oversample`
+background sequences of the same size (on average) are sampled. From these,
+one per foreground sequence is selected trying to best match its G+C
+composition. 
+
+We apply this simple approach here to check if the motif enrichments identified
+in section \@ref(binned) could be in part false positives due to the GC-poor
+first bin (`r levels(bins)[1]`, see above).
+
+Let's first obtain the sequences from that bin (`lmrseqs3`), and then run
+`monaLisa::calcBinnedMotifEnrR` comparing to a genome background. In order to
+make the sampling reproducible, we are seeding the random number generator
+before the call. Also, to speed up the calculation, we will only include the
+motifs we had selected above in `seSel`:
+```{r singleBinSeqs}
+lmrseqs3 <- lmrseqs[bins == levels(bins)[1]]
+length(lmrseqs3)
+
+set.seed(42)
+se3 <- calcBinnedMotifEnrR(seqs = lmrseqs3,
+                           pwmL = pwms[rownames(seSel)],
+                           background = "genome",
+                           genome = BSgenome.Mmusculus.UCSC.mm10,
+                           genome.regions = NULL, # use full genome
+                           genome.oversample = 2, 
+                           verbose = TRUE)
+```
+
+Note that we did not have to provide a `bins` argument, and that the result will
+only have a single column, corresponding to the single set of sequences that we
+analyzed:
+```{r singleBinResult}
+ncol(se3)
+```
+
+When we visualize motifs that are enriched with an adjusted p value of less than
+$10^{-4}$, we still find AT-rich motifs significantly enriched, including the
+HOX family motifs that were weakly enriched in `seSel` but for which it was
+unclear if their enrichment was driven by the AT-rich (GC-poor) sequences in
+that specific bin. The fact that this motif family is still robustly identified
+when using a GC-matched genomic background supports that it may be a real
+biological signal.
+```{r plotSingleBin, fig.height=8}
+sel3 <- assay(se3, "negLog10Padj")[, 1] > 4.0
+sum(sel3)
+
+plotMotifHeatmaps(x = se3[sel3,], which.plots = c("log2enr", "negLog10Padj"), 
+                  width = 1.8, maxEnr = 2, maxSig = 10,
+                  show_seqlogo = TRUE)
+
+# analyzed HOX motifs
+grep("HOX", rowData(se3)$motif.name, value = TRUE)
+
+# significant HOX motifs
+grep("HOX", rowData(se3)$motif.name[sel3], value = TRUE)
+```
+
+A comparison of log2 motif enrichments between the `background = "otherBins"`
+and `background = "genome"` analyses also supports this conclusion: The HOX
+family motifs (shown in red) are similarly enriched in both analyses, while the
+depletion of GC-rich KLF family motifs (shown in green) is less pronounced in
+`background = "genome"` and thus more sensitive to the used background. The
+depletion of KLF family motifs is likely an example of a incorrect result,
+although note that the depletion was not significant in either of the two
+analyses:
+```{r compareGenomeVsBinned, fig.width=7, fig.height=6}
+cols <- rep("gray", nrow(se3))
+cols[grep("HOX", rowData(se3)$motif.name)] <- "#DF536B"
+cols[grep("KLF|Klf", rowData(se3)$motif.name)] <- "#61D04F"
+par(mar = c(5, 5, 2, 2) + .1, mgp = c(1.75, 0.5, 0), cex = 1.25)
+plot(assay(seSel, "log2enr")[,1], assay(se3, "log2enr")[,1],
+     col = cols, pch = 20, asp = 1,
+     xlab = "Versus other bins (log2 enr)",
+     ylab = "Versus genome (log2 enr)")
+legend("topleft", c("HOX family","KLF family","other"), pch = 20, bty = "n",
+       col = c("#DF536B", "#61D04F", "gray"))
+abline(a = 0, b = 1)
+abline(h = 0, lty = 3)
+abline(v = 0, lty = 3)
+```
+
 
 # Binned k-mer enrichment analysis{#binnedkmers}
 
