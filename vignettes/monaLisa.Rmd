@@ -697,19 +697,19 @@ first bin (`r levels(bins)[1]`, see above).
 Let's first obtain the sequences from that bin (`lmrseqs3`), and then run
 `monaLisa::calcBinnedMotifEnrR` comparing to a genome background. In order to
 make the sampling reproducible, we are seeding the random number generator
-before the call. Also, to speed up the calculation, we will only include the
-motifs we had selected above in `seSel`:
+inside the `BPPARAM` object. Also, to speed up the calculation, we will only
+include the motifs we had selected above in `seSel`:
 ```{r singleBinSeqs}
 lmrseqs3 <- lmrseqs[bins == levels(bins)[1]]
 length(lmrseqs3)
 
-set.seed(42)
 se3 <- calcBinnedMotifEnrR(seqs = lmrseqs3,
                            pwmL = pwms[rownames(seSel)],
                            background = "genome",
                            genome = BSgenome.Mmusculus.UCSC.mm10,
                            genome.regions = NULL, # use full genome
                            genome.oversample = 2, 
+                           BPPARAM = BiocParallel::SerialParam(RNGseed = 42),
                            verbose = TRUE)
 ```
 
