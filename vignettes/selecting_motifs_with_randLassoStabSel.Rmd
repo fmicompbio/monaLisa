@@ -41,15 +41,15 @@ proposed by @StabSel with the improved error bounds introduced by @compStabs.
 We have modified the `stabs::glmnet.lasso` function used by `stabs::stabsel` 
 from the `r CRANpkg("stabs")` package to implement the randomized lasso.
 
-Lasso stability selection implements the lasso regression multiple times on 
-subsamples of the data, and returns a selection probability for each predictor 
-(number of times selected divided by number of regressions done). With the 
-randomized lasso, a weakness parameter is additionally used  to vary the lasso 
-penalty term $\lambda$ to a randomly chosen value between 
-[$\lambda$, $\lambda$/weakness] for each predictor. Although the main appeal of 
-stability selection is in cases where the number of predictors exceeds the 
-number of observations, it also performs better variable selection with noisy 
-data [@StabSel].
+Lasso stability selection implements the lasso regression multiple times on
+subsamples of the data, and returns a selection probability for each predictor
+(number of times selected divided by number of regressions done). With the
+randomized lasso, a weakness parameter is additionally used  to vary the lasso
+penalty term $\lambda$ to a randomly chosen value between [$\lambda$,
+$\lambda$/weakness] for each predictor. This type of regularization has
+advantages in cases where the number of predictors exceeds the number of
+observations, in selecting variables consistently, demonstrating better error
+control and not depending strongly on the penalization parameter [@StabSel].
 
 With this approach, TF motifs compete against each other to explain the 
 response vector, and we can also include additional predictors like GC content 
@@ -61,7 +61,7 @@ It is worth noting that, as with any regression analysis, the interpretability
 of the results depends strongly on the quality of the predictors. Hence, 
 increasing the size of the motif database is not, in itself, a guarantee for 
 more interpretable results, since the added motifs may be unrelated to the 
-signal of interest. In addition, as discussed elsewhere in this vignette, a 
+signal of interest. In addition, as discussed in section \@ref(collinearity), a 
 high level of redundancy, resulting in strong correlations among the motifs, 
 may result in more ambiguous selection probabilities in the regression 
 approach. In fact, also for the binned approach, although the motifs are 
@@ -114,12 +114,12 @@ gr <- readRDS(gr_path)
 ## Get TFBS per motif and peak
 
 We will now construct the transcription factor binding site (TFBS) matrix for
-known motifs (from a database like JASPAR) in the given peak regions. We use the
-`monaLisa::findMotifHits` function to scan for TF motif hits. This matrix will
-be the predictor matrix in our regression. This step may take a while, and it
-may be useful to parallelize it using the `BPPARAM` argument (e.g. to run on `n`
-parallel threads using the multi-core backend, you can use: `findMotifHits(...,
-BPPARAM = BiocParallel::MulticoreParam(n))`).
+known motifs (from a database like `r Biocpkg("JASPAR2020")`) in the given peak
+regions. We use the `findMotifHits` function to scan for TF motif hits. This
+matrix will be the predictor matrix in our regression. This step may take a
+while, and it may be useful to parallelize it using the `BPPARAM` argument (e.g.
+to run on `n` parallel threads using the multi-core backend, you can use:
+`findMotifHits(..., BPPARAM = BiocParallel::MulticoreParam(n))`).
 
 As mentioned, this framework offers the flexibility to add additional 
 predictors to compete against the TF motifs for selection. Here, we add the 
@@ -169,25 +169,35 @@ TFBSmatrix <- cbind(fracGC, oeCpG, TFBSmatrix)
 TFBSmatrix[1:6, 1:6]
 ```
 
-### A note on collinearity
+### A note on collinearity{#collinearity}
 At this point it is useful for the user to get an overall feeling of the
 collinearity structure in the TFBS matrix. Motifs that share a lot of similar
 binding sites across the peaks will be highly correlated. High collinearity
-between predictors is a well known problem in linear regression (if possible
-find a good citation?). It particularly manifests itself in the lasso regression
-for example, where variables that are highly correlated with each other are not
-all co-selected as predictors. Instead, one is arbitrarily chosen while the
-others' coefficients are set to zero. The rationale is that the non-selected
-correlated predictors do not provide much additional information to explain the
-response. It is good to be aware of these properties of regression, and to place
-more weight on the meaning of the selected motif itself, rather than the
-specific TF name. Another option is for the user to do some pre-grouping, to
-have a representative TF motif per TF family for instance, to use as predictors.
+between predictors is a well known problem in linear regression. It particularly
+manifests itself in the lasso regression for example, where variables that are
+highly correlated with each other are not all co-selected as predictors (if they
+are signal variables). Instead, one is arbitrarily chosen while the others'
+coefficients are set to zero. The rationale is that the non-selected correlated
+predictors do not provide much additional information to explain the response.
+It is good to be aware of these properties of regression, and to place more
+weight on the meaning of the selected motif itself, rather than the specific TF
+name when interpreting the results.
+
+If many cases of high correlations exist or this is a concern, one may consider
+selecting a representative set of predictors to use. As the Jaspar database
+contains many highly similar motifs and will thus create many correlated
+predictors, one may alternatively consider clustering the weight matrices
+beforehand and using only one representative motif per cluster for running the
+regression, using tools such as for example RSAT [@RSAT] (RSAT-derived clusters
+of Jaspar weight matrices can be found here
+https://jaspar.genereg.net/matrix-clusters/vertebrates/).
+
 If the user is interested in selecting all correlated motifs, the binned
-approach is preferable, as the motifs are tested independently for significance.
-In the regression based approach on the other hand, we can understand the
-relative contributions of TF motifs to the response in context of each other
-more clearly.
+approach is preferable, as the motifs are tested independently for significance
+(see the `r Biocpkg("monaLisa", vignette="monaLisa.html", label="binned
+enrichment vignette")`). In the regression based approach on the other hand, we
+can understand the relative contributions of TF motifs to the response in
+context of each other more clearly.
 
 
 ## Identify important TFs
@@ -196,12 +206,14 @@ We can now run randomized lasso stability selection to identify TFs that are
 likely to explain the log-fold changes in accessibility. The exact choice of
 parameter values for this approach will depend largely on how stringent the user
 wishes to be and how much signal there is in the data. For example, for more
-stringent selections, one may decrease the value of the weakness parameter which
-will make it harder for a variable to get selected. The user is in control of
-false discovery with the PFER parameter, which indicates the number of falsely
-selected variables. As for the probability cutoff, @StabSel argue that values in
-the range of [0.6, 0.9] should give similar results. See the `randLassoStabSel`
-function for more details and default parameter values.
+stringent selections, one may decrease the value of the `weakness` parameter
+which will make it harder for a variable to get selected. The user is in control
+of false discovery with the `PFER` parameter, which indicates the number of
+falsely selected variables. As for the probability cutoff, @StabSel argue that
+values in the range of [0.6, 0.9] should give similar results. See the
+`randLassoStabSel` function for more details and default parameter values as
+well as the `stabs::stabsel` function for the default assumptions on the
+stability selection implementation by @compStabs.
 
 ```{r stabSelTFs}
 # # randLassoStabSel() is stochastic, so we set a seed to reproduce 
@@ -249,25 +261,14 @@ parameter choices the model uses internally. See @StabSel for more details.
 plotSelectionProb(se, directional = TRUE)
 ```
 
-Next, we visualize the correlation structure of the TFBS matrix and selected TF 
-motifs. While the collinearity of predictors is generally an issue in 
-regression-based approaches where variables are selected, randomized lasso 
-stability selection generally does better at co-selecting correlated 
-predictors. In practice, we still see it select predictors with correlations as 
-high as 0.9. However, it is good to keep in mind that this can be an issue,
-and that predictors that are extremely correlated with each other might not 
-end up being co-selected. In a bad case example, if we have two identical 
-predictors, neither of them could end up being selected if half of the times 
-the regressions are done, one would be randomly selected, and the other one 
-in the other half, giving each a selection probability of 0.5. If many cases 
-of high correlations exist or this is a concern, one may consider selecting a 
-representative set of predictors to use. As the Jaspar database contains many
-highly similar motifs and will thus create many correlated predictors, one may
-alternatively consider clustering the weight matrices beforehand and using only
-one representative motif per cluster for running the regression, using tools
-such as for example RSAT [@RSAT] (RSAT-derived clusters of Jaspar weight
-matrices can be found here
-https://jaspar.genereg.net/matrix-clusters/vertebrates/).
+Next, we visualize the correlation structure of the selected TF motifs within
+the TFBS matrix. While the collinearity of predictors is generally an issue in
+regression-based approaches where variables are selected, randomized lasso
+stability selection generally does better at co-selecting intermediately
+correlated predictors. In practice, we still see it select predictors with
+correlations as high as 0.9. However, it is good to keep in mind that this can
+be an issue, and that predictors that are extremely correlated with each other
+might not end up being co-selected (see section \@ref(collinearity)).
 
 ```{r TFBScor_selected, fig.width=10, fig.height=7}
 # subset the selected TFs
