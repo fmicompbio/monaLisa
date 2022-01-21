@@ -58,14 +58,16 @@ accessible regions for which experimental data is available.
 
 Two independent approaches are implemented to identify interesting motifs:
 
-- In **binned motif enrichment analysis** (`calcBinnedMotifEnrR`, see
-section \@ref(binned)), genomic regions are grouped into bins according to a
-numerical value assigned to each region, such as the change in expression,
-accessibility or methylation. Motif enrichments are then calculated for
-each bin, normalizing for differences in sequence composition in a very 
-similar way as originally done by 
-[Homer](http://homer.ucsd.edu/homer/index.html)
-[@homer]. The binned motif enrichment approach was first introduced in 
+- In **binned motif enrichment analysis** (`calcBinnedMotifEnrR`, see section
+\@ref(binned)), genomic regions are grouped into bins according to a numerical
+value assigned to each region, such as the change in expression, accessibility
+or methylation. Motif enrichments are then calculated for each bin, normalizing
+for differences in sequence composition in a very similar way as originally done
+by [Homer](http://homer.ucsd.edu/homer/index.html) [@homer]. As a special case,
+the approach can also be used to do a simple two set comparison (foreground
+against background sequences) or to determine motif enrichments in a single set
+of sequences compared to a suitably matched genomic background set. The binned
+motif enrichment approach was first introduced in
 @ginno2018 and subsequently applied in e.g. @barisic2019. To see more 
 details on how `calcBinnedMotifEnrR` resembles `Homer`, check the function 
 help page. We recommend using this function to do the binned motif enrichment 
