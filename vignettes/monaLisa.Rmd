@@ -582,13 +582,13 @@ round(sweep(x = as.matrix(pfms_ret[[1]]), MARGIN = 2,
 
 # Motif enrichment analysis with only one or two sets of sequences{#nobins}
 
-In some cases, enriched motifs should be identified between just two sets of
-sequences (binary motif enrichment), for example between ATAC peaks with
-increased and decreased accessibility. Numerical values that could be used
-for grouping the regions in multiple bins may not be available. Or maybe you
-want to analyze just a single set of sequences (for example a set of ChIP-seq
-peaks), relative to some neutral background. In this section, we show how
-such binary or single-set motif enrichment analyses can be performed using
+In some cases, we are interested in identifying enriched motifs between just two
+sets of sequences (binary motif enrichment), for example between ATAC peaks with
+increased and decreased accessibility. Numerical values that could be used for
+grouping the regions in multiple bins may not be available. Or we may be
+interested in analyzing just a single set of sequences (for example a set of
+ChIP-seq peaks), relative to some neutral background. In this section, we show
+how such binary or single-set motif enrichment analyses can be performed using
 `r Biocpkg("monaLisa")`.
 
 ## Binary motif enrichment analysis: comparing two sets of sequences{#binary}
