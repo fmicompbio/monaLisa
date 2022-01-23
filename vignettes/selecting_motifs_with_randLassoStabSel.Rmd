@@ -96,8 +96,8 @@ library(circlize)
 
 ## Load dataset
 
-In this example dataset from ENCODE [@encode2012], and available in `r
-Biocpkg("monaLisa")`, we have quantified ATAC-seq reads on enhancers in mouse P0
+In this example dataset from ENCODE [@encode2012], and available in 
+`r Biocpkg("monaLisa")`, we have quantified ATAC-seq reads on enhancers in mouse P0
 lung and liver tissues. The log2-fold change (our response vector in this
 example) is for liver vs lung chromatin accessibility. We are using a set of
 10,000 randomly sampled enhancers to illustrate how randomized lasso stability
@@ -189,7 +189,7 @@ contains many highly similar motifs and will thus create many correlated
 predictors, one may alternatively consider clustering the weight matrices
 beforehand and using only one representative motif per cluster for running the
 regression, using tools such as for example RSAT [@RSAT] (RSAT-derived clusters
-of Jaspar weight matrices can be found here
+of Jaspar weight matrices can be found here:
 https://jaspar.genereg.net/matrix-clusters/vertebrates/).
 
 If the user is interested in selecting all correlated motifs, the binned
@@ -208,8 +208,8 @@ parameter values for this approach will depend largely on how stringent the user
 wishes to be and how much signal there is in the data. For example, for more
 stringent selections, one may decrease the value of the `weakness` parameter
 which will make it harder for a variable to get selected. The user is in control
-of false discovery with the `PFER` parameter, which indicates the number of
-falsely selected variables. As for the probability cutoff, @StabSel argue that
+of false discoveries with the `PFER` parameter, which indicates the number of
+falsely selected variables. As for the selection probability cutoff, @StabSel argue that
 values in the range of [0.6, 0.9] should give similar results. See the
 `randLassoStabSel` function for more details and default parameter values as
 well as the `stabs::stabsel` function for the default assumptions on the

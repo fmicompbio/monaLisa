@@ -44,8 +44,8 @@ factors are the drivers of my observed changes in
 expression/methylation/accessibility?".
 
 Several other approaches have been described that also address this problem,
-among them REDUCE [@reduce], AME [@ame] and ISMARA [@ismara]. In `r
-Biocpkg("monaLisa")`, we aim to provide a flexible implementation that
+among them REDUCE [@reduce], AME [@ame] and ISMARA [@ismara]. In 
+`r Biocpkg("monaLisa")`, we aim to provide a flexible implementation that
 integrates well with other Bioconductor resources, makes use of the sequence
 composition correction developed for Homer [@homer] or stability selection
 [@StabSel] and provides several alternative ways to study the relationship
