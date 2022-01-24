@@ -6,6 +6,7 @@
 * added `LICENSE.md` file
 * expanded `monaLisa.Rmd` vignette with illustration on how to do a binary or single set motif enrichment analysis
 * expanded on collineairty in regression in the `selecting_motifs_with_randLassoStabSel.Rmd` vignette and the choice of parameter values in stability selection.
+* updated the `results.binned_6mer_enrichment_LMRs.rds` and `results.binned_motif_enrichment_LMRs.rds` files stored in `monaLisa` under the current version of the package.
 
 # monaLisa 1.0.0
 
