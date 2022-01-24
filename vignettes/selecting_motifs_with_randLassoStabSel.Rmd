@@ -195,10 +195,10 @@ https://jaspar.genereg.net/matrix-clusters/vertebrates/.
 
 If the user is interested in selecting all correlated motifs, the binned
 approach is preferable, as the motifs are tested independently for significance
-(see the `r Biocpkg("monaLisa", vignette="monaLisa.html", label="binned
-enrichment vignette")`). In the regression based approach on the other hand, we
-can understand the relative contributions of TF motifs to the response in
-context of each other more clearly.
+(see the `r Biocpkg("monaLisa", vignette="monaLisa.html", label="binned enrichment vignette")`).
+In the regression based approach on the other hand, we can understand the
+relative contributions of TF motifs to the response in context of each other
+more clearly.
 
 
 ## Identify important TFs

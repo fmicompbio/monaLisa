@@ -81,13 +81,13 @@ k-mers instead of motifs, to study sequence enrichments without the requirement
 of known motifs.
 
 - **Randomized Lasso stability selection** (`randLassoStabSel`, see
-`r Biocpkg("monaLisa", vignette="selecting_motifs_with_randLassoStabSel.html",
-label="the stability selection vignette")` in `r Biocpkg("monaLisa")`) uses a
-robust regression approach (stability selection, @StabSel) to predict what
-transcription factors can explain experimental measurements, for example changes
-in chromatin accessibility between two conditions. Also this approach allows to
-correct for sequence composition. In addition, similar motifs have to "compete"
-with each other to be selected.
+`r Biocpkg("monaLisa", vignette="selecting_motifs_with_randLassoStabSel.html", label="the stability selection vignette")`
+in `r Biocpkg("monaLisa")`) uses a robust regression approach (stability
+selection, @StabSel) to predict what transcription factors can explain
+experimental measurements, for example changes in chromatin accessibility
+between two conditions. Also this approach allows to correct for sequence
+composition. In addition, similar motifs have to "compete" with each other to be
+selected.
 
 For both approaches, functions that allow visualization of obtained results
 are provided.
