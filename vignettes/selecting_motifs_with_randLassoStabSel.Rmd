@@ -30,17 +30,16 @@ margin-right: auto; width: 50%; border: 0" />
 
 # Introduction
 
-Identifying important transcription factor (TF) motifs, as shown in `r
-Biocpkg("monaLisa", vignette="monaLisa.html", label="the main vignette")`, could
-also be done using a regression-based approach, where motifs have to compete
-against each other for selection. In this framework, the response vector can be
-the observed experimental measure of interest, e.g. log-fold changes of
+Identifying important transcription factor (TF) motifs, as shown in `r Biocpkg("monaLisa", vignette="monaLisa.html", label="the main vignette")`,
+could also be done using a regression-based approach, where motifs have to
+compete against each other for selection. In this framework, the response vector
+can be the observed experimental measure of interest, e.g. log-fold changes of
 accessibility for a set of regions, and the predictors consist of the TF motif
 hits across those regions. In `r Biocpkg("monaLisa")`, we implement the
 randomized lasso stability selection proposed by @StabSel with the improved
 error bounds introduced by @compStabs. We have modified the
-`stabs::glmnet.lasso` function used by `stabs::stabsel` from the `r
-CRANpkg("stabs")` package to implement the randomized lasso.
+`stabs::glmnet.lasso` function used by `stabs::stabsel` from the `r CRANpkg("stabs")`
+package to implement the randomized lasso.
 
 Lasso stability selection performs the lasso regression multiple times on
 subsamples of the data, and returns a selection probability for each predictor
@@ -195,10 +194,10 @@ https://jaspar.genereg.net/matrix-clusters/vertebrates/.
 
 If the user is interested in selecting all correlated motifs, the binned
 approach is preferable, as the motifs are tested independently for significance
-(see the `r Biocpkg("monaLisa", vignette="monaLisa.html", label="binned
-enrichment vignette")`). In the regression based approach on the other hand, we
-can understand the relative contributions of TF motifs to the response in
-context of each other more clearly.
+(see the `r Biocpkg("monaLisa", vignette="monaLisa.html", label="binned enrichment vignette")`).
+In the regression based approach on the other hand, we can understand the
+relative contributions of TF motifs to the response in context of each other
+more clearly.
 
 
 ## Identify important TFs
