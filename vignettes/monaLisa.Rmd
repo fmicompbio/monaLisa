@@ -743,7 +743,7 @@ and `background = "genome"` analyses also supports this conclusion: The HOX
 family motifs (shown in red) are similarly enriched in both analyses, while the
 depletion of GC-rich KLF family motifs (shown in green) is less pronounced in
 `background = "genome"` and thus more sensitive to the used background. The
-depletion of KLF family motifs is likely an example of an incorrect result,
+depletion of KLF family motifs may thus be an example of an incorrect result,
 although note that the depletion was not significant in either of the two
 analyses:
 ```{r compareGenomeVsBinned, fig.width=7, fig.height=6}
