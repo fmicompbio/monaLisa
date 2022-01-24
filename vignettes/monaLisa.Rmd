@@ -423,8 +423,8 @@ assay(se, "log2enr")[1:5, 1:3]
 ```
 
 We can plot the results using the `plotMotifHeatmaps` function, e.g. selecting
-all transcription factor motifs that have an $-log_{10} FDR$ of at least 4.0 in
-any bin (corresponding to a $FDR < 10^{-4}$). FDR values are stored in the
+all transcription factor motifs that have a $-log_{10} FDR$ of at least 4.0 in
+any bin (corresponding to an $FDR < 10^{-4}$). FDR values are stored in the
 `negLog10Padj` assay:
 
 ```{r plottfs, fig.height=10}
@@ -457,10 +457,10 @@ sum(sel.nonZero)
 ```
 
 Setting `cluster = TRUE` in `plotMotifHeatmaps` has re-ordered the rows using
-hierarchical clustering of the `"pearsonResid"` assay. As many transcription
+hierarchical clustering of the `pearsonResid` assay. As many transcription
 factor binding motifs  are similar to each other, it is also helpful to show the
 enrichment heatmap clustered by motif similarity. To this end, we first
-calculate all pairwise motif similarities (measured as maximum Pearson
+calculate all pairwise motif similarities (measured as the maximum Pearson
 correlation of all possible  shifted alignments). This can be quickly calculated
 for the few selected motifs using the `motifSimilarity` function. For many
 motifs, this step may take a while, and it may be useful to parallelize it using
@@ -499,9 +499,9 @@ NR2F1 and similar motifs), other more weakly enriched motifs are clearly AT-rich
 results, the motif analysis should be repeated after sequences have been
 subsampled in each bin to have similar GC composition in all bins, or with
 `calcBinnedMotifEnrR(..., background = "genome")`. The latter is illustrated in
-the section \@ref(vsgenome).
+section \@ref(vsgenome).
 
-## Convert between motif text file for `Homer` and motif objects in `R`{#motifConvert}
+## Convert between motif text file for `Homer` and motif objects in `R` {#motifConvert}
 
 `r Biocpkg("monaLisa")` provides two functions for performing binned motif
 enrichment analysis (`calcBinnedMotifEnrR` and `calcBinnedMotifEnrHomer`).
@@ -544,7 +544,7 @@ for motif hits. `calcBinnedMotifEnrHomer` on the other hand takes a motif text
 file with PPMs, and requires the user to have `Homer` installed to use it for
 the binned motif enrichment analysis. Here, we show how one can get motif PFMs
 from `r Biocpkg("JASPAR2020")` and convert them to a `Homer`-compatible text
-file with PPMs (`dumpJaspar`) and vice versa (`homerToPFMatrixList` ), and how
+file with PPMs (`dumpJaspar`) and vice versa (`homerToPFMatrixList`), and how
 to convert a `TFBSTools::PFMatrixList` to a `TFBSTools::PWMatrixList` for use
 with `calcBinnedMotifEnrR` or `findMotifHits`:
 
@@ -832,9 +832,9 @@ Heatmap(sims,
 # Use `r Biocpkg("monaLisa")` to annotate genomic regions with predicted motifs{#findhits}
 
 As mentioned, `r Biocpkg("monaLisa")` can also be used to scan sequences for
-motifs. For a quick description of motif representations see section
-\@ref(motifConvert). Here is an example (just on a few sequences/motifs for
-illustration):
+motifs. For a quick description of motif representations see 
+section \@ref(motifConvert). Here is an example (just on a few 
+sequences/motifs for illustration):
 
 ```{r findMotifs, warning=FALSE}
 # get sequences of promoters as a DNAStringSet
