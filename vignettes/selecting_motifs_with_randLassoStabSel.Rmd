@@ -30,17 +30,17 @@ margin-right: auto; width: 50%; border: 0" />
 
 # Introduction
 
-Identifying important transcription factor (TF) motifs, as shown in `r
-Biocpkg("monaLisa", vignette="monaLisa.html", label="the main vignette")`, could
-also be done using a regression-based approach, where motifs have to compete
-against each other for selection. In this framework, the response vector can be
-the observed experimental measure of interest, e.g. log-fold changes of
+Identifying important transcription factor (TF) motifs, as shown in 
+`r Biocpkg("monaLisa", vignette="monaLisa.html", label="the main vignette")`, 
+could also be done using a regression-based approach, where motifs have to
+compete against each other for selection. In this framework, the response vector
+can be the observed experimental measure of interest, e.g. log-fold changes of
 accessibility for a set of regions, and the predictors consist of the TF motif
 hits across those regions. In `r Biocpkg("monaLisa")`, we implement the
 randomized lasso stability selection proposed by @StabSel with the improved
 error bounds introduced by @compStabs. We have modified the
-`stabs::glmnet.lasso` function used by `stabs::stabsel` from the `r
-CRANpkg("stabs")` package to implement the randomized lasso.
+`stabs::glmnet.lasso` function used by `stabs::stabsel` from the 
+`r CRANpkg("stabs")` package to implement the randomized lasso.
 
 Lasso stability selection performs the lasso regression multiple times on
 subsamples of the data, and returns a selection probability for each predictor
@@ -252,13 +252,16 @@ decreasing values for the lambda regularization parameter in lasso. The
 predictor (TF motif) selection happens at the last step, given the specified 
 minimum probability.
 
-We can also visualize the selection probabilities of the selected TF motifs, 
-optionally multiplied by the sign of the correlation to the response vector, 
-to know how the TF relates to the change of accessibility (`directional` 
-parameter). Note that although one can vary the `selProbMinPlot` argument 
-which sets the selection probability cutoff, it is best to re-run randomized 
-lasso stability selection with the new cutoff, as this influences other 
-parameter choices the model uses internally. See @StabSel for more details.
+We can also visualize the selection probabilities of the selected TF motifs,
+optionally multiplied by the sign of the correlation to the response vector, to
+know how the TF relates to the change of accessibility (`directional`
+parameter). In our example, positive correlations to the response vector
+indicate a correlation with enhancers more accessible in the liver, whereas
+negative ones indicate a correlation with enhancers more accessible in the lung.
+Note that although one can vary the `selProbMinPlot` argument which sets the
+selection probability cutoff, it is best to re-run randomized lasso stability
+selection with the new cutoff, as this influences other parameter choices the
+model uses internally. See @StabSel for more details.
 
 ```{r plotSelProbs, fig.width=8, fig.height=5}
 plotSelectionProb(se, directional = TRUE)
