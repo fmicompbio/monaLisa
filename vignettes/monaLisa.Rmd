@@ -58,7 +58,7 @@ accessible regions for which experimental data is available.
 
 Two independent approaches are implemented to identify interesting motifs:
 
-- In **binned motif enrichment analysis** (`calcBinnedMotifEnrR`, see section
+- In the **binned motif enrichment analysis** (`calcBinnedMotifEnrR`, see section
 \@ref(binned)), genomic regions are grouped into bins according to a numerical
 value assigned to each region, such as the change in expression, accessibility
 or methylation. Motif enrichments are then calculated for each bin, normalizing
@@ -68,8 +68,8 @@ the approach can also be used to do a simple two set comparison (foreground
 against background sequences, see section \@ref(binary)) or to determine motif
 enrichments in a single set of sequences compared to a suitably matched genomic
 background set (see section \@ref(vsgenome)). The binned motif enrichment
-approach was first introduced in @ginno2018 and subsequently applied in e.g.
-@barisic2019. To see more details on how `calcBinnedMotifEnrR` resembles
+approach was first introduced in @ginno2018 and subsequently applied in 
+e.g. @barisic2019. To see more details on how `calcBinnedMotifEnrR` resembles
 `Homer`, check the function help page. We recommend using this function to do
 the binned motif enrichment analysis, since it corrects for sequence composition
 differences similarly to `Homer`, but is implemented more efficiently.
@@ -156,18 +156,17 @@ matrix with motifs (rows) by bins (columns). The values are:
   Benjamini and Hochberg, 1995 (`p.adjust(..., method="fdr")`).  
 - *pearsonResid*: Standardized Pearson residuals, a measure of motif enrichment
   akin to a z-score for the number of regions in the bin containing the motif. 
-  The standardized Pearson residuals are given by  
-  $resid = (o - \mu)/\sigma$, where $\mu$ is the expected count and $\sigma$
-  the standard deviation of the expression in the numerator, under the null 
-  hypothesis that the probability of containing a motif is independent of 
-  whether the sequence is in the foreground or the background (see e.g. 
-  @agresti2007, section \@ref(runBinned)). 
-- *expForegroundWgt*: The expected number of regions in the bin containing a 
-  given motif. 
+  The standardized Pearson residuals are given by $resid = (o - \mu)/\sigma$, 
+  where $\mu$ is the expected count and $\sigma$ the standard deviation of the 
+  expression in the numerator, under the null hypothesis that the probability 
+  of containing a motif is independent of whether the sequence is in the 
+  foreground or the background (see e.g. @agresti2007, section \@ref(runBinned)). 
+- *expForegroundWgtWithHits*: The expected number of regions in the bin 
+  containing a given motif. 
 - *log2enr*: Motif enrichments, calculated as: 
   $log2enr = log2((o + c)/(e + c))$, where $o$ and $e$ are the observed and 
-  expected numbers of regions in the bin containing a given motif, and $c$ is 
-  a pseudocount defined by the `pseudocount.log2enr` argument.  
+  expected numbers of regions in the bin containing a given motif, respectively, 
+  and $c$ is a pseudocount defined by the `pseudocount.log2enr` argument.  
 - *sumForegroundWgtWithHits* and *sumBackgroundWgtWithHits* are the sum of
   foreground and background sequences that have at least one occurrence of the
   motif, respectively. The background sequences are weighted in order to
