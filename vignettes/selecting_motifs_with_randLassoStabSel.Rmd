@@ -175,14 +175,14 @@ At this point it is useful for the user to get an overall feeling of the
 collinearity structure in the TFBS matrix. Motifs that share a lot of similar
 binding sites across the peaks will be highly correlated. High collinearity
 between predictors is a well known problem in linear regression. It particularly
-manifests itself in the lasso regression for example, where variables that are
-highly correlated with each other are not all co-selected as predictors (if they
-are signal variables). Instead, one is arbitrarily chosen while the others'
-coefficients are set to zero. The rationale is that the non-selected correlated
-predictors do not provide much additional information to explain the response.
-It is good to be aware of these properties of regression, and to place more
-weight on the meaning of the selected motif itself, rather than the specific TF
-name when interpreting the results.
+manifests itself in the lasso regression for example, where if variables are
+equally highly correlated with the response, not all are co-selected as
+predictors (if they are signal variables). Instead, one is arbitrarily chosen
+while the others’ coefficients are set to zero. The rationale is that the
+non-selected correlated predictors do not provide much additional information to
+explain the response. It is good to be aware of these properties of regression,
+and to place more weight on the meaning of the selected motif itself, rather
+than the specific TF name when interpreting the results.
 
 If many cases of high correlations exist and this is a concern, one may consider
 selecting a representative set of predictors to use. This may for example be
