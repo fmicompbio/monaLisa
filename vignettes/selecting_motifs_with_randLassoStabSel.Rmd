@@ -184,21 +184,19 @@ It is good to be aware of these properties of regression, and to place more
 weight on the meaning of the selected motif itself, rather than the specific TF
 name when interpreting the results.
 
-If many cases of high correlations exist or this is a concern, one may consider
-selecting a representative set of predictors to use. As the Jaspar database
-contains many highly similar motifs and will thus create many correlated
-predictors, one may alternatively consider clustering the weight matrices
-beforehand and using only one representative motif per cluster for running the
-regression, using tools such as for example RSAT [@RSAT]. RSAT-derived clusters
-of Jaspar weight matrices can be found at
-https://jaspar.genereg.net/matrix-clusters/vertebrates/.
+If many cases of high correlations exist and this is a concern, one may consider
+selecting a representative set of predictors to use. This may for example be
+achieved by clustering the weight matrices beforehand and using only one
+representative motif per cluster for running the regression, using tools such as
+for example RSAT [@RSAT]. RSAT-derived clusters of Jaspar weight matrices can be
+found at https://jaspar.genereg.net/matrix-clusters/vertebrates/.
 
-If the user is interested in selecting all correlated motifs, the binned
-approach is preferable, as the motifs are tested independently for significance
-(see the `r Biocpkg("monaLisa", vignette="monaLisa.html", label="binned enrichment vignette")`).
-In the regression based approach on the other hand, we can understand the
-relative contributions of TF motifs to the response in context of each other
-more clearly.
+If the user is interested in working with all correlated motifs, the binned
+approach is preferable as the motifs are independently tested for significance
+(see the `r Biocpkg("monaLisa", vignette="monaLisa.html", label="binned
+enrichment vignette")`). In the regression-based approach on the other hand, we
+can more clearly understand the relative contributions of TF motifs to the
+response in the context of each other.
 
 
 ## Identify important TFs
