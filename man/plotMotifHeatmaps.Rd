@@ -24,6 +24,7 @@ plotMotifHeatmaps(
   width.seqlogo = 1.5,
   use_raster = FALSE,
   na_col = "white",
+  doPlot = TRUE,
   ...
 )
 }
@@ -82,6 +83,11 @@ of motifs.}
 
 \item{na_col}{"white" (default). Passed to \code{na_col} of 
 \code{\link[ComplexHeatmap]{Heatmap}}.}
+
+\item{doPlot}{If \code{TRUE} (default), plot the generated heatmap(s)
+using \code{Reduce(ComplexHeatmap::add_heatmap, heatmapList)}. If
+\code{FALSE}, just return the list of heatmap(s) (\code{heatmapList}) in
+example before), allowing to modify them further before plotting.}
 
 \item{...}{Further arguments passed to \code{\link[ComplexHeatmap]{Heatmap}}
 when creating the main heatmaps selected by \code{which.plots}.}

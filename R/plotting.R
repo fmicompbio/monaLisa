@@ -286,6 +286,10 @@ plotBinScatter <- function(x, y, b,
 #'     \code{use_raster} of \code{\link[ComplexHeatmap]{Heatmap}}.
 #' @param na_col "white" (default). Passed to \code{na_col} of 
 #'     \code{\link[ComplexHeatmap]{Heatmap}}.
+#' @param doPlot If \code{TRUE} (default), plot the generated heatmap(s)
+#'     using \code{Reduce(ComplexHeatmap::add_heatmap, heatmapList)}. If
+#'     \code{FALSE}, just return the list of heatmap(s) (\code{heatmapList}) in
+#'     example before), allowing to modify them further before plotting.
 #' @param ... Further arguments passed to \code{\link[ComplexHeatmap]{Heatmap}}
 #'     when creating the main heatmaps selected by \code{which.plots}. 
 #'
@@ -347,6 +351,7 @@ plotMotifHeatmaps <- function(x,
                               width.seqlogo = 1.5,
                               use_raster = FALSE,
                               na_col = "white", 
+                              doPlot = TRUE,
                               ...) {
     stopifnot(exprs = {
         is(x, "SummarizedExperiment")
@@ -362,6 +367,7 @@ plotMotifHeatmaps <- function(x,
     .assertScalar(x = width.seqlogo, type = "numeric", rngExcl = c(0, Inf))
     .assertScalar(x = use_raster, type = "logical")
     .assertScalar(x = na_col, type = "character")
+    .assertScalar(x = doPlot, type = "logical")
     stopifnot(exprs = {
         ncol(x) == nlevels(b)
         all(which.plots %in% c("negLog10P", "negLog10Padj", 
@@ -484,7 +490,9 @@ plotMotifHeatmaps <- function(x,
     }))
     names(ret)[seq(length(ret) - length(which.plots) + 1L, length(ret))] <- 
         which.plots
-    show(Reduce(ComplexHeatmap::add_heatmap, ret))
+    if (doPlot) {
+        show(Reduce(ComplexHeatmap::add_heatmap, ret))
+    }
     invisible(ret)
 }
 

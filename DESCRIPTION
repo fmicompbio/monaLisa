@@ -1,7 +1,7 @@
 Package: monaLisa
 Type: Package
 Title: Binned Motif Enrichment Analysis and Visualization
-Version: 1.1.0
+Version: 1.1.1
 Authors@R: c(
     person("Dania", "Machlab", email = "dania.machlab@fmi.ch", role = c("aut"), 
            comment = c(ORCID = "0000-0002-2578-6930")),
@@ -50,7 +50,7 @@ Suggests:
     testthat, 
     BiocStyle, 
     gridExtra
-License: GPL-3
+License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: false
 RoxygenNote: 7.1.2

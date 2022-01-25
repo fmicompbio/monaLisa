@@ -31,31 +31,44 @@ margin-right: auto; width: 50%; border: 0" />
 # Introduction
 
 Identifying important transcription factor (TF) motifs, as shown in 
-`r Biocpkg("monaLisa", vignette="monaLisa.html", label="the main vignette")`, could also be done using a regression based approach, 
-where motifs are selected and have to compete against each other for selection. 
-In this framework, the response vector can be the observed experimental measure 
-of interest, e.g. log-fold changes of accessibility for a set of regions, and 
-the predictors consist of the TF motif hits across those regions. In 
-`r Biocpkg("monaLisa")`, we implement the randomized lasso stability selection 
-proposed by @StabSel with the improved error bounds introduced by @compStabs. 
-We have modified the `stabs::glmnet.lasso` function used by `stabs::stabsel` 
-from the `r CRANpkg("stabs")` package to implement the randomized lasso.
+`r Biocpkg("monaLisa", vignette="monaLisa.html", label="the main vignette")`, 
+could also be done using a regression-based approach, where motifs have to
+compete against each other for selection. In this framework, the response vector
+can be the observed experimental measure of interest, e.g. log-fold changes of
+accessibility for a set of regions, and the predictors consist of the TF motif
+hits across those regions. In `r Biocpkg("monaLisa")`, we implement the
+randomized lasso stability selection proposed by @StabSel with the improved
+error bounds introduced by @compStabs. We have modified the
+`stabs::glmnet.lasso` function used by `stabs::stabsel` from the 
+`r CRANpkg("stabs")` package to implement the randomized lasso.
 
-Lasso stability selection implements the lasso regression multiple times on 
-subsamples of the data, and returns a selection probability for each predictor 
-(number of times selected divided by number of regressions done). With the 
-randomized lasso, a weakness parameter is additionally used  to vary the lasso 
-penalty term $\lambda$ to a randomly chosen value between 
-[$\lambda$, $\lambda$/weakness] for each predictor. Although the main appeal of 
-stability selection is in cases where the number of predictors exceeds the 
-number of observations, it also performs better variable selection with noisy 
-data [@StabSel].
+Lasso stability selection performs the lasso regression multiple times on
+subsamples of the data, and returns a selection probability for each predictor
+(number of times selected divided by number of regressions done). With the
+randomized lasso, a weakness parameter is additionally used  to vary the lasso
+penalty term $\lambda$ to a randomly chosen value between [$\lambda$,
+$\lambda$/weakness] for each predictor. This type of regularization has
+advantages in cases where the number of predictors exceeds the number of
+observations, in selecting variables consistently, demonstrating better error
+control and not depending strongly on the penalization parameter [@StabSel].
 
 With this approach, TF motifs compete against each other to explain the 
 response vector, and we can also include additional predictors like GC content 
 to compete against the TF motifs for selection. This is especially useful if 
 the response is biased by sequence composition, for example if regions with 
 higher GC content tend to have higher response values.
+
+It is worth noting that, as with any regression analysis, the interpretability 
+of the results depends strongly on the quality of the predictors. Hence, 
+increasing the size of the motif database is not, in itself, a guarantee for 
+more interpretable results, since the added motifs may be unrelated to the 
+signal of interest. In addition, as discussed in section \@ref(collinearity), a 
+high level of redundancy, resulting in strong correlations among the motifs, 
+may result in more ambiguous selection probabilities in the regression 
+approach. In fact, also for the binned approach, although the motifs are 
+evaluated independently for association with the outcome, a high degree of 
+redundancy can lead to large collections of very similar motifs showing
+significant enrichments, complicating interpretability of the results. 
 
 
 # Motif selection with Randomized Lasso Stability Selection{#stabsel}
@@ -84,11 +97,12 @@ library(circlize)
 
 ## Load dataset
 
-In our example dataset, we have quantified ATAC-seq reads on enhancers in 
-mouse P0 lung and liver tissues. The log2-fold change (our response vector in 
-this example) is for liver vs lung chromatin accessibility. We are using a set 
-of 10,000 randomly sampled enhancers to illustrate how randomized lasso 
-stability selection can be used to select TFs.
+In this example dataset from ENCODE [@encode2012], and available in 
+`r Biocpkg("monaLisa")`, we have quantified ATAC-seq reads on enhancers in mouse P0
+lung and liver tissues. The log2-fold change (our response vector in this
+example) is for liver vs lung chromatin accessibility. We are using a set of
+10,000 randomly sampled enhancers to illustrate how randomized lasso stability
+selection can be used to select TF motifs.
 
 ```{r loadData}
 # load GRanges object with logFC and peaks
@@ -100,12 +114,12 @@ gr <- readRDS(gr_path)
 
 ## Get TFBS per motif and peak
 
-We will now construct the transcription factor binding site (TFBS) matrix for 
-known motifs (from a database like JASPAR) in peak regions. We use the 
-`monaLisa::findMotifHits` function to scan for TF motif hits. This matrix will
-be the predictor matrix in our regression. This step may take a while, and it 
-may be useful to parallelize it using the `BPPARAM` argument (e.g. to run on 
-`n` parallel threads using the multi-core backend, you can use: 
+We will now construct the transcription factor binding site (TFBS) matrix for
+known motifs (from a database like `r Biocpkg("JASPAR2020")`) in the given peak
+regions. We use the `findMotifHits` function to scan for TF motif hits. This
+matrix will be the predictor matrix in our regression. This step may take a
+while, and it may be useful to parallelize it using the `BPPARAM` argument (e.g.
+to run on `n` parallel threads using the multi-core backend, you can use:
 `findMotifHits(..., BPPARAM = BiocParallel::MulticoreParam(n))`).
 
 As mentioned, this framework offers the flexibility to add additional 
@@ -156,15 +170,55 @@ TFBSmatrix <- cbind(fracGC, oeCpG, TFBSmatrix)
 TFBSmatrix[1:6, 1:6]
 ```
 
+### A note on collinearity{#collinearity}
+At this point it is useful for the user to get an overall feeling of the
+collinearity structure in the TFBS matrix. Motifs that share a lot of similar
+binding sites across the peaks will be highly correlated. High collinearity
+between predictors is a well known problem in linear regression. It particularly
+manifests itself in the lasso regression for example, where if variables are
+equally highly correlated with the response, not all are co-selected as
+predictors (if they are signal variables). Instead, one is arbitrarily chosen
+while the others’ coefficients are set to zero. The rationale is that the
+non-selected correlated predictors do not provide much additional information to
+explain the response. It is good to be aware of these properties of regression,
+and to place more weight on the meaning of the selected motif itself, rather
+than the specific TF name when interpreting the results.
+
+If many cases of high correlations exist and this is a concern, one may consider
+selecting a representative set of predictors to use. This may for example be
+achieved by clustering the weight matrices beforehand and using only one
+representative motif per cluster for running the regression, using tools such as
+for example RSAT [@RSAT]. RSAT-derived clusters of Jaspar weight matrices can be
+found at https://jaspar.genereg.net/matrix-clusters/vertebrates/.
+
+If the user is interested in working with all correlated motifs, the binned
+approach is preferable as the motifs are independently tested for significance
+(see the `r Biocpkg("monaLisa", vignette="monaLisa.html", label="binned
+enrichment vignette")`). In the regression-based approach on the other hand, we
+can more clearly understand the relative contributions of TF motifs to the
+response in the context of each other.
+
 
 ## Identify important TFs
 
-We can now run randomized lasso stability selection to identify TFs that are 
-likely to explain the log-fold changes in accessibility. 
+We can now run randomized lasso stability selection to identify TFs that are
+likely to explain the log-fold changes in accessibility. The exact choice of
+parameter values for this approach will depend largely on how stringent the user
+wishes to be and how much signal there is in the data. For example, for more
+stringent selections, one may decrease the value of the `weakness` parameter
+which will make it harder for a variable to get selected. The user is in control
+of false discoveries with the `PFER` parameter, which indicates the number of
+falsely selected variables. As for the selection probability cutoff, @StabSel argue that
+values in the range of [0.6, 0.9] should give similar results. See the
+`randLassoStabSel` function for more details and default parameter values as
+well as the `stabs::stabsel` function for the default assumptions on the
+stability selection implementation by @compStabs.
 
 ```{r stabSelTFs}
-# # randLassoStabSel() is stochastic, so we set a seed to reproduce 
-# # ... a parallel run
+## randLassoStabSel() is stochastic, so if we run with parallelization
+##   (`mc.cores` argument), we must select a random number generator that can
+##   provide multiple streams of random numbers used in the `parallel` package
+##   and set its seed for reproducible results
 # RNGkind("L'Ecuyer-CMRG")
 # set.seed(123)
 # se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung, 
@@ -172,7 +226,7 @@ likely to explain the log-fold changes in accessibility.
 #                        mc.set.seed = TRUE, mc.cores = 2L)
 
 # if not running in parallel mode, it is enough to use set.seed() before 
-# ... using the function to ensure reproducibility (with 1 core)
+#   the call to ensure reproducibility (`mc.sores = 1`)
 set.seed(123)
 se <- randLassoStabSel(x = TFBSmatrix, y = gr$logFC_liver_vs_lung, 
                        cutoff = 0.8)
@@ -183,7 +237,7 @@ colnames(se)[se$selected]
 ```
 
 
-The stability paths visualize how predictors get selected, decreasing 
+The stability paths visualize how predictors get selected over decreasing 
 regularization stringency (from left to right): 
 
 ```{r plotStabilityPaths}
@@ -196,31 +250,29 @@ decreasing values for the lambda regularization parameter in lasso. The
 predictor (TF motif) selection happens at the last step, given the specified 
 minimum probability.
 
-We can also visualize the selection probabilities of the selected TF motifs, 
-optionally multiplied by the sign of the correlation to the response vector, 
-to know how the TF relates to the change of accessibility (`directional` 
-parameter). Note that although one can vary the `selProbMinPlot` argument 
-which sets the selection probability cutoff, it is best to re-run randomized 
-lasso stability selection with the new cutoff, as this influences other 
-parameter choices the model uses internally. See @StabSel for more details.
+We can also visualize the selection probabilities of the selected TF motifs,
+optionally multiplied by the sign of the correlation to the response vector, to
+know how the TF relates to the change of accessibility (`directional`
+parameter). In our example, positive correlations to the response vector
+indicate a correlation with enhancers more accessible in the liver, whereas
+negative ones indicate a correlation with enhancers more accessible in the lung.
+Note that although one can vary the `selProbMinPlot` argument which sets the
+selection probability cutoff, it is best to re-run randomized lasso stability
+selection with the new cutoff, as this influences other parameter choices the
+model uses internally. See @StabSel for more details.
 
-```{r plotSelProbs, fig.width=15, fig.height=9}
+```{r plotSelProbs, fig.width=8, fig.height=5}
 plotSelectionProb(se, directional = TRUE)
 ```
 
-Next, we visualize the correlation structure of the TFBS matrix and selected TF 
-motifs. While the colinearity of predictors is generally an issue in 
-regression-based approaches where variables are selected, randomized lasso 
-stability selection generally does better at co-selecting correlated 
-predictors. In practice, we still see it select predictors with correlations as 
-high as 0.9. However, it is good to keep in mind that this can be an issue,
-and that predictors that are extremely correlated with each other might not 
-end up being co-selected. In a bad case example, if we have two identical 
-predictors, neither of them could end up being selected if half of the times 
-the regressions are done, one would be randomly selected, and the other one 
-in the other half, giving each a selection probability of 0.5. If many cases 
-of high correlations exist or this is a concern, one may consider selecting a 
-representative set of predictors to use. 
+Next, we visualize the correlation structure of the selected TF motifs within
+the TFBS matrix. While the collinearity of predictors is a general issue in
+regression-based approaches, randomized lasso stability selection normally does
+better at co-selecting intermediately correlated predictors. In practice, we see
+it select predictors with correlations as high as 0.9. However, it is good to
+keep in mind that this can be an issue, and that predictors that are highly
+correlated with each other might not end up being co-selected (see section
+\@ref(collinearity)).
 
 ```{r TFBScor_selected, fig.width=10, fig.height=7}
 # subset the selected TFs
@@ -263,35 +315,6 @@ Heatmap(TFBSmatrixCorSel,
         top_annotation = colAnn)
 ```
 
-
-```{r TFBScor_all}
-# exclude oeCpG and fracGC
-excl <- colnames(se) %in% c("oeCpG", "fracGC")
-se_sub <- se[, !excl]
-
-# correlation matrix 
-TFBSmatrixCorSel <- cor(TFBSmatrix[, colnames(se_sub)], method = "pearson")
-
-# heatmap annotations
-ann <- HeatmapAnnotation(
-    selected = as.character(se_sub$selected), 
-    AUC = se_sub$selAUC, 
-    selProb = se_sub$selProb, 
-    col = list(selected = c("TRUE"="forestgreen", 
-                            "FALSE"="grey"), 
-               AUC = colorRamp2(c(0, 1), 
-                                c("white", "brown")), 
-               selProb = colorRamp2(c(0, 1), 
-                                    c("white", "steelblue")))
-)
-
-# heatmap
-Heatmap(TFBSmatrixCorSel, show_row_names = FALSE, show_column_names = FALSE, 
-        name = "Pear. Cor.", column_title = "All TFs",
-        col = colorRamp2(c(-1, 0, 1), c("blue", "white", "red")), 
-        top_annotation = ann)
-```
-
 \  
 
 We can examine the peaks that have hits for a selected TF motif of interest, 
@@ -305,7 +328,7 @@ i <- which(assay(se, "x")[, TF] > 0) # peaks that contain TF hits...
 nm <- names(sort(abs(gr$logFC_liver_vs_lung[i]), 
                  decreasing = TRUE)) # ... order by |logFC|
 
-head(gr[nm])
+gr[nm]
 ```
 
 

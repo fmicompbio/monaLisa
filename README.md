@@ -31,6 +31,12 @@ Current contributors include:
 - [Lukas Burger](https://github.com/LukasBurger)
 - [Charlotte Soneson](https://github.com/csoneson)
 
+## News
+
+- information on the latest changes can be found [here](https://github.com/fmicompbio/monaLisa/blob/master/NEWS.md)
+- a preprint is available on [bioRxiv](https://doi.org/10.1101/2021.11.30.470570)
+- `monaLisa` is available on [Bioconductor](https://bioconductor.org/packages/monaLisa)
+
 ## Installation
 
 `monaLisa` can be installed from Bioconductor via the 
