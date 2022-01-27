@@ -23,7 +23,9 @@ knitr::opts_chunk$set(
     crop = NULL # suppress "The magick package is required to crop" issue
 )
 library(BiocStyle)
-options(bitmapType = "cairo")
+if (Sys.info()[["sysname"]] == "Darwin" && capabilities()[["cairo"]]) {
+    options(bitmapType = "cairo")
+}
 ```
 
 <img src="monaLisa_logo_v1.png" style="display: block; margin-left: auto;
