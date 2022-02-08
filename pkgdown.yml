@@ -1,10 +1,10 @@
 pandoc: 2.7.3
-pkgdown: 2.0.1.9000
-pkgdown_sha: 1c2bedc10283fe39c5e539083021cb87f208903a
+pkgdown: 2.0.2.9000
+pkgdown_sha: ae7363faac9040a473a54fb3d770decdfb8dfec1
 articles:
   monaLisa: monaLisa.html
   selecting_motifs_with_randLassoStabSel: selecting_motifs_with_randLassoStabSel.html
-last_built: 2021-12-09T08:26Z
+last_built: 2022-02-08T17:31Z
 urls:
   reference: https://fmicompbio.github.io/monaLisa/reference
   article: https://fmicompbio.github.io/monaLisa/articles

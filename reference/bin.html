@@ -19,7 +19,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.1</span>
       </span>
     </div>
 
@@ -155,6 +155,8 @@ include.lowest = TRUE, ...)</code>, such as <code>labels=FALSE</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     (0.771,1.18]       (1.18,2.4] </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               10               10 </span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu">bin</span><span class="op">(</span><span class="va">x</span>, <span class="st">"equalN"</span>, nElements<span class="op">=</span><span class="fl">10</span>, minAbsX<span class="op">=</span><span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Zero-bin breaks (-0.621,0.576] have been adjusted by more than 20% compared to `minAbsX` to best respect `binmode`.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Please use `bin(..., binmode = "breaks", breaks = X)` and optionally `setZeroBin(...)` to enforce breaks as defined by `X`.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [-2.21,-1.09] (-1.09,-0.621] (-0.621,0.576]  (0.576,0.769]   (0.769,1.18] </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             10             10             50             10             10 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     (1.18,2.4] </span>
@@ -180,7 +182,7 @@ include.lowest = TRUE, ...)</code>, such as <code>labels=FALSE</code>.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.9000.</p>
 </div>
 
       </footer></div>

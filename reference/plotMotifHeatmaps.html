@@ -18,7 +18,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.1</span>
       </span>
     </div>
 
@@ -91,6 +91,7 @@
   width.seqlogo <span class="op">=</span> <span class="fl">1.5</span>,
   use_raster <span class="op">=</span> <span class="cn">FALSE</span>,
   na_col <span class="op">=</span> <span class="st">"white"</span>,
+  doPlot <span class="op">=</span> <span class="cn">TRUE</span>,
   <span class="va">...</span>
 <span class="op">)</span></code></pre></div>
     </div>
@@ -152,6 +153,11 @@ of motifs.</p></dd>
 <dt>na_col</dt>
 <dd><p>"white" (default). Passed to <code>na_col</code> of 
 <code><a href="https://rdrr.io/pkg/ComplexHeatmap/man/Heatmap.html" class="external-link">Heatmap</a></code>.</p></dd>
+<dt>doPlot</dt>
+<dd><p>If <code>TRUE</code> (default), plot the generated heatmap(s)
+using <code>Reduce(ComplexHeatmap::add_heatmap, heatmapList)</code>. If
+<code>FALSE</code>, just return the list of heatmap(s) (<code>heatmapList</code>) in
+example before), allowing to modify them further before plotting.</p></dd>
 <dt>...</dt>
 <dd><p>Further arguments passed to <code><a href="https://rdrr.io/pkg/ComplexHeatmap/man/Heatmap.html" class="external-link">Heatmap</a></code>
 when creating the main heatmaps selected by <code>which.plots</code>.</p></dd>
@@ -203,7 +209,7 @@ when creating the main heatmaps selected by <code>which.plots</code>.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.9000.</p>
 </div>
 
       </footer></div>
