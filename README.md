@@ -40,7 +40,7 @@ Current contributors include:
 
 ## Citation
 
-To cite `monaLisa` please use the publication found [here](https://doi.org/10.1093/bioinformatics/btac102) or see `r citation("monaLisa")`.
+To cite `monaLisa` please use the publication found [here](https://doi.org/10.1093/bioinformatics/btac102) or see `citation("monaLisa")`.
 
 ## Installation
 
