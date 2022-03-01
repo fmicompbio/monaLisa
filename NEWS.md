@@ -1,3 +1,7 @@
+# monaLisa 1.1.2
+
+* added citation to the Bioinformatics publication
+
 # monaLisa 1.1.1
 
 * added link to pre-print manuscript on biorXiv to `README.md`
