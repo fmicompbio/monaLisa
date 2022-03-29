@@ -36,7 +36,7 @@ Current contributors include:
 - information on the latest changes can be found [here](https://github.com/fmicompbio/monaLisa/blob/master/NEWS.md)
 - a preprint is available on [bioRxiv](https://doi.org/10.1101/2021.11.30.470570)
 - `monaLisa` is available on [Bioconductor](https://bioconductor.org/packages/monaLisa)
-- `monaLisa` is now [published](https://doi.org/10.1093/bioinformatics/btac102)
+- `monaLisa` is now published in [Bioinformatics](https://doi.org/10.1093/bioinformatics/btac102)
 
 ## Citation
 
