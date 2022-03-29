@@ -96,7 +96,8 @@ jobs:
           RHUB_PLATFORM: linux-x86_64-ubuntu-gcc
         run: |
           Rscript -e "remotes::install_github('r-hub/sysreqs')"
-          sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands(file.path("${{env.PKG_PATH}}", 'DESCRIPTION')))")
+          # sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands(file.path("${{env.PKG_PATH}}", 'DESCRIPTION')))")
+          sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands('DESCRIPTION'))")
           sudo -s eval "$sysreqs"
           sudo apt-get update && sudo apt-get -y install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev
           
