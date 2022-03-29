@@ -137,7 +137,7 @@ jobs:
       - name: BiocCheck
         run: |
           BiocManager::install("BiocCheck")
-          BiocCheck::BiocCheck(package = "${{env.PKG_PATH}}", `new-package`=FALSE)
+          BiocCheck::BiocCheck(package = "${{env.PKG_PATH}}")
         shell: Rscript {0}
 
       - name: Check NEWS.md
