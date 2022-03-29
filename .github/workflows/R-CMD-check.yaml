@@ -23,12 +23,12 @@ jobs:
         # - { os: windows-latest, r: 'devel', bioc: 'devel'}
         - { os: windows-latest, r: '4.1', bioc: '3.14'}
         # - { os: ubuntu-16.04, r: 'devel', bioc: 'devel', cran: "https://demo.rstudiopm.com/all/__linux__/xenial/latest"}
-        # - { os: ubuntu-latest, r: 'devel', image: 'bioconductor/bioconductor_docker:devel'}
+        - { os: ubuntu-latest, r: '4.2', image: 'bioconductor/bioconductor_docker:devel'}
  
     runs-on: ${{ matrix.config.os }}
-    # container: ${{ matrix.config.image }}
+    container: ${{ matrix.config.image }}
 
-    name: ${{ matrix.config.os }} (R ${{ matrix.config.r }} - BioC ${{ matrix.config.bioc }})
+    name: ${{ matrix.config.os }} (R ${{ matrix.config.r }} - BioC ${{ matrix.config.bioc }} - ${{ matrix.config.image }})
 
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
@@ -55,7 +55,7 @@ jobs:
           r-version: ${{  matrix.config.r  }}
           
       - name: Install Homer 
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && matrix.config.image == null
         run: | 
           mkdir homer && pushd homer
           wget http://homer.ucsd.edu/homer/configureHomer.pl
