@@ -23,7 +23,7 @@ jobs:
         # - { os: windows-latest, r: 'devel', bioc: 'devel'}
         - { os: windows-latest, r: '4.1', bioc: '3.14'}
         # - { os: ubuntu-16.04, r: 'devel', bioc: 'devel', cran: "https://demo.rstudiopm.com/all/__linux__/xenial/latest"}
-        - { os: ubuntu-latest, r: '4.2', image: 'bioconductor/bioconductor_docker:devel'}
+        - { os: ubuntu-latest, r: 'devel', image: 'bioconductor/bioconductor_docker:devel'}
  
     runs-on: ${{ matrix.config.os }}
     container: ${{ matrix.config.image }}
@@ -96,8 +96,8 @@ jobs:
           RHUB_PLATFORM: linux-x86_64-ubuntu-gcc
         run: |
           Rscript -e "remotes::install_github('r-hub/sysreqs')"
-          # sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands(file.path("${{env.PKG_PATH}}", 'DESCRIPTION')))")
-          sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands('DESCRIPTION'))")
+          sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands(file.path("${{env.PKG_PATH}}", 'DESCRIPTION')))")
+          # sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands('DESCRIPTION'))")
           sudo -s eval "$sysreqs"
           sudo apt-get update && sudo apt-get -y install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev
           
