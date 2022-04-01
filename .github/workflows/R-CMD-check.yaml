@@ -1,6 +1,12 @@
 name: R-CMD-check
 
-on: push
+on: 
+  push:
+  pull_request:
+    branches:
+      - master
+  schedule:
+    - cron: '0 8 * * 5'
 
 jobs:
   R-CMD-check:
@@ -12,15 +18,18 @@ jobs:
         config:
         # - { os: macOS-latest, r: '4.1', bioc: '3.13'}
         # - { os: windows-latest, r: '4.1', bioc: '3.13'}
-        - { os: macOS-latest, r: 'devel', bioc: 'devel'}
-        - { os: windows-latest, r: 'devel', bioc: 'devel'}
+        # - { os: macOS-latest, r: 'devel', bioc: 'devel'}
+        - { os: macOS-latest, r: '4.1', bioc: '3.14'}
+        # - { os: windows-latest, r: 'devel', bioc: 'devel'}
+        - { os: windows-latest, r: '4.1', bioc: '3.14'}
         # - { os: ubuntu-16.04, r: 'devel', bioc: 'devel', cran: "https://demo.rstudiopm.com/all/__linux__/xenial/latest"}
-        # - { os: ubuntu-latest, r: 'devel', image: 'bioconductor/bioconductor_docker:devel'}
+        - { os: ubuntu-latest, r: '4.1', image: 'bioconductor/bioconductor_docker:devel'}
+        # - { os: macOS-latest, r: 'devel', image: 'bioconductor/bioconductor_docker:devel'}
  
     runs-on: ${{ matrix.config.os }}
-    # container: ${{ matrix.config.image }}
+    container: ${{ matrix.config.image }}
 
-    name: ${{ matrix.config.os }} (R ${{ matrix.config.r }} - BioC ${{ matrix.config.bioc }})
+    name: ${{ matrix.config.os }} (R ${{ matrix.config.r }} - BioC ${{ matrix.config.bioc }} - ${{ matrix.config.image }})
 
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
@@ -47,7 +56,7 @@ jobs:
           r-version: ${{  matrix.config.r  }}
           
       - name: Install Homer 
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && matrix.config.image == null
         run: | 
           mkdir homer && pushd homer
           wget http://homer.ucsd.edu/homer/configureHomer.pl
@@ -88,7 +97,8 @@ jobs:
           RHUB_PLATFORM: linux-x86_64-ubuntu-gcc
         run: |
           Rscript -e "remotes::install_github('r-hub/sysreqs')"
-          sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands(file.path("${{env.PKG_PATH}}", 'DESCRIPTION')))")
+          sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands(file.path('${{env.PKG_PATH}}', 'DESCRIPTION')))")
+          # sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands('DESCRIPTION'))")
           sudo -s eval "$sysreqs"
           sudo apt-get update && sudo apt-get -y install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev
           
@@ -127,7 +137,7 @@ jobs:
       - name: BiocCheck
         run: |
           BiocManager::install("BiocCheck")
-          BiocCheck::BiocCheck(package = "${{env.PKG_PATH}}", `new-package`=TRUE)
+          BiocCheck::BiocCheck(package = "${{env.PKG_PATH}}")
         shell: Rscript {0}
 
       - name: Check NEWS.md

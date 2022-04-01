@@ -1,0 +1,19 @@
+citHeader("To cite monaLisa in publications please use:")
+
+citEntry(
+  entry    = "Article",
+  title    = "monaLisa: an R/Bioconductor package for identifying regulatory motifs",
+  author   = personList(as.person("Dania Machlab"), 
+                        as.person("Lukas Burger"), 
+                        as.person("Charlotte Soneson"), 
+                        as.person("Filippo M Rijli"), 
+                        as.person("Dirk Schübeler"), 
+                        as.person("Michael B Stadler")),
+  journal  = "Bioinformatics",
+  volume   = "",
+  number   = "",
+  pages    = "",
+  year     = 2022,
+  doi      = "10.1093/bioinformatics/btac102",
+  textVersion = "Machlab D, Burger L, Soneson C, Rijli FM, Schübeler D, Stadler MB. monaLisa: an R/Bioconductor package for identifying regulatory motifs. Bioinformatics (2022)."
+)
