@@ -36,7 +36,7 @@ Imports:
     BiocParallel,
     grid,
     circlize,
-    ComplexHeatmap (>= 2.0.0),
+    ComplexHeatmap (>= 2.11.1),
     XVector,
     GenomeInfoDb,
     tools,
