@@ -301,7 +301,7 @@ annoSeqlogo <- function(grobL, which = c("column", "row"),
         var_import = list(gp, space, grobL),
         subset_rule = list(gp = ComplexHeatmap::subset_gp,
                            grobL = ComplexHeatmap::subset_vector), 
-        subsetable = TRUE
+        subsettable = TRUE
     )
     return(anno)
 }
