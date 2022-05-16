@@ -1,3 +1,7 @@
+# monaLisa 1.3.1
+
+* update citation information
+
 # monaLisa 1.1.2
 
 * added citation to the Bioinformatics publication
