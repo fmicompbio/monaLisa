@@ -22,7 +22,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.7.1</span>
       </span>
     </div>
 
@@ -79,14 +79,14 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">motifKmerSimilarity</span><span class="op">(</span>
-  <span class="va">x</span>,
-  kmerLen <span class="op">=</span> <span class="fl">5</span>,
-  kmers <span class="op">=</span> <span class="cn">NULL</span>,
-  includeRevComp <span class="op">=</span> <span class="cn">FALSE</span>,
-  BPPARAM <span class="op">=</span> <span class="fu">SerialParam</span><span class="op">(</span><span class="op">)</span>,
-  verbose <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">motifKmerSimilarity</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  kmerLen <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  kmers <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  includeRevComp <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  BPPARAM <span class="op">=</span> <span class="fu">SerialParam</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -97,25 +97,38 @@ scalar with a file containing motifs in HOMER format (used directly
 <code>method = "HOMER"</code>, loaded into a
 <code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html" class="external-link">PFMatrixList</a></code> by <code><a href="homerToPFMatrixList.html">homerToPFMatrixList</a></code>
 for <code>method = "R"</code>).</p></dd>
+
+
 <dt>kmerLen</dt>
 <dd><p>A <code>numeric</code> scalar giving the k-mer length.</p></dd>
+
+
 <dt>kmers</dt>
 <dd><p>Either a character vector of k-mers for which to calculate 
 the similarity to each motif, or <code>NULL</code>, in which case all k-mers
 of length <code>kmerLen</code> are used.</p></dd>
+
+
 <dt>includeRevComp</dt>
 <dd><p>A <code>logical</code> scalar. If set to <code>TRUE</code>, each 
 k-mer as well as its reverse complement is compared to each motif, and the 
 larger of the two similarities is returned.</p></dd>
+
+
 <dt>BPPARAM</dt>
 <dd><p>An optional <code><a href="https://rdrr.io/pkg/BiocParallel/man/BiocParallelParam-class.html" class="external-link">BiocParallelParam</a></code>
 instance determining the parallel back-end to be used during evaluation.</p></dd>
+
+
 <dt>verbose</dt>
 <dd><p>A logical scalar. If <code>TRUE</code>, report on progress.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A matrix of probabilties for each motif - k-mer pair.</p>
+    
+
+<p>A matrix of probabilties for each motif - k-mer pair.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -124,19 +137,19 @@ instance determining the parallel back-end to be used during evaluation.</p></dd
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>A <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">12</span>,  <span class="fl">0</span>,  <span class="fl">0</span><span class="op">)</span>,</span>
-<span class="r-in">           C <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span> <span class="fl">3</span>,  <span class="fl">2</span>,  <span class="fl">0</span><span class="op">)</span>,</span>
-<span class="r-in">           G <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span> <span class="fl">0</span>, <span class="fl">14</span>,  <span class="fl">0</span><span class="op">)</span>,</span>
-<span class="r-in">           T <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span> <span class="fl">0</span>,  <span class="fl">0</span>, <span class="fl">15</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">pfms</span> <span class="op">&lt;-</span> <span class="fu">TFBSTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html" class="external-link">PFMatrixList</a></span><span class="op">(</span></span>
-<span class="r-in">    <span class="fu">TFBSTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html" class="external-link">PFMatrix</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"m1"</span>, profileMatrix <span class="op">=</span> <span class="va">m</span><span class="op">)</span>,</span>
-<span class="r-in">    <span class="fu">TFBSTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html" class="external-link">PFMatrix</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"m2"</span>, profileMatrix <span class="op">=</span> <span class="va">m</span><span class="op">[</span>, <span class="fl">3</span><span class="op">:</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"><span class="fu">motifKmerSimilarity</span><span class="op">(</span><span class="va">pfms</span>, kmerLen <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AGT"</span>, <span class="st">"TGA"</span><span class="op">)</span><span class="op">]</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>A <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">12</span>,  <span class="fl">0</span>,  <span class="fl">0</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>           C <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="fl">3</span>,  <span class="fl">2</span>,  <span class="fl">0</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>           G <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="fl">0</span>, <span class="fl">14</span>,  <span class="fl">0</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>           T <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="fl">0</span>,  <span class="fl">0</span>, <span class="fl">15</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pfms</span> <span class="op">&lt;-</span> <span class="fu">TFBSTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html" class="external-link">PFMatrixList</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fu">TFBSTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html" class="external-link">PFMatrix</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"m1"</span>, profileMatrix <span class="op">=</span> <span class="va">m</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="fu">TFBSTools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html" class="external-link">PFMatrix</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"m2"</span>, profileMatrix <span class="op">=</span> <span class="va">m</span><span class="op">[</span>, <span class="fl">3</span><span class="op">:</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">motifKmerSimilarity</span><span class="op">(</span><span class="va">pfms</span>, kmerLen <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AGT"</span>, <span class="st">"TGA"</span><span class="op">)</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       AGT    TGA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> m1 0.7000 0.0625</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> m2 0.0625 0.7000</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -151,7 +164,7 @@ instance determining the parallel back-end to be used during evaluation.</p></dd
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
 </div>
 
       </footer></div>

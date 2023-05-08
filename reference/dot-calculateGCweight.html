@@ -22,7 +22,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.7.1</span>
       </span>
     </div>
 
@@ -79,28 +79,38 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">.calculateGCweight</span><span class="op">(</span>
-  <span class="va">df</span>,
-  GCbreaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">0.25</span>, <span class="fl">0.3</span>, <span class="fl">0.35</span>, <span class="fl">0.4</span>, <span class="fl">0.45</span>, <span class="fl">0.5</span>, <span class="fl">0.6</span>, <span class="fl">0.7</span>, <span class="fl">0.8</span><span class="op">)</span>,
-  verbose <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">.calculateGCweight</span><span class="op">(</span></span>
+<span>  <span class="va">df</span>,</span>
+<span>  GCbreaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">0.25</span>, <span class="fl">0.3</span>, <span class="fl">0.35</span>, <span class="fl">0.4</span>, <span class="fl">0.45</span>, <span class="fl">0.5</span>, <span class="fl">0.6</span>, <span class="fl">0.7</span>, <span class="fl">0.8</span><span class="op">)</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>df</dt>
 <dd><p>a <code>DataFrame</code> with sequence information.</p></dd>
+
+
 <dt>GCbreaks</dt>
 <dd><p>The breaks between GC bins. The default value is based on
 the hard-coded bins used in Homer.</p></dd>
+
+
 <dt>verbose</dt>
 <dd><p>A logical scalar. If <code>TRUE</code>, report on GC weight
 calculation.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>a <code>DataFrame</code> of the same dimensions as the input <code>df</code>,
-  with the columns <code>GCfrac</code>, <code>GCbin</code> and <code>GCwgt</code>  filled in with the sequence GC content, assigned GC bins and weights to
+    
+
+<p>a <code>DataFrame</code> of the same dimensions as the input <code>df</code>,
+  with the columns <code>GCfrac</code>, <code>GCbin</code> and <code>GCwgt</code></p>
+
+
+<p>filled in with the sequence GC content, assigned GC bins and weights to
   correct differences in GC distributions between foreground and background
   sequences.</p>
     </div>
@@ -117,7 +127,7 @@ calculation.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
 </div>
 
       </footer></div>

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.7.1</span>
       </span>
     </div>
 
@@ -69,41 +69,51 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">parseHomerOutput</span><span class="op">(</span><span class="va">infiles</span>, pseudocount.log2enr <span class="op">=</span> <span class="fl">8</span>, p.adjust.method <span class="op">=</span> <span class="st">"BH"</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">parseHomerOutput</span><span class="op">(</span><span class="va">infiles</span>, pseudocount.log2enr <span class="op">=</span> <span class="fl">8</span>, p.adjust.method <span class="op">=</span> <span class="st">"BH"</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>infiles</dt>
 <dd><p>HOMER output files to be parsed.</p></dd>
+
+
 <dt>pseudocount.log2enr</dt>
 <dd><p>A numerical scalar with the pseudocount to add to
 foreground and background counts when calculating log2 motif enrichments</p></dd>
+
+
 <dt>p.adjust.method</dt>
 <dd><p>A character scalar selecting the p value adjustment
 method (used in <code><a href="https://rdrr.io/r/stats/p.adjust.html" class="external-link">p.adjust</a></code>).</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A list of nine components (<code>negLog10P</code>, <code>negLog10Padj</code>,
-<code>pearsonResid</code>, <code>expForegroundWgtWithHits</code>, <code>log2enr</code>,
-<code>sumForegroundWgtWithHits</code> and <code>sumBackgroundWgtWithHits</code>), 
+    
+
+<p>A list of nine components (<code>negLog10P</code>, <code>negLog10Padj</code>,</p>
+<p></p>
+<p><code>pearsonResid</code>, <code>expForegroundWgtWithHits</code>, <code>log2enr</code>,</p>
+<p></p>
+<p><code>sumForegroundWgtWithHits</code> and <code>sumBackgroundWgtWithHits</code>), 
     seven containing each a motif (rows) by bin (columns) matrix with raw 
     -log10 P values, -log10 adjusted P values, the expected number of 
     foreground sequences with hits, the observed number of foreground and 
     background sequences with hits, 
     and motif enrichments as Pearson residuals (<code>pearsonResid</code>) and as
     log2 ratios (<code>log2enr</code>), and two containing the total foreground 
-    and background weight (<code>totalWgtForeground</code>, 
-<code>totalWgtBackground</code>).</p>
+    and background weight (<code>totalWgtForeground</code>,</p>
+<p></p>
+<p><code>totalWgtBackground</code>).</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">outfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"homer_output.txt.gz"</span>, </span>
-<span class="r-in">                       package <span class="op">=</span> <span class="st">"monaLisa"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">parseHomerOutput</span><span class="op">(</span>infiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span>bin1 <span class="op">=</span> <span class="va">outfile</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">negLog10P</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">outfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"homer_output.txt.gz"</span>, </span></span>
+<span class="r-in"><span>                       package <span class="op">=</span> <span class="st">"monaLisa"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">parseHomerOutput</span><span class="op">(</span>infiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>bin1 <span class="op">=</span> <span class="va">outfile</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">negLog10P</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                            bin1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MA0002.2:::RUNX1     18.8006081</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MA0003.3:::TFAP2A     5.6458283</span>
@@ -111,7 +121,7 @@ method (used in <code><a href="https://rdrr.io/r/stats/p.adjust.html" class="ext
 <span class="r-out co"><span class="r-pr">#&gt;</span> MA0006.1:::Ahr::Arnt  5.0378160</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MA0007.3:::Ar         0.5815203</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MA0009.2:::T          0.5172447</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -126,7 +136,7 @@ method (used in <code><a href="https://rdrr.io/r/stats/p.adjust.html" class="ext
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
 </div>
 
       </footer></div>

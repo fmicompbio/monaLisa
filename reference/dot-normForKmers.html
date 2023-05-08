@@ -23,7 +23,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.7.1</span>
       </span>
     </div>
 
@@ -81,15 +81,15 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">.normForKmers</span><span class="op">(</span>
-  <span class="va">kmerFreq</span>,
-  <span class="va">goodKmers</span>,
-  <span class="va">kmerRC</span>,
-  <span class="va">seqWgt</span>,
-  <span class="va">isForeground</span>,
-  minSeqWgt <span class="op">=</span> <span class="fl">0.001</span>,
-  maxSeqWgt <span class="op">=</span> <span class="fl">1000</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">.normForKmers</span><span class="op">(</span></span>
+<span>  <span class="va">kmerFreq</span>,</span>
+<span>  <span class="va">goodKmers</span>,</span>
+<span>  <span class="va">kmerRC</span>,</span>
+<span>  <span class="va">seqWgt</span>,</span>
+<span>  <span class="va">isForeground</span>,</span>
+<span>  minSeqWgt <span class="op">=</span> <span class="fl">0.001</span>,</span>
+<span>  maxSeqWgt <span class="op">=</span> <span class="fl">1000</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -98,33 +98,48 @@
 <dd><p>a <code>list</code> with of matrices. The matrix at index <code>i</code>
 in the list contains the probability of k-mers of length <code>i</code>, for each
 k-mer (columns) and sequence (rows).</p></dd>
+
+
 <dt>goodKmers</dt>
 <dd><p>a <code>list</code> of <code>numeric</code> vectors; the element at 
 index <code>i</code> contains the number of good (non-N-containing) k-mers of 
 length <code>i</code> for each sequence.</p></dd>
+
+
 <dt>kmerRC</dt>
 <dd><p>a <code>list</code> of character vectors; the element at index
 <code>i</code> contains the reverse complement sequences of all k-mers of length
 <code>i</code>.</p></dd>
+
+
 <dt>seqWgt</dt>
 <dd><p>a <code>numeric</code> vector with starting sequence weights
 at the beginning of the iteration.</p></dd>
+
+
 <dt>isForeground</dt>
 <dd><p>logical vector of the same length as <code>seqs</code>.
 <code>TRUE</code> indicates that the sequence is from the foreground,
 <code>FALSE</code> that it is a background sequence.</p></dd>
+
+
 <dt>minSeqWgt</dt>
 <dd><p>Numeric scalar greater than zero giving the
 minimal weight of a sequence. The default value (0.001) is based on
 <code>Homer</code> (HOMER_MINIMUM_SEQ_WEIGHT constant in Motif2.h).</p></dd>
+
+
 <dt>maxSeqWgt</dt>
 <dd><p>Numeric scalar greater than zero giving the
 maximal weight of a sequence. The default value (1000) is based on
 <code>HOMER</code> (1 / HOMER_MINIMUM_SEQ_WEIGHT constant in Motif2.h).</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>a named <code>list</code> with elements <code>seqWgt</code> (updated
+    
+
+<p>a named <code>list</code> with elements <code>seqWgt</code> (updated
   weights) and <code>err</code> (error measuring difference of foreground
   and weighted background sequence compositions).</p>
     </div>
@@ -141,7 +156,7 @@ maximal weight of a sequence. The default value (1000) is based on
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
 </div>
 
       </footer></div>

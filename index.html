@@ -37,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.7.1</span>
       </span>
     </div>
 
@@ -134,44 +134,44 @@
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <p><code>monaLisa</code> can be installed from Bioconductor via the <code>BiocManager</code> package:</p>
-<pre><code><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"BiocManager"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>
-    <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span>
-
-<span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"monaLisa"</span><span class="op">)</span></code></pre>
+<pre><code><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"BiocManager"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"monaLisa"</span><span class="op">)</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="functionality">Functionality<a class="anchor" aria-label="anchor" href="#functionality"></a>
 </h2>
 <p>Here is a minimal example to run a <code>monaLisa</code> analysis:</p>
-<pre><code><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/fmicompbio/monaLisa" class="external-link">monaLisa</a></span><span class="op">)</span>
-
-<span class="va">mcparams</span> <span class="op">&lt;-</span> <span class="fu">BiocParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocParallel/man/MulticoreParam-class.html" class="external-link">MulticoreParam</a></span><span class="op">(</span><span class="fl">10L</span><span class="op">)</span>
-<span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/calcBinnedMotifEnrR.html">calcBinnedMotifEnrR</a></span><span class="op">(</span>seqs <span class="op">=</span> <span class="va">seqs</span>,   <span class="co"># DNAStringSet (e.g. peak sequences)</span>
-                          bins <span class="op">=</span> <span class="va">bins</span>,   <span class="co"># factor that groups 'seqs'</span>
-                          pwmL <span class="op">=</span> <span class="va">pwms</span>, <span class="co"># PWMatrixList (know motifs)</span>
-                          BPPARAM <span class="op">=</span> <span class="va">mcparams</span>,
-                          min.score <span class="op">=</span> <span class="fl">10</span>,
-                          verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre>
+<pre><code><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/fmicompbio/monaLisa" class="external-link">monaLisa</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">mcparams</span> <span class="op">&lt;-</span> <span class="fu">BiocParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocParallel/man/MulticoreParam-class.html" class="external-link">MulticoreParam</a></span><span class="op">(</span><span class="fl">10L</span><span class="op">)</span></span>
+<span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/calcBinnedMotifEnrR.html">calcBinnedMotifEnrR</a></span><span class="op">(</span>seqs <span class="op">=</span> <span class="va">seqs</span>,   <span class="co"># DNAStringSet (e.g. peak sequences)</span></span>
+<span>                          bins <span class="op">=</span> <span class="va">bins</span>,   <span class="co"># factor that groups 'seqs'</span></span>
+<span>                          pwmL <span class="op">=</span> <span class="va">pwms</span>, <span class="co"># PWMatrixList (know motifs)</span></span>
+<span>                          BPPARAM <span class="op">=</span> <span class="va">mcparams</span>,</span>
+<span>                          min.score <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>                          verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre>
 <p>The return value <code>se</code> is a <code>SummarizedExperiment</code> with motifs in rows and bins in columns, and multiple assays with significance and magnitude of the enrichments.</p>
 <p>The inputs for <code>calcBinnedMotifEnrR</code> can be easily obtained using other Bioconductor packages:</p>
-<pre><code><span class="co"># get sequences ('atacPeaks' is a GRanges)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/Biostrings" class="external-link">Biostrings</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">BSgenome.Mmusculus.UCSC.mm10</span><span class="op">)</span>
-<span class="va">seqs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Biostrings/man/getSeq.html" class="external-link">getSeq</a></span><span class="op">(</span><span class="va">BSgenome.Mmusculus.UCSC.mm10</span>, <span class="va">atacPeaks</span><span class="op">)</span>
-
-<span class="co"># bin sequences ('atacPeaksChange' is a numerical vector)</span>
-<span class="va">bins</span> <span class="op">&lt;-</span> <span class="fu">monaLisa</span><span class="fu">::</span><span class="fu"><a href="reference/bin.html">bin</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">atacPeaksChange</span>, binmode <span class="op">=</span> <span class="st">"equalN"</span>, nElement <span class="op">=</span> <span class="fl">400</span><span class="op">)</span>
-
-<span class="co"># obtain known motifs from Jaspar</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://jaspar.genereg.net/" class="external-link">JASPAR2020</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ge11232002/TFBSTools" class="external-link">TFBSTools</a></span><span class="op">)</span>
-<span class="va">pwms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/getMatrixSet-methods.html" class="external-link">getMatrixSet</a></span><span class="op">(</span><span class="va">JASPAR2020</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>matrixtype <span class="op">=</span> <span class="st">"PWM"</span>, tax_group <span class="op">=</span> <span class="st">"vertebrates"</span><span class="op">)</span><span class="op">)</span></code></pre>
+<pre><code><span><span class="co"># get sequences ('atacPeaks' is a GRanges)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/Biostrings" class="external-link">Biostrings</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">BSgenome.Mmusculus.UCSC.mm10</span><span class="op">)</span></span>
+<span><span class="va">seqs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Biostrings/man/getSeq.html" class="external-link">getSeq</a></span><span class="op">(</span><span class="va">BSgenome.Mmusculus.UCSC.mm10</span>, <span class="va">atacPeaks</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># bin sequences ('atacPeaksChange' is a numerical vector)</span></span>
+<span><span class="va">bins</span> <span class="op">&lt;-</span> <span class="fu">monaLisa</span><span class="fu">::</span><span class="fu"><a href="reference/bin.html">bin</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">atacPeaksChange</span>, binmode <span class="op">=</span> <span class="st">"equalN"</span>, nElement <span class="op">=</span> <span class="fl">400</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># obtain known motifs from Jaspar</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://jaspar.genereg.net/" class="external-link">JASPAR2020</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ge11232002/TFBSTools" class="external-link">TFBSTools</a></span><span class="op">)</span></span>
+<span><span class="va">pwms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/getMatrixSet-methods.html" class="external-link">getMatrixSet</a></span><span class="op">(</span><span class="va">JASPAR2020</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>matrixtype <span class="op">=</span> <span class="st">"PWM"</span>, tax_group <span class="op">=</span> <span class="st">"vertebrates"</span><span class="op">)</span><span class="op">)</span></span></code></pre>
 <p>The results can be conveniently visualized:</p>
-<pre><code><span class="fu"><a href="reference/plotBinDensity.html">plotBinDensity</a></span><span class="op">(</span><span class="va">atacPeaksChange</span>, <span class="va">bins</span>, legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre>
+<pre><code><span><span class="fu"><a href="reference/plotBinDensity.html">plotBinDensity</a></span><span class="op">(</span><span class="va">atacPeaksChange</span>, <span class="va">bins</span>, legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre>
 <p><img src="reference/figures/monaLisa_binning_small.png" align="center" alt="binning" width="412px"></p>
-<pre><code><span class="fu"><a href="reference/plotMotifHeatmaps.html">plotMotifHeatmaps</a></span><span class="op">(</span><span class="va">se</span>, cluster <span class="op">=</span> <span class="cn">TRUE</span>,
-                  which.plots <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"enr"</span>, <span class="st">"FDR"</span><span class="op">)</span>,
-                  show_seqlogo <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre>
+<pre><code><span><span class="fu"><a href="reference/plotMotifHeatmaps.html">plotMotifHeatmaps</a></span><span class="op">(</span><span class="va">se</span>, cluster <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                  which.plots <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"enr"</span>, <span class="st">"FDR"</span><span class="op">)</span>,</span>
+<span>                  show_seqlogo <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre>
 <p><img src="reference/figures/monaLisa_heatmaps_small.png" align="center" alt="heatmaps" width="501px"></p>
 <!-- badges: start -->
 </div>
@@ -238,7 +238,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.9000.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
 </div>
 
       </footer>

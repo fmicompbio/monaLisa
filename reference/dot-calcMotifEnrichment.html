@@ -29,7 +29,7 @@ For test = &quot;fisher&quot;, fisher.test is used with
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.7.1</span>
       </span>
     </div>
 
@@ -93,12 +93,12 @@ For test = &quot;fisher&quot;, fisher.test is used with
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">.calcMotifEnrichment</span><span class="op">(</span>
-  <span class="va">motifHitMatrix</span>,
-  <span class="va">df</span>,
-  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fisher"</span>, <span class="st">"binomial"</span><span class="op">)</span>,
-  verbose <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">.calcMotifEnrichment</span><span class="op">(</span></span>
+<span>  <span class="va">motifHitMatrix</span>,</span>
+<span>  <span class="va">df</span>,</span>
+<span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fisher"</span>, <span class="st">"binomial"</span><span class="op">)</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -106,17 +106,28 @@ For test = &quot;fisher&quot;, fisher.test is used with
     <dl><dt>motifHitMatrix</dt>
 <dd><p>matrix with 0 and 1 entries for absence or presence of
 motif hits in each sequence.</p></dd>
+
+
 <dt>df</dt>
 <dd><p>a <code>DataFrame</code> with sequence information as returned by
 <code><a href="dot-iterativeNormForKmers.html">.iterativeNormForKmers()</a></code>.</p></dd>
+
+
 <dt>test</dt>
 <dd><p>type of motif enrichment test to perform.</p></dd>
+
+
 <dt>verbose</dt>
 <dd><p>A logical scalar. If <code>TRUE</code>, report on progress.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>a <code>data.frame</code> containing the motifs as rows and the columns:</p><ul><li><p>motifName: the motif name</p></li>
+    
+
+<p>a <code>data.frame</code> containing the motifs as rows and the columns:</p>
+<p></p>
+<ul><li><p>motifName: the motif name</p></li>
 <li><p>logP: the log p-value for enrichment (natural logarithm).
        If <code>test="binomial"</code> (default), this log p-value is identical to
        the one returned by Homer.</p></li>
@@ -144,7 +155,7 @@ motif hits in each sequence.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
 </div>
 
       </footer></div>

@@ -19,7 +19,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.7.1</span>
       </span>
     </div>
 
@@ -73,41 +73,54 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">dumpJaspar</span><span class="op">(</span>
-  <span class="va">filename</span>,
-  pkg <span class="op">=</span> <span class="st">"JASPAR2020"</span>,
-  opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>tax_group <span class="op">=</span> <span class="st">"vertebrates"</span><span class="op">)</span>,
-  pseudocount <span class="op">=</span> <span class="fl">1</span>,
-  relScoreCutoff <span class="op">=</span> <span class="fl">0.8</span>,
-  verbose <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">dumpJaspar</span><span class="op">(</span></span>
+<span>  <span class="va">filename</span>,</span>
+<span>  pkg <span class="op">=</span> <span class="st">"JASPAR2020"</span>,</span>
+<span>  opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>tax_group <span class="op">=</span> <span class="st">"vertebrates"</span><span class="op">)</span>,</span>
+<span>  pseudocount <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  relScoreCutoff <span class="op">=</span> <span class="fl">0.8</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>filename</dt>
 <dd><p>Name of the output file to be created.</p></dd>
+
+
 <dt>pkg</dt>
 <dd><p>Name of the Jaspar package to use (default: <code>JASPAR2020</code>).</p></dd>
+
+
 <dt>opts</dt>
 <dd><p>A list with search options used in
 <code><a href="https://rdrr.io/pkg/TFBSTools/man/getMatrixSet-methods.html" class="external-link">getMatrixSet</a></code>. By default, only vertebrate motifs
 are included in the output using
 <code>opts = list(tax_group = "vertebrates")</code>.</p></dd>
+
+
 <dt>pseudocount</dt>
 <dd><p>A numerical scalar with the pseudocount to be added to
 each element of the position frequency matrix extracted from Jaspar,
 before its conversion to a position probability matrix (default: 1.0).</p></dd>
+
+
 <dt>relScoreCutoff</dt>
 <dd><p>Currently ignored. numeric(1) in [0,1] that sets the 
 default motif log-odds score cutof to relScoreCutoff * maximal score for
 each PWM (default: 0.8).</p></dd>
+
+
 <dt>verbose</dt>
 <dd><p>A logical scalar. If <code>TRUE</code>, print progress messages.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p><code>TRUE</code> if successful.</p>
+    
+
+<p><code>TRUE</code> if successful.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -118,10 +131,10 @@ each PWM (default: 0.8).</p></dd>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu">dumpJaspar</span><span class="op">(</span>filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>, pkg <span class="op">=</span> <span class="st">"JASPAR2020"</span>, </span>
-<span class="r-in">           opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MA0006.1"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">dumpJaspar</span><span class="op">(</span>filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>, pkg <span class="op">=</span> <span class="st">"JASPAR2020"</span>, </span></span>
+<span class="r-in"><span>           opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MA0006.1"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -136,7 +149,7 @@ each PWM (default: 0.8).</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
 </div>
 
       </footer></div>

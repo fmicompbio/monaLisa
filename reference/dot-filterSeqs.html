@@ -19,7 +19,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.7.1</span>
       </span>
     </div>
 
@@ -73,34 +73,48 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">.filterSeqs</span><span class="op">(</span>
-  <span class="va">seqs</span>,
-  maxFracN <span class="op">=</span> <span class="fl">0.7</span>,
-  minLength <span class="op">=</span> <span class="fl">5L</span>,
-  maxLength <span class="op">=</span> <span class="fl">100000L</span>,
-  verbose <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">.filterSeqs</span><span class="op">(</span></span>
+<span>  <span class="va">seqs</span>,</span>
+<span>  maxFracN <span class="op">=</span> <span class="fl">0.7</span>,</span>
+<span>  minLength <span class="op">=</span> <span class="fl">5L</span>,</span>
+<span>  maxLength <span class="op">=</span> <span class="fl">100000L</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>seqs</dt>
 <dd><p>a <code>DNAStringSet</code> object.</p></dd>
+
+
 <dt>maxFracN</dt>
 <dd><p>A numeric scalar with the maximal fraction of N bases allowed
 in a sequence (defaults to 0.7).</p></dd>
+
+
 <dt>minLength</dt>
 <dd><p>The minimum sequence length (default from Homer).
 Sequences shorter than this will be filtered out.</p></dd>
+
+
 <dt>maxLength</dt>
 <dd><p>The maximum sequence length (default from Homer).
 Sequences bigger than this will be filtered out.</p></dd>
+
+
 <dt>verbose</dt>
 <dd><p>A logical scalar. If <code>TRUE</code>, report on filtering.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>a logical vector of the same length as <code>seqs</code> with <code>TRUE</code>  indicated to keep the sequence and <code>FALSE</code> to filter it out.</p>
+    
+
+<p>a logical vector of the same length as <code>seqs</code> with <code>TRUE</code></p>
+
+
+<p>indicated to keep the sequence and <code>FALSE</code> to filter it out.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -119,7 +133,7 @@ Sequences bigger than this will be filtered out.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
 </div>
 
       </footer></div>

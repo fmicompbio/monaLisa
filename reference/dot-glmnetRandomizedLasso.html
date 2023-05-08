@@ -21,7 +21,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.7.1</span>
       </span>
     </div>
 
@@ -77,14 +77,14 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">.glmnetRandomizedLasso</span><span class="op">(</span>
-  <span class="va">x</span>,
-  <span class="va">y</span>,
-  <span class="va">q</span>,
-  weakness <span class="op">=</span> <span class="fl">1</span>,
-  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"conservative"</span>, <span class="st">"anticonservative"</span><span class="op">)</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">.glmnetRandomizedLasso</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  <span class="va">y</span>,</span>
+<span>  <span class="va">q</span>,</span>
+<span>  weakness <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"conservative"</span>, <span class="st">"anticonservative"</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -92,14 +92,22 @@
     <dl><dt>x</dt>
 <dd><p>the predictor matrix. Passed to <code>x</code>
 of <code>glmnet.lasso</code> from <code>stabs</code> package.</p></dd>
+
+
 <dt>y</dt>
 <dd><p>the response vector. Passed to <code>y</code>
 of <code>glmnet.lasso</code> from <code>stabs</code> package.</p></dd>
+
+
 <dt>q</dt>
 <dd><p>the number of variables that are selected on each subsample. 
 Passed to <code>q</code> of <code>glmnet.lasso</code> from <code>stabs</code> package.</p></dd>
+
+
 <dt>weakness</dt>
 <dd><p>weakness parameter used in randomized lasso (see details).</p></dd>
+
+
 <dt>type</dt>
 <dd><p>parameter passed to <code>type</code> of <code>glmnet.lasso</code> from 
 <code>stabs</code> package. It is a character vector specifying how much the 
@@ -107,13 +115,20 @@ PFER should be controlled. If type is "conservative" (default), then the
 number of selected variables per subsample is &lt;= q. If type is 
 "anticonservative" then the number of selected variables per subsample 
 is &gt;= q.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>additional parameters for <code>glmnet</code>.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>the regression output which consists of a list of length 2. The 
-    list contains the following:</p><ul><li><p>selected - a logical vector of length equal to the total number 
+    
+
+<p>the regression output which consists of a list of length 2. The 
+    list contains the following:</p>
+<p></p>
+<ul><li><p>selected - a logical vector of length equal to the total number 
         of predictors. The predictors that were chosen have a value of TRUE.</p></li>
 <li><p>path - a logical matrix containing the regularization steps as 
         columns and the predictors as rows. An entry of TRUE indicates 
@@ -145,7 +160,7 @@ is &gt;= q.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
 </div>
 
       </footer></div>

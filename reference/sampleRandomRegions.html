@@ -18,7 +18,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.7.1</span>
       </span>
     </div>
 
@@ -71,7 +71,7 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">sampleRandomRegions</span><span class="op">(</span>allowedRegions <span class="op">=</span> <span class="cn">NULL</span>, N <span class="op">=</span> <span class="fl">100L</span>, regWidth <span class="op">=</span> <span class="fl">200L</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sampleRandomRegions</span><span class="op">(</span>allowedRegions <span class="op">=</span> <span class="cn">NULL</span>, N <span class="op">=</span> <span class="fl">100L</span>, regWidth <span class="op">=</span> <span class="fl">200L</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -79,15 +79,23 @@
     <dl><dt>allowedRegions</dt>
 <dd><p>An unstranded GRanges object of the "allowed" of the 
 genome, usually the mappable regions.</p></dd>
+
+
 <dt>N</dt>
 <dd><p>Number of regions to sample.</p></dd>
+
+
 <dt>regWidth</dt>
 <dd><p>Region width.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A GRanges object with randomly sampled mappable regions of width 
-<code>regWidth</code> with <code>fractionCGI</code> coming from CpG islands.</p>
+    
+
+<p>A GRanges object with randomly sampled mappable regions of width</p>
+<p></p>
+<p><code>regWidth</code> with <code>fractionCGI</code> coming from CpG islands.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -98,11 +106,11 @@ genome, usually the mappable regions.</p></dd>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">regs</span> <span class="op">&lt;-</span> <span class="fu">GenomicRanges</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></span><span class="op">(</span></span>
-<span class="r-in">  seqnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"chr1"</span>, <span class="st">"chr2"</span><span class="op">)</span>, each <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>, </span>
-<span class="r-in">  ranges <span class="op">=</span> <span class="fu">IRanges</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/IRanges-constructor.html" class="external-link">IRanges</a></span><span class="op">(</span>start <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, end <span class="op">=</span> <span class="fl">5</span><span class="op">:</span><span class="fl">8</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">sampleRandomRegions</span><span class="op">(</span><span class="va">regs</span>, N <span class="op">=</span> <span class="fl">2</span>, regWidth <span class="op">=</span> <span class="fl">3L</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">regs</span> <span class="op">&lt;-</span> <span class="fu">GenomicRanges</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  seqnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"chr1"</span>, <span class="st">"chr2"</span><span class="op">)</span>, each <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>, </span></span>
+<span class="r-in"><span>  ranges <span class="op">=</span> <span class="fu">IRanges</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/IRanges-constructor.html" class="external-link">IRanges</a></span><span class="op">(</span>start <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, end <span class="op">=</span> <span class="fl">5</span><span class="op">:</span><span class="fl">8</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">sampleRandomRegions</span><span class="op">(</span><span class="va">regs</span>, N <span class="op">=</span> <span class="fl">2</span>, regWidth <span class="op">=</span> <span class="fl">3L</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GRanges object with 2 ranges and 0 metadata columns:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       seqnames    ranges strand</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt;</span>
@@ -110,7 +118,7 @@ genome, usually the mappable regions.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   [2]     chr2       4-6      *</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   -------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   seqinfo: 2 sequences from an unspecified genome; no seqlengths</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -125,7 +133,7 @@ genome, usually the mappable regions.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
 </div>
 
       </footer></div>
