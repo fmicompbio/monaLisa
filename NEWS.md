@@ -1,3 +1,7 @@
+# monaLisa 1.7.1
+
+* allow modification of heatmap graphical parameters by forwarding `...` argument in `plotMotifHeatmaps` to all calls to `ComplexHeatmap::Heatmap`
+
 # monaLisa 1.3.1
 
 * update citation information
