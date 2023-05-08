@@ -291,7 +291,9 @@ plotBinScatter <- function(x, y, b,
 #'     \code{FALSE}, just return the list of heatmap(s) (\code{heatmapList}) in
 #'     example before), allowing to modify them further before plotting.
 #' @param ... Further arguments passed to \code{\link[ComplexHeatmap]{Heatmap}}
-#'     when creating the main heatmaps selected by \code{which.plots}. 
+#'     when creating the main heatmaps selected by \code{which.plots}. For
+#'     example, the following will set the font size of the motif names:
+#'     \code{plotMotifHeatmaps(..., row_names_gp = gpar(fontsize = 12))}
 #'
 #' @details The heatmaps are created using the \pkg{ComplexHeatmap} package
 #'     and plotted side-by-side.
@@ -425,7 +427,8 @@ plotMotifHeatmaps <- function(x,
         cluster_rows = clres, show_row_dend = show_dendrogram,
         cluster_columns = FALSE, show_row_names = TRUE,
         row_names_side = "left", show_column_names = FALSE,
-        show_heatmap_legend = FALSE, left_annotation = hmSeqlogo
+        show_heatmap_legend = FALSE, left_annotation = hmSeqlogo,
+        ...
     )
 
     assayNameMap1 <- c(negLog10P = "P value",
@@ -448,7 +451,8 @@ plotMotifHeatmaps <- function(x,
             show_row_names = FALSE, show_column_names = FALSE,
             show_heatmap_legend = TRUE,
             heatmap_legend_param = list(color_bar = "continuous"),
-            use_raster = use_raster
+            use_raster = use_raster,
+            ...
         )
         L <- c(L, list("percentGC" = hmPercentGC))
     }
