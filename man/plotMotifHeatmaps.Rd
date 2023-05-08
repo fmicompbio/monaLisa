@@ -12,8 +12,8 @@ plotMotifHeatmaps(
     "#FDDBC7", "#F4A582", "#D6604D", "#B2182B", "#67001F"),
   col.sig = c("#F0F0F0", "#D9D9D9", "#BDBDBD", "#969696", "#737373", "#525252",
     "#252525", "#000000"),
-  col.gc = c("#F7FCF5", "#E5F5E0", "#C7E9C0", "#A1D99B", "#74C476", "#41AB5D",
-    "#238B45", "#006D2C", "#00441B"),
+  col.gc = c("#F7FCF5", "#E5F5E0", "#C7E9C0", "#A1D99B", "#74C476", "#41AB5D", "#238B45",
+    "#006D2C", "#00441B"),
   maxEnr = NULL,
   maxSig = NULL,
   highlight = NULL,
@@ -90,7 +90,9 @@ using \code{Reduce(ComplexHeatmap::add_heatmap, heatmapList)}. If
 example before), allowing to modify them further before plotting.}
 
 \item{...}{Further arguments passed to \code{\link[ComplexHeatmap]{Heatmap}}
-when creating the main heatmaps selected by \code{which.plots}.}
+when creating the main heatmaps selected by \code{which.plots}. For
+example, the following will set the font size of the motif names:
+\code{plotMotifHeatmaps(..., row_names_gp = gpar(fontsize = 12))}}
 }
 \value{
 A list of \code{ComplexHeatmap::Heatmap} objects.
