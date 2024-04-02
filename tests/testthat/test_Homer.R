@@ -52,6 +52,10 @@ test_that("dumpJaspar() works properly", {
                            opts = list(ID = c("MA0006.1", "MA0007.3", "MA0828.1")),
                            verbose = TRUE))
     unlink(tmp1)
+    expect_error(dumpJaspar(filename = tmp1,
+                            pkg = "BSgenome",
+                            opts = list(ID = c("MA0006.1", "MA0007.3", "MA0828.1")),
+                            verbose = TRUE))
 })
 
 test_that("homerToPFMatrixList() works properly", {
