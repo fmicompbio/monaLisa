@@ -40,7 +40,8 @@ Imports:
     XVector,
     GenomeInfoDb,
     tools,
-    vioplot
+    vioplot,
+    RSQLite
 Suggests: 
     JASPAR2020,
     BSgenome.Mmusculus.UCSC.mm10, 
