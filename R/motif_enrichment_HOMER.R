@@ -98,9 +98,9 @@ dumpJaspar <- function(filename,
     mdb <- utils::getFromNamespace(pkg, ns = pkg)
     if (!methods::existsMethod(f = getMatrixSet, signature = list(x = class(mdb)))) {
         # workaround for JASPAR2024 (no specific TFBSTools::getMatrixSet method yet)
-        if (inherits(mdb, "function") && exists(x = "db", where = paste0("package:", pkg))) {
+        if (inherits(mdb, "function") && exists("db", envir = asNamespace(pkg))) {
             jobj <- do.call(what = mdb, args = list())
-            dbfunc <- get(x = "db", envir = as.environment(paste0("package:", pkg)))
+            dbfunc <- getFromNamespace(x = "db", ns = pkg)
             mdb <- RSQLite::dbConnect(RSQLite::SQLite(), dbfunc(jobj))
         } else {
             stop("I don't know how to extract motifs from '", pkg, "'")
