@@ -17,7 +17,16 @@ sets of genomic regions, compared to all other regions.
 Known motifs can for example be obtained from a collection of transcription
 factor binding site specificities, such as \pkg{JASPAR2020}.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/fmicompbio/monaLisa}
+  \item \url{https://bioconductor.org/packages/monaLisa/}
+  \item \url{https://fmicompbio.github.io/monaLisa/}
+  \item Report bugs at \url{https://github.com/fmicompbio/monaLisa/issues}
+}
+
+}
 \author{
 Dania Machlab, Lukas Burger, Charlotte Soneson and Michael Stadler
 }
-\keyword{package}
