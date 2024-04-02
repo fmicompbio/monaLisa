@@ -5,7 +5,7 @@ test_that("findHomer() works properly", {
     orig <- Sys.getenv("MONALISA_HOMER", unset = NA)
     if (!is.na(orig))
         Sys.unsetenv("MONALISA_HOMER")
-    
+
     # test non-existing
     res <- findHomer("I-do-not-exist")
     expect_true(is.na(res))
@@ -14,16 +14,16 @@ test_that("findHomer() works properly", {
     res <- findHomer(dirs = ".")
     expect_true(is.na(res))
     Sys.unsetenv("MONALISA_HOMER")
-    
+
     # test existing
     res <- findHomer("results.binned_motif_enrichment_LMRs.rds", dirs = system.file("extdata", package = "monaLisa"))
     expect_true(file.exists(res))
-    
+
     Sys.setenv(MONALISA_HOMER = system.file("extdata", package = "monaLisa"))
     res <- findHomer("results.binned_motif_enrichment_LMRs.rds")
     expect_true(file.exists(res))
     Sys.unsetenv("MONALISA_HOMER")
-    
+
     # restore original value
     if (!is.na(orig))
         Sys.setenv(MONALISA_HOMER = orig)
@@ -32,12 +32,30 @@ test_that("findHomer() works properly", {
 test_that("dumpJaspar() works properly", {
     tmp1 <- tempfile()
 
-    expect_error(dumpJaspar(filename = system.file("extdata", "results.binned_motif_enrichment_LMRs.rds", package = "monaLisa")))
-    expect_error(dumpJaspar(filename = tmp1, opts = list(matrixtype = "PWM")))
-    expect_error(dumpJaspar(filename = tmp1, relScoreCutoff = "error"))
-    expect_true(dumpJaspar(filename = tmp1, opts = list(ID = c("MA0006.1", "MA0007.3", "MA0828.1")), verbose = TRUE))
-
+    expect_error(dumpJaspar(filename = system.file("extdata",
+                                                   "results.binned_motif_enrichment_LMRs.rds",
+                                                   package = "monaLisa"),
+                            pkg = "JASPAR2020"))
+    expect_error(dumpJaspar(filename = tmp1,
+                            pkg = "JASPAR2020",
+                            opts = list(matrixtype = "PWM")))
+    expect_error(dumpJaspar(filename = tmp1,
+                            pkg = "JASPAR2020",
+                            relScoreCutoff = "error"))
+    expect_true(dumpJaspar(filename = tmp1,
+                           pkg = "JASPAR2020",
+                           opts = list(ID = c("MA0006.1", "MA0007.3", "MA0828.1")),
+                           verbose = TRUE))
     unlink(tmp1)
+    expect_true(dumpJaspar(filename = tmp1,
+                           pkg = "JASPAR2024",
+                           opts = list(ID = c("MA0006.1", "MA0007.3", "MA0828.1")),
+                           verbose = TRUE))
+    unlink(tmp1)
+    expect_error(dumpJaspar(filename = tmp1,
+                            pkg = "BSgenome",
+                            opts = list(ID = c("MA0006.1", "MA0007.3", "MA0828.1")),
+                            verbose = TRUE))
 })
 
 test_that("homerToPFMatrixList() works properly", {
@@ -94,7 +112,7 @@ test_that("parseHomerOutput() works properly", {
     expect_error(parseHomerOutput(outfile, pseudocount.log2enr = "error"))
     expect_error(parseHomerOutput(outfile, pseudofreq.pearsonResid = "error"))
     expect_error(parseHomerOutput(outfile, p.adjust.method = "error"))
-    
+
     res <- parseHomerOutput(structure(c(outfile, outfile), names = c("bin1", "bin2")))
     expect_length(res, 9L)
     expect_identical(names(res), c("negLog10P", "negLog10Padj",
@@ -118,7 +136,7 @@ test_that("calcBinnedMotifEnrHomer() works properly (synthetic data)", {
     if (is.na(homerbin)) {
         homerbin <- findHomer("findMotifsGenome.pl", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.11/bin")
     }
-    
+
     if (!is.na(homerbin) && require("JASPAR2020")) {
         # genome
         set.seed(42)
@@ -135,13 +153,13 @@ test_that("calcBinnedMotifEnrHomer() works properly (synthetic data)", {
         gr <- GenomicRanges::tileGenome(seqlengths = nchar(chrsstr),
                                         tilewidth = 200, cut.last.tile.in.chrom = TRUE)
         bins <- factor(GenomicRanges::seqnames(gr))
-        
+
         # motifs
         selids <- c("MA0139.1", "MA1102.1", "MA0740.1", "MA0493.1", "MA0856.1")
         pfm <- TFBSTools::getMatrixSet(JASPAR2020, opts = list(ID = selids))
         cons <- unlist(lapply(Matrix(pfm), function(x) paste(rownames(x)[apply(x, 2, which.max)], collapse = "")))
-        #              MA0139.1          MA1102.1          MA0740.1       MA0493.1          MA0856.1 
-        # "TGGCCACCAGGGGGCGCTA"  "CACCAGGGGGCACC"  "GGCCACGCCCCCTT"  "GGCCACACCCA"  "GGGGTCAAAGGTCA" 
+        #              MA0139.1          MA1102.1          MA0740.1       MA0493.1          MA0856.1
+        # "TGGCCACCAGGGGGCGCTA"  "CACCAGGGGGCACC"  "GGCCACGCCCCCTT"  "GGCCACACCCA"  "GGGGTCAAAGGTCA"
         # ... dump to file for Homer
         mfile <- tempfile(fileext = ".motifs")
         expect_true(dumpJaspar(filename = mfile, pkg = "JASPAR2020",
@@ -160,10 +178,10 @@ test_that("calcBinnedMotifEnrHomer() works properly (synthetic data)", {
         Biostrings::writeXStringSet(x = chrs, filepath = genomefile, format = "fasta")
 
         outdir <- tempfile()
-        
+
         expect_error(calcBinnedMotifEnrHomer(gr = gr, b = bins, motifFile = mfile,
                                              Ncpu = "error"))
-        
+
         expect_message(res <- calcBinnedMotifEnrHomer(
             gr = as.character(gr), b = as.character(bins),
             motifFile = mfile, genomedir = genomedir,
@@ -196,7 +214,7 @@ test_that("calcBinnedMotifEnrHomer() works properly (synthetic data)", {
         expect_identical(rownames(res), selids)
         expect_length(SummarizedExperiment::assays(res), 7L)
         expect_identical(SummarizedExperiment::assayNames(res),
-                         c("negLog10P", "negLog10Padj", "pearsonResid", 
+                         c("negLog10P", "negLog10Padj", "pearsonResid",
                            "expForegroundWgtWithHits", "log2enr",
                            "sumForegroundWgtWithHits", "sumBackgroundWgtWithHits"))
         expect_identical(dim(res), c(5L, 3L))
@@ -206,7 +224,7 @@ test_that("calcBinnedMotifEnrHomer() works properly (synthetic data)", {
                          c(chr1 = 1L, chr2 = 2L, chr3 = 3L))
         expect_equal(sum(SummarizedExperiment::assay(res, "negLog10P")), 65.132971396505)
         expect_equal(sum(SummarizedExperiment::assay(res, "pearsonResid")), -0.23617661811598)
-        
+
         unlink(c(mfile, outdir, genomedir), recursive = TRUE, force = TRUE)
     }
 })

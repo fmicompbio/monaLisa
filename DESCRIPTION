@@ -1,7 +1,7 @@
 Package: monaLisa
 Type: Package
 Title: Binned Motif Enrichment Analysis and Visualization
-Version: 1.8.0
+Version: 1.8.1
 Authors@R: c(
     person("Dania", "Machlab", email = "dania.machlab@fmi.ch", role = c("aut"), 
            comment = c(ORCID = "0000-0002-2578-6930")),
@@ -40,9 +40,11 @@ Imports:
     XVector,
     GenomeInfoDb,
     tools,
-    vioplot
+    vioplot,
+    RSQLite
 Suggests: 
-    JASPAR2020, 
+    JASPAR2020,
+    JASPAR2024,
     BSgenome.Mmusculus.UCSC.mm10, 
     TxDb.Mmusculus.UCSC.mm10.knownGene,
     knitr, 
@@ -53,7 +55,7 @@ Suggests:
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: false
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 VignetteBuilder: knitr
 biocViews: 
     MotifAnnotation, 

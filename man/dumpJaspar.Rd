@@ -27,7 +27,7 @@ are included in the output using
 each element of the position frequency matrix extracted from Jaspar,
 before its conversion to a position probability matrix (default: 1.0).}
 
-\item{relScoreCutoff}{Currently ignored. numeric(1) in [0,1] that sets the 
+\item{relScoreCutoff}{Currently ignored. numeric(1) in [0,1] that sets the
 default motif log-odds score cutof to relScoreCutoff * maximal score for
 each PWM (default: 0.8).}
 
@@ -37,17 +37,17 @@ each PWM (default: 0.8).}
 \code{TRUE} if successful.
 }
 \description{
-Get motifs from a Jaspar database package (e.g. 
-    \code{JASPAR2020}) and write them into a HOMER-compatible motif file 
+Get motifs from a Jaspar database package (e.g.
+    \code{JASPAR2020}) and write them into a HOMER-compatible motif file
     as positional probability matrices.
 }
 \examples{
-dumpJaspar(filename = tempfile(), pkg = "JASPAR2020", 
+dumpJaspar(filename = tempfile(), pkg = "JASPAR2020",
            opts = list(ID = c("MA0006.1")))
 
 }
 \seealso{
-\code{\link[TFBSTools]{getMatrixSet}} for details on the argument 
-    \code{opts}. \code{\link{homerToPFMatrixList}} to read a file with 
+\code{\link[TFBSTools]{getMatrixSet}} for details on the argument
+    \code{opts}. \code{\link{homerToPFMatrixList}} to read a file with
     HOMER-formatted motifs into a \code{\link[TFBSTools]{PFMatrixList}}.
 }

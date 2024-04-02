@@ -9,12 +9,12 @@ findHomer(homerfile = "findMotifsGenome.pl", dirs = NULL)
 \arguments{
 \item{homerfile}{Name of the script file to search.}
 
-\item{dirs}{Directory names to look for \code{homerfile}. If 
-\code{dirs=NULL}, all directories listed in the \code{PATH} environment 
+\item{dirs}{Directory names to look for \code{homerfile}. If
+\code{dirs=NULL}, all directories listed in the \code{PATH} environment
 variable will be searched.}
 }
 \value{
-Absolute path to \code{homerfile}, or \code{NA} if none or several 
+Absolute path to \code{homerfile}, or \code{NA} if none or several
   were found.
 }
 \description{

@@ -9,13 +9,11 @@
 #'
 #' Known motifs can for example be obtained from a collection of transcription
 #' factor binding site specificities, such as \pkg{JASPAR2020}.
-#' 
+#'
 #' @author Dania Machlab, Lukas Burger, Charlotte Soneson and Michael Stadler
-#' 
+#'
 #' @aliases monaLisa monaLisa-package
 #' @name monaLisa-package
-#' 
-#' @keywords package
-#' 
-#' @docType package
-NULL
+#'
+#' @keywords internal
+"_PACKAGE"
