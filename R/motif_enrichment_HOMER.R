@@ -102,6 +102,7 @@ dumpJaspar <- function(filename,
             jobj <- do.call(what = mdb, args = list())
             dbfunc <- getFromNamespace(x = "db", ns = pkg)
             mdb <- RSQLite::dbConnect(RSQLite::SQLite(), dbfunc(jobj))
+            on.exit(expr = RSQLite::dbDisconnect(mdb))
         } else {
             stop("I don't know how to extract motifs from '", pkg, "'")
         }
