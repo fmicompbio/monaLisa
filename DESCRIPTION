@@ -44,6 +44,7 @@ Imports:
     RSQLite
 Suggests: 
     JASPAR2020,
+    JASPAR2024,
     BSgenome.Mmusculus.UCSC.mm10, 
     TxDb.Mmusculus.UCSC.mm10.knownGene,
     knitr, 
