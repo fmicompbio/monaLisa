@@ -74,7 +74,7 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 #' @importFrom utils getFromNamespace
 #' @importFrom methods existsMethod
 #' @importFrom TFBSTools getMatrixSet Matrix ID name
-#' @importFrom RSQLite dbConnect dbDisconnect
+#' @importFrom RSQLite dbConnect dbDisconnect SQLite
 #'
 #' @export
 dumpJaspar <- function(filename,
