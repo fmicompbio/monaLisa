@@ -32,10 +32,10 @@ or zero occurences of a k-mer are considered per sequence.}
 
 \item{strata}{A \code{factor} or a \code{numeric} scalar defining the strata
 of sequences. A separate Markov model and expected k-mer frequencies are
-estimated for the set of sequences in each stratum (level in a 
-\code{strata} factor). If \code{strata} is a scalar value, it will be 
-interpreted as the number of strata to split the sequences into according 
-to their CpG observed-over-expected counts using 
+estimated for the set of sequences in each stratum (level in a
+\code{strata} factor). If \code{strata} is a scalar value, it will be
+interpreted as the number of strata to split the sequences into according
+to their CpG observed-over-expected counts using
 \code{kmeans(CpGoe, centers = strata)}.}
 
 \item{p.adjust.method}{A character scalar selecting the p value adjustment
@@ -52,8 +52,8 @@ is a vector of the same length as \code{seqs}, each reverse-complemented
 sequence will be assigned to the same stratum as the forward sequence.}
 }
 \value{
-A \code{list} with observed and expected k-mer frequencies 
-  (\code{freq.obs} and \code{freq.exp}, respectively), and enrichment 
+A \code{list} with observed and expected k-mer frequencies
+  (\code{freq.obs} and \code{freq.exp}, respectively), and enrichment
   statistics for each k-mer.
 }
 \description{

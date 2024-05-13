@@ -65,7 +65,7 @@ test_that("motifSimilarity works as expected", {
 
     bpparams <- BiocParallel::SerialParam()
     if (!identical(.Platform$OS.type, "windows"))
-        bpparams <- BiocParallel::MulticoreParam(3)
+        bpparams <- BiocParallel::MulticoreParam(2)
 
     expect_is(res1 <- motifSimilarity(x = pfmL, y = NULL, method = "R",
                                       BPPARAM = bpparams,

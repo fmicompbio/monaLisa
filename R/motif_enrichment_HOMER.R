@@ -554,7 +554,7 @@ parseHomerOutput <- function(infiles,
 #'     \code{\link{bin}} for binning of regions
 #'
 #' @return A \code{SummarizedExperiment} object with motifs in rows and bins
-#'   in columns, containing seven assays: \itemize{
+#'   in columns, containing seven assays: \describe{
 #'   \item{negLog10P}{: -log10 P values}
 #'   \item{negLog10Padj}{: -log10 adjusted P values}
 #'   \item{pearsonResid}{: motif enrichments as Pearson residuals}

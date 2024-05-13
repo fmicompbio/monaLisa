@@ -9,7 +9,7 @@
 \arguments{
 \item{df}{Input object to be checked. It should have an attribute \code{err}
 and columns:
-\itemize{
+\describe{
   \item{\code{seqs}}{: a \code{DNAStringSet} object.}
   \item{\code{isForeground}}{ that indicates if a sequence is in the
                               foreground group.}

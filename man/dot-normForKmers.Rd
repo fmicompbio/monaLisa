@@ -19,8 +19,8 @@
 in the list contains the probability of k-mers of length \code{i}, for each
 k-mer (columns) and sequence (rows).}
 
-\item{goodKmers}{a \code{list} of \code{numeric} vectors; the element at 
-index \code{i} contains the number of good (non-N-containing) k-mers of 
+\item{goodKmers}{a \code{list} of \code{numeric} vectors; the element at
+index \code{i} contains the number of good (non-N-containing) k-mers of
 length \code{i} for each sequence.}
 
 \item{kmerRC}{a \code{list} of character vectors; the element at index

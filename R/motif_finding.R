@@ -1,4 +1,4 @@
-#' @importFrom Biostrings matchPWM DNA_BASES DNAStringSet fasta.seqlengths 
+#' @importFrom Biostrings matchPWM DNA_BASES DNAStringSet fasta.seqlengths
 #'   reverseComplement
 #' @importFrom IRanges IRanges start width
 #' @importFrom GenomicRanges GRanges
@@ -39,7 +39,7 @@ NULL
 
         cat(sprintf(
             ">%s\t%s\t%.6f\n",
-            paste(apply(pwm, 2, function(x) rownames(pwm)[which.max(x)]), 
+            paste(apply(pwm, 2, function(x) rownames(pwm)[which.max(x)]),
                   collapse = ""),
             paste0(ID(pwmL[[i]]), ":::", name(pwmL[[i]])), scorecut),
             file = fh, append = TRUE)
@@ -100,7 +100,7 @@ NULL
                              BPPARAM = SerialParam()) {
     # concatenate subject
     snames <- if (is.null(names(subject))) {
-        paste0("s", seq_along(subject)) 
+        paste0("s", seq_along(subject))
     } else {
         names(subject)
     }
@@ -139,7 +139,7 @@ NULL
         ov <- findOverlaps(matches, combgr, type = "within")
         GRanges(seqnames = snames[subjectHits(ov)],
                 ranges = IRanges(
-                    start = start(matches)[queryHits(ov)] - 
+                    start = start(matches)[queryHits(ov)] -
                         start(combgr)[subjectHits(ov)] + 1,
                     width = width(matches)[queryHits(ov)]
                 ),
@@ -160,7 +160,7 @@ NULL
 #' positional weight matrices (provided as a file or as R objects)
 #'
 #' @param query The motifs to search for, either a
-#'     \itemize{
+#'     \describe{
 #'         \item{\code{character(1)}}{ with the path and file name of a motif
 #'               file with PWM in HOMER format (currently only
 #'               supported for \code{method="homer2"})}
@@ -169,7 +169,7 @@ NULL
 #'      }
 #'
 #' @param subject The sequences to be searched, either a
-#'     \itemize{
+#'     \describe{
 #'         \item{\code{character}}{ with the path and file name of a sequence
 #'               file with DNA sequences in FASTA format}
 #'         \item{\code{DNAString}}{ with a single sequence}
@@ -183,7 +183,7 @@ NULL
 #'     highest possible score or as a single number.
 #'
 #' @param method The internal method to use for motif searching. One of
-#'     \itemize{
+#'     \describe{
 #'         \item{\code{"matchPWM"}}{ using Biostrings::matchPWM (optimized)}
 #'         \item{\code{"homer2"}}{ call to the homer2 binary}
 #'     }
@@ -255,27 +255,27 @@ setGeneric(name = "findMotifHits",
            valueClass = "GRanges")
 
 # method hierarchy:
-# 1. findMotifHits,character,character        
+# 1. findMotifHits,character,character
 #    --> if method=="homer2", use homer2; else --> 9.
-# 2. findMotifHits,character,DNAString        
+# 2. findMotifHits,character,DNAString
 #    --> 3.
-# 3. findMotifHits,character,DNAStringSet     
+# 3. findMotifHits,character,DNAStringSet
 #    --> if method=="homer2" --> 1.     ; else --> 9.
-# 4. findMotifHits,PWMatrix,character         
+# 4. findMotifHits,PWMatrix,character
 #    --> 7.
-# 5. findMotifHits,PWMatrix,DNAString         
+# 5. findMotifHits,PWMatrix,DNAString
 #    --> 9.
-# 6. findMotifHits,PWMatrix,DNAStringSet      
+# 6. findMotifHits,PWMatrix,DNAStringSet
 #    --> 9.
-# 7. findMotifHits,PWMatrixList,character     
+# 7. findMotifHits,PWMatrixList,character
 #    --> if method=="homer2" --> 1.     ; else --> 9.
-# 8. findMotifHits,PWMatrixList,DNAString     
+# 8. findMotifHits,PWMatrixList,DNAString
 #    --> 9.
-# 9. findMotifHits,PWMatrixList,DNAStringSet  
+# 9. findMotifHits,PWMatrixList,DNAStringSet
 #    --> if method=="homer2" --> 1.     ; else --> use matchPWM
-# 10. findMotifHits,PWMatrix,GRanges          
+# 10. findMotifHits,PWMatrix,GRanges
 #    --> 11.
-# 11. findMotifHits,PWMatrixList,GRanges      
+# 11. findMotifHits,PWMatrixList,GRanges
 #    --> 9.
 
 
@@ -293,9 +293,9 @@ setMethod("findMotifHits",
               stopifnot(method == "matchPWM" ||
                         (method == "homer2" && is.character(homerfile) &&
                          length(homerfile) == 1L && file.exists(homerfile)))
-              
+
               if (method == "matchPWM") {
-                  
+
                   pwmL <- .readPWMsFromHomer2File(query)
                   seqs <- Biostrings::readDNAStringSet(filepath = subject)
                   findMotifHits(query = pwmL, subject = seqs,
@@ -316,7 +316,7 @@ setMethod("findMotifHits",
                   }
 
                   # make sure sequences are not too long
-                  # currently, homer2 only support sequences shorter than 1e6 
+                  # currently, homer2 only support sequences shorter than 1e6
                   # bases (see cpp/Motif2.h:#define MOTIF2_BUFFER 10000100
                   #  and also char* curSeq = new char[1000000];)
                   if (any(
@@ -328,7 +328,7 @@ setMethod("findMotifHits",
                   }
 
                   # run homer2
-                  args <- 
+                  args <-
                       sprintf("find -i %s -m %s -offset 1 -strand both -p %d",
                               subject, query, bpnworkers(BPPARAM))
                   res <- system2(command = homerfile, args = args,
@@ -356,10 +356,10 @@ setMethod("findMotifHits",
                   pwmname <- unlist(lapply(tmp, "[", 2L))
                   hitstart <- ifelse(resparsed$strand == "+",
                                      resparsed$start,
-                                     resparsed$start - 
+                                     resparsed$start -
                                          nchar(resparsed$matchedSeq) + 1)
                   seqtemp <- DNAStringSet(resparsed$matchedSeq)
-                  seqtemp[resparsed$strand != "+"] <- 
+                  seqtemp[resparsed$strand != "+"] <-
                       reverseComplement(seqtemp[resparsed$strand != "+"])
                   gr <- GRanges(seqnames = resparsed$seqnames,
                                 ranges = IRanges(
@@ -387,7 +387,7 @@ setMethod("findMotifHits",
                    BPPARAM = SerialParam(),
                    genome = NULL) {
               subjectSet <- Biostrings::DNAStringSet(subject)
-              names(subjectSet) <- 
+              names(subjectSet) <-
                   if (is.null(names(subject))) "DNAString" else names(subject)
               findMotifHits(query, subjectSet, min.score,
                             method, homerfile, BPPARAM, genome)
@@ -404,9 +404,9 @@ setMethod("findMotifHits",
                    BPPARAM = SerialParam(),
                    genome = NULL) {
               method <- match.arg(method)
-              
+
               if (method == "matchPWM") {
-                  
+
                   pwmL <- .readPWMsFromHomer2File(query)
                   findMotifHits(query = pwmL, subject = subject,
                                 min.score = min.score,
@@ -414,7 +414,7 @@ setMethod("findMotifHits",
                                 BPPARAM = BPPARAM, genome = genome)
 
               } else if (method == "homer2") {
-                  
+
                   # write sequences to file
                   tmpf <- tempfile(fileext = ".fa")
                   Biostrings::writeXStringSet(x = subject, filepath = tmpf,
@@ -458,7 +458,7 @@ setMethod("findMotifHits",
               queryList <- TFBSTools::PWMatrixList(query)
               names(queryList) <- name(query)
               subjectSet <- Biostrings::DNAStringSet(subject)
-              names(subjectSet) <- 
+              names(subjectSet) <-
                   if (is.null(names(subject))) "DNAString" else names(subject)
               findMotifHits(queryList, subjectSet,
                             min.score, method, homerfile, BPPARAM, genome)
@@ -491,9 +491,9 @@ setMethod("findMotifHits",
                    BPPARAM = SerialParam(),
                    genome = NULL) {
               method <- match.arg(method)
-              
+
               if (method == "matchPWM") {
-                  
+
                   seqs <- Biostrings::readDNAStringSet(filepath = subject)
                   findMotifHits(query = query, subject = seqs,
                                 min.score = min.score,
@@ -501,7 +501,7 @@ setMethod("findMotifHits",
                                 BPPARAM = BPPARAM, genome = genome)
 
               } else if (method == "homer2") {
-                  
+
                   # write motifs to file
                   tmpf <- tempfile(fileext = ".motif")
                   if (is.character(min.score) &&
@@ -516,7 +516,7 @@ setMethod("findMotifHits",
                   } else {
                       stop("wrong type of 'min.score': ", min.score)
                   }
-                  
+
                   res <- findMotifHits(query = tmpf, subject = subject,
                                        min.score = min.score,
                                        method = method, homerfile = homerfile,
@@ -537,7 +537,7 @@ setMethod("findMotifHits",
                    BPPARAM = SerialParam(),
                    genome = NULL) {
               subjectSet <- Biostrings::DNAStringSet(subject)
-              names(subjectSet) <- 
+              names(subjectSet) <-
                   if (is.null(names(subject))) "DNAString" else names(subject)
               findMotifHits(query, subjectSet, min.score,
                             method, homerfile, BPPARAM, genome)
@@ -554,11 +554,11 @@ setMethod("findMotifHits",
                    BPPARAM = SerialParam(),
                    genome = NULL) {
               method <- match.arg(method)
-              
+
               if (method == "matchPWM") {
 
                   gr <- .matchPWM.concat(pwm = query, subject = subject,
-                                         min.score = min.score, 
+                                         min.score = min.score,
                                          BPPARAM = BPPARAM)
                   return(gr)
 
@@ -632,7 +632,7 @@ setMethod("findMotifHits",
 
             seqs <- BSgenome::getSeq(genome, subject)
             names(seqs) <- if (is.null(names(subject))) {
-                paste0("r", seq_along(subject)) 
+                paste0("r", seq_along(subject))
             } else {
                 names(subject)
             }

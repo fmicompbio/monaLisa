@@ -20,44 +20,44 @@ of \code{glmnet.lasso} from \code{stabs} package.}
 \item{y}{the response vector. Passed to \code{y}
 of \code{glmnet.lasso} from \code{stabs} package.}
 
-\item{q}{the number of variables that are selected on each subsample. 
+\item{q}{the number of variables that are selected on each subsample.
 Passed to \code{q} of \code{glmnet.lasso} from \code{stabs} package.}
 
 \item{weakness}{weakness parameter used in randomized lasso (see details).}
 
-\item{type}{parameter passed to \code{type} of \code{glmnet.lasso} from 
-\code{stabs} package. It is a character vector specifying how much the 
-PFER should be controlled. If type is "conservative" (default), then the 
-number of selected variables per subsample is <= q. If type is 
-"anticonservative" then the number of selected variables per subsample 
+\item{type}{parameter passed to \code{type} of \code{glmnet.lasso} from
+\code{stabs} package. It is a character vector specifying how much the
+PFER should be controlled. If type is "conservative" (default), then the
+number of selected variables per subsample is <= q. If type is
+"anticonservative" then the number of selected variables per subsample
 is >= q.}
 
 \item{...}{additional parameters for \code{glmnet}.}
 }
 \value{
-the regression output which consists of a list of length 2. The 
+the regression output which consists of a list of length 2. The
     list contains the following:
-    \itemize{
-    \item selected - a logical vector of length equal to the total number 
-        of predictors. The predictors that were chosen have a value of TRUE.
-    \item path - a logical matrix containing the regularization steps as 
-        columns and the predictors as rows. An entry of TRUE indicates 
-        selection.
+    \describe{
+    \item{selected}{ - a logical vector of length equal to the total number
+        of predictors. The predictors that were chosen have a value of TRUE.}
+    \item{path}{ - a logical matrix containing the regularization steps as
+        columns and the predictors as rows. An entry of TRUE indicates
+        selection.}
     }
 }
 \description{
-This function performs randomized lasso using the \code{glmnet} 
-    package. The function present in the \code{stabs} package that runs the 
-    lasso version was adapted for the randomized lasso here. Randomized 
+This function performs randomized lasso using the \code{glmnet}
+    package. The function present in the \code{stabs} package that runs the
+    lasso version was adapted for the randomized lasso here. Randomized
     lasso stability selection uses this function repeatedly
     to select predictors.
 }
 \details{
-This function is identical to \code{glmnet.lasso} from the 
-    \code{stabs} package. The only addition/modification is the weakness 
-    parameter which has been added when calling the 
-    \code{glmnet} function by setting 
-    penalty.factor = 1/runif(ncol(x), weakness, 1), 
+This function is identical to \code{glmnet.lasso} from the
+    \code{stabs} package. The only addition/modification is the weakness
+    parameter which has been added when calling the
+    \code{glmnet} function by setting
+    penalty.factor = 1/runif(ncol(x), weakness, 1),
     where ncol(x) is the number of predictors.
 }
 \seealso{

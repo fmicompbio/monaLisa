@@ -14,40 +14,40 @@ plotBinDiagnostics(
 \arguments{
 \item{seqs}{DNAStringSet object with sequences.}
 
-\item{bins}{factor of the same length and order as seqs, indicating the bin 
+\item{bins}{factor of the same length and order as seqs, indicating the bin
 for each sequence. Typically the return value of \code{bin}.}
 
-\item{aspect}{The diagnostic to plot. Should be one of \code{"length"}, 
-\code{"GCfrac"} and \code{"dinucfreq"}, to plot the distribution of 
-sequence lengths, the distribution of GC fractions and the average 
+\item{aspect}{The diagnostic to plot. Should be one of \code{"length"},
+\code{"GCfrac"} and \code{"dinucfreq"}, to plot the distribution of
+sequence lengths, the distribution of GC fractions and the average
 relative dinucleotide frequencies across the bins.}
 
 \item{...}{Additional argument passed to \code{getColsByBin}.}
 }
 \value{
-For aspect=\code{"length"} or \code{"GCfrac"}, returns (invisibly) 
-  the output of \code{vioplot()}, which generates the plot. For 
-  aspect=\code{"dinucfreq"}, returns (invisibly) the ComplexHeatmap 
+For aspect=\code{"length"} or \code{"GCfrac"}, returns (invisibly)
+  the output of \code{vioplot()}, which generates the plot. For
+  aspect=\code{"dinucfreq"}, returns (invisibly) the ComplexHeatmap
   object.
 }
 \description{
-Plot various diagnostics of binned sequences. Three plot types are 
-available: 
-\itemize{
-\item{\code{length}}{ plots the distribution of sequence lengths within 
+Plot various diagnostics of binned sequences. Three plot types are
+available:
+\describe{
+\item{\code{length}}{ plots the distribution of sequence lengths within
   each bin.}
-\item{\code{GCfrac}}{ plots the distribution of GC fractions within each 
+\item{\code{GCfrac}}{ plots the distribution of GC fractions within each
   bin.}
-\item{\code{dinucfreq}}{ plots a heatmap of the relative frequency of each 
-  dinucleotide, averaged across the sequences within each bin. The values 
-  are centered for each dinucleotide to better highlight differences 
-  between the bins. The average relative frequency of each dinucleotide 
+\item{\code{dinucfreq}}{ plots a heatmap of the relative frequency of each
+  dinucleotide, averaged across the sequences within each bin. The values
+  are centered for each dinucleotide to better highlight differences
+  between the bins. The average relative frequency of each dinucleotide
   (across the bins) is indicated as well.}
 }
 }
 \examples{
 seqs <- Biostrings::DNAStringSet(
-  vapply(1:100, function(i) paste(sample(c("A", "C", "G", "T"), 10, 
+  vapply(1:100, function(i) paste(sample(c("A", "C", "G", "T"), 10,
                                          replace = TRUE), collapse = ""), "")
 )
 bins <- factor(rep(1:2, each = 50))

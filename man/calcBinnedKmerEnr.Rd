@@ -36,8 +36,8 @@ the bin for each sequence. Typically the return value of
 
 \item{kmerLen}{A \code{numeric} scalar giving the k-mer length.}
 
-\item{background}{A \code{character} scalar specifying the background 
-sequences to use. One of \code{"otherBins"} (default), \code{"allBins"}, 
+\item{background}{A \code{character} scalar specifying the background
+sequences to use. One of \code{"otherBins"} (default), \code{"allBins"},
 \code{"zeroBin"}, \code{"genome"} or \code{"model"} (see "Details").}
 
 \item{MMorder}{A \code{numeric} scalar giving the order of the Markov model
@@ -101,11 +101,11 @@ instance determining the parallel back-end to be used during evaluation.}
 }
 \value{
 A \code{\link[SummarizedExperiment]{SummarizedExperiment}} object
-  with motifs in rows and bins in columns, containing seven assays: \itemize{
+  with motifs in rows and bins in columns, containing seven assays: \describe{
   \item{negLog10P}{: -log10 P values}
   \item{negLog10Padj}{: -log10 adjusted P values}
   \item{pearsonResid}{: k-mer enrichments as Pearson residuals}
-  \item{expForegroundWgtWithHits}{: expected number of foreground 
+  \item{expForegroundWgtWithHits}{: expected number of foreground
     sequences with motif hits}
   \item{log2enr}{: k-mer enrichments as log2 ratios}
   \item{sumForegroundWgtWithHits}{: Sum of foreground sequence weights
@@ -113,8 +113,8 @@ A \code{\link[SummarizedExperiment]{SummarizedExperiment}} object
   \item{sumBackgroundWgtWithHits}{: Sum of background sequence weights
     in a bin that have k-mer occurrences}
 }
-#' The \code{rowData} of the object contains annotations (name, PFMs, PWMs 
-and GC fraction) for the k-mers, while the \code{colData} slot contains 
+#' The \code{rowData} of the object contains annotations (name, PFMs, PWMs
+and GC fraction) for the k-mers, while the \code{colData} slot contains
 summary information about the bins.
 }
 \description{
@@ -130,11 +130,11 @@ This function implements a binned k-mer enrichment analysis. In each
   in \code{\link{calcBinnedMotifEnrR}}. Sequences are weighted to correct for
   GC and shorter k-mer composition differences between fore- and background
   sets.
-  
+
   The background sequences are defined according to the value of the
   \code{background} argument:
-  \itemize{
-    \item{otherBins}{: sequences from all other bins (excluding the current  
+  \describe{
+    \item{otherBins}{: sequences from all other bins (excluding the current
       bin)}
     \item{allBins}{: sequences from all bins (including the current bin)}
     \item{zeroBin}{: sequences from the "zero bin", defined by the
@@ -148,17 +148,17 @@ This function implements a binned k-mer enrichment analysis. In each
       of the same size are sampled (on average). From these, one per
       foreground sequence is selected trying to match the G+C composition.
       In order to make the sampling deterministic, a seed number needs to be
-      provided to the \code{RNGseed} parameter in 
+      provided to the \code{RNGseed} parameter in
       \code{\link[BiocParallel]{SerialParam}}
-      or \code{\link[BiocParallel]{MulticoreParam}} when creating the 
+      or \code{\link[BiocParallel]{MulticoreParam}} when creating the
       \code{BiocParallelParam} instance in \code{BPPARAM}.}
     \item{model}{: a Markov model of the order \code{MMorder} is estimated
       from the foreground sequences and used to estimate expected k-mer
       frequencies. K-mer enrichments are then calculated comparing observed
-      to these expected frequencies. In order to make the process 
-      deterministic, a seed number needs to be provided to the 
-      \code{RNGseed} parameter in \code{\link[BiocParallel]{SerialParam}} or 
-      \code{\link[BiocParallel]{MulticoreParam}} when creating the 
+      to these expected frequencies. In order to make the process
+      deterministic, a seed number needs to be provided to the
+      \code{RNGseed} parameter in \code{\link[BiocParallel]{SerialParam}} or
+      \code{\link[BiocParallel]{MulticoreParam}} when creating the
       \code{BiocParallelParam} instance in \code{BPPARAM}.}
   }
 
@@ -177,13 +177,13 @@ This function implements a binned k-mer enrichment analysis. In each
   Two statistical tests for the calculation of enrichment log p-value are
   available: \code{test = "fisher"} (default) to perform Fisher's exact
   tests, or \code{test = "binomial"} to perform binomial tests, using:
-  \itemize{
+  \describe{
     \item{fisher}{: \code{fisher.test(x = tab, alternative =
       "greater")}, where \code{tab} is the contingency table with the summed
       weights of sequences in foreground or background sets (rows), and with
       or without a occurrences of a particular k-mer (columns).}
     \item{binomial}{: \code{pbinom(q = sumForegroundWgtWithHits - 1, size =
-      totalWgtForeground, 
+      totalWgtForeground,
       prob = sumBackgroundWgtWithHits / totalWgtBackground,
       lower.tail = FALSE, log.p = TRUE)}}
   }

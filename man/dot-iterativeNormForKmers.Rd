@@ -32,7 +32,7 @@ times to run \code{.normForKmers}. the default is set to 160 (as in
 adjustment.}
 }
 \value{
-a DataFrame containing: \itemize{ \item{sequenceWeights}{: a
+a DataFrame containing: \describe{ \item{sequenceWeights}{: a
   \code{dataframe} containing the sequence GC content, GC bins they were
   assigned to, the weight to correct for GC differences between foreGround
   and background sequences, the weight to adjust for kmer composition, and

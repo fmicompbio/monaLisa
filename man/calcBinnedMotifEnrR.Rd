@@ -26,7 +26,7 @@ calcBinnedMotifEnrR(
 )
 }
 \arguments{
-\item{seqs}{\code{\link[Biostrings]{DNAStringSet}} object with sequences to 
+\item{seqs}{\code{\link[Biostrings]{DNAStringSet}} object with sequences to
 test}
 
 \item{bins}{factor of the same length and order as \code{seqs}, indicating
@@ -36,8 +36,8 @@ can be omitted.}
 
 \item{pwmL}{PWMatrixList with motifs for which to calculate enrichments.}
 
-\item{background}{A \code{character} scalar specifying the background 
-sequences to use. One of \code{"otherBins"} (default), \code{"allBins"}, 
+\item{background}{A \code{character} scalar specifying the background
+sequences to use. One of \code{"otherBins"} (default), \code{"allBins"},
 \code{"zeroBin"} or \code{"genome"} (see "Details").}
 
 \item{test}{A \code{character} scalar specifying the type of enrichment test
@@ -92,11 +92,11 @@ instance determining the parallel back-end to be used during evaluation.}
 }
 \value{
 A \code{\link[SummarizedExperiment]{SummarizedExperiment}} object
-  with motifs in rows and bins in columns, containing seven assays: \itemize{
+  with motifs in rows and bins in columns, containing seven assays: \describe{
   \item{negLog10P}{: -log10 P values}
   \item{negLog10Padj}{: -log10 adjusted P values}
   \item{pearsonResid}{: motif enrichments as Pearson residuals}
-  \item{expForegroundWgtWithHits}{: expected number of foreground 
+  \item{expForegroundWgtWithHits}{: expected number of foreground
     sequences with motif hits}
   \item{log2enr}{: motif enrichments as log2 ratios}
   \item{sumForegroundWgtWithHits}{: Sum of foreground sequence weights
@@ -104,8 +104,8 @@ A \code{\link[SummarizedExperiment]{SummarizedExperiment}} object
   \item{sumBackgroundWgtWithHits}{: Sum of background sequence weights
     in a bin that have motif hits}
 }
-The \code{rowData} of the object contains annotations (name, PFMs, PWMs 
-and GC fraction) for the motifs, while the \code{colData} slot contains 
+The \code{rowData} of the object contains annotations (name, PFMs, PWMs
+and GC fraction) for the motifs, while the \code{colData} slot contains
 summary information about the bins.
 }
 \description{
@@ -119,15 +119,15 @@ This function implements a binned motif enrichment analysis. In each
   sequences to test for motif enrichments comparing to background sequences
   (defined by \code{background}, see below). The logic follows the
   \code{findMotifsGenome.pl} tool from \code{Homer} version 4.11, with
-  \code{-size given -nomotif -mknown} and additionally \code{-h} if using 
-  \code{test = "fisher"}, and gives very similar results. As in the 
-  \code{Homer} tool, sequences are weighted to correct for GC and k-mer 
+  \code{-size given -nomotif -mknown} and additionally \code{-h} if using
+  \code{test = "fisher"}, and gives very similar results. As in the
+  \code{Homer} tool, sequences are weighted to correct for GC and k-mer
   composition differences between fore- and background sets.
-  
+
   The background sequences are defined according to the value of the
   \code{background} argument:
-  \itemize{
-    \item{otherBins}{: sequences from all other bins (excluding the current 
+  \describe{
+    \item{otherBins}{: sequences from all other bins (excluding the current
       bin)}
     \item{allBins}{: sequences from all bins (including the current bin)}
     \item{zeroBin}{: sequences from the "zero bin", defined by the
@@ -141,9 +141,9 @@ This function implements a binned motif enrichment analysis. In each
       of the same size are sampled (on average). From these, one per
       foreground sequence is selected trying to match the G+C composition.
       In order to make the sampling deterministic, a seed number needs to be
-      provided to the \code{RNGseed} parameter in 
+      provided to the \code{RNGseed} parameter in
       \code{\link[BiocParallel]{SerialParam}}
-      or \code{\link[BiocParallel]{MulticoreParam}} when creating the 
+      or \code{\link[BiocParallel]{MulticoreParam}} when creating the
       \code{BiocParallelParam} instance in \code{BPPARAM}.}
   }
 
@@ -151,24 +151,24 @@ This function implements a binned motif enrichment analysis. In each
   multiple hits per sequence are counted as just one hit (ZOOPS mode). For
   each motif, the weights of sequences that have a hit are summed separately
   for foreground (\code{sumForegroundWgtWithHits}) and background
-  (\code{sumBackgroundWgtWithHits}). The total foreground 
+  (\code{sumBackgroundWgtWithHits}). The total foreground
   (\code{totalWgtForeground}) and background (\code{totalWgtBackground})
-  sum of sequence weights is also calculated. If a motif has zero 
+  sum of sequence weights is also calculated. If a motif has zero
   \code{sumForegroundWgtWithHits} and \code{sumBackgroundWgtWithHits},
-  then any values (p-values and enrichment) that are calculated using 
+  then any values (p-values and enrichment) that are calculated using
   these two numbers are set to NA.
 
   Two statistical tests for the calculation of enrichment log p-value are
   available: \code{test = "fisher"} (default) to perform Fisher's exact
   tests, or \code{test = "binomial"} to perform binomial tests
   (default in \code{Homer}), using:
-  \itemize{
+  \describe{
     \item{fisher}{: \code{fisher.test(x = tab, alternative =
       "greater")}, where \code{tab} is the contingency table with the summed
       weights of sequences in foreground or background sets (rows), and with
       or without a hit for a particular motif (columns).}
     \item{binomial}{: \code{pbinom(q = sumForegroundWgtWithHits - 1, size =
-      totalWgtForeground, 
+      totalWgtForeground,
       prob = sumBackgroundWgtWithHits / totalWgtBackground,
       lower.tail = FALSE, log.p = TRUE)}}
   }

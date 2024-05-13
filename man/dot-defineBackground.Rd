@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils_enrichment.R
 \name{.defineBackground}
 \alias{.defineBackground}
-\title{Define background sequence set for a single motif enrichment 
+\title{Define background sequence set for a single motif enrichment
   calculation}
 \usage{
 .defineBackground(
@@ -18,14 +18,14 @@
 )
 }
 \arguments{
-\item{sqs, bns, bg}{The \code{seqs}, \code{bins} and \code{background} 
+\item{sqs, bns, bg}{The \code{seqs}, \code{bins} and \code{background}
 arguments from \code{calcBinnedMotifEnrR}.}
 
 \item{currbn}{An \code{integer} scalar with the current bin defining the
 foreground sequences.}
 
-\item{gnm, gnm.regions, gnm.oversample}{The \code{genome}, 
-\code{genome.regions} and \code{genome.oversample} arguments from 
+\item{gnm, gnm.regions, gnm.oversample}{The \code{genome},
+\code{genome.regions} and \code{genome.oversample} arguments from
 \code{calcBinnedMotifEnrR}.}
 
 \item{maxFracN}{The \code{maxFracN} argument from \code{calcBinnedMotifEnrR}.}

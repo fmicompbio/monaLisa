@@ -138,7 +138,7 @@ findMotifHits(
 }
 \arguments{
 \item{query}{The motifs to search for, either a
-\itemize{
+\describe{
     \item{\code{character(1)}}{ with the path and file name of a motif
           file with PWM in HOMER format (currently only
           supported for \code{method="homer2"})}
@@ -147,7 +147,7 @@ findMotifHits(
  }}
 
 \item{subject}{The sequences to be searched, either a
-\itemize{
+\describe{
     \item{\code{character}}{ with the path and file name of a sequence
           file with DNA sequences in FASTA format}
     \item{\code{DNAString}}{ with a single sequence}
@@ -161,7 +161,7 @@ a character string containing a percentage (e.g. "85%") of  of the
 highest possible score or as a single number.}
 
 \item{method}{The internal method to use for motif searching. One of
-\itemize{
+\describe{
     \item{\code{"matchPWM"}}{ using Biostrings::matchPWM (optimized)}
     \item{\code{"homer2"}}{ call to the homer2 binary}
 }

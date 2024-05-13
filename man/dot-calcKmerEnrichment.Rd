@@ -18,7 +18,7 @@
 }
 \value{
 A \code{data.frame} containing the motifs as rows and the columns:
-  \itemize{
+  \describe{
     \item{motifName}{: the motif name}
     \item{logP}{: the log p-value for enrichment (natural logarithm).
        If \code{test="binomial"} (default), this log p-value is identical to

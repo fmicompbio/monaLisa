@@ -8,8 +8,8 @@
 #'   The default type of test is \code{"fisher"}, which is also what
 #'   \code{Homer} uses if "-h" is specified for a hypergeometric test.
 #'   Alternatively, a binomial test can be used by \code{test = "binomial"}
-#'   (what \code{Homer} does by default). Using Fisher's exact test has 
-#'   the advantage that special cases such as zero background counts are 
+#'   (what \code{Homer} does by default). Using Fisher's exact test has
+#'   the advantage that special cases such as zero background counts are
 #'   handled without ad-hoc adjustments to the frequencies.
 #'
 #'   For \code{test = "fisher"}, \code{fisher.test} is used with
@@ -24,16 +24,16 @@
 #' @param verbose A logical scalar. If \code{TRUE}, report on progress.
 #'
 #' @return a \code{data.frame} containing the motifs as rows and the columns:
-#'   \itemize{
+#'   \describe{
 #'     \item{motifName}{: the motif name}
 #'     \item{logP}{: the log p-value for enrichment (natural logarithm).
 #'        If \code{test="binomial"} (default), this log p-value is identical to
 #'        the one returned by Homer.}
-#'     \item{sumForegroundWgtWithHits}{: the sum of the weights of the 
-#'        foreground sequences that have at least one instance of a specific 
+#'     \item{sumForegroundWgtWithHits}{: the sum of the weights of the
+#'        foreground sequences that have at least one instance of a specific
 #'        motif (ZOOPS mode).}
-#'     \item{sumBackgroundWgtWithHits}{: the sum of the weights of the 
-#'        background sequences that have at least one instance of a specific 
+#'     \item{sumBackgroundWgtWithHits}{: the sum of the weights of the
+#'        background sequences that have at least one instance of a specific
 #'        motif (ZOOPS mode).}
 #'     \item{totalWgtForeground}{: the total sum of weights of foreground
 #'        sequences.}
@@ -42,7 +42,7 @@
 #'   }
 #'
 #' @importFrom stats pbinom fisher.test
-#' 
+#'
 #' @keywords internal
 .calcMotifEnrichment <- function(motifHitMatrix,
                                  df,
@@ -68,9 +68,9 @@
     totalWgtBackground <- sum(df$seqWgt[!df$isForeground])
 
     motifHitMatrixWeighted <- motifHitMatrix * df$seqWgt
-    TFmatchedSeqCountForeground <- 
+    TFmatchedSeqCountForeground <-
       colSums(motifHitMatrixWeighted[df$isForeground, , drop = FALSE])
-    TFmatchedSeqCountBackground <- 
+    TFmatchedSeqCountBackground <-
       colSums(motifHitMatrixWeighted[!df$isForeground, , drop = FALSE])
 
     # calculate motif enrichment
@@ -84,7 +84,7 @@
         )
     } else if (identical(test, "fisher")) {
         logP <- .fisherEnrichmentTest(
-            matchCountBg = TFmatchedSeqCountBackground, 
+            matchCountBg = TFmatchedSeqCountBackground,
             totalWeightBg = totalWgtBackground,
             matchCountFg = TFmatchedSeqCountForeground,
             totalWeightFg = totalWgtForeground,
@@ -107,15 +107,15 @@
 #'   sequences. For each bin, the sequences in all other bins are used as
 #'   background.
 #'
-#' @param seqs \code{\link[Biostrings]{DNAStringSet}} object with sequences to 
+#' @param seqs \code{\link[Biostrings]{DNAStringSet}} object with sequences to
 #'   test
 #' @param bins factor of the same length and order as \code{seqs}, indicating
 #'   the bin for each sequence. Typically the return value of
 #'   \code{\link[monaLisa]{bin}}. For \code{background = "genome"}, \code{bins}
 #'   can be omitted.
 #' @param pwmL PWMatrixList with motifs for which to calculate enrichments.
-#' @param background A \code{character} scalar specifying the background 
-#'   sequences to use. One of \code{"otherBins"} (default), \code{"allBins"}, 
+#' @param background A \code{character} scalar specifying the background
+#'   sequences to use. One of \code{"otherBins"} (default), \code{"allBins"},
 #'   \code{"zeroBin"} or \code{"genome"} (see "Details").
 #' @param test A \code{character} scalar specifying the type of enrichment test
 #'   to perform. One of \code{"fisher"} (default) or \code{"binomial"}. The
@@ -159,15 +159,15 @@
 #'   sequences to test for motif enrichments comparing to background sequences
 #'   (defined by \code{background}, see below). The logic follows the
 #'   \code{findMotifsGenome.pl} tool from \code{Homer} version 4.11, with
-#'   \code{-size given -nomotif -mknown} and additionally \code{-h} if using 
-#'   \code{test = "fisher"}, and gives very similar results. As in the 
-#'   \code{Homer} tool, sequences are weighted to correct for GC and k-mer 
+#'   \code{-size given -nomotif -mknown} and additionally \code{-h} if using
+#'   \code{test = "fisher"}, and gives very similar results. As in the
+#'   \code{Homer} tool, sequences are weighted to correct for GC and k-mer
 #'   composition differences between fore- and background sets.
-#'   
+#'
 #'   The background sequences are defined according to the value of the
 #'   \code{background} argument:
-#'   \itemize{
-#'     \item{otherBins}{: sequences from all other bins (excluding the current 
+#'   \describe{
+#'     \item{otherBins}{: sequences from all other bins (excluding the current
 #'       bin)}
 #'     \item{allBins}{: sequences from all bins (including the current bin)}
 #'     \item{zeroBin}{: sequences from the "zero bin", defined by the
@@ -181,9 +181,9 @@
 #'       of the same size are sampled (on average). From these, one per
 #'       foreground sequence is selected trying to match the G+C composition.
 #'       In order to make the sampling deterministic, a seed number needs to be
-#'       provided to the \code{RNGseed} parameter in 
+#'       provided to the \code{RNGseed} parameter in
 #'       \code{\link[BiocParallel]{SerialParam}}
-#'       or \code{\link[BiocParallel]{MulticoreParam}} when creating the 
+#'       or \code{\link[BiocParallel]{MulticoreParam}} when creating the
 #'       \code{BiocParallelParam} instance in \code{BPPARAM}.}
 #'   }
 #'
@@ -191,34 +191,34 @@
 #'   multiple hits per sequence are counted as just one hit (ZOOPS mode). For
 #'   each motif, the weights of sequences that have a hit are summed separately
 #'   for foreground (\code{sumForegroundWgtWithHits}) and background
-#'   (\code{sumBackgroundWgtWithHits}). The total foreground 
+#'   (\code{sumBackgroundWgtWithHits}). The total foreground
 #'   (\code{totalWgtForeground}) and background (\code{totalWgtBackground})
-#'   sum of sequence weights is also calculated. If a motif has zero 
+#'   sum of sequence weights is also calculated. If a motif has zero
 #'   \code{sumForegroundWgtWithHits} and \code{sumBackgroundWgtWithHits},
-#'   then any values (p-values and enrichment) that are calculated using 
+#'   then any values (p-values and enrichment) that are calculated using
 #'   these two numbers are set to NA.
 #'
 #'   Two statistical tests for the calculation of enrichment log p-value are
 #'   available: \code{test = "fisher"} (default) to perform Fisher's exact
 #'   tests, or \code{test = "binomial"} to perform binomial tests
 #'   (default in \code{Homer}), using:
-#'   \itemize{
+#'   \describe{
 #'     \item{fisher}{: \code{fisher.test(x = tab, alternative =
 #'       "greater")}, where \code{tab} is the contingency table with the summed
 #'       weights of sequences in foreground or background sets (rows), and with
 #'       or without a hit for a particular motif (columns).}
 #'     \item{binomial}{: \code{pbinom(q = sumForegroundWgtWithHits - 1, size =
-#'       totalWgtForeground, 
+#'       totalWgtForeground,
 #'       prob = sumBackgroundWgtWithHits / totalWgtBackground,
 #'       lower.tail = FALSE, log.p = TRUE)}}
 #'   }
-#'   
+#'
 #' @return A \code{\link[SummarizedExperiment]{SummarizedExperiment}} object
-#'   with motifs in rows and bins in columns, containing seven assays: \itemize{
+#'   with motifs in rows and bins in columns, containing seven assays: \describe{
 #'   \item{negLog10P}{: -log10 P values}
 #'   \item{negLog10Padj}{: -log10 adjusted P values}
 #'   \item{pearsonResid}{: motif enrichments as Pearson residuals}
-#'   \item{expForegroundWgtWithHits}{: expected number of foreground 
+#'   \item{expForegroundWgtWithHits}{: expected number of foreground
 #'     sequences with motif hits}
 #'   \item{log2enr}{: motif enrichments as log2 ratios}
 #'   \item{sumForegroundWgtWithHits}{: Sum of foreground sequence weights
@@ -226,9 +226,9 @@
 #'   \item{sumBackgroundWgtWithHits}{: Sum of background sequence weights
 #'     in a bin that have motif hits}
 #' }
-#' The \code{rowData} of the object contains annotations (name, PFMs, PWMs 
-#' and GC fraction) for the motifs, while the \code{colData} slot contains 
-#' summary information about the bins. 
+#' The \code{rowData} of the object contains annotations (name, PFMs, PWMs
+#' and GC fraction) for the motifs, while the \code{colData} slot contains
+#' summary information about the bins.
 #'
 #' @examples
 #' seqs <- Biostrings::DNAStringSet(c("GTCAGTCGATC", "CAGTCTAGCTG",
@@ -256,7 +256,7 @@
 calcBinnedMotifEnrR <- function(seqs,
                                 bins = NULL,
                                 pwmL = NULL,
-                                background = c("otherBins", "allBins", 
+                                background = c("otherBins", "allBins",
                                                "zeroBin", "genome"),
                                 test = c("fisher", "binomial"),
                                 maxFracN = 0.7,
@@ -285,9 +285,9 @@ calcBinnedMotifEnrR <- function(seqs,
         stop("'seqs' and 'bins' must be of equal length and in the same order")
     }
     .assertVector(x = pwmL, type = "PWMatrixList")
-    .assertScalar(x = pseudocount.log2enr, type = "numeric", 
+    .assertScalar(x = pseudocount.log2enr, type = "numeric",
                   rngIncl = c(0, Inf))
-    .assertScalar(x = p.adjust.method, type = "character", 
+    .assertScalar(x = p.adjust.method, type = "character",
                   validValues = stats::p.adjust.methods)
     if (identical(background, "zeroBin") &&
         (is.null(getZeroBin(bins)) || is.na(getZeroBin(bins)))) {
@@ -295,7 +295,7 @@ calcBinnedMotifEnrR <- function(seqs,
              "(see 'maxAbsX' arugment of 'bin' function).")
     }
     if (identical(background, "genome")) {
-        if (is.null(genome) || !(is(genome, "DNAStringSet") || 
+        if (is.null(genome) || !(is(genome, "DNAStringSet") ||
                                  is(genome, "BSgenome"))) {
             stop("For background = 'genome', 'genome' must be either a ",
                  "DNAStringSet or a BSgenome object.")
@@ -306,11 +306,11 @@ calcBinnedMotifEnrR <- function(seqs,
                      "either NULL or a GRanges object.")
             }
             if (!all(seqlevels(genome.regions) %in% names(genome))) {
-                stop("'genome.regions' contains seqlevels not contained in ", 
+                stop("'genome.regions' contains seqlevels not contained in ",
                      "'genome'")
             }
         }
-        .assertScalar(x = genome.oversample, type = "numeric", 
+        .assertScalar(x = genome.oversample, type = "numeric",
                       rngIncl = c(1, Inf))
     }
     .assertVector(x = BPPARAM, type = "BiocParallelParam")
@@ -335,13 +335,13 @@ calcBinnedMotifEnrR <- function(seqs,
         bins <- setZeroBin(bins, bin0)
     }
     seqs <- seqs[keep]
-    
+
     # stop if all sequences were filtered out
     if (sum(keep) == 0) {
-      stop("No sequence passed the filtering step. Cannot proceed with the ", 
+      stop("No sequence passed the filtering step. Cannot proceed with the ",
            "enrichment analysis ...")
     }
-    
+
     # scan sequences with motif
     if (verbose) {
         message("Scanning sequences for motif hits...")
@@ -385,7 +385,7 @@ calcBinnedMotifEnrR <- function(seqs,
                                 gnm.oversample = genome.oversample,
                                 maxFracN = maxFracN)
 
-        # for background = "genome", scan sampled background sequences for 
+        # for background = "genome", scan sampled background sequences for
         # motifs
         if (identical(background, "genome")) {
             if (verbose1) {
@@ -396,7 +396,7 @@ calcBinnedMotifEnrR <- function(seqs,
                 min.score = min.score, method = matchMethod,
                 BPPARAM = BPPARAM, ...)
             if (isEmpty(hits.genome)) {
-              stop("No motif hits found in any of the genomic background ", 
+              stop("No motif hits found in any of the genomic background ",
                    "sequences - aborting.")
             }
 
@@ -409,34 +409,34 @@ calcBinnedMotifEnrR <- function(seqs,
             )
             # zoops (zero or one per sequence) mode
             hitmatrix.genome[hitmatrix.genome > 0] <- 1
-            
+
             hitmatrix2 <- rbind(hitmatrix, hitmatrix.genome)
 
         } else {
             hitmatrix2 <- hitmatrix
         }
-        
+
         # calculate initial background sequence weights based on G+C composition
         if (verbose1) {
-            message("Correcting for GC differences to the background ", 
+            message("Correcting for GC differences to the background ",
                     "sequences...")
         }
         df <- .calculateGCweight(df = df,
                                  GCbreaks = GCbreaks,
                                  verbose = verbose1)
-        
-        # if df is empty, then all seqs were filtered out in the GC weight 
+
+        # if df is empty, then all seqs were filtered out in the GC weight
         # calculation step
         if (nrow(df) == 0) {
-          stop("No sequences remained after the GC weight calculation ", 
-               "step in bin ", levels(bins)[i], 
-               " due to no GC bin containing both fore- and background ", 
+          stop("No sequences remained after the GC weight calculation ",
+               "step in bin ", levels(bins)[i],
+               " due to no GC bin containing both fore- and background ",
                "sequences. Cannot proceed with the enrichment analysis ...")
         }
 
         # update background sequence weights based on k-mer composition
         if (verbose1) {
-            message("Correcting for k-mer differences between fore- and ", 
+            message("Correcting for k-mer differences between fore- and ",
                     "background sequences...")
         }
         df <- .iterativeNormForKmers(df = df,
@@ -465,7 +465,7 @@ calcBinnedMotifEnrR <- function(seqs,
     }))
 
     # ... -log10 of adjusted P value
-    padj <- matrix(-log10(p.adjust(as.vector(10**(-P)), 
+    padj <- matrix(-log10(p.adjust(as.vector(10**(-P)),
                                    method = p.adjust.method)), nrow = nrow(P))
     dimnames(padj) <- dimnames(P)
     padj[which(padj == Inf, arr.ind = TRUE)] <- max(padj[is.finite(padj)])
@@ -473,7 +473,7 @@ calcBinnedMotifEnrR <- function(seqs,
     # ... Pearson residuals
     enrTF <- do.call(cbind, lapply(enrichL, function(enrich1) {
         enr <- .calcPearsonResiduals(
-            matchCountBg = enrich1[, "sumBackgroundWgtWithHits"], 
+            matchCountBg = enrich1[, "sumBackgroundWgtWithHits"],
             totalWeightBg = unique(enrich1[, "totalWgtBackground"]),
             matchCountFg = enrich1[, "sumForegroundWgtWithHits"],
             totalWeightFg = unique(enrich1[, "totalWgtForeground"])
@@ -485,7 +485,7 @@ calcBinnedMotifEnrR <- function(seqs,
     # expected foreground weights
     expFG <- do.call(cbind, lapply(enrichL, function(enrich1) {
         expfg <- .calcExpFg(
-            matchCountBg = enrich1[, "sumBackgroundWgtWithHits"], 
+            matchCountBg = enrich1[, "sumBackgroundWgtWithHits"],
             totalWeightBg = unique(enrich1[, "totalWgtBackground"]),
             matchCountFg = enrich1[, "sumForegroundWgtWithHits"],
             totalWeightFg = unique(enrich1[, "totalWgtForeground"])
@@ -493,14 +493,14 @@ calcBinnedMotifEnrR <- function(seqs,
         names(expfg) <- enrich1[, "motifName"]
         expfg
     }))
-    
+
     # log2 enrichments
     log2enr <- do.call(cbind, lapply(enrichL, function(enrich1) {
         l2e <- .calcLog2Enr(
             matchCountBg = enrich1[, "sumBackgroundWgtWithHits"],
             totalWeightBg = unique(enrich1[, "totalWgtBackground"]),
             matchCountFg = enrich1[, "sumForegroundWgtWithHits"],
-            totalWeightFg = unique(enrich1[, "totalWgtForeground"]), 
+            totalWeightFg = unique(enrich1[, "totalWgtForeground"]),
             pseudocount = pseudocount.log2enr
         )
         names(l2e) <- enrich1[, "motifName"]
@@ -537,7 +537,7 @@ calcBinnedMotifEnrR <- function(seqs,
         bin.nochange = seq.int(nlevels(bins)) %in% getZeroBin(bins),
         totalWgtForeground = do.call(c, lapply(enrichL, function(x) {
             x$totalWgtForeground[1]
-        })), 
+        })),
         totalWgtBackground = do.call(c, lapply(enrichL, function(x) {
             x$totalWgtBackground[1]
         })))
@@ -560,13 +560,13 @@ calcBinnedMotifEnrR <- function(seqs,
                               BPPARAM.class = class(BPPARAM),
                               BPPARAM.bpnworkers = bpnworkers(BPPARAM),
                               verbose = verbose))
-    assaySumForegroundWgtWithHits <- 
+    assaySumForegroundWgtWithHits <-
         do.call(cbind, lapply(enrichL, function(x){x$sumForegroundWgtWithHits}))
-    assaySumBackgroundWgtWithHits <- 
+    assaySumBackgroundWgtWithHits <-
         do.call(cbind, lapply(enrichL, function(x){x$sumBackgroundWgtWithHits}))
-    
+
     # ... set motifs with zero fore- and background sums to NA
-    assayFgBgSum <- assaySumForegroundWgtWithHits + 
+    assayFgBgSum <- assaySumForegroundWgtWithHits +
         assaySumBackgroundWgtWithHits
     set_NA <- assayFgBgSum == 0
     P[set_NA] <- NA
@@ -576,12 +576,12 @@ calcBinnedMotifEnrR <- function(seqs,
     log2enr[set_NA] <- NA
 
     se <- SummarizedExperiment(
-      assays = list(negLog10P = P, 
-                    negLog10Padj = padj, 
+      assays = list(negLog10P = P,
+                    negLog10Padj = padj,
                     pearsonResid = enrTF,
                     expForegroundWgtWithHits = expFG,
-                    log2enr = log2enr, 
-                    sumForegroundWgtWithHits = assaySumForegroundWgtWithHits, 
+                    log2enr = log2enr,
+                    sumForegroundWgtWithHits = assaySumForegroundWgtWithHits,
                     sumBackgroundWgtWithHits = assaySumBackgroundWgtWithHits),
       rowData = rdat, colData = cdat, metadata = mdat
     )
