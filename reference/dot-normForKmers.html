@@ -23,7 +23,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.9.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.11.0</span>
       </span>
     </div>
 
@@ -41,10 +41,7 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/monaLisa.html">Binned motif enrichment analysis</a>
-    </li>
-    <li>
-      <a href="../articles/selecting_motifs_with_randLassoStabSel.html">Identifying motifs by stability selection</a>
+      <a href="../articles/selecting_motifs_with_randLassoStabSel.html">Regression Based Approach for Motif Selection</a>
     </li>
   </ul></li>
 <li>
@@ -94,42 +91,42 @@
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>kmerFreq</dt>
+    <dl><dt id="arg-kmerfreq">kmerFreq<a class="anchor" aria-label="anchor" href="#arg-kmerfreq"></a></dt>
 <dd><p>a <code>list</code> with of matrices. The matrix at index <code>i</code>
 in the list contains the probability of k-mers of length <code>i</code>, for each
 k-mer (columns) and sequence (rows).</p></dd>
 
 
-<dt>goodKmers</dt>
+<dt id="arg-goodkmers">goodKmers<a class="anchor" aria-label="anchor" href="#arg-goodkmers"></a></dt>
 <dd><p>a <code>list</code> of <code>numeric</code> vectors; the element at 
 index <code>i</code> contains the number of good (non-N-containing) k-mers of 
 length <code>i</code> for each sequence.</p></dd>
 
 
-<dt>kmerRC</dt>
+<dt id="arg-kmerrc">kmerRC<a class="anchor" aria-label="anchor" href="#arg-kmerrc"></a></dt>
 <dd><p>a <code>list</code> of character vectors; the element at index
 <code>i</code> contains the reverse complement sequences of all k-mers of length
 <code>i</code>.</p></dd>
 
 
-<dt>seqWgt</dt>
+<dt id="arg-seqwgt">seqWgt<a class="anchor" aria-label="anchor" href="#arg-seqwgt"></a></dt>
 <dd><p>a <code>numeric</code> vector with starting sequence weights
 at the beginning of the iteration.</p></dd>
 
 
-<dt>isForeground</dt>
+<dt id="arg-isforeground">isForeground<a class="anchor" aria-label="anchor" href="#arg-isforeground"></a></dt>
 <dd><p>logical vector of the same length as <code>seqs</code>.
 <code>TRUE</code> indicates that the sequence is from the foreground,
 <code>FALSE</code> that it is a background sequence.</p></dd>
 
 
-<dt>minSeqWgt</dt>
+<dt id="arg-minseqwgt">minSeqWgt<a class="anchor" aria-label="anchor" href="#arg-minseqwgt"></a></dt>
 <dd><p>Numeric scalar greater than zero giving the
 minimal weight of a sequence. The default value (0.001) is based on
 <code>Homer</code> (HOMER_MINIMUM_SEQ_WEIGHT constant in Motif2.h).</p></dd>
 
 
-<dt>maxSeqWgt</dt>
+<dt id="arg-maxseqwgt">maxSeqWgt<a class="anchor" aria-label="anchor" href="#arg-maxseqwgt"></a></dt>
 <dd><p>Numeric scalar greater than zero giving the
 maximal weight of a sequence. The default value (1000) is based on
 <code>HOMER</code> (1 / HOMER_MINIMUM_SEQ_WEIGHT constant in Motif2.h).</p></dd>
@@ -156,7 +153,7 @@ maximal weight of a sequence. The default value (1000) is based on
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.9000.</p>
 </div>
 
       </footer></div>

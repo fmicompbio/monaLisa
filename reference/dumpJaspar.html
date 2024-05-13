@@ -19,7 +19,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.9.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.11.0</span>
       </span>
     </div>
 
@@ -37,10 +37,7 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/monaLisa.html">Binned motif enrichment analysis</a>
-    </li>
-    <li>
-      <a href="../articles/selecting_motifs_with_randLassoStabSel.html">Identifying motifs by stability selection</a>
+      <a href="../articles/selecting_motifs_with_randLassoStabSel.html">Regression Based Approach for Motif Selection</a>
     </li>
   </ul></li>
 <li>
@@ -85,34 +82,34 @@
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>filename</dt>
+    <dl><dt id="arg-filename">filename<a class="anchor" aria-label="anchor" href="#arg-filename"></a></dt>
 <dd><p>Name of the output file to be created.</p></dd>
 
 
-<dt>pkg</dt>
+<dt id="arg-pkg">pkg<a class="anchor" aria-label="anchor" href="#arg-pkg"></a></dt>
 <dd><p>Name of the Jaspar package to use (default: <code>JASPAR2020</code>).</p></dd>
 
 
-<dt>opts</dt>
+<dt id="arg-opts">opts<a class="anchor" aria-label="anchor" href="#arg-opts"></a></dt>
 <dd><p>A list with search options used in
 <code><a href="https://rdrr.io/pkg/TFBSTools/man/getMatrixSet-methods.html" class="external-link">getMatrixSet</a></code>. By default, only vertebrate motifs
 are included in the output using
 <code>opts = list(tax_group = "vertebrates")</code>.</p></dd>
 
 
-<dt>pseudocount</dt>
+<dt id="arg-pseudocount">pseudocount<a class="anchor" aria-label="anchor" href="#arg-pseudocount"></a></dt>
 <dd><p>A numerical scalar with the pseudocount to be added to
 each element of the position frequency matrix extracted from Jaspar,
 before its conversion to a position probability matrix (default: 1.0).</p></dd>
 
 
-<dt>relScoreCutoff</dt>
+<dt id="arg-relscorecutoff">relScoreCutoff<a class="anchor" aria-label="anchor" href="#arg-relscorecutoff"></a></dt>
 <dd><p>Currently ignored. numeric(1) in [0,1] that sets the
 default motif log-odds score cutof to relScoreCutoff * maximal score for
 each PWM (default: 0.8).</p></dd>
 
 
-<dt>verbose</dt>
+<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
 <dd><p>A logical scalar. If <code>TRUE</code>, print progress messages.</p></dd>
 
 </dl></div>
@@ -149,7 +146,7 @@ each PWM (default: 0.8).</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.9000.</p>
 </div>
 
       </footer></div>

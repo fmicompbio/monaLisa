@@ -21,7 +21,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.9.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.11.0</span>
       </span>
     </div>
 
@@ -39,10 +39,7 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/monaLisa.html">Binned motif enrichment analysis</a>
-    </li>
-    <li>
-      <a href="../articles/selecting_motifs_with_randLassoStabSel.html">Identifying motifs by stability selection</a>
+      <a href="../articles/selecting_motifs_with_randLassoStabSel.html">Regression Based Approach for Motif Selection</a>
     </li>
   </ul></li>
 <li>
@@ -89,26 +86,26 @@
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>x</dt>
+    <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>the predictor matrix. Passed to <code>x</code>
 of <code>glmnet.lasso</code> from <code>stabs</code> package.</p></dd>
 
 
-<dt>y</dt>
+<dt id="arg-y">y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
 <dd><p>the response vector. Passed to <code>y</code>
 of <code>glmnet.lasso</code> from <code>stabs</code> package.</p></dd>
 
 
-<dt>q</dt>
+<dt id="arg-q">q<a class="anchor" aria-label="anchor" href="#arg-q"></a></dt>
 <dd><p>the number of variables that are selected on each subsample. 
 Passed to <code>q</code> of <code>glmnet.lasso</code> from <code>stabs</code> package.</p></dd>
 
 
-<dt>weakness</dt>
+<dt id="arg-weakness">weakness<a class="anchor" aria-label="anchor" href="#arg-weakness"></a></dt>
 <dd><p>weakness parameter used in randomized lasso (see details).</p></dd>
 
 
-<dt>type</dt>
+<dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><p>parameter passed to <code>type</code> of <code>glmnet.lasso</code> from 
 <code>stabs</code> package. It is a character vector specifying how much the 
 PFER should be controlled. If type is "conservative" (default), then the 
@@ -117,7 +114,7 @@ number of selected variables per subsample is &lt;= q. If type is
 is &gt;= q.</p></dd>
 
 
-<dt>...</dt>
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>additional parameters for <code>glmnet</code>.</p></dd>
 
 </dl></div>
@@ -160,7 +157,7 @@ is &gt;= q.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.9000.</p>
 </div>
 
       </footer></div>

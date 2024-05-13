@@ -21,7 +21,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.9.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.11.0</span>
       </span>
     </div>
 
@@ -39,10 +39,7 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/monaLisa.html">Binned motif enrichment analysis</a>
-    </li>
-    <li>
-      <a href="../articles/selecting_motifs_with_randLassoStabSel.html">Identifying motifs by stability selection</a>
+      <a href="../articles/selecting_motifs_with_randLassoStabSel.html">Regression Based Approach for Motif Selection</a>
     </li>
   </ul></li>
 <li>
@@ -95,62 +92,62 @@
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>gr</dt>
+    <dl><dt id="arg-gr">gr<a class="anchor" aria-label="anchor" href="#arg-gr"></a></dt>
 <dd><p>A <code>GRanges</code> object (or an object that can be coerced to one)
 with the genomic regions to analyze.</p></dd>
 
 
-<dt>b</dt>
+<dt id="arg-b">b<a class="anchor" aria-label="anchor" href="#arg-b"></a></dt>
 <dd><p>A vector of the same length as <code>gr</code> that groups its elements
 into bins (typically a factor, such as the one returned by
 <code><a href="bin.html">bin</a></code>).</p></dd>
 
 
-<dt>genomedir</dt>
+<dt id="arg-genomedir">genomedir<a class="anchor" aria-label="anchor" href="#arg-genomedir"></a></dt>
 <dd><p>Directory containing sequence files in Fasta format
 (one per chromosome).</p></dd>
 
 
-<dt>outdir</dt>
+<dt id="arg-outdir">outdir<a class="anchor" aria-label="anchor" href="#arg-outdir"></a></dt>
 <dd><p>A path specifying the folder into which the output files will
 be written.</p></dd>
 
 
-<dt>motifFile</dt>
+<dt id="arg-motiffile">motifFile<a class="anchor" aria-label="anchor" href="#arg-motiffile"></a></dt>
 <dd><p>A file with HOMER formatted PWMs to be used in the
 enrichment analysis.</p></dd>
 
 
-<dt>homerfile</dt>
+<dt id="arg-homerfile">homerfile<a class="anchor" aria-label="anchor" href="#arg-homerfile"></a></dt>
 <dd><p>Path and file name of the <code>findMotifsGenome.pl</code>
 HOMER script.</p></dd>
 
 
-<dt>regionsize</dt>
+<dt id="arg-regionsize">regionsize<a class="anchor" aria-label="anchor" href="#arg-regionsize"></a></dt>
 <dd><p>The peak size to use in HOMER (<code>"given"</code> keeps the
 coordinate region, an integer value will keep only that many bases in
 the region center).</p></dd>
 
 
-<dt>pseudocount.log2enr</dt>
+<dt id="arg-pseudocount-log-enr">pseudocount.log2enr<a class="anchor" aria-label="anchor" href="#arg-pseudocount-log-enr"></a></dt>
 <dd><p>A numerical scalar with the pseudocount to add to
 foreground and background counts when calculating log2 motif enrichments</p></dd>
 
 
-<dt>p.adjust.method</dt>
+<dt id="arg-p-adjust-method">p.adjust.method<a class="anchor" aria-label="anchor" href="#arg-p-adjust-method"></a></dt>
 <dd><p>A character scalar selecting the p value adjustment
 method (used in <code><a href="https://rdrr.io/r/stats/p.adjust.html" class="external-link">p.adjust</a></code>).</p></dd>
 
 
-<dt>Ncpu</dt>
+<dt id="arg-ncpu">Ncpu<a class="anchor" aria-label="anchor" href="#arg-ncpu"></a></dt>
 <dd><p>Number of parallel threads that HOMER can use.</p></dd>
 
 
-<dt>verbose</dt>
+<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
 <dd><p>A logical scalar. If <code>TRUE</code>, print progress messages.</p></dd>
 
 
-<dt>verbose.Homer</dt>
+<dt id="arg-verbose-homer">verbose.Homer<a class="anchor" aria-label="anchor" href="#arg-verbose-homer"></a></dt>
 <dd><p>A logical scalar. If <code>TRUE</code>, print the console
 output when running Homer.</p></dd>
 
@@ -225,7 +222,7 @@ summary information about the bins.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.9000.</p>
 </div>
 
       </footer></div>

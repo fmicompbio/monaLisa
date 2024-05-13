@@ -18,7 +18,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.9.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.11.0</span>
       </span>
     </div>
 
@@ -36,10 +36,7 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/monaLisa.html">Binned motif enrichment analysis</a>
-    </li>
-    <li>
-      <a href="../articles/selecting_motifs_with_randLassoStabSel.html">Identifying motifs by stability selection</a>
+      <a href="../articles/selecting_motifs_with_randLassoStabSel.html">Regression Based Approach for Motif Selection</a>
     </li>
   </ul></li>
 <li>
@@ -84,34 +81,34 @@
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>se</dt>
+    <dl><dt id="arg-se">se<a class="anchor" aria-label="anchor" href="#arg-se"></a></dt>
 <dd><p>the <code>SummarizedExperiment</code> object resulting from stability 
 selection, by running <code><a href="randLassoStabSel.html">randLassoStabSel</a></code>.</p></dd>
 
 
-<dt>selProbMin</dt>
+<dt id="arg-selprobmin">selProbMin<a class="anchor" aria-label="anchor" href="#arg-selprobmin"></a></dt>
 <dd><p>A numerical scalar in [0,1]. Predictors with a selection
 probability greater than <code>selProbMin</code> are shown as colored lines. The
 color is defined by the <code>col</code> argument.</p></dd>
 
 
-<dt>col</dt>
+<dt id="arg-col">col<a class="anchor" aria-label="anchor" href="#arg-col"></a></dt>
 <dd><p>color of the selected predictors.</p></dd>
 
 
-<dt>lwd</dt>
+<dt id="arg-lwd">lwd<a class="anchor" aria-label="anchor" href="#arg-lwd"></a></dt>
 <dd><p>line width (default = 1).</p></dd>
 
 
-<dt>lty</dt>
+<dt id="arg-lty">lty<a class="anchor" aria-label="anchor" href="#arg-lty"></a></dt>
 <dd><p>line type (default = 1).</p></dd>
 
 
-<dt>ylim</dt>
+<dt id="arg-ylim">ylim<a class="anchor" aria-label="anchor" href="#arg-ylim"></a></dt>
 <dd><p>limits for y-axis (default = c(0,1.1)).</p></dd>
 
 
-<dt>...</dt>
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>additional parameters to pass on to <code>matplot</code>.</p></dd>
 
 </dl></div>
@@ -160,7 +157,7 @@ color is defined by the <code>col</code> argument.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.9000.</p>
 </div>
 
       </footer></div>

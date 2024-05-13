@@ -21,7 +21,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.9.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.11.0</span>
       </span>
     </div>
 
@@ -39,10 +39,7 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/monaLisa.html">Binned motif enrichment analysis</a>
-    </li>
-    <li>
-      <a href="../articles/selecting_motifs_with_randLassoStabSel.html">Identifying motifs by stability selection</a>
+      <a href="../articles/selecting_motifs_with_randLassoStabSel.html">Regression Based Approach for Motif Selection</a>
     </li>
   </ul></li>
 <li>
@@ -90,15 +87,15 @@
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>x</dt>
+    <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>the predictor matrix.</p></dd>
 
 
-<dt>y</dt>
+<dt id="arg-y">y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
 <dd><p>the response vector.</p></dd>
 
 
-<dt>weakness</dt>
+<dt id="arg-weakness">weakness<a class="anchor" aria-label="anchor" href="#arg-weakness"></a></dt>
 <dd><p>value between 0 and 1 (default = 0.8). 
 It affects how strict the method will be in selecting predictors. The 
 closer it is to 0, the more stringent the selection. A weakness value 
@@ -106,25 +103,25 @@ of 1 is identical to performing lasso stability selection (not the
 randomized version).</p></dd>
 
 
-<dt>cutoff</dt>
+<dt id="arg-cutoff">cutoff<a class="anchor" aria-label="anchor" href="#arg-cutoff"></a></dt>
 <dd><p>value between 0 and 1 (default = 0.8) which is the cutoff 
 for the selection probability. Any variable with a selection probability 
 that is higher than the set cutoff will be selected.</p></dd>
 
 
-<dt>PFER</dt>
+<dt id="arg-pfer">PFER<a class="anchor" aria-label="anchor" href="#arg-pfer"></a></dt>
 <dd><p>integer (default = 2) representing the absolute number of 
 false positives that we allow for in the final list of selected 
 variables. For details see Meinshausen and Bühlmann (2010).</p></dd>
 
 
-<dt>mc.cores</dt>
+<dt id="arg-mc-cores">mc.cores<a class="anchor" aria-label="anchor" href="#arg-mc-cores"></a></dt>
 <dd><p>integer (default = 1) specifying the number of cores to 
 use in <code><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-link">mclapply</a></code>, which is the default way 
 <code><a href="https://rdrr.io/pkg/stabs/man/stabsel.html" class="external-link">stabsel</a></code> does parallelization.</p></dd>
 
 
-<dt>...</dt>
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>additional parameters that can be passed on to 
 <code><a href="https://rdrr.io/pkg/stabs/man/stabsel.html" class="external-link">stabsel</a></code>.</p></dd>
 
@@ -250,7 +247,7 @@ use in <code><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.9000.</p>
 </div>
 
       </footer></div>

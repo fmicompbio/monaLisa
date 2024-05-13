@@ -18,7 +18,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.9.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.11.0</span>
       </span>
     </div>
 
@@ -36,10 +36,7 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/monaLisa.html">Binned motif enrichment analysis</a>
-    </li>
-    <li>
-      <a href="../articles/selecting_motifs_with_randLassoStabSel.html">Identifying motifs by stability selection</a>
+      <a href="../articles/selecting_motifs_with_randLassoStabSel.html">Regression Based Approach for Motif Selection</a>
     </li>
   </ul></li>
 <li>
@@ -98,54 +95,54 @@
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>x</dt>
+    <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>A <code><a href="https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html" class="external-link">SummarizedExperiment</a></code> with 
 numerical matrices (motifs-by-bins) in its <code>assays()</code>, typically 
 the return value of <code><a href="calcBinnedMotifEnrR.html">calcBinnedMotifEnrR</a></code> or 
 <code><a href="calcBinnedMotifEnrHomer.html">calcBinnedMotifEnrHomer</a></code>.</p></dd>
 
 
-<dt>which.plots</dt>
+<dt id="arg-which-plots">which.plots<a class="anchor" aria-label="anchor" href="#arg-which-plots"></a></dt>
 <dd><p>Selects which heatmaps to plot (one or several from 
 <code>"negLog10P"</code>, <code>"negLog10Padj"</code>, <code>"pearsonResid"</code> and 
 <code>"log2enr"</code>).</p></dd>
 
 
-<dt>width</dt>
+<dt id="arg-width">width<a class="anchor" aria-label="anchor" href="#arg-width"></a></dt>
 <dd><p>The width (in inches) of each individual heatmap, without 
 legend.</p></dd>
 
 
-<dt>col.enr</dt>
+<dt id="arg-col-enr">col.enr<a class="anchor" aria-label="anchor" href="#arg-col-enr"></a></dt>
 <dd><p>Colors used for enrichment heatmap ("pearsonResid" and 
 "log2enr").</p></dd>
 
 
-<dt>col.sig</dt>
+<dt id="arg-col-sig">col.sig<a class="anchor" aria-label="anchor" href="#arg-col-sig"></a></dt>
 <dd><p>Colors used for significance hetmaps ("negLog10P" and 
 "negLog10Padj").</p></dd>
 
 
-<dt>col.gc</dt>
+<dt id="arg-col-gc">col.gc<a class="anchor" aria-label="anchor" href="#arg-col-gc"></a></dt>
 <dd><p>Colors used for motif GC content (for 
 <code>show_motif_GC = TRUE</code>).</p></dd>
 
 
-<dt>maxEnr</dt>
+<dt id="arg-maxenr">maxEnr<a class="anchor" aria-label="anchor" href="#arg-maxenr"></a></dt>
 <dd><p>Cap color mapping at enrichment = <code>maxEnr</code>
 (default: 99.5th percentile).</p></dd>
 
 
-<dt>maxSig</dt>
+<dt id="arg-maxsig">maxSig<a class="anchor" aria-label="anchor" href="#arg-maxsig"></a></dt>
 <dd><p>Cap color mapping at -log10 P value or -log10 FDR = 
 <code>maxSig</code> (default: 99.5th percentile).</p></dd>
 
 
-<dt>highlight</dt>
+<dt id="arg-highlight">highlight<a class="anchor" aria-label="anchor" href="#arg-highlight"></a></dt>
 <dd><p>A logical vector indicating motifs to be highlighted.</p></dd>
 
 
-<dt>cluster</dt>
+<dt id="arg-cluster">cluster<a class="anchor" aria-label="anchor" href="#arg-cluster"></a></dt>
 <dd><p>If <code>TRUE</code>, the order of transcription factors will be 
 determined by hierarchical clustering of the <code>"pearsonResid"</code> 
 component. Alternatively, an <code>hclust</code>-object can be supplied which 
@@ -153,46 +150,46 @@ will determine the motif ordering.
 No reordering is done for <code>cluster = FALSE</code>.</p></dd>
 
 
-<dt>show_dendrogram</dt>
+<dt id="arg-show-dendrogram">show_dendrogram<a class="anchor" aria-label="anchor" href="#arg-show-dendrogram"></a></dt>
 <dd><p>If <code>cluster != FALSE</code>, controls whether to show
 a row dendrogram for the clustering of motifs. Ignored for 
 <code>cluster = FALSE</code>.</p></dd>
 
 
-<dt>show_motif_GC</dt>
+<dt id="arg-show-motif-gc">show_motif_GC<a class="anchor" aria-label="anchor" href="#arg-show-motif-gc"></a></dt>
 <dd><p>If <code>TRUE</code>, show a column with the percent G+C of 
 the motif as part of the heatmap.</p></dd>
 
 
-<dt>show_seqlogo</dt>
+<dt id="arg-show-seqlogo">show_seqlogo<a class="anchor" aria-label="anchor" href="#arg-show-seqlogo"></a></dt>
 <dd><p>If <code>TRUE</code>, show a sequence logo next to each motif 
 label. This will likely only make sense for a heatmap with a low number 
 of motifs.</p></dd>
 
 
-<dt>width.seqlogo</dt>
+<dt id="arg-width-seqlogo">width.seqlogo<a class="anchor" aria-label="anchor" href="#arg-width-seqlogo"></a></dt>
 <dd><p>The width (in inches) for the longest sequence logo 
 (shorter logos are drawn to scale).</p></dd>
 
 
-<dt>use_raster</dt>
+<dt id="arg-use-raster">use_raster<a class="anchor" aria-label="anchor" href="#arg-use-raster"></a></dt>
 <dd><p><code>TRUE</code> or <code>FALSE</code> (default). Passed to 
 <code>use_raster</code> of <code><a href="https://rdrr.io/pkg/ComplexHeatmap/man/Heatmap.html" class="external-link">Heatmap</a></code>.</p></dd>
 
 
-<dt>na_col</dt>
+<dt id="arg-na-col">na_col<a class="anchor" aria-label="anchor" href="#arg-na-col"></a></dt>
 <dd><p>"white" (default). Passed to <code>na_col</code> of 
 <code><a href="https://rdrr.io/pkg/ComplexHeatmap/man/Heatmap.html" class="external-link">Heatmap</a></code>.</p></dd>
 
 
-<dt>doPlot</dt>
+<dt id="arg-doplot">doPlot<a class="anchor" aria-label="anchor" href="#arg-doplot"></a></dt>
 <dd><p>If <code>TRUE</code> (default), plot the generated heatmap(s)
 using <code>Reduce(ComplexHeatmap::add_heatmap, heatmapList)</code>. If
 <code>FALSE</code>, just return the list of heatmap(s) (<code>heatmapList</code>) in
 example before), allowing to modify them further before plotting.</p></dd>
 
 
-<dt>...</dt>
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Further arguments passed to <code><a href="https://rdrr.io/pkg/ComplexHeatmap/man/Heatmap.html" class="external-link">Heatmap</a></code>
 when creating the main heatmaps selected by <code>which.plots</code>. For
 example, the following will set the font size of the motif names:
@@ -248,7 +245,7 @@ example, the following will set the font size of the motif names:
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.9000.</p>
 </div>
 
       </footer></div>

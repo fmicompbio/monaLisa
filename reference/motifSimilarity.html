@@ -22,7 +22,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.9.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.11.0</span>
       </span>
     </div>
 
@@ -40,10 +40,7 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/monaLisa.html">Binned motif enrichment analysis</a>
-    </li>
-    <li>
-      <a href="../articles/selecting_motifs_with_randLassoStabSel.html">Identifying motifs by stability selection</a>
+      <a href="../articles/selecting_motifs_with_randLassoStabSel.html">Regression Based Approach for Motif Selection</a>
     </li>
   </ul></li>
 <li>
@@ -92,7 +89,7 @@
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>x</dt>
+    <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>Either a <code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html" class="external-link">PFMatrixList</a></code>, or a character
 scalar with a file containing motifs in HOMER format (used directly
 <code>method = "HOMER"</code>, loaded into a
@@ -100,7 +97,7 @@ scalar with a file containing motifs in HOMER format (used directly
 for <code>method = "R"</code>).</p></dd>
 
 
-<dt>y</dt>
+<dt id="arg-y">y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
 <dd><p>Either a <code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html" class="external-link">PFMatrixList</a></code> or <code>NULL</code>
 (default). If <code>y = NULL</code>, then similarities will be calucalted for all
 pairs of motifs within <code>x</code>. Otherwise, <code>method</code> must be
@@ -108,7 +105,7 @@ pairs of motifs within <code>x</code>. Otherwise, <code>method</code> must be
 <code>x</code> to any motif from <code>y</code>.</p></dd>
 
 
-<dt>method</dt>
+<dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
 <dd><p>A character scalar specifying the method for similarity
 calculations. Either <code>"R"</code> (pure R implementation) or <code>"HOMER"</code>
 (will call the <code>compareMotifs.pl</code> script from HOMER). Results are
@@ -116,24 +113,24 @@ identical (apart from rounding errors), and the R implementation is
 usually faster and can be parallelized (<code>BPPARAM</code> argument).</p></dd>
 
 
-<dt>homerfile</dt>
+<dt id="arg-homerfile">homerfile<a class="anchor" aria-label="anchor" href="#arg-homerfile"></a></dt>
 <dd><p>Path to the HOMER script <code>compareMotifs.pl</code> (only used
 for <code>method = "HOMER"</code>.</p></dd>
 
 
-<dt>homerOutfile</dt>
+<dt id="arg-homeroutfile">homerOutfile<a class="anchor" aria-label="anchor" href="#arg-homeroutfile"></a></dt>
 <dd><p>A character scalar giving the file to save the similarity
 scores (only for <code>metho = "HOMER"</code>). If <code>NULL</code>, scores will be
 stored into a temporary file.</p></dd>
 
 
-<dt>BPPARAM</dt>
+<dt id="arg-bpparam">BPPARAM<a class="anchor" aria-label="anchor" href="#arg-bpparam"></a></dt>
 <dd><p>An optional <code><a href="https://rdrr.io/pkg/BiocParallel/man/BiocParallelParam-class.html" class="external-link">BiocParallelParam</a></code>
 instance determining the parallel back-end to be used during evaluation
 (only used for <code>method = "R"</code>).</p></dd>
 
 
-<dt>verbose</dt>
+<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
 <dd><p>A logical scalar. If <code>TRUE</code>, report on progress.</p></dd>
 
 </dl></div>
@@ -183,7 +180,7 @@ instance determining the parallel back-end to be used during evaluation
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.9000.</p>
 </div>
 
       </footer></div>
