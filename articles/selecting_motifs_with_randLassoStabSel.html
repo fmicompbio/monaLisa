@@ -78,11 +78,13 @@
 
       
 
-      </header><script src="selecting_motifs_with_randLassoStabSel_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Regression Based Approach for Motif Selection</h1>
-                        <h4 data-toc-skip class="author">Dania Machlab, Lukas Burger, Charlotte Soneson, Michael Stadler</h4>
+      <h1 data-toc-skip>Regression Based Approach for Motif
+Selection</h1>
+                        <h4 data-toc-skip class="author">Dania Machlab,
+Lukas Burger, Charlotte Soneson, Michael Stadler</h4>
             
             <h4 data-toc-skip class="date">2024-05-13</h4>
       
@@ -98,15 +100,60 @@ margin-right: auto; width: 50%; border: 0"></p>
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>Identifying important transcription factor (TF) motifs, as shown in <a href="https://bioconductor.org/packages/3.19/monaLisa/vignettes/monaLisa.html" class="external-link">the main vignette</a>, could also be done using a regression-based approach, where motifs have to compete against each other for selection. In this framework, the response vector can be the observed experimental measure of interest, e.g. log-fold changes of accessibility for a set of regions, and the predictors consist of the TF motif hits across those regions. In <em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em>, we implement the randomized lasso stability selection proposed by <span class="citation">Meinshausen and Bühlmann (2010)</span> with the improved error bounds introduced by <span class="citation">Shah and Samworth (2013)</span>. We have modified the <code><a href="https://rdrr.io/pkg/stabs/man/fitfuns.html" class="external-link">stabs::glmnet.lasso</a></code> function used by <code><a href="https://rdrr.io/pkg/stabs/man/stabsel.html" class="external-link">stabs::stabsel</a></code> from the <em><a href="https://CRAN.R-project.org/package=stabs" class="external-link">stabs</a></em> package to implement the randomized lasso.</p>
-<p>Lasso stability selection performs the lasso regression multiple times on subsamples of the data, and returns a selection probability for each predictor (number of times selected divided by number of regressions done). With the randomized lasso, a weakness parameter is additionally used to vary the lasso penalty term <span class="math inline">\(\lambda\)</span> to a randomly chosen value between [<span class="math inline">\(\lambda\)</span>, <span class="math inline">\(\lambda\)</span>/weakness] for each predictor. This type of regularization has advantages in cases where the number of predictors exceeds the number of observations, in selecting variables consistently, demonstrating better error control and not depending strongly on the penalization parameter <span class="citation">(Meinshausen and Bühlmann 2010)</span>.</p>
-<p>With this approach, TF motifs compete against each other to explain the response vector, and we can also include additional predictors like GC content to compete against the TF motifs for selection. This is especially useful if the response is biased by sequence composition, for example if regions with higher GC content tend to have higher response values.</p>
-<p>It is worth noting that, as with any regression analysis, the interpretability of the results depends strongly on the quality of the predictors. Hence, increasing the size of the motif database is not, in itself, a guarantee for more interpretable results, since the added motifs may be unrelated to the signal of interest. In addition, as discussed in section @ref(collinearity), a high level of redundancy, resulting in strong correlations among the motifs, may result in more ambiguous selection probabilities in the regression approach. In fact, also for the binned approach, although the motifs are evaluated independently for association with the outcome, a high degree of redundancy can lead to large collections of very similar motifs showing significant enrichments, complicating interpretability of the results.</p>
+<p>Identifying important transcription factor (TF) motifs, as shown in
+<a href="https://bioconductor.org/packages/3.19/monaLisa/vignettes/monaLisa.html" class="external-link">the
+main vignette</a>, could also be done using a regression-based approach,
+where motifs have to compete against each other for selection. In this
+framework, the response vector can be the observed experimental measure
+of interest, e.g. log-fold changes of accessibility for a set of
+regions, and the predictors consist of the TF motif hits across those
+regions. In <em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em>,
+we implement the randomized lasso stability selection proposed by <span class="citation">Meinshausen and Bühlmann (2010)</span> with the
+improved error bounds introduced by <span class="citation">Shah and
+Samworth (2013)</span>. We have modified the
+<code><a href="https://rdrr.io/pkg/stabs/man/fitfuns.html" class="external-link">stabs::glmnet.lasso</a></code> function used by
+<code><a href="https://rdrr.io/pkg/stabs/man/stabsel.html" class="external-link">stabs::stabsel</a></code> from the <em><a href="https://CRAN.R-project.org/package=stabs" class="external-link">stabs</a></em> package
+to implement the randomized lasso.</p>
+<p>Lasso stability selection performs the lasso regression multiple
+times on subsamples of the data, and returns a selection probability for
+each predictor (number of times selected divided by number of
+regressions done). With the randomized lasso, a weakness parameter is
+additionally used to vary the lasso penalty term <span class="math inline">\(\lambda\)</span> to a randomly chosen value
+between [<span class="math inline">\(\lambda\)</span>, <span class="math inline">\(\lambda\)</span>/weakness] for each predictor.
+This type of regularization has advantages in cases where the number of
+predictors exceeds the number of observations, in selecting variables
+consistently, demonstrating better error control and not depending
+strongly on the penalization parameter <span class="citation">(Meinshausen and Bühlmann 2010)</span>.</p>
+<p>With this approach, TF motifs compete against each other to explain
+the response vector, and we can also include additional predictors like
+GC content to compete against the TF motifs for selection. This is
+especially useful if the response is biased by sequence composition, for
+example if regions with higher GC content tend to have higher response
+values.</p>
+<p>It is worth noting that, as with any regression analysis, the
+interpretability of the results depends strongly on the quality of the
+predictors. Hence, increasing the size of the motif database is not, in
+itself, a guarantee for more interpretable results, since the added
+motifs may be unrelated to the signal of interest. In addition, as
+discussed in section @ref(collinearity), a high level of redundancy,
+resulting in strong correlations among the motifs, may result in more
+ambiguous selection probabilities in the regression approach. In fact,
+also for the binned approach, although the motifs are evaluated
+independently for association with the outcome, a high degree of
+redundancy can lead to large collections of very similar motifs showing
+significant enrichments, complicating interpretability of the
+results.</p>
 </div>
 <div class="section level2">
 <h2 id="stabsel">Motif selection with Randomized Lasso Stability Selection<a class="anchor" aria-label="anchor" href="#stabsel"></a>
 </h2>
-<p>In the example below, we select for TF motifs explaining log-fold changes in chromatin accessibility (ATAC-seq) across the enhancers between mouse liver and lung tissue at P0, but this can be applied to other data types as well (ChIP-seq, RNA-seq, methylation etc.). Positive log2-fold changes indicate more accessibility in the liver tissue, whereas negative values indicate more accessibility in the lung tissue.</p>
+<p>In the example below, we select for TF motifs explaining log-fold
+changes in chromatin accessibility (ATAC-seq) across the enhancers
+between mouse liver and lung tissue at P0, but this can be applied to
+other data types as well (ChIP-seq, RNA-seq, methylation etc.). Positive
+log2-fold changes indicate more accessibility in the liver tissue,
+whereas negative values indicate more accessibility in the lung
+tissue.</p>
 <div class="section level3">
 <h3 id="load-packages">Load packages<a class="anchor" aria-label="anchor" href="#load-packages"></a>
 </h3>
@@ -124,7 +171,13 @@ margin-right: auto; width: 50%; border: 0"></p>
 <div class="section level3">
 <h3 id="load-dataset">Load dataset<a class="anchor" aria-label="anchor" href="#load-dataset"></a>
 </h3>
-<p>In this example dataset from ENCODE <span class="citation">(The ENCODE Project Consortium 2012)</span>, and available in <em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em>, we have quantified ATAC-seq reads on enhancers in mouse P0 lung and liver tissues. The log2-fold change (our response vector in this example) is for liver vs lung chromatin accessibility. We are using a set of 10,000 randomly sampled enhancers to illustrate how randomized lasso stability selection can be used to select TF motifs.</p>
+<p>In this example dataset from ENCODE <span class="citation">(The
+ENCODE Project Consortium 2012)</span>, and available in <em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em>,
+we have quantified ATAC-seq reads on enhancers in mouse P0 lung and
+liver tissues. The log2-fold change (our response vector in this
+example) is for liver vs lung chromatin accessibility. We are using a
+set of 10,000 randomly sampled enhancers to illustrate how randomized
+lasso stability selection can be used to select TF motifs.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># load GRanges object with logFC and peaks</span></span>
 <span><span class="va">gr_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"atac_liver_vs_lung.rds"</span>, </span>
@@ -134,8 +187,20 @@ margin-right: auto; width: 50%; border: 0"></p>
 <div class="section level3">
 <h3 id="get-tfbs-per-motif-and-peak">Get TFBS per motif and peak<a class="anchor" aria-label="anchor" href="#get-tfbs-per-motif-and-peak"></a>
 </h3>
-<p>We will now construct the transcription factor binding site (TFBS) matrix for known motifs (from a database like <em><a href="https://bioconductor.org/packages/3.19/JASPAR2020" class="external-link">JASPAR2020</a></em>) in the given peak regions. We use the <code>findMotifHits</code> function to scan for TF motif hits. This matrix will be the predictor matrix in our regression. This step may take a while, and it may be useful to parallelize it using the <code>BPPARAM</code> argument (e.g. to run on <code>n</code> parallel threads using the multi-core backend, you can use: <code>findMotifHits(..., BPPARAM = BiocParallel::MulticoreParam(n))</code>).</p>
-<p>As mentioned, this framework offers the flexibility to add additional predictors to compete against the TF motifs for selection. Here, we add the fraction of G+C and CpG observed/expected ratio as predictors, to ensure that selected TF motifs are not just detecting a simple trend in GC or CpG composition.</p>
+<p>We will now construct the transcription factor binding site (TFBS)
+matrix for known motifs (from a database like <em><a href="https://bioconductor.org/packages/3.19/JASPAR2020" class="external-link">JASPAR2020</a></em>)
+in the given peak regions. We use the <code>findMotifHits</code>
+function to scan for TF motif hits. This matrix will be the predictor
+matrix in our regression. This step may take a while, and it may be
+useful to parallelize it using the <code>BPPARAM</code> argument (e.g.
+to run on <code>n</code> parallel threads using the multi-core backend,
+you can use:
+<code>findMotifHits(..., BPPARAM = BiocParallel::MulticoreParam(n))</code>).</p>
+<p>As mentioned, this framework offers the flexibility to add additional
+predictors to compete against the TF motifs for selection. Here, we add
+the fraction of G+C and CpG observed/expected ratio as predictors, to
+ensure that selected TF motifs are not just detecting a simple trend in
+GC or CpG composition.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># get PFMs (vertebrate TFs from Jaspar)</span></span>
 <span><span class="va">pfms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/getMatrixSet-methods.html" class="external-link">getMatrixSet</a></span><span class="op">(</span><span class="va">JASPAR2020</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>matrixtype <span class="op">=</span> <span class="st">"PFM"</span>, </span>
@@ -195,15 +260,53 @@ margin-right: auto; width: 50%; border: 0"></p>
 <div class="section level4">
 <h4 id="collinearity">A note on collinearity<a class="anchor" aria-label="anchor" href="#collinearity"></a>
 </h4>
-<p>At this point it is useful for the user to get an overall feeling of the collinearity structure in the TFBS matrix. Motifs that share a lot of similar binding sites across the peaks will be highly correlated. High collinearity between predictors is a well known problem in linear regression. It particularly manifests itself in the lasso regression for example, where if variables are equally highly correlated with the response, not all are co-selected as predictors (if they are signal variables). Instead, one is arbitrarily chosen while the others’ coefficients are set to zero. The rationale is that the non-selected correlated predictors do not provide much additional information to explain the response. It is good to be aware of these properties of regression, and to place more weight on the meaning of the selected motif itself, rather than the specific TF name when interpreting the results.</p>
-<p>If many cases of high correlations exist and this is a concern, one may consider selecting a representative set of predictors to use. This may for example be achieved by clustering the weight matrices beforehand and using only one representative motif per cluster for running the regression, using tools such as for example RSAT <span class="citation">(Castro-Mondragon et al. 2017)</span>. RSAT-derived clusters of Jaspar weight matrices can be found at <a href="https://jaspar.genereg.net/matrix-clusters/vertebrates/" class="external-link uri">https://jaspar.genereg.net/matrix-clusters/vertebrates/</a>.</p>
-<p>If the user is interested in working with all correlated motifs, the binned approach is preferable as the motifs are independently tested for significance (see the <a href="https://bioconductor.org/packages/3.19/monaLisa/vignettes/monaLisa.html" class="external-link">binned enrichment vignette</a>). In the regression-based approach on the other hand, we can more clearly understand the relative contributions of TF motifs to the response in the context of each other.</p>
+<p>At this point it is useful for the user to get an overall feeling of
+the collinearity structure in the TFBS matrix. Motifs that share a lot
+of similar binding sites across the peaks will be highly correlated.
+High collinearity between predictors is a well known problem in linear
+regression. It particularly manifests itself in the lasso regression for
+example, where if variables are equally highly correlated with the
+response, not all are co-selected as predictors (if they are signal
+variables). Instead, one is arbitrarily chosen while the others’
+coefficients are set to zero. The rationale is that the non-selected
+correlated predictors do not provide much additional information to
+explain the response. It is good to be aware of these properties of
+regression, and to place more weight on the meaning of the selected
+motif itself, rather than the specific TF name when interpreting the
+results.</p>
+<p>If many cases of high correlations exist and this is a concern, one
+may consider selecting a representative set of predictors to use. This
+may for example be achieved by clustering the weight matrices beforehand
+and using only one representative motif per cluster for running the
+regression, using tools such as for example RSAT <span class="citation">(Castro-Mondragon et al. 2017)</span>. RSAT-derived
+clusters of Jaspar weight matrices can be found at <a href="https://jaspar.genereg.net/matrix-clusters/vertebrates/" class="external-link uri">https://jaspar.genereg.net/matrix-clusters/vertebrates/</a>.</p>
+<p>If the user is interested in working with all correlated motifs, the
+binned approach is preferable as the motifs are independently tested for
+significance (see the <a href="https://bioconductor.org/packages/3.19/monaLisa/vignettes/monaLisa.html" class="external-link">binned
+enrichment vignette</a>). In the regression-based approach on the other
+hand, we can more clearly understand the relative contributions of TF
+motifs to the response in the context of each other.</p>
 </div>
 </div>
 <div class="section level3">
 <h3 id="identify-important-tfs">Identify important TFs<a class="anchor" aria-label="anchor" href="#identify-important-tfs"></a>
 </h3>
-<p>We can now run randomized lasso stability selection to identify TFs that are likely to explain the log-fold changes in accessibility. The exact choice of parameter values for this approach will depend largely on how stringent the user wishes to be and how much signal there is in the data. For example, for more stringent selections, one may decrease the value of the <code>weakness</code> parameter which will make it harder for a variable to get selected. The user is in control of false discoveries with the <code>PFER</code> parameter, which indicates the number of falsely selected variables. As for the selection probability cutoff, <span class="citation">Meinshausen and Bühlmann (2010)</span> argue that values in the range of [0.6, 0.9] should give similar results. See the <code>randLassoStabSel</code> function for more details and default parameter values as well as the <code><a href="https://rdrr.io/pkg/stabs/man/stabsel.html" class="external-link">stabs::stabsel</a></code> function for the default assumptions on the stability selection implementation by <span class="citation">Shah and Samworth (2013)</span>.</p>
+<p>We can now run randomized lasso stability selection to identify TFs
+that are likely to explain the log-fold changes in accessibility. The
+exact choice of parameter values for this approach will depend largely
+on how stringent the user wishes to be and how much signal there is in
+the data. For example, for more stringent selections, one may decrease
+the value of the <code>weakness</code> parameter which will make it
+harder for a variable to get selected. The user is in control of false
+discoveries with the <code>PFER</code> parameter, which indicates the
+number of falsely selected variables. As for the selection probability
+cutoff, <span class="citation">Meinshausen and Bühlmann (2010)</span>
+argue that values in the range of [0.6, 0.9] should give similar
+results. See the <code>randLassoStabSel</code> function for more details
+and default parameter values as well as the <code><a href="https://rdrr.io/pkg/stabs/man/stabsel.html" class="external-link">stabs::stabsel</a></code>
+function for the default assumptions on the stability selection
+implementation by <span class="citation">Shah and Samworth
+(2013)</span>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## randLassoStabSel() is stochastic, so if we run with parallelization</span></span>
 <span><span class="co">##   (`mc.cores` argument), we must select a random number generator that can</span></span>
@@ -237,16 +340,39 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span><span class="co">#&gt;  [6] "ONECUT3"      "MYF5"         "THRB"         "ISL2"         "NR2C2"       </span></span>
 <span><span class="co">#&gt; [11] "TEAD3"        "TEAD4"        "GATA3"        "RORA"         "NFIC"        </span></span>
 <span><span class="co">#&gt; [16] "ZEB1"</span></span></code></pre></div>
-<p>The stability paths visualize how predictors get selected over decreasing regularization stringency (from left to right):</p>
+<p>The stability paths visualize how predictors get selected over
+decreasing regularization stringency (from left to right):</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotStabilityPaths.html">plotStabilityPaths</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span></span></code></pre></div>
 <p><img src="selecting_motifs_with_randLassoStabSel_files/figure-html/plotStabilityPaths-1.png" width="80%" style="display: block; margin: auto;"></p>
-<p>Each line corresponds to a predictor, and we can see the selection probabilities as a function of the regularization steps, corresponding to decreasing values for the lambda regularization parameter in lasso. The predictor (TF motif) selection happens at the last step, given the specified minimum probability.</p>
-<p>We can also visualize the selection probabilities of the selected TF motifs, optionally multiplied by the sign of the correlation to the response vector, to know how the TF relates to the change of accessibility (<code>directional</code> parameter). In our example, positive correlations to the response vector indicate a correlation with enhancers more accessible in the liver, whereas negative ones indicate a correlation with enhancers more accessible in the lung. Note that although one can vary the <code>selProbMinPlot</code> argument which sets the selection probability cutoff, it is best to re-run randomized lasso stability selection with the new cutoff, as this influences other parameter choices the model uses internally. See <span class="citation">Meinshausen and Bühlmann (2010)</span> for more details.</p>
+<p>Each line corresponds to a predictor, and we can see the selection
+probabilities as a function of the regularization steps, corresponding
+to decreasing values for the lambda regularization parameter in lasso.
+The predictor (TF motif) selection happens at the last step, given the
+specified minimum probability.</p>
+<p>We can also visualize the selection probabilities of the selected TF
+motifs, optionally multiplied by the sign of the correlation to the
+response vector, to know how the TF relates to the change of
+accessibility (<code>directional</code> parameter). In our example,
+positive correlations to the response vector indicate a correlation with
+enhancers more accessible in the liver, whereas negative ones indicate a
+correlation with enhancers more accessible in the lung. Note that
+although one can vary the <code>selProbMinPlot</code> argument which
+sets the selection probability cutoff, it is best to re-run randomized
+lasso stability selection with the new cutoff, as this influences other
+parameter choices the model uses internally. See <span class="citation">Meinshausen and Bühlmann (2010)</span> for more
+details.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSelectionProb.html">plotSelectionProb</a></span><span class="op">(</span><span class="va">se</span>, directional <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="selecting_motifs_with_randLassoStabSel_files/figure-html/plotSelProbs-1.png" width="80%" style="display: block; margin: auto;"></p>
-<p>Next, we visualize the correlation structure of the selected TF motifs within the TFBS matrix. While the collinearity of predictors is a general issue in regression-based approaches, randomized lasso stability selection normally does better at co-selecting intermediately correlated predictors. In practice, we see it select predictors with correlations as high as 0.9. However, it is good to keep in mind that this can be an issue, and that predictors that are highly correlated with each other might not end up being co-selected (see section @ref(collinearity)).</p>
+<p>Next, we visualize the correlation structure of the selected TF
+motifs within the TFBS matrix. While the collinearity of predictors is a
+general issue in regression-based approaches, randomized lasso stability
+selection normally does better at co-selecting intermediately correlated
+predictors. In practice, we see it select predictors with correlations
+as high as 0.9. However, it is good to keep in mind that this can be an
+issue, and that predictors that are highly correlated with each other
+might not end up being co-selected (see section @ref(collinearity)).</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># subset the selected TFs</span></span>
 <span><span class="va">sel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span><span class="op">[</span><span class="va">se</span><span class="op">$</span><span class="va">selected</span><span class="op">]</span></span>
@@ -288,7 +414,8 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span>        top_annotation <span class="op">=</span> <span class="va">colAnn</span><span class="op">)</span></span></code></pre></div>
 <p><img src="selecting_motifs_with_randLassoStabSel_files/figure-html/TFBScor_selected-1.png" width="80%" style="display: block; margin: auto;"></p>
 <p> </p>
-<p>We can examine the peaks that have hits for a selected TF motif of interest, ordered by absolute accessibility changes.</p>
+<p>We can examine the peaks that have hits for a selected TF motif of
+interest, ordered by absolute accessibility changes.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TF</span> <span class="op">&lt;-</span> <span class="va">sel</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span></span>
 <span><span class="va">TF</span></span>
@@ -320,7 +447,8 @@ margin-right: auto; width: 50%; border: 0"></p>
 <div class="section level2">
 <h2 id="session-info-and-logo">Session info and logo<a class="anchor" aria-label="anchor" href="#session-info-and-logo"></a>
 </h2>
-<p>The monaLisa logo uses a drawing that was obtained from <a href="http://vectorish.com/lisa-simpson.html" class="external-link uri">http://vectorish.com/lisa-simpson.html</a> under the Creative Commons attribution - non-commercial 3.0 license: <a href="https://creativecommons.org/licenses/by-nc/3.0/" class="external-link uri">https://creativecommons.org/licenses/by-nc/3.0/</a>.</p>
+<p>The monaLisa logo uses a drawing that was obtained from <a href="http://vectorish.com/lisa-simpson.html" class="external-link uri">http://vectorish.com/lisa-simpson.html</a> under the
+Creative Commons attribution - non-commercial 3.0 license: <a href="https://creativecommons.org/licenses/by-nc/3.0/" class="external-link uri">https://creativecommons.org/licenses/by-nc/3.0/</a>.</p>
 <p>This vignette was built using:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -416,20 +544,31 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span><span class="co">#&gt; [115] KEGGREST_1.44.0</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+<h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references">
-<div id="ref-RSAT">
-<p>Castro-Mondragon, J. A., S. Jaeger, D. Thieffry, M. Thomas-Chollier, and J. van Helden. 2017. “RSAT matrix-clustering: dynamic exploration and redundancy reduction of transcription factor binding motif collections.” <em>Nucleic Acids Res</em> 45 (13): e119. <a href="https://doi.org/10.1093/nar/gkx314" class="external-link">https://doi.org/10.1093/nar/gkx314</a>.</p>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="ref-RSAT" class="csl-entry">
+Castro-Mondragon, J. A., S. Jaeger, D. Thieffry, M. Thomas-Chollier, and
+J. van Helden. 2017. <span>“<span class="nocase"><span>R</span><span>S</span><span>A</span><span>T</span>
+matrix-clustering: dynamic exploration and redundancy reduction of
+transcription factor binding motif collections</span>.”</span>
+<em>Nucleic Acids Res</em> 45 (13): e119. <a href="https://doi.org/10.1093/nar/gkx314" class="external-link">https://doi.org/10.1093/nar/gkx314</a>.
 </div>
-<div id="ref-StabSel">
-<p>Meinshausen, Nicolai, and Peter Bühlmann. 2010. “Stability Selection.” <em>Journal of the Royal Statistical Society: Series B (Statistical Methodology)</em> 72 (4): 417–73. <a href="https://doi.org/doi:10.1111/j.1467-9868.2010.00740.x" class="external-link">https://doi.org/doi:10.1111/j.1467-9868.2010.00740.x</a>.</p>
+<div id="ref-StabSel" class="csl-entry">
+Meinshausen, Nicolai, and Peter Bühlmann. 2010. <span>“Stability
+Selection.”</span> <em>Journal of the Royal Statistical Society: Series
+B (Statistical Methodology)</em> 72 (4): 417–73. <a href="https://doi.org/doi:10.1111/j.1467-9868.2010.00740.x" class="external-link">https://doi.org/doi:10.1111/j.1467-9868.2010.00740.x</a>.
 </div>
-<div id="ref-compStabs">
-<p>Shah, Rajen D., and Richard J. Samworth. 2013. “Variable Selection with Error Control: Another Look at Stability Selection.” <em>Journal of the Royal Statistical Society: Series B (Statistical Methodology)</em> 75 (1): 55–80. <a href="https://doi.org/doi:10.1111/j.1467-9868.2011.01034.x" class="external-link">https://doi.org/doi:10.1111/j.1467-9868.2011.01034.x</a>.</p>
+<div id="ref-compStabs" class="csl-entry">
+Shah, Rajen D., and Richard J. Samworth. 2013. <span>“Variable Selection
+with Error Control: Another Look at Stability Selection.”</span>
+<em>Journal of the Royal Statistical Society: Series B (Statistical
+Methodology)</em> 75 (1): 55–80. <a href="https://doi.org/doi:10.1111/j.1467-9868.2011.01034.x" class="external-link">https://doi.org/doi:10.1111/j.1467-9868.2011.01034.x</a>.
 </div>
-<div id="ref-encode2012">
-<p>The ENCODE Project Consortium. 2012. “An Integrated Encyclopedia of DNA Elements in the Human Genome.” <em>Nature</em> 489 (7414): 57–74.</p>
+<div id="ref-encode2012" class="csl-entry">
+The ENCODE Project Consortium. 2012. <span>“An Integrated Encyclopedia
+of <span>DNA</span> Elements in the Human Genome.”</span>
+<em>Nature</em> 489 (7414): 57–74.
 </div>
 </div>
 </div>

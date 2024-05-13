@@ -78,11 +78,12 @@
 
       
 
-      </header><script src="monaLisa_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>monaLisa - MOtif aNAlysis with Lisa</h1>
-                        <h4 data-toc-skip class="author">Dania Machlab, Lukas Burger, Charlotte Soneson, Michael Stadler</h4>
+                        <h4 data-toc-skip class="author">Dania Machlab,
+Lukas Burger, Charlotte Soneson, Michael Stadler</h4>
             
             <h4 data-toc-skip class="date">2024-05-13</h4>
       
@@ -98,22 +99,89 @@ margin-right: auto; width: 50%; border: 0"></p>
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p><em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em> is a collection of functions for working with biological sequences and motifs that represent the binding preferences of transcription factors or nucleic acid binding proteins.</p>
-<p>For example, <em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em> can be used to conveniently find motif hits in sequences (see section @ref(findhits)), or to identify motifs that are likely associated with observed experimental data. Such analyses are supposed to provide potential answers to the question “Which transcription factors are the drivers of my observed changes in expression/methylation/accessibility?”.</p>
-<p>Several other approaches have been described that also address this problem, among them REDUCE <span class="citation">(Roven and Bussemaker 2003)</span>, AME <span class="citation">(McLeay and Bailey 2010)</span> and ISMARA <span class="citation">(Balwierz et al. 2014)</span>. In <em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em>, we aim to provide a flexible implementation that integrates well with other Bioconductor resources, makes use of the sequence composition correction developed for Homer <span class="citation">(Heinz et al. 2010)</span> or stability selection <span class="citation">(Meinshausen and Bühlmann 2010)</span> and provides several alternative ways to study the relationship between experimental measurements and sequence motifs.</p>
-<p>You can use known motifs from collections of transcription factor binding specificities such as <em><a href="https://bioconductor.org/packages/3.19/JASPAR2020" class="external-link">JASPAR2020</a></em>, also available from Bioconductor. Genomic regions could be for example promoters, enhancers or accessible regions for which experimental data is available.</p>
-<p>Two independent approaches are implemented to identify interesting motifs:</p>
+<p><em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em>
+is a collection of functions for working with biological sequences and
+motifs that represent the binding preferences of transcription factors
+or nucleic acid binding proteins.</p>
+<p>For example, <em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em>
+can be used to conveniently find motif hits in sequences (see section
+@ref(findhits)), or to identify motifs that are likely associated with
+observed experimental data. Such analyses are supposed to provide
+potential answers to the question “Which transcription factors are the
+drivers of my observed changes in
+expression/methylation/accessibility?”.</p>
+<p>Several other approaches have been described that also address this
+problem, among them REDUCE <span class="citation">(Roven and Bussemaker
+2003)</span>, AME <span class="citation">(McLeay and Bailey 2010)</span>
+and ISMARA <span class="citation">(Balwierz et al. 2014)</span>. In
+<em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em>,
+we aim to provide a flexible implementation that integrates well with
+other Bioconductor resources, makes use of the sequence composition
+correction developed for Homer <span class="citation">(Heinz et al.
+2010)</span> or stability selection <span class="citation">(Meinshausen
+and Bühlmann 2010)</span> and provides several alternative ways to study
+the relationship between experimental measurements and sequence
+motifs.</p>
+<p>You can use known motifs from collections of transcription factor
+binding specificities such as <em><a href="https://bioconductor.org/packages/3.19/JASPAR2020" class="external-link">JASPAR2020</a></em>,
+also available from Bioconductor. Genomic regions could be for example
+promoters, enhancers or accessible regions for which experimental data
+is available.</p>
+<p>Two independent approaches are implemented to identify interesting
+motifs:</p>
 <ul>
-<li><p>In the <strong>binned motif enrichment analysis</strong> (<code>calcBinnedMotifEnrR</code>, see section @ref(binned)), genomic regions are grouped into bins according to a numerical value assigned to each region, such as the change in expression, accessibility or methylation. Motif enrichments are then calculated for each bin, normalizing for differences in sequence composition in a very similar way as originally done by <a href="http://homer.ucsd.edu/homer/index.html" class="external-link">Homer</a> <span class="citation">(Heinz et al. 2010)</span>. As a special case, the approach can also be used to do a simple two set comparison (foreground against background sequences, see section @ref(binary)) or to determine motif enrichments in a single set of sequences compared to a suitably matched genomic background set (see section @ref(vsgenome)). The binned motif enrichment approach was first introduced in <span class="citation">Ginno et al. (2018)</span> and subsequently applied in e.g. <span class="citation">Barisic et al. (2019)</span>. To see more details on how <code>calcBinnedMotifEnrR</code> resembles <code>Homer</code>, check the function help page. We recommend using this function to do the binned motif enrichment analysis, since it corrects for sequence composition differences similarly to <code>Homer</code>, but is implemented more efficiently. <code>calcBinnedMotifEnrHomer</code> implements the same analysis using Homer and therefore requires a local <a href="http://homer.ucsd.edu/homer/introduction/install.html" class="external-link">installation of Homer</a>, and <code>calcBinnedKmerEnr</code>(see section @ref(binnedkmers)) implements the analysis for k-mers instead of motifs, to study sequence enrichments without the requirement of known motifs.</p></li>
-<li><p><strong>Randomized Lasso stability selection</strong> (<code>randLassoStabSel</code>, see <a href="https://bioconductor.org/packages/3.19/monaLisa/vignettes/selecting_motifs_with_randLassoStabSel.html" class="external-link">the stability selection vignette</a> in <em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em>) uses a robust regression approach (stability selection, <span class="citation">Meinshausen and Bühlmann (2010)</span>) to predict what transcription factors can explain experimental measurements, for example changes in chromatin accessibility between two conditions. Also this approach allows to correct for sequence composition. In addition, similar motifs have to “compete” with each other to be selected.</p></li>
+<li><p>In the <strong>binned motif enrichment analysis</strong>
+(<code>calcBinnedMotifEnrR</code>, see section @ref(binned)), genomic
+regions are grouped into bins according to a numerical value assigned to
+each region, such as the change in expression, accessibility or
+methylation. Motif enrichments are then calculated for each bin,
+normalizing for differences in sequence composition in a very similar
+way as originally done by <a href="http://homer.ucsd.edu/homer/index.html" class="external-link">Homer</a> <span class="citation">(Heinz et al. 2010)</span>. As a special case, the
+approach can also be used to do a simple two set comparison (foreground
+against background sequences, see section @ref(binary)) or to determine
+motif enrichments in a single set of sequences compared to a suitably
+matched genomic background set (see section @ref(vsgenome)). The binned
+motif enrichment approach was first introduced in <span class="citation">Ginno et al. (2018)</span> and subsequently applied in
+e.g. <span class="citation">Barisic et al. (2019)</span>. To see more
+details on how <code>calcBinnedMotifEnrR</code> resembles
+<code>Homer</code>, check the function help page. We recommend using
+this function to do the binned motif enrichment analysis, since it
+corrects for sequence composition differences similarly to
+<code>Homer</code>, but is implemented more efficiently.
+<code>calcBinnedMotifEnrHomer</code> implements the same analysis using
+Homer and therefore requires a local <a href="http://homer.ucsd.edu/homer/introduction/install.html" class="external-link">installation
+of Homer</a>, and <code>calcBinnedKmerEnr</code>(see section
+@ref(binnedkmers)) implements the analysis for k-mers instead of motifs,
+to study sequence enrichments without the requirement of known
+motifs.</p></li>
+<li><p><strong>Randomized Lasso stability selection</strong>
+(<code>randLassoStabSel</code>, see <a href="https://bioconductor.org/packages/3.19/monaLisa/vignettes/selecting_motifs_with_randLassoStabSel.html" class="external-link">the
+stability selection vignette</a> in <em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em>)
+uses a robust regression approach (stability selection, <span class="citation">Meinshausen and Bühlmann (2010)</span>) to predict what
+transcription factors can explain experimental measurements, for example
+changes in chromatin accessibility between two conditions. Also this
+approach allows to correct for sequence composition. In addition,
+similar motifs have to “compete” with each other to be
+selected.</p></li>
 </ul>
-<p>For both approaches, functions that allow visualization of obtained results are provided.</p>
-<p>If you prefer to jump right in, you can continue with section @ref(quick) that shows a quick hypothetical example of how to run a binned motif enrichment analysis. If you prefer to actually compute enrichments on real data, you can find below a detailed example for a binned motif enrichment analysis (section @ref(binned)). The special cases of analyzing just two sets of sequences (binary motif enrichment analysis) or a single set of sequences (comparing it to a suitable background sampled from the genome) are illustrated in section @ref(nobins).</p>
+<p>For both approaches, functions that allow visualization of obtained
+results are provided.</p>
+<p>If you prefer to jump right in, you can continue with section
+@ref(quick) that shows a quick hypothetical example of how to run a
+binned motif enrichment analysis. If you prefer to actually compute
+enrichments on real data, you can find below a detailed example for a
+binned motif enrichment analysis (section @ref(binned)). The special
+cases of analyzing just two sets of sequences (binary motif enrichment
+analysis) or a single set of sequences (comparing it to a suitable
+background sampled from the genome) are illustrated in section
+@ref(nobins).</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p><em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em> can be installed from Bioconductor via the <em><a href="https://CRAN.R-project.org/package=BiocManager" class="external-link">BiocManager</a></em> package:</p>
+<p><em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em>
+can be installed from Bioconductor via the <em><a href="https://CRAN.R-project.org/package=BiocManager" class="external-link">BiocManager</a></em>
+package:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"BiocManager"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span></span>
@@ -123,7 +191,15 @@ margin-right: auto; width: 50%; border: 0"></p>
 <div class="section level2">
 <h2 id="quick">Quick example: Identify enriched motifs in bins<a class="anchor" aria-label="anchor" href="#quick"></a>
 </h2>
-<p>The quick example below, which we do not run, illustrates how a binned motif enrichment analysis can be performed in <em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em>. We assume that you already have a set of peaks. The sequences of the peak regions are stored in a <code><a href="https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html" class="external-link">Biostrings::DNAStringSet</a></code> object (<code>peak_seqs</code>), and additionally each peak is associated with a numeric value (e.g., the change of methylation between two conditions, stored in the <code>peak_change</code> vector), that will be used to bin the regions before finding motifs enriched in each bin.</p>
+<p>The quick example below, which we do not run, illustrates how a
+binned motif enrichment analysis can be performed in <em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em>.
+We assume that you already have a set of peaks. The sequences of the
+peak regions are stored in a <code><a href="https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html" class="external-link">Biostrings::DNAStringSet</a></code>
+object (<code>peak_seqs</code>), and additionally each peak is
+associated with a numeric value (e.g., the change of methylation between
+two conditions, stored in the <code>peak_change</code> vector), that
+will be used to bin the regions before finding motifs enriched in each
+bin.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># load package</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/fmicompbio/monaLisa" class="external-link">monaLisa</a></span><span class="op">)</span></span>
@@ -139,32 +215,83 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calcBinnedMotifEnrR.html">calcBinnedMotifEnrR</a></span><span class="op">(</span>seqs <span class="op">=</span> <span class="va">peak_seqs</span>,</span>
 <span>                          bins <span class="op">=</span> <span class="va">peak_bins</span>,</span>
 <span>                          pwmL <span class="op">=</span> <span class="va">pwms</span><span class="op">)</span></span></code></pre></div>
-<p>The returned <code>se</code> is a <code>SummarizedExperiment</code> with <code>assays</code> <em>negLog10P</em>, <em>negLog10Padj</em>, <em>pearsonResid</em>, <em>expForegroundWgt</em>, <em>log2enr</em>, <em>sumForegroundWgtWithHits</em> and <em>sumBackgroundWgtWithHits</em>, each containing a matrix with motifs (rows) by bins (columns). The values are:</p>
+<p>The returned <code>se</code> is a <code>SummarizedExperiment</code>
+with <code>assays</code> <em>negLog10P</em>, <em>negLog10Padj</em>,
+<em>pearsonResid</em>, <em>expForegroundWgt</em>, <em>log2enr</em>,
+<em>sumForegroundWgtWithHits</em> and <em>sumBackgroundWgtWithHits</em>,
+each containing a matrix with motifs (rows) by bins (columns). The
+values are:</p>
 <ul>
 <li>
-<em>negLog10P</em>: the raw P value (<span class="math inline">\(-\log_{10} p\)</span>) of a given motif enrichment in a given bin. Each P value results from an enrichment calculation comparing occurrences of each motif in the bin to its occurrences in background sequences, defined by the <code>background</code> argument (by default: sequences in all other bins).<br>
+<em>negLog10P</em>: the raw P value (<span class="math inline">\(-\log_{10} p\)</span>) of a given motif enrichment
+in a given bin. Each P value results from an enrichment calculation
+comparing occurrences of each motif in the bin to its occurrences in
+background sequences, defined by the <code>background</code> argument
+(by default: sequences in all other bins).<br>
 </li>
 <li>
-<em>negLog10Padj</em>: Same as <em>negLog10P</em> but adjusted for multiple testing using the method provided in the <code>p.adjust.method</code> argument, by default: Benjamini and Hochberg, 1995 (<code>p.adjust(..., method="fdr")</code>).<br>
+<em>negLog10Padj</em>: Same as <em>negLog10P</em> but adjusted for
+multiple testing using the method provided in the
+<code>p.adjust.method</code> argument, by default: Benjamini and
+Hochberg, 1995 (<code>p.adjust(..., method="fdr")</code>).<br>
 </li>
 <li>
-<em>pearsonResid</em>: Standardized Pearson residuals, a measure of motif enrichment akin to a z-score for the number of regions in the bin containing the motif. The standardized Pearson residuals are given by <span class="math inline">\(resid = (o - \mu)/\sigma\)</span>, where <span class="math inline">\(\mu\)</span> is the expected count and <span class="math inline">\(\sigma\)</span> the standard deviation of the expression in the numerator, under the null hypothesis that the probability of containing a motif is independent of whether the sequence is in the foreground or the background (see e.g. <span class="citation">Agresti (2007)</span>, section @ref(runBinned)).</li>
+<em>pearsonResid</em>: Standardized Pearson residuals, a measure of
+motif enrichment akin to a z-score for the number of regions in the bin
+containing the motif. The standardized Pearson residuals are given by
+<span class="math inline">\(resid = (o - \mu)/\sigma\)</span>, where
+<span class="math inline">\(\mu\)</span> is the expected count and <span class="math inline">\(\sigma\)</span> the standard deviation of the
+expression in the numerator, under the null hypothesis that the
+probability of containing a motif is independent of whether the sequence
+is in the foreground or the background (see e.g. <span class="citation">Agresti (2007)</span>, section @ref(runBinned)).</li>
 <li>
-<em>expForegroundWgtWithHits</em>: The expected number of regions in the bin containing a given motif.</li>
+<em>expForegroundWgtWithHits</em>: The expected number of regions in
+the bin containing a given motif.</li>
 <li>
-<em>log2enr</em>: Motif enrichments, calculated as: <span class="math inline">\(log2enr = log2((o + c)/(e + c))\)</span>, where <span class="math inline">\(o\)</span> and <span class="math inline">\(e\)</span> are the observed and expected numbers of regions in the bin containing a given motif, respectively, and <span class="math inline">\(c\)</span> is a pseudocount defined by the <code>pseudocount.log2enr</code> argument.<br>
+<em>log2enr</em>: Motif enrichments, calculated as: <span class="math inline">\(log2enr = log2((o + c)/(e + c))\)</span>, where
+<span class="math inline">\(o\)</span> and <span class="math inline">\(e\)</span> are the observed and expected numbers
+of regions in the bin containing a given motif, respectively, and <span class="math inline">\(c\)</span> is a pseudocount defined by the
+<code>pseudocount.log2enr</code> argument.<br>
 </li>
 <li>
-<em>sumForegroundWgtWithHits</em> and <em>sumBackgroundWgtWithHits</em> are the sum of foreground and background sequences that have at least one occurrence of the motif, respectively. The background sequences are weighted in order to adjust for differences in sequence composition between foreground and background.</li>
+<em>sumForegroundWgtWithHits</em> and
+<em>sumBackgroundWgtWithHits</em> are the sum of foreground and
+background sequences that have at least one occurrence of the motif,
+respectively. The background sequences are weighted in order to adjust
+for differences in sequence composition between foreground and
+background.</li>
 </ul>
-<p>In addition, <code>rowData(se)</code> and <code>colData(se)</code> give information about the used motifs and bins, respectively. In <code>metadata(se)</code> you can find information about parameter values.</p>
+<p>In addition, <code>rowData(se)</code> and <code>colData(se)</code>
+give information about the used motifs and bins, respectively. In
+<code>metadata(se)</code> you can find information about parameter
+values.</p>
 </div>
 <div class="section level2">
-<h2 id="binned">Binned motif enrichment analysis with multiple sets of sequences (more than two): Finding TFs enriched in differentially methylated regions<a class="anchor" aria-label="anchor" href="#binned"></a>
+<h2 id="binned">Binned motif enrichment analysis with multiple sets of sequences
+(more than two): Finding TFs enriched in differentially methylated
+regions<a class="anchor" aria-label="anchor" href="#binned"></a>
 </h2>
-<p>This section illustrates the use of <em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em> to analyze regions or sequences with associated numerical values (here: changes of DNA methylation), grouped into several bins according to these values. The special cases of just two sets of sequences (binary motif enrichment analysis) or a single set of sequences (comparing it to a suitable background sampled from the genome) are illustrated in section @ref(nobins).</p>
-<p>This example is based on experimental data from an <em>in vitro</em> differentiation system, in which mouse embryonic stem (ES) cells are differentiated into neuronal progenitors (NP). In an earlier study <span class="citation">(Stadler et al. 2011)</span>, we have analyzed the genome-wide CpG methylation patterns in these cell types and identified so called <em>low methylated regions</em> (LMRs), that have reduced methylation levels and correspond to regions bound by transcription factors.</p>
-<p>We also developed a tool that systematically identifies such regions from genome-wide methylation data <span class="citation">(Burger et al. 2013)</span>. Interestingly, a change in methylation of LMRs is indicative of altered transcription factor binding. We will therefore use these regions to identify transcription factor motifs that are enriched or depleted in LMRs that change their methylation between ES and NP cell states.</p>
+<p>This section illustrates the use of <em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em>
+to analyze regions or sequences with associated numerical values (here:
+changes of DNA methylation), grouped into several bins according to
+these values. The special cases of just two sets of sequences (binary
+motif enrichment analysis) or a single set of sequences (comparing it to
+a suitable background sampled from the genome) are illustrated in
+section @ref(nobins).</p>
+<p>This example is based on experimental data from an <em>in vitro</em>
+differentiation system, in which mouse embryonic stem (ES) cells are
+differentiated into neuronal progenitors (NP). In an earlier study <span class="citation">(Stadler et al. 2011)</span>, we have analyzed the
+genome-wide CpG methylation patterns in these cell types and identified
+so called <em>low methylated regions</em> (LMRs), that have reduced
+methylation levels and correspond to regions bound by transcription
+factors.</p>
+<p>We also developed a tool that systematically identifies such regions
+from genome-wide methylation data <span class="citation">(Burger et al.
+2013)</span>. Interestingly, a change in methylation of LMRs is
+indicative of altered transcription factor binding. We will therefore
+use these regions to identify transcription factor motifs that are
+enriched or depleted in LMRs that change their methylation between ES
+and NP cell states.</p>
 <div class="section level3">
 <h3 id="load-packages">Load packages<a class="anchor" aria-label="anchor" href="#load-packages"></a>
 </h3>
@@ -182,7 +309,10 @@ margin-right: auto; width: 50%; border: 0"></p>
 <div class="section level3">
 <h3 id="genomic-regions-or-sequences-of-interest">Genomic regions or sequences of interest<a class="anchor" aria-label="anchor" href="#genomic-regions-or-sequences-of-interest"></a>
 </h3>
-<p><em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em> provides a file with genomic coordinates (mouse mm10 assembly) of LMRs, with the respective changes of methylation. We load this <code>GRanges</code> object into <code>R</code>.</p>
+<p><em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em>
+provides a file with genomic coordinates (mouse mm10 assembly) of LMRs,
+with the respective changes of methylation. We load this
+<code>GRanges</code> object into <code>R</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lmrfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"LMRsESNPmerged.gr.rds"</span>, </span>
 <span>                       package <span class="op">=</span> <span class="st">"monaLisa"</span><span class="op">)</span></span>
@@ -204,7 +334,11 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span><span class="co">#&gt;   [45414]     chrY 4181867-4182624      * |  0.000494588</span></span>
 <span><span class="co">#&gt;   -------</span></span>
 <span><span class="co">#&gt;   seqinfo: 21 sequences from an unspecified genome</span></span></code></pre></div>
-<p>Alternatively, the user may also start the analysis with genomic regions contained in a <code>bed</code> file, or directly with sequences in a <code>FASTA</code> file. The following example code illustrates how to do this, but should not be run if you are following the examples in this vignette.</p>
+<p>Alternatively, the user may also start the analysis with genomic
+regions contained in a <code>bed</code> file, or directly with sequences
+in a <code>FASTA</code> file. The following example code illustrates how
+to do this, but should not be run if you are following the examples in
+this vignette.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># starting from a bed file</span></span>
 <span><span class="co">#   import as `GRanges` using `rtracklayer::import`</span></span>
@@ -220,12 +354,14 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span><span class="co">#           monaLisa::calcBinnedMotifEnrR (no need to extract sequences from</span></span>
 <span><span class="co">#           the genome, just skip that step below)</span></span>
 <span><span class="va">lmrseqs</span> <span class="op">&lt;-</span> <span class="fu">Biostrings</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Biostrings/man/XStringSet-io.html" class="external-link">readDNAStringSet</a></span><span class="op">(</span>filepath <span class="op">=</span> <span class="st">"myfile.fa"</span>, format <span class="op">=</span> <span class="st">"fasta"</span><span class="op">)</span></span></code></pre></div>
-<p>We can see there are 45414 LMRs, most of which gain methylation between ES and NP stages:</p>
+<p>We can see there are 45414 LMRs, most of which gain methylation
+between ES and NP stages:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">lmr</span><span class="op">$</span><span class="va">deltaMeth</span>, <span class="fl">100</span>, col <span class="op">=</span> <span class="st">"gray"</span>, main <span class="op">=</span> <span class="st">""</span>,</span>
 <span>     xlab <span class="op">=</span> <span class="st">"Change of methylation (NP - ES)"</span>, ylab <span class="op">=</span> <span class="st">"Number of LMRs"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="monaLisa_files/figure-html/deltameth-1.png" width="80%" style="display: block; margin: auto;"></p>
-<p>In order to keep the computation time reasonable, we’ll select 10,000 of the LMRs randomly:</p>
+<p>In order to keep the computation time reasonable, we’ll select 10,000
+of the LMRs randomly:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">lmrsel</span> <span class="op">&lt;-</span> <span class="va">lmr</span><span class="op">[</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">lmr</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">10000</span>, replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">]</span></span></code></pre></div>
@@ -233,7 +369,12 @@ margin-right: auto; width: 50%; border: 0"></p>
 <div class="section level3">
 <h3 id="bin-genomic-regions">Bin genomic regions<a class="anchor" aria-label="anchor" href="#bin-genomic-regions"></a>
 </h3>
-<p>Now let’s bin our LMRs by how much they change methylation, using the <code>bin</code> function from <em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em>. We are not interested in small changes of methylation, say less than 0.3, so we’ll use the <code>minAbsX</code> argument to create a <em>no-change</em> bin in [-0.3, 0.3). The remaining LMRs are put into bins of 800 each:</p>
+<p>Now let’s bin our LMRs by how much they change methylation, using the
+<code>bin</code> function from <em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em>.
+We are not interested in small changes of methylation, say less than
+0.3, so we’ll use the <code>minAbsX</code> argument to create a
+<em>no-change</em> bin in [-0.3, 0.3). The remaining LMRs are put into
+bins of 800 each:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bins</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bin.html">bin</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">lmrsel</span><span class="op">$</span><span class="va">deltaMeth</span>, binmode <span class="op">=</span> <span class="st">"equalN"</span>, nElement <span class="op">=</span> <span class="fl">800</span>, </span>
 <span>            minAbsX <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span></span>
@@ -243,8 +384,12 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span><span class="co">#&gt;             800            4400             800             800             800 </span></span>
 <span><span class="co">#&gt;   (0.491,0.536]   (0.536,0.585]   (0.585,0.862] </span></span>
 <span><span class="co">#&gt;             800             800             800</span></span></code></pre></div>
-<p>Generally speaking, we recommend a minimum of ~100 sequences per bin as fewer sequences may lead to small motif counts and thus either small or unstable enrichments.</p>
-<p>We can see which bin has been set to be the zero bin using <code>getZeroBin</code>, or set it to a different bin using <code>setZeroBin</code>:</p>
+<p>Generally speaking, we recommend a minimum of ~100 sequences per bin
+as fewer sequences may lead to small motif counts and thus either small
+or unstable enrichments.</p>
+<p>We can see which bin has been set to be the zero bin using
+<code>getZeroBin</code>, or set it to a different bin using
+<code>setZeroBin</code>:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># find the index of the level representing the zero bin </span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Factor-class.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">bins</span><span class="op">)</span></span>
@@ -252,22 +397,39 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span><span class="co">#&gt; [5] "(0.443,0.491]"   "(0.491,0.536]"   "(0.536,0.585]"   "(0.585,0.862]"</span></span>
 <span><span class="fu"><a href="../reference/getSetZeroBin.html">getZeroBin</a></span><span class="op">(</span><span class="va">bins</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 2</span></span></code></pre></div>
-<p>Because of the asymmetry of methylation changes, there is only a single bin with LMRs that lost methylation and many that gained:</p>
+<p>Because of the asymmetry of methylation changes, there is only a
+single bin with LMRs that lost methylation and many that gained:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotBinDensity.html">plotBinDensity</a></span><span class="op">(</span><span class="va">lmrsel</span><span class="op">$</span><span class="va">deltaMeth</span>, <span class="va">bins</span>, legend <span class="op">=</span> <span class="st">"topleft"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="monaLisa_files/figure-html/plotbins-1.png" width="80%" style="display: block; margin: auto;"></p>
-<p>Note that the bin breaks around the <em>no-change</em> bin are not exactly -0.3 to 0.3. They have been adjusted to have the required 800 LMRs per bin below and above it. <em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em> will give a warning if the adjusted bin breaks are strongly deviating from the requested <code>minAbsX</code> value, and <code>bin(..., model = "breaks")</code> can be used in cases where exactly defined bin boundaries are required.</p>
+<p>Note that the bin breaks around the <em>no-change</em> bin are not
+exactly -0.3 to 0.3. They have been adjusted to have the required 800
+LMRs per bin below and above it. <em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em>
+will give a warning if the adjusted bin breaks are strongly deviating
+from the requested <code>minAbsX</code> value, and
+<code>bin(..., model = "breaks")</code> can be used in cases where
+exactly defined bin boundaries are required.</p>
 </div>
 <div class="section level3">
 <h3 id="prepare-motif-enrichment-analysis">Prepare motif enrichment analysis<a class="anchor" aria-label="anchor" href="#prepare-motif-enrichment-analysis"></a>
 </h3>
-<p>Next we prepare the motif enrichment analysis. We first need known motifs representing transcription factor binding site preferences. We extract all vertebrate motifs from the <em><a href="https://bioconductor.org/packages/3.19/JASPAR2020" class="external-link">JASPAR2020</a></em> package as positional weight matrices (PWMs):</p>
+<p>Next we prepare the motif enrichment analysis. We first need known
+motifs representing transcription factor binding site preferences. We
+extract all vertebrate motifs from the <em><a href="https://bioconductor.org/packages/3.19/JASPAR2020" class="external-link">JASPAR2020</a></em>
+package as positional weight matrices (PWMs):</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pwms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/getMatrixSet-methods.html" class="external-link">getMatrixSet</a></span><span class="op">(</span><span class="va">JASPAR2020</span>,</span>
 <span>                     opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>matrixtype <span class="op">=</span> <span class="st">"PWM"</span>,</span>
 <span>                                 tax_group <span class="op">=</span> <span class="st">"vertebrates"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>Furthermore, we need the sequences corresponding to our LMRs. As sequences in one bin are compared to the sequences in other bins, we would not want differences of sequence lengths or composition between bins that might bias our motif enrichment results.</p>
-<p>In general, we would recommend to use regions of similar or even equal lengths to avoid a length bias, for example by using a fixed-size region around the midpoint of each region of interest using <code><a href="https://rdrr.io/pkg/IRanges/man/intra-range-methods.html" class="external-link">GenomicRanges::resize</a></code>. In addition, the resized regions may have to be constrained to the chromosome boundaries using trim:</p>
+<p>Furthermore, we need the sequences corresponding to our LMRs. As
+sequences in one bin are compared to the sequences in other bins, we
+would not want differences of sequence lengths or composition between
+bins that might bias our motif enrichment results.</p>
+<p>In general, we would recommend to use regions of similar or even
+equal lengths to avoid a length bias, for example by using a fixed-size
+region around the midpoint of each region of interest using
+<code><a href="https://rdrr.io/pkg/IRanges/man/intra-range-methods.html" class="external-link">GenomicRanges::resize</a></code>. In addition, the resized regions may
+have to be constrained to the chromosome boundaries using trim:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/start.html" class="external-link">width</a></span><span class="op">(</span><span class="va">lmrsel</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
@@ -276,31 +438,62 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/start.html" class="external-link">width</a></span><span class="op">(</span><span class="va">lmrsel</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
 <span><span class="co">#&gt;     401     401     401     401     401     401</span></span></code></pre></div>
-<p>We can now directly extract the corresponding sequences from the <em><a href="https://bioconductor.org/packages/3.19/BSgenome.Mmusculus.UCSC.mm10" class="external-link">BSgenome.Mmusculus.UCSC.mm10</a></em> package (assuming you have started the analysis with genomic regions - if you already have sequences, just skip this step)</p>
+<p>We can now directly extract the corresponding sequences from the
+<em><a href="https://bioconductor.org/packages/3.19/BSgenome.Mmusculus.UCSC.mm10" class="external-link">BSgenome.Mmusculus.UCSC.mm10</a></em>
+package (assuming you have started the analysis with genomic regions -
+if you already have sequences, just skip this step)</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lmrseqs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Biostrings/man/getSeq.html" class="external-link">getSeq</a></span><span class="op">(</span><span class="va">BSgenome.Mmusculus.UCSC.mm10</span>, <span class="va">lmrsel</span><span class="op">)</span></span></code></pre></div>
-<p>and check for differences in sequence composition between bins using the <code>plotBinDiagnostics</code> function. “GCfrac” will plot the distributions of the fraction of G+C bases, and “dinucfreq” creates a heatmap of average di-nucleotide frequencies in each bin, relative to the overall average.</p>
+<p>and check for differences in sequence composition between bins using
+the <code>plotBinDiagnostics</code> function. “GCfrac” will plot the
+distributions of the fraction of G+C bases, and “dinucfreq” creates a
+heatmap of average di-nucleotide frequencies in each bin, relative to
+the overall average.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotBinDiagnostics.html">plotBinDiagnostics</a></span><span class="op">(</span>seqs <span class="op">=</span> <span class="va">lmrseqs</span>, bins <span class="op">=</span> <span class="va">bins</span>, aspect <span class="op">=</span> <span class="st">"GCfrac"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="monaLisa_files/figure-html/bindiag-1.png" width="80%" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotBinDiagnostics.html">plotBinDiagnostics</a></span><span class="op">(</span>seqs <span class="op">=</span> <span class="va">lmrseqs</span>, bins <span class="op">=</span> <span class="va">bins</span>, aspect <span class="op">=</span> <span class="st">"dinucfreq"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="monaLisa_files/figure-html/bindiag-2.png" width="80%" style="display: block; margin: auto;"></p>
-<p>From these plots, we can see that LMRs with lower methylation in NP cells compared to ES cells (bin [-0.935,-0.242]) tend to be GC-poorer than LMRs in other bins. A strong bias of this kind could give rise to false positives in that bin, e.g. enrichments of AT-rich motifs.</p>
-<p>At this point in the analysis, it is difficult to decide if this bias should be addressed here (for example by subsampling sequences of more comparable GC composition), or if the bias can be ignored because the built-in sequence composition correction in <code>calcBinnedMotifEnrR</code> will be able to account for it. Our recommendation would be to take a mental note at this point and remember that sequences in the [-0.935,-0.242] bin tend to be GC-poorer. Later, we should check if AT-rich motifs are specifically enriched in that bin, and if that is the case, we should critically assess if that result is robust and can be reproduced in an analysis that uses more balanced sequences in all bins, or an analysis with <code>background = "genome"</code>. The <code>show_motif_GC</code> and <code>show_seqlogo</code> arguments of <code>plotMotifHeatmaps</code> can help to visually identify motif sequence composition in an enrichment result (see below).</p>
+<p>From these plots, we can see that LMRs with lower methylation in NP
+cells compared to ES cells (bin [-0.935,-0.242]) tend to be GC-poorer
+than LMRs in other bins. A strong bias of this kind could give rise to
+false positives in that bin, e.g. enrichments of AT-rich motifs.</p>
+<p>At this point in the analysis, it is difficult to decide if this bias
+should be addressed here (for example by subsampling sequences of more
+comparable GC composition), or if the bias can be ignored because the
+built-in sequence composition correction in
+<code>calcBinnedMotifEnrR</code> will be able to account for it. Our
+recommendation would be to take a mental note at this point and remember
+that sequences in the [-0.935,-0.242] bin tend to be GC-poorer. Later,
+we should check if AT-rich motifs are specifically enriched in that bin,
+and if that is the case, we should critically assess if that result is
+robust and can be reproduced in an analysis that uses more balanced
+sequences in all bins, or an analysis with
+<code>background = "genome"</code>. The <code>show_motif_GC</code> and
+<code>show_seqlogo</code> arguments of <code>plotMotifHeatmaps</code>
+can help to visually identify motif sequence composition in an
+enrichment result (see below).</p>
 </div>
 <div class="section level3">
 <h3 id="runBinned">Run motif enrichment analysis<a class="anchor" aria-label="anchor" href="#runBinned"></a>
 </h3>
 <p>Finally, we run the binned motif enrichment analysis.</p>
-<p>This step will take a while, and typically you would use the <code>BPPARAM</code> argument to run it with parallelization using <code>n</code> cores as follows: <code>calcBinnedMotifEnrR(..., BPPARAM = BiocParallel::MulticoreParam(n)))</code>. For this example however, you can skip over the next step and just load the pre-computed results as shown further below.</p>
+<p>This step will take a while, and typically you would use the
+<code>BPPARAM</code> argument to run it with parallelization using
+<code>n</code> cores as follows:
+<code>calcBinnedMotifEnrR(..., BPPARAM = BiocParallel::MulticoreParam(n)))</code>.
+For this example however, you can skip over the next step and just load
+the pre-computed results as shown further below.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calcBinnedMotifEnrR.html">calcBinnedMotifEnrR</a></span><span class="op">(</span>seqs <span class="op">=</span> <span class="va">lmrseqs</span>, bins <span class="op">=</span> <span class="va">bins</span>, pwmL <span class="op">=</span> <span class="va">pwms</span><span class="op">)</span></span></code></pre></div>
-<p>In case you did not run the above code, let’s now read in the results:</p>
+<p>In case you did not run the above code, let’s now read in the
+results:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"results.binned_motif_enrichment_LMRs.rds"</span>,</span>
 <span>                          package <span class="op">=</span> <span class="st">"monaLisa"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><code>se</code> is a <code>SummarizedExperiment</code> object which nicely keeps motifs, bins and corresponding metadata together:</p>
+<p><code>se</code> is a <code>SummarizedExperiment</code> object which
+nicely keeps motifs, bins and corresponding metadata together:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># summary</span></span>
 <span><span class="va">se</span></span>
@@ -404,7 +597,12 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span><span class="co">#&gt; MA0019.1      -0.6736372     0.26842621   0.030973190</span></span>
 <span><span class="co">#&gt; MA0029.1      -0.1475501    -0.12750322   0.088480526</span></span>
 <span><span class="co">#&gt; MA0030.1      -0.4021844     0.06710565   0.152049687</span></span></code></pre></div>
-<p>We can plot the results using the <code>plotMotifHeatmaps</code> function, e.g. selecting all transcription factor motifs that have a <span class="math inline">\(-log_{10} FDR\)</span> of at least 4.0 in any bin (corresponding to an <span class="math inline">\(FDR &lt; 10^{-4}\)</span>). FDR values are stored in the <code>negLog10Padj</code> assay:</p>
+<p>We can plot the results using the <code>plotMotifHeatmaps</code>
+function, e.g. selecting all transcription factor motifs that have a
+<span class="math inline">\(-log_{10} FDR\)</span> of at least 4.0 in
+any bin (corresponding to an <span class="math inline">\(FDR &lt;
+10^{-4}\)</span>). FDR values are stored in the
+<code>negLog10Padj</code> assay:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># select strongly enriched motifs</span></span>
 <span><span class="va">sel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">se</span>, <span class="st">"negLog10Padj"</span><span class="op">)</span>, <span class="fl">1</span>, </span>
@@ -418,7 +616,8 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span>                  width <span class="op">=</span> <span class="fl">2.0</span>, cluster <span class="op">=</span> <span class="cn">TRUE</span>, maxEnr <span class="op">=</span> <span class="fl">2</span>, maxSig <span class="op">=</span> <span class="fl">10</span>, </span>
 <span>                  show_motif_GC <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="monaLisa_files/figure-html/plottfs-1.png" width="80%" style="display: block; margin: auto;"></p>
-<p>In order to select only motifs with significant enrichments in a specific bin, or in any bin except the “zero” bin, you could use:</p>
+<p>In order to select only motifs with significant enrichments in a
+specific bin, or in any bin except the “zero” bin, you could use:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># significantly enriched in bin 8</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Factor-class.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">bins</span><span class="op">)</span><span class="op">[</span><span class="fl">8</span><span class="op">]</span></span>
@@ -435,12 +634,33 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span>    <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="fl">0</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">4.0</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">sel.nonZero</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 55</span></span></code></pre></div>
-<p>Setting <code>cluster = TRUE</code> in <code>plotMotifHeatmaps</code> has re-ordered the rows using hierarchical clustering of the <code>pearsonResid</code> assay. As many transcription factor binding motifs are similar to each other, it is also helpful to show the enrichment heatmap clustered by motif similarity. To this end, we first calculate all pairwise motif similarities (measured as the maximum Pearson correlation of all possible shifted alignments). This can be quickly calculated for the few selected motifs using the <code>motifSimilarity</code> function. For many motifs, this step may take a while, and it may be useful to parallelize it using the <code>BPPARAM</code> argument (e.g. to run on <code>n</code> parallel threads using the multi-core backend, you can use: <code>motifSimilarity(..., BPPARAM = BiocParallel::MulticoreParam(n))</code>).</p>
+<p>Setting <code>cluster = TRUE</code> in <code>plotMotifHeatmaps</code>
+has re-ordered the rows using hierarchical clustering of the
+<code>pearsonResid</code> assay. As many transcription factor binding
+motifs are similar to each other, it is also helpful to show the
+enrichment heatmap clustered by motif similarity. To this end, we first
+calculate all pairwise motif similarities (measured as the maximum
+Pearson correlation of all possible shifted alignments). This can be
+quickly calculated for the few selected motifs using the
+<code>motifSimilarity</code> function. For many motifs, this step may
+take a while, and it may be useful to parallelize it using the
+<code>BPPARAM</code> argument (e.g. to run on <code>n</code> parallel
+threads using the multi-core backend, you can use:
+<code>motifSimilarity(..., BPPARAM = BiocParallel::MulticoreParam(n))</code>).</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">SimMatSel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/motifSimilarity.html">motifSimilarity</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData</a></span><span class="op">(</span><span class="va">seSel</span><span class="op">)</span><span class="op">$</span><span class="va">motif.pfm</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">SimMatSel</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.05339967 1.00000000</span></span></code></pre></div>
-<p>The order of the TFs in the resulting matrix is consistent with the elements of <code>seSel</code>, and the maximal similarity between any pair of motifs is 1.0. By subtracting these similarities from 1.0, we obtain distances that we use to perform a hierarchical clustering with the <code><a href="https://rdrr.io/r/stats/hclust.html" class="external-link">stats::hclust</a></code> function. The returned object (<code>hcl</code>) is then passed to the <code>cluster</code> argument of <code>plotMotifHeatmaps</code> to define the order of the rows in the heatmap. The plotting of the dendrogram is controlled by the argument <code>show_dendrogram</code>, and we also display the motifs as sequence logos using <code>show_seqlogo</code>:</p>
+<p>The order of the TFs in the resulting matrix is consistent with the
+elements of <code>seSel</code>, and the maximal similarity between any
+pair of motifs is 1.0. By subtracting these similarities from 1.0, we
+obtain distances that we use to perform a hierarchical clustering with
+the <code><a href="https://rdrr.io/r/stats/hclust.html" class="external-link">stats::hclust</a></code> function. The returned object
+(<code>hcl</code>) is then passed to the <code>cluster</code> argument
+of <code>plotMotifHeatmaps</code> to define the order of the rows in the
+heatmap. The plotting of the dendrogram is controlled by the argument
+<code>show_dendrogram</code>, and we also display the motifs as sequence
+logos using <code>show_seqlogo</code>:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># create hclust object, similarity defined by 1 - Pearson correlation</span></span>
 <span><span class="va">hcl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/hclust.html" class="external-link">hclust</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/dist.html" class="external-link">as.dist</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">SimMatSel</span><span class="op">)</span>, method <span class="op">=</span> <span class="st">"average"</span><span class="op">)</span></span>
@@ -449,23 +669,81 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span>                  show_dendrogram <span class="op">=</span> <span class="cn">TRUE</span>, show_seqlogo <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                  width.seqlogo <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="monaLisa_files/figure-html/plottfsclustered-1.png" width="80%" style="display: block; margin: auto;"></p>
-<p>We have seen above that sequences in the [-0.935,-0.242] bin (first column from the left in the heatmap) were GC-poorer than the sequences in other bins. While some of the enriched motifs in that bin are not GC-poor (for example RARA, NR2F1 and similar motifs), other more weakly enriched motifs are clearly AT-rich (for example HOX family motifs). To verify that these are not false positive results, the motif analysis should be repeated after sequences have been subsampled in each bin to have similar GC composition in all bins, or with <code>calcBinnedMotifEnrR(..., background = "genome")</code>. The latter is illustrated in section @ref(vsgenome).</p>
+<p>We have seen above that sequences in the [-0.935,-0.242] bin (first
+column from the left in the heatmap) were GC-poorer than the sequences
+in other bins. While some of the enriched motifs in that bin are not
+GC-poor (for example RARA, NR2F1 and similar motifs), other more weakly
+enriched motifs are clearly AT-rich (for example HOX family motifs). To
+verify that these are not false positive results, the motif analysis
+should be repeated after sequences have been subsampled in each bin to
+have similar GC composition in all bins, or with
+<code>calcBinnedMotifEnrR(..., background = "genome")</code>. The latter
+is illustrated in section @ref(vsgenome).</p>
 </div>
 <div class="section level3">
-<h3 id="motifConvert">Convert between motif text file for <code>Homer</code> and motif objects in <code>R</code><a class="anchor" aria-label="anchor" href="#motifConvert"></a>
+<h3 id="motifConvert">Convert between motif text file for <code>Homer</code> and motif
+objects in <code>R</code><a class="anchor" aria-label="anchor" href="#motifConvert"></a>
 </h3>
-<p><em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em> provides two functions for performing binned motif enrichment analysis (<code>calcBinnedMotifEnrR</code> and <code>calcBinnedMotifEnrHomer</code>). <code>calcBinnedMotifEnrR</code> implements the binned motif enrichment analysis in <code>R</code>, similarly to <code>Homer</code>, and does not require the user to have the <code>Homer</code> tool pre-installed. For more information on that function and how it resembles the <code>Homer</code> tool see the function documentation.</p>
-<p>A simple way to represent a DNA sequence motif that assumes independence of positions in the motif is a matrix with four rows (for the bases A, C, G and T) and <code>n</code> columns for the <code>n</code> positions in the motif. The values in that matrix can represent the sequence preferences of a binding protein in several different ways:</p>
+<p><em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em>
+provides two functions for performing binned motif enrichment analysis
+(<code>calcBinnedMotifEnrR</code> and
+<code>calcBinnedMotifEnrHomer</code>). <code>calcBinnedMotifEnrR</code>
+implements the binned motif enrichment analysis in <code>R</code>,
+similarly to <code>Homer</code>, and does not require the user to have
+the <code>Homer</code> tool pre-installed. For more information on that
+function and how it resembles the <code>Homer</code> tool see the
+function documentation.</p>
+<p>A simple way to represent a DNA sequence motif that assumes
+independence of positions in the motif is a matrix with four rows (for
+the bases A, C, G and T) and <code>n</code> columns for the
+<code>n</code> positions in the motif. The values in that matrix can
+represent the sequence preferences of a binding protein in several
+different ways:</p>
 <ul>
 <li>
-<strong>Position frequency matrices (PFM)</strong> contain values that correspond to the number of times (frequency) that a given base has been observed in at a given position of the motif. It is usually obtained from a set of known, aligned binding site sequences, and depending on the number of sequences, the values will be lower or higher. In <code>R</code>, PFMs are often represented using <code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html" class="external-link">TFBSTools::PFMatrix</a></code> (single motif) or <code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html" class="external-link">TFBSTools::PFMatrixList</a></code> (set of motifs) objects. This is the rawest way to represent a sequence motif and can be converted into any other representation.</li>
+<strong>Position frequency matrices (PFM)</strong> contain values
+that correspond to the number of times (frequency) that a given base has
+been observed in at a given position of the motif. It is usually
+obtained from a set of known, aligned binding site sequences, and
+depending on the number of sequences, the values will be lower or
+higher. In <code>R</code>, PFMs are often represented using
+<code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html" class="external-link">TFBSTools::PFMatrix</a></code> (single motif) or
+<code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html" class="external-link">TFBSTools::PFMatrixList</a></code> (set of motifs) objects. This is
+the rawest way to represent a sequence motif and can be converted into
+any other representation.</li>
 <li>
-<strong>Position probability matrices (PPM)</strong> are obtained by dividing the counts in each column of a PFM by their sum. The values now give a probability of observing a given base at that position of the motif and sum up to one in each column. This is the representation used in motif text files for <code>Homer</code>. A PPM can only be converted back to a PFM by knowing or assuming how many binding site sequences were observed (see argument <code>n</code> in <code>homerToPFMatrixList</code>).<br>
+<strong>Position probability matrices (PPM)</strong> are obtained by
+dividing the counts in each column of a PFM by their sum. The values now
+give a probability of observing a given base at that position of the
+motif and sum up to one in each column. This is the representation used
+in motif text files for <code>Homer</code>. A PPM can only be converted
+back to a PFM by knowing or assuming how many binding site sequences
+were observed (see argument <code>n</code> in
+<code>homerToPFMatrixList</code>).<br>
 </li>
 <li>
-<strong>Position weight matrices (PWM)</strong> (also known as position specific scoring matrices, PSSM) are obtained by comparing the base probabilities in a PPM to the probabilities of observing each base outside of a binding site (background base probabilities), for example by calculating log-odds scores (see <code><a href="https://rdrr.io/pkg/TFBSTools/man/toPWM-methods.html" class="external-link">TFBSTools::toPWM</a></code> for details). This is a useful representation for scanning sequences for motif matches. In <code>R</code>, PWMs are often represented using <code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html" class="external-link">TFBSTools::PWMatrix</a></code> (single motif) or <code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html" class="external-link">TFBSTools::PWMatrixList</a></code> (set of motifs).</li>
+<strong>Position weight matrices (PWM)</strong> (also known as
+position specific scoring matrices, PSSM) are obtained by comparing the
+base probabilities in a PPM to the probabilities of observing each base
+outside of a binding site (background base probabilities), for example
+by calculating log-odds scores (see <code><a href="https://rdrr.io/pkg/TFBSTools/man/toPWM-methods.html" class="external-link">TFBSTools::toPWM</a></code> for
+details). This is a useful representation for scanning sequences for
+motif matches. In <code>R</code>, PWMs are often represented using
+<code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrix-class.html" class="external-link">TFBSTools::PWMatrix</a></code> (single motif) or
+<code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html" class="external-link">TFBSTools::PWMatrixList</a></code> (set of motifs).</li>
 </ul>
-<p><code>calcBinnedMotifEnrR</code> takes PWMs as a <code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html" class="external-link">TFBSTools::PWMatrixList</a></code> object to scan for motif hits. <code>calcBinnedMotifEnrHomer</code> on the other hand takes a motif text file with PPMs, and requires the user to have <code>Homer</code> installed to use it for the binned motif enrichment analysis. Here, we show how one can get motif PFMs from <em><a href="https://bioconductor.org/packages/3.19/JASPAR2020" class="external-link">JASPAR2020</a></em> and convert them to a <code>Homer</code>-compatible text file with PPMs (<code>dumpJaspar</code>) and vice versa (<code>homerToPFMatrixList</code>), and how to convert a <code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html" class="external-link">TFBSTools::PFMatrixList</a></code> to a <code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html" class="external-link">TFBSTools::PWMatrixList</a></code> for use with <code>calcBinnedMotifEnrR</code> or <code>findMotifHits</code>:</p>
+<p><code>calcBinnedMotifEnrR</code> takes PWMs as a
+<code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html" class="external-link">TFBSTools::PWMatrixList</a></code> object to scan for motif hits.
+<code>calcBinnedMotifEnrHomer</code> on the other hand takes a motif
+text file with PPMs, and requires the user to have <code>Homer</code>
+installed to use it for the binned motif enrichment analysis. Here, we
+show how one can get motif PFMs from <em><a href="https://bioconductor.org/packages/3.19/JASPAR2020" class="external-link">JASPAR2020</a></em>
+and convert them to a <code>Homer</code>-compatible text file with PPMs
+(<code>dumpJaspar</code>) and vice versa
+(<code>homerToPFMatrixList</code>), and how to convert a
+<code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html" class="external-link">TFBSTools::PFMatrixList</a></code> to a
+<code><a href="https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html" class="external-link">TFBSTools::PWMatrixList</a></code> for use with
+<code>calcBinnedMotifEnrR</code> or <code>findMotifHits</code>:</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># get PFMs from JASPAR2020 package (vertebrate subset)</span></span>
 <span><span class="va">pfms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/getMatrixSet-methods.html" class="external-link">getMatrixSet</a></span><span class="op">(</span><span class="va">JASPAR2020</span>,</span>
@@ -521,14 +799,29 @@ margin-right: auto; width: 50%; border: 0"></p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="nobins">Motif enrichment analysis with only one or two sets of sequences<a class="anchor" aria-label="anchor" href="#nobins"></a>
+<h2 id="nobins">Motif enrichment analysis with only one or two sets of
+sequences<a class="anchor" aria-label="anchor" href="#nobins"></a>
 </h2>
-<p>In some cases, we are interested in identifying enriched motifs between just two sets of sequences (binary motif enrichment), for example between ATAC peaks with increased and decreased accessibility. Numerical values that could be used for grouping the regions in multiple bins may not be available. Or we may be interested in analyzing just a single set of sequences (for example a set of ChIP-seq peaks), relative to some neutral background. In this section, we show how such binary or single-set motif enrichment analyses can be performed using <em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em>.</p>
+<p>In some cases, we are interested in identifying enriched motifs
+between just two sets of sequences (binary motif enrichment), for
+example between ATAC peaks with increased and decreased accessibility.
+Numerical values that could be used for grouping the regions in multiple
+bins may not be available. Or we may be interested in analyzing just a
+single set of sequences (for example a set of ChIP-seq peaks), relative
+to some neutral background. In this section, we show how such binary or
+single-set motif enrichment analyses can be performed using <em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em>.</p>
 <div class="section level3">
-<h3 id="binary">Binary motif enrichment analysis: comparing two sets of sequences<a class="anchor" aria-label="anchor" href="#binary"></a>
+<h3 id="binary">Binary motif enrichment analysis: comparing two sets of
+sequences<a class="anchor" aria-label="anchor" href="#binary"></a>
 </h3>
-<p>The binary motif enrichment analysis is a simple special case of the general binned motif analysis described in section @ref(binned), where the two sets to be compared are defining the two bins.</p>
-<p>Let’s re-use the DNA methylation data from section @ref(binned) and assume that we just want to compare the sequences that don’t show large changes in their methylation levels (<code>lmr.unchanged</code>, changes smaller than 5%) to those that gain more than 60% methylation (<code>lmr.up</code>):</p>
+<p>The binary motif enrichment analysis is a simple special case of the
+general binned motif analysis described in section @ref(binned), where
+the two sets to be compared are defining the two bins.</p>
+<p>Let’s re-use the DNA methylation data from section @ref(binned) and
+assume that we just want to compare the sequences that don’t show large
+changes in their methylation levels (<code>lmr.unchanged</code>, changes
+smaller than 5%) to those that gain more than 60% methylation
+(<code>lmr.up</code>):</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lmr.unchanged</span> <span class="op">&lt;-</span> <span class="va">lmrsel</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">lmrsel</span><span class="op">$</span><span class="va">deltaMeth</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">lmr.unchanged</span><span class="op">)</span></span>
@@ -537,14 +830,22 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span><span class="va">lmr.up</span> <span class="op">&lt;-</span> <span class="va">lmrsel</span><span class="op">[</span><span class="va">lmrsel</span><span class="op">$</span><span class="va">deltaMeth</span> <span class="op">&gt;</span> <span class="fl">0.6</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">lmr.up</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 630</span></span></code></pre></div>
-<p>As before, we need a single sequence object (<code>lmrseqs2</code>, which is a <code>DNAStringSet</code>) that we obtain by combining these two groups into a single <code>GRanges</code> object (<code>lmrsel2</code>) and extract the corresponding sequences from the genome (<code>lmrseqs2</code>). If you already have two sequence objects, they can be just concatenated using <code>lmrseqs2 &lt;- c(seqs.group1, seqs.group2)</code>.</p>
+<p>As before, we need a single sequence object (<code>lmrseqs2</code>,
+which is a <code>DNAStringSet</code>) that we obtain by combining these
+two groups into a single <code>GRanges</code> object
+(<code>lmrsel2</code>) and extract the corresponding sequences from the
+genome (<code>lmrseqs2</code>). If you already have two sequence
+objects, they can be just concatenated using
+<code>lmrseqs2 &lt;- c(seqs.group1, seqs.group2)</code>.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># combine the two sets or genomic regions</span></span>
 <span><span class="va">lmrsel2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">lmr.unchanged</span>, <span class="va">lmr.up</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># extract sequences from the genome</span></span>
 <span><span class="va">lmrseqs2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Biostrings/man/getSeq.html" class="external-link">getSeq</a></span><span class="op">(</span><span class="va">BSgenome.Mmusculus.UCSC.mm10</span>, <span class="va">lmrsel2</span><span class="op">)</span></span></code></pre></div>
-<p>Finally, we manually create a binning factor (<code>bins2</code>) that defines the group membership for each element in <code>lmrseqs2</code>:</p>
+<p>Finally, we manually create a binning factor (<code>bins2</code>)
+that defines the group membership for each element in
+<code>lmrseqs2</code>:</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># define binning vector</span></span>
 <span><span class="va">bins2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"unchanged"</span>, <span class="st">"up"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">lmr.unchanged</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">lmr.up</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
@@ -553,7 +854,9 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span><span class="co">#&gt; bins2</span></span>
 <span><span class="co">#&gt; unchanged        up </span></span>
 <span><span class="co">#&gt;       608       630</span></span></code></pre></div>
-<p>Now we can run the binned motif enrichment analysis. To keep the calculation time short, we will just run it on the motifs that we had selected above in <code>seSel</code>:</p>
+<p>Now we can run the binned motif enrichment analysis. To keep the
+calculation time short, we will just run it on the motifs that we had
+selected above in <code>seSel</code>:</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">se2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calcBinnedMotifEnrR.html">calcBinnedMotifEnrR</a></span><span class="op">(</span>seqs <span class="op">=</span> <span class="va">lmrseqs2</span>, bins <span class="op">=</span> <span class="va">bins2</span>,</span>
 <span>                           pwmL <span class="op">=</span> <span class="va">pwms</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">seSel</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
@@ -569,7 +872,11 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span><span class="co">#&gt; colnames(2): unchanged up</span></span>
 <span><span class="co">#&gt; colData names(6): bin.names bin.lower ... totalWgtForeground</span></span>
 <span><span class="co">#&gt;   totalWgtBackground</span></span></code></pre></div>
-<p>We visualize the results for motifs that are enriched in one of the two groups with an adjusted p value of less than <span class="math inline">\(10^{-4}\)</span> (the order of the columns in the heatmap is defined by the order of the factor levels in <code>bins2</code>, given by <code>levels(bins2)</code> and can also be obtained from <code>colnames(se2)</code>; here it is unchanged, up):</p>
+<p>We visualize the results for motifs that are enriched in one of the
+two groups with an adjusted p value of less than <span class="math inline">\(10^{-4}\)</span> (the order of the columns in the
+heatmap is defined by the order of the factor levels in
+<code>bins2</code>, given by <code>levels(bins2)</code> and can also be
+obtained from <code>colnames(se2)</code>; here it is unchanged, up):</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sel2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">se2</span>, <span class="st">"negLog10Padj"</span><span class="op">)</span>, <span class="fl">1</span>, </span>
 <span>             <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="fl">0</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">4.0</span></span>
@@ -582,13 +889,44 @@ margin-right: auto; width: 50%; border: 0"></p>
 <p><img src="monaLisa_files/figure-html/plotBinary-1.png" width="80%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
-<h3 id="vsgenome">Single set motif enrichment analysis: comparing a set of sequences to a suitable background<a class="anchor" aria-label="anchor" href="#vsgenome"></a>
+<h3 id="vsgenome">Single set motif enrichment analysis: comparing a set of sequences
+to a suitable background<a class="anchor" aria-label="anchor" href="#vsgenome"></a>
 </h3>
-<p>Motif enrichments can also be obtained from a single set of genomic regions or sequences (foreground set), by comparing it to a suitable background set. A suitable background set could be for example sequences with a similar sequence composition that are randomly selected from the same genome, or sequences obtained by randomization of the foreground sequences by shuffling or permutation.</p>
-<p>A noteworthy package in this context is <em><a href="https://bioconductor.org/packages/3.19/nullranges" class="external-link">nullranges</a></em> that focuses on the selection of such background ranges (representing the null hypothesis), for example controlling for confounding covariates like GC composition. After a suitable background set has been identified using <em><a href="https://bioconductor.org/packages/3.19/nullranges" class="external-link">nullranges</a></em>, a binary motif enrichment analysis as described in section @ref(binary) can be performed. Manually defining the background set is recommended to control for covariates other than GC composition and to get access to the selected background sequences, for example to verify if they are indeed similar to the foreground sequences for those covariates.</p>
-<p>A quick alternative with less flexibility in the background set definition is available directly in <em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em>, by using <code>calcBinnedMotifEnrR(..., background = "genome")</code>. This will select the background set by randomly sampling sequences from the genome (given by the <code>genome</code> argument, optionally restricted to the intervals defined in the <code>genome.regions</code> argument). For each foreground sequence, <code>genome.oversample</code> background sequences of the same size (on average) are sampled. From these, one per foreground sequence is selected trying to best match its G+C composition.</p>
-<p>We apply this simple approach here to check if the motif enrichments identified in section @ref(binned) could be in part false positives due to the GC-poor first bin ([-0.935,-0.242], see above).</p>
-<p>Let’s first obtain the sequences from that bin (<code>lmrseqs3</code>), and then run <code>calcBinnedMotifEnrR</code> comparing to a genome background. In order to make the sampling reproducible, we are seeding the random number generator inside the <code>BPPARAM</code> object. Also, to speed up the calculation, we will only include the motifs we had selected above in <code>seSel</code>:</p>
+<p>Motif enrichments can also be obtained from a single set of genomic
+regions or sequences (foreground set), by comparing it to a suitable
+background set. A suitable background set could be for example sequences
+with a similar sequence composition that are randomly selected from the
+same genome, or sequences obtained by randomization of the foreground
+sequences by shuffling or permutation.</p>
+<p>A noteworthy package in this context is <em><a href="https://bioconductor.org/packages/3.19/nullranges" class="external-link">nullranges</a></em>
+that focuses on the selection of such background ranges (representing
+the null hypothesis), for example controlling for confounding covariates
+like GC composition. After a suitable background set has been identified
+using <em><a href="https://bioconductor.org/packages/3.19/nullranges" class="external-link">nullranges</a></em>,
+a binary motif enrichment analysis as described in section @ref(binary)
+can be performed. Manually defining the background set is recommended to
+control for covariates other than GC composition and to get access to
+the selected background sequences, for example to verify if they are
+indeed similar to the foreground sequences for those covariates.</p>
+<p>A quick alternative with less flexibility in the background set
+definition is available directly in <em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em>,
+by using <code>calcBinnedMotifEnrR(..., background = "genome")</code>.
+This will select the background set by randomly sampling sequences from
+the genome (given by the <code>genome</code> argument, optionally
+restricted to the intervals defined in the <code>genome.regions</code>
+argument). For each foreground sequence, <code>genome.oversample</code>
+background sequences of the same size (on average) are sampled. From
+these, one per foreground sequence is selected trying to best match its
+G+C composition.</p>
+<p>We apply this simple approach here to check if the motif enrichments
+identified in section @ref(binned) could be in part false positives due
+to the GC-poor first bin ([-0.935,-0.242], see above).</p>
+<p>Let’s first obtain the sequences from that bin
+(<code>lmrseqs3</code>), and then run <code>calcBinnedMotifEnrR</code>
+comparing to a genome background. In order to make the sampling
+reproducible, we are seeding the random number generator inside the
+<code>BPPARAM</code> object. Also, to speed up the calculation, we will
+only include the motifs we had selected above in <code>seSel</code>:</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lmrseqs3</span> <span class="op">&lt;-</span> <span class="va">lmrseqs</span><span class="op">[</span><span class="va">bins</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Factor-class.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">bins</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">lmrseqs3</span><span class="op">)</span></span>
@@ -621,11 +959,20 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span><span class="co">#&gt;     iterations finished</span></span>
 <span><span class="co">#&gt; Calculating motif enrichment...</span></span>
 <span><span class="co">#&gt; using Fisher's exact test (one-sided) to calculate log(p-values) for enrichments</span></span></code></pre></div>
-<p>Note that we did not have to provide a <code>bins</code> argument, and that the result will only have a single column, corresponding to the single set of sequences that we analyzed:</p>
+<p>Note that we did not have to provide a <code>bins</code> argument,
+and that the result will only have a single column, corresponding to the
+single set of sequences that we analyzed:</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">se3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 1</span></span></code></pre></div>
-<p>When we visualize motifs that are enriched with an adjusted p value of less than <span class="math inline">\(10^{-4}\)</span>, we still find AT-rich motifs significantly enriched, including the HOX family motifs that were weakly enriched in <code>seSel</code> but for which it was unclear if their enrichment was driven by the AT-rich (GC-poor) sequences in that specific bin. The fact that this motif family is still robustly identified when using a GC-matched genomic background supports that it may be a real biological signal.</p>
+<p>When we visualize motifs that are enriched with an adjusted p value
+of less than <span class="math inline">\(10^{-4}\)</span>, we still find
+AT-rich motifs significantly enriched, including the HOX family motifs
+that were weakly enriched in <code>seSel</code> but for which it was
+unclear if their enrichment was driven by the AT-rich (GC-poor)
+sequences in that specific bin. The fact that this motif family is still
+robustly identified when using a GC-matched genomic background supports
+that it may be a real biological signal.</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sel3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">se3</span>, <span class="st">"negLog10Padj"</span><span class="op">)</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">&gt;</span> <span class="fl">4.0</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">sel3</span><span class="op">)</span></span>
@@ -646,7 +993,16 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"HOX"</span>, <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData</a></span><span class="op">(</span><span class="va">se3</span><span class="op">)</span><span class="op">$</span><span class="va">motif.name</span><span class="op">[</span><span class="va">sel3</span><span class="op">]</span>, value <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; MA1498.1 MA1499.1 MA1500.1 MA1502.1 MA1504.1 MA1507.1 MA0900.2 MA0910.2 </span></span>
 <span><span class="co">#&gt;  "HOXA7"  "HOXB4"  "HOXB6"  "HOXB8"  "HOXC4"  "HOXD4"  "HOXA2"  "HOXD8"</span></span></code></pre></div>
-<p>A comparison of log2 motif enrichments between the <code>background = "otherBins"</code> and <code>background = "genome"</code> analyses also supports this conclusion: The HOX family motifs (shown in red) are similarly enriched in both analyses, while the depletion of GC-rich KLF family motifs (shown in green) is less pronounced in <code>background = "genome"</code> and thus more sensitive to the used background. The depletion of KLF family motifs may thus be an example of an incorrect result, although note that the depletion was not significant in either of the two analyses:</p>
+<p>A comparison of log2 motif enrichments between the
+<code>background = "otherBins"</code> and
+<code>background = "genome"</code> analyses also supports this
+conclusion: The HOX family motifs (shown in red) are similarly enriched
+in both analyses, while the depletion of GC-rich KLF family motifs
+(shown in green) is less pronounced in
+<code>background = "genome"</code> and thus more sensitive to the used
+background. The depletion of KLF family motifs may thus be an example of
+an incorrect result, although note that the depletion was not
+significant in either of the two analyses:</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"gray"</span>, <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">se3</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">cols</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"HOX"</span>, <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData</a></span><span class="op">(</span><span class="va">se3</span><span class="op">)</span><span class="op">$</span><span class="va">motif.name</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"#DF536B"</span></span>
@@ -667,7 +1023,13 @@ margin-right: auto; width: 50%; border: 0"></p>
 <div class="section level2">
 <h2 id="binnedkmers">Binned k-mer enrichment analysis<a class="anchor" aria-label="anchor" href="#binnedkmers"></a>
 </h2>
-<p>In some situations it may be beneficial to perform the enrichment analysis in a more ‘unbiased’ way, using k-mers rather than annotated motifs. Here, we will illustrate the process using the same LMR data set as used for the motif enrichment analysis above in section @ref(binned). Similarly to the motif enrichment, this step takes a while to perform, and we can also skip over the next step and load the processed object directly.</p>
+<p>In some situations it may be beneficial to perform the enrichment
+analysis in a more ‘unbiased’ way, using k-mers rather than annotated
+motifs. Here, we will illustrate the process using the same LMR data set
+as used for the motif enrichment analysis above in section @ref(binned).
+Similarly to the motif enrichment, this step takes a while to perform,
+and we can also skip over the next step and load the processed object
+directly.</p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sekm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calcBinnedKmerEnr.html">calcBinnedKmerEnr</a></span><span class="op">(</span>seqs <span class="op">=</span> <span class="va">lmrseqs</span>, bins <span class="op">=</span> <span class="va">bins</span>, kmerLen <span class="op">=</span> <span class="fl">6</span>, </span>
 <span>                          includeRevComp <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
@@ -676,7 +1038,9 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span>    <span class="st">"extdata"</span>, <span class="st">"results.binned_6mer_enrichment_LMRs.rds"</span>,</span>
 <span>    package <span class="op">=</span> <span class="st">"monaLisa"</span></span>
 <span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>Just as for the motif enrichment analysis, the return value is a <code>SummarizedExperiment</code> object, with the same set of assays and annotations.</p>
+<p>Just as for the motif enrichment analysis, the return value is a
+<code>SummarizedExperiment</code> object, with the same set of assays
+and annotations.</p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sekm</span></span>
 <span><span class="co">#&gt; class: SummarizedExperiment </span></span>
@@ -691,14 +1055,19 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span><span class="co">#&gt;   (0.585,0.862]</span></span>
 <span><span class="co">#&gt; colData names(6): bin.names bin.lower ... totalWgtForeground</span></span>
 <span><span class="co">#&gt;   totalWgtBackground</span></span></code></pre></div>
-<p>As for the motif enrichment, we can extract any k-mer that is enriched in any of the bins.</p>
+<p>As for the motif enrichment, we can extract any k-mer that is
+enriched in any of the bins.</p>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">selkm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">sekm</span>, <span class="st">"negLog10Padj"</span><span class="op">)</span>, <span class="fl">1</span>, </span>
 <span>               <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="fl">0</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">4</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">selkm</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 85</span></span>
 <span><span class="va">sekmSel</span> <span class="op">&lt;-</span> <span class="va">sekm</span><span class="op">[</span><span class="va">selkm</span>, <span class="op">]</span></span></code></pre></div>
-<p>Next, let’s compare the enriched k-mers to the motifs that were found earlier. This can be done using the <code>motifKmerSimilarity</code> function. By showing the similarity between the enriched k-mers and motifs, we can see whether, e.g., strongly enriched k-mers do not seem to correspond to an annotated motif.</p>
+<p>Next, let’s compare the enriched k-mers to the motifs that were found
+earlier. This can be done using the <code>motifKmerSimilarity</code>
+function. By showing the similarity between the enriched k-mers and
+motifs, we can see whether, e.g., strongly enriched k-mers do not seem
+to correspond to an annotated motif.</p>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pfmSel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData</a></span><span class="op">(</span><span class="va">seSel</span><span class="op">)</span><span class="op">$</span><span class="va">motif.pfm</span></span>
 <span><span class="va">sims</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/motifKmerSimilarity.html">motifKmerSimilarity</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pfmSel</span>,</span>
@@ -722,9 +1091,13 @@ margin-right: auto; width: 50%; border: 0"></p>
 <p><img src="monaLisa_files/figure-html/unnamed-chunk-6-1.png" width="80%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
-<h2 id="findhits">Use <em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em> to annotate genomic regions with predicted motifs<a class="anchor" aria-label="anchor" href="#findhits"></a>
+<h2 id="findhits">Use <em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em>
+to annotate genomic regions with predicted motifs<a class="anchor" aria-label="anchor" href="#findhits"></a>
 </h2>
-<p>As mentioned, <em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em> can also be used to scan sequences for motifs. For a quick description of motif representations see section @ref(motifConvert). Here is an example (just on a few sequences/motifs for illustration):</p>
+<p>As mentioned, <em><a href="https://bioconductor.org/packages/3.19/monaLisa" class="external-link">monaLisa</a></em>
+can also be used to scan sequences for motifs. For a quick description
+of motif representations see section @ref(motifConvert). Here is an
+example (just on a few sequences/motifs for illustration):</p>
 <div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># get sequences of promoters as a DNAStringSet</span></span>
 <span><span class="co"># (the `subject` of `findMotifHits` could also be a single DNAString,</span></span>
@@ -807,12 +1180,18 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span><span class="co">#&gt;   ENSMUST00000161581.1   10        1     3     5    10</span></span>
 <span><span class="co">#&gt;   ENSMUST00000192183.1    4        2     2     3    13</span></span>
 <span><span class="co">#&gt;   ENSMUST00000195361.1   11        1     5     0    10</span></span></code></pre></div>
-<p>The transformation of sequence and PWM names to factors with defined levels in the creation of the hit matrix above is not strictly needed, but it ensures that even sequences or motifs without any hits are reported in the matrix, and that the order of sequences (rows) and motifs (columns) is identical to the order in <code>seqs</code> and <code>pwms</code>.</p>
+<p>The transformation of sequence and PWM names to factors with defined
+levels in the creation of the hit matrix above is not strictly needed,
+but it ensures that even sequences or motifs without any hits are
+reported in the matrix, and that the order of sequences (rows) and
+motifs (columns) is identical to the order in <code>seqs</code> and
+<code>pwms</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="session-info-and-logo">Session info and logo<a class="anchor" aria-label="anchor" href="#session-info-and-logo"></a>
 </h2>
-<p>The monaLisa logo uses a drawing that was obtained from <a href="http://vectorish.com/lisa-simpson.html" class="external-link uri">http://vectorish.com/lisa-simpson.html</a> under the Creative Commons attribution - non-commercial 3.0 license: <a href="https://creativecommons.org/licenses/by-nc/3.0/" class="external-link uri">https://creativecommons.org/licenses/by-nc/3.0/</a>.</p>
+<p>The monaLisa logo uses a drawing that was obtained from <a href="http://vectorish.com/lisa-simpson.html" class="external-link uri">http://vectorish.com/lisa-simpson.html</a> under the
+Creative Commons attribution - non-commercial 3.0 license: <a href="https://creativecommons.org/licenses/by-nc/3.0/" class="external-link uri">https://creativecommons.org/licenses/by-nc/3.0/</a>.</p>
 <p>This vignette was built using:</p>
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -920,38 +1299,69 @@ margin-right: auto; width: 50%; border: 0"></p>
 <span><span class="co">#&gt; [113] rlang_1.1.3                 KEGGREST_1.44.0</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+<h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references">
-<div id="ref-agresti2007">
-<p>Agresti, A. 2007. <em>An Introduction to Categorical Data Analysis</em>. Wiley-Blackwell.</p>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="ref-agresti2007" class="csl-entry">
+Agresti, A. 2007. <em>An Introduction to Categorical Data Analysis</em>.
+Wiley-Blackwell.
 </div>
-<div id="ref-ismara">
-<p>Balwierz, P. J., M. Pachkov, P. Arnold, A. J. Gruber, M. Zavolan, and E. van Nimwegen. 2014. “ISMARA: automated modeling of genomic signals as a democracy of regulatory motifs.” <em>Genome Res</em> 24 (5): 869–84.</p>
+<div id="ref-ismara" class="csl-entry">
+Balwierz, P. J., M. Pachkov, P. Arnold, A. J. Gruber, M. Zavolan, and E.
+van Nimwegen. 2014. <span>“<span class="nocase"><span>I</span><span>S</span><span>M</span><span>A</span><span>R</span><span>A</span>:
+automated modeling of genomic signals as a democracy of regulatory
+motifs</span>.”</span> <em>Genome Res</em> 24 (5): 869–84.
 </div>
-<div id="ref-barisic2019">
-<p>Barisic, D., M. B. Stadler, M. Iurlaro, and D. Schübeler. 2019. “Mammalian ISWI and SWI/SNF selectively mediate binding of distinct transcription factors.” <em>Nature</em> 569 (7754): 136–40.</p>
+<div id="ref-barisic2019" class="csl-entry">
+Barisic, D., M. B. Stadler, M. Iurlaro, and D. Schübeler. 2019.
+<span>“<span class="nocase"><span>M</span>ammalian
+<span>I</span><span>S</span><span>W</span><span>I</span> and
+<span>S</span><span>W</span><span>I</span>/<span>S</span><span>N</span><span>F</span>
+selectively mediate binding of distinct transcription
+factors</span>.”</span> <em>Nature</em> 569 (7754): 136–40.
 </div>
-<div id="ref-MethylSeekR">
-<p>Burger, Lukas, Dimos Gaidatzis, Dirk Schuebeler, and Michael B. Stadler. 2013. “Identification of Active Regulatory Regions from DNA Methylation Data.” <em>Nucleic Acids Research</em> 41: e155. <a href="https://doi.org/doi:10.1093/nar/gkt599" class="external-link">https://doi.org/doi:10.1093/nar/gkt599</a>.</p>
+<div id="ref-MethylSeekR" class="csl-entry">
+Burger, Lukas, Dimos Gaidatzis, Dirk Schuebeler, and Michael B. Stadler.
+2013. <span>“Identification of Active Regulatory Regions from
+<span>DNA</span> Methylation Data.”</span> <em>Nucleic Acids
+Research</em> 41: e155. <a href="https://doi.org/doi:10.1093/nar/gkt599" class="external-link">https://doi.org/doi:10.1093/nar/gkt599</a>.
 </div>
-<div id="ref-ginno2018">
-<p>Ginno, P. A., L. Burger, J. Seebacher, V. Iesmantavicius, and D. Schübeler. 2018. “Cell cycle-resolved chromatin proteomics reveals the extent of mitotic preservation of the genomic regulatory landscape.” <em>Nat Commun</em> 9 (1): 4048.</p>
+<div id="ref-ginno2018" class="csl-entry">
+Ginno, P. A., L. Burger, J. Seebacher, V. Iesmantavicius, and D.
+Schübeler. 2018. <span>“<span class="nocase"><span>C</span>ell
+cycle-resolved chromatin proteomics reveals the extent of mitotic
+preservation of the genomic regulatory landscape</span>.”</span> <em>Nat
+Commun</em> 9 (1): 4048.
 </div>
-<div id="ref-homer">
-<p>Heinz, S., C. Benner, N. Spann, E. Bertolino, Y. C. Lin, P. Laslo, J. X. Cheng, C. Murre, H. Singh, and C. K. Glass. 2010. “Simple combinations of lineage-determining transcription factors prime cis-regulatory elements required for macrophage and B cell identities.” <em>Mol Cell</em> 38 (4): 576–89.</p>
+<div id="ref-homer" class="csl-entry">
+Heinz, S., C. Benner, N. Spann, E. Bertolino, Y. C. Lin, P. Laslo, J. X.
+Cheng, C. Murre, H. Singh, and C. K. Glass. 2010. <span>“<span class="nocase"><span>S</span>imple combinations of lineage-determining
+transcription factors prime cis-regulatory elements required for
+macrophage and <span>B</span> cell identities</span>.”</span> <em>Mol
+Cell</em> 38 (4): 576–89.
 </div>
-<div id="ref-ame">
-<p>McLeay, R. C., and T. L. Bailey. 2010. “Motif Enrichment Analysis: a unified framework and an evaluation on ChIP data.” <em>BMC Bioinformatics</em> 11 (April): 165.</p>
+<div id="ref-ame" class="csl-entry">
+McLeay, R. C., and T. L. Bailey. 2010. <span>“<span class="nocase"><span>M</span>otif <span>E</span>nrichment
+<span>A</span>nalysis: a unified framework and an evaluation on
+<span>C</span>h<span>I</span><span>P</span> data</span>.”</span> <em>BMC
+Bioinformatics</em> 11 (April): 165.
 </div>
-<div id="ref-StabSel">
-<p>Meinshausen, Nicolai, and Peter Bühlmann. 2010. “Stability Selection.” <em>Journal of the Royal Statistical Society: Series B (Statistical Methodology)</em> 72 (4): 417–73. <a href="https://doi.org/doi:10.1111/j.1467-9868.2010.00740.x" class="external-link">https://doi.org/doi:10.1111/j.1467-9868.2010.00740.x</a>.</p>
+<div id="ref-StabSel" class="csl-entry">
+Meinshausen, Nicolai, and Peter Bühlmann. 2010. <span>“Stability
+Selection.”</span> <em>Journal of the Royal Statistical Society: Series
+B (Statistical Methodology)</em> 72 (4): 417–73. <a href="https://doi.org/doi:10.1111/j.1467-9868.2010.00740.x" class="external-link">https://doi.org/doi:10.1111/j.1467-9868.2010.00740.x</a>.
 </div>
-<div id="ref-reduce">
-<p>Roven, C., and H. J. Bussemaker. 2003. “REDUCE: An online tool for inferring cis-regulatory elements and transcriptional module activities from microarray data.” <em>Nucleic Acids Res</em> 31 (13): 3487–90.</p>
+<div id="ref-reduce" class="csl-entry">
+Roven, C., and H. J. Bussemaker. 2003. <span>“<span class="nocase"><span>R</span><span>E</span><span>D</span><span>U</span><span>C</span><span>E</span>:
+<span>A</span>n online tool for inferring cis-regulatory elements and
+transcriptional module activities from microarray data</span>.”</span>
+<em>Nucleic Acids Res</em> 31 (13): 3487–90.
 </div>
-<div id="ref-LMRs">
-<p>Stadler, Michael B., Rabih Murr, Lukas Burger, Robert Ivanek, Florian Lienert, Anne Schöler, Erik van Nimwegen, et al. 2011. “DNA-Binding Factors Shape the Mouse Methylome at Distal Regulatory Regions.” <em>Nature</em> 480: 490–95. <a href="https://doi.org/doi:10.1038/nature10716" class="external-link">https://doi.org/doi:10.1038/nature10716</a>.</p>
+<div id="ref-LMRs" class="csl-entry">
+Stadler, Michael B., Rabih Murr, Lukas Burger, Robert Ivanek, Florian
+Lienert, Anne Schöler, Erik van Nimwegen, et al. 2011.
+<span>“<span>DNA</span>-Binding Factors Shape the Mouse Methylome at
+Distal Regulatory Regions.”</span> <em>Nature</em> 480: 490–95. <a href="https://doi.org/doi:10.1038/nature10716" class="external-link">https://doi.org/doi:10.1038/nature10716</a>.
 </div>
 </div>
 </div>
