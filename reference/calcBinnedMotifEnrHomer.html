@@ -21,7 +21,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.11.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.11.1</span>
       </span>
     </div>
 
@@ -157,17 +157,32 @@ output when running Homer.</p></dd>
     
 
 <p>A <code>SummarizedExperiment</code> object with motifs in rows and bins
-  in columns, containing seven assays:</p><ul><li><p>negLog10P: -log10 P values</p></li>
-<li><p>negLog10Padj: -log10 adjusted P values</p></li>
-<li><p>pearsonResid: motif enrichments as Pearson residuals</p></li>
-<li><p>expForegroundWgtWithHits: expected number of foreground
-    sequences with motif hits</p></li>
-<li><p>log2enr: motif enrichments as log2 ratios</p></li>
-<li><p>sumForegroundWgtWithHits: Sum of foreground sequence weights
-    in a bin that have motif hits</p></li>
-<li><p>sumBackgroundWgtWithHits: Sum of background sequence weights
-    in a bin that have motif hits</p></li>
-</ul><p>The <code>rowData</code> of the object contains annotations (name, PFMs, PWMs
+  in columns, containing seven assays:</p><dl><dt>negLog10P</dt>
+<dd><p>: -log10 P values</p></dd>
+
+  <dt>negLog10Padj</dt>
+<dd><p>: -log10 adjusted P values</p></dd>
+
+  <dt>pearsonResid</dt>
+<dd><p>: motif enrichments as Pearson residuals</p></dd>
+
+  <dt>expForegroundWgtWithHits</dt>
+<dd><p>: expected number of foreground
+    sequences with motif hits</p></dd>
+
+  <dt>log2enr</dt>
+<dd><p>: motif enrichments as log2 ratios</p></dd>
+
+  <dt>sumForegroundWgtWithHits</dt>
+<dd><p>: Sum of foreground sequence weights
+    in a bin that have motif hits</p></dd>
+
+  <dt>sumBackgroundWgtWithHits</dt>
+<dd><p>: Sum of background sequence weights
+    in a bin that have motif hits</p></dd>
+
+
+</dl><p>The <code>rowData</code> of the object contains annotations (name, PFMs, PWMs
 and GC fraction) for the motifs, while the <code>colData</code> slot contains
 summary information about the bins.</p>
     </div>

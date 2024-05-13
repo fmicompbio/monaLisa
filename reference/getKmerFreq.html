@@ -19,7 +19,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.11.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.11.1</span>
       </span>
     </div>
 
@@ -111,10 +111,10 @@ or zero occurences of a k-mer are considered per sequence.</p></dd>
 <dt id="arg-strata">strata<a class="anchor" aria-label="anchor" href="#arg-strata"></a></dt>
 <dd><p>A <code>factor</code> or a <code>numeric</code> scalar defining the strata
 of sequences. A separate Markov model and expected k-mer frequencies are
-estimated for the set of sequences in each stratum (level in a 
-<code>strata</code> factor). If <code>strata</code> is a scalar value, it will be 
-interpreted as the number of strata to split the sequences into according 
-to their CpG observed-over-expected counts using 
+estimated for the set of sequences in each stratum (level in a
+<code>strata</code> factor). If <code>strata</code> is a scalar value, it will be
+interpreted as the number of strata to split the sequences into according
+to their CpG observed-over-expected counts using
 <code>kmeans(CpGoe, centers = strata)</code>.</p></dd>
 
 
@@ -139,8 +139,8 @@ sequence will be assigned to the same stratum as the forward sequence.</p></dd>
     <h2>Value</h2>
     
 
-<p>A <code>list</code> with observed and expected k-mer frequencies 
-  (<code>freq.obs</code> and <code>freq.exp</code>, respectively), and enrichment 
+<p>A <code>list</code> with observed and expected k-mer frequencies
+  (<code>freq.obs</code> and <code>freq.exp</code>, respectively), and enrichment
   statistics for each k-mer.</p>
     </div>
 

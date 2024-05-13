@@ -6,8 +6,8 @@
 The default type of test is &quot;fisher&quot;, which is also what
   Homer uses if &quot;-h&quot; is specified for a hypergeometric test.
   Alternatively, a binomial test can be used by test = &quot;binomial&quot;
-  (what Homer does by default). Using Fisher's exact test has 
-  the advantage that special cases such as zero background counts are 
+  (what Homer does by default). Using Fisher's exact test has
+  the advantage that special cases such as zero background counts are
   handled without ad-hoc adjustments to the frequencies.
 For test = &quot;fisher&quot;, fisher.test is used with
   alternative = &quot;greater&quot;, making it a one-sided test for enrichment,
@@ -29,7 +29,7 @@ For test = &quot;fisher&quot;, fisher.test is used with
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.11.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.11.1</span>
       </span>
     </div>
 
@@ -81,8 +81,8 @@ For test = &quot;fisher&quot;, fisher.test is used with
 <p>The default type of test is <code>"fisher"</code>, which is also what
   <code>Homer</code> uses if "-h" is specified for a hypergeometric test.
   Alternatively, a binomial test can be used by <code>test = "binomial"</code>
-  (what <code>Homer</code> does by default). Using Fisher's exact test has 
-  the advantage that special cases such as zero background counts are 
+  (what <code>Homer</code> does by default). Using Fisher's exact test has
+  the advantage that special cases such as zero background counts are
   handled without ad-hoc adjustments to the frequencies.</p>
 <p>For <code>test = "fisher"</code>, <code>fisher.test</code> is used with
   <code>alternative = "greater"</code>, making it a one-sided test for enrichment,
@@ -124,21 +124,34 @@ motif hits in each sequence.</p></dd>
 
 <p>a <code>data.frame</code> containing the motifs as rows and the columns:</p>
 <p></p>
-<ul><li><p>motifName: the motif name</p></li>
-<li><p>logP: the log p-value for enrichment (natural logarithm).
+<dl><dt>motifName</dt>
+<dd><p>: the motif name</p></dd>
+
+    <dt>logP</dt>
+<dd><p>: the log p-value for enrichment (natural logarithm).
        If <code>test="binomial"</code> (default), this log p-value is identical to
-       the one returned by Homer.</p></li>
-<li><p>sumForegroundWgtWithHits: the sum of the weights of the 
-       foreground sequences that have at least one instance of a specific 
-       motif (ZOOPS mode).</p></li>
-<li><p>sumBackgroundWgtWithHits: the sum of the weights of the 
-       background sequences that have at least one instance of a specific 
-       motif (ZOOPS mode).</p></li>
-<li><p>totalWgtForeground: the total sum of weights of foreground
-       sequences.</p></li>
-<li><p>totalWgtBackground: the total sum of weights of background
-       sequences.</p></li>
-</ul></div>
+       the one returned by Homer.</p></dd>
+
+    <dt>sumForegroundWgtWithHits</dt>
+<dd><p>: the sum of the weights of the
+       foreground sequences that have at least one instance of a specific
+       motif (ZOOPS mode).</p></dd>
+
+    <dt>sumBackgroundWgtWithHits</dt>
+<dd><p>: the sum of the weights of the
+       background sequences that have at least one instance of a specific
+       motif (ZOOPS mode).</p></dd>
+
+    <dt>totalWgtForeground</dt>
+<dd><p>: the total sum of weights of foreground
+       sequences.</p></dd>
+
+    <dt>totalWgtBackground</dt>
+<dd><p>: the total sum of weights of background
+       sequences.</p></dd>
+
+  
+</dl></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

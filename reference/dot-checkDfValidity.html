@@ -19,7 +19,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.11.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.11.1</span>
       </span>
     </div>
 
@@ -77,16 +77,29 @@
     <h2>Arguments</h2>
     <dl><dt id="arg-df">df<a class="anchor" aria-label="anchor" href="#arg-df"></a></dt>
 <dd><p>Input object to be checked. It should have an attribute <code>err</code>
-and columns:</p><ul><li><p><code>seqs</code>: a <code>DNAStringSet</code> object.</p></li>
-<li><p><code>isForeground</code> that indicates if a sequence is in the
-                              foreground group.</p></li>
-<li><p><code>GCfrac</code>: the fraction of G+C bases per sequence.</p></li>
-<li><p><code>GCbin</code>: the GC bin for each sequence.</p></li>
-<li><p><code>GCwgt</code>: the sequence weight to adjust for GC
-    differences between foreground and background sequences.</p></li>
-<li><p><code>seqWgt</code>: the sequence weight to adjust for k-mer
-    differences between foreground and background sequences.</p></li>
-</ul></dd>
+and columns:</p><dl><dt><code>seqs</code></dt>
+<dd><p>: a <code>DNAStringSet</code> object.</p></dd>
+
+  <dt><code>isForeground</code></dt>
+<dd><p>that indicates if a sequence is in the
+                              foreground group.</p></dd>
+
+  <dt><code>GCfrac</code></dt>
+<dd><p>: the fraction of G+C bases per sequence.</p></dd>
+
+  <dt><code>GCbin</code></dt>
+<dd><p>: the GC bin for each sequence.</p></dd>
+
+  <dt><code>GCwgt</code></dt>
+<dd><p>: the sequence weight to adjust for GC
+    differences between foreground and background sequences.</p></dd>
+
+  <dt><code>seqWgt</code></dt>
+<dd><p>: the sequence weight to adjust for k-mer
+    differences between foreground and background sequences.</p></dd>
+
+
+</dl></dd>
 
 </dl></div>
     <div id="value">

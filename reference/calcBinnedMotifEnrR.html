@@ -19,7 +19,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">monaLisa</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.11.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.11.1</span>
       </span>
     </div>
 
@@ -95,7 +95,7 @@
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt id="arg-seqs">seqs<a class="anchor" aria-label="anchor" href="#arg-seqs"></a></dt>
-<dd><p><code><a href="https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html" class="external-link">DNAStringSet</a></code> object with sequences to 
+<dd><p><code><a href="https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html" class="external-link">DNAStringSet</a></code> object with sequences to
 test</p></dd>
 
 
@@ -111,8 +111,8 @@ can be omitted.</p></dd>
 
 
 <dt id="arg-background">background<a class="anchor" aria-label="anchor" href="#arg-background"></a></dt>
-<dd><p>A <code>character</code> scalar specifying the background 
-sequences to use. One of <code>"otherBins"</code> (default), <code>"allBins"</code>, 
+<dd><p>A <code>character</code> scalar specifying the background
+sequences to use. One of <code>"otherBins"</code> (default), <code>"allBins"</code>,
 <code>"zeroBin"</code> or <code>"genome"</code> (see "Details").</p></dd>
 
 
@@ -199,18 +199,33 @@ instance determining the parallel back-end to be used during evaluation.</p></dd
     
 
 <p>A <code><a href="https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html" class="external-link">SummarizedExperiment</a></code> object
-  with motifs in rows and bins in columns, containing seven assays:</p><ul><li><p>negLog10P: -log10 P values</p></li>
-<li><p>negLog10Padj: -log10 adjusted P values</p></li>
-<li><p>pearsonResid: motif enrichments as Pearson residuals</p></li>
-<li><p>expForegroundWgtWithHits: expected number of foreground 
-    sequences with motif hits</p></li>
-<li><p>log2enr: motif enrichments as log2 ratios</p></li>
-<li><p>sumForegroundWgtWithHits: Sum of foreground sequence weights
-    in a bin that have motif hits</p></li>
-<li><p>sumBackgroundWgtWithHits: Sum of background sequence weights
-    in a bin that have motif hits</p></li>
-</ul><p>The <code>rowData</code> of the object contains annotations (name, PFMs, PWMs 
-and GC fraction) for the motifs, while the <code>colData</code> slot contains 
+  with motifs in rows and bins in columns, containing seven assays:</p><dl><dt>negLog10P</dt>
+<dd><p>: -log10 P values</p></dd>
+
+  <dt>negLog10Padj</dt>
+<dd><p>: -log10 adjusted P values</p></dd>
+
+  <dt>pearsonResid</dt>
+<dd><p>: motif enrichments as Pearson residuals</p></dd>
+
+  <dt>expForegroundWgtWithHits</dt>
+<dd><p>: expected number of foreground
+    sequences with motif hits</p></dd>
+
+  <dt>log2enr</dt>
+<dd><p>: motif enrichments as log2 ratios</p></dd>
+
+  <dt>sumForegroundWgtWithHits</dt>
+<dd><p>: Sum of foreground sequence weights
+    in a bin that have motif hits</p></dd>
+
+  <dt>sumBackgroundWgtWithHits</dt>
+<dd><p>: Sum of background sequence weights
+    in a bin that have motif hits</p></dd>
+
+
+</dl><p>The <code>rowData</code> of the object contains annotations (name, PFMs, PWMs
+and GC fraction) for the motifs, while the <code>colData</code> slot contains
 summary information about the bins.</p>
     </div>
     <div id="details">
@@ -220,51 +235,65 @@ summary information about the bins.</p>
   sequences to test for motif enrichments comparing to background sequences
   (defined by <code>background</code>, see below). The logic follows the
   <code>findMotifsGenome.pl</code> tool from <code>Homer</code> version 4.11, with
-  <code>-size given -nomotif -mknown</code> and additionally <code>-h</code> if using 
-  <code>test = "fisher"</code>, and gives very similar results. As in the 
-  <code>Homer</code> tool, sequences are weighted to correct for GC and k-mer 
-  composition differences between fore- and background sets.</p>  
+  <code>-size given -nomotif -mknown</code> and additionally <code>-h</code> if using
+  <code>test = "fisher"</code>, and gives very similar results. As in the
+  <code>Homer</code> tool, sequences are weighted to correct for GC and k-mer
+  composition differences between fore- and background sets.</p>
 <p>The background sequences are defined according to the value of the
-  <code>background</code> argument:</p><ul><li><p>otherBins: sequences from all other bins (excluding the current 
-      bin)</p></li>
-<li><p>allBins: sequences from all bins (including the current bin)</p></li>
-<li><p>zeroBin: sequences from the "zero bin", defined by the
+  <code>background</code> argument:</p><dl><dt>otherBins</dt>
+<dd><p>: sequences from all other bins (excluding the current
+      bin)</p></dd>
+
+    <dt>allBins</dt>
+<dd><p>: sequences from all bins (including the current bin)</p></dd>
+
+    <dt>zeroBin</dt>
+<dd><p>: sequences from the "zero bin", defined by the
       <code>maxAbsX</code> argument of <code><a href="bin.html">bin</a></code>. If <code>bins</code>
       does not define a "zero bin", for example because it was created by
       <code>bin(..., maxAbsX = NULL)</code>, selecting this background definition
-      will abort with an error.</p></li>
-<li><p>genome: sequences randomly sampled from the genome (or the
+      will abort with an error.</p></dd>
+
+    <dt>genome</dt>
+<dd><p>: sequences randomly sampled from the genome (or the
       intervals defined in <code>genome.regions</code> if given). For each
       foreground sequence, <code>genome.oversample</code> background sequences
       of the same size are sampled (on average). From these, one per
       foreground sequence is selected trying to match the G+C composition.
       In order to make the sampling deterministic, a seed number needs to be
-      provided to the <code>RNGseed</code> parameter in 
+      provided to the <code>RNGseed</code> parameter in
       <code><a href="https://rdrr.io/pkg/BiocParallel/man/SerialParam-class.html" class="external-link">SerialParam</a></code>
-      or <code><a href="https://rdrr.io/pkg/BiocParallel/man/MulticoreParam-class.html" class="external-link">MulticoreParam</a></code> when creating the 
-      <code>BiocParallelParam</code> instance in <code>BPPARAM</code>.</p></li>
-</ul><p>Motif hits are predicted using <code><a href="findMotifHits-methods.html">findMotifHits</a></code> and
+      or <code><a href="https://rdrr.io/pkg/BiocParallel/man/MulticoreParam-class.html" class="external-link">MulticoreParam</a></code> when creating the
+      <code>BiocParallelParam</code> instance in <code>BPPARAM</code>.</p></dd>
+
+  
+</dl><p>Motif hits are predicted using <code><a href="findMotifHits-methods.html">findMotifHits</a></code> and
   multiple hits per sequence are counted as just one hit (ZOOPS mode). For
   each motif, the weights of sequences that have a hit are summed separately
   for foreground (<code>sumForegroundWgtWithHits</code>) and background
-  (<code>sumBackgroundWgtWithHits</code>). The total foreground 
+  (<code>sumBackgroundWgtWithHits</code>). The total foreground
   (<code>totalWgtForeground</code>) and background (<code>totalWgtBackground</code>)
-  sum of sequence weights is also calculated. If a motif has zero 
+  sum of sequence weights is also calculated. If a motif has zero
   <code>sumForegroundWgtWithHits</code> and <code>sumBackgroundWgtWithHits</code>,
-  then any values (p-values and enrichment) that are calculated using 
+  then any values (p-values and enrichment) that are calculated using
   these two numbers are set to NA.</p>
 <p>Two statistical tests for the calculation of enrichment log p-value are
   available: <code>test = "fisher"</code> (default) to perform Fisher's exact
   tests, or <code>test = "binomial"</code> to perform binomial tests
-  (default in <code>Homer</code>), using:</p><ul><li><p>fisher: <code>fisher.test(x = tab, alternative =
+  (default in <code>Homer</code>), using:</p><dl><dt>fisher</dt>
+<dd><p>: <code>fisher.test(x = tab, alternative =
       "greater")</code>, where <code>tab</code> is the contingency table with the summed
       weights of sequences in foreground or background sets (rows), and with
-      or without a hit for a particular motif (columns).</p></li>
-<li><p>binomial: <code>pbinom(q = sumForegroundWgtWithHits - 1, size =
-      totalWgtForeground, 
+      or without a hit for a particular motif (columns).</p></dd>
+
+    <dt>binomial</dt>
+<dd><p>: <code>pbinom(q = sumForegroundWgtWithHits - 1, size =
+      totalWgtForeground,
       prob = sumBackgroundWgtWithHits / totalWgtBackground,
-      lower.tail = FALSE, log.p = TRUE)</code></p></li>
-</ul></div>
+      lower.tail = FALSE, log.p = TRUE)</code></p></dd>
+
+  
+</dl></div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
