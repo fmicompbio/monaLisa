@@ -19,8 +19,6 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -36,7 +34,6 @@
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.11.1</span>
       </span>
     </div>
-
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
@@ -48,7 +45,6 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
-     
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -65,7 +61,6 @@
 <li>
   <a href="https://github.com/fmicompbio/monaLisa" class="external-link">
     <span class="fab fa-github fa-lg"></span>
-     
   </a>
 </li>
       </ul>
@@ -75,9 +70,6 @@
 <!--/.container -->
 </div>
 <!--/.navbar -->
-
-      
-
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
@@ -85,17 +77,11 @@
 Selection</h1>
                         <h4 data-toc-skip class="author">Dania Machlab,
 Lukas Burger, Charlotte Soneson, Michael Stadler</h4>
-            
-            <h4 data-toc-skip class="date">2024-05-13</h4>
-      
-      <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/HEAD/vignettes/selecting_motifs_with_randLassoStabSel.Rmd" class="external-link"><code>vignettes/selecting_motifs_with_randLassoStabSel.Rmd</code></a></small>
+                        <h4 data-toc-skip class="date">2024-05-18</h4>
+            <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/HEAD/vignettes/selecting_motifs_with_randLassoStabSel.Rmd" class="external-link"><code>vignettes/selecting_motifs_with_randLassoStabSel.Rmd</code></a></small>
       <div class="hidden name"><code>selecting_motifs_with_randLassoStabSel.Rmd</code></div>
-
     </div>
-
-    
-    
-<p><img src="monaLisa_logo_v1.png" style="display: block; margin-left: auto;
+        <p><img src="monaLisa_logo_v1.png" style="display: block; margin-left: auto;
 margin-right: auto; width: 50%; border: 0"></p>
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
@@ -233,13 +219,15 @@ GC or CpG composition.</p>
 <span><span class="co">#&gt;   peak_2986       2    0    0     0    0      0</span></span>
 <span><span class="co">#&gt;   peak_124022     0    0    0     0    0      0</span></span>
 <span><span class="co">#&gt;   peak_29925      0    2    0     1    0      0</span></span>
-<span><span class="co">#&gt;   peak_95246      0    0    0     0    0      0</span></span>
-<span></span>
+<span><span class="co">#&gt;   peak_95246      0    0    0     0    0      0</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="co"># remove TF motifs with 0 binding sites in all regions</span></span>
 <span><span class="va">zero_TF</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatrixGenerics/man/rowSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="va">TFBSmatrix</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">zero_TF</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 2</span></span>
-<span><span class="va">TFBSmatrix</span> <span class="op">&lt;-</span> <span class="va">TFBSmatrix</span><span class="op">[</span>, <span class="op">!</span><span class="va">zero_TF</span><span class="op">]</span></span>
+<span><span class="co">#&gt; [1] 2</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">TFBSmatrix</span> <span class="op">&lt;-</span> <span class="va">TFBSmatrix</span><span class="op">[</span>, <span class="op">!</span><span class="va">zero_TF</span><span class="op">]</span></span>
 <span></span>
 <span><span class="co"># calculate G+C and CpG obs/expected</span></span>
 <span><span class="va">fMono</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Biostrings/man/nucleotideFrequency.html" class="external-link">oligonucleotideFrequency</a></span><span class="op">(</span><span class="va">peakSeq</span>, width <span class="op">=</span> <span class="fl">1L</span>, as.prob <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -307,7 +295,7 @@ and default parameter values as well as the <code><a href="https://rdrr.io/pkg/s
 function for the default assumptions on the stability selection
 implementation by <span class="citation">Shah and Samworth
 (2013)</span>.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## randLassoStabSel() is stochastic, so if we run with parallelization</span></span>
 <span><span class="co">##   (`mc.cores` argument), we must select a random number generator that can</span></span>
 <span><span class="co">##   provide multiple streams of random numbers used in the `parallel` package</span></span>
@@ -332,8 +320,9 @@ implementation by <span class="citation">Shah and Samworth
 <span><span class="co">#&gt; rownames(10000): peak_51663 peak_57870 ... peak_98880 peak_67984</span></span>
 <span><span class="co">#&gt; rowData names(1): y</span></span>
 <span><span class="co">#&gt; colnames(300): fracGC oeCpG ... CLOCK OLIG2</span></span>
-<span><span class="co">#&gt; colData names(20): selProb selected ... regStep16 regStep17</span></span>
-<span></span>
+<span><span class="co">#&gt; colData names(20): selProb selected ... regStep16 regStep17</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="co"># selected TFs</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span><span class="op">[</span><span class="va">se</span><span class="op">$</span><span class="va">selected</span><span class="op">]</span></span>
 <span><span class="co">#&gt;  [1] "NKX2-5"       "GATA1::TAL1"  "HNF1B"        "HNF4A(var.2)" "Nr2f6"       </span></span>
@@ -342,7 +331,7 @@ implementation by <span class="citation">Shah and Samworth
 <span><span class="co">#&gt; [16] "ZEB1"</span></span></code></pre></div>
 <p>The stability paths visualize how predictors get selected over
 decreasing regularization stringency (from left to right):</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotStabilityPaths.html">plotStabilityPaths</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span></span></code></pre></div>
 <p><img src="selecting_motifs_with_randLassoStabSel_files/figure-html/plotStabilityPaths-1.png" width="80%" style="display: block; margin: auto;"></p>
 <p>Each line corresponds to a predictor, and we can see the selection
@@ -362,7 +351,7 @@ sets the selection probability cutoff, it is best to re-run randomized
 lasso stability selection with the new cutoff, as this influences other
 parameter choices the model uses internally. See <span class="citation">Meinshausen and Bühlmann (2010)</span> for more
 details.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSelectionProb.html">plotSelectionProb</a></span><span class="op">(</span><span class="va">se</span>, directional <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="selecting_motifs_with_randLassoStabSel_files/figure-html/plotSelProbs-1.png" width="80%" style="display: block; margin: auto;"></p>
 <p>Next, we visualize the correlation structure of the selected TF
@@ -373,7 +362,7 @@ predictors. In practice, we see it select predictors with correlations
 as high as 0.9. However, it is good to keep in mind that this can be an
 issue, and that predictors that are highly correlated with each other
 might not end up being co-selected (see section @ref(collinearity)).</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># subset the selected TFs</span></span>
 <span><span class="va">sel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span><span class="op">[</span><span class="va">se</span><span class="op">$</span><span class="va">selected</span><span class="op">]</span></span>
 <span><span class="va">se_sub</span> <span class="op">&lt;-</span> <span class="va">se</span><span class="op">[</span>, <span class="va">sel</span><span class="op">]</span></span>
@@ -416,11 +405,12 @@ might not end up being co-selected (see section @ref(collinearity)).</p>
 <p> </p>
 <p>We can examine the peaks that have hits for a selected TF motif of
 interest, ordered by absolute accessibility changes.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TF</span> <span class="op">&lt;-</span> <span class="va">sel</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span></span>
 <span><span class="va">TF</span></span>
-<span><span class="co">#&gt; [1] "GATA1::TAL1"</span></span>
-<span></span>
+<span><span class="co">#&gt; [1] "GATA1::TAL1"</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="va">i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">se</span>, <span class="st">"x"</span><span class="op">)</span><span class="op">[</span>, <span class="va">TF</span><span class="op">]</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="co"># peaks that contain TF hits...</span></span>
 <span><span class="va">nm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">gr</span><span class="op">$</span><span class="va">logFC_liver_vs_lung</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span>, </span>
 <span>                 decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="co"># ... order by |logFC|</span></span>
@@ -450,7 +440,7 @@ interest, ordered by absolute accessibility changes.</p>
 <p>The monaLisa logo uses a drawing that was obtained from <a href="http://vectorish.com/lisa-simpson.html" class="external-link uri">http://vectorish.com/lisa-simpson.html</a> under the
 Creative Commons attribution - non-commercial 3.0 license: <a href="https://creativecommons.org/licenses/by-nc/3.0/" class="external-link uri">https://creativecommons.org/licenses/by-nc/3.0/</a>.</p>
 <p>This vignette was built using:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; R version 4.4.0 (2024-04-24)</span></span>
 <span><span class="co">#&gt; Platform: aarch64-apple-darwin20</span></span>
@@ -486,9 +476,9 @@ Creative Commons attribution - non-commercial 3.0 license: <a href="https://crea
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
 <span><span class="co">#&gt;   [1] RColorBrewer_1.1-3          jsonlite_1.8.8             </span></span>
 <span><span class="co">#&gt;   [3] shape_1.4.6.1               magrittr_2.0.3             </span></span>
-<span><span class="co">#&gt;   [5] rmarkdown_2.26.2            GlobalOptions_0.1.2        </span></span>
+<span><span class="co">#&gt;   [5] rmarkdown_2.27.1            GlobalOptions_0.1.2        </span></span>
 <span><span class="co">#&gt;   [7] fs_1.6.4                    zlibbioc_1.50.0            </span></span>
-<span><span class="co">#&gt;   [9] ragg_1.3.1                  vctrs_0.6.5                </span></span>
+<span><span class="co">#&gt;   [9] ragg_1.3.2                  vctrs_0.6.5                </span></span>
 <span><span class="co">#&gt;  [11] memoise_2.0.1               Rsamtools_2.20.0           </span></span>
 <span><span class="co">#&gt;  [13] RCurl_1.98-1.14             htmltools_0.5.8.1          </span></span>
 <span><span class="co">#&gt;  [15] S4Arrays_1.4.0              curl_5.2.1                 </span></span>
@@ -496,10 +486,10 @@ Creative Commons attribution - non-commercial 3.0 license: <a href="https://crea
 <span><span class="co">#&gt;  [19] sass_0.4.9                  pracma_2.4.4               </span></span>
 <span><span class="co">#&gt;  [21] bslib_0.7.0                 desc_1.4.3                 </span></span>
 <span><span class="co">#&gt;  [23] plyr_1.8.9                  zoo_1.8-12                 </span></span>
-<span><span class="co">#&gt;  [25] cachem_1.0.8                GenomicAlignments_1.40.0   </span></span>
+<span><span class="co">#&gt;  [25] cachem_1.1.0                GenomicAlignments_1.40.0   </span></span>
 <span><span class="co">#&gt;  [27] lifecycle_1.0.4             iterators_1.0.14           </span></span>
 <span><span class="co">#&gt;  [29] pkgconfig_2.0.3             Matrix_1.7-0               </span></span>
-<span><span class="co">#&gt;  [31] R6_2.5.1                    fastmap_1.1.1              </span></span>
+<span><span class="co">#&gt;  [31] R6_2.5.1                    fastmap_1.2.0              </span></span>
 <span><span class="co">#&gt;  [33] GenomeInfoDbData_1.2.12     clue_0.3-65                </span></span>
 <span><span class="co">#&gt;  [35] digest_0.6.35               colorspace_2.1-0           </span></span>
 <span><span class="co">#&gt;  [37] TFMPvalue_0.0.9             AnnotationDbi_1.66.0       </span></span>
@@ -526,12 +516,12 @@ Creative Commons attribution - non-commercial 3.0 license: <a href="https://crea
 <span><span class="co">#&gt;  [79] annotate_1.82.0             tidyselect_1.2.1           </span></span>
 <span><span class="co">#&gt;  [81] DirichletMultinomial_1.46.0 GO.db_3.19.1               </span></span>
 <span><span class="co">#&gt;  [83] vioplot_0.4.0               knitr_1.46                 </span></span>
-<span><span class="co">#&gt;  [85] bookdown_0.39               xfun_0.43                  </span></span>
+<span><span class="co">#&gt;  [85] bookdown_0.39               xfun_0.44                  </span></span>
 <span><span class="co">#&gt;  [87] stringi_1.8.4               UCSC.utils_1.0.0           </span></span>
 <span><span class="co">#&gt;  [89] yaml_2.3.8                  evaluate_0.23              </span></span>
 <span><span class="co">#&gt;  [91] codetools_0.2-20            tibble_3.2.1               </span></span>
 <span><span class="co">#&gt;  [93] BiocManager_1.30.23         cli_3.6.2                  </span></span>
-<span><span class="co">#&gt;  [95] xtable_1.8-4                systemfonts_1.0.6          </span></span>
+<span><span class="co">#&gt;  [95] xtable_1.8-4                systemfonts_1.1.0          </span></span>
 <span><span class="co">#&gt;  [97] munsell_0.5.1               jquerylib_0.1.4            </span></span>
 <span><span class="co">#&gt;  [99] Rcpp_1.0.12                 png_0.1-8                  </span></span>
 <span><span class="co">#&gt; [101] XML_3.99-0.16.1             parallel_4.4.0             </span></span>
@@ -573,34 +563,20 @@ of <span>DNA</span> Elements in the Human Genome.”</span>
 </div>
 </div>
   </div>
-
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-
         <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
     </nav>
 </div>
-
 </div>
-
-
-
       <footer><div class="copyright">
   <p></p>
 <p>Developed by <a href="https://github.com/machlabd" class="external-link">Dania Machlab</a>, <a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a>, <a href="https://github.com/csoneson" class="external-link">Charlotte Soneson</a>, <a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a>.</p>
 </div>
-
 <div class="pkgdown">
   <p></p>
 <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.9000.</p>
 </div>
-
       </footer>
 </div>
-
-  
-
-
-  
-
   </body>
 </html>
