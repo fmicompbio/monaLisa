@@ -54,7 +54,7 @@ plotBinDiagnostics <- function(seqs, bins,
     aspect <- match.arg(aspect)
     binCols <- getColsByBin(bins, ...)
     if (aspect == "length") {
-        vp <- vioplot::vioplot(width(seqs) ~ bins, ylab = "",
+        vp <- vioplot::vioplot(split(width(seqs), bins), ylab = "",
                                col = attr(binCols, "cols"),
                                xlab = "Length", axes = FALSE, las = 2,
                                horizontal = TRUE, cex = 0.5, cex.axis = 0.75,
@@ -64,7 +64,7 @@ plotBinDiagnostics <- function(seqs, bins,
         onf <- Biostrings::oligonucleotideFrequency(seqs, width = 1,
                                                     as.prob = TRUE)
         gcfrac <- onf[, "G"] + onf[, "C"]
-        vp <- vioplot::vioplot(gcfrac ~ bins, ylab = "",
+        vp <- vioplot::vioplot(split(gcfrac, bins), ylab = "",
                                col = attr(binCols, "cols"),
                                xlab = "GC fraction", axes = FALSE, las = 2,
                                horizontal = TRUE, cex = 0.5, cex.axis = 0.75,
