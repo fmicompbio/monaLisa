@@ -21,6 +21,7 @@ plotMotifHeatmaps(
   show_dendrogram = FALSE,
   show_motif_GC = FALSE,
   show_seqlogo = FALSE,
+  show_bin_legend = FALSE,
   width.seqlogo = 1.5,
   use_raster = FALSE,
   na_col = "white",
@@ -74,6 +75,9 @@ the motif as part of the heatmap.}
 \item{show_seqlogo}{If \code{TRUE}, show a sequence logo next to each motif 
 label. This will likely only make sense for a heatmap with a low number 
 of motifs.}
+
+\item{show_bin_legend}{If \code{TRUE}, show a legend for the bin labels.
+If FALSE (default), the bin legend will be hidden .}
 
 \item{width.seqlogo}{The width (in inches) for the longest sequence logo 
 (shorter logos are drawn to scale).}
