@@ -77,7 +77,7 @@ label. This will likely only make sense for a heatmap with a low number
 of motifs.}
 
 \item{show_bin_legend}{If \code{TRUE}, show a legend for the bin labels.
-If FALSE (default), the bin legend will be hidden .}
+If FALSE (default), the bin legend will be hidden.}
 
 \item{width.seqlogo}{The width (in inches) for the longest sequence logo 
 (shorter logos are drawn to scale).}

@@ -281,7 +281,7 @@ plotBinScatter <- function(x, y, b,
 #'     label. This will likely only make sense for a heatmap with a low number 
 #'     of motifs.
 #' @param show_bin_legend If \code{TRUE}, show a legend for the bin labels.
-#'     If FALSE (default), the bin legend will be hidden .
+#'     If FALSE (default), the bin legend will be hidden.
 #' @param width.seqlogo The width (in inches) for the longest sequence logo 
 #'     (shorter logos are drawn to scale).
 #' @param use_raster \code{TRUE} or \code{FALSE} (default). Passed to 
@@ -369,6 +369,7 @@ plotMotifHeatmaps <- function(x,
     .assertScalar(x = show_dendrogram, type = "logical")
     .assertScalar(x = show_motif_GC, type = "logical")
     .assertScalar(x = show_seqlogo, type = "logical")
+    .assertScalar(x = show_bin_legend, type = "logical")
     .assertScalar(x = width.seqlogo, type = "numeric", rngExcl = c(0, Inf))
     .assertScalar(x = use_raster, type = "logical")
     .assertScalar(x = na_col, type = "character")
