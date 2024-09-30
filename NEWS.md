@@ -1,3 +1,7 @@
+# monaLisa 1.11.3
+
+* add show_bin_legend argument  to plotMotifHeatmaps (contributed by @danymukesha, PR #62)
+
 # monaLisa 1.9.1
 
 * adapt `dumpJaspar` to also work with `JASPAR2024`
