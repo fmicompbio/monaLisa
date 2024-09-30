@@ -105,6 +105,14 @@ test_that("plotMotifHeatmaps() runs", {
     expect_warning(res <- plotMotifHeatmaps(x = se2, which.plots = "log2enr", cluster = TRUE))
     expect_is(res, "list")
     
+    expect_error(plotMotifHeatmaps(x = se, show_bin_legend = "error"))
+    
+    result_true <- plotMotifHeatmaps(x = se, which.plots = "pearsonResid", show_bin_legend = TRUE, doPlot = FALSE)
+    expect_true(result_true$pearsonResid@top_annotation@anno_list$bin@show_legend)
+    
+    result_false <- plotMotifHeatmaps(x = se, which.plots = "pearsonResid", show_bin_legend = FALSE, doPlot = FALSE)
+    expect_false(result_false$pearsonResid@top_annotation@anno_list$bin@show_legend)
+    
     dev.off()
     unlink(tf)
 })

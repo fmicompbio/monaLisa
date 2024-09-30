@@ -280,6 +280,8 @@ plotBinScatter <- function(x, y, b,
 #' @param show_seqlogo If \code{TRUE}, show a sequence logo next to each motif 
 #'     label. This will likely only make sense for a heatmap with a low number 
 #'     of motifs.
+#' @param show_bin_legend If \code{TRUE}, show a legend for the bin labels.
+#'     If FALSE (default), the bin legend will be hidden.
 #' @param width.seqlogo The width (in inches) for the longest sequence logo 
 #'     (shorter logos are drawn to scale).
 #' @param use_raster \code{TRUE} or \code{FALSE} (default). Passed to 
@@ -350,6 +352,7 @@ plotMotifHeatmaps <- function(x,
                               show_dendrogram = FALSE,
                               show_motif_GC = FALSE,
                               show_seqlogo = FALSE,
+                              show_bin_legend = FALSE,
                               width.seqlogo = 1.5,
                               use_raster = FALSE,
                               na_col = "white", 
@@ -366,6 +369,7 @@ plotMotifHeatmaps <- function(x,
     .assertScalar(x = show_dendrogram, type = "logical")
     .assertScalar(x = show_motif_GC, type = "logical")
     .assertScalar(x = show_seqlogo, type = "logical")
+    .assertScalar(x = show_bin_legend, type = "logical")
     .assertScalar(x = width.seqlogo, type = "numeric", rngExcl = c(0, Inf))
     .assertScalar(x = use_raster, type = "logical")
     .assertScalar(x = na_col, type = "character")
@@ -402,7 +406,7 @@ plotMotifHeatmaps <- function(x,
                                show_annotation_name = FALSE,
                                which = "column", width = unit(width,"inch"),
                                annotation_height = unit(width / 16, "inch"),
-                               show_legend = FALSE)
+                               show_legend = show_bin_legend)
     tmp <- matrix(if (!is.null(highlight)) {
         as.character(highlight) 
     } else {
