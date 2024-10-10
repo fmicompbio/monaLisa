@@ -11,6 +11,7 @@ authors:
 url: https://fmicompbio.github.io/monaLisa
 
 template:
+  bootstrap: 5
   params:
     bootswatch: cerulean
 
