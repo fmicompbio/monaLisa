@@ -47,11 +47,13 @@ test_that("dumpJaspar() works properly", {
                            opts = list(ID = c("MA0006.1", "MA0007.3", "MA0828.1")),
                            verbose = TRUE))
     unlink(tmp1)
-    expect_true(dumpJaspar(filename = tmp1,
-                           pkg = "JASPAR2024",
-                           opts = list(ID = c("MA0006.1", "MA0007.3", "MA0828.1")),
-                           verbose = TRUE))
-    unlink(tmp1)
+    # remark: temporarily comment JASPAR2024 test (the data for JASPAR2024
+    #         cannot be accessed as of now, 2024-10-10)
+    # expect_true(dumpJaspar(filename = tmp1,
+    #                        pkg = "JASPAR2024",
+    #                        opts = list(ID = c("MA0006.1", "MA0007.3", "MA0828.1")),
+    #                        verbose = TRUE))
+    # unlink(tmp1)
     expect_error(dumpJaspar(filename = tmp1,
                             pkg = "BSgenome",
                             opts = list(ID = c("MA0006.1", "MA0007.3", "MA0828.1")),
