@@ -401,12 +401,15 @@ plotMotifHeatmaps <- function(x,
     } else {
         stop("'cluster' must be either TRUE, FALSE or an hclust-object.")
     }
-    hmBin <- HeatmapAnnotation(df = data.frame(bin = colnames(x)), name = "bin",
-                               col = list(bin = bincols),
-                               show_annotation_name = FALSE,
-                               which = "column", width = unit(width,"inch"),
-                               annotation_height = unit(width / 16, "inch"),
-                               show_legend = show_bin_legend)
+    hmBin <- HeatmapAnnotation(
+        df = data.frame(bin = factor(colnames(x), 
+                                     levels = colnames(x))), 
+        name = "bin",
+        col = list(bin = bincols),
+        show_annotation_name = FALSE,
+        which = "column", width = unit(width,"inch"),
+        annotation_height = unit(width / 16, "inch"),
+        show_legend = show_bin_legend)
     tmp <- matrix(if (!is.null(highlight)) {
         as.character(highlight) 
     } else {
