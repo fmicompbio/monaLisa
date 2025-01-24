@@ -19,8 +19,8 @@ jobs:
         # - { os: macOS-latest, r: '4.1', bioc: '3.13'}
         # - { os: windows-latest, r: '4.1', bioc: '3.13'}
         # - { os: macOS-latest, r: 'devel', bioc: 'devel'}
-        - { os: macOS-13, bioc: 'devel'}
-        - { os: macOS-latest, bioc: 'devel'}
+        - { os: macOS-latest, bioc: 'devel', homer: 'latest'}
+        - { os: macOS-latest, bioc: 'devel', homer: '4.11.1'}
         # - { os: windows-latest, r: 'devel', bioc: 'devel'}
         - { os: windows-latest, bioc: 'devel'}
         # - { os: ubuntu-16.04, r: 'devel', bioc: 'devel', cran: "https://demo.rstudiopm.com/all/__linux__/xenial/latest"}
@@ -30,7 +30,7 @@ jobs:
     runs-on: ${{ matrix.config.os }}
     container: ${{ matrix.config.image }}
 
-    name: ${{ matrix.config.os }} (BioC ${{ matrix.config.bioc }} - ${{ matrix.config.image }})
+    name: ${{ matrix.config.os }} (BioC ${{ matrix.config.bioc }} - ${{ matrix.config.image }} - ${{ matrix.config.homer }})
 
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
@@ -56,8 +56,8 @@ jobs:
         with:
           bioc-version: ${{ matrix.config.bioc }}
 
-      - name: Install Homer
-        if: runner.os != 'Windows' && matrix.config.image == null
+      - name: Install Homer (latest version)
+        if: runner.os != 'Windows' && matrix.config.image == null && matrix.config.homer == 'latest'
         run: |
           mkdir homer && pushd homer
           wget http://homer.ucsd.edu/homer/configureHomer.pl
@@ -66,6 +66,15 @@ jobs:
           popd
           # echo "^homer$" >> $PKG_PATH/.Rbuildignore
           # Rscript -e 'install.packages("magick")'
+
+      - name: Install Homer (specific version)
+        if: runner.os != 'Windows' && matrix.config.image == null && matrix.config.homer != 'latest'
+        run: |
+          mkdir homer && pushd homer
+          wget http://homer.ucsd.edu/homer/data/software/homer.v${{ matrix.config.homer }}.zip
+          unzip homer.v${{ matrix.config.homer }}.zip
+          perl configureHomer.pl -install homer -version ${{ matrix.config.homer }} -keepScript
+          popd
 
       - name: Install remotes
         run: |
