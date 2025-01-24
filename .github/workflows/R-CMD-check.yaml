@@ -19,6 +19,7 @@ jobs:
         # - { os: macOS-latest, r: '4.1', bioc: '3.13'}
         # - { os: windows-latest, r: '4.1', bioc: '3.13'}
         # - { os: macOS-latest, r: 'devel', bioc: 'devel'}
+        - { os: macOS-13, bioc: 'devel'}
         - { os: macOS-latest, bioc: 'devel'}
         # - { os: windows-latest, r: 'devel', bioc: 'devel'}
         - { os: windows-latest, bioc: 'devel'}
