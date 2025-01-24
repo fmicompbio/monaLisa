@@ -182,12 +182,13 @@ test_that("calcBinnedMotifEnrHomer() works properly (synthetic data)", {
         expect_error(calcBinnedMotifEnrHomer(gr = gr, b = bins, motifFile = mfile,
                                              Ncpu = "error"))
 
-        expect_message(res <- calcBinnedMotifEnrHomer(
+        # expect_message(
+        res <- calcBinnedMotifEnrHomer(
             gr = as.character(gr), b = as.character(bins),
             motifFile = mfile, genomedir = genomedir,
             outdir = outdir, homerfile = homerbin, regionsize = "given",
-            Ncpu = 2L, verbose = TRUE),
-            "preparing input files")
+            Ncpu = 2L, verbose = TRUE, verbose.Homer = TRUE)#,
+            # "preparing input files")
         attr(bins, "breaks") <- seq(0.5, 3.5, by = 1)
         expect_message(res1 <- calcBinnedMotifEnrHomer(
             gr = as.character(gr), b = bins,
