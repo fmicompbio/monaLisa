@@ -50,18 +50,18 @@ jobs:
       - name: Install Homer (latest version)
         if: matrix.config.homer != null && matrix.config.homer == 'latest'
         run: |
-          mkdir homer && pushd homer
+          mkdir homer && cd homer
           wget http://homer.ucsd.edu/homer/configureHomer.pl
           perl configureHomer.pl -install
-          popd
+          cd ..
 
       - name: Install Homer (specific version)
         if: matrix.config.homer != null && matrix.config.homer != 'latest'
         run: |
-          mkdir homer && pushd homer
+          mkdir homer && cd homer
           wget http://homer.ucsd.edu/homer/configureHomer.pl
           perl configureHomer.pl -install -version v${{ matrix.config.homer }}
-          popd
+          cd ..
 
       - name: Install remotes
         run: |
