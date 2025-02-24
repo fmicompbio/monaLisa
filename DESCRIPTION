@@ -37,6 +37,7 @@ Imports:
     grid,
     IRanges,
     methods,
+    rlang,
     RSQLite, 
     stabs,
     stats,

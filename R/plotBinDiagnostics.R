@@ -49,6 +49,7 @@
 #' @importFrom Biostrings oligonucleotideFrequency
 #' @importFrom BiocGenerics width
 #' @importFrom cli cli_abort
+#' @importFrom rlang .data
 plotBinDiagnostics <- function(seqs, bins,
                                aspect = c("length", "GCfrac", "dinucfreq"),
                                draw_quantiles = c(0.25, 0.5, 0.75),
@@ -67,7 +68,8 @@ plotBinDiagnostics <- function(seqs, bins,
     if (aspect == "length") {
         p <- ggplot(data = data.frame(seqlen = width(seqs),
                                       bin = bins),
-                    mapping = aes(seqlen, bin, fill = bin, colour = bin)) +
+                    mapping = aes(.data$seqlen, .data$bin,
+                                  fill = .data$bin, colour = .data$bin)) +
             geom_violin(draw_quantiles = draw_quantiles,
                         show.legend = FALSE) +
             scale_fill_manual(values = attr(binCols, "cols")) +
@@ -81,7 +83,8 @@ plotBinDiagnostics <- function(seqs, bins,
                                                     as.prob = TRUE)
         p <- ggplot(data = data.frame(gcfrac = onf[, "G"] + onf[, "C"],
                                       bin = bins),
-                    mapping = aes(gcfrac, bin, fill = bin, colour = bin)) +
+                    mapping = aes(.data$gcfrac, .data$bin,
+                                  fill = .data$bin, colour = .data$bin)) +
             geom_violin(draw_quantiles = draw_quantiles,
                         show.legend = FALSE) +
             scale_fill_manual(values = attr(binCols, "cols")) +
