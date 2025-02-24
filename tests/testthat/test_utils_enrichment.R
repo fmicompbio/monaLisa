@@ -66,7 +66,7 @@ test_that(".checkDfValidity() works", {
                     GCwgt = NA_real_,
                     seqWgt = NA_real_)
 
-    expect_error(.checkDfValidity("error"), "should be a DataFrame")
+    expect_error(.checkDfValidity("error"), "should be a .*DataFrame")
     expect_error(.checkDfValidity(df[1:3]), "has to have columns")
     expect_error(.checkDfValidity(DataFrame(seqs = seqchar, df[2:6])), "expected types")
     expect_error(.checkDfValidity(DataFrame(df[1], DataFrame(isForeground = 1:2), df[3:6])), "expected types")
@@ -74,7 +74,7 @@ test_that(".checkDfValidity() works", {
     expect_error(.checkDfValidity(DataFrame(df[1:3], DataFrame(GCbin = seqchar), df[5:6])), "expected types")
     expect_error(.checkDfValidity(DataFrame(df[1:4], DataFrame(GCwgt = seqchar), df[6])), "expected types")
     expect_error(.checkDfValidity(DataFrame(df[1:5], DataFrame(seqWgt = seqchar))), "expected types")
-    expect_error(.checkDfValidity(df), "attributes: err")
+    expect_error(.checkDfValidity(df), "attribute.*: err")
 })
 
 
@@ -223,7 +223,7 @@ test_that(".calculateGCweight() works", {
                     seqWgt = NA_real_)
     attr(df, "err") <- 0
 
-    expect_error(.calculateGCweight("error"), "should be a DataFrame")
+    expect_error(.calculateGCweight("error"), "should be a .*DataFrame")
     expect_error(.calculateGCweight(df, GCbreaks = "error"), "numeric")
     expect_error(.calculateGCweight(df, GCbreaks = 0.2), "length 2 or greater")
     expect_error(.calculateGCweight(df, verbose = "error"), "logical")

@@ -91,11 +91,11 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
                  "has to define a zero bin")
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = NULL, pwmL = pwm,
                                      background = "genome", genome = "error"),
-                 "'genome' must be")
+                 ".genome. must be")
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = NULL, pwmL = pwm,
                                      background = "genome", genome = gnm,
                                      genome.regions = "error"),
-                 "'genome.regions' must be")
+                 ".genome.regions. must be")
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = NULL, pwmL = pwm,
                                      background = "genome", genome = gnm,
                                      genome.regions = GenomicRanges::GRanges("error", IRanges::IRanges(1, 10))),

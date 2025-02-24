@@ -85,15 +85,15 @@ test_that(".calcKmerEnrichment works", {
     k <- 2L
 
     expect_error(.calcKmerEnrichment(k = "error", df = df),
-                 ".k. must be of class .numeric.")
+                 ".k. must be of class .*numeric.")
     expect_error(.calcKmerEnrichment(k = k, df = "error"),
-                 "'df' should be a DataFrame")
+                 ".df. should be a .*DataFrame.")
     expect_error(.calcKmerEnrichment(k = k, df = df,
                                      test = "error"),
                  "should be one of")
     expect_error(.calcKmerEnrichment(k = k, df = df,
                                      test = "fisher", verbose = "error"),
-                 ".verbose. must be of class .logical.")
+                 ".verbose. must be of class .*logical.")
 
     expect_message(res1 <- .calcKmerEnrichment(k = k, df = df,
                                                test = "binomial", verbose = TRUE))

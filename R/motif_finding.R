@@ -244,6 +244,7 @@ NULL
 #' @export
 #' @docType methods
 #' @rdname findMotifHits-methods
+#' @importFrom cli cli_abort
 setGeneric(name = "findMotifHits",
            def = function(query, subject, min.score,
                           method = c("matchPWM", "homer2"),
@@ -305,14 +306,16 @@ setMethod("findMotifHits",
               } else if (method == "homer2") {
 
                   if (!length(query) == 1L || !file.exists(query)) {
-                      stop("'query' must be either a character(1), a PWMatrix ",
-                           " or a PWMatrixList object")
+                      cli_abort(paste0(
+                          "{.arg query} must be either a {.cls character} scalar, ",
+                          "a {.cls PWMatrix} object or a {.cls PWMatrixList} object"))
                   }
 
                   if (length(subject) != 1L || !file.exists(subject)) {
-                      stop("'subject' must be a character(1) with the name of ",
-                           "FASTA sequence file, or a DNAString, DNAStringSet ",
-                           "or GRanges object")
+                      cli_abort(paste0(
+                          "{.arg subject} must be a {.cls character} scalar with the name of ",
+                           "a FASTA sequence file, or a {.cls DNAString}, {.cls DNAStringSet} ",
+                           "or {.cls GRanges} object"))
                   }
 
                   # make sure sequences are not too long
@@ -321,10 +324,10 @@ setMethod("findMotifHits",
                   #  and also char* curSeq = new char[1000000];)
                   if (any(
                       tooLong <- ((sl <- fasta.seqlengths(subject)) >= 1e6))) {
-                      stop("For method = 'homer2', 'subject' must only contain",
-                           " sequences shorter than 1 Mb, the following",
-                           " sequences are too long: ",
-                           paste(names(sl)[tooLong], collapse = ", "))
+                      cli_abort(paste0(
+                          "For {.code method = 'homer2'}, {.arg subject} must only contain",
+                          " sequences shorter than 1 Mb, the following",
+                          " sequence{?s} {?is/are} too long: {names(sl)[tooLong]}"))
                   }
 
                   # run homer2
@@ -514,7 +517,9 @@ setMethod("findMotifHits",
                       .dumpPWMsToHomer2File(pwmL = query, fname = tmpf,
                                             absscore = min.score)
                   } else {
-                      stop("wrong type of 'min.score': ", min.score)
+                      cli_abort(paste0(
+                          "wrong type of {.arg min.score}: ",
+                          "should be {.cls numeric} instead of {.cls {type(min.score)}}"))
                   }
 
                   res <- findMotifHits(query = tmpf, subject = subject,
@@ -576,7 +581,9 @@ setMethod("findMotifHits",
                       .dumpPWMsToHomer2File(pwmL = query, fname = tmpf1,
                                             absscore = min.score)
                   } else {
-                      stop("wrong type of 'min.score': ", min.score)
+                      cli_abort(paste0(
+                          "wrong type of {.arg min.score}: ",
+                          "should be {.cls numeric} instead of {.cls {type(min.score)}}"))
                   }
 
                   # write sequences to file
@@ -624,10 +631,10 @@ setMethod("findMotifHits",
                    genome = NULL) {
 
             if (is.null(genome)) {
-                stop("'genome' must be provided for a GRanges 'subject'.")
+                cli_abort("{.arg genome} must be provided for a {.cls GRanges} {.arg subject}.")
             }
             if (!is(genome, "BSgenome")) {
-                stop("'genome' must be of class 'BSgenome'.")
+                cli_abort("{.arg genome} must be of class {.cls BSgenome}.")
             }
 
             seqs <- BSgenome::getSeq(genome, subject)

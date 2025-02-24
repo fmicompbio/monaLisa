@@ -75,6 +75,7 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 #' @importFrom methods existsMethod
 #' @importFrom TFBSTools getMatrixSet Matrix ID name
 #' @importFrom RSQLite dbConnect dbDisconnect SQLite
+#' @importFrom cli cli_abort
 #'
 #' @export
 dumpJaspar <- function(filename,
@@ -88,7 +89,7 @@ dumpJaspar <- function(filename,
     .assertScalar(x = pseudocount, type = "numeric", rngIncl = c(0, Inf))
     .assertScalar(x = relScoreCutoff, type = "numeric", rngIncl = c(0, 1))
     if ("matrixtype" %in% names(opts) && opts[["matrixtype"]] != "PFM") {
-      stop("opts[['matrixtype']] must be set to 'PFM'")
+      cli_abort("{.arg opts[['matrixtype']]} must be set to {.code 'PFM'}")
     } else {
       opts[["matrixtype"]] <- "PFM"
     }
@@ -105,7 +106,7 @@ dumpJaspar <- function(filename,
             mdb <- RSQLite::dbConnect(RSQLite::SQLite(), dbfunc(jobj))
             on.exit(expr = RSQLite::dbDisconnect(mdb))
         } else {
-            stop("I don't know how to extract motifs from '", pkg, "'")
+            cli_abort("I don't know how to extract motifs from {.pkg {pkg}}")
         }
     }
     siteList <- TFBSTools::getMatrixSet(mdb, opts)
@@ -303,7 +304,7 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
     .assertScalar(x = verbose, type = "logical")
 
     if (file.exists(outdir))
-        stop(outdir," already exists - will not overwrite existing folder")
+        cli_abort("{.path outdir} already exists - will not overwrite existing folder")
     dir.create(outdir)
 
     homerFile <- file.path(outdir, "run.sh")
@@ -602,6 +603,7 @@ parseHomerOutput <- function(infiles,
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom S4Vectors DataFrame
 #' @importFrom TFBSTools ID name Matrix
+#' @importFrom cli cli_abort
 #'
 #' @export
 calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
@@ -651,11 +653,11 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
                               full.names = TRUE, recursive = TRUE,
                               ignore.case = FALSE)))) {
 
-          stop("\nThere are existing 'knownResults.txt' file(s) in outdir. ",
-               "There may be missing 'knownResults.txt' files for some bins ",
-               "and/or the existing files are incomplete (cases where the ",
-               "HOMER run failed). Please delete these files and rerun ",
-               "'calcBinnedMotifEnrHomer'.")
+          cli_abort(c("\nThere are existing {.file knownResults.txt} file(s) in {.path {outdir}}. ",
+                      "There may be missing {.file knownResults.txt} files for some bins ",
+                      "and/or the existing files are incomplete (cases where the ",
+                      "HOMER run failed). Please delete these files and rerun ",
+                      "{.fn calcBinnedMotifEnrHomer}."))
 
       }
 
@@ -679,7 +681,7 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
       ## ... check HOMER ran correctly
       if (!.checkHomerRun(motifFile = motifFile, outdir = outdir,
                           nbins = length(levels(b)))) {
-          stop("HOMER output wasn't complete. Try running again.")
+          cli_abort("HOMER output wasn't complete. Try running again.")
       }
 
     }

@@ -43,6 +43,7 @@
 #'
 #' @importFrom glmnet glmnet predict.glmnet
 #' @importFrom stats model.matrix runif
+#' @importFrom cli cli_abort
 #'
 #' @keywords internal
 .glmnetRandomizedLasso <- function(x, y, q, weakness=1,
@@ -55,8 +56,9 @@
     x <- stats::model.matrix(~. - 1, x)
   }
   if ("lambda" %in% names(list(...)))
-    stop("It is not permitted to specify the penalty parameter ",
-         sQuote("lambda"), " for lasso when used with stability selection.")
+    cli_abort(paste0(
+        "It is not permitted to specify the penalty parameter ",
+        "{.arg lambda} for lasso when used with stability selection."))
   type <- match.arg(type)
 
   # modify the function here to make it a randomized-lasso using the
@@ -218,6 +220,7 @@
 #'
 #' @importFrom stabs stabsel
 #' @importFrom SummarizedExperiment SummarizedExperiment
+#' @importFrom cli cli_abort
 #'
 #'@export
 randLassoStabSel <- function(x, y, weakness=0.8, cutoff=0.8, PFER=2,
@@ -225,17 +228,19 @@ randLassoStabSel <- function(x, y, weakness=0.8, cutoff=0.8, PFER=2,
 
     # checks
     if (!is(x, "matrix")) {
-        stop("'x' must be a matrix")
+        cli_abort("{.arg x} must be a {.cls matrix}")
     }
     .assertVector(y, type = "numeric")
     if (nrow(x) != length(y)) {
-        stop("nrow of 'x' and length of 'y' are not equal. The rows of
-             x must be the same length and order as the elements in 'y'.")
+        cli_abort(paste0(
+        "nrow of {.arg x} and length of {.arg y} are not equal. The rows of ",
+        "{.arg x} must be the same length and order as the elements in {.arg y}."))
     }
     if (!is.null(names(y)) && !is.null(rownames(x)) &&
         !all(names(y) == rownames(x))) {
-        stop("'x' and 'y' have different names. Make sure that the names are
-             identical and that the orders match.")
+        cli_abort(paste0(
+            "{.arg x} and {.arg y} have different names. Make sure that the names are ",
+            "identical and that the orders match."))
     }
     if (is.null(rownames(x))) {
         rownames(x) <- paste0("obs", seq_len(nrow(x)))

@@ -52,8 +52,8 @@ The return value from \code{cut(x, ...)}, typically a factor of the
 }
 \details{
 Elements are binned according to the values in \code{x} depending on
-  \code{binmode}: 
-  \describe{ 
+  \code{binmode}:
+  \describe{
   \item{equalN}{Items are grouped into a variable
   number of bins with \code{nElements} elements each. If \code{minAbsX} is
   not \code{NULL}, elements with \code{x}-values in \code{[-minAbsX,minAbsX]}
@@ -61,9 +61,9 @@ Elements are binned according to the values in \code{x} depending on
   elements. The boundaries of this single bin may be slightly adjusted in
   order to respect the \code{nElements} elements in the other bins.}
   \item{equalWidth}{Items are group into \code{nBins} bins with a variable
-  number of elements each.} 
+  number of elements each.}
   \item{breaks}{Items are grouped into bins using
-  \code{cut(x, breaks, include.lowest = TRUE)}} 
+  \code{cut(x, breaks, include.lowest = TRUE)}}
   }
 }
 \examples{

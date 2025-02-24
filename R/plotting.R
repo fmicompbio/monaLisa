@@ -336,6 +336,7 @@ plotBinScatter <- function(x, y, b,
 #' @importFrom ComplexHeatmap HeatmapAnnotation Heatmap add_heatmap
 #' @importFrom grid unit
 #' @importFrom circlize colorRamp2
+#' @importFrom cli cli_abort
 #'
 #' @export
 plotMotifHeatmaps <- function(x,
@@ -406,7 +407,7 @@ plotMotifHeatmaps <- function(x,
     } else if (is(cluster, "hclust")) {
         clres <- cluster
     } else {
-        stop("'cluster' must be either TRUE, FALSE or an hclust-object.")
+        cli_abort("{.arg cluster} must be either {.code TRUE}, {.code FALSE} or an {.cls hclust}-object.")
     }
     hmBin <- HeatmapAnnotation(
         df = data.frame(bin = factor(colnames(x),
@@ -556,6 +557,7 @@ plotMotifHeatmaps <- function(x,
 #' @importFrom SummarizedExperiment assay rowData colData
 #' @import ggplot2
 #' @importFrom tidyr pivot_longer starts_with
+#' @importFrom cli cli_abort
 #'
 #' @export
 plotStabilityPaths <- function(se,
@@ -564,7 +566,7 @@ plotStabilityPaths <- function(se,
                                linewidth = 0.5, alpha = 1, ylim = c(0, 1)) {
     # checks
     if (!is(se, "SummarizedExperiment")) {
-        stop("'se' must be a SummarizedExperiment")
+        cli_abort("{.arg se} must be a {.cls SummarizedExperiment}")
     }
     .assertScalar(x = selProbMin, type = "numeric", rngIncl = c(0, 1))
     .assertVector(x = col, type = "character", len = 2L)

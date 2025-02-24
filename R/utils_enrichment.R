@@ -122,7 +122,9 @@
 #'   }
 #'
 #' @return \code{TRUE} (invisibly) if \code{df} is valid, otherwise it
-#'   raises an exception using \code{stop()}
+#'   raises an exception using \code{cli::cli_abort()}
+#'
+#' @importFrom cli cli_abort
 #'
 #' @keywords internal
 .checkDfValidity <- function(df) {
@@ -133,22 +135,22 @@
     expected_attrs <- c("err")
 
     if (!is(df, "DataFrame")) {
-        stop("'df' should be a DataFrame, but it is a ", class(df))
+        cli_abort("{.arg df} should be a {.cls DataFrame}, but it is a {.cls {class(df)}}")
 
     } else if (!all(expected_cols %in% colnames(df))) {
-        stop("'df' has to have columns: ",
-             paste(expected_cols, collapse = ", "))
+        cli_abort("{.arg df} has to have columns: {expected_cols}")
 
     } else if (!all(unlist(lapply(seq_along(expected_cols), function(i) {
         is(df[, expected_cols[i]], expected_types[i])
     })))) {
-        stop("Not all columns in 'df' have the expected types:\n ",
-             paste(paste0(expected_cols, ": '", expected_types, "'"),
-                   collapse = "\n "))
+        cli_abort(c(
+            "Not all columns in {.arg df} have the expected types:",
+            vapply(seq.int(length(expected_cols)),
+                   \(i) paste0(expected_cols[i], ": {.cls ", expected_types[i], "}"),
+                   character(1))))
 
     } else if (!all(expected_attrs %in% names(attributes(df)))) {
-        stop("'df' has to have attributes: ",
-             paste(expected_attrs, collapse = ", "))
+        cli_abort("{.arg df} has to have the attribute{?s}: {expected_attrs}")
     }
 
     return(invisible(TRUE))
@@ -176,13 +178,14 @@
 #'
 #' @importFrom Biostrings alphabetFrequency DNAStringSet
 #' @importFrom S4Vectors DataFrame
+#' @importFrom cli cli_abort
 #'
 #' @keywords internal
 .filterSeqs <- function(seqs, maxFracN = 0.7, minLength = 5L,
                         maxLength = 100000L, verbose = FALSE) {
 
     if (!is(seqs, "DNAStringSet")) {
-        stop("'seqs' must be a DNAStringSet object.")
+        cli_abort("{.arg seqs} must be a {.cls DNAStringSet} object.")
     }
     .assertScalar(x = maxFracN,  type = "numeric", rngIncl = c(0, 1))
     .assertScalar(x = minLength, type = "numeric", rngIncl = c(0, Inf))
@@ -408,6 +411,7 @@
 #' @importFrom stats median
 #' @importFrom Biostrings oligonucleotideFrequency DNAStringSet
 #' @importFrom S4Vectors DataFrame
+#' @importFrom cli cli_abort
 #'
 #' @keywords internal
 .calculateGCweight <- function(df,
@@ -419,7 +423,7 @@
     GCbreaks <- sort(GCbreaks, decreasing = FALSE)
     .assertVector(x = GCbreaks, type = "numeric", rngIncl = c(0, 1))
     if (length(GCbreaks) < 2) {
-        stop("'GCbreaks' must be of length 2 or greater")
+        cli_abort("{.arg GCbreaks} must be of length 2 or greater")
     }
     .assertScalar(x = verbose,   type = "logical")
 
