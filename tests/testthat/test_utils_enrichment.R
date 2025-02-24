@@ -1,9 +1,9 @@
 test_that(".binomEnrichmentTests works", {
-    expect_message(
+    suppressMessages(expect_message(
         res <- .binomEnrichmentTest(
             matchCountBg = c(5, 8), totalWeightBg = 17,
             matchCountFg = c(9, 3), totalWeightFg = 20, verbose = TRUE)
-    )
+    ))
     expect_equal(res[1],
                  log(binom.test(x = 9, n = 20, p = 5/17,
                                 alternative = "greater")$p.value))
@@ -13,11 +13,11 @@ test_that(".binomEnrichmentTests works", {
 })
 
 test_that(".fisherEnrichmentTest works", {
-    expect_message(
+    suppressMessages(expect_message(
         res <- .fisherEnrichmentTest(
             matchCountBg = c(5, 8), totalWeightBg = 17,
             matchCountFg = c(9, 3), totalWeightFg = 20, verbose = TRUE)
-    )
+    ))
     expect_equal(res[1],
                  log(fisher.test(x = matrix(c(9, 20 - 9, 5, 17 - 5), nrow = 2),
                                  alternative = "greater")$p.value))
@@ -227,7 +227,7 @@ test_that(".calculateGCweight() works", {
     expect_error(.calculateGCweight(df, GCbreaks = "error"), "numeric")
     expect_error(.calculateGCweight(df, GCbreaks = 0.2), "length 2 or greater")
     expect_error(.calculateGCweight(df, verbose = "error"), "logical")
-    expect_message(.calculateGCweight(df, verbose = TRUE))
+    suppressMessages(expect_message(.calculateGCweight(df, verbose = TRUE)))
 
     expect_s4_class(res1 <- .calculateGCweight(df, verbose = FALSE), "DataFrame")
     expect_identical(df[-13, 1:2], res1[, 1:2])

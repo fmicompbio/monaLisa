@@ -26,11 +26,15 @@ test_that(".calcMotifEnrichment works", {
     expect_error(.calcMotifEnrichment(mhits, df, test = "error"), "should be one of")
     expect_error(.calcMotifEnrichment(mhits, df, verbose = "error"), "logical")
 
-    expect_message(res1 <- .calcMotifEnrichment(motifHitMatrix = mhits, df = df, test = "binom", verbose = TRUE))
+    suppressMessages(expect_message(
+        res1 <- .calcMotifEnrichment(motifHitMatrix = mhits, df = df,
+                                     test = "binom", verbose = TRUE)))
     expect_type(res1, "list")
     expect_identical(rownames(res1), colnames(mhits))
     expect_identical(round(res1$logP, 3), c(-1.341, -0.038, -0.844, 0))
-    expect_message(res2 <- .calcMotifEnrichment(motifHitMatrix = mhits, df = df, test = "fisher", verbose = TRUE))
+    suppressMessages(expect_message(
+        res2 <- .calcMotifEnrichment(motifHitMatrix = mhits, df = df,
+                                     test = "fisher", verbose = TRUE)))
     expect_type(res2, "list")
     expect_identical(res1[, -2], res2[, -2])
     expect_identical(round(res2$logP, 3), c(-0.99, -0.029, 0, 0))

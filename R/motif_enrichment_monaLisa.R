@@ -252,7 +252,7 @@
 #' @importFrom GenomeInfoDb seqnames seqlevels
 #' @importFrom BiocParallel bplapply SerialParam bpnworkers
 #' @importFrom stats p.adjust
-#' @importFrom cli cli_abort
+#' @importFrom cli cli_abort cli_progress_step
 #'
 #' @export
 calcBinnedMotifEnrR <- function(seqs,
@@ -323,9 +323,7 @@ calcBinnedMotifEnrR <- function(seqs,
 
 
     # filter sequences
-    if (verbose) {
-        message("Filtering sequences ...")
-    }
+    .message("Filtering sequences ...")
     keep <- .filterSeqs(seqs, maxFracN = maxFracN, verbose = verbose)
     battr <- attributes(bins) # rescue attributes dropped by subsetting
     bin0 <- getZeroBin(bins)
@@ -345,9 +343,7 @@ calcBinnedMotifEnrR <- function(seqs,
     }
 
     # scan sequences with motif
-    if (verbose) {
-        message("Scanning sequences for motif hits...")
-    }
+    .message("Scanning sequences for motif hits...")
     hits <- findMotifHits(query = pwmL, subject = seqs, min.score = min.score,
                           method = matchMethod, BPPARAM = BPPARAM, ...)
     if (isEmpty(hits)) {
@@ -356,9 +352,7 @@ calcBinnedMotifEnrR <- function(seqs,
 
 
     # create motif hit matrix
-    if (verbose) {
-        message("Create motif hit matrix...")
-    }
+    .message("Create motif hit matrix...")
     hitmatrix <- unclass(table(
         factor(seqnames(hits), levels = seqlevels(hits)),
         factor(hits$pwmid, levels = TFBSTools::ID(pwmL))
@@ -370,13 +364,12 @@ calcBinnedMotifEnrR <- function(seqs,
     enrichL <- bplapply(structure(seq.int(nlevels(bins)), names = levels(bins)),
                         function(i) {
 
-        if (verbose)
-            message("starting analysis of bin ", levels(bins)[i])
+        .message("starting analysis of bin {levels(bins)[i]}")
         verbose1 <- verbose && bpnworkers(BPPARAM) == 1L
 
         # define background set and create sequence info data frame
         if (verbose1) {
-            message("Defining background sequence set (", background, ")...")
+            cli_progress_step("Defining background sequence set ({background})...")
         }
         df <- .defineBackground(sqs = seqs,
                                 bns = bins,
@@ -391,7 +384,7 @@ calcBinnedMotifEnrR <- function(seqs,
         # motifs
         if (identical(background, "genome")) {
             if (verbose1) {
-              message("Scanning genomic background sequences for motif hits...")
+                cli_progress_step("Scanning genomic background sequences for motif hits...")
             }
             hits.genome <- findMotifHits(
                 query = pwmL, subject = df$seqs[!df$isForeground],
@@ -421,8 +414,7 @@ calcBinnedMotifEnrR <- function(seqs,
 
         # calculate initial background sequence weights based on G+C composition
         if (verbose1) {
-            message("Correcting for GC differences to the background ",
-                    "sequences...")
+            cli_progress_step("Correcting for GC differences to the background sequences...")
         }
         df <- .calculateGCweight(df = df,
                                  GCbreaks = GCbreaks,
@@ -440,8 +432,9 @@ calcBinnedMotifEnrR <- function(seqs,
 
         # update background sequence weights based on k-mer composition
         if (verbose1) {
-            message("Correcting for k-mer differences between fore- and ",
-                    "background sequences...")
+            cli_progress_step(paste0(
+                "Correcting for k-mer differences between fore- and ",
+                "background sequences..."))
         }
         df <- .iterativeNormForKmers(df = df,
                                      maxKmerSize = maxKmerSize,
@@ -449,7 +442,7 @@ calcBinnedMotifEnrR <- function(seqs,
 
         # calculate motif enrichments
         if (verbose1) {
-            message("Calculating motif enrichment...")
+            cli_progress_step("Calculating motif enrichment...")
         }
         enrich1 <- .calcMotifEnrichment(
             motifHitMatrix = hitmatrix2[rownames(df), , drop = FALSE],

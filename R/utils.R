@@ -143,5 +143,43 @@
     return(invisible(TRUE))
 }
 
+#' Generate console output messages
+#'
+#' This is a drop-in replacement for \code{base::message}, which only
+#' creates a message if \code{verbose} exists in the calling environment and
+#' is set to \code{TRUE}. It also supports inline-markup via the \code{cli}
+#' package.
+#'
+#' @param message The message to be written to the console. It will be
+#'     forwarded to \code{\link[cli]{cli_progress_step}} and thus supports
+#'     inline markup (see \code{\link[cli]{inline-markup}}).
+#' @param noTimer Logical scalar. If \code{FALSE} (the default), the message is
+#'     generated using \code{\link[cli]{cli_progress_step}}, which will first
+#'     show it with an "info" icon and then again with a "check" icon and timing
+#'     information when the next message is generated or the function terminates.
+#'     If \code{TRUE}, the message is generated using
+#'     \code{\link[cli]{cli_alert_info}}, which means it will be show only once
+#'     with an "info" icon.
+#' @param ... Additional arguments passed to \code{\link[cli]{cli_progress_step}}
+#'     (ignored if \code{noTimer = TRUE}).
+#'
+#' @importFrom cli cli_progress_step cli_alert_info
+#'
+#' @noRd
+#' @keywords internal
+.message <- function(message, noTimer = FALSE, ...) {
+    # Try to get 'verbose' from the calling environment
+    env <- parent.frame()
+    verbose <- tryCatch(get("verbose", envir = env),
+                        error = function(e) FALSE)
+    if (verbose) {
+        if (noTimer) {
+            cli_alert_info(text = message, .envir = env)
+        } else {
+            cli_progress_step(msg = message, .envir = env, ...)
+        }
+    }
+}
+
 
 

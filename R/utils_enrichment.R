@@ -6,10 +6,7 @@
     .assertScalar(totalWeightFg, type = "numeric")
     .assertScalar(verbose, type = "logical")
 
-    if (verbose) {
-        message("using binomial test to calculate ",
-                "log(p-values) for enrichments")
-    }
+    .message("using binomial test to calculate log(p-values) for enrichments")
 
     prob <- matchCountBg / totalWeightBg
     minProb <- 1 / totalWeightBg
@@ -34,10 +31,7 @@
     .assertScalar(totalWeightFg, type = "numeric")
     .assertScalar(verbose, type = "logical")
 
-    if (verbose) {
-        message("using Fisher's exact test (one-sided) to calculate ",
-                "log(p-values) for enrichments")
-    }
+    .message("using Fisher's exact test (one-sided) to calculate log(p-values) for enrichments")
 
     # contingency table per sequence for Fisher's exact test
     # (rounded to integer):
@@ -198,23 +192,22 @@
 
     f1 <- width(seqs) > 0 & observedFracN > maxFracN
     if (sum(f1) > 0 && verbose) {
-        message("  ", sum(f1), " of ", length(seqs),
-                " sequences (", round(100 * sum(f1) / length(seqs), 1), "%)",
-                " have too many N bases")
+        .message(paste0(
+            "  {sum(f1)} of {length(seqs)} sequences (",
+            "{round(100 * sum(f1) / length(seqs), 1)}%) have too many N bases"))
     }
 
     f2 <- (width(seqs) < minLength) | (width(seqs) > maxLength)
     if (sum(f2) > 0 && verbose) {
-        message("  ", sum(f2), " of ", length(seqs),
-                " sequences (", round(100 * sum(f2) / length(seqs), 1), "%)",
-                " are too short or too long")
+        .message(paste0(
+            "  {sum(f2)} of {length(seqs)} sequences (",
+            "{round(100 * sum(f2) / length(seqs), 1)}%) are too short or too long"))
     }
 
     res <- !(f1 | f2)
-    if (verbose) {
-        message("  in total filtering out ", sum(!res), " of ", length(seqs),
-                " sequences (", round(100 * sum(!res) / length(seqs), 1), "%)")
-    }
+    .message(paste0(
+        "  in total filtering out {sum(!res)} of {length(seqs)} sequences (",
+        "{round(100 * sum(!res) / length(seqs), 1)}%)"))
 
     return(res)
 }
@@ -441,13 +434,11 @@
     used_bins <- sort(intersect(df$GCbin[df$isForeground],
                                 df$GCbin[!df$isForeground]))
     keep <- df$GCbin %in% used_bins
-    if (verbose) {
-        message("  ", length(used_bins), " of ", length(GCbreaks) - 1,
-                " GC-bins used (have both fore- and background sequences)\n",
-                "  ", sum(!keep), " of ", nrow(df), " sequences (",
-                round(100 * sum(!keep) / nrow(df), 1),
-                "%) filtered out from unused GC-bins.")
-    }
+    .message(paste0(
+        "  {length(used_bins)} of {length(GCbreaks) - 1} GC-bins used (",
+        "have both fore- and background sequences)\n",
+        "  {sum(!keep)} of {nrow(df)} sequences ({round(100 * sum(!keep) / nrow(df), 1)}%) ",
+        "filtered out from unused GC-bins."))
     df <- df[keep, ]
 
     # total number of foreground and background sequences
@@ -645,10 +636,7 @@
 
     # run .normForKmers() up to maxIter times or
     # stop when new error is bigger than the error from the previous iteration
-    if (verbose) {
-        message("  starting iterative adjustment for k-mer composition (up to ",
-                maxIter, " iterations)")
-    }
+    .message("  starting iterative adjustment for k-mer composition (up to {maxIter} iterations)")
 
     res <- list()
     for (i in seq_len(maxIter)) {
@@ -661,25 +649,17 @@
                              minSeqWgt = minSeqWgt)
 
         if (res$err >= lastErr) {
-            if (verbose) {
-                tmpmsg <- paste0(
-                    "    detected increasing error - stopping after ",
-                    i, " iterations"
-                )
-                message(tmpmsg)
-            }
+            .message("    detected increasing error - stopping after {i} iterations")
             break
         } else {
             if (verbose && (i %% 40 == 0)) {
-                message("    ", i, " of ", maxIter, " iterations done")
+                .message("    {i} of {maxIter} iterations done")
             }
             curWgt <- res$seqWgt
             lastErr <- res$err
         }
     }
-    if (verbose) {
-        message("    iterations finished")
-    }
+    .message("    iterations finished", noTimer = TRUE)
 
     # return final weights
     df$seqWgt <- curWgt

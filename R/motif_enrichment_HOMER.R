@@ -110,8 +110,7 @@ dumpJaspar <- function(filename,
         }
     }
     siteList <- TFBSTools::getMatrixSet(mdb, opts)
-    if (verbose)
-        message("extracted ",length(siteList)," motifs from ",pkg)
+    .message("extracted {length(siteList)} motifs from {.pkg pkg}", noTimer = TRUE)
 
     # remark: pseudocount of 4 corresponds to adding 1 to each base count
     #         the following are identical:
@@ -119,8 +118,7 @@ dumpJaspar <- function(filename,
     #wm2 <- Matrix(siteList[[1]])+1 ; wm2 <- t(t(wm2) /colSums(wm2))
     #identical(wm1, wm2)
 
-    if (verbose)
-        message("converting to HOMER format...", appendLF = FALSE)
+    .message("converting to HOMER format...")
     fh <- file(filename, "wb")
     for (i in seq_len(length(siteList))) {
         ppm <- TFBSTools::Matrix(siteList[[i]]) + pseudocount
@@ -147,8 +145,6 @@ dumpJaspar <- function(filename,
         flush(fh)
     }
     close(fh)
-    if (verbose)
-        message("done")
 
     return(TRUE)
 }
@@ -310,12 +306,10 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
     homerFile <- file.path(outdir, "run.sh")
     fh <- file(homerFile, "w")
 
-    if (verbose)
-        message("creating foreground/background region files for HOMER")
+    .message("creating foreground/background region files for HOMER")
     for (i in seq_len(nlevels(b))) {
         bn <- levels(b)[i]
-        if (verbose)
-            message("  bin ",bn)
+        .message("  bin {bn}")
 
         fgfile  <- sprintf("%s/bin_%03d_foreground.tab", outdir, i)
         bgfile  <- sprintf("%s/bin_%03d_background.tab", outdir, i)
@@ -642,9 +636,7 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
     ##         check again
     if (.checkHomerRun(motifFile = motifFile, outdir = outdir,
                        nbins = nlevels(b))) {
-        if (verbose)
-            message("\nHOMER output files already exist, ",
-                    "using existing files...")
+        .message("HOMER output files already exist, using existing files...", noTimer = TRUE)
     } else {
 
       ## ... case: all/some files exist and/or HOMER didn't run correctly:
@@ -662,16 +654,14 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
       }
 
       ## ... prepare
-      if (verbose)
-          message("\npreparing input files...")
+      .message("preparing input files...")
       runfile <- prepareHomer(gr = gr, b = b, genomedir = genomedir,
                               outdir = outdir,
                               motifFile = motifFile, homerfile = homerfile,
                               regionsize = regionsize, Ncpu = Ncpu)
 
       ## ... run
-      if (verbose)
-          message("\nrunning HOMER...")
+      .message("running HOMER...")
       system2(command = "sh", args = runfile,
               stdout = ifelse(verbose.Homer, "", FALSE),
               stderr = ifelse(verbose.Homer, "", FALSE),

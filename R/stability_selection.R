@@ -43,7 +43,7 @@
 #'
 #' @importFrom glmnet glmnet predict.glmnet
 #' @importFrom stats model.matrix runif
-#' @importFrom cli cli_abort
+#' @importFrom cli cli_abort cli_inform
 #'
 #' @keywords internal
 .glmnetRandomizedLasso <- function(x, y, q, weakness=1,
@@ -51,8 +51,7 @@
                                             "anticonservative"),
                                    ...) {
   if (is.data.frame(x)) {
-    message("Note: ", sQuote("x"),
-            " is coerced to a model matrix without intercept")
+    cli_inform("Note: {.arg x} is coerced to a model matrix without intercept")
     x <- stats::model.matrix(~. - 1, x)
   }
   if ("lambda" %in% names(list(...)))

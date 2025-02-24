@@ -454,7 +454,7 @@ getKmerFreq <- function(seqs,
 #' @importFrom TFBSTools PFMatrix PFMatrixList ID name toPWM
 #' @importFrom stats ppois p.adjust
 #' @importFrom BiocParallel bplapply SerialParam bpnworkers
-#' @importFrom cli cli_abort
+#' @importFrom cli cli_abort cli_progress_step
 #'
 #' @export
 calcBinnedKmerEnr <- function(seqs,
@@ -546,9 +546,7 @@ calcBinnedKmerEnr <- function(seqs,
 
 
     ## filter sequences
-    if (verbose) {
-        message("Filtering sequences ...")
-    }
+    .message("Filtering sequences ...")
     keep <- .filterSeqs(seqs, maxFracN = maxFracN, verbose = verbose)
     battr <- attributes(bins) # rescue attributes dropped by subsetting
     bin0 <- getZeroBin(bins)
@@ -572,8 +570,7 @@ calcBinnedKmerEnr <- function(seqs,
     enrichL <- bplapply(structure(seq.int(nlevels(bins)), names = levels(bins)),
                         function(i) {
 
-        if (verbose)
-            message("starting analysis of bin ", levels(bins)[i])
+        .message("starting analysis of bin {levels(bins)[i]}")
         verbose1 <- verbose && bpnworkers(BPPARAM) == 1L
 
         if (identical(background, "model")) {
@@ -611,8 +608,7 @@ calcBinnedKmerEnr <- function(seqs,
         } else {
             # define background set and create sequence info data frame
             if (verbose1) {
-                message("Defining background sequence set (",
-                        background, ")...")
+                cli_progress_step("Defining background sequence set ({background})...")
             }
             df <- .defineBackground(sqs = seqs,
                                     bns = bins,
@@ -626,8 +622,7 @@ calcBinnedKmerEnr <- function(seqs,
             # calculate initial background sequence weights based on G+C
             # composition
             if (verbose1) {
-                message("Correcting for GC differences to the ",
-                        "background sequences...")
+                cli_progress_step("Correcting for GC differences to the background sequences...")
             }
             df <- .calculateGCweight(df = df,
                                      GCbreaks = GCbreaks,
@@ -645,8 +640,9 @@ calcBinnedKmerEnr <- function(seqs,
 
             # update background sequence weights based on k-mer composition
             if (verbose1) {
-                message("Correcting for k-mer differences between fore- ",
-                        "and background sequences...")
+                cli_progress_step(paste0(
+                    "Correcting for k-mer differences between fore- ",
+                    "and background sequences..."))
             }
             df <- .iterativeNormForKmers(df = df,
                                          maxKmerSize = maxKmerSize,
@@ -654,7 +650,7 @@ calcBinnedKmerEnr <- function(seqs,
 
             # calculate motif enrichments
             if (verbose1) {
-                message("Calculating ", kmerLen, "-mer enrichment...")
+                cli_progress_step("Calculating {kmerLen}-mer enrichment...")
             }
             enrich1 <- .calcKmerEnrichment(k = kmerLen,
                                            df = df,

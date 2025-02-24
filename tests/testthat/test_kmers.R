@@ -95,10 +95,12 @@ test_that(".calcKmerEnrichment works", {
                                      test = "fisher", verbose = "error"),
                  ".verbose. must be of class .*logical.")
 
-    expect_message(res1 <- .calcKmerEnrichment(k = k, df = df,
-                                               test = "binomial", verbose = TRUE))
-    expect_message(res3 <- .calcKmerEnrichment(k = k, df = df,
-                                               test = "fisher", verbose = TRUE))
+    suppressMessages(expect_message(
+        res1 <- .calcKmerEnrichment(k = k, df = df,
+                                    test = "binomial", verbose = TRUE)))
+    suppressMessages(expect_message(
+        res3 <- .calcKmerEnrichment(k = k, df = df,
+                                    test = "fisher", verbose = TRUE)))
 
     expect_type(res1, "list")
     expect_type(res3, "list")
