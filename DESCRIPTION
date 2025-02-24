@@ -29,6 +29,7 @@ Imports:
     ComplexHeatmap (>= 2.11.1),
     GenomeInfoDb,
     GenomicRanges,
+    cli,
     ggplot2,
     glmnet,
     graphics,

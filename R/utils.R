@@ -1,83 +1,145 @@
-# utility functions used to check parameter conformity
-# - 'x' is the argument to be checked
-# - additional arguments define conditions
-# - a violated condition will throw an exception using stop()
-# - if no condition is violated, TRUE is returned (invisibly)
-
+#' @param allowNULL Logical, whether or not \code{NULL} is an acceptable
+#'     value for \code{x}.
+#'
+#' @author Michael Stadler, Charlotte Soneson
+#' @noRd
+#' @keywords internal
+#' @importFrom methods is
 .assertScalar <- function(x,
                           type = NULL,
                           rngIncl = NULL,
                           rngExcl = NULL,
-                          validValues = NULL) {
-    args <- lapply(sys.call()[-1], as.character)
-    xname <- if ("x" %in% names(args)) args$x else "argument"
+                          validValues = NULL,
+                          allowNULL = FALSE) {
 
-    if (length(x) != 1L) {
-        stop("'", xname, "' must be a scalar value (length one)")
-    }
-    
-    if (is.null(type) && (!is.null(rngIncl) || !is.null(rngExcl))) {
-        type <- "numeric"
-    }
+    .assertVector(x = x, type = type, rngIncl = rngIncl,
+                  rngExcl = rngExcl, validValues = validValues,
+                  len = 1, rngLen = NULL, allowNULL = allowNULL)
 
-    if (!is.null(type) && !is(x, type)) {
-        stop("'", xname, "' must be of type '", type, "'")
-    }
-    
-    if (!is.null(rngIncl) && is.numeric(rngIncl) && length(rngIncl) == 2L &&
-        (x < rngIncl[1] || x > rngIncl[2])) {
-        stop("'", xname, "' must be within [", rngIncl[1], ",", 
-             rngIncl[2], "] (inclusive)")
-    }
-    
-    if (!is.null(rngExcl) && is.numeric(rngExcl) && length(rngExcl) == 2L &&
-        (x <= rngExcl[1] || x >= rngExcl[2])) {
-        stop("'", xname, "' must be within (", rngExcl[1], ",", 
-             rngExcl[2], ") (exclusive)")
-    }
-    
-    if (!is.null(validValues) && !(x %in% validValues)) {
-        stop("'", xname, "' must be one of: ", paste(validValues, 
-                                                     collapse = ", "))
-    }
-    
-    return(invisible(TRUE))
 }
 
-
+#' Utility function to check validity of vector variable values.
+#'
+#' This function provides a convenient way e.g. to check that provided
+#' arguments to functions satisfy required criteria.
+#'
+#' @param x The variable to be checked
+#' @param type The desired type of \code{x}.
+#' @param rngIncl The allowed range of the (numeric) variable \code{x},
+#'     including the endpoints.
+#' @param rngExcl The allowed range of the (numeric) variable \code{x},
+#'     excluding the endpoints.
+#' @param validValues A vector with the allowed values of \code{x}.
+#' @param len The required length of \code{x}.
+#' @param rngLen The allowed range for the length of \code{x}.
+#' @param allowNULL Logical, whether or not \code{NULL} is an acceptable
+#'     value for \code{x}.
+#'
+#' @author Michael Stadler, Charlotte Soneson
+#' @noRd
+#' @keywords internal
+#' @importFrom methods is
+#' @importFrom cli cli_abort
 .assertVector <- function(x,
                           type = NULL,
                           rngIncl = NULL,
                           rngExcl = NULL,
-                          len = NULL) {
-    args <- lapply(sys.call()[-1], as.character)
+                          validValues = NULL,
+                          len = NULL,
+                          rngLen = NULL,
+                          allowNULL = FALSE) {
+    sc <- sys.calls()
+    mycall <- sc[[length(sc)]]
+    if (length(sc) >= 2 &&
+        identical(as.character(sc[[length(sc) - 1]])[1], ".assertScalar")) {
+        mycall <- sc[[length(sc) - 1]]
+    }
+    args <- lapply(mycall, \(x) if (is(x, "language")) deparse(x) else as.character(x))[-1]
     xname <- if ("x" %in% names(args)) args$x else "argument"
-    
+
+    ## Check arguments
+    stopifnot(is.null(type) || (length(type) == 1L && is.character(type)))
+    stopifnot(is.null(rngIncl) || (length(rngIncl) == 2L && is.numeric(rngIncl)))
+    stopifnot(is.null(rngExcl) || (length(rngExcl) == 2L && is.numeric(rngExcl)))
+    stopifnot(is.null(len) || (length(len) == 1L && is.numeric(len)))
+    stopifnot(is.null(rngLen) || (length(rngLen) == 2L && is.numeric(rngLen)))
+    stopifnot(is.logical(allowNULL) && length(allowNULL) == 1L)
+    if (!is.null(rngIncl) && !is.null(rngExcl)) {
+        cli_abort("{.arg rngIncl} and {.arg rngExcl} can not both be specified",
+                  call = NULL)
+    }
+
+    ## If there are too many valid values, print only the first 15
+    if (length(validValues) > 15) {
+        vvPrint <- paste(c(validValues[seq_len(15)],
+                           "...(truncated)"),
+                         collapse = ", ")
+    } else {
+        vvPrint <- paste(validValues, collapse = ", ")
+    }
+
+    if (is.null(x)) {
+        if (allowNULL) {
+            return(invisible(TRUE))
+        } else {
+            cli_abort("{.arg {xname}} must not be {.code NULL}", call = NULL)
+        }
+    }
+
     if (is.null(type) && (!is.null(rngIncl) || !is.null(rngExcl))) {
         type <- "numeric"
     }
-    
+
     if (!is.null(type) && !is(x, type)) {
-        stop("'", xname, "' must be of class '", type, "'")
-    }
-    
-    if (!is.null(rngIncl) && is.numeric(rngIncl) && length(rngIncl) == 2L &&
-        any(x < rngIncl[1] | x > rngIncl[2])) {
-        stop("values in '", xname, "' must be within [", rngIncl[1], ",", 
-             rngIncl[2], "] (inclusive)")
-    }
-    
-    if (!is.null(rngExcl) && is.numeric(rngExcl) && length(rngExcl) == 2L &&
-        any(x <= rngExcl[1] | x >= rngExcl[2])) {
-        stop("values in '", xname, "' must be within (", rngExcl[1], ",", 
-             rngExcl[2], ") (exclusive)")
+        cli_abort("{.arg {xname}} must be of class {.cls {type}}", call = NULL)
     }
 
-    if (!is.null(len) && is.numeric(len) && length(len) == 1L && 
-        length(x) != len) {
-        stop("'", xname, "' must have length ", len)
+    if (!is.null(rngIncl)) {
+        if (!is.null(validValues)) {
+            if (any((x < rngIncl[1] | x > rngIncl[2]) & !(x %in% validValues))) {
+                cli_abort(paste0(
+                    "{.arg {xname}} must be between {rngIncl} (inclusive), ",
+                    "or one of: {vvPrint}"), call = NULL)
+            }
+        } else {
+            if (any(x < rngIncl[1] | x > rngIncl[2])) {
+                cli_abort(paste0(
+                    "{.arg {xname}} must be between {rngIncl} (inclusive)"),
+                    call = NULL)
+            }
+        }
+    } else if (!is.null(rngExcl)) {
+        if (!is.null(validValues)) {
+            if (any((x <= rngExcl[1] | x >= rngExcl[2]) & !(x %in% validValues))) {
+                cli_abort(paste0(
+                    "{.arg {xname}} must be between {rngExcl} (exclusive), ",
+                    "or one of: {vvPrint}"), call = NULL)
+            }
+        } else {
+            if (any(x <= rngExcl[1] | x >= rngExcl[2])) {
+                cli_abort(paste0(
+                    "{.arg {xname}} must be between {rngExcl} (exclusive)"),
+                    call = NULL)
+            }
+        }
+    } else {
+        if (!is.null(validValues) && !all(x %in% validValues)) {
+            cli_abort("All values in {.arg {xname}} must be one of: {vvPrint}",
+                      call = NULL)
+        }
     }
-    
+
+
+    if (!is.null(len) && length(x) != len) {
+        cli_abort("{.arg {xname}} must have length {len}", call = NULL)
+    }
+
+    if (!is.null(rngLen) && (length(x) < rngLen[1] || length(x) > rngLen[2])) {
+        cli_abort(paste0(
+            "length of {.arg {xname}} must be between {rngLen} (inclusive)"),
+            call = NULL)
+    }
+
     return(invisible(TRUE))
 }
 
