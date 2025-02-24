@@ -97,6 +97,13 @@
 #'     closer it is to 0, the more stringent the selection. A weakness value
 #'     of 1 is identical to performing lasso stability selection (not the
 #'     randomized version).
+#' @param glmnet.args named list with additional arguments (beyond \code{x}, 
+#'     \code{y} and \code{weakness}, which are determined automatically, and 
+#'     \code{q} that can be passed via \code{...}) that 
+#'     will be passed to the internal \code{.glmnetRandomizedLasso} function. 
+#'     The available arguments to the latter are the same as the ones for 
+#'     \code{\link[stabs]{glmnet.lasso}}. A typical use case would be to define 
+#'     the \code{family} argument to \code{glmnet.lasso}. 
 #' @param cutoff value between 0 and 1 (default = 0.8) which is the cutoff
 #'     for the selection probability. Any variable with a selection probability
 #'     that is higher than the set cutoff will be selected.
@@ -221,7 +228,7 @@
 #'
 #'@export
 randLassoStabSel <- function(x, y, weakness=0.8, cutoff=0.8, PFER=2,
-                             mc.cores=1L, ...) {
+                             mc.cores=1L, glmnet.args = list(), ...) {
 
     # checks
     if (!is(x, "matrix")) {
@@ -243,11 +250,20 @@ randLassoStabSel <- function(x, y, weakness=0.8, cutoff=0.8, PFER=2,
     if (is.null(colnames(x))) {
         colnames(x) <- paste0("pred", seq_len(ncol(x)))
     }
-
+    .assertVector(x = glmnet.args, type = "list")
+    if (length(glmnet.args) > 0) {
+        .assertVector(x = names(glmnet.args), type = "character")
+        if (any(i <- names(glmnet.args) %in% c("x", "y", "q", "weakness"))) {
+            warning(paste0("Ignoring the following elements of 'glmnet.args' (as ", 
+                           "they are set automatically): ", 
+                           paste(names(glmnet.args)[i], collapse = ",")))    
+            glmnet.args <- glmnet.args[!i]
+        }
+    }
 
     # run randomized lasso stability selection
     ss <- stabs::stabsel(x = x, y = y, fitfun = .glmnetRandomizedLasso,
-                         args.fitfun = list(weakness = weakness),
+                         args.fitfun = c(glmnet.args, list(weakness = weakness)),
                          cutoff = cutoff, PFER = PFER, mc.cores = mc.cores, ...)
 
 
