@@ -1,5 +1,3 @@
-context("pfm comparison")
-
 # create artifical motifs, PFMatrix and PFMatrixList
 m1 <- matrix(data = c(.1,.3,.3,.3,.01,.01,.01,.97,.5,.0,.0,.5), nrow = 4, dimnames = list(c("A","C","G","T"), NULL))
 m2 <- cbind(matrix(.25, nrow = 4, ncol = 2), m1[4:1, ][, 3:1])
@@ -29,8 +27,8 @@ test_that(".compareMotifKmer works as expected", {
     res1 <- .compareMotifKmer(m1, FourMers)
     res2 <- .compareMotifKmer(m2, FourMers)
 
-    expect_is(res1, "list")
-    expect_is(res2, "list")
+    expect_type(res1, "list")
+    expect_type(res2, "list")
     expect_length(res1, 2L)
     expect_length(res2, 2L)
 
@@ -67,19 +65,49 @@ test_that("motifSimilarity works as expected", {
     if (!identical(.Platform$OS.type, "windows"))
         bpparams <- BiocParallel::MulticoreParam(2)
 
-    expect_is(res1 <- motifSimilarity(x = pfmL, y = NULL, method = "R",
-                                      BPPARAM = bpparams,
-                                      verbose = TRUE), "matrix")
-    expect_is(res2 <- motifSimilarity(x = pfmL, y = NULL, method = "R",
-                                      BPPARAM = bpparams,
-                                      verbose = TRUE), "matrix")
-    expect_is(res3 <- motifSimilarity(x = pfmL, y = pfmL, method = "R",
-                                      BPPARAM = bpparams,
-                                      verbose = TRUE), "matrix")
-    expect_is(res4 <- motifSimilarity(x = pfmL, y = pfmL, method = "R",
-                                      verbose = TRUE), "matrix")
-    expect_is(res5 <- motifSimilarity(x = tmpf, y = NULL, method = "R",
-                                      verbose = TRUE), "matrix")
+    suppressMessages(
+        expect_message(
+            expect_type(
+                res1 <- motifSimilarity(x = pfmL, y = NULL, method = "R",
+                                        BPPARAM = bpparams,
+                                        verbose = TRUE),
+                "double")
+        )
+    )
+    suppressMessages(
+        expect_message(
+            expect_type(
+                res2 <- motifSimilarity(x = pfmL, y = NULL, method = "R",
+                                        BPPARAM = bpparams,
+                                        verbose = TRUE),
+                "double")
+        )
+    )
+    suppressMessages(
+        expect_message(
+            expect_type(
+                res3 <- motifSimilarity(x = pfmL, y = pfmL, method = "R",
+                                        BPPARAM = bpparams,
+                                        verbose = TRUE),
+                "double")
+        )
+    )
+    suppressMessages(
+        expect_message(
+            expect_type(
+                res4 <- motifSimilarity(x = pfmL, y = pfmL, method = "R",
+                                        verbose = TRUE),
+                "double")
+        )
+    )
+    suppressMessages(
+        expect_message(
+            expect_type(
+                res5 <- motifSimilarity(x = tmpf, y = NULL, method = "R",
+                                        verbose = TRUE),
+                "double")
+        )
+    )
     expect_equal(res1[c(4,7,8)], c(1.0, 0.63146007727884323479,
                                    0.63146007727884323479))
     expect_equal(res1, res2)
@@ -92,9 +120,14 @@ test_that("motifSimilarity works as expected", {
         homerfile <- findHomer("compareMotifs.pl", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.11/bin")
     }
     if (!is.na(homerfile)) { # only test at home
-        expect_is(res6 <- motifSimilarity(x = tmpf, y = NULL, method = "HOMER",
-                                          homerfile = homerfile, verbose = TRUE),
-                  "matrix")
+        suppressMessages(
+            expect_message(
+                expect_type(
+                    res6 <- motifSimilarity(x = tmpf, y = NULL, method = "HOMER",
+                                            homerfile = homerfile, verbose = TRUE),
+                    "double")
+            )
+        )
         expect_equal(res1, res6)
     }
 
@@ -126,13 +159,31 @@ test_that("motifKmerSimilarity works as expected", {
     expect_error(motifKmerSimilarity(pfmL, kmerLen = 2.5))
     expect_error(motifKmerSimilarity(pfmL, kmerLen = -3))
 
-    expect_is(res1 <- motifKmerSimilarity(x = pfmL, kmerLen = 4,
-                                          verbose = TRUE), "matrix")
-    expect_is(res2 <- motifKmerSimilarity(
-        x = tmpf, kmerLen = 4L,
-        BPPARAM = bpparams, verbose = TRUE), "matrix")
-    expect_is(res3 <- motifKmerSimilarity(x = pfmL, kmers = FourMers,
-                                          verbose = TRUE), "matrix")
+    suppressMessages(
+        expect_message(
+            expect_type(
+                res1 <- motifKmerSimilarity(x = pfmL, kmerLen = 4,
+                                            verbose = TRUE),
+                "double")
+        )
+    )
+    suppressMessages(
+        expect_message(
+            expect_type(
+                res2 <- motifKmerSimilarity(
+                    x = tmpf, kmerLen = 4L,
+                    BPPARAM = bpparams, verbose = TRUE),
+                "double")
+        )
+    )
+    suppressMessages(
+        expect_message(
+            expect_type(
+                res3 <- motifKmerSimilarity(x = pfmL, kmers = FourMers,
+                                            verbose = TRUE),
+                "double")
+        )
+    )
     expect_identical(res1, res2)
     expect_identical(res1, res3)
     expect_identical(dim(res1), c(3L, 256L))
@@ -143,22 +194,40 @@ test_that("motifKmerSimilarity works as expected", {
     # test with subset of 4-mers
     FourMersSub <- c("AAAA", "GGCG", "TCGT", "ACTA")
     FourMersSubRevComp <- c("TTTT", "CGCC", "ACGA", "TAGT")
-    expect_is(res4 <- motifKmerSimilarity(x = pfmL, kmers = FourMersSub,
-                                          verbose = TRUE), "matrix")
+    suppressMessages(
+        expect_message(
+            expect_type(
+                res4 <- motifKmerSimilarity(x = pfmL, kmers = FourMersSub,
+                                            verbose = TRUE),
+                "double")
+        )
+    )
     expect_identical(dim(res4), c(3L, 4L))
     expect_identical(res1[, FourMersSub], res4)
 
     # test with reverse complements
-    expect_is(res5 <- motifKmerSimilarity(x = pfmL, kmers = FourMersSub,
-                                          includeRevComp = TRUE,
-                                          verbose = TRUE), "matrix")
+    suppressMessages(
+        expect_message(
+            expect_type(
+                res5 <- motifKmerSimilarity(x = pfmL, kmers = FourMersSub,
+                                            includeRevComp = TRUE,
+                                            verbose = TRUE),
+                "double")
+        )
+    )
     expect_identical(dim(res5), c(3L, 4L))
     expect_identical(pmax(res1[, FourMersSub], res1[, FourMersSubRevComp]),
                      res5)
 
     # test with a single 4-mer
-    expect_is(res6 <- motifKmerSimilarity(x = pfmL, kmers = "ACGT",
-                                          verbose = TRUE), "matrix")
+    suppressMessages(
+        expect_message(
+            expect_type(
+                res6 <- motifKmerSimilarity(x = pfmL, kmers = "ACGT",
+                                            verbose = TRUE),
+                "double")
+        )
+    )
     expect_identical(dim(res6), c(3L, 1L))
     expect_identical(res1[, "ACGT", drop = FALSE], res6)
 

@@ -22,7 +22,7 @@ test_that("randLassoStabSel() works properly", {
     ss <- monaLisa::randLassoStabSel(x = X, y = Y)
 
     # tests
-    expect_true(is(ss, "SummarizedExperiment"))
+    expect_s4_class(ss, "SummarizedExperiment")
     expect_identical(rowData(ss)$y, Y)
     expect_identical(ss$selProb, colData(ss)[, ncol(colData(ss))])
     expect_identical(ss$selAUC,
@@ -39,7 +39,7 @@ test_that("randLassoStabSel() works properly", {
 })
 
 test_that("randLassoStabSel() is deterministic", {
-  
+
   # create data set
   set.seed(555)
   Y <- rnorm(n = 500, mean = 2, sd = 1)
@@ -51,21 +51,21 @@ test_that("randLassoStabSel() is deterministic", {
   for (i in seq_along(s_cols)) {
     X[ ,s_cols[i]] <- X[ ,s_cols[i]] + Y
   }
-  
+
   # randomized lasso stability selection
   set.seed(123)
   ss1 <- monaLisa::randLassoStabSel(x = X, y = Y)
   set.seed(123)
   ss2 <- monaLisa::randLassoStabSel(x = X, y = Y)
-  
+
   # tests
   expect_identical(ss1, ss2)
-  
+
 })
 
 
 test_that(".glmnetRandomizedLasso() works properly", {
-    
+
     # create data set
     set.seed(555)
     Y <- rnorm(n = 500, mean = 2, sd = 1)
@@ -84,20 +84,20 @@ test_that(".glmnetRandomizedLasso() works properly", {
       expect_message(.glmnetRandomizedLasso(x = as.data.frame(X), y = Y, q = 11),
                      "coerced to a model matrix without intercept"),
       "Number of nonzero coefficients along the path exceeds")
-  
+
     # ... with specific lambda
     expect_error(.glmnetRandomizedLasso(x = X, y = Y, q = 11, lambda = 5))
-  
+
     # ... with type="anticonservative"
     set.seed(123)
     rl <- .glmnetRandomizedLasso(x = X, y = Y, q = 11, type = "anticonservative")
-    expect_is(rl, "list")
+    expect_type(rl, "list")
     expect_identical(names(rl), c("selected", "path"))
-    expect_is(rl$selected, "logical")
-    expect_is(rl$path, "matrix")
-  
+    expect_type(rl$selected, "logical")
+    expect_type(rl$path, "logical")
+
     # expected number of selected variables
     expect_identical(sum(rl$selected), 11L)
-    
+
 })
 
