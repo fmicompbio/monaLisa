@@ -22,10 +22,10 @@ plotBinScatter(
 
 \item{y}{A numerical vector with y values (the values used for binning).}
 
-\item{b}{A factor that groups elements of \code{x,y} into bins (typically 
+\item{b}{A factor that groups elements of \code{x,y} into bins (typically
 the output of \code{\link{bin}(y)}).}
 
-\item{cols}{A color vector (will be computed based on \code{b} by default 
+\item{cols}{A color vector (will be computed based on \code{b} by default
 using \code{\link{getColsByBin}(b)}).}
 
 \item{xlab}{Label for x-axis.}
@@ -34,7 +34,7 @@ using \code{\link{getColsByBin}(b)}).}
 
 \item{main}{Main title.}
 
-\item{legend}{If not \code{NULL}, draw a legend with binning information 
+\item{legend}{If not \code{NULL}, draw a legend with binning information
 (will be passed to \code{legend(x=legend)} to control legend position).}
 
 \item{legend.cex}{A scalar that controls the text size in the legend relative
@@ -46,7 +46,7 @@ to the current \code{par("cex")} (see \code{\link{legend}}).}
 \code{TRUE} (invisibly).
 }
 \description{
-Plot a scatter (xy-plot) of binned elements with binning 
+Plot a scatter (xy-plot) of binned elements with binning
     information.
 }
 \examples{

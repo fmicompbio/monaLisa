@@ -14,14 +14,14 @@ plotStabilityPaths(
 )
 }
 \arguments{
-\item{se}{the \code{SummarizedExperiment} object resulting from stability 
+\item{se}{the \code{SummarizedExperiment} object resulting from stability
 selection, by running \code{\link[monaLisa]{randLassoStabSel}}.}
 
 \item{selProbMin}{A numerical scalar in [0,1]. Predictors with a selection
 probability greater than \code{selProbMin} are shown as colored lines. The
 color is defined by the \code{col} argument.}
 
-\item{col}{vector of colors specifying what to color selected and 
+\item{col}{vector of colors specifying what to color selected and
 non-selected predictors.}
 
 \item{linewidth}{line width.}
@@ -34,7 +34,7 @@ non-selected predictors.}
 a \code{ggplot2} object.
 }
 \description{
-Plot the stability paths of each variable (predictor), 
+Plot the stability paths of each variable (predictor),
   showing the selection probability as a function of the regularization step.
 }
 \examples{
@@ -44,12 +44,12 @@ X <- matrix(data = NA, nrow = length(Y), ncol = 50)
 for (i in seq_len(ncol(X))) {
   X[ ,i] <- runif(n = 500, min = 0, max = 3)
 }
-s_cols <- sample(x = seq_len(ncol(X)), size = 10, 
+s_cols <- sample(x = seq_len(ncol(X)), size = 10,
   replace = FALSE)
 for (i in seq_along(s_cols)) {
   X[ ,s_cols[i]] <- X[ ,s_cols[i]] + Y
 }
-  
+
 ## reproducible randLassoStabSel() with 1 core
 set.seed(123)
 ss <- randLassoStabSel(x = X, y = Y)

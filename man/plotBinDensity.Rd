@@ -18,7 +18,7 @@ plotBinDensity(
 \arguments{
 \item{x}{A numerical vector with the values used for binning.}
 
-\item{b}{A factor that groups elements of \code{x} into bins (typically the 
+\item{b}{A factor that groups elements of \code{x} into bins (typically the
 output of \code{\link{bin}}).}
 
 \item{xlab}{Label for x-axis.}
@@ -36,7 +36,7 @@ to the current \code{par("cex")} (see \code{\link{legend}}).}
 \item{...}{Further arguments passed to \code{\link{getColsByBin}}.}
 }
 \value{
-Invisibly the return value of \code{density(x)} that generated the 
+Invisibly the return value of \code{density(x)} that generated the
     plot.
 }
 \description{

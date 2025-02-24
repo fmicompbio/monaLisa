@@ -19,7 +19,7 @@ plotBinHist(
 \arguments{
 \item{x}{A numerical vector with the values used for binning.}
 
-\item{b}{A factor that groups elements of \code{x} into bins (typically 
+\item{b}{A factor that groups elements of \code{x} into bins (typically
 the output of \code{\link{bin}}).}
 
 \item{breaks}{Controls the histogram breaks (passed to \code{hist(...)}).}
@@ -30,7 +30,7 @@ the output of \code{\link{bin}}).}
 
 \item{main}{Main title.}
 
-\item{legend}{If not \code{NULL}, draw a legend with binning information 
+\item{legend}{If not \code{NULL}, draw a legend with binning information
 (will be passed to \code{legend(x=legend)} to control legend position).}
 
 \item{legend.cex}{A scalar that controls the text size in the legend relative
@@ -39,7 +39,7 @@ to the current \code{par("cex")} (see \code{\link{legend}}).}
 \item{...}{Further arguments passed to \code{\link{getColsByBin}}.}
 }
 \value{
-Invisibly the return value of \code{hist(...)} that generated the 
+Invisibly the return value of \code{hist(...)} that generated the
     plot.
 }
 \description{
