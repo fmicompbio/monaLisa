@@ -132,7 +132,7 @@ test_that("parseHomerOutput() works properly", {
 })
 
 test_that("calcBinnedMotifEnrHomer() works properly (synthetic data)", {
-    homerbin <- findHomer("findMotifsGenome.pl", dirs = "/Users/runner/work/monaLisa/monaLisa/homer/bin")
+    homerbin <- findHomer("findMotifsGenome.pl") # on GHA should get it from Sys.getenv("MONALISA_HOMER")
     if (is.na(homerbin)) {
         homerbin <- findHomer("findMotifsGenome.pl", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.11/bin")
     }

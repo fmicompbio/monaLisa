@@ -1,3 +1,7 @@
+# monaLisa 1.13.2
+
+* minor fix to ensure that heatmap bin legends are ordered in the same way as the heatmap columns
+
 # monaLisa 1.11.3
 
 * add show_bin_legend argument  to plotMotifHeatmaps (contributed by @danymukesha, PR #62)
