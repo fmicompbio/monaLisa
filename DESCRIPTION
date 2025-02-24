@@ -46,7 +46,6 @@ Imports:
     tidyr,
     tools,
     utils,
-    vioplot,
     XVector
 Suggests: 
     BiocStyle, 
