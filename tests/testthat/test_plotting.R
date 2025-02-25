@@ -84,12 +84,18 @@ test_that("plotBinDiagnostics() runs", {
 })
 
 test_that("plotBinScatter() runs", {
+    expect_warning(plotBinScatter(x = x, y = x, b = b1, cols = "red",
+                                  legendPosition = "right"))
+    expect_warning(plotBinScatter(x = x, y = x, b = b1, legend = "topright"))
+    expect_warning(plotBinScatter(x = x, y = x, b = b1, legend.cex = 1.0))
+
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)
 
-    expect_true(plotBinScatter(x = x, y = x, b = b1))
-    expect_error(plotBinScatter(x = x, y = x, b = b1, cols = "gray"))
-    expect_true(plotBinScatter(x = x, y = x, b = b1, cols = "gray", legend = FALSE))
+    expect_s3_class(plotBinScatter(x = x, y = x, b = b1), "ggplot")
+    expect_s3_class(plotBinScatter(x = x, y = x, b = b1,
+                                   cols = "gray",
+                                   legendPosition = "none"), "ggplot")
 
     dev.off()
     unlink(tf)
@@ -121,7 +127,7 @@ test_that("plotMotifHeatmaps() runs", {
                                      highlight = rep(c(TRUE, FALSE), c(3, 7)))
     expect_true(result_true$pearsonResid@top_annotation@anno_list$bin@show_legend)
 
-    result_false <- plotMotifHeatmaps(x = se, which.plots = "pearsonResid",
+    result_false <- plotMotifHeatmaps(x = se, which.plots = c("pearsonResid", "negLog10P"),
                                       show_bin_legend = FALSE, doPlot = FALSE,
                                       maxEnr = 4, maxSig = 8)
     expect_false(result_false$pearsonResid@top_annotation@anno_list$bin@show_legend)

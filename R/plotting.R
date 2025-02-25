@@ -250,20 +250,28 @@ plotBinDensity <- function(x, b,
 #' @param y A numerical vector with y values (the values used for binning).
 #' @param b A factor that groups elements of \code{x,y} into bins (typically
 #'     the output of \code{\link{bin}(y)}).
-#' @param cols A color vector (will be computed based on \code{b} by default
-#'     using \code{\link{getColsByBin}(b)}).
+#' @param cols \code{NULL} or a color vector defining the colors of points.
+#'     If \code{NULL}, the colors will be computed based on \code{b} using
+#'     \code{\link{getColsByBin}(b)}).
 #' @param xlab Label for x-axis.
 #' @param ylab Label for y-axis.
 #' @param main Main title.
-#' @param legend If not \code{NULL}, draw a legend with binning information
-#'     (will be passed to \code{legend(x=legend)} to control legend position).
-#' @param legend.cex A scalar that controls the text size in the legend relative
-#'     to the current \code{par("cex")} (see \code{\link{legend}}).
-#' @param ... Further arguments passed to \code{plot(x, y, ...)}.
+#' @param legendPosition A \code{character} scalar.
+#'     If not \code{"none"}, draw a legend with binning information. The value
+#'     is used to control the legend position and will be passed to
+#'     \code{theme(legend.position = legendPosition)}.
+#' @param legend Depreciated (ignored). Please use \code{legendPosition} to
+#'     control the drawing and position of the legend.
+#' @param legend.cex Depreciated (ignored). You can use
+#'     \code{\link[ggplot2]{theme}} to set legend and other graphical
+#'     parameters.
+#' @param ... Further arguments passed to \code{\link{getColsByBin}} (only used
+#'     if \code{cols} is \code{NULL}).
 #'
-#' @seealso \code{\link{bin}}, \code{\link{getColsByBin}}
+#' @seealso \code{\link{bin}}, \code{\link{getColsByBin}},
+#'     \code{\link[ggplot2]{geom_point}}
 #'
-#' @return \code{TRUE} (invisibly).
+#' @return The generated scatter plot as a \code{ggplot} object.
 #'
 #' @examples
 #' set.seed(1)
@@ -272,36 +280,72 @@ plotBinDensity <- function(x, b,
 #' b <- bin(y, "equalN", nElements = 10)
 #' plotBinScatter(x, y, b)
 #'
+#' @importFrom ggplot2 ggplot aes geom_point element_blank theme_bw theme
+#' @importFrom cli cli_warn
+#'
 #' @export
 plotBinScatter <- function(x, y, b,
-                           cols = getColsByBin(b),
-                           xlab = deparse(substitute(x,
-                                                     env = as.environment(-1))),
-                           ylab = deparse(substitute(y,
-                                                     env = as.environment(-1))),
-                           main = "", legend = "topright",
-                           legend.cex = 1.0, ...) {
-    .assertVector(x = y, len = length(x))
+                           cols = NULL,
+                           xlab = deparse(
+                               substitute(x, env = as.environment(-1))),
+                           ylab = deparse(
+                               substitute(y, env = as.environment(-1))),
+                           main = "",
+                           legendPosition = "right",
+                           legend = NULL,
+                           legend.cex = NULL,
+                           ...) {
+    .assertVector(x = x, type = "numeric")
+    .assertVector(x = y, type = "numeric", len = length(x))
     .assertVector(x = b, len = length(x))
-    .assertScalar(x = legend.cex, type = "numeric", rngExcl = c(0, Inf))
-    if (length(cols) == 1L)
-        cols <- rep(cols, length(x))
-    stopifnot(length(x) == length(cols))
-    par(mar = c(5, 4, 4 - if (main == "") 3 else 0, 2) + 0.1, cex = 1.25)
-    plot(x, y, pch = 16, cex = 0.6, col = cols,
-         xlab = xlab, ylab = ylab, main = main, axes = FALSE, ...)
-    axis(1)
-    axis(2)
-    pusr <- par('usr')
-    segments(x0 = pusr[c(1,1)], y0 = pusr[c(4,3)],
-             x1 = pusr[c(1,2)], y1 = pusr[c(3,3)])
-    if (!is.null(legend) && legend[1] != FALSE) {
-        stopifnot("cols" %in% names(attributes(cols)))
+    bincols <- NULL
+    if (is.null(cols)) {
+        cols <- getColsByBin(b, ...)
         bincols <- attr(cols, "cols")
-        legend(x = legend, legend = sprintf("%s : %d", levels(b), table(b)),
-               fill = bincols, bty = "n", cex = legend.cex)
+    } else if (length(cols) == 1L) {
+        cols <- rep(cols, length(x))
     }
-    invisible(TRUE)
+    .assertVector(x = cols, len = length(x))
+    .assertScalar(x = xlab, type = "character")
+    .assertScalar(x = ylab, type = "character")
+    .assertScalar(x = main, type = "character")
+    if (is.null(bincols) && !identical(legendPosition, "none")) {
+        cli_warn(paste0(
+            "Setting {.arg legendPosition} to 'none' - ",
+            "cannot use custom colors ({.arg cols}) with bin-based legend"))
+    }
+    if (!is.null(legend)) {
+        cli_warn(c("{.arg legend} is depreciated and ignored.",
+                   "i" = "You can use {.arg legendPosition} to control legend drawing and position"))
+    }
+    if (!is.null(legend.cex)) {
+        cli_warn(c("{.arg legend.cex} is depreciated and ignored.",
+                   "i" = "You can use {.fn theme} to control legend and other graphical paramters"))
+    }
+
+    # add number of elements to bin names
+    bn <- unclass(table(b))
+    levels(b) <- paste0(levels(b), ": ", bn)
+
+    p <- ggplot(data = data.frame(x = x, y = y, b = b, cols = cols),
+                mapping = aes(x, y)) +
+        labs(x = ifelse(xlab != "", xlab, element_blank()),
+             y = ifelse(ylab != "", ylab, element_blank()),
+             main = ifelse(main != "", main, element_blank()),
+             colour = "Bins",
+             fill = "Bins") +
+        theme_bw() +
+        theme(legend.position = legendPosition)
+
+    if (is.null(bincols)) {
+        p <- p + geom_point(colour = cols)
+    } else {
+        names(bincols) <- levels(b)
+        p <- p + geom_point(aes(colour = b)) +
+            scale_colour_manual(values = bincols)
+    }
+
+    return(p)
 }
 
 
