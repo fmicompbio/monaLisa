@@ -419,6 +419,9 @@ setMethod("findMotifHits",
               } else if (method == "homer2") {
 
                   # write sequences to file
+                  if (is.null(names(subject))) {
+                      names(subject) <- paste0("s", seq_along(subject))
+                  }
                   tmpf <- tempfile(fileext = ".fa")
                   Biostrings::writeXStringSet(x = subject, filepath = tmpf,
                                               append = FALSE, compress = FALSE,
