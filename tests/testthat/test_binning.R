@@ -24,6 +24,11 @@ test_that("bin() works properly", {
 
     expect_warning(b5 <- bin(x, binmode = "equalN", nBins = 5, minAbsX = 3))
 
+    # uniform distribution, all negative values
+    u1 <- bin(seq(-20, -10), binmode = "equalWidth", nBins = 5)
+    expect_type(u1, "integer")
+    expect_true(all(c("binmode", "breaks", "bin0") %in% names(attributes(u1))))
+
     # asymmetric distribution
     set.seed(2)
     x <- c(rnorm(225, 0.006424305, 0.0792525),
