@@ -46,10 +46,13 @@ test_that("plotBinHist() runs", {
 
 
 test_that("plotBinDensity() runs", {
+    expect_warning(plotBinDensity(x = x, b = b1, legend = "topright"))
+    expect_warning(plotBinDensity(x = x, b = b1, legend.cex = 1.0))
+
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)
 
-    expect_s3_class(plotBinDensity(x = x, b = b1), "density")
+    expect_s3_class(plotBinDensity(x = x, b = b1), "ggplot")
 
     dev.off()
     unlink(tf)
