@@ -57,5 +57,5 @@ plotBinHist(x, b)
 
 }
 \seealso{
-\code{\link{getColsByBin}}, \code{\link[ggplot2]{geom_hist}}
+\code{\link{getColsByBin}}, \code{\link[ggplot2]{geom_histogram}}
 }

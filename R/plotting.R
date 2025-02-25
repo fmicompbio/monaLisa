@@ -88,7 +88,7 @@ getColsByBin <- function(b,
 #'     parameters.
 #' @param ... Further arguments passed to \code{\link{getColsByBin}}.
 #'
-#' @seealso \code{\link{getColsByBin}}, \code{\link[ggplot2]{geom_hist}}
+#' @seealso \code{\link{getColsByBin}}, \code{\link[ggplot2]{geom_histogram}}
 #'
 #' @return The generated histogram as a \code{ggplot} object.
 #'
