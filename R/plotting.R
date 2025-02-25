@@ -180,6 +180,7 @@ plotBinHist <- function(x, b,
 #' @importFrom ggplot2 ggplot aes geom_area geom_line geom_rug element_blank
 #'     theme_bw theme
 #' @importFrom cli cli_warn
+#' @importFrom rlang .data
 #'
 #' @export
 plotBinDensity <- function(x, b,
@@ -222,11 +223,12 @@ plotBinDensity <- function(x, b,
                      levels = levels(b))
 
     p <- ggplot(dens) +
-        geom_area(data = dens, mapping = aes(x, y, colour = b, fill = b),
+        geom_area(data = dens, mapping = aes(.data$x, .data$y,
+                                             colour = .data$b, fill = .data$b),
                   outline.type = "full") +
-        geom_line(data = dens, mapping = aes(x, y), colour = "gray20") +
+        geom_line(data = dens, mapping = aes(.data$x, .data$y), colour = "gray20") +
         geom_rug(data = data.frame(x = binbreaks),
-                 mapping = aes(x), colour = "gray20") +
+                 mapping = aes(.data$x), colour = "gray20") +
         scale_colour_manual(values = bincols) +
         scale_fill_manual(values = bincols) +
         labs(x = ifelse(xlab != "", xlab, element_blank()),
