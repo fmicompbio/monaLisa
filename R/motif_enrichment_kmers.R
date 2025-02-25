@@ -584,6 +584,8 @@ calcBinnedKmerEnr <- function(seqs,
                                 zoops = TRUE,
                                 includeRevComp = FALSE)
 
+            # exclude p value calculation from coverage (tested separately)
+            # nocov start
             if (identical(test, "binomial")) {
                 logP <- .binomEnrichmentTest(matchCountBg = res1$freq.exp,
                                              totalWeightBg = Nfg,
@@ -597,6 +599,7 @@ calcBinnedKmerEnr <- function(seqs,
                                               totalWeightFg = Nfg,
                                               verbose = FALSE)
             }
+            # nocov end
 
             return(data.frame(motifName = names(logP),
                               logP = logP,

@@ -192,6 +192,8 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
             .message(paste0(
                 "calculating {length(xm) * length(ym)} similarities using ",
                 "{bpnworkers(BPPARAM)} core{?s}"))
+            # exclude .compareMotifPair from coverage (tested separatelly)
+            # nocov start
             if (bpnworkers(BPPARAM) > 1) {
                 M <- do.call(rbind, bplapply(seq_along(xm), function(i) {
                     unlist(lapply(
@@ -201,7 +203,7 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
                     ))
                 }, BPPARAM = BPPARAM))
                 dimnames(M) <- list(name(x), name(y))
-            } else {
+            } else { # nocov end
                 M <- matrix(NA, nrow = length(xm), ncol = length(ym),
                             dimnames = list(name(x), name(y)))
                 for (i in seq_along(xm)) {

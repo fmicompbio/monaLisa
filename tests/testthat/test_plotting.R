@@ -59,6 +59,8 @@ test_that("plotBinDensity() runs", {
 })
 
 test_that("plotBinDiagnostics() runs", {
+    expect_error(plotBinDiagnostics(seqs = seqs, bins = b1[1:3]))
+
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)
 
@@ -114,10 +116,14 @@ test_that("plotMotifHeatmaps() runs", {
 
     expect_error(plotMotifHeatmaps(x = se, show_bin_legend = "error"))
 
-    result_true <- plotMotifHeatmaps(x = se, which.plots = "pearsonResid", show_bin_legend = TRUE, doPlot = FALSE)
+    result_true <- plotMotifHeatmaps(x = se, which.plots = "pearsonResid",
+                                     show_bin_legend = TRUE, doPlot = FALSE,
+                                     highlight = rep(c(TRUE, FALSE), c(3, 7)))
     expect_true(result_true$pearsonResid@top_annotation@anno_list$bin@show_legend)
 
-    result_false <- plotMotifHeatmaps(x = se, which.plots = "pearsonResid", show_bin_legend = FALSE, doPlot = FALSE)
+    result_false <- plotMotifHeatmaps(x = se, which.plots = "pearsonResid",
+                                      show_bin_legend = FALSE, doPlot = FALSE,
+                                      maxEnr = 4, maxSig = 8)
     expect_false(result_false$pearsonResid@top_annotation@anno_list$bin@show_legend)
 
     dev.off()
