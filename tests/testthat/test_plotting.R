@@ -32,10 +32,13 @@ test_that("getColsByBin() works properly", {
 
 
 test_that("plotBinHist() runs", {
+    expect_warning(plotBinHist(x = x, b = b1, legend = "topright"))
+    expect_warning(plotBinHist(x = x, b = b1, legend.cex = 1.0))
+
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)
 
-    expect_s3_class(plotBinHist(x = x, b = b1), "histogram")
+    expect_s3_class(plotBinHist(x = x, b = b1), "ggplot")
 
     dev.off()
     unlink(tf)

@@ -73,20 +73,24 @@ getColsByBin <- function(b,
 #' @param x A numerical vector with the values used for binning.
 #' @param b A factor that groups elements of \code{x} into bins (typically
 #'     the output of \code{\link{bin}}).
-#' @param breaks Controls the histogram breaks (passed to \code{hist(...)}).
-#' @param xlab Label for x-axis.
-#' @param ylab Label for y-axis.
-#' @param main Main title.
-#' @param legend If not \code{NULL}, draw a legend with binning information
-#'     (will be passed to \code{legend(x=legend)} to control legend position).
-#' @param legend.cex A scalar that controls the text size in the legend relative
-#'     to the current \code{par("cex")} (see \code{\link{legend}}).
+#' @param breaks A \code{numeric} scalar controlling the histogram breaks
+#'     (passed to \code{geom_hist(..., bins = breaks)}).
+#' @param xlab,ylab,main \code{character} scalars that set the x-axis label,
+#'     y-axis label and the main title. Use \code{""} to suppress the label.
+#' @param legendPosition A \code{character} scalar.
+#'     If not \code{"none"}, draw a legend with binning information. The value
+#'     is used to control the legend position and will be passed to
+#'     \code{theme(legend.position = legendPosition)}.
+#' @param legend Depreciated (ignored). Please use \code{legendPosition} to
+#'     control the drawing and position of the legend.
+#' @param legend.cex Depreciated (ignored). You can use
+#'     \code{\link[ggplot2]{theme}} to set legend and other graphical
+#'     parameters.
 #' @param ... Further arguments passed to \code{\link{getColsByBin}}.
 #'
-#' @seealso \code{\link{getColsByBin}}, \code{\link[graphics]{hist}}
+#' @seealso \code{\link{getColsByBin}}, \code{\link[ggplot2]{geom_hist}}
 #'
-#' @return Invisibly the return value of \code{hist(...)} that generated the
-#'     plot.
+#' @return The generated histogram as a \code{ggplot} object.
 #'
 #' @examples
 #' set.seed(1)
@@ -94,31 +98,49 @@ getColsByBin <- function(b,
 #' b <- bin(x, "equalN", nElements = 10)
 #' plotBinHist(x, b)
 #'
+#' @importFrom ggplot2 ggplot aes geom_histogram element_blank theme_bw theme
+#' @importFrom cli cli_warn
+#'
 #' @export
-plotBinHist <- function(x, b, breaks = 10 * nlevels(b),
+plotBinHist <- function(x, b, breaks = 6 * nlevels(b),
                         xlab = deparse(substitute(x, env = as.environment(-1))),
                         ylab = "Frequency",
-                        main = "", legend = "topright", legend.cex = 1.0, ...) {
+                        main = "",
+                        legendPosition = "right",
+                        legend = NULL,
+                        legend.cex = NULL, ...) {
+    .assertVector(x = x, type = "numeric")
     .assertVector(x = b, type = "factor", len = length(x))
-    stopifnot("breaks" %in% names(attributes(b)))
-    .assertScalar(x = legend.cex, type = "numeric", rngExcl = c(0, Inf))
+    .assertScalar(x = breaks, type = "numeric", allowNULL = TRUE)
+    .assertScalar(x = xlab, type = "character")
+    .assertScalar(x = ylab, type = "character")
+    .assertScalar(x = main, type = "character")
+    if (!is.null(legend)) {
+        cli_warn(c("{.arg legend} is depreciated and ignored.",
+                   "i" = "You can use {.arg legendPosition} to control legend drawing and position"))
+    }
+    if (!is.null(legend.cex)) {
+        cli_warn(c("{.arg legend.cex} is depreciated and ignored.",
+                   "i" = "You can use {.fn theme} to control legend and other graphical paramters"))
+    }
+
     cols <- getColsByBin(b, ...)
-    binbreaks <- attr(b, "breaks")
     bincols <- attr(cols, "cols")
-    h <- hist(x, breaks = breaks, plot = FALSE)
-    par(mar = c(5, 4, 4 - if (main == "") 3 else 0, 2) + 0.1, cex = 1.25)
-    ret <- hist(x, breaks = breaks,
-                col = bincols[findInterval(h$mids, binbreaks,
-                                           all.inside = TRUE)],
-                xlab = xlab, ylab = ylab, main = main)
-    pusr <- par('usr')
-    segments(x0 = pusr[c(1,1)], y0 = pusr[c(4,3)],
-             x1 = pusr[c(1,2)], y1 = pusr[c(3,3)])
-    rug(binbreaks, col = "black")
-    if (!is.null(legend) && legend[1] != FALSE)
-        legend(x = legend, legend = sprintf("%s : %d", levels(b), table(b)),
-               fill = bincols, bty = "n", cex = legend.cex)
-    invisible(ret)
+
+    bn <- unclass(table(b))
+    levels(b) <- names(bincols) <- paste0(levels(b), ": ", bn)
+
+    p <- ggplot(data = data.frame(x = x, b = b), mapping = aes(x = x, fill = b)) +
+        geom_histogram(bins = breaks, colour = "gray20") +
+        scale_fill_manual(values = bincols) +
+        labs(x = ifelse(xlab != "", xlab, element_blank()),
+             y = ifelse(ylab != "", ylab, element_blank()),
+             main = ifelse(main != "", main, element_blank()),
+             fill = "Bins") +
+        theme_bw() +
+        theme(legend.position = legendPosition)
+
+    return(p)
 }
 
 

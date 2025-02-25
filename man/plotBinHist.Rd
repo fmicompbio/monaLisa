@@ -7,12 +7,13 @@
 plotBinHist(
   x,
   b,
-  breaks = 10 * nlevels(b),
+  breaks = 6 * nlevels(b),
   xlab = deparse(substitute(x, env = as.environment(-1))),
   ylab = "Frequency",
   main = "",
-  legend = "topright",
-  legend.cex = 1,
+  legendPosition = "right",
+  legend = NULL,
+  legend.cex = NULL,
   ...
 )
 }
@@ -22,25 +23,28 @@ plotBinHist(
 \item{b}{A factor that groups elements of \code{x} into bins (typically
 the output of \code{\link{bin}}).}
 
-\item{breaks}{Controls the histogram breaks (passed to \code{hist(...)}).}
+\item{breaks}{A \code{numeric} scalar controlling the histogram breaks
+(passed to \code{geom_hist(..., bins = breaks)}).}
 
-\item{xlab}{Label for x-axis.}
+\item{xlab, ylab, main}{\code{character} scalars that set the x-axis label,
+y-axis label and the main title. Use \code{""} to suppress the label.}
 
-\item{ylab}{Label for y-axis.}
+\item{legendPosition}{A \code{character} scalar.
+If not \code{"none"}, draw a legend with binning information. The value
+is used to control the legend position and will be passed to
+\code{theme(legend.position = legendPosition)}.}
 
-\item{main}{Main title.}
+\item{legend}{Depreciated (ignored). Please use \code{legendPosition} to
+control the drawing and position of the legend.}
 
-\item{legend}{If not \code{NULL}, draw a legend with binning information
-(will be passed to \code{legend(x=legend)} to control legend position).}
-
-\item{legend.cex}{A scalar that controls the text size in the legend relative
-to the current \code{par("cex")} (see \code{\link{legend}}).}
+\item{legend.cex}{Depreciated (ignored). You can use
+\code{\link[ggplot2]{theme}} to set legend and other graphical
+parameters.}
 
 \item{...}{Further arguments passed to \code{\link{getColsByBin}}.}
 }
 \value{
-Invisibly the return value of \code{hist(...)} that generated the
-    plot.
+The generated histogram as a \code{ggplot} object.
 }
 \description{
 Plot a histogram of binned elements with binning information.
@@ -53,5 +57,5 @@ plotBinHist(x, b)
 
 }
 \seealso{
-\code{\link{getColsByBin}}, \code{\link[graphics]{hist}}
+\code{\link{getColsByBin}}, \code{\link[ggplot2]{geom_hist}}
 }
