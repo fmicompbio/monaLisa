@@ -16,7 +16,7 @@ test_that(".calcMotifEnrichment works", {
                    m2 = c(0, 0, 1, 1, 1, 1, 0),
                    m3 = c(1, 1, 1, 1, 1, 1, 1),
                    m4 = c(0, 0, 0, 0, 0, 0, 0))
-    
+
     expect_error(.calcMotifEnrichment("error", df), "has to be a matrix")
     expect_error(.calcMotifEnrichment(mhits, df[1:3, ]), "same number of rows")
     mhits2 <- mhits
@@ -26,12 +26,16 @@ test_that(".calcMotifEnrichment works", {
     expect_error(.calcMotifEnrichment(mhits, df, test = "error"), "should be one of")
     expect_error(.calcMotifEnrichment(mhits, df, verbose = "error"), "logical")
 
-    expect_message(res1 <- .calcMotifEnrichment(motifHitMatrix = mhits, df = df, test = "binom", verbose = TRUE))
-    expect_is(res1, "data.frame")
+    suppressMessages(expect_message(
+        res1 <- .calcMotifEnrichment(motifHitMatrix = mhits, df = df,
+                                     test = "binom", verbose = TRUE)))
+    expect_type(res1, "list")
     expect_identical(rownames(res1), colnames(mhits))
     expect_identical(round(res1$logP, 3), c(-1.341, -0.038, -0.844, 0))
-    expect_message(res2 <- .calcMotifEnrichment(motifHitMatrix = mhits, df = df, test = "fisher", verbose = TRUE))
-    expect_is(res2, "data.frame")
+    suppressMessages(expect_message(
+        res2 <- .calcMotifEnrichment(motifHitMatrix = mhits, df = df,
+                                     test = "fisher", verbose = TRUE)))
+    expect_type(res2, "list")
     expect_identical(res1[, -2], res2[, -2])
     expect_identical(round(res2$logP, 3), c(-0.99, -0.029, 0, 0))
 })
@@ -69,7 +73,7 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
                                                                replace = TRUE),
                                                         collapse = ""))))
     names(gnm) <- paste0("g", seq_along(gnm))
-    
+
     # argument checks
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = pwm,
                                      min.score = 20), "No motif hits")
@@ -91,11 +95,11 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
                  "has to define a zero bin")
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = NULL, pwmL = pwm,
                                      background = "genome", genome = "error"),
-                 "'genome' must be")
+                 ".genome. must be")
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = NULL, pwmL = pwm,
                                      background = "genome", genome = gnm,
                                      genome.regions = "error"),
-                 "'genome.regions' must be")
+                 ".genome.regions. must be")
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = NULL, pwmL = pwm,
                                      background = "genome", genome = gnm,
                                      genome.regions = GenomicRanges::GRanges("error", IRanges::IRanges(1, 10))),
@@ -120,31 +124,37 @@ test_that("calcBinnedMotifEnrR() works (synthetic data)", {
     expect_error(calcBinnedMotifEnrR(seqs = seqs, bins = b, pwmL = TFBSTools::Matrix(pwm[[1]])), "PWMatrixList")
 
     # results correctness
-    expect_message(res1 <- calcBinnedMotifEnrR(seqs = seqs,
-                                               bins = b,
-                                               pwmL = pwm,
-                                               min.score = 6,
-                                               test = "binom",
-                                               verbose = TRUE))
+    suppressMessages(
+        expect_message(res1 <- calcBinnedMotifEnrR(seqs = seqs,
+                                                   bins = b,
+                                                   pwmL = pwm,
+                                                   min.score = 6,
+                                                   test = "binom",
+                                                   verbose = TRUE))
+    )
     attr(b, "breaks") <- c(1:4 - 0.5)
-    expect_message(res2 <- calcBinnedMotifEnrR(seqs = seqs,
-                                               bins = b,
-                                               pwmL = pwm,
-                                               min.score = 6,
-                                               test = "fisher",
-                                               verbose = TRUE))
+    suppressMessages(
+        expect_message(res2 <- calcBinnedMotifEnrR(seqs = seqs,
+                                                   bins = b,
+                                                   pwmL = pwm,
+                                                   min.score = 6,
+                                                   test = "fisher",
+                                                   verbose = TRUE))
+    )
     set.seed(42L)
-    expect_message(res3 <- calcBinnedMotifEnrR(seqs = seqs,
-                                               bins = b,
-                                               pwmL = pwm,
-                                               min.score = 6,
-                                               test = "fisher",
-                                               background = "genome",
-                                               genome = gnm,
-                                               verbose = TRUE))
-    expect_is(res1, "SummarizedExperiment")
-    expect_is(res2, "SummarizedExperiment")
-    expect_is(res3, "SummarizedExperiment")
+    suppressMessages(
+        expect_message(res3 <- calcBinnedMotifEnrR(seqs = seqs,
+                                                   bins = b,
+                                                   pwmL = pwm,
+                                                   min.score = 6,
+                                                   test = "fisher",
+                                                   background = "genome",
+                                                   genome = gnm,
+                                                   verbose = TRUE))
+    )
+    expect_s4_class(res1, "SummarizedExperiment")
+    expect_s4_class(res2, "SummarizedExperiment")
+    expect_s4_class(res3, "SummarizedExperiment")
     expect_identical(dim(res1), c(length(pwm), nlevels(b)))
     expect_identical(dim(res1), dim(res1))
     expect_identical(dimnames(res1), list(names(pwm), levels(b)))

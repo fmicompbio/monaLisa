@@ -1,5 +1,3 @@
-context("seqlogo")
-
 m <- matrix(data = c(.1,.3,.3,.3,.01,.01,.01,.97,.5,.0,.0,.5), nrow = 4,
             dimnames = list(c("A","C","G","T"), NULL))
 pfm <- TFBSTools::PFMatrix(ID = "test", name = "name", profileMatrix = 100 * m)
@@ -10,10 +8,10 @@ test_that("letter adding functions work as expected", {
     rG <- letterG(x.pos = 0, y.pos = 0, ht = 1, wt = 1)
     rT <- letterT(x.pos = 0, y.pos = 0, ht = 1, wt = 1)
 
-    expect_is(rA, "list")
-    expect_is(rC, "list")
-    expect_is(rG, "list")
-    expect_is(rT, "list")
+    expect_type(rA, "list")
+    expect_type(rC, "list")
+    expect_type(rG, "list")
+    expect_type(rT, "list")
 
     expect_identical(names(rA), c("x", "y", "id", "fill"))
     expect_identical(names(rA), names(rC))
@@ -40,12 +38,12 @@ test_that("sequence logo can be drawn", {
     hmr <- annoSeqlogo(list(g0, g1, g2, g3), which = "row")
     hmc <- annoSeqlogo(list(g0, g1, g2, g3), which = "column")
 
-    expect_is(g0, "polygon")
-    expect_is(g1, "polygon")
-    expect_is(g2, "polygon")
-    expect_is(g3, "polygon")
-    expect_is(hmr, "AnnotationFunction")
-    expect_is(hmc, "AnnotationFunction")
+    expect_s3_class(g0, "polygon")
+    expect_s3_class(g1, "polygon")
+    expect_s3_class(g2, "polygon")
+    expect_s3_class(g3, "polygon")
+    expect_s4_class(hmr, "AnnotationFunction")
+    expect_s4_class(hmc, "AnnotationFunction")
 
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)

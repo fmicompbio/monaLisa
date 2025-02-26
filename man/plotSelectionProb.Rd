@@ -31,17 +31,17 @@ probability greater than \code{selProbMin} are shown as colored bars. The
 color is defined by \code{col[1]}. By default, \code{selProbMin} is
 extracted from the parameters stored in \code{se}.}
 
-\item{selProbMinPlot}{A numerical scalar in [0,1] less than 
+\item{selProbMinPlot}{A numerical scalar in [0,1] less than
 \code{selProbMin}.
 Predictors with a selection probability greater than \code{selProbMinPlot}
 but less than \code{selProbMin} are shown as bars with color \code{col[2]}.
-\code{selProbMinPlot} is useful to include additional predictors in the 
-plot that were not selected according to \code{selProbMin} but may be 
-close to that cutoff. Setting \code{selProbMinPlot = 0} will create a plot 
+\code{selProbMinPlot} is useful to include additional predictors in the
+plot that were not selected according to \code{selProbMin} but may be
+close to that cutoff. Setting \code{selProbMinPlot = 0} will create a plot
 including all predictors.}
 
 \item{showSelProbMin}{A logical scalar. If \code{TRUE}, the value of
-\code{selProbMin} is shown by a horizontal dashed line of color 
+\code{selProbMin} is shown by a horizontal dashed line of color
 \code{col[3]}.}
 
 \item{col}{A color vector giving the three colors used for predictors with
@@ -66,7 +66,7 @@ to the current \code{par("cex")} (see \code{\link{legend}}).}
 \item{...}{additional parameters passed to \code{\link[graphics]{barplot}}.}
 }
 \value{
-a \code{matrix} with one column, containing the coordinates of the 
+a \code{matrix} with one column, containing the coordinates of the
   bar midpoints, or \code{NULL} if no bar plot is drawn.
 }
 \description{
@@ -77,12 +77,12 @@ This function plots the selection probabilities of predictors
   correlation coefficient between each predictor and the response vector.
 }
 \details{
-This function creates a bar plot using the 
+This function creates a bar plot using the
   \code{\link[graphics]{barplot}} function.
-  Each bar corresponds to a predictor (motif) and the colors correspond to 
-  whether or not it was selected. The y-axis shows the selection 
-  probabilities (\code{directional=FALSE}) or selection probabilities with 
-  the sign of the marginal correlation to the response 
+  Each bar corresponds to a predictor (motif) and the colors correspond to
+  whether or not it was selected. The y-axis shows the selection
+  probabilities (\code{directional=FALSE}) or selection probabilities with
+  the sign of the marginal correlation to the response
   (\code{directional=TRUE}).
 }
 \examples{
@@ -92,12 +92,12 @@ X <- matrix(data = NA, nrow = length(Y), ncol = 50)
 for (i in seq_len(ncol(X))) {
   X[ ,i] <- runif(n = 500, min = 0, max = 3)
 }
-s_cols <- sample(x = seq_len(ncol(X)), size = 10, 
+s_cols <- sample(x = seq_len(ncol(X)), size = 10,
   replace = FALSE)
 for (i in seq_along(s_cols)) {
   X[ ,s_cols[i]] <- X[ ,s_cols[i]] + Y
 }
-  
+
 ## reproducible randLassoStabSel() with 1 core
 set.seed(123)
 ss <- randLassoStabSel(x = X, y = Y)

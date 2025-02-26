@@ -1,6 +1,7 @@
-context("motif finding")
-
 test_that("findMotifHits() works properly", {
+    suppressPackageStartupMessages(
+        library(GenomicRanges)
+    )
     homerbin <- findHomer("homer2", dirs = "/Users/runner/work/monaLisa/monaLisa/homer/bin")
     if (is.na(homerbin)) {
         homerbin <- findHomer("homer2", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.11/bin")
@@ -32,32 +33,33 @@ test_that("findMotifHits() works properly", {
     ############################################################################
     expect_error(findMotifHits(pwmL, sf,   min.score = TRUE, method = "matchPWM"))
     expect_error(findMotifHits(pwmL, seqs, min.score = TRUE, method = "matchPWM"))
-    
-    res1c  <- findMotifHits(tf,   sf,   min.score = "90%", method = "matchPWM") # character,character
-    res2c  <- findMotifHits(tf,   seq1, min.score = "90%", method = "matchPWM") # character,DNAString
-    res3c  <- findMotifHits(tf,   seqs, min.score = "90%", method = "matchPWM") # character,DNAStringSet
-    res4c  <- findMotifHits(pwm,  sf,   min.score = "90%", method = "matchPWM") # PWMatrix,character
-    res5c  <- findMotifHits(pwm,  seq1, min.score = "90%", method = "matchPWM") # PWMatrix,DNAString
-    res6c  <- findMotifHits(pwm,  seqs, min.score = "90%", method = "matchPWM") # PWMatrix,DNAStringSet
-    res7c  <- findMotifHits(pwmL, sf,   min.score = "90%", method = "matchPWM") # PWMatrixList,character
-    res7cb <- findMotifHits(pwmL, sf,   min.score = 4.456, method = "matchPWM") # PWMatrixList,character
-    res8c  <- findMotifHits(pwmL, seq1, min.score = "90%", method = "matchPWM") # PWMatrixList,DNAString
-    res9c  <- findMotifHits(pwmL, seqs, min.score = "90%", method = "matchPWM") # PWMatrixList,DNAStringSet
-    res9cb <- findMotifHits(pwmL, seqs, min.score = 4.456, method = "matchPWM") # PWMatrixList,DNAStringSet
-    res10c <- findMotifHits(pwm,  gr,   min.score = "90%", method = "matchPWM", genome = BSgenome.Mmusculus.UCSC.mm10::BSgenome.Mmusculus.UCSC.mm10) # PWMatrix,GRanges
-    res11c <- findMotifHits(pwmL, gr,   min.score = "90%", method = "matchPWM", genome = BSgenome.Mmusculus.UCSC.mm10::BSgenome.Mmusculus.UCSC.mm10) # PWMatrixList,GRanges
-    
+
+    res1c  <- findMotifHits(tf,           sf,   min.score = "90%", method = "matchPWM") # character,character
+    res2c  <- findMotifHits(tf,           seq1, min.score = "90%", method = "matchPWM") # character,DNAString
+    res3c  <- findMotifHits(tf,           seqs, min.score = "90%", method = "matchPWM") # character,DNAStringSet
+    res4c  <- findMotifHits(pwm,          sf,   min.score = "90%", method = "matchPWM") # PWMatrix,character
+    res5c  <- findMotifHits(pwm,          seq1, min.score = "90%", method = "matchPWM") # PWMatrix,DNAString
+    res6c  <- findMotifHits(pwm,          seqs, min.score = "90%", method = "matchPWM") # PWMatrix,DNAStringSet
+    res7c  <- findMotifHits(pwmL,         sf,   min.score = "90%", method = "matchPWM") # PWMatrixList,character
+    res7cb <- findMotifHits(pwmL,         sf,   min.score = 4.456, method = "matchPWM") # PWMatrixList,character
+    res8c  <- findMotifHits(pwmL,         seq1, min.score = "90%", method = "matchPWM") # PWMatrixList,DNAString
+    res9c  <- findMotifHits(pwmL,         seqs, min.score = "90%", method = "matchPWM") # PWMatrixList,DNAStringSet
+    res9cb <- findMotifHits(pwmL,         seqs, min.score = 4.456, method = "matchPWM") # PWMatrixList,DNAStringSet
+    res10c <- findMotifHits(pwm,          gr,   min.score = "90%", method = "matchPWM", genome = BSgenome.Mmusculus.UCSC.mm10::BSgenome.Mmusculus.UCSC.mm10) # PWMatrix,GRanges
+    res11c <- findMotifHits(pwmL,         gr,   min.score = "90%", method = "matchPWM", genome = BSgenome.Mmusculus.UCSC.mm10::BSgenome.Mmusculus.UCSC.mm10) # PWMatrixList,GRanges
+    res12c <- findMotifHits(tf, unname(seqs),   min.score = "90%", method = "matchPWM") # character,DNAStringSet(unnamed)
+
     # correctness
     expect_true(inherits(res1c, "GRanges"))
     expect_length(res1c, 3L)
     expect_equal(as.character(res1c$pwmname), rep("mypwm",3))
     expect_equal(GenomicRanges::start(res1c), c(6, 1, 9))
-    
+
     expect_true(inherits(res2c, "GRanges"))
     expect_length(res2c, 1L)
     expect_equal(as.character(res2c$pwmname), "mypwm")
     expect_equal(GenomicRanges::start(res2c), 6L)
-    
+
     # consistency between methods
     expect_equal(res1c, res3c)
     expect_equal(res1c, res4c)
@@ -70,7 +72,8 @@ test_that("findMotifHits() works properly", {
     expect_equal(res1c, res9cb)
     expect_equal(res1c, res10c)
     expect_equal(res1c, res11c)
-    
+    expect_identical(GenomicRanges::ranges(res1c), GenomicRanges::ranges(res12c))
+
     # method = "homer2"
     if (!is.na(homerbin)) { # only test if homer2 binary was found
         expect_error(findMotifHits(tf, DNAString(paste(rep("A", 1e6), collapse = "")), method = "homer2", homerfile = homerbin))
@@ -79,28 +82,31 @@ test_that("findMotifHits() works properly", {
         expect_error(findMotifHits(tf, sf, method = "error"))
         expect_error(findMotifHits(pwm,  gr,   min.score = "90%", method = "homer2", homerfile = homerbin))
         expect_error(findMotifHits(pwm,  gr,   min.score = "90%", method = "homer2", homerfile = homerbin, genome = "error"))
-        expect_is(findMotifHits(pwmL, unname(gr), min.score = "90%", method = "homer2", homerfile = homerbin, genome = BSgenome.Mmusculus.UCSC.mm10::BSgenome.Mmusculus.UCSC.mm10), "GRanges")
+        expect_s4_class(findMotifHits(pwmL, unname(gr), min.score = "90%", method = "homer2", homerfile = homerbin, genome = BSgenome.Mmusculus.UCSC.mm10::BSgenome.Mmusculus.UCSC.mm10), "GRanges")
 
         expect_error(findMotifHits(pwmL, sf,   min.score = TRUE, method = "homer2", homerfile = homerbin))
         expect_error(findMotifHits(pwmL, seqs, min.score = TRUE, method = "homer2", homerfile = homerbin))
 
-        res1h  <- findMotifHits(tf,   sf,   min.score = "90%", method = "homer2", homerfile = homerbin) # character,character
-        res2h  <- findMotifHits(tf,   seq1, min.score = "90%", method = "homer2", homerfile = homerbin) # character,DNAString
-        res3h  <- findMotifHits(tf,   seqs, min.score = "90%", method = "homer2", homerfile = homerbin) # character,DNAStringSet
-        res4h  <- findMotifHits(pwm,  sf,   min.score = "90%", method = "homer2", homerfile = homerbin) # PWMatrix,character
-        res5h  <- findMotifHits(pwm,  seq1, min.score = "90%", method = "homer2", homerfile = homerbin) # PWMatrix,DNAString
-        res6h  <- findMotifHits(pwm,  seqs, min.score = "90%", method = "homer2", homerfile = homerbin) # PWMatrix,DNAStringSet
-        res7h  <- findMotifHits(pwmL, sf,   min.score = "90%", method = "homer2", homerfile = homerbin) # PWMatrixList,character
-        res7hb <- findMotifHits(pwmL, sf,   min.score = 4.456, method = "homer2", homerfile = homerbin) # PWMatrixList,character
-        res8h  <- findMotifHits(pwmL, seq1, min.score = "90%", method = "homer2", homerfile = homerbin) # PWMatrixList,DNAString
-        res9h  <- findMotifHits(pwmL, seqs, min.score = "90%", method = "homer2", homerfile = homerbin) # PWMatrixList,DNAStringSet
-        res9hb <- findMotifHits(pwmL, seqs, min.score = 4.456, method = "homer2", homerfile = homerbin) # PWMatrixList,DNAStringSet
-        res10h <- findMotifHits(pwm,  gr,   min.score = "90%", method = "homer2", homerfile = homerbin, genome = BSgenome.Mmusculus.UCSC.mm10::BSgenome.Mmusculus.UCSC.mm10) # PWMatrix,GRanges
-        res11h <- findMotifHits(pwmL, gr,   min.score = "90%", method = "homer2", homerfile = homerbin, genome = BSgenome.Mmusculus.UCSC.mm10::BSgenome.Mmusculus.UCSC.mm10) # PWMatrixList,GRanges
+        res1h  <- findMotifHits(tf,           sf,   min.score = "90%", method = "homer2", homerfile = homerbin) # character,character
+        res2h  <- findMotifHits(tf,           seq1, min.score = "90%", method = "homer2", homerfile = homerbin) # character,DNAString
+        res3h  <- findMotifHits(tf,           seqs, min.score = "90%", method = "homer2", homerfile = homerbin) # character,DNAStringSet
+        res4h  <- findMotifHits(pwm,          sf,   min.score = "90%", method = "homer2", homerfile = homerbin) # PWMatrix,character
+        res5h  <- findMotifHits(pwm,          seq1, min.score = "90%", method = "homer2", homerfile = homerbin) # PWMatrix,DNAString
+        res6h  <- findMotifHits(pwm,          seqs, min.score = "90%", method = "homer2", homerfile = homerbin) # PWMatrix,DNAStringSet
+        res7h  <- findMotifHits(pwmL,         sf,   min.score = "90%", method = "homer2", homerfile = homerbin) # PWMatrixList,character
+        res7hb <- findMotifHits(pwmL,         sf,   min.score = 4.456, method = "homer2", homerfile = homerbin) # PWMatrixList,character
+        res8h  <- findMotifHits(pwmL,         seq1, min.score = "90%", method = "homer2", homerfile = homerbin) # PWMatrixList,DNAString
+        res9h  <- findMotifHits(pwmL,         seqs, min.score = "90%", method = "homer2", homerfile = homerbin) # PWMatrixList,DNAStringSet
+        res9hb <- findMotifHits(pwmL,         seqs, min.score = 4.456, method = "homer2", homerfile = homerbin) # PWMatrixList,DNAStringSet
+        res10h <- findMotifHits(pwm,          gr,   min.score = "90%", method = "homer2", homerfile = homerbin, genome = BSgenome.Mmusculus.UCSC.mm10::BSgenome.Mmusculus.UCSC.mm10) # PWMatrix,GRanges
+        res11h <- findMotifHits(pwmL,         gr,   min.score = "90%", method = "homer2", homerfile = homerbin, genome = BSgenome.Mmusculus.UCSC.mm10::BSgenome.Mmusculus.UCSC.mm10) # PWMatrixList,GRanges
+        res12h <- findMotifHits(tf, unname(seqs),   min.score = "90%", method = "homer2", homerfile = homerbin) # character,DNAStringSet(unnamed)
 
         # consistency between "matchPWM" and "homer2"
-        expect_equivalent(res1c, res1h)
-        expect_equivalent(res2c, res2h)
+        expect_identical(ranges(res1c), ranges(res1h))
+        expect_identical(ranges(res2c), ranges(res2h))
+        expect_equal(res1c$score, res1h$score, tolerance = 1e-6)
+        expect_equal(res2c$score, res2h$score, tolerance = 1e-6)
 
         # consistency between methods
         expect_equal(res1h, res3h)
@@ -114,6 +120,7 @@ test_that("findMotifHits() works properly", {
         expect_equal(res1h, res9hb)
         expect_equal(res1h, res10h)
         expect_equal(res1h, res11h)
+        expect_identical(GenomicRanges::ranges(res1h), GenomicRanges::ranges(res12h))
     }
 
     unlink(c(sf, tf))

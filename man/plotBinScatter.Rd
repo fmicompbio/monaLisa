@@ -8,12 +8,13 @@ plotBinScatter(
   x,
   y,
   b,
-  cols = getColsByBin(b),
+  cols = NULL,
   xlab = deparse(substitute(x, env = as.environment(-1))),
   ylab = deparse(substitute(y, env = as.environment(-1))),
   main = "",
-  legend = "topright",
-  legend.cex = 1,
+  legendPosition = "right",
+  legend = NULL,
+  legend.cex = NULL,
   ...
 )
 }
@@ -22,11 +23,12 @@ plotBinScatter(
 
 \item{y}{A numerical vector with y values (the values used for binning).}
 
-\item{b}{A factor that groups elements of \code{x,y} into bins (typically 
+\item{b}{A factor that groups elements of \code{x,y} into bins (typically
 the output of \code{\link{bin}(y)}).}
 
-\item{cols}{A color vector (will be computed based on \code{b} by default 
-using \code{\link{getColsByBin}(b)}).}
+\item{cols}{\code{NULL} or a color vector defining the colors of points.
+If \code{NULL}, the colors will be computed based on \code{b} using
+\code{\link{getColsByBin}(b)}).}
 
 \item{xlab}{Label for x-axis.}
 
@@ -34,19 +36,26 @@ using \code{\link{getColsByBin}(b)}).}
 
 \item{main}{Main title.}
 
-\item{legend}{If not \code{NULL}, draw a legend with binning information 
-(will be passed to \code{legend(x=legend)} to control legend position).}
+\item{legendPosition}{A \code{character} scalar.
+If not \code{"none"}, draw a legend with binning information. The value
+is used to control the legend position and will be passed to
+\code{theme(legend.position = legendPosition)}.}
 
-\item{legend.cex}{A scalar that controls the text size in the legend relative
-to the current \code{par("cex")} (see \code{\link{legend}}).}
+\item{legend}{Depreciated (ignored). Please use \code{legendPosition} to
+control the drawing and position of the legend.}
 
-\item{...}{Further arguments passed to \code{plot(x, y, ...)}.}
+\item{legend.cex}{Depreciated (ignored). You can use
+\code{\link[ggplot2]{theme}} to set legend and other graphical
+parameters.}
+
+\item{...}{Further arguments passed to \code{\link{getColsByBin}} (only used
+if \code{cols} is \code{NULL}).}
 }
 \value{
-\code{TRUE} (invisibly).
+The generated scatter plot as a \code{ggplot} object.
 }
 \description{
-Plot a scatter (xy-plot) of binned elements with binning 
+Plot a scatter (xy-plot) of binned elements with binning
     information.
 }
 \examples{
@@ -58,5 +67,6 @@ plotBinScatter(x, y, b)
 
 }
 \seealso{
-\code{\link{bin}}, \code{\link{getColsByBin}}
+\code{\link{bin}}, \code{\link{getColsByBin}},
+    \code{\link[ggplot2]{geom_point}}
 }

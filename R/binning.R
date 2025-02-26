@@ -9,12 +9,12 @@
         x2 <- sort(x, decreasing = TRUE,  na.last = NA)[seq_len(n2 + 1)]
         bin.breaks <- c(
             if (n1 > 0) {
-                quantile(x1, seq(0, 1, length.out = n1 / nElements + 1)) 
+                quantile(x1, seq(0, 1, length.out = n1 / nElements + 1))
             } else {
                 min(x, na.rm = TRUE)
             },
             if (n2 > 0) {
-                quantile(x2, seq(0, 1, length.out = n2 / nElements + 1)) 
+                quantile(x2, seq(0, 1, length.out = n2 / nElements + 1))
             } else {
                 max(x, na.rm = TRUE)
             }
@@ -42,8 +42,8 @@
         almostOne <- (length(x) - 1) / length(x)
         bin.breaks <- c(
             if (b1 > 0) {
-                rev(seq(-minAbsX, min(x, na.rm = TRUE) - almostOne * bw, 
-                        by = -bw)) 
+                rev(seq(-minAbsX, min(x, na.rm = TRUE) - almostOne * bw,
+                        by = -bw))
             } else {
                 min(x, na.rm = TRUE)
             },
@@ -55,7 +55,7 @@
         )
         attr(bin.breaks, "bin0") <- b1 + 1
     } else {
-        bin.breaks <- seq(min(x, na.rm = TRUE), max(x, na.rm = TRUE), 
+        bin.breaks <- seq(min(x, na.rm = TRUE), max(x, na.rm = TRUE),
                           length.out = nBins + 1)
         attr(bin.breaks, "bin0") <- NA
     }
@@ -86,8 +86,8 @@
 #'   include.lowest = TRUE, ...)}, such as \code{labels=FALSE}.
 #'
 #' @details Elements are binned according to the values in \code{x} depending on
-#'   \code{binmode}: 
-#'   \describe{ 
+#'   \code{binmode}:
+#'   \describe{
 #'   \item{equalN}{Items are grouped into a variable
 #'   number of bins with \code{nElements} elements each. If \code{minAbsX} is
 #'   not \code{NULL}, elements with \code{x}-values in \code{[-minAbsX,minAbsX]}
@@ -95,9 +95,9 @@
 #'   elements. The boundaries of this single bin may be slightly adjusted in
 #'   order to respect the \code{nElements} elements in the other bins.}
 #'   \item{equalWidth}{Items are group into \code{nBins} bins with a variable
-#'   number of elements each.} 
+#'   number of elements each.}
 #'   \item{breaks}{Items are grouped into bins using
-#'   \code{cut(x, breaks, include.lowest = TRUE)}} 
+#'   \code{cut(x, breaks, include.lowest = TRUE)}}
 #'   }
 #'
 #' @seealso \code{\link{cut}} which is used internally.
@@ -118,14 +118,14 @@
 #'
 #' @export
 bin <- function(x, binmode = c("equalN", "equalWidth", "breaks"),
-                nElements = round(length(x)/5), nBins = NULL, minAbsX = NULL, 
+                nElements = round(length(x)/5), nBins = NULL, minAbsX = NULL,
                 breaks = NULL, ...) {
     stopifnot(is.numeric(x) && length(x) > 1)
     binmode <- match.arg(binmode)
-    stopifnot(is.null(nElements) || 
+    stopifnot(is.null(nElements) ||
                   (is.numeric(nElements) && length(nElements) == 1))
     stopifnot(is.null(nBins) || (is.numeric(nBins) && length(nBins) == 1))
-    stopifnot(is.null(minAbsX) || 
+    stopifnot(is.null(minAbsX) ||
                   (is.numeric(minAbsX) && length(minAbsX) == 1 && minAbsX > 0))
     breaks <- switch(binmode,
                      "equalN" = .breaksEqualN(x, nElements, minAbsX),
@@ -149,24 +149,24 @@ bin <- function(x, binmode = c("equalN", "equalWidth", "breaks"),
 }
 
 #' Get and set the zero bin manually
-#' 
-#' @param bins Factor, typically the return value of 
+#'
+#' @param bins Factor, typically the return value of
 #'   \code{\link[monaLisa]{bin}}.
-#' @param zeroBin Numeric or character scalar indicating the level to use as 
+#' @param zeroBin Numeric or character scalar indicating the level to use as
 #'   the zero bin, or NA.
-#' 
-#' @examples 
+#'
+#' @examples
 #' set.seed(1)
 #' x <- rnorm(100)
 #' bins <- bin(x, "equalN", nElements = 10, minAbsX = 0.5)
 #' getZeroBin(bins)
 #' bins <- setZeroBin(bins, 2)
-#' 
-#' @return 
-#' For \code{getZeroBin}, the index of the level representing the zero bin. 
-#' For \code{setZeroBin}, a modified factor with the zero bin set to the 
+#'
+#' @return
+#' For \code{getZeroBin}, the index of the level representing the zero bin.
+#' For \code{setZeroBin}, a modified factor with the zero bin set to the
 #' provided value.
-#' 
+#'
 #' @name getSetZeroBin
 NULL
 
@@ -176,7 +176,8 @@ getZeroBin <- function(bins) {
     attr(bins, "bin0")
 }
 
-#' @export 
+#' @importFrom cli cli_abort
+#' @export
 #' @rdname getSetZeroBin
 setZeroBin <- function(bins, zeroBin) {
     .assertVector(x = bins, type = "factor")
@@ -191,7 +192,7 @@ setZeroBin <- function(bins, zeroBin) {
                       validValues = levels(bins))
         attr(bins, "bin0") <- match(zeroBin, levels(bins))
     } else {
-        stop("'zeroBin' must be of type 'character', 'numeric' or NA")
+        cli_abort("{.arg zeroBin} must be of type {.cls character}, {.cls numeric} or {.code NA}")
     }
     bins
 }

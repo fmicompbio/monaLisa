@@ -1,5 +1,3 @@
-context("region sampling")
-
 test_that("sampleRandomRegions() works properly", {
     gr <- GenomicRanges::GRanges(seqnames = paste0("chr", seq.int(20L)),
                                  ranges = IRanges::IRanges(start = 1L, width = 10000L))
@@ -14,7 +12,7 @@ test_that("sampleRandomRegions() works properly", {
     set.seed(123)
     res2 <- sampleRandomRegions(allowedRegions = gr)
 
-    expect_is(res1, "GRanges")
+    expect_s4_class(res1, "GRanges")
     expect_identical(res1, res2)
     expect_length(res1, 100L)
     expect_true(all(width(res1) == 200L))

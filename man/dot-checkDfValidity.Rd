@@ -23,7 +23,7 @@ and columns:
 }
 \value{
 \code{TRUE} (invisibly) if \code{df} is valid, otherwise it
-  raises an exception using \code{stop()}
+  raises an exception using \code{cli::cli_abort()}
 }
 \description{
 Check if the DataFrame with sequence information is valid,
