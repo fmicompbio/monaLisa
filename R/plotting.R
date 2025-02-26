@@ -98,7 +98,7 @@ getColsByBin <- function(b,
 #' b <- bin(x, "equalN", nElements = 10)
 #' plotBinHist(x, b)
 #'
-#' @importFrom ggplot2 ggplot aes geom_histogram element_blank theme_bw theme
+#' @importFrom ggplot2 ggplot aes geom_histogram element_blank theme_classic theme
 #' @importFrom cli cli_warn
 #'
 #' @export
@@ -139,7 +139,7 @@ plotBinHist <- function(x, b,
              y = ifelse(ylab != "", ylab, element_blank()),
              main = ifelse(main != "", main, element_blank()),
              fill = "Bins") +
-        theme_bw() +
+        theme_classic() +
         theme(legend.position = legendPosition)
 
     return(p)
@@ -178,7 +178,7 @@ plotBinHist <- function(x, b,
 #'
 #' @importFrom stats density
 #' @importFrom ggplot2 ggplot aes geom_area geom_line geom_rug element_blank
-#'     theme_bw theme
+#'     theme_classic theme
 #' @importFrom cli cli_warn
 #' @importFrom rlang .data
 #'
@@ -236,7 +236,7 @@ plotBinDensity <- function(x, b,
              main = ifelse(main != "", main, element_blank()),
              colour = "Bins",
              fill = "Bins") +
-        theme_bw() +
+        theme_classic() +
         theme(legend.position = legendPosition)
 
     return(p)
@@ -282,7 +282,7 @@ plotBinDensity <- function(x, b,
 #' b <- bin(y, "equalN", nElements = 10)
 #' plotBinScatter(x, y, b)
 #'
-#' @importFrom ggplot2 ggplot aes geom_point element_blank theme_bw theme
+#' @importFrom ggplot2 ggplot aes geom_point element_blank theme_classic theme
 #' @importFrom cli cli_warn
 #'
 #' @export
@@ -336,7 +336,7 @@ plotBinScatter <- function(x, y, b,
              main = ifelse(main != "", main, element_blank()),
              colour = "Bins",
              fill = "Bins") +
-        theme_bw() +
+        theme_classic() +
         theme(legend.position = legendPosition)
 
     if (is.null(bincols)) {

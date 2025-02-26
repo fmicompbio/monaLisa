@@ -43,7 +43,7 @@
 #' plotBinDiagnostics(seqs, bins, aspect = "dinucfreq")
 #'
 #' @importFrom ggplot2 ggplot aes geom_violin scale_fill_manual
-#'   scale_colour_manual labs element_blank theme_bw
+#'   scale_colour_manual labs element_blank theme_classic
 #' @importFrom ComplexHeatmap Heatmap rowAnnotation
 #' @importFrom circlize colorRamp2
 #' @importFrom Biostrings oligonucleotideFrequency
@@ -76,7 +76,7 @@ plotBinDiagnostics <- function(seqs, bins,
             scale_colour_manual(values = ifelse(attr(binCols, "luminance") > 0.5,
                                                 "black", "white")) +
             labs(x = "Length", y = element_blank()) +
-            theme_bw()
+            theme_classic()
         return(p)
     } else if (aspect == "GCfrac") {
         onf <- Biostrings::oligonucleotideFrequency(seqs, width = 1,
@@ -91,7 +91,7 @@ plotBinDiagnostics <- function(seqs, bins,
             scale_colour_manual(values = ifelse(attr(binCols, "luminance") > 0.5,
                                                 "black", "white")) +
             labs(x = "GC fraction", y = element_blank()) +
-            theme_bw()
+            theme_classic()
         return(p)
     } else if (aspect == "dinucfreq") {
         dnf <- Biostrings::oligonucleotideFrequency(seqs, width = 2,
