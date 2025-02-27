@@ -117,7 +117,7 @@ plotBinHist <- function(x, b,
     }
     if (!is.null(legend.cex)) {
         cli_warn(c("{.arg legend.cex} is deprecated and ignored.",
-                   "i" = "You can use {.fn theme} to control legend and other graphical paramters"))
+                   "i" = "You can use {.fn theme} to control legend and other graphical parameters"))
     }
 
     cols <- getColsByBin(b, ...)
@@ -199,7 +199,7 @@ plotBinDensity <- function(x, b,
     }
     if (!is.null(legend.cex)) {
         cli_warn(c("{.arg legend.cex} is deprecated and ignored.",
-                   "i" = "You can use {.fn theme} to control legend and other graphical paramters"))
+                   "i" = "You can use {.fn theme} to control legend and other graphical parameters"))
     }
 
     cols <- getColsByBin(b, ...)
@@ -317,7 +317,7 @@ plotBinScatter <- function(x, y, b,
     }
     if (!is.null(legend.cex)) {
         cli_warn(c("{.arg legend.cex} is deprecated and ignored.",
-                   "i" = "You can use {.fn theme} to control legend and other graphical paramters"))
+                   "i" = "You can use {.fn theme} to control legend and other graphical parameters"))
     }
 
     # add number of elements to bin names
