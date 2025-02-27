@@ -54,14 +54,9 @@ getColsByBin <- function(b,
                   colorRampPalette(col2)(nlevels(b) - nh))
     }
 
-    # calculate luminance (perceived brightness)
-    rgbvals <- col2rgb(cols) / 255
-    lumi <- 0.299 * rgbvals[1, ] + 0.587 * rgbvals[2, ] + 0.114 * rgbvals[3, ]
-
     res <- cols[b]
-    names(cols) <- names(lumi) <- levels(b)
+    names(cols) <- levels(b)
     attr(res, "cols") <- cols
-    attr(res, "luminance") <- lumi
     return(res)
 }
 

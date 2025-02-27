@@ -33,11 +33,11 @@
 #'
 #' @examples
 #' seqs <- Biostrings::DNAStringSet(
-#'   vapply(1:100, function(i) paste(sample(x = c("A", "C", "G", "T"),
+#'   vapply(1:150, function(i) paste(sample(x = c("A", "C", "G", "T"),
 #'                                          size = round(stats::rnorm(1, 20, 5)),
 #'                                          replace = TRUE), collapse = ""), "")
 #' )
-#' bins <- factor(rep(c("a", "b"), each = 50))
+#' bins <- factor(rep(c("a", "b", "c"), each = 50))
 #' plotBinDiagnostics(seqs, bins, aspect = "length")
 #' plotBinDiagnostics(seqs, bins, aspect = "GCfrac", draw_quantiles = NULL)
 #' plotBinDiagnostics(seqs, bins, aspect = "dinucfreq")
@@ -69,12 +69,10 @@ plotBinDiagnostics <- function(seqs, bins,
         p <- ggplot(data = data.frame(seqlen = width(seqs),
                                       bin = bins),
                     mapping = aes(.data$seqlen, .data$bin,
-                                  fill = .data$bin, colour = .data$bin)) +
+                                  fill = .data$bin)) +
             geom_violin(draw_quantiles = draw_quantiles,
                         show.legend = FALSE) +
             scale_fill_manual(values = attr(binCols, "cols")) +
-            scale_colour_manual(values = ifelse(attr(binCols, "luminance") > 0.5,
-                                                "black", "white")) +
             labs(x = "Length", y = element_blank()) +
             theme_classic()
         return(p)
@@ -84,12 +82,10 @@ plotBinDiagnostics <- function(seqs, bins,
         p <- ggplot(data = data.frame(gcfrac = onf[, "G"] + onf[, "C"],
                                       bin = bins),
                     mapping = aes(.data$gcfrac, .data$bin,
-                                  fill = .data$bin, colour = .data$bin)) +
+                                  fill = .data$bin)) +
             geom_violin(draw_quantiles = draw_quantiles,
                         show.legend = FALSE) +
             scale_fill_manual(values = attr(binCols, "cols")) +
-            scale_colour_manual(values = ifelse(attr(binCols, "luminance") > 0.5,
-                                                "black", "white")) +
             labs(x = "GC fraction", y = element_blank()) +
             theme_classic()
         return(p)
