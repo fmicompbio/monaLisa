@@ -13,7 +13,7 @@ plotBinDiagnostics(
 )
 }
 \arguments{
-\item{seqs}{DNAStringSet object with sequences.}
+\item{seqs}{\code{\link[Biostrings]{DNAStringSet}} object with sequences.}
 
 \item{bins}{factor of the same length and order as \code{seqs}, indicating
 the bin for each sequence. Typically the return value of \code{bin}.}
@@ -51,11 +51,11 @@ available:
 }
 \examples{
 seqs <- Biostrings::DNAStringSet(
-  vapply(1:100, function(i) paste(sample(x = c("A", "C", "G", "T"),
+  vapply(1:250, function(i) paste(sample(x = c("A", "C", "G", "T"),
                                          size = round(stats::rnorm(1, 20, 5)),
                                          replace = TRUE), collapse = ""), "")
 )
-bins <- factor(rep(c("a", "b"), each = 50))
+bins <- factor(rep(c("a", "b", "c", "d", "e"), each = 50))
 plotBinDiagnostics(seqs, bins, aspect = "length")
 plotBinDiagnostics(seqs, bins, aspect = "GCfrac", draw_quantiles = NULL)
 plotBinDiagnostics(seqs, bins, aspect = "dinucfreq")
