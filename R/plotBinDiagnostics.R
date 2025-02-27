@@ -27,9 +27,9 @@
 #'
 #' @export
 #'
-#' @return For aspect=\code{"length"} or \code{"GCfrac"}, returns \code{ggplot2}
-#'   object. For aspect=\code{"dinucfreq"}, returns (invisibly) the
-#'   \code{\link[ComplexHeatmap]{Heatmap-class}} object.
+#' @return For aspect=\code{"length"} or \code{"GCfrac"}, returns a
+#'   \code{\link[ggplot2]{ggplot}} object. For aspect=\code{"dinucfreq"},
+#'   returns (invisibly) a \code{\link[ComplexHeatmap]{Heatmap-class}} object.
 #'
 #' @examples
 #' seqs <- Biostrings::DNAStringSet(

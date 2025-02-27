@@ -81,9 +81,9 @@ getColsByBin <- function(b,
 #'     If not \code{"none"}, draw a legend with binning information. The value
 #'     is used to control the legend position and will be passed to
 #'     \code{theme(legend.position = legendPosition)}.
-#' @param legend Depreciated (ignored). Please use \code{legendPosition} to
+#' @param legend Deprecated (ignored). Please use \code{legendPosition} to
 #'     control the drawing and position of the legend.
-#' @param legend.cex Depreciated (ignored). You can use
+#' @param legend.cex Deprecated (ignored). You can use
 #'     \code{\link[ggplot2]{theme}} to set legend and other graphical
 #'     parameters.
 #' @param ... Further arguments passed to \code{\link{getColsByBin}}.
@@ -117,11 +117,11 @@ plotBinHist <- function(x, b,
     .assertScalar(x = ylab, type = "character")
     .assertScalar(x = main, type = "character")
     if (!is.null(legend)) {
-        cli_warn(c("{.arg legend} is depreciated and ignored.",
+        cli_warn(c("{.arg legend} is deprecated and ignored.",
                    "i" = "You can use {.arg legendPosition} to control legend drawing and position"))
     }
     if (!is.null(legend.cex)) {
-        cli_warn(c("{.arg legend.cex} is depreciated and ignored.",
+        cli_warn(c("{.arg legend.cex} is deprecated and ignored.",
                    "i" = "You can use {.fn theme} to control legend and other graphical paramters"))
     }
 
@@ -159,9 +159,9 @@ plotBinHist <- function(x, b,
 #'     If not \code{"none"}, draw a legend with binning information. The value
 #'     is used to control the legend position and will be passed to
 #'     \code{theme(legend.position = legendPosition)}.
-#' @param legend Depreciated (ignored). Please use \code{legendPosition} to
+#' @param legend Deprecated (ignored). Please use \code{legendPosition} to
 #'     control the drawing and position of the legend.
-#' @param legend.cex Depreciated (ignored). You can use
+#' @param legend.cex Deprecated (ignored). You can use
 #'     \code{\link[ggplot2]{theme}} to set legend and other graphical
 #'     parameters.
 #' @param ... Further arguments passed to \code{\link{getColsByBin}}.
@@ -199,11 +199,11 @@ plotBinDensity <- function(x, b,
     .assertScalar(x = ylab, type = "character")
     .assertScalar(x = main, type = "character")
     if (!is.null(legend)) {
-        cli_warn(c("{.arg legend} is depreciated and ignored.",
+        cli_warn(c("{.arg legend} is deprecated and ignored.",
                    "i" = "You can use {.arg legendPosition} to control legend drawing and position"))
     }
     if (!is.null(legend.cex)) {
-        cli_warn(c("{.arg legend.cex} is depreciated and ignored.",
+        cli_warn(c("{.arg legend.cex} is deprecated and ignored.",
                    "i" = "You can use {.fn theme} to control legend and other graphical paramters"))
     }
 
@@ -262,9 +262,9 @@ plotBinDensity <- function(x, b,
 #'     If not \code{"none"}, draw a legend with binning information. The value
 #'     is used to control the legend position and will be passed to
 #'     \code{theme(legend.position = legendPosition)}.
-#' @param legend Depreciated (ignored). Please use \code{legendPosition} to
+#' @param legend Deprecated (ignored). Please use \code{legendPosition} to
 #'     control the drawing and position of the legend.
-#' @param legend.cex Depreciated (ignored). You can use
+#' @param legend.cex Deprecated (ignored). You can use
 #'     \code{\link[ggplot2]{theme}} to set legend and other graphical
 #'     parameters.
 #' @param ... Further arguments passed to \code{\link{getColsByBin}} (only used
@@ -317,11 +317,11 @@ plotBinScatter <- function(x, y, b,
             "cannot use custom colors ({.arg cols}) with bin-based legend"))
     }
     if (!is.null(legend)) {
-        cli_warn(c("{.arg legend} is depreciated and ignored.",
+        cli_warn(c("{.arg legend} is deprecated and ignored.",
                    "i" = "You can use {.arg legendPosition} to control legend drawing and position"))
     }
     if (!is.null(legend.cex)) {
-        cli_warn(c("{.arg legend.cex} is depreciated and ignored.",
+        cli_warn(c("{.arg legend.cex} is deprecated and ignored.",
                    "i" = "You can use {.fn theme} to control legend and other graphical paramters"))
     }
 

@@ -30,9 +30,9 @@ If \code{NULL}, no quantile lines will be drawn.}
 \item{...}{Additional argument passed to \code{getColsByBin}.}
 }
 \value{
-For aspect=\code{"length"} or \code{"GCfrac"}, returns \code{ggplot2}
-  object. For aspect=\code{"dinucfreq"}, returns (invisibly) the
-  \code{\link[ComplexHeatmap]{Heatmap-class}} object.
+For aspect=\code{"length"} or \code{"GCfrac"}, returns a
+  \code{\link[ggplot2]{ggplot}} object. For aspect=\code{"dinucfreq"},
+  returns (invisibly) a \code{\link[ComplexHeatmap]{Heatmap-class}} object.
 }
 \description{
 Plot various diagnostics of binned sequences. Three plot types are
