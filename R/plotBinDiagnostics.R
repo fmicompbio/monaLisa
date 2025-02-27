@@ -13,7 +13,7 @@
 #'   between the bins. The average relative frequency of each dinucleotide
 #'   (across the bins) is indicated as well.}
 #' }
-#' @param seqs DNAStringSet object with sequences.
+#' @param seqs \code{\link[Biostrings]{DNAStringSet}} object with sequences.
 #' @param bins factor of the same length and order as \code{seqs}, indicating
 #'   the bin for each sequence. Typically the return value of \code{bin}.
 #' @param aspect The diagnostic to plot. Should be one of \code{"length"},
@@ -27,17 +27,17 @@
 #'
 #' @export
 #'
-#' @return For aspect=\code{"length"} or \code{"GCfrac"}, returns \code{ggplot2}
-#'   object. For aspect=\code{"dinucfreq"}, returns (invisibly) the
-#'   \code{\link[ComplexHeatmap]{Heatmap-class}} object.
+#' @return For aspect=\code{"length"} or \code{"GCfrac"}, returns a
+#'   \code{\link[ggplot2]{ggplot}} object. For aspect=\code{"dinucfreq"},
+#'   returns (invisibly) a \code{\link[ComplexHeatmap]{Heatmap-class}} object.
 #'
 #' @examples
 #' seqs <- Biostrings::DNAStringSet(
-#'   vapply(1:100, function(i) paste(sample(x = c("A", "C", "G", "T"),
+#'   vapply(1:250, function(i) paste(sample(x = c("A", "C", "G", "T"),
 #'                                          size = round(stats::rnorm(1, 20, 5)),
 #'                                          replace = TRUE), collapse = ""), "")
 #' )
-#' bins <- factor(rep(c("a", "b"), each = 50))
+#' bins <- factor(rep(c("a", "b", "c", "d", "e"), each = 50))
 #' plotBinDiagnostics(seqs, bins, aspect = "length")
 #' plotBinDiagnostics(seqs, bins, aspect = "GCfrac", draw_quantiles = NULL)
 #' plotBinDiagnostics(seqs, bins, aspect = "dinucfreq")
@@ -65,32 +65,21 @@ plotBinDiagnostics <- function(seqs, bins,
 
     binCols <- getColsByBin(bins, ...)
 
-    if (aspect == "length") {
-        p <- ggplot(data = data.frame(seqlen = width(seqs),
-                                      bin = bins),
-                    mapping = aes(.data$seqlen, .data$bin,
-                                  fill = .data$bin, colour = .data$bin)) +
-            geom_violin(draw_quantiles = draw_quantiles,
-                        show.legend = FALSE) +
+    if (aspect %in% c("length", "GCfrac")) {
+        pd <- data.frame(bin = bins)
+        if (identical(aspect, "length")) {
+            pd$xvalue <- width(seqs)
+            xlab <- "Length (bp)"
+        } else if (identical(aspect, "GCfrac")) {
+            onf <- oligonucleotideFrequency(seqs, width = 1, as.prob = TRUE)
+            pd$xvalue <- onf[, "G"] + onf[, "C"]
+            xlab <- "GC fraction"
+        }
+        p <- ggplot(data = pd,
+                    mapping = aes(.data$xvalue, .data$bin, fill = .data$bin)) +
+            geom_violin(draw_quantiles = draw_quantiles, show.legend = FALSE) +
             scale_fill_manual(values = attr(binCols, "cols")) +
-            scale_colour_manual(values = ifelse(attr(binCols, "luminance") > 0.5,
-                                                "black", "white")) +
-            labs(x = "Length", y = element_blank()) +
-            theme_classic()
-        return(p)
-    } else if (aspect == "GCfrac") {
-        onf <- Biostrings::oligonucleotideFrequency(seqs, width = 1,
-                                                    as.prob = TRUE)
-        p <- ggplot(data = data.frame(gcfrac = onf[, "G"] + onf[, "C"],
-                                      bin = bins),
-                    mapping = aes(.data$gcfrac, .data$bin,
-                                  fill = .data$bin, colour = .data$bin)) +
-            geom_violin(draw_quantiles = draw_quantiles,
-                        show.legend = FALSE) +
-            scale_fill_manual(values = attr(binCols, "cols")) +
-            scale_colour_manual(values = ifelse(attr(binCols, "luminance") > 0.5,
-                                                "black", "white")) +
-            labs(x = "GC fraction", y = element_blank()) +
+            labs(x = xlab, y = element_blank()) +
             theme_classic()
         return(p)
     } else if (aspect == "dinucfreq") {

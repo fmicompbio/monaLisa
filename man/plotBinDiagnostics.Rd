@@ -13,7 +13,7 @@ plotBinDiagnostics(
 )
 }
 \arguments{
-\item{seqs}{DNAStringSet object with sequences.}
+\item{seqs}{\code{\link[Biostrings]{DNAStringSet}} object with sequences.}
 
 \item{bins}{factor of the same length and order as \code{seqs}, indicating
 the bin for each sequence. Typically the return value of \code{bin}.}
@@ -30,9 +30,9 @@ If \code{NULL}, no quantile lines will be drawn.}
 \item{...}{Additional argument passed to \code{getColsByBin}.}
 }
 \value{
-For aspect=\code{"length"} or \code{"GCfrac"}, returns \code{ggplot2}
-  object. For aspect=\code{"dinucfreq"}, returns (invisibly) the
-  \code{\link[ComplexHeatmap]{Heatmap-class}} object.
+For aspect=\code{"length"} or \code{"GCfrac"}, returns a
+  \code{\link[ggplot2]{ggplot}} object. For aspect=\code{"dinucfreq"},
+  returns (invisibly) a \code{\link[ComplexHeatmap]{Heatmap-class}} object.
 }
 \description{
 Plot various diagnostics of binned sequences. Three plot types are
@@ -51,11 +51,11 @@ available:
 }
 \examples{
 seqs <- Biostrings::DNAStringSet(
-  vapply(1:100, function(i) paste(sample(x = c("A", "C", "G", "T"),
+  vapply(1:250, function(i) paste(sample(x = c("A", "C", "G", "T"),
                                          size = round(stats::rnorm(1, 20, 5)),
                                          replace = TRUE), collapse = ""), "")
 )
-bins <- factor(rep(c("a", "b"), each = 50))
+bins <- factor(rep(c("a", "b", "c", "d", "e"), each = 50))
 plotBinDiagnostics(seqs, bins, aspect = "length")
 plotBinDiagnostics(seqs, bins, aspect = "GCfrac", draw_quantiles = NULL)
 plotBinDiagnostics(seqs, bins, aspect = "dinucfreq")

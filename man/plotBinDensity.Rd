@@ -30,10 +30,10 @@ If not \code{"none"}, draw a legend with binning information. The value
 is used to control the legend position and will be passed to
 \code{theme(legend.position = legendPosition)}.}
 
-\item{legend}{Depreciated (ignored). Please use \code{legendPosition} to
+\item{legend}{Deprecated (ignored). Please use \code{legendPosition} to
 control the drawing and position of the legend.}
 
-\item{legend.cex}{Depreciated (ignored). You can use
+\item{legend.cex}{Deprecated (ignored). You can use
 \code{\link[ggplot2]{theme}} to set legend and other graphical
 parameters.}
 
