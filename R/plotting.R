@@ -652,7 +652,8 @@ plotMotifHeatmaps <- function(x,
 #' @seealso \code{\link[stabs]{stabsel}}
 #'
 #' @importFrom SummarizedExperiment assay rowData colData
-#' @import ggplot2
+#' @importFrom ggplot2 ggplot aes geom_line scale_color_manual geom_hline labs
+#'     guides guide_legend ylim theme_classic
 #' @importFrom tidyr pivot_longer starts_with
 #' @importFrom cli cli_abort
 #'
