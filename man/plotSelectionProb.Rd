@@ -10,12 +10,10 @@ plotSelectionProb(
   selProbMin = metadata(se)$stabsel.params.cutoff,
   selProbMinPlot = 0.4,
   showSelProbMin = TRUE,
-  col = c("cadetblue", "grey", "red"),
+  selColor = "cadetblue",
+  notSelColor = "grey",
   method = c("pearson", "kendall", "spearman"),
-  ylimext = 0.25,
-  legend = "topright",
-  legend.cex = 1,
-  ...
+  ylimext = 0.2
 )
 }
 \arguments{
@@ -27,27 +25,31 @@ are plotted with the sign of the marginal correlation between a predictor
 and the response.}
 
 \item{selProbMin}{A numerical scalar in [0,1]. Predictors with a selection
-probability greater than \code{selProbMin} are shown as colored bars. The
-color is defined by \code{col[1]}. By default, \code{selProbMin} is
+probability greater than \code{selProbMin} are considered selected and 
+colored by the input from \code{selColor}. By default, \code{selProbMin} is
 extracted from the parameters stored in \code{se}.}
 
 \item{selProbMinPlot}{A numerical scalar in [0,1] less than 
-\code{selProbMin}.
-Predictors with a selection probability greater than \code{selProbMinPlot}
-but less than \code{selProbMin} are shown as bars with color \code{col[2]}.
-\code{selProbMinPlot} is useful to include additional predictors in the 
-plot that were not selected according to \code{selProbMin} but may be 
-close to that cutoff. Setting \code{selProbMinPlot = 0} will create a plot 
-including all predictors.}
+\code{selProbMin}. Predictors with a selection probability greater 
+than \code{selProbMinPlot} but less than \code{selProbMin} are shown as 
+bars with color defined in \code{notSelColor}. \code{selProbMinPlot} is 
+useful in order to include additional predictors in the barplot, that were 
+not selected according to \code{selProbMin} but may be close to that cutoff
+or are simply nice to contrast with the selected predictors. Setting 
+\code{selProbMinPlot = 0} will of course include all predictors.}
 
 \item{showSelProbMin}{A logical scalar. If \code{TRUE}, the value of
-\code{selProbMin} is shown by a horizontal dashed line of color 
-\code{col[3]}.}
+\code{selProbMin} is shown by a horizontal red line.}
 
-\item{col}{A color vector giving the three colors used for predictors with
-selection probability greater than \code{selProbMin}, additional predictors
-with selection probability greater than \code{selProbMinPlot}, and the
-selection probability cutoff line.}
+\item{selColor}{Color for the selected predictors which have a selection
+probability greater than \code{selProbMin}.}
+
+\item{notSelColor}{Color for the rest of the (unselected) predictors which 
+   will be show in the barplot.
+A color vector giving the three colors used for predictors with
+  selection probability greater than \code{selProbMin}, additional predictors
+  with selection probability greater than \code{selProbMinPlot}, and the
+  selection probability cutoff line.}
 
 \item{method}{A character scalar with the correlation method to use in the
 calculation of predictor-response marginal correlations. One of "pearson",
@@ -55,19 +57,11 @@ calculation of predictor-response marginal correlations. One of "pearson",
 
 \item{ylimext}{A numeric scalar defining how much the y axis limits should be
 expanded beyond the plotted probabilities to allow for space for the
-bar labels.}
-
-\item{legend}{the position of the legend in the bar plot (will
-be passed to \code{legend(x=legend)} to control legend position).}
-
-\item{legend.cex}{A scalar that controls the text size in the legend relative
-to the current \code{par("cex")} (see \code{\link{legend}}).}
-
-\item{...}{additional parameters passed to \code{\link[graphics]{barplot}}.}
+bar labels. This value can be increased if the predictor names above the 
+bars are too big and not showing in the plot.}
 }
 \value{
-a \code{matrix} with one column, containing the coordinates of the 
-  bar midpoints, or \code{NULL} if no bar plot is drawn.
+a \code{ggplot2} object.
 }
 \description{
 This function plots the selection probabilities of predictors
@@ -77,8 +71,7 @@ This function plots the selection probabilities of predictors
   correlation coefficient between each predictor and the response vector.
 }
 \details{
-This function creates a bar plot using the 
-  \code{\link[graphics]{barplot}} function.
+This function creates a bar plot with \code{ggplot}.
   Each bar corresponds to a predictor (motif) and the colors correspond to 
   whether or not it was selected. The y-axis shows the selection 
   probabilities (\code{directional=FALSE}) or selection probabilities with 

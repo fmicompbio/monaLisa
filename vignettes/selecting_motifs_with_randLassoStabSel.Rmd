@@ -240,7 +240,7 @@ colnames(se)[se$selected]
 The stability paths visualize how predictors get selected over decreasing 
 regularization stringency (from left to right): 
 
-```{r plotStabilityPaths}
+```{r plotStabilityPaths, fig.width=8, fig.height=4}
 plotStabilityPaths(se)
 ```
 

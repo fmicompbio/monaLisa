@@ -616,21 +616,24 @@ plotStabilityPaths <- function(se,
 #'   are plotted with the sign of the marginal correlation between a predictor
 #'   and the response.
 #' @param selProbMin A numerical scalar in [0,1]. Predictors with a selection
-#'   probability greater than \code{selProbMin} are shown as colored bars. The
-#'   color is defined by \code{col[1]}. By default, \code{selProbMin} is
+#'   probability greater than \code{selProbMin} are considered selected and 
+#'   colored by the input from \code{selColor}. By default, \code{selProbMin} is
 #'   extracted from the parameters stored in \code{se}.
 #' @param selProbMinPlot A numerical scalar in [0,1] less than 
-#'   \code{selProbMin}.
-#'   Predictors with a selection probability greater than \code{selProbMinPlot}
-#'   but less than \code{selProbMin} are shown as bars with color \code{col[2]}.
-#'   \code{selProbMinPlot} is useful to include additional predictors in the 
-#'   plot that were not selected according to \code{selProbMin} but may be 
-#'   close to that cutoff. Setting \code{selProbMinPlot = 0} will create a plot 
-#'   including all predictors.
+#'   \code{selProbMin}. Predictors with a selection probability greater 
+#'   than \code{selProbMinPlot} but less than \code{selProbMin} are shown as 
+#'   bars with color defined in \code{notSelColor}. \code{selProbMinPlot} is 
+#'   useful in order to include additional predictors in the barplot, that were 
+#'   not selected according to \code{selProbMin} but may be close to that cutoff
+#'   or are simply nice to contrast with the selected predictors. Setting 
+#'   \code{selProbMinPlot = 0} will of course include all predictors.
 #' @param showSelProbMin A logical scalar. If \code{TRUE}, the value of
-#'   \code{selProbMin} is shown by a horizontal dashed line of color 
-#'   \code{col[3]}.
-#' @param col A color vector giving the three colors used for predictors with
+#'   \code{selProbMin} is shown by a horizontal red line.
+#' @param selColor Color for the selected predictors which have a selection
+#'    probability greater than \code{selProbMin}.
+#' @param notSelColor Color for the rest of the (unselected) predictors which 
+#'    will be show in the barplot.
+#' A color vector giving the three colors used for predictors with
 #'   selection probability greater than \code{selProbMin}, additional predictors
 #'   with selection probability greater than \code{selProbMinPlot}, and the
 #'   selection probability cutoff line.
@@ -639,23 +642,17 @@ plotStabilityPaths <- function(se,
 #'   "kendall" or "spearman" (see \code{\link[stats]{cor}}).
 #' @param ylimext A numeric scalar defining how much the y axis limits should be
 #'   expanded beyond the plotted probabilities to allow for space for the
-#'   bar labels.
-#' @param legend the position of the legend in the bar plot (will
-#'     be passed to \code{legend(x=legend)} to control legend position).
-#' @param legend.cex A scalar that controls the text size in the legend relative
-#'     to the current \code{par("cex")} (see \code{\link{legend}}).
-#' @param ... additional parameters passed to \code{\link[graphics]{barplot}}. 
+#'   bar labels. This value can be increased if the predictor names above the 
+#'   bars are too big and not showing in the plot.
 #'
-#' @details This function creates a bar plot using the 
-#'   \code{\link[graphics]{barplot}} function.
+#' @details This function creates a bar plot with \code{ggplot}.
 #'   Each bar corresponds to a predictor (motif) and the colors correspond to 
 #'   whether or not it was selected. The y-axis shows the selection 
 #'   probabilities (\code{directional=FALSE}) or selection probabilities with 
 #'   the sign of the marginal correlation to the response 
 #'   (\code{directional=TRUE}). 
 #'
-#' @return a \code{matrix} with one column, containing the coordinates of the 
-#'   bar midpoints, or \code{NULL} if no bar plot is drawn. 
+#' @return a \code{ggplot2} object.
 #'
 #' @examples 
 #' ## create data set
@@ -679,6 +676,7 @@ plotStabilityPaths <- function(se,
 #' @importFrom S4Vectors metadata
 #' @importFrom stats cor
 #' @importFrom graphics barplot abline legend text axis
+#' @import ggplot2 
 #'
 #' @export
 plotSelectionProb <- function(se,
@@ -686,79 +684,80 @@ plotSelectionProb <- function(se,
                               selProbMin = metadata(se)$stabsel.params.cutoff, 
                               selProbMinPlot = 0.4,
                               showSelProbMin = TRUE,
-                              col = c("cadetblue", "grey", "red"),
+                              selColor = "cadetblue", 
+                              notSelColor = "grey",
                               method = c("pearson", "kendall", "spearman"),
-                              ylimext = 0.25,
-                              legend = "topright", 
-                              legend.cex = 1.0, 
-                              ...) {
+                              ylimext = 0.2) {
     
     # checks
     .assertScalar(x = directional, type = "logical")
     .assertScalar(x = selProbMin, type = "numeric", rngIncl = c(0, 1))
     .assertScalar(x = selProbMinPlot, type = "numeric", rngIncl = c(0, 1))
     .assertScalar(x = showSelProbMin, type = "logical")
-    .assertScalar(x = legend, type = "character")
-    .assertScalar(x = legend.cex, type = "numeric", rngExcl = c(0, Inf))
-    stopifnot(exprs = {
+   stopifnot(exprs = {
         is(se, "SummarizedExperiment")
         selProbMin >= selProbMinPlot
     })
-    .assertVector(x = col, len = 3L)
+    .assertScalar(x = selColor, type = "character")
+    .assertScalar(x = notSelColor, type = "character")
     method <- match.arg(method)
     .assertScalar(x = ylimext, type = "numeric", rngIncl = c(0, Inf))
+    
+    #col = c(sel = "cadetblue", notSel = "grey") # add as param
+    #names(col)[names(col) == "sel"] <- TRUE
+    #names(col)[names(col) == "notSel"] <- FALSE
 
-    # selection probabilities * sign(correlation to y)
-    probs <- se$selProb
-    cols <- ifelse(probs > selProbMin, col[1], col[2])
-    if (directional) {
-        corcoef <- as.vector(cor(x = SummarizedExperiment::rowData(se)$y,
-                                 y = SummarizedExperiment::assay(se, "x"),
-                                 method = method))
-        probs <- probs * sign(corcoef)
+    # prepare dataframe to plot
+    df <- data.frame(
+      corcoef = as.vector(cor(x = SummarizedExperiment::rowData(se)$y,
+                              y = SummarizedExperiment::assay(se, "x"),
+                              method = method)), 
+      probs = se$selProb,
+      predNames = colnames(se), 
+      selected = se$selProb > selProbMin
+    )
+    dfCutoff <- data.frame(yintercept = selProbMin, 
+                           cutoff = paste0("selProbMin = ", selProbMin))
+    
+    # ... multiply prob by the sign of corcoef if directional=TRUE
+    if(directional){
+      df$probs <- df$probs * sign(df$corcoef)
     }
-
-    # kept and ordered
-    keep <- which(abs(probs) >= selProbMinPlot)
-    keep <- keep[order(probs[keep], decreasing = TRUE)]
-    cols <- cols[keep]
-    predNames <- colnames(se)[keep]
-    probs <- probs[keep]
-    up <- probs > 0
-
-    # plot
-    if (any(keep)) {
-        ret <- graphics::barplot(probs, col = cols, border = NA,
-                                        ylab = ifelse(
-                                            directional, 
-                                            "Directional selection probability",
-                                            "Selection probability"
-                                        ),
-                                        names.arg = NA, axes = FALSE,
-                                        ylim = c(min(probs) - ylimext,
-                                                 max(probs) + ylimext),
-                                        ...)
-        ys <- pretty(x = c(0, probs))
-        graphics::axis(side = 2, at = ys)
-        if (showSelProbMin) {
-            hval <- if (directional) c(-1, 1) * selProbMin else selProbMin
-            graphics::abline(h = hval, lty = 5, col = col[3])
-        }
-        graphics::legend(x = legend, bty = "n", fill = col[seq_len(2)], 
-                         border = NA, legend = c("selected", "not selected"), 
-                         cex = legend.cex)
-        if (any(up)) {
-            graphics::text(x = ret[up], y = probs[up] + par("cxy")[2] / 3,
-                           labels = predNames[up], col = cols[up],
-                           xpd = TRUE, srt = 90, adj = c(0, 0.5))
-        }
-        if (any(!up)) {
-            graphics::text(x = ret[!up], y = probs[!up] - par("cxy")[2] / 3,
-                           labels = predNames[!up], col = cols[!up],
-                           xpd = TRUE, srt = 90, adj = c(1, 0.5))
-        }
-    } else{
-        ret <- NULL
+    
+    # ... only keep abs(probs) >= selProbMinPlot
+    df <- df[abs(df$probs) >= selProbMinPlot, ]
+    ymin <- min(min(df$probs), 0) - ylimext*max(df$probs)
+    ymax <- max(df$probs) + ylimext*max(df$probs)
+    
+    # plot (returns ggplot object)
+    gg <- ggplot(data = df, mapping = aes(x = reorder(predNames, -probs), y = probs)) + 
+      geom_bar(mapping = aes(fill = selected), stat = "identity") + 
+      scale_fill_manual(values = c("TRUE" = selColor, "FALSE" = notSelColor)) + 
+      labs(x = element_blank(), 
+           y = ifelse(
+             directional, 
+             "Directional selection probability",
+             "Selection probability"
+           )) + 
+      ylim(c(ymin, ymax)) + 
+      geom_text(mapping = aes(label = predNames, 
+                              hjust = ifelse(probs >= 0, 0, 1)),  angle = 90) + 
+      theme_classic() + 
+      theme(axis.text.x = element_blank(), 
+            axis.line.x = element_blank(), 
+            axis.ticks.x = element_blank(), 
+            axis.ticks.length.y  = unit(0.2, "cm"))
+    if(showSelProbMin){
+      gg <- gg + 
+        geom_hline(data = dfCutoff, 
+                   mapping = aes(yintercept = yintercept, linetype = cutoff), 
+                   color = "firebrick", linewidth = 1)
+      if(directional & min(df$probs) <= -dfCutoff$yintercept){
+        gg <- gg + 
+          geom_hline(yintercept = -dfCutoff$yintercept, color = "firebrick", linewidth = 1)
+      }
     }
-    invisible(ret)
+    
+    gg
+    
 }
