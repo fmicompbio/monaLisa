@@ -28,6 +28,15 @@ test_that("bin() works properly", {
     u1 <- bin(seq(-20, -10), binmode = "equalWidth", nBins = 5)
     expect_type(u1, "integer")
     expect_true(all(c("binmode", "breaks", "bin0") %in% names(attributes(u1))))
+    
+    # uniform distribution, all negative values, set minAbsX
+    expect_warning({
+        u2 <- bin(seq(-20, -10), binmode = "equalWidth", nBins = 5, minAbsX = 5)
+    }, "All data values are outside")
+    expect_type(u2, "integer")
+    expect_true(all(c("binmode", "breaks", "bin0") %in% names(attributes(u2))))
+    u3 <- bin(seq(-20, -10), binmode = "equalWidth", nBins = 5, minAbsX = NULL)
+    expect_identical(u2, u3)
 
     # asymmetric distribution
     set.seed(2)

@@ -2,6 +2,14 @@
 
 # get bin boundaries for bin(x, binmode="equalN", ...)
 .breaksEqualN <- function(x, nElements, minAbsX = NULL) {
+    if (!is.null(minAbsX) && 
+        ((-minAbsX) > max(x, na.rm = TRUE) || 
+         minAbsX < min(x, na.rm = TRUE))) {
+        # all data values are outside [-minAbsX, minAbsX] -> ignore minAbsX
+        cli_warn(paste0("All data values are outside [-minAbsX, minAbsX] - ",
+                        "setting minAbsX to NULL"))
+        minAbsX <- NULL
+    }
     if (!is.null(minAbsX)) {
         n1 <- round(sum(x < -minAbsX, na.rm = TRUE) / nElements) * nElements
         n2 <- round(sum(x >  minAbsX, na.rm = TRUE) / nElements) * nElements
@@ -31,6 +39,14 @@
 
 # get bin boundaries for bin(x, binmode="equalWidth", ...)
 .breaksEqualWidth <- function(x, nBins, minAbsX) {
+    if (!is.null(minAbsX) && 
+        ((-minAbsX) > max(x, na.rm = TRUE) || 
+         minAbsX < min(x, na.rm = TRUE))) {
+        # all data values are outside [-minAbsX, minAbsX] -> ignore minAbsX
+        cli_warn(paste0("All data values are outside [-minAbsX, minAbsX] - ",
+                        "setting minAbsX to NULL"))
+        minAbsX <- NULL
+    }
     if (!is.null(minAbsX)) {
         e1 <- sum(x < -minAbsX, na.rm = TRUE)
         e2 <- sum(x >  minAbsX, na.rm = TRUE)

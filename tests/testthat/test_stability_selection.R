@@ -36,6 +36,31 @@ test_that("randLassoStabSel() works properly", {
     expect_error(randLassoStabSel(x = as.data.frame(X), y = Y))
     expect_error(randLassoStabSel(x = X2[1:100, ], y = Y2[2:101]))
     expect_error(randLassoStabSel(x = X2[1:100, ], y = Y2[2:100]))
+    
+    # with a different family
+    set.seed(123)
+    ssbnf <- randLassoStabSel(x = X, y = as.numeric(Y > 2), 
+                              glmnet.args = list(family = "binomial"))
+    expect_s4_class(ssbnf, "SummarizedExperiment")
+    expect_identical(rowData(ssbnf)$y, as.numeric(Y > 2))
+    expect_identical(ssbnf$selProb, colData(ssbnf)[, ncol(colData(ssbnf))])
+    expect_identical(ssbnf$selAUC,
+                     rowMeans(as.matrix(colData(ssbnf)[, grep("^regStep", colnames(colData(ssbnf)))])))
+    expect_true(all(ssbnf$selProb >= 0 & ssbnf$selProb <= 1))
+    expect_true(all(ssbnf$selAUC >= 0 & ssbnf$selAUC <= 1))
+    expect_true(all(metadata(ssbnf)$stabsel.params.selected %in% s_cols))
+    expect_identical(dim(ssbnf), c(500L, 50L))
+    expect_identical(length(Y), nrow(ssbnf))
+    expect_true(!is.null(SummarizedExperiment::assay(ssbnf)))
+    
+    # ignore selected arguments if passed to glmnet.args
+    set.seed(123)
+    expect_warning({
+        ssbnf2 <- randLassoStabSel(x = X, y = as.numeric(Y > 2), 
+                                   glmnet.args = list(family = "binomial", 
+                                                      x = 3, weakness = 0.1))
+    }, "Ignoring the following elements")
+    expect_identical(ssbnf, ssbnf2)
 })
 
 test_that("randLassoStabSel() is deterministic", {
@@ -98,6 +123,17 @@ test_that(".glmnetRandomizedLasso() works properly", {
 
     # expected number of selected variables
     expect_identical(sum(rl$selected), 11L)
+    
+    # with different family
+    set.seed(123)
+    expect_warning(
+        expect_message(
+            bnf <- .glmnetRandomizedLasso(x = as.data.frame(X), 
+                                          y = as.numeric(Y > 0), 
+                                          q = 11, family = "binomial"),
+            "coerced to a model matrix without intercept"),
+        "Number of nonzero coefficients along the path exceeds")
+    expect_identical(sum(bnf$selected), 10L)
 
 })
 
