@@ -261,8 +261,8 @@ selection probability cutoff, it is best to re-run randomized lasso stability
 selection with the new cutoff, as this influences other parameter choices the
 model uses internally. See @StabSel for more details.
 
-```{r plotSelProbs, fig.width=8, fig.height=5}
-plotSelectionProb(se, directional = TRUE)
+```{r plotSelProbs, fig.width=10, fig.height=5}
+plotSelectionProb(se, directional = TRUE, ylimext = 0.5)
 ```
 
 Next, we visualize the correlation structure of the selected TF motifs within
