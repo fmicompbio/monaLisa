@@ -181,5 +181,31 @@
     }
 }
 
-
+#' Utility function to check validity of R colors.
+#'
+#' This function checks if the provided characters (e.g. arguments to other
+#' functions) are valid colors in R.
+#'    
+#' @param x character vector of colors.    
+#' @param ... additional arguments to \code{.assertVector}
+#'    
+#' @importFrom grDevices col2rgb
+.assertColor <- function(x, ...){
+  .assertVector(x = x, type = "character", ...)  
+  
+  isColor <- function(char){
+    out <- tryCatch(col2rgb(char), error = function(e){FALSE})
+    if(is.matrix(out)){out <- TRUE}
+    out
+  }  
+  
+  out <- vapply(X = x, FUN = isColor, FUN.VALUE = logical(1))
+  if(any(!out)) {
+    cli_abort("The following is not a valid color in R: {.emph {x[!out]}}. Please
+              provide a character(s) that corresponds to a valid color.")
+  } 
+  
+  return(invisible(TRUE))
+  
+}
 

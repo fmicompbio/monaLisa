@@ -672,9 +672,9 @@ plotStabilityPaths <- function(se,
         cli_abort("{.arg se} must be a {.cls SummarizedExperiment}")
     }
     .assertScalar(x = selProbMin, type = "numeric", rngIncl = c(0, 1))
-    .assertScalar(x = selColor, type = "character")
-    .assertScalar(x = notSelColor, type = "character")
-    .assertScalar(x = selProbCutoffColor, type = "character")
+    .assertColor(x = selColor, len = 1)
+    .assertColor(x = notSelColor, len = 1)
+    .assertColor(x = selProbCutoffColor, len = 1)
     .assertScalar(x = linewidth, type = "numeric")
     .assertScalar(x = alpha, type = "numeric", rngIncl = c(0, 1))
     .assertVector(x = ylim, type = "numeric", rngIncl = c(0, 1), len = 2)
