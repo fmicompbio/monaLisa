@@ -796,7 +796,6 @@ plotStabilityPaths <- function(se,
 #' @importFrom SummarizedExperiment rowData assay
 #' @importFrom S4Vectors metadata
 #' @importFrom stats cor
-#' @importFrom graphics barplot abline legend text axis
 #' @importFrom ggplot2 ggplot aes geom_bar scale_fill_manual geom_hline labs geom_text
 #'     ylim theme theme_classic
 #'
