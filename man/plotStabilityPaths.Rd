@@ -7,7 +7,8 @@
 plotStabilityPaths(
   se,
   selProbMin = metadata(se)$stabsel.params.cutoff,
-  col = c(sel = "cadetblue", notSel = "black"),
+  selColor = "cadetblue",
+  notSelColor = "grey",
   linewidth = 0.5,
   alpha = 1,
   ylim = c(0, 1)
@@ -21,8 +22,10 @@ selection, by running \code{\link[monaLisa]{randLassoStabSel}}.}
 probability greater than \code{selProbMin} are shown as colored lines. The
 color is defined by the \code{col} argument.}
 
-\item{col}{vector of colors specifying what to color selected and
-non-selected predictors.}
+\item{selColor}{color for the selected predictors which have a selection
+probability greater than \code{selProbMin}.}
+
+\item{notSelColor}{color for the rest of the (un-selected) predictors.}
 
 \item{linewidth}{line width.}
 

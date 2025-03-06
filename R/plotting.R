@@ -623,8 +623,9 @@ plotMotifHeatmaps <- function(x,
 #' @param selProbMin A numerical scalar in [0,1]. Predictors with a selection
 #'   probability greater than \code{selProbMin} are shown as colored lines. The
 #'   color is defined by the \code{col} argument.
-#' @param col vector of colors specifying what to color selected and
-#'   non-selected predictors.
+#' @param selColor color for the selected predictors which have a selection
+#'    probability greater than \code{selProbMin}.
+#' @param notSelColor color for the rest of the (un-selected) predictors.
 #' @param linewidth line width.
 #' @param alpha line transparency of the stability paths.
 #' @param ylim limits for y-axis.
@@ -660,26 +661,33 @@ plotMotifHeatmaps <- function(x,
 #' @export
 plotStabilityPaths <- function(se,
                                selProbMin = metadata(se)$stabsel.params.cutoff,
-                               col = c(sel = "cadetblue", notSel = "black"),
+                               selColor = "cadetblue", 
+                               notSelColor = "grey",
                                linewidth = 0.5, alpha = 1, ylim = c(0, 1)) {
     # checks
     if (!is(se, "SummarizedExperiment")) {
         cli_abort("{.arg se} must be a {.cls SummarizedExperiment}")
     }
     .assertScalar(x = selProbMin, type = "numeric", rngIncl = c(0, 1))
-    .assertVector(x = col, type = "character", len = 2L)
+    .assertScalar(x = selColor, type = "character")
+    .assertScalar(x = notSelColor, type = "character")
     .assertScalar(x = linewidth, type = "numeric")
     .assertScalar(x = alpha, type = "numeric", rngIncl = c(0, 1))
     .assertVector(x = ylim, type = "numeric", rngIncl = c(0, 1))
     .assertVector(x = colnames(se), type = "character", len = ncol(se))
     .assertVector(x = rownames(se), type = "character", len = nrow(se))
     .assertVector(x = colnames(colData(se)), type = "character")
+    if (!any(grepl(pattern = "regStep", x = colnames(colData(se))))) {
+      cli_abort("the columns in {.code colData(se)} containing the selection 
+                probabilities for each regularization step {.code i} must have
+                column names starting with {.emph regStep}. See 
+                {.fn randLassoStabSel} for more details.")
+    }
+    
 
     # remaining notes: import starts_with from tidyselect or tidyr?
     # ... currently using tidyr, which uses tidyselect, but we do not have the
     # ... tidyselect package dependency in monaLisa yet
-    names(col)[names(col) == "sel"] <- TRUE
-    names(col)[names(col) == "notSel"] <- FALSE
 
     # prepare dataframe to plot
     df <- as.data.frame(colData(se))
@@ -699,7 +707,7 @@ plotStabilityPaths <- function(se,
     ggplot(data = df, mapping = aes(x = regStep, y = selectionProbability)) +
         geom_line(mapping = aes(group = predictor, color = selected),
                   linewidth = linewidth, alpha = alpha) +
-        scale_color_manual(values = col) +
+        scale_color_manual(values = c("TRUE" = selColor, "FALSE" = notSelColor)) +
         geom_hline(data = dfCutoff,
                    mapping = aes(yintercept = yintercept, linetype = cutoff),
                    color = "firebrick", linewidth = linewidth) +
