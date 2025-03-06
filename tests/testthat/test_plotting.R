@@ -159,14 +159,10 @@ test_that("plotSelectionProb() runs", {
     expect_error(plotSelectionProb(se = ss, directional = TRUE, selProbMin = 2.0), "between")
     expect_error(plotSelectionProb(se = ss, selProbMinPlot = "error"), "numeric")
     expect_error(plotSelectionProb(se = ss, selProbMin = 0.5, selProbMinPlot = 0.6))
-    expect_error(plotSelectionProb(se = ss, showSelProbMin = "error"))
-    expect_error(plotSelectionProb(se = ss, col = "error"), "length 3")
+    expect_error(plotSelectionProb(se = ss, showSelProbMin = "error"), "logical")
+    expect_error(plotSelectionProb(se = ss, selColor = "error"))
     expect_error(plotSelectionProb(se = ss, method = "error"), "should be one of")
-    expect_error(plotSelectionProb(se = ss, legend = "error"))
-
-    expect_null(plotSelectionProb(ss, selProbMin = 1.0, selProbMinPlot = 0.99))
-    expect_type(plotSelectionProb(ss), "double")
-    expect_type(plotSelectionProb(ss, FALSE), "double")
+    expect_s3_class(plotSelectionProb(ss), "ggplot")
 
     dev.off()
     unlink(tf)
