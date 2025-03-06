@@ -13,63 +13,75 @@
 #'   between the bins. The average relative frequency of each dinucleotide
 #'   (across the bins) is indicated as well.}
 #' }
-#' @param seqs DNAStringSet object with sequences.
-#' @param bins factor of the same length and order as seqs, indicating the bin
-#'   for each sequence. Typically the return value of \code{bin}.
+#' @param seqs \code{\link[Biostrings]{DNAStringSet}} object with sequences.
+#' @param bins factor of the same length and order as \code{seqs}, indicating
+#'   the bin for each sequence. Typically the return value of \code{bin}.
 #' @param aspect The diagnostic to plot. Should be one of \code{"length"},
 #'   \code{"GCfrac"} and \code{"dinucfreq"}, to plot the distribution of
 #'   sequence lengths, the distribution of GC fractions and the average
 #'   relative dinucleotide frequencies across the bins.
+#' @param draw_quantiles For aspect=\code{"length"} or \code{"GCfrac"},
+#'   draw vertical lines at the given quantiles of the density estimate.
+#'   If \code{NULL}, no quantile lines will be drawn.
 #' @param ... Additional argument passed to \code{getColsByBin}.
 #'
 #' @export
 #'
-#' @return For aspect=\code{"length"} or \code{"GCfrac"}, returns (invisibly)
-#'   the output of \code{vioplot()}, which generates the plot. For
-#'   aspect=\code{"dinucfreq"}, returns (invisibly) the ComplexHeatmap
-#'   object.
+#' @return For aspect=\code{"length"} or \code{"GCfrac"}, returns a
+#'   \code{\link[ggplot2]{ggplot}} object. For aspect=\code{"dinucfreq"},
+#'   returns (invisibly) a \code{\link[ComplexHeatmap]{Heatmap-class}} object.
 #'
 #' @examples
 #' seqs <- Biostrings::DNAStringSet(
-#'   vapply(1:100, function(i) paste(sample(c("A", "C", "G", "T"), 10,
+#'   vapply(1:250, function(i) paste(sample(x = c("A", "C", "G", "T"),
+#'                                          size = round(stats::rnorm(1, 20, 5)),
 #'                                          replace = TRUE), collapse = ""), "")
 #' )
-#' bins <- factor(rep(1:2, each = 50))
-#' plotBinDiagnostics(seqs, bins, aspect = "GCfrac")
+#' bins <- factor(rep(c("a", "b", "c", "d", "e"), each = 50))
+#' plotBinDiagnostics(seqs, bins, aspect = "length")
+#' plotBinDiagnostics(seqs, bins, aspect = "GCfrac", draw_quantiles = NULL)
 #' plotBinDiagnostics(seqs, bins, aspect = "dinucfreq")
 #'
-#' @importFrom vioplot vioplot
+#' @importFrom ggplot2 ggplot aes geom_violin scale_fill_manual
+#'   scale_colour_manual labs element_blank theme_classic
 #' @importFrom ComplexHeatmap Heatmap rowAnnotation
 #' @importFrom circlize colorRamp2
 #' @importFrom Biostrings oligonucleotideFrequency
+#' @importFrom BiocGenerics width
+#' @importFrom cli cli_abort
+#' @importFrom rlang .data
 plotBinDiagnostics <- function(seqs, bins,
                                aspect = c("length", "GCfrac", "dinucfreq"),
+                               draw_quantiles = c(0.25, 0.5, 0.75),
                                ...) {
     .assertVector(x = seqs, type = "DNAStringSet")
     .assertVector(x = bins, type = "factor")
     if (length(seqs) != length(bins)) {
-        stop("'seqs' and 'bins' must be of equal length and in the same order")
+        cli_abort("{.arg seqs} and {.arg bins} must have equal length and order")
     }
-
     aspect <- match.arg(aspect)
+    .assertVector(x = draw_quantiles, type = "numeric", rngIncl = c(0, 1),
+                  allowNULL = TRUE)
+
     binCols <- getColsByBin(bins, ...)
-    if (aspect == "length") {
-        vp <- vioplot::vioplot(split(width(seqs), bins), ylab = "",
-                               col = attr(binCols, "cols"),
-                               xlab = "Length", axes = FALSE, las = 2,
-                               horizontal = TRUE, cex = 0.5, cex.axis = 0.75,
-                               cex.names = 0.75, par(mar = c(4, 6, 2, 2) + 0.1))
-        return(invisible(vp))
-    } else if (aspect == "GCfrac") {
-        onf <- Biostrings::oligonucleotideFrequency(seqs, width = 1,
-                                                    as.prob = TRUE)
-        gcfrac <- onf[, "G"] + onf[, "C"]
-        vp <- vioplot::vioplot(split(gcfrac, bins), ylab = "",
-                               col = attr(binCols, "cols"),
-                               xlab = "GC fraction", axes = FALSE, las = 2,
-                               horizontal = TRUE, cex = 0.5, cex.axis = 0.75,
-                               cex.names = 0.75, par(mar = c(4, 6, 2, 2) + 0.1))
-        return(invisible(vp))
+
+    if (aspect %in% c("length", "GCfrac")) {
+        pd <- data.frame(bin = bins)
+        if (identical(aspect, "length")) {
+            pd$xvalue <- width(seqs)
+            xlab <- "Length (bp)"
+        } else if (identical(aspect, "GCfrac")) {
+            onf <- oligonucleotideFrequency(seqs, width = 1, as.prob = TRUE)
+            pd$xvalue <- onf[, "G"] + onf[, "C"]
+            xlab <- "GC fraction"
+        }
+        p <- ggplot(data = pd,
+                    mapping = aes(.data$xvalue, .data$bin, fill = .data$bin)) +
+            geom_violin(draw_quantiles = draw_quantiles, show.legend = FALSE) +
+            scale_fill_manual(values = attr(binCols, "cols")) +
+            labs(x = xlab, y = element_blank()) +
+            theme_classic()
+        return(p)
     } else if (aspect == "dinucfreq") {
         dnf <- Biostrings::oligonucleotideFrequency(seqs, width = 2,
                                                     as.prob = TRUE)

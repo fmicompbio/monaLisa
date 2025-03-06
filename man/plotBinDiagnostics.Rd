@@ -8,27 +8,31 @@ plotBinDiagnostics(
   seqs,
   bins,
   aspect = c("length", "GCfrac", "dinucfreq"),
+  draw_quantiles = c(0.25, 0.5, 0.75),
   ...
 )
 }
 \arguments{
-\item{seqs}{DNAStringSet object with sequences.}
+\item{seqs}{\code{\link[Biostrings]{DNAStringSet}} object with sequences.}
 
-\item{bins}{factor of the same length and order as seqs, indicating the bin
-for each sequence. Typically the return value of \code{bin}.}
+\item{bins}{factor of the same length and order as \code{seqs}, indicating
+the bin for each sequence. Typically the return value of \code{bin}.}
 
 \item{aspect}{The diagnostic to plot. Should be one of \code{"length"},
 \code{"GCfrac"} and \code{"dinucfreq"}, to plot the distribution of
 sequence lengths, the distribution of GC fractions and the average
 relative dinucleotide frequencies across the bins.}
 
+\item{draw_quantiles}{For aspect=\code{"length"} or \code{"GCfrac"},
+draw vertical lines at the given quantiles of the density estimate.
+If \code{NULL}, no quantile lines will be drawn.}
+
 \item{...}{Additional argument passed to \code{getColsByBin}.}
 }
 \value{
-For aspect=\code{"length"} or \code{"GCfrac"}, returns (invisibly)
-  the output of \code{vioplot()}, which generates the plot. For
-  aspect=\code{"dinucfreq"}, returns (invisibly) the ComplexHeatmap
-  object.
+For aspect=\code{"length"} or \code{"GCfrac"}, returns a
+  \code{\link[ggplot2]{ggplot}} object. For aspect=\code{"dinucfreq"},
+  returns (invisibly) a \code{\link[ComplexHeatmap]{Heatmap-class}} object.
 }
 \description{
 Plot various diagnostics of binned sequences. Three plot types are
@@ -47,11 +51,13 @@ available:
 }
 \examples{
 seqs <- Biostrings::DNAStringSet(
-  vapply(1:100, function(i) paste(sample(c("A", "C", "G", "T"), 10,
+  vapply(1:250, function(i) paste(sample(x = c("A", "C", "G", "T"),
+                                         size = round(stats::rnorm(1, 20, 5)),
                                          replace = TRUE), collapse = ""), "")
 )
-bins <- factor(rep(1:2, each = 50))
-plotBinDiagnostics(seqs, bins, aspect = "GCfrac")
+bins <- factor(rep(c("a", "b", "c", "d", "e"), each = 50))
+plotBinDiagnostics(seqs, bins, aspect = "length")
+plotBinDiagnostics(seqs, bins, aspect = "GCfrac", draw_quantiles = NULL)
 plotBinDiagnostics(seqs, bins, aspect = "dinucfreq")
 
 }

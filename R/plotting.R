@@ -1,5 +1,5 @@
 #' @importFrom grDevices colorRampPalette
-#' @importFrom graphics axis hist lines par plot rect rug segments barplot 
+#' @importFrom graphics axis hist lines par plot rect rug segments barplot
 #'   matplot abline legend text
 #' @importFrom stats density dist hclust
 #' @importFrom S4Vectors isEmpty
@@ -22,18 +22,20 @@ NULL
 #' @seealso \code{\link{bin}}.
 #'
 #' @return A character vector with colors for the elements in \code{b}.
-#' 
-#' @examples 
+#'
+#' @examples
 #' set.seed(1)
 #' x <- rnorm(100)
 #' b <- bin(x, "equalN", nElements = 10)
 #' cols <- getColsByBin(b)
-#' 
+#'
+#' @importFrom grDevices col2rgb
+#'
 #' @export
 getColsByBin <- function(b,
-                         col1 = c("#003C30", "#01665E", "#35978F", 
+                         col1 = c("#003C30", "#01665E", "#35978F",
                                   "#80CDC1", "#C7EAE5"),
-                         col2 = c("#F6E8C3", "#DFC27D", "#BF812D", 
+                         col2 = c("#F6E8C3", "#DFC27D", "#BF812D",
                                   "#8C510A", "#543005"),
                          col0 = "#F5F5F5") {
     if (!is.factor(b)) {
@@ -64,54 +66,78 @@ getColsByBin <- function(b,
 #' @description Plot a histogram of binned elements with binning information.
 #'
 #' @param x A numerical vector with the values used for binning.
-#' @param b A factor that groups elements of \code{x} into bins (typically 
+#' @param b A factor that groups elements of \code{x} into bins (typically
 #'     the output of \code{\link{bin}}).
-#' @param breaks Controls the histogram breaks (passed to \code{hist(...)}).
-#' @param xlab Label for x-axis.
-#' @param ylab Label for y-axis.
-#' @param main Main title.
-#' @param legend If not \code{NULL}, draw a legend with binning information 
-#'     (will be passed to \code{legend(x=legend)} to control legend position).
-#' @param legend.cex A scalar that controls the text size in the legend relative
-#'     to the current \code{par("cex")} (see \code{\link{legend}}).
+#' @param breaks A \code{numeric} scalar controlling the histogram breaks
+#'     (passed to \code{geom_hist(..., bins = breaks)}).
+#' @param xlab,ylab,main \code{character} scalars that set the x-axis label,
+#'     y-axis label and the main title. Use \code{""} to suppress the label.
+#' @param legendPosition A \code{character} scalar.
+#'     If not \code{"none"}, draw a legend with binning information. The value
+#'     is used to control the legend position and will be passed to
+#'     \code{theme(legend.position = legendPosition)}.
+#' @param legend Deprecated (ignored). Please use \code{legendPosition} to
+#'     control the drawing and position of the legend.
+#' @param legend.cex Deprecated (ignored). You can use
+#'     \code{\link[ggplot2]{theme}} to set legend and other graphical
+#'     parameters.
 #' @param ... Further arguments passed to \code{\link{getColsByBin}}.
 #'
-#' @seealso \code{\link{getColsByBin}}, \code{\link[graphics]{hist}}
+#' @seealso \code{\link{getColsByBin}}, \code{\link[ggplot2]{geom_histogram}}
 #'
-#' @return Invisibly the return value of \code{hist(...)} that generated the 
-#'     plot.
-#' 
-#' @examples 
+#' @return The generated histogram as a \code{ggplot} object.
+#'
+#' @examples
 #' set.seed(1)
 #' x <- rnorm(100)
 #' b <- bin(x, "equalN", nElements = 10)
 #' plotBinHist(x, b)
-#' 
+#'
+#' @importFrom ggplot2 ggplot aes geom_histogram element_blank theme_classic theme
+#' @importFrom cli cli_warn
+#'
 #' @export
-plotBinHist <- function(x, b, breaks = 10 * nlevels(b),
+plotBinHist <- function(x, b,
+                        breaks = 6 * nlevels(b),
                         xlab = deparse(substitute(x, env = as.environment(-1))),
                         ylab = "Frequency",
-                        main = "", legend = "topright", legend.cex = 1.0, ...) {
+                        main = "",
+                        legendPosition = "right",
+                        legend = NULL,
+                        legend.cex = NULL, ...) {
+    .assertVector(x = x, type = "numeric")
     .assertVector(x = b, type = "factor", len = length(x))
-    stopifnot("breaks" %in% names(attributes(b)))
-    .assertScalar(x = legend.cex, type = "numeric", rngExcl = c(0, Inf))
+    .assertScalar(x = breaks, type = "numeric", allowNULL = TRUE)
+    .assertScalar(x = xlab, type = "character")
+    .assertScalar(x = ylab, type = "character")
+    .assertScalar(x = main, type = "character")
+    if (!is.null(legend)) {
+        cli_warn(c("{.arg legend} is deprecated and ignored.",
+                   "i" = "You can use {.arg legendPosition} to control legend drawing and position"))
+    }
+    if (!is.null(legend.cex)) {
+        cli_warn(c("{.arg legend.cex} is deprecated and ignored.",
+                   "i" = "You can use {.fn theme} to control legend and other graphical parameters"))
+    }
+
     cols <- getColsByBin(b, ...)
-    binbreaks <- attr(b, "breaks")
     bincols <- attr(cols, "cols")
-    h <- hist(x, breaks = breaks, plot = FALSE)
-    par(mar = c(5, 4, 4 - if (main == "") 3 else 0, 2) + 0.1, cex = 1.25)
-    ret <- hist(x, breaks = breaks, 
-                col = bincols[findInterval(h$mids, binbreaks, 
-                                           all.inside = TRUE)],
-                xlab = xlab, ylab = ylab, main = main)
-    pusr <- par('usr')
-    segments(x0 = pusr[c(1,1)], y0 = pusr[c(4,3)],
-             x1 = pusr[c(1,2)], y1 = pusr[c(3,3)])
-    rug(binbreaks, col = "black")
-    if (!is.null(legend) && legend[1] != FALSE)
-        legend(x = legend, legend = sprintf("%s : %d", levels(b), table(b)),
-               fill = bincols, bty = "n", cex = legend.cex)
-    invisible(ret)
+
+    # add number of elements to bin names
+    bn <- unclass(table(b))
+    levels(b) <- names(bincols) <- paste0(levels(b), ": ", bn)
+
+    p <- ggplot(data = data.frame(x = x, b = b), mapping = aes(x = x, fill = b)) +
+        geom_histogram(bins = breaks, colour = "gray20") +
+        scale_fill_manual(values = bincols) +
+        labs(x = ifelse(xlab != "", xlab, element_blank()),
+             y = ifelse(ylab != "", ylab, element_blank()),
+             main = ifelse(main != "", main, element_blank()),
+             fill = "Bins") +
+        theme_classic() +
+        theme(legend.position = legendPosition)
+
+    return(p)
 }
 
 
@@ -120,173 +146,251 @@ plotBinHist <- function(x, b, breaks = 10 * nlevels(b),
 #' @description Plot the density of binned elements with binning information.
 #'
 #' @param x A numerical vector with the values used for binning.
-#' @param b A factor that groups elements of \code{x} into bins (typically the 
+#' @param b A factor that groups elements of \code{x} into bins (typically the
 #'     output of \code{\link{bin}}).
-#' @param xlab Label for x-axis.
-#' @param ylab Label for y-axis.
-#' @param main Main title.
-#' @param legend If not \code{NULL}, draw a legend with binning information
-#'     (will be passed to \code{legend(x=legend)} to control legend position).
-#' @param legend.cex A scalar that controls the text size in the legend relative
-#'     to the current \code{par("cex")} (see \code{\link{legend}}).
+#' @param xlab,ylab,main \code{character} scalars that set the x-axis label,
+#'     y-axis label and the main title. Use \code{""} to suppress the label.
+#' @param legendPosition A \code{character} scalar.
+#'     If not \code{"none"}, draw a legend with binning information. The value
+#'     is used to control the legend position and will be passed to
+#'     \code{theme(legend.position = legendPosition)}.
+#' @param legend Deprecated (ignored). Please use \code{legendPosition} to
+#'     control the drawing and position of the legend.
+#' @param legend.cex Deprecated (ignored). You can use
+#'     \code{\link[ggplot2]{theme}} to set legend and other graphical
+#'     parameters.
 #' @param ... Further arguments passed to \code{\link{getColsByBin}}.
 #'
-#' @seealso \code{\link{getColsByBin}}
+#' @seealso \code{\link{getColsByBin}}, \code{\link[ggplot2]{geom_density}}
 #'
-#' @return Invisibly the return value of \code{density(x)} that generated the 
-#'     plot.
+#' @return The generated density plot as a \code{ggplot} object.
 #'
-#' @examples 
+#' @examples
 #' set.seed(1)
 #' x <- rnorm(100)
 #' b <- bin(x, "equalN", nElements = 10)
 #' plotBinDensity(x, b)
-#' 
+#'
+#' @importFrom stats density
+#' @importFrom ggplot2 ggplot aes geom_area geom_line geom_rug element_blank
+#'     theme_classic theme
+#' @importFrom cli cli_warn
+#' @importFrom rlang .data
+#'
 #' @export
 plotBinDensity <- function(x, b,
-                           xlab = deparse(substitute(x, 
-                                                     env = as.environment(-1))),
+                           xlab = deparse(
+                               substitute(x, env = as.environment(-1))),
                            ylab = "Density",
-                           main = "", legend = "topright", 
-                           legend.cex = 1.0, ...) {
+                           main = "",
+                           legendPosition = "right",
+                           legend = NULL,
+                           legend.cex = NULL,
+                           ...) {
+    .assertVector(x = x, type = "numeric")
     .assertVector(x = b, type = "factor", len = length(x))
     stopifnot("breaks" %in% names(attributes(b)))
-    .assertScalar(x = legend.cex, type = "numeric", rngExcl = c(0, Inf))
+    .assertScalar(x = xlab, type = "character")
+    .assertScalar(x = ylab, type = "character")
+    .assertScalar(x = main, type = "character")
+    if (!is.null(legend)) {
+        cli_warn(c("{.arg legend} is deprecated and ignored.",
+                   "i" = "You can use {.arg legendPosition} to control legend drawing and position"))
+    }
+    if (!is.null(legend.cex)) {
+        cli_warn(c("{.arg legend.cex} is deprecated and ignored.",
+                   "i" = "You can use {.fn theme} to control legend and other graphical parameters"))
+    }
+
     cols <- getColsByBin(b, ...)
     binbreaks <- attr(b, "breaks")
     bincols <- attr(cols, "cols")
-    par(mar = c(5, 4, 4 - if (main == "") 3 else 0, 2) + 0.1, cex = 1.25)
-    ret <- density(x)
-    plot(ret$x, ret$y, type = "l", col = "black", xlab = xlab, ylab = ylab, 
-         main = main, axes = FALSE)
-    axis(1)
-    axis(2)
-    pusr <- par('usr')
-    segments(x0 = pusr[c(1,1)], y0 = pusr[c(4,3)],
-             x1 = pusr[c(1,2)], y1 = pusr[c(3,3)])
-    rug(binbreaks, col = "black")
-    dx <- diff(ret$x[seq_len(2)]) / 2
-    rect(xleft = ret$x - dx, ybottom = 0, xright = ret$x + dx, ytop = ret$y,
-         col = bincols[findInterval(ret$x, binbreaks, all.inside = TRUE)], 
-         border = NA)
-    lines(ret$x, ret$y)
 
-    if (!is.null(legend) && legend[1] != FALSE)
-        legend(x = legend, legend = sprintf("%s : %d", levels(b), table(b)),
-               fill = bincols, bty = "n", cex = legend.cex)
-    invisible(ret)
+    # add number of elements to bin names
+    bn <- unclass(table(b))
+    levels(b) <- names(bincols) <- paste0(levels(b), ": ", bn)
+
+    # calculate density and assign bins
+    dens <- data.frame(density(x = x)[c("x", "y")])
+    binbreaks[c(1, length(binbreaks))] <- range(dens$x)
+    dens$b <- factor(x = levels(b)[cut(dens$x, breaks = binbreaks,
+                                       include.lowest = TRUE, labels = FALSE)],
+                     levels = levels(b))
+
+    p <- ggplot(dens) +
+        geom_area(data = dens, mapping = aes(.data$x, .data$y,
+                                             colour = .data$b, fill = .data$b),
+                  outline.type = "full") +
+        geom_line(data = dens, mapping = aes(.data$x, .data$y), colour = "gray20") +
+        geom_rug(data = data.frame(x = binbreaks),
+                 mapping = aes(.data$x), colour = "gray20") +
+        scale_colour_manual(values = bincols) +
+        scale_fill_manual(values = bincols) +
+        labs(x = ifelse(xlab != "", xlab, element_blank()),
+             y = ifelse(ylab != "", ylab, element_blank()),
+             main = ifelse(main != "", main, element_blank()),
+             colour = "Bins",
+             fill = "Bins") +
+        theme_classic() +
+        theme(legend.position = legendPosition)
+
+    return(p)
 }
 
 
 #' @title Scatter plot (xy-plot) of binned elements.
 #'
-#' @description Plot a scatter (xy-plot) of binned elements with binning 
+#' @description Plot a scatter (xy-plot) of binned elements with binning
 #'     information.
 #'
 #' @param x A numerical vector with x values.
 #' @param y A numerical vector with y values (the values used for binning).
-#' @param b A factor that groups elements of \code{x,y} into bins (typically 
+#' @param b A factor that groups elements of \code{x,y} into bins (typically
 #'     the output of \code{\link{bin}(y)}).
-#' @param cols A color vector (will be computed based on \code{b} by default 
-#'     using \code{\link{getColsByBin}(b)}).
+#' @param cols \code{NULL} or a color vector defining the colors of points.
+#'     If \code{NULL}, the colors will be computed based on \code{b} using
+#'     \code{\link{getColsByBin}(b)}).
 #' @param xlab Label for x-axis.
 #' @param ylab Label for y-axis.
 #' @param main Main title.
-#' @param legend If not \code{NULL}, draw a legend with binning information 
-#'     (will be passed to \code{legend(x=legend)} to control legend position).
-#' @param legend.cex A scalar that controls the text size in the legend relative
-#'     to the current \code{par("cex")} (see \code{\link{legend}}).
-#' @param ... Further arguments passed to \code{plot(x, y, ...)}.
+#' @param legendPosition A \code{character} scalar.
+#'     If not \code{"none"}, draw a legend with binning information. The value
+#'     is used to control the legend position and will be passed to
+#'     \code{theme(legend.position = legendPosition)}.
+#' @param legend Deprecated (ignored). Please use \code{legendPosition} to
+#'     control the drawing and position of the legend.
+#' @param legend.cex Deprecated (ignored). You can use
+#'     \code{\link[ggplot2]{theme}} to set legend and other graphical
+#'     parameters.
+#' @param ... Further arguments passed to \code{\link{getColsByBin}} (only used
+#'     if \code{cols} is \code{NULL}).
 #'
-#' @seealso \code{\link{bin}}, \code{\link{getColsByBin}}
+#' @seealso \code{\link{bin}}, \code{\link{getColsByBin}},
+#'     \code{\link[ggplot2]{geom_point}}
 #'
-#' @return \code{TRUE} (invisibly).
+#' @return The generated scatter plot as a \code{ggplot} object.
 #'
-#' @examples 
+#' @examples
 #' set.seed(1)
 #' x <- rnorm(100)
 #' y <- rnorm(100)
 #' b <- bin(y, "equalN", nElements = 10)
 #' plotBinScatter(x, y, b)
-#' 
+#'
+#' @importFrom ggplot2 ggplot aes geom_point element_blank theme_classic theme
+#' @importFrom cli cli_warn
+#'
 #' @export
 plotBinScatter <- function(x, y, b,
-                           cols = getColsByBin(b),
-                           xlab = deparse(substitute(x, 
-                                                     env = as.environment(-1))),
-                           ylab = deparse(substitute(y, 
-                                                     env = as.environment(-1))),
-                           main = "", legend = "topright", 
-                           legend.cex = 1.0, ...) {
-    .assertVector(x = y, len = length(x))
+                           cols = NULL,
+                           xlab = deparse(
+                               substitute(x, env = as.environment(-1))),
+                           ylab = deparse(
+                               substitute(y, env = as.environment(-1))),
+                           main = "",
+                           legendPosition = "right",
+                           legend = NULL,
+                           legend.cex = NULL,
+                           ...) {
+    .assertVector(x = x, type = "numeric")
+    .assertVector(x = y, type = "numeric", len = length(x))
     .assertVector(x = b, len = length(x))
-    .assertScalar(x = legend.cex, type = "numeric", rngExcl = c(0, Inf))
-    if (length(cols) == 1L)
-        cols <- rep(cols, length(x))
-    stopifnot(length(x) == length(cols))
-    par(mar = c(5, 4, 4 - if (main == "") 3 else 0, 2) + 0.1, cex = 1.25)
-    plot(x, y, pch = 16, cex = 0.6, col = cols,
-         xlab = xlab, ylab = ylab, main = main, axes = FALSE, ...)
-    axis(1)
-    axis(2)
-    pusr <- par('usr')
-    segments(x0 = pusr[c(1,1)], y0 = pusr[c(4,3)],
-             x1 = pusr[c(1,2)], y1 = pusr[c(3,3)])
-    if (!is.null(legend) && legend[1] != FALSE) {
-        stopifnot("cols" %in% names(attributes(cols)))
+    bincols <- NULL
+    if (is.null(cols)) {
+        cols <- getColsByBin(b, ...)
         bincols <- attr(cols, "cols")
-        legend(x = legend, legend = sprintf("%s : %d", levels(b), table(b)),
-               fill = bincols, bty = "n", cex = legend.cex)
+    } else if (length(cols) == 1L) {
+        cols <- rep(cols, length(x))
     }
-    invisible(TRUE)
+    .assertVector(x = cols, len = length(x))
+    .assertScalar(x = xlab, type = "character")
+    .assertScalar(x = ylab, type = "character")
+    .assertScalar(x = main, type = "character")
+    if (is.null(bincols) && !identical(legendPosition, "none")) {
+        cli_warn(paste0(
+            "Setting {.arg legendPosition} to 'none' - ",
+            "cannot use custom colors ({.arg cols}) with bin-based legend"))
+    }
+    if (!is.null(legend)) {
+        cli_warn(c("{.arg legend} is deprecated and ignored.",
+                   "i" = "You can use {.arg legendPosition} to control legend drawing and position"))
+    }
+    if (!is.null(legend.cex)) {
+        cli_warn(c("{.arg legend.cex} is deprecated and ignored.",
+                   "i" = "You can use {.fn theme} to control legend and other graphical parameters"))
+    }
+
+    # add number of elements to bin names
+    bn <- unclass(table(b))
+    levels(b) <- paste0(levels(b), ": ", bn)
+
+    p <- ggplot(data = data.frame(x = x, y = y, b = b, cols = cols),
+                mapping = aes(x, y)) +
+        labs(x = ifelse(xlab != "", xlab, element_blank()),
+             y = ifelse(ylab != "", ylab, element_blank()),
+             main = ifelse(main != "", main, element_blank()),
+             colour = "Bins",
+             fill = "Bins") +
+        theme_classic() +
+        theme(legend.position = legendPosition)
+
+    if (is.null(bincols)) {
+        p <- p + geom_point(colour = cols)
+    } else {
+        names(bincols) <- levels(b)
+        p <- p + geom_point(aes(colour = b)) +
+            scale_colour_manual(values = bincols)
+    }
+
+    return(p)
 }
 
 
 #' @title Heatmap of motif enrichments.
 #'
-#' @description Plot motif enrichments (e.g. significance or magnitude) as a 
+#' @description Plot motif enrichments (e.g. significance or magnitude) as a
 #'     heatmap.
 #'
-#' @param x A \code{\link[SummarizedExperiment]{SummarizedExperiment}} with 
-#'     numerical matrices (motifs-by-bins) in its \code{assays()}, typically 
-#'     the return value of \code{\link{calcBinnedMotifEnrR}} or 
+#' @param x A \code{\link[SummarizedExperiment]{SummarizedExperiment}} with
+#'     numerical matrices (motifs-by-bins) in its \code{assays()}, typically
+#'     the return value of \code{\link{calcBinnedMotifEnrR}} or
 #'     \code{\link{calcBinnedMotifEnrHomer}}.
-#' @param which.plots Selects which heatmaps to plot (one or several from 
-#'     \code{"negLog10P"}, \code{"negLog10Padj"}, \code{"pearsonResid"} and 
+#' @param which.plots Selects which heatmaps to plot (one or several from
+#'     \code{"negLog10P"}, \code{"negLog10Padj"}, \code{"pearsonResid"} and
 #'     \code{"log2enr"}).
-#' @param width The width (in inches) of each individual heatmap, without 
+#' @param width The width (in inches) of each individual heatmap, without
 #'     legend.
-#' @param col.enr Colors used for enrichment heatmap ("pearsonResid" and 
+#' @param col.enr Colors used for enrichment heatmap ("pearsonResid" and
 #'     "log2enr").
-#' @param col.sig Colors used for significance hetmaps ("negLog10P" and 
+#' @param col.sig Colors used for significance hetmaps ("negLog10P" and
 #'     "negLog10Padj").
-#' @param col.gc Colors used for motif GC content (for 
+#' @param col.gc Colors used for motif GC content (for
 #'     \code{show_motif_GC = TRUE}).
 #' @param maxEnr Cap color mapping at enrichment = \code{maxEnr}
 #'     (default: 99.5th percentile).
-#' @param maxSig Cap color mapping at -log10 P value or -log10 FDR = 
+#' @param maxSig Cap color mapping at -log10 P value or -log10 FDR =
 #'     \code{maxSig} (default: 99.5th percentile).
 #' @param highlight A logical vector indicating motifs to be highlighted.
-#' @param cluster If \code{TRUE}, the order of transcription factors will be 
-#'     determined by hierarchical clustering of the \code{"pearsonResid"} 
-#'     component. Alternatively, an \code{hclust}-object can be supplied which 
+#' @param cluster If \code{TRUE}, the order of transcription factors will be
+#'     determined by hierarchical clustering of the \code{"pearsonResid"}
+#'     component. Alternatively, an \code{hclust}-object can be supplied which
 #'     will determine the motif ordering.
 #'     No reordering is done for \code{cluster = FALSE}.
 #' @param show_dendrogram If \code{cluster != FALSE}, controls whether to show
-#'     a row dendrogram for the clustering of motifs. Ignored for 
+#'     a row dendrogram for the clustering of motifs. Ignored for
 #'     \code{cluster = FALSE}.
-#' @param show_motif_GC If \code{TRUE}, show a column with the percent G+C of 
+#' @param show_motif_GC If \code{TRUE}, show a column with the percent G+C of
 #'     the motif as part of the heatmap.
-#' @param show_seqlogo If \code{TRUE}, show a sequence logo next to each motif 
-#'     label. This will likely only make sense for a heatmap with a low number 
+#' @param show_seqlogo If \code{TRUE}, show a sequence logo next to each motif
+#'     label. This will likely only make sense for a heatmap with a low number
 #'     of motifs.
 #' @param show_bin_legend If \code{TRUE}, show a legend for the bin labels.
 #'     If FALSE (default), the bin legend will be hidden.
-#' @param width.seqlogo The width (in inches) for the longest sequence logo 
+#' @param width.seqlogo The width (in inches) for the longest sequence logo
 #'     (shorter logos are drawn to scale).
-#' @param use_raster \code{TRUE} or \code{FALSE} (default). Passed to 
+#' @param use_raster \code{TRUE} or \code{FALSE} (default). Passed to
 #'     \code{use_raster} of \code{\link[ComplexHeatmap]{Heatmap}}.
-#' @param na_col "white" (default). Passed to \code{na_col} of 
+#' @param na_col "white" (default). Passed to \code{na_col} of
 #'     \code{\link[ComplexHeatmap]{Heatmap}}.
 #' @param doPlot If \code{TRUE} (default), plot the generated heatmap(s)
 #'     using \code{Reduce(ComplexHeatmap::add_heatmap, heatmapList)}. If
@@ -301,25 +405,25 @@ plotBinScatter <- function(x, y, b,
 #'     and plotted side-by-side.
 #'
 #'     Each heatmap will be \code{width} inches wide, so the total plot needs a
-#'     graphics device with a width of at least 
-#'     \code{length(which.plots) * width} plus the space used for motif names 
+#'     graphics device with a width of at least
+#'     \code{length(which.plots) * width} plus the space used for motif names
 #'     and legend. The height will be auto-adjusted to the graphics device.
 #'
 #' @seealso \code{\link{bin}}, \code{\link[ComplexHeatmap]{Heatmap}}
 #'
-#' @references Gu, Z. Complex heatmaps reveal patterns and correlations in 
+#' @references Gu, Z. Complex heatmaps reveal patterns and correlations in
 #'     multidimensional genomic data. Bioinformatics 2016.
 #'
 #' @return A list of \code{ComplexHeatmap::Heatmap} objects.
 #'
-#' @examples 
-#' se <- readRDS(system.file("extdata", 
-#'                           "results.binned_motif_enrichment_LMRs.rds", 
+#' @examples
+#' se <- readRDS(system.file("extdata",
+#'                           "results.binned_motif_enrichment_LMRs.rds",
 #'                           package = "monaLisa"))
 #' i <- which(SummarizedExperiment::assay(se, "negLog10Padj")[, 8] > 4)
 #' plotMotifHeatmaps(se[i, ], which.plots = "pearsonResid",
 #'                   width = 2, show_seqlogo = TRUE)
-#' 
+#'
 #' @importFrom methods is show
 #' @importFrom stats hclust dist quantile
 #' @importFrom TFBSTools Matrix
@@ -329,10 +433,11 @@ plotBinScatter <- function(x, y, b,
 #' @importFrom ComplexHeatmap HeatmapAnnotation Heatmap add_heatmap
 #' @importFrom grid unit
 #' @importFrom circlize colorRamp2
+#' @importFrom cli cli_abort
 #'
 #' @export
 plotMotifHeatmaps <- function(x,
-                              which.plots = c("negLog10P", "pearsonResid", 
+                              which.plots = c("negLog10P", "pearsonResid",
                                               "negLog10Padj", "log2enr"),
                               width = 4,
                               col.enr = c("#053061", "#2166AC", "#4393C3",
@@ -355,7 +460,7 @@ plotMotifHeatmaps <- function(x,
                               show_bin_legend = FALSE,
                               width.seqlogo = 1.5,
                               use_raster = FALSE,
-                              na_col = "white", 
+                              na_col = "white",
                               doPlot = TRUE,
                               ...) {
     stopifnot(exprs = {
@@ -376,9 +481,9 @@ plotMotifHeatmaps <- function(x,
     .assertScalar(x = doPlot, type = "logical")
     stopifnot(exprs = {
         ncol(x) == nlevels(b)
-        all(which.plots %in% c("negLog10P", "negLog10Padj", 
+        all(which.plots %in% c("negLog10P", "negLog10Padj",
                                "pearsonResid", "log2enr"))
-        is.null(highlight) || (is.logical(highlight) && 
+        is.null(highlight) || (is.logical(highlight) &&
                                  length(highlight) == nrow(x))
     })
     bincols <- attr(getColsByBin(b), "cols")
@@ -399,16 +504,19 @@ plotMotifHeatmaps <- function(x,
     } else if (is(cluster, "hclust")) {
         clres <- cluster
     } else {
-        stop("'cluster' must be either TRUE, FALSE or an hclust-object.")
+        cli_abort("{.arg cluster} must be either {.code TRUE}, {.code FALSE} or an {.cls hclust}-object.")
     }
-    hmBin <- HeatmapAnnotation(df = data.frame(bin = colnames(x)), name = "bin",
-                               col = list(bin = bincols),
-                               show_annotation_name = FALSE,
-                               which = "column", width = unit(width,"inch"),
-                               annotation_height = unit(width / 16, "inch"),
-                               show_legend = show_bin_legend)
+    hmBin <- HeatmapAnnotation(
+        df = data.frame(bin = factor(colnames(x),
+                                     levels = colnames(x))),
+        name = "bin",
+        col = list(bin = bincols),
+        show_annotation_name = FALSE,
+        which = "column", width = unit(width,"inch"),
+        annotation_height = unit(width / 16, "inch"),
+        show_legend = show_bin_legend)
     tmp <- matrix(if (!is.null(highlight)) {
-        as.character(highlight) 
+        as.character(highlight)
     } else {
         rep(NA, nrow(x))
     },
@@ -464,15 +572,15 @@ plotMotifHeatmaps <- function(x,
         dat <- assay(x, w)
         if ((w == "pearsonResid") | (w == "log2enr")) {
             rng <- c(-1, 1) * if (is.null(maxEnr)) {
-                quantile(abs(dat), .995, na.rm = TRUE) 
+                quantile(abs(dat), .995, na.rm = TRUE)
             } else {
                 maxEnr
             }
             cols <- col.enr
         } else {
-            rng <- c(0, 
+            rng <- c(0,
                      if (is.null(maxSig)) {
-                         quantile(dat, .995, na.rm = TRUE) 
+                         quantile(dat, .995, na.rm = TRUE)
                      } else {
                          maxSig
                      })
@@ -487,16 +595,16 @@ plotMotifHeatmaps <- function(x,
                              colors = colorRampPalette(cols)(256)),
             cluster_rows = FALSE, cluster_columns = FALSE,
             show_row_names = FALSE, show_column_names = FALSE,
-            # column_names_side = "bottom", 
+            # column_names_side = "bottom",
             # column_names_max_height = unit(1.5,"inch"),
             top_annotation = hmBin, show_heatmap_legend = TRUE,
             heatmap_legend_param = list(color_bar = "continuous"),
             use_raster = use_raster,
-            na_col = na_col, 
+            na_col = na_col,
             ...
         )
     }))
-    names(ret)[seq(length(ret) - length(which.plots) + 1L, length(ret))] <- 
+    names(ret)[seq(length(ret) - length(which.plots) + 1L, length(ret))] <-
         which.plots
     if (doPlot) {
         show(Reduce(ComplexHeatmap::add_heatmap, ret))
@@ -507,35 +615,35 @@ plotMotifHeatmaps <- function(x,
 
 #' @title Plot Stability Paths
 #'
-#' @description Plot the stability paths of each variable (predictor), 
+#' @description Plot the stability paths of each variable (predictor),
 #'   showing the selection probability as a function of the regularization step.
 #'
-#' @param se the \code{SummarizedExperiment} object resulting from stability 
+#' @param se the \code{SummarizedExperiment} object resulting from stability
 #'   selection, by running \code{\link[monaLisa]{randLassoStabSel}}.
 #' @param selProbMin A numerical scalar in [0,1]. Predictors with a selection
 #'   probability greater than \code{selProbMin} are shown as colored lines. The
 #'   color is defined by the \code{col} argument.
-#' @param col vector of colors specifying what to color selected and 
+#' @param col vector of colors specifying what to color selected and
 #'   non-selected predictors.
 #' @param linewidth line width.
 #' @param alpha line transparency of the stability paths.
 #' @param ylim limits for y-axis.
 #'
 #' @return a \code{ggplot2} object.
-#' 
-#' @examples 
+#'
+#' @examples
 #' ## create data set
 #' Y <- rnorm(n = 500, mean = 2, sd = 1)
 #' X <- matrix(data = NA, nrow = length(Y), ncol = 50)
 #' for (i in seq_len(ncol(X))) {
 #'   X[ ,i] <- runif(n = 500, min = 0, max = 3)
 #' }
-#' s_cols <- sample(x = seq_len(ncol(X)), size = 10, 
+#' s_cols <- sample(x = seq_len(ncol(X)), size = 10,
 #'   replace = FALSE)
 #' for (i in seq_along(s_cols)) {
 #'   X[ ,s_cols[i]] <- X[ ,s_cols[i]] + Y
 #' }
-#'   
+#'
 #' ## reproducible randLassoStabSel() with 1 core
 #' set.seed(123)
 #' ss <- randLassoStabSel(x = X, y = Y)
@@ -544,17 +652,19 @@ plotMotifHeatmaps <- function(x,
 #' @seealso \code{\link[stabs]{stabsel}}
 #'
 #' @importFrom SummarizedExperiment assay rowData colData
-#' @import ggplot2 
+#' @importFrom ggplot2 ggplot aes geom_line scale_color_manual geom_hline labs
+#'     guides guide_legend ylim theme_classic
 #' @importFrom tidyr pivot_longer starts_with
+#' @importFrom cli cli_abort
 #'
 #' @export
 plotStabilityPaths <- function(se,
                                selProbMin = metadata(se)$stabsel.params.cutoff,
-                               col = c(sel = "cadetblue", notSel = "black"), 
+                               col = c(sel = "cadetblue", notSel = "black"),
                                linewidth = 0.5, alpha = 1, ylim = c(0, 1)) {
     # checks
     if (!is(se, "SummarizedExperiment")) {
-        stop("'se' must be a SummarizedExperiment")
+        cli_abort("{.arg se} must be a {.cls SummarizedExperiment}")
     }
     .assertScalar(x = selProbMin, type = "numeric", rngIncl = c(0, 1))
     .assertVector(x = col, type = "character", len = 2L)
@@ -564,41 +674,40 @@ plotStabilityPaths <- function(se,
     .assertVector(x = colnames(se), type = "character", len = ncol(se))
     .assertVector(x = rownames(se), type = "character", len = nrow(se))
     .assertVector(x = colnames(colData(se)), type = "character")
-    
-    # remaining notes: import starts_with from tidyselect or tidyr? 
-    # ... currently using tidyr, which uses tidyselect, but we do not have the 
+
+    # remaining notes: import starts_with from tidyselect or tidyr?
+    # ... currently using tidyr, which uses tidyselect, but we do not have the
     # ... tidyselect package dependency in monaLisa yet
     names(col)[names(col) == "sel"] <- TRUE
     names(col)[names(col) == "notSel"] <- FALSE
-  
+
     # prepare dataframe to plot
     df <- as.data.frame(colData(se))
     df$predictor <- rownames(df)
     df$selected <- df$selProb > selProbMin
-    df <- tidyr::pivot_longer(df, 
-                              cols = tidyr::starts_with(match = "regStep"), 
-                              names_to = "regStep", 
+    df <- tidyr::pivot_longer(df,
+                              cols = tidyr::starts_with(match = "regStep"),
+                              names_to = "regStep",
                               values_to = "selectionProbability")
-    df$regStep <- as.integer(gsub(pattern = "regStep", 
-                                  replacement = "", 
+    df$regStep <- as.integer(gsub(pattern = "regStep",
+                                  replacement = "",
                                   x = df$regStep))
-    dfCutoff <- data.frame(yintercept = selProbMin, 
+    dfCutoff <- data.frame(yintercept = selProbMin,
                            cutoff = paste0("selProbMin = ", selProbMin))
-    
+
     # plot stability paths (returns ggplot object)
-    ggplot(data = df, mapping = aes(x = regStep, y = selectionProbability)) + 
-      geom_line(mapping = aes(group = predictor, color = selected), 
-                linewidth = linewidth, alpha = alpha) + 
-      scale_color_manual(values = col) + 
-      geom_hline(data = dfCutoff, 
-                 mapping = aes(yintercept = yintercept, linetype = cutoff), 
-                 color = "firebrick", linewidth = linewidth) + 
-      labs(x = "Regularization Step", 
-           y = "Selection Probability") + 
-      guides(colour = guide_legend(override.aes = list(alpha = 1))) + 
-      ylim(ylim) + 
-      theme_classic()
-  
+    ggplot(data = df, mapping = aes(x = regStep, y = selectionProbability)) +
+        geom_line(mapping = aes(group = predictor, color = selected),
+                  linewidth = linewidth, alpha = alpha) +
+        scale_color_manual(values = col) +
+        geom_hline(data = dfCutoff,
+                   mapping = aes(yintercept = yintercept, linetype = cutoff),
+                   color = "firebrick", linewidth = linewidth) +
+        labs(x = "Regularization Step",
+             y = "Selection Probability") +
+        guides(colour = guide_legend(override.aes = list(alpha = 1))) +
+        ylim(ylim) +
+        theme_classic()
 }
 
 
@@ -633,10 +742,6 @@ plotStabilityPaths <- function(se,
 #'    probability greater than \code{selProbMin}.
 #' @param notSelColor Color for the rest of the (unselected) predictors which 
 #'    will be show in the barplot.
-#' A color vector giving the three colors used for predictors with
-#'   selection probability greater than \code{selProbMin}, additional predictors
-#'   with selection probability greater than \code{selProbMinPlot}, and the
-#'   selection probability cutoff line.
 #' @param method A character scalar with the correlation method to use in the
 #'   calculation of predictor-response marginal correlations. One of "pearson",
 #'   "kendall" or "spearman" (see \code{\link[stats]{cor}}).
@@ -654,19 +759,19 @@ plotStabilityPaths <- function(se,
 #'
 #' @return a \code{ggplot2} object.
 #'
-#' @examples 
+#' @examples
 #' ## create data set
 #' Y <- rnorm(n = 500, mean = 2, sd = 1)
 #' X <- matrix(data = NA, nrow = length(Y), ncol = 50)
 #' for (i in seq_len(ncol(X))) {
 #'   X[ ,i] <- runif(n = 500, min = 0, max = 3)
 #' }
-#' s_cols <- sample(x = seq_len(ncol(X)), size = 10, 
+#' s_cols <- sample(x = seq_len(ncol(X)), size = 10,
 #'   replace = FALSE)
 #' for (i in seq_along(s_cols)) {
 #'   X[ ,s_cols[i]] <- X[ ,s_cols[i]] + Y
 #' }
-#'   
+#'
 #' ## reproducible randLassoStabSel() with 1 core
 #' set.seed(123)
 #' ss <- randLassoStabSel(x = X, y = Y)
@@ -681,14 +786,14 @@ plotStabilityPaths <- function(se,
 #' @export
 plotSelectionProb <- function(se,
                               directional = TRUE,
-                              selProbMin = metadata(se)$stabsel.params.cutoff, 
+                              selProbMin = metadata(se)$stabsel.params.cutoff,
                               selProbMinPlot = 0.4,
                               showSelProbMin = TRUE,
                               selColor = "cadetblue", 
                               notSelColor = "grey",
                               method = c("pearson", "kendall", "spearman"),
                               ylimext = 0.2) {
-    
+
     # checks
     .assertScalar(x = directional, type = "logical")
     .assertScalar(x = selProbMin, type = "numeric", rngIncl = c(0, 1))
@@ -756,6 +861,7 @@ plotSelectionProb <- function(se,
         gg <- gg + 
           geom_hline(yintercept = -dfCutoff$yintercept, color = "firebrick", linewidth = 1)
       }
+
     }
     
     gg

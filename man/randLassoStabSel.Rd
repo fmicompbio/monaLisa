@@ -11,6 +11,7 @@ randLassoStabSel(
   cutoff = 0.8,
   PFER = 2,
   mc.cores = 1L,
+  glmnet.args = list(),
   ...
 )
 }
@@ -36,6 +37,14 @@ variables. For details see Meinshausen and Bühlmann (2010).}
 \item{mc.cores}{integer (default = 1) specifying the number of cores to
 use in \code{\link[parallel]{mclapply}}, which is the default way
 \code{\link[stabs]{stabsel}} does parallelization.}
+
+\item{glmnet.args}{named list with additional arguments (beyond \code{x}, 
+\code{y} and \code{weakness}, which are determined automatically, and 
+\code{q} that can be passed via \code{...}) that 
+will be passed to the internal \code{.glmnetRandomizedLasso} function. 
+The available arguments to the latter are the same as the ones for 
+\code{\link[stabs]{glmnet.lasso}}. A typical use case would be to define 
+the \code{family} argument to \code{glmnet.lasso}.}
 
 \item{...}{additional parameters that can be passed on to
 \code{\link[stabs]{stabsel}}.}

@@ -43,6 +43,7 @@
 #'
 #' @importFrom glmnet glmnet predict.glmnet
 #' @importFrom stats model.matrix runif
+#' @importFrom cli cli_abort cli_inform
 #'
 #' @keywords internal
 .glmnetRandomizedLasso <- function(x, y, q, weakness=1,
@@ -50,13 +51,13 @@
                                             "anticonservative"),
                                    ...) {
   if (is.data.frame(x)) {
-    message("Note: ", sQuote("x"),
-            " is coerced to a model matrix without intercept")
+    cli_inform("Note: {.arg x} is coerced to a model matrix without intercept")
     x <- stats::model.matrix(~. - 1, x)
   }
   if ("lambda" %in% names(list(...)))
-    stop("It is not permitted to specify the penalty parameter ",
-         sQuote("lambda"), " for lasso when used with stability selection.")
+    cli_abort(paste0(
+        "It is not permitted to specify the penalty parameter ",
+        "{.arg lambda} for lasso when used with stability selection."))
   type <- match.arg(type)
 
   # modify the function here to make it a randomized-lasso using the
@@ -97,6 +98,13 @@
 #'     closer it is to 0, the more stringent the selection. A weakness value
 #'     of 1 is identical to performing lasso stability selection (not the
 #'     randomized version).
+#' @param glmnet.args named list with additional arguments (beyond \code{x}, 
+#'     \code{y} and \code{weakness}, which are determined automatically, and 
+#'     \code{q} that can be passed via \code{...}) that 
+#'     will be passed to the internal \code{.glmnetRandomizedLasso} function. 
+#'     The available arguments to the latter are the same as the ones for 
+#'     \code{\link[stabs]{glmnet.lasso}}. A typical use case would be to define 
+#'     the \code{family} argument to \code{glmnet.lasso}. 
 #' @param cutoff value between 0 and 1 (default = 0.8) which is the cutoff
 #'     for the selection probability. Any variable with a selection probability
 #'     that is higher than the set cutoff will be selected.
@@ -218,24 +226,27 @@
 #'
 #' @importFrom stabs stabsel
 #' @importFrom SummarizedExperiment SummarizedExperiment
+#' @importFrom cli cli_abort
 #'
 #'@export
 randLassoStabSel <- function(x, y, weakness=0.8, cutoff=0.8, PFER=2,
-                             mc.cores=1L, ...) {
+                             mc.cores=1L, glmnet.args = list(), ...) {
 
     # checks
     if (!is(x, "matrix")) {
-        stop("'x' must be a matrix")
+        cli_abort("{.arg x} must be a {.cls matrix}")
     }
     .assertVector(y, type = "numeric")
     if (nrow(x) != length(y)) {
-        stop("nrow of 'x' and length of 'y' are not equal. The rows of
-             x must be the same length and order as the elements in 'y'.")
+        cli_abort(paste0(
+        "nrow of {.arg x} and length of {.arg y} are not equal. The rows of ",
+        "{.arg x} must be the same length and order as the elements in {.arg y}."))
     }
     if (!is.null(names(y)) && !is.null(rownames(x)) &&
         !all(names(y) == rownames(x))) {
-        stop("'x' and 'y' have different names. Make sure that the names are
-             identical and that the orders match.")
+        cli_abort(paste0(
+            "{.arg x} and {.arg y} have different names. Make sure that the names are ",
+            "identical and that the orders match."))
     }
     if (is.null(rownames(x))) {
         rownames(x) <- paste0("obs", seq_len(nrow(x)))
@@ -243,11 +254,20 @@ randLassoStabSel <- function(x, y, weakness=0.8, cutoff=0.8, PFER=2,
     if (is.null(colnames(x))) {
         colnames(x) <- paste0("pred", seq_len(ncol(x)))
     }
-
+    .assertVector(x = glmnet.args, type = "list")
+    if (length(glmnet.args) > 0) {
+        .assertVector(x = names(glmnet.args), type = "character")
+        if (any(i <- names(glmnet.args) %in% c("x", "y", "q", "weakness"))) {
+            warning(paste0("Ignoring the following elements of 'glmnet.args' (as ", 
+                           "they are set automatically): ", 
+                           paste(names(glmnet.args)[i], collapse = ",")))    
+            glmnet.args <- glmnet.args[!i]
+        }
+    }
 
     # run randomized lasso stability selection
     ss <- stabs::stabsel(x = x, y = y, fitfun = .glmnetRandomizedLasso,
-                         args.fitfun = list(weakness = weakness),
+                         args.fitfun = c(glmnet.args, list(weakness = weakness)),
                          cutoff = cutoff, PFER = PFER, mc.cores = mc.cores, ...)
 
 

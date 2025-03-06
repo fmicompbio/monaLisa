@@ -1,5 +1,3 @@
-context("Homer")
-
 test_that("findHomer() works properly", {
     # store existing value
     orig <- Sys.getenv("MONALISA_HOMER", unset = NA)
@@ -42,15 +40,27 @@ test_that("dumpJaspar() works properly", {
     expect_error(dumpJaspar(filename = tmp1,
                             pkg = "JASPAR2020",
                             relScoreCutoff = "error"))
-    expect_true(dumpJaspar(filename = tmp1,
+    suppressMessages(
+        expect_message(
+            expect_true(
+                dumpJaspar(filename = tmp1,
                            pkg = "JASPAR2020",
                            opts = list(ID = c("MA0006.1", "MA0007.3", "MA0828.1")),
-                           verbose = TRUE))
+                           verbose = TRUE)
+            )
+        )
+    )
     unlink(tmp1)
-    expect_true(dumpJaspar(filename = tmp1,
+    suppressMessages(
+        expect_message(
+            expect_true(
+                dumpJaspar(filename = tmp1,
                            pkg = "JASPAR2024",
                            opts = list(ID = c("MA0006.1", "MA0007.3", "MA0828.1")),
-                           verbose = TRUE))
+                           verbose = TRUE)
+            )
+        )
+    )
     unlink(tmp1)
     expect_error(dumpJaspar(filename = tmp1,
                             pkg = "BSgenome",
@@ -69,7 +79,7 @@ test_that("homerToPFMatrixList() works properly", {
     expect_error(homerToPFMatrixList(tmp1, "error"))
 
     res <- homerToPFMatrixList(tmp1, 1000L)
-    expect_is(res, "PFMatrixList")
+    expect_s4_class(res, "PFMatrixList")
     expect_length(res, length(pfms))
     expect_true(all(abs(colSums(do.call(cbind, TFBSTools::Matrix(res))) - 1000) <= 2)) # 2/1000 rounding error
     expect_true(all(sapply(TFBSTools::Matrix(res), nrow) == 4L))
@@ -98,9 +108,15 @@ test_that("prepareHomer() works properly", {
     expect_error(prepareHomer(gr = gr, b = bF, genomedir = "genomedir", outdir = tmp2,
                               motifFile = "error", homerfile = fname, regionsize = "given", Ncpu = 2))
 
-    expect_identical(prepareHomer(gr = gr, b = bF, genomedir = ".", outdir = tmp2,
-                                  motifFile = fname, homerfile = fname, regionsize = "given", Ncpu = 2, verbose = TRUE),
-                     file.path(tmp2, "run.sh"))
+    suppressMessages(
+        expect_message(
+            expect_identical(
+                prepareHomer(gr = gr, b = bF, genomedir = ".", outdir = tmp2,
+                             motifFile = fname, homerfile = fname, regionsize = "given", Ncpu = 2, verbose = TRUE),
+                file.path(tmp2, "run.sh")
+            )
+        )
+    )
 
     unlink(c(tmp1, tmp2), recursive = TRUE, force = TRUE)
 })
@@ -132,7 +148,7 @@ test_that("parseHomerOutput() works properly", {
 })
 
 test_that("calcBinnedMotifEnrHomer() works properly (synthetic data)", {
-    homerbin <- findHomer("findMotifsGenome.pl", dirs = "/Users/runner/work/monaLisa/monaLisa/homer/bin")
+    homerbin <- findHomer("findMotifsGenome.pl") # on GHA should get it from Sys.getenv("MONALISA_HOMER")
     if (is.na(homerbin)) {
         homerbin <- findHomer("findMotifsGenome.pl", dirs = "/work/gbioinfo/Appz/Homer/Homer-4.11/bin")
     }
@@ -182,12 +198,15 @@ test_that("calcBinnedMotifEnrHomer() works properly (synthetic data)", {
         expect_error(calcBinnedMotifEnrHomer(gr = gr, b = bins, motifFile = mfile,
                                              Ncpu = "error"))
 
-        expect_message(res <- calcBinnedMotifEnrHomer(
-            gr = as.character(gr), b = as.character(bins),
-            motifFile = mfile, genomedir = genomedir,
-            outdir = outdir, homerfile = homerbin, regionsize = "given",
-            Ncpu = 2L, verbose = TRUE),
-            "preparing input files")
+        suppressMessages(
+            expect_message(
+                res <- calcBinnedMotifEnrHomer(
+                    gr = as.character(gr), b = as.character(bins),
+                    motifFile = mfile, genomedir = genomedir,
+                    outdir = outdir, homerfile = homerbin, regionsize = "given",
+                    Ncpu = 2L, verbose = TRUE),
+                "preparing input files")
+        )
         attr(bins, "breaks") <- seq(0.5, 3.5, by = 1)
         expect_message(res1 <- calcBinnedMotifEnrHomer(
             gr = as.character(gr), b = bins,
@@ -202,8 +221,8 @@ test_that("calcBinnedMotifEnrHomer() works properly (synthetic data)", {
             outdir = outdir, homerfile = homerbin, regionsize = "given"),
             "missing 'knownResults.txt' files for some bins")
 
-        expect_is(res, "SummarizedExperiment")
-        expect_is(res1, "SummarizedExperiment")
+        expect_s4_class(res, "SummarizedExperiment")
+        expect_s4_class(res1, "SummarizedExperiment")
         expect_identical(SummarizedExperiment::colData(res)[, -(2:3)],
                          SummarizedExperiment::colData(res1)[, -(2:3)])
         SummarizedExperiment::colData(res)[, 2:3] <- SummarizedExperiment::colData(res1)[, 2:3]

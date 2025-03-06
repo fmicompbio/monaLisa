@@ -22,12 +22,12 @@ for \code{method = "R"}).}
 
 \item{kmerLen}{A \code{numeric} scalar giving the k-mer length.}
 
-\item{kmers}{Either a character vector of k-mers for which to calculate 
+\item{kmers}{Either a character vector of k-mers for which to calculate
 the similarity to each motif, or \code{NULL}, in which case all k-mers
 of length \code{kmerLen} are used.}
 
-\item{includeRevComp}{A \code{logical} scalar. If set to \code{TRUE}, each 
-k-mer as well as its reverse complement is compared to each motif, and the 
+\item{includeRevComp}{A \code{logical} scalar. If set to \code{TRUE}, each
+k-mer as well as its reverse complement is compared to each motif, and the
 larger of the two similarities is returned.}
 
 \item{BPPARAM}{An optional \code{\link[BiocParallel]{BiocParallelParam}}

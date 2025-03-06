@@ -1,7 +1,7 @@
 Package: monaLisa
 Type: Package
 Title: Binned Motif Enrichment Analysis and Visualization
-Version: 1.13.1
+Version: 1.13.2
 Authors@R: c(
     person("Dania", "Machlab", email = "dania.machlab@gmail.com", role = c("aut"), 
            comment = c(ORCID = "0000-0002-2578-6930")),
@@ -29,6 +29,7 @@ Imports:
     ComplexHeatmap (>= 2.11.1),
     GenomeInfoDb,
     GenomicRanges,
+    cli,
     ggplot2,
     glmnet,
     graphics,
@@ -36,6 +37,7 @@ Imports:
     grid,
     IRanges,
     methods,
+    rlang,
     RSQLite, 
     stabs,
     stats,
@@ -45,7 +47,6 @@ Imports:
     tidyr,
     tools,
     utils,
-    vioplot,
     XVector
 Suggests: 
     BiocStyle, 
@@ -59,7 +60,6 @@ Suggests:
     TxDb.Mmusculus.UCSC.mm10.knownGene
 License: GPL (>= 3)
 Encoding: UTF-8
-LazyData: false
 RoxygenNote: 7.3.2
 VignetteBuilder: knitr
 biocViews: 
@@ -67,6 +67,7 @@ biocViews:
     Visualization, 
     FeatureExtraction,
     Epigenetics
+Config/testthat/edition: 3
 URL: https://github.com/fmicompbio/monaLisa, 
     https://bioconductor.org/packages/monaLisa/, 
     https://fmicompbio.github.io/monaLisa/

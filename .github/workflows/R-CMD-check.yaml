@@ -4,7 +4,7 @@ on:
   push:
   pull_request:
     branches:
-      - master
+      - devel
   schedule:
     - cron: '0 8 * * 5'
 
@@ -16,27 +16,19 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        # - { os: macOS-latest, r: '4.1', bioc: '3.13'}
-        # - { os: windows-latest, r: '4.1', bioc: '3.13'}
-        # - { os: macOS-latest, r: 'devel', bioc: 'devel'}
-        - { os: macOS-latest, bioc: 'devel'}
-        # - { os: windows-latest, r: 'devel', bioc: 'devel'}
+        - { os: macOS-latest, bioc: 'devel', homer: '4.8'}
         - { os: windows-latest, bioc: 'devel'}
-        # - { os: ubuntu-16.04, r: 'devel', bioc: 'devel', cran: "https://demo.rstudiopm.com/all/__linux__/xenial/latest"}
-        - { os: ubuntu-latest, image: 'bioconductor/bioconductor_docker:devel'}
-        # - { os: macOS-latest, r: 'devel', image: 'bioconductor/bioconductor_docker:devel'}
+        - { os: ubuntu-latest, image: 'bioconductor/bioconductor_docker:devel', homer: 'latest'}
 
     runs-on: ${{ matrix.config.os }}
     container: ${{ matrix.config.image }}
 
-    name: ${{ matrix.config.os }} (BioC ${{ matrix.config.bioc }} - ${{ matrix.config.image }})
+    name: ${{ matrix.config.os }} (BioC ${{ matrix.config.bioc }} - ${{ matrix.config.image }} - ${{ matrix.config.homer }})
 
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
       PKG_PATH: monaLisa
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      # CRAN: ${{ matrix.config.cran }}
-      # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     # steps to run in the defined environments
     steps:
@@ -55,16 +47,21 @@ jobs:
         with:
           bioc-version: ${{ matrix.config.bioc }}
 
-      - name: Install Homer
-        if: runner.os != 'Windows' && matrix.config.image == null
+      - name: Install Homer (latest version)
+        if: matrix.config.homer != null && matrix.config.homer == 'latest'
         run: |
-          mkdir homer && pushd homer
+          mkdir homer && cd homer
           wget http://homer.ucsd.edu/homer/configureHomer.pl
           perl configureHomer.pl -install
-          # export PATH=$PATH:$PWD/bin/
-          popd
-          # echo "^homer$" >> $PKG_PATH/.Rbuildignore
-          # Rscript -e 'install.packages("magick")'
+          cd ..
+
+      - name: Install Homer (specific version)
+        if: matrix.config.homer != null && matrix.config.homer != 'latest'
+        run: |
+          mkdir homer && cd homer
+          wget http://homer.ucsd.edu/homer/configureHomer.pl
+          perl configureHomer.pl -install -version v${{ matrix.config.homer }}
+          cd ..
 
       - name: Install remotes
         run: |

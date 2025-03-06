@@ -45,11 +45,7 @@ or are simply nice to contrast with the selected predictors. Setting
 probability greater than \code{selProbMin}.}
 
 \item{notSelColor}{Color for the rest of the (unselected) predictors which 
-   will be show in the barplot.
-A color vector giving the three colors used for predictors with
-  selection probability greater than \code{selProbMin}, additional predictors
-  with selection probability greater than \code{selProbMinPlot}, and the
-  selection probability cutoff line.}
+will be show in the barplot.}
 
 \item{method}{A character scalar with the correlation method to use in the
 calculation of predictor-response marginal correlations. One of "pearson",
@@ -85,12 +81,12 @@ X <- matrix(data = NA, nrow = length(Y), ncol = 50)
 for (i in seq_len(ncol(X))) {
   X[ ,i] <- runif(n = 500, min = 0, max = 3)
 }
-s_cols <- sample(x = seq_len(ncol(X)), size = 10, 
+s_cols <- sample(x = seq_len(ncol(X)), size = 10,
   replace = FALSE)
 for (i in seq_along(s_cols)) {
   X[ ,s_cols[i]] <- X[ ,s_cols[i]] + Y
 }
-  
+
 ## reproducible randLassoStabSel() with 1 core
 set.seed(123)
 ss <- randLassoStabSel(x = X, y = Y)
