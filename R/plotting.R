@@ -747,21 +747,24 @@ plotStabilityPaths <- function(se,
 #'   bars with color defined in \code{notSelColor}. \code{selProbMinPlot} is 
 #'   useful in order to include additional predictors in the barplot, that were 
 #'   not selected according to \code{selProbMin} but may be close to that cutoff
-#'   or are simply nice to contrast with the selected predictors. Setting 
-#'   \code{selProbMinPlot = 0} will of course include all predictors.
+#'   or are simply nice to visualize alongside the selected predictors. Setting 
+#'   \code{selProbMinPlot = 0} will include all predictors.
 #' @param showSelProbMin A logical scalar. If \code{TRUE}, the value of
-#'   \code{selProbMin} is shown by a horizontal red line.
+#'   \code{selProbMin} is shown by a horizontal line with the color defined 
+#'   by \code{selProbCutoffColor}.
 #' @param selColor Color for the selected predictors which have a selection
 #'    probability greater than \code{selProbMin}.
 #' @param notSelColor Color for the rest of the (unselected) predictors which 
 #'    will be show in the barplot.
+#' @param selProbCutoffColor Color for the line depicting the selection 
+#'    probability cutoff.
 #' @param method A character scalar with the correlation method to use in the
 #'   calculation of predictor-response marginal correlations. One of "pearson",
 #'   "kendall" or "spearman" (see \code{\link[stats]{cor}}).
 #' @param ylimext A numeric scalar defining how much the y axis limits should be
 #'   expanded beyond the plotted probabilities to allow for space for the
 #'   bar labels. This value can be increased if the predictor names above the 
-#'   bars are too big and not showing in the plot.
+#'   bars are too long and not showing in the plot.
 #'
 #' @details This function creates a bar plot with \code{ggplot}.
 #'   Each bar corresponds to a predictor (motif) and the colors correspond to 
@@ -804,6 +807,7 @@ plotSelectionProb <- function(se,
                               showSelProbMin = TRUE,
                               selColor = "cadetblue", 
                               notSelColor = "grey",
+                              selProbCutoffColor = "firebrick", 
                               method = c("pearson", "kendall", "spearman"),
                               ylimext = 0.2) {
 
@@ -812,19 +816,16 @@ plotSelectionProb <- function(se,
     .assertScalar(x = selProbMin, type = "numeric", rngIncl = c(0, 1))
     .assertScalar(x = selProbMinPlot, type = "numeric", rngIncl = c(0, 1))
     .assertScalar(x = showSelProbMin, type = "logical")
-   stopifnot(exprs = {
+    stopifnot(exprs = {
         is(se, "SummarizedExperiment")
         selProbMin >= selProbMinPlot
     })
-    .assertScalar(x = selColor, type = "character")
-    .assertScalar(x = notSelColor, type = "character")
+    .assertColor(x = selColor, len = 1)
+    .assertColor(x = notSelColor, len = 1)
+    .assertColor(x = selProbCutoffColor, len = 1)
     method <- match.arg(method)
     .assertScalar(x = ylimext, type = "numeric", rngIncl = c(0, Inf))
     
-    #col = c(sel = "cadetblue", notSel = "grey") # add as param
-    #names(col)[names(col) == "sel"] <- TRUE
-    #names(col)[names(col) == "notSel"] <- FALSE
-
     # prepare dataframe to plot
     df <- data.frame(
       corcoef = as.vector(cor(x = SummarizedExperiment::rowData(se)$y,
@@ -834,9 +835,9 @@ plotSelectionProb <- function(se,
       predNames = colnames(se), 
       selected = se$selProb > selProbMin
     )
-    dfCutoff <- data.frame(yintercept = selProbMin, 
-                           cutoff = paste0("selProbMin = ", selProbMin))
-    
+    df$yintercept <- selProbMin
+    df$cutoff <- paste0("selProbMin = ", selProbMin)
+
     # ... multiply prob by the sign of corcoef if directional=TRUE
     if(directional){
       df$probs <- df$probs * sign(df$corcoef)
@@ -848,7 +849,8 @@ plotSelectionProb <- function(se,
     ymax <- max(df$probs) + ylimext*max(df$probs)
     
     # plot (returns ggplot object)
-    gg <- ggplot(data = df, mapping = aes(x = reorder(predNames, -probs), y = probs)) + 
+    gg <- ggplot(data = df, 
+                 mapping = aes(x = reorder(predNames, -probs), y = probs)) + 
       geom_bar(mapping = aes(fill = selected), stat = "identity") + 
       scale_fill_manual(values = c("TRUE" = selColor, "FALSE" = notSelColor)) + 
       labs(x = element_blank(), 
@@ -867,12 +869,13 @@ plotSelectionProb <- function(se,
             axis.ticks.length.y  = unit(0.2, "cm"))
     if(showSelProbMin){
       gg <- gg + 
-        geom_hline(data = dfCutoff, 
-                   mapping = aes(yintercept = yintercept, linetype = cutoff), 
-                   color = "firebrick", linewidth = 1)
-      if(directional & min(df$probs) <= -dfCutoff$yintercept){
+        geom_hline(mapping = aes(yintercept = yintercept, linetype = cutoff), 
+                   color = selProbCutoffColor, linewidth = 1)
+      if(directional & min(df$probs) <= -selProbMin){
         gg <- gg + 
-          geom_hline(yintercept = -dfCutoff$yintercept, color = "firebrick", linewidth = 1)
+          geom_hline(yintercept = -selProbMin, 
+                     color = selProbCutoffColor, 
+                     linewidth = 1)
       }
 
     }

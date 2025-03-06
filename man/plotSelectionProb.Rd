@@ -12,6 +12,7 @@ plotSelectionProb(
   showSelProbMin = TRUE,
   selColor = "cadetblue",
   notSelColor = "grey",
+  selProbCutoffColor = "firebrick",
   method = c("pearson", "kendall", "spearman"),
   ylimext = 0.2
 )
@@ -35,17 +36,21 @@ than \code{selProbMinPlot} but less than \code{selProbMin} are shown as
 bars with color defined in \code{notSelColor}. \code{selProbMinPlot} is 
 useful in order to include additional predictors in the barplot, that were 
 not selected according to \code{selProbMin} but may be close to that cutoff
-or are simply nice to contrast with the selected predictors. Setting 
-\code{selProbMinPlot = 0} will of course include all predictors.}
+or are simply nice to visualize alongside the selected predictors. Setting 
+\code{selProbMinPlot = 0} will include all predictors.}
 
 \item{showSelProbMin}{A logical scalar. If \code{TRUE}, the value of
-\code{selProbMin} is shown by a horizontal red line.}
+\code{selProbMin} is shown by a horizontal line with the color defined 
+by \code{selProbCutoffColor}.}
 
 \item{selColor}{Color for the selected predictors which have a selection
 probability greater than \code{selProbMin}.}
 
 \item{notSelColor}{Color for the rest of the (unselected) predictors which 
 will be show in the barplot.}
+
+\item{selProbCutoffColor}{Color for the line depicting the selection 
+probability cutoff.}
 
 \item{method}{A character scalar with the correlation method to use in the
 calculation of predictor-response marginal correlations. One of "pearson",
@@ -54,7 +59,7 @@ calculation of predictor-response marginal correlations. One of "pearson",
 \item{ylimext}{A numeric scalar defining how much the y axis limits should be
 expanded beyond the plotted probabilities to allow for space for the
 bar labels. This value can be increased if the predictor names above the 
-bars are too big and not showing in the plot.}
+bars are too long and not showing in the plot.}
 }
 \value{
 a \code{ggplot2} object.
