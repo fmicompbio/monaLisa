@@ -1,6 +1,4 @@
 #' @importFrom grDevices colorRampPalette
-#' @importFrom graphics axis hist lines par plot rect rug segments barplot
-#'   matplot abline legend text
 #' @importFrom stats density dist hclust
 #' @importFrom S4Vectors isEmpty
 NULL
