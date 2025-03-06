@@ -9,6 +9,7 @@ plotStabilityPaths(
   selProbMin = metadata(se)$stabsel.params.cutoff,
   selColor = "cadetblue",
   notSelColor = "grey",
+  selProbCutoffColor = "firebrick",
   linewidth = 0.5,
   alpha = 1,
   ylim = c(0, 1)
@@ -26,6 +27,9 @@ color is defined by the \code{col} argument.}
 probability greater than \code{selProbMin}.}
 
 \item{notSelColor}{color for the rest of the (un-selected) predictors.}
+
+\item{selProbCutoffColor}{color for the line depicting the selection 
+probability cutoff.}
 
 \item{linewidth}{line width.}
 

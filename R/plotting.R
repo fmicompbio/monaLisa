@@ -626,6 +626,8 @@ plotMotifHeatmaps <- function(x,
 #' @param selColor color for the selected predictors which have a selection
 #'    probability greater than \code{selProbMin}.
 #' @param notSelColor color for the rest of the (un-selected) predictors.
+#' @param selProbCutoffColor color for the line depicting the selection 
+#'    probability cutoff.
 #' @param linewidth line width.
 #' @param alpha line transparency of the stability paths.
 #' @param ylim limits for y-axis.
@@ -663,6 +665,7 @@ plotStabilityPaths <- function(se,
                                selProbMin = metadata(se)$stabsel.params.cutoff,
                                selColor = "cadetblue", 
                                notSelColor = "grey",
+                               selProbCutoffColor = "firebrick",
                                linewidth = 0.5, alpha = 1, ylim = c(0, 1)) {
     # checks
     if (!is(se, "SummarizedExperiment")) {
@@ -671,23 +674,22 @@ plotStabilityPaths <- function(se,
     .assertScalar(x = selProbMin, type = "numeric", rngIncl = c(0, 1))
     .assertScalar(x = selColor, type = "character")
     .assertScalar(x = notSelColor, type = "character")
+    .assertScalar(x = selProbCutoffColor, type = "character")
     .assertScalar(x = linewidth, type = "numeric")
     .assertScalar(x = alpha, type = "numeric", rngIncl = c(0, 1))
-    .assertVector(x = ylim, type = "numeric", rngIncl = c(0, 1))
+    .assertVector(x = ylim, type = "numeric", rngIncl = c(0, 1), len = 2)
     .assertVector(x = colnames(se), type = "character", len = ncol(se))
     .assertVector(x = rownames(se), type = "character", len = nrow(se))
     .assertVector(x = colnames(colData(se)), type = "character")
     if (!any(grepl(pattern = "regStep", x = colnames(colData(se))))) {
-      cli_abort("the columns in {.code colData(se)} containing the selection 
+        cli_abort("the columns in {.code colData(se)} containing the selection 
                 probabilities for each regularization step {.code i} must have
                 column names starting with {.emph regStep}. See 
                 {.fn randLassoStabSel} for more details.")
     }
-    
-
-    # remaining notes: import starts_with from tidyselect or tidyr?
-    # ... currently using tidyr, which uses tidyselect, but we do not have the
-    # ... tidyselect package dependency in monaLisa yet
+    if (is.null(rownames(colData(se)))) {
+        cli_abort("{.code rownames(colData(se))} must not be empty.")
+    }
 
     # prepare dataframe to plot
     df <- as.data.frame(colData(se))
@@ -700,17 +702,20 @@ plotStabilityPaths <- function(se,
     df$regStep <- as.integer(gsub(pattern = "regStep",
                                   replacement = "",
                                   x = df$regStep))
-    dfCutoff <- data.frame(yintercept = selProbMin,
-                           cutoff = paste0("selProbMin = ", selProbMin))
+    df$yintercept <- selProbMin
+    df$cutoff <- paste0("selProbMin = ", selProbMin)
 
     # plot stability paths (returns ggplot object)
-    ggplot(data = df, mapping = aes(x = regStep, y = selectionProbability)) +
+    ggplot(data = df, 
+           mapping = aes(x = regStep, y = selectionProbability)) +
         geom_line(mapping = aes(group = predictor, color = selected),
-                  linewidth = linewidth, alpha = alpha) +
-        scale_color_manual(values = c("TRUE" = selColor, "FALSE" = notSelColor)) +
-        geom_hline(data = dfCutoff,
-                   mapping = aes(yintercept = yintercept, linetype = cutoff),
-                   color = "firebrick", linewidth = linewidth) +
+                  linewidth = linewidth, 
+                  alpha = alpha) +
+        scale_color_manual(values = c("TRUE" = selColor, 
+                                      "FALSE" = notSelColor)) +
+        geom_hline(mapping = aes(yintercept = yintercept, linetype = cutoff),
+                   color = selProbCutoffColor, 
+                   linewidth = linewidth) +
         labs(x = "Regularization Step",
              y = "Selection Probability") +
         guides(colour = guide_legend(override.aes = list(alpha = 1))) +
