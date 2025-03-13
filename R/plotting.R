@@ -717,15 +717,15 @@ plotStabilityPaths <- function(se,
 
     # plot stability paths (returns ggplot object)
     gg <- ggplot(data = df, 
-           mapping = aes(x = regStep, y = selectionProbability)) +
-        geom_line(mapping = aes(group = predictor, color = selected),
+           mapping = aes(x = .data$regStep, y = .data$selectionProbability)) +
+        geom_line(mapping = aes(group = .data$predictor, color = .data$selected),
                   linewidth = linewidth, 
                   alpha = alpha) +
         scale_color_manual(values = c("TRUE" = selColor, 
                                       "FALSE" = notSelColor)) +
-        geom_segment(mapping = aes(x = min(regStep), xend = max(regStep) + 1, 
-                                 y = yintercept, yend = yintercept, 
-                                 linetype = cutoff),
+        geom_segment(mapping = aes(x = min(.data$regStep), xend = max(.data$regStep) + 1, 
+                                 y = .data$yintercept, yend = .data$yintercept, 
+                                 linetype = .data$cutoff),
                    color = selProbCutoffColor, 
                    linewidth = linewidth) +
         labs(x = "Regularization Step",
@@ -747,9 +747,11 @@ plotStabilityPaths <- function(se,
       }
       gg <- gg + 
         ggrepel::geom_text_repel(data = subset(df, 
-                                               (predictor %in% labels) 
-                                               & (regStep == max(regStep))), 
-                                 aes(label = predictor, color = selected), 
+                                               (.data$predictor %in% labels) 
+                                               & (.data$regStep == 
+                                                    max(.data$regStep))), 
+                                 aes(label = .data$predictor, 
+                                     color = .data$selected), 
                                  nudge_x = 8, na.rm = TRUE, 
                                  size = 3, direction = "y", 
                                  hjust = 0, segment.linetype = "dotted", 
@@ -834,9 +836,9 @@ plotStabilityPaths <- function(se,
 #'
 #' @importFrom SummarizedExperiment rowData assay
 #' @importFrom S4Vectors metadata
-#' @importFrom stats cor
-#' @importFrom ggplot2 ggplot aes geom_bar scale_fill_manual geom_hline labs geom_text
-#'     ylim theme theme_classic
+#' @importFrom stats cor reorder
+#' @importFrom ggplot2 ggplot aes geom_bar scale_fill_manual geom_hline labs 
+#'     geom_text ylim theme theme_classic
 #'
 #' @export
 plotSelectionProb <- function(se,
@@ -889,8 +891,10 @@ plotSelectionProb <- function(se,
     
     # plot (returns ggplot object)
     gg <- ggplot(data = df, 
-                 mapping = aes(x = reorder(predNames, -probs), y = probs)) + 
-      geom_bar(mapping = aes(fill = selected), stat = "identity") + 
+                 mapping = aes(x = stats::reorder(.data$predNames, 
+                                                  -.data$probs), 
+                               y = .data$probs)) + 
+      geom_bar(mapping = aes(fill = .data$selected), stat = "identity") + 
       scale_fill_manual(values = c("TRUE" = selColor, "FALSE" = notSelColor)) + 
       labs(x = element_blank(), 
            y = ifelse(
@@ -899,8 +903,9 @@ plotSelectionProb <- function(se,
              "Selection probability"
            )) + 
       ylim(c(ymin, ymax)) + 
-      geom_text(mapping = aes(label = predNames, 
-                              hjust = ifelse(probs >= 0, 0, 1)),  angle = 90) + 
+      geom_text(mapping = aes(label = .data$predNames, 
+                              hjust = ifelse(.data$probs >= 0, 0, 1)),  
+                angle = 90) + 
       theme_classic() + 
       theme(axis.text.x = element_blank(), 
             axis.line.x = element_blank(), 
@@ -908,7 +913,8 @@ plotSelectionProb <- function(se,
             axis.ticks.length.y  = unit(0.2, "cm"))
     if(showSelProbMin){
       gg <- gg + 
-        geom_hline(mapping = aes(yintercept = yintercept, linetype = cutoff), 
+        geom_hline(mapping = aes(yintercept = .data$yintercept, 
+                                 linetype = .data$cutoff), 
                    color = selProbCutoffColor, linewidth = 1)
       if(directional & min(df$probs) <= -selProbMin){
         gg <- gg + 
