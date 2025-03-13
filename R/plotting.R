@@ -719,6 +719,9 @@ plotStabilityPaths <- function(se,
                                   x = df$regStep))
     df$yintercept <- selProbMin
     df$cutoff <- paste0("selProbMin = ", selProbMin)
+    xAxisTicks <- round(seq(from = min(df$regStep), 
+                            to = max(df$regStep), 
+                            length.out = 5))
 
     # plot stability paths (returns ggplot object)
     gg <- ggplot(data = df, 
@@ -728,15 +731,19 @@ plotStabilityPaths <- function(se,
                   alpha = alpha) +
         scale_color_manual(values = c("TRUE" = selColor, 
                                       "FALSE" = notSelColor)) +
-        geom_segment(mapping = aes(x = min(.data$regStep), xend = max(.data$regStep) + 1, 
-                                 y = .data$yintercept, yend = .data$yintercept, 
-                                 linetype = .data$cutoff),
-                   color = selProbCutoffColor, 
+        geom_segment(mapping = aes(x = min(.data$regStep), 
+                                   xend = max(.data$regStep), 
+                                   y = .data$yintercept, 
+                                   yend = .data$yintercept, 
+                                   linetype = .data$cutoff),
+                     color = selProbCutoffColor, 
                    linewidth = linewidth) +
         labs(x = "Regularization Step",
              y = "Selection Probability") +
         scale_y_continuous(expand = c(0, 0), limits = ylim) + 
-        scale_x_continuous(expand = c(0, 0)) + 
+        scale_x_continuous(expand = c(0, 0), 
+                           breaks = xAxisTicks, 
+                           labels = xAxisTicks) + 
         guides(colour = guide_legend(override.aes = list(alpha = 1))) +
         theme_classic()
     if(labelPaths){
