@@ -301,7 +301,7 @@ Because of the asymmetry of methylation changes, there is only a single bin
 with LMRs that lost methylation and many that gained: 
 
 ```{r plotbins}
-plotBinDensity(lmrsel$deltaMeth, bins, legend = "topleft")
+plotBinDensity(lmrsel$deltaMeth, bins)
 ```
 
 Note that the bin breaks around the *no-change* bin are not exactly -0.3 to 0.3.
