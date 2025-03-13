@@ -51,6 +51,7 @@ Imports:
 Suggests: 
     BiocStyle, 
     BSgenome.Mmusculus.UCSC.mm10, 
+    ggrepel,
     gridExtra,
     JASPAR2020,
     JASPAR2024,

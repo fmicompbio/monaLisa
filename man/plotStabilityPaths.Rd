@@ -12,7 +12,9 @@ plotStabilityPaths(
   selProbCutoffColor = "firebrick",
   linewidth = 0.5,
   alpha = 1,
-  ylim = c(0, 1)
+  ylim = c(0, 1),
+  labelPaths = FALSE,
+  labels = NULL
 )
 }
 \arguments{
@@ -36,6 +38,15 @@ probability cutoff.}
 \item{alpha}{line transparency of the stability paths.}
 
 \item{ylim}{limits for y-axis.}
+
+\item{labelPaths}{if TRUE, the predictor labels will be shown at the end of 
+the stability paths. The predictor labels given in \code{labels} will
+be shown. If unspecified, the labels corresponding to the selected
+predictors will be added.}
+
+\item{labels}{the predictors which should be labelled. If \code{NULL}, the 
+selected predictors greater than \code{metadata(se)$stabsel.params.cutoff}  
+will be shown.}
 }
 \value{
 a \code{ggplot2} object.

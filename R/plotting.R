@@ -629,6 +629,13 @@ plotMotifHeatmaps <- function(x,
 #' @param linewidth line width.
 #' @param alpha line transparency of the stability paths.
 #' @param ylim limits for y-axis.
+#' @param labelPaths if TRUE, the predictor labels will be shown at the end of 
+#'    the stability paths. The predictor labels given in \code{labels} will
+#'    be shown. If unspecified, the labels corresponding to the selected
+#'    predictors will be added.
+#' @param labels the predictors which should be labelled. If \code{NULL}, the 
+#'    selected predictors greater than \code{metadata(se)$stabsel.params.cutoff}  
+#'    will be shown.
 #'
 #' @return a \code{ggplot2} object.
 #'
@@ -653,8 +660,9 @@ plotMotifHeatmaps <- function(x,
 #' @seealso \code{\link[stabs]{stabsel}}
 #'
 #' @importFrom SummarizedExperiment assay rowData colData
-#' @importFrom ggplot2 ggplot aes geom_line scale_color_manual geom_hline labs
-#'     guides guide_legend ylim theme_classic
+#' @importFrom ggplot2 ggplot aes geom_line scale_color_manual geom_segment labs
+#'     scale_y_continuous scale_x_continuous guides guide_legend 
+#'     theme_classic
 #' @importFrom tidyr pivot_longer starts_with
 #' @importFrom cli cli_abort
 #'
@@ -664,7 +672,11 @@ plotStabilityPaths <- function(se,
                                selColor = "cadetblue", 
                                notSelColor = "grey",
                                selProbCutoffColor = "firebrick",
-                               linewidth = 0.5, alpha = 1, ylim = c(0, 1)) {
+                               linewidth = 0.5, 
+                               alpha = 1, 
+                               ylim = c(0, 1), 
+                               labelPaths = FALSE, 
+                               labels = NULL) {
     # checks
     if (!is(se, "SummarizedExperiment")) {
         cli_abort("{.arg se} must be a {.cls SummarizedExperiment}")
@@ -675,7 +687,7 @@ plotStabilityPaths <- function(se,
     .assertColor(x = selProbCutoffColor, len = 1)
     .assertScalar(x = linewidth, type = "numeric")
     .assertScalar(x = alpha, type = "numeric", rngIncl = c(0, 1))
-    .assertVector(x = ylim, type = "numeric", rngIncl = c(0, 1), len = 2)
+    .assertVector(x = ylim, type = "numeric", len = 2)
     .assertVector(x = colnames(se), type = "character", len = ncol(se))
     .assertVector(x = rownames(se), type = "character", len = nrow(se))
     .assertVector(x = colnames(colData(se)), type = "character")
@@ -704,21 +716,50 @@ plotStabilityPaths <- function(se,
     df$cutoff <- paste0("selProbMin = ", selProbMin)
 
     # plot stability paths (returns ggplot object)
-    ggplot(data = df, 
+    gg <- ggplot(data = df, 
            mapping = aes(x = regStep, y = selectionProbability)) +
         geom_line(mapping = aes(group = predictor, color = selected),
                   linewidth = linewidth, 
                   alpha = alpha) +
         scale_color_manual(values = c("TRUE" = selColor, 
                                       "FALSE" = notSelColor)) +
-        geom_hline(mapping = aes(yintercept = yintercept, linetype = cutoff),
+        geom_segment(mapping = aes(x = min(regStep), xend = max(regStep) + 1, 
+                                 y = yintercept, yend = yintercept, 
+                                 linetype = cutoff),
                    color = selProbCutoffColor, 
                    linewidth = linewidth) +
         labs(x = "Regularization Step",
              y = "Selection Probability") +
+        scale_y_continuous(expand = c(0, 0), limits = ylim) + 
+        scale_x_continuous(expand = c(0, 0)) + 
         guides(colour = guide_legend(override.aes = list(alpha = 1))) +
-        ylim(ylim) +
         theme_classic()
+    if(labelPaths){
+      .assertPackagesAvailable("ggrepel")
+      
+      if(is.null(labels)){
+        labels <- unique(df$predictor[df$selected])
+      }
+      else {
+        # check that the labels are correct and exist
+        .assertVector(x = labels, type = "character", 
+                      validValues = unique(df$predictor))
+      }
+      gg <- gg + 
+        ggrepel::geom_text_repel(data = subset(df, 
+                                               (predictor %in% labels) 
+                                               & (regStep == max(regStep))), 
+                                 aes(label = predictor, color = selected), 
+                                 nudge_x = 8, na.rm = TRUE, 
+                                 size = 3, direction = "y", 
+                                 hjust = 0, segment.linetype = "dotted", 
+                                 segment.size = 0.7, segment.curvature = -0.1, 
+                                 segment.angle = 20, box.padding = 0.4, 
+                                 segment.alpha = 0.5, vjust = 0, 
+                                 show.legend = FALSE) 
+      
+    }
+    gg
 }
 
 
