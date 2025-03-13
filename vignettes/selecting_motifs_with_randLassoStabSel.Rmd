@@ -93,6 +93,7 @@ library(Biostrings)
 library(SummarizedExperiment)
 library(ComplexHeatmap)
 library(circlize)
+library(ggrepel)
 ```
 
 ## Load dataset
@@ -249,6 +250,19 @@ probabilities as a function of the regularization steps, corresponding to
 decreasing values for the lambda regularization parameter in lasso. The 
 predictor (TF motif) selection happens at the last step, given the specified 
 minimum probability.
+
+We can additionally show the labels of the predictors which were selected
+```{r plotStabilityPathsWithSelLabels, fig.width=10, fig.height=4}
+plotStabilityPaths(se, labelPaths = TRUE)
+```
+
+
+or visualize specific predictors regardless of whether or not they were 
+selected.
+```{r plotStabilityPathsWithLabels, fig.width=8, fig.height=4}
+plotStabilityPaths(se, labelPaths = TRUE, labelNudgeX = 3,
+                   labels = c("ISL2", "NR2C2", "NR2F1", "GATA4"))
+```
 
 We can also visualize the selection probabilities of the selected TF motifs,
 optionally multiplied by the sign of the correlation to the response vector, to
