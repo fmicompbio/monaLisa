@@ -14,7 +14,9 @@ plotStabilityPaths(
   alpha = 1,
   ylim = c(0, 1),
   labelPaths = FALSE,
-  labels = NULL
+  labels = NULL,
+  labelNudgeX = 8,
+  labelSize = 3
 )
 }
 \arguments{
@@ -44,9 +46,14 @@ the stability paths. The predictor labels given in \code{labels} will
 be shown. If unspecified, the labels corresponding to the selected
 predictors will be added.}
 
-\item{labels}{the predictors which should be labelled. If \code{NULL}, the 
-selected predictors greater than \code{metadata(se)$stabsel.params.cutoff}  
-will be shown.}
+\item{labels}{if \code{labelPaths=TRUE}, the predictors which should be 
+labelled. If \code{NULL}, the selected predictors greater than 
+\code{metadata(se)$stabsel.params.cutoff} will be shown.}
+
+\item{labelNudgeX}{if \code{labelPaths=TRUE}, how much to nudge the labels
+to the right of the x-axis.}
+
+\item{labelSize}{if \code{labelPaths=TRUE}, the size of the labels.}
 }
 \value{
 a \code{ggplot2} object.

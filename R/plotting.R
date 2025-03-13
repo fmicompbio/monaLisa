@@ -633,9 +633,12 @@ plotMotifHeatmaps <- function(x,
 #'    the stability paths. The predictor labels given in \code{labels} will
 #'    be shown. If unspecified, the labels corresponding to the selected
 #'    predictors will be added.
-#' @param labels the predictors which should be labelled. If \code{NULL}, the 
-#'    selected predictors greater than \code{metadata(se)$stabsel.params.cutoff}  
-#'    will be shown.
+#' @param labels if \code{labelPaths=TRUE}, the predictors which should be 
+#'    labelled. If \code{NULL}, the selected predictors greater than 
+#'    \code{metadata(se)$stabsel.params.cutoff} will be shown.
+#' @param labelNudgeX if \code{labelPaths=TRUE}, how much to nudge the labels
+#'    to the right of the x-axis.
+#' @param labelSize if \code{labelPaths=TRUE}, the size of the labels.
 #'
 #' @return a \code{ggplot2} object.
 #'
@@ -676,7 +679,9 @@ plotStabilityPaths <- function(se,
                                alpha = 1, 
                                ylim = c(0, 1), 
                                labelPaths = FALSE, 
-                               labels = NULL) {
+                               labels = NULL, 
+                               labelNudgeX = 8, 
+                               labelSize = 3) {
     # checks
     if (!is(se, "SummarizedExperiment")) {
         cli_abort("{.arg se} must be a {.cls SummarizedExperiment}")
@@ -736,6 +741,8 @@ plotStabilityPaths <- function(se,
         theme_classic()
     if(labelPaths){
       .assertPackagesAvailable("ggrepel")
+      .assertScalar(x = labelNudgeX, type = "numeric")
+      .assertScalar(x = labelSize, type = "numeric")
       
       if(is.null(labels)){
         labels <- unique(df$predictor[df$selected])
@@ -750,8 +757,8 @@ plotStabilityPaths <- function(se,
                                              (df$regStep == max(df$regStep)), ], 
                                  aes(label = .data$predictor, 
                                      color = .data$selected), 
-                                 nudge_x = 8, na.rm = TRUE, 
-                                 size = 3, direction = "y", 
+                                 nudge_x = labelNudgeX, na.rm = TRUE, 
+                                 size = labelSize, direction = "y", 
                                  hjust = 0, segment.linetype = "dotted", 
                                  segment.size = 0.7, segment.curvature = -0.1, 
                                  segment.angle = 20, box.padding = 0.4, 
