@@ -32,7 +32,6 @@ Imports:
     cli,
     ggplot2,
     glmnet,
-    graphics,
     grDevices,
     grid,
     IRanges,
