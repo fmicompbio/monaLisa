@@ -746,10 +746,8 @@ plotStabilityPaths <- function(se,
                       validValues = unique(df$predictor))
       }
       gg <- gg + 
-        ggrepel::geom_text_repel(data = subset(df, 
-                                               (.data$predictor %in% labels) 
-                                               & (.data$regStep == 
-                                                    max(.data$regStep))), 
+        ggrepel::geom_text_repel(data = df[(df$predictor %in% labels) & 
+                                             (df$regStep == max(df$regStep)), ], 
                                  aes(label = .data$predictor, 
                                      color = .data$selected), 
                                  nudge_x = 8, na.rm = TRUE, 
