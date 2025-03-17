@@ -665,7 +665,7 @@ plotMotifHeatmaps <- function(x,
 #' @importFrom SummarizedExperiment assay rowData colData
 #' @importFrom ggplot2 ggplot aes geom_line scale_color_manual geom_segment labs
 #'     scale_y_continuous scale_x_continuous guides guide_legend 
-#'     theme_classic
+#'     theme_classic theme
 #' @importFrom tidyr pivot_longer starts_with
 #' @importFrom cli cli_abort
 #'
@@ -745,7 +745,15 @@ plotStabilityPaths <- function(se,
                            breaks = xAxisTicks, 
                            labels = xAxisTicks) + 
         guides(colour = guide_legend(override.aes = list(alpha = 1))) +
-        theme_classic()
+        theme_classic() + 
+        geom_segment(data = data.frame(x = min(df$regStep), 
+                                       xend = max(df$regStep), y = 0), 
+                     mapping = aes(x = x, xend = xend, y = y, yend = y)) + 
+        geom_segment(data = data.frame(x = min(df$regStep), y = ylim[1], 
+                                       yend = ylim[2]), 
+                     mapping = aes(x = x, xend = x, y = y, yend = yend)) + 
+        theme(axis.line = element_blank())
+    
     if(labelPaths){
       .assertPackagesAvailable("ggrepel")
       .assertScalar(x = labelNudgeX, type = "numeric")
