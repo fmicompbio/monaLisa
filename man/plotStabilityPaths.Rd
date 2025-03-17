@@ -44,7 +44,9 @@ probability cutoff.}
 \item{labelPaths}{if TRUE, the predictor labels will be shown at the end of 
 the stability paths. The predictor labels given in \code{labels} will
 be shown. If unspecified, the labels corresponding to the selected
-predictors will be added.}
+predictors will be added. If predictors have the same y-value in the last
+regularization step, the labels will be shown in a random order. One 
+needs to use \code{set.seed} to reproduce the plot in this case.}
 
 \item{labels}{if \code{labelPaths=TRUE}, the predictors which should be 
 labelled. If \code{NULL}, the selected predictors greater than 
