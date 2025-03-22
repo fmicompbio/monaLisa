@@ -92,9 +92,9 @@ pwms <- getMatrixSet(JASPAR2020, list(matrixtype = "PWM", tax_group = "vertebrat
 
 The results can be conveniently visualized:
 ```
-plotBinDensity(atacPeaksChange, bins, legend = FALSE)
+plotBinDensity(atacPeaksChange, bins, legendPosition = "none")
 ```
-<img src="man/figures/monaLisa_binning_small.png" align="center" alt="binning" width="412px"/>
+<img src="man/figures/monaLisa_binning_small_ggplot.png" align="center" alt="binning" width="412px"/>
 
 ```
 plotMotifHeatmaps(se, cluster = TRUE,
