@@ -254,14 +254,16 @@ minimum probability.
 We can additionally show the labels of the predictors which were selected. Note 
 that if predictors have the same y-value at the last regularization step, they
 are shown in a random order. To reproduce the plot, you will need to set a seed.
+
 ```{r plotStabilityPathsWithSelLabels, fig.width=10, fig.height=4}
 set.seed(123)
 plotStabilityPaths(se, labelPaths = TRUE)
 ```
 
 
-or visualize specific predictors regardless of whether or not they were 
-selected.
+Alternatively, we can visualize specific predictors, regardless of whether or 
+not they were selected.
+
 ```{r plotStabilityPathsWithLabels, fig.width=8, fig.height=4}
 set.seed(123)
 plotStabilityPaths(se, labelPaths = TRUE, labelNudgeX = 3,
