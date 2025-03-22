@@ -241,6 +241,9 @@
 #' @param ... additional arguments to \code{.assertVector}
 #'    
 #' @importFrom grDevices col2rgb
+#'
+#' @noRd
+#' @keywords internal
 .assertColor <- function(x, ...) {
     .assertVector(x = x, type = "character", ...)  
     
