@@ -140,12 +140,35 @@ test_that("plotMotifHeatmaps() runs", {
 test_that("plotStabilityPaths() runs", {
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)
-
     expect_error(plotStabilityPaths("error"))
     expect_s3_class(plotStabilityPaths(ss), "ggplot")
-
     dev.off()
     unlink(tf)
+    
+    # with labels
+    tf <- tempfile(fileext = ".pdf")
+    pdf(file = tf)
+    expect_s3_class(plotStabilityPaths(ss, labelPaths = TRUE), "ggplot")
+    dev.off()
+    unlink(tf)
+    
+    # with predefined labels
+    tf <- tempfile(fileext = ".pdf")
+    pdf(file = tf)
+    expect_s3_class(plotStabilityPaths(ss, labelPaths = TRUE, labels = c("pred1", "pred2")), "ggplot")
+    dev.off()
+    unlink(tf)
+    
+    # catch invalid input
+    sstmp <- ss
+    rsidx <- grep("regStep", colnames(colData(sstmp)))
+    colnames(SummarizedExperiment::colData(sstmp))[rsidx] <- 
+        paste0("abc_", colnames(SummarizedExperiment::colData(sstmp))[rsidx])
+    expect_error(plotStabilityPaths(sstmp), "the columns in")
+    
+    sstmp <- ss
+    rownames(SummarizedExperiment::colData(sstmp)) <- NULL
+    expect_error(plotStabilityPaths(sstmp), "must not be")
 })
 
 
