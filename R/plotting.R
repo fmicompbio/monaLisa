@@ -698,14 +698,11 @@ plotStabilityPaths <- function(se,
     .assertVector(x = colnames(se), type = "character", len = ncol(se))
     .assertVector(x = rownames(se), type = "character", len = nrow(se))
     .assertVector(x = colnames(colData(se)), type = "character")
-    if (!any(grepl(pattern = "regStep", x = colnames(colData(se))))) {
+    if (!any(grepl(pattern = "^regStep", x = colnames(colData(se))))) {
         cli_abort("the columns in {.code colData(se)} containing the selection 
                 probabilities for each regularization step {.code i} must have
                 column names starting with {.emph regStep}. See 
                 {.fn randLassoStabSel} for more details.")
-    }
-    if (is.null(rownames(colData(se)))) {
-        cli_abort("{.code rownames(colData(se))} must not be empty.")
     }
 
     # prepare dataframe to plot
