@@ -1,4 +1,4 @@
-# monaLisa 1.13.3 (or 1.14?)
+# monaLisa 1.13.3
 
 * switched to `ggplot2` with all plotting functions
 * new arguments introduced in `plotStabilityPaths()` to allow for labels to be
