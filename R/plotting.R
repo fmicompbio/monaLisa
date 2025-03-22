@@ -756,33 +756,32 @@ plotStabilityPaths <- function(se,
                      mapping = aes(x = x, xend = x, y = y, yend = yend)) + 
         theme(axis.line = element_blank())
     
-    if(labelPaths){
-      .assertPackagesAvailable("ggrepel")
-      .assertScalar(x = labelNudgeX, type = "numeric")
-      .assertScalar(x = labelSize, type = "numeric")
-      
-      if(is.null(labels)){
-        labels <- unique(df$predictor[df$selected])
-      }
-      else {
-        # check that the labels are correct and exist
-        .assertVector(x = labels, type = "character", 
-                      validValues = unique(df$predictor))
-      }
-      gg <- gg + 
-        ggrepel::geom_text_repel(data = df[(df$predictor %in% labels) & 
-                                             (df$regStep == max(df$regStep)), ], 
-                                 aes(label = .data$predictor, 
-                                     color = .data$selected), 
-                                 max.overlaps = Inf, 
-                                 nudge_x = labelNudgeX, na.rm = TRUE, 
-                                 size = labelSize, direction = "y", 
-                                 hjust = 0, segment.linetype = "dotted", 
-                                 segment.size = 0.7, segment.curvature = -0.1, 
-                                 segment.angle = 20, box.padding = 0.4, 
-                                 segment.alpha = 0.5, vjust = 0, 
-                                 show.legend = FALSE) 
-      
+    if (labelPaths) {
+        .assertPackagesAvailable("ggrepel")
+        .assertScalar(x = labelNudgeX, type = "numeric")
+        .assertScalar(x = labelSize, type = "numeric")
+        
+        if (is.null(labels)) {
+            labels <- unique(df$predictor[df$selected])
+        } else {
+            # check that the labels are correct and exist
+            .assertVector(x = labels, type = "character", 
+                          validValues = unique(df$predictor))
+        }
+        gg <- gg + 
+            ggrepel::geom_text_repel(data = df[(df$predictor %in% labels) & 
+                                                   (df$regStep == max(df$regStep)), ], 
+                                     aes(label = .data$predictor, 
+                                         color = .data$selected), 
+                                     max.overlaps = Inf, 
+                                     nudge_x = labelNudgeX, na.rm = TRUE, 
+                                     size = labelSize, direction = "y", 
+                                     hjust = 0, segment.linetype = "dotted", 
+                                     segment.size = 0.7, segment.curvature = -0.1, 
+                                     segment.angle = 20, box.padding = 0.4, 
+                                     segment.alpha = 0.5, vjust = 0, 
+                                     show.legend = FALSE) 
+        
     }
     gg
 }
