@@ -113,3 +113,15 @@ test_that(".assertPackagesAvailable works", {
     expect_error(testfunc("error1", suggestInstallation = FALSE), "installed.\n$")
     rm(testfunc)
 })
+
+## -------------------------------------------------------------------------- ##
+## Checks, .assertColor
+## -------------------------------------------------------------------------- ##
+test_that(".assertColor works", {
+    expect_error(.assertColor(x = "nocolor"), "not a valid color")
+    expect_error(.assertColor(x = c("nocolor1", "nocolor2")), "not a valid color")
+    expect_error(.assertColor(x = c("green", "nocolor2")), "not a valid color")
+    expect_error(.assertColor(x = 1), "must be of class")
+    expect_true(.assertColor(x = "green"))
+    expect_true(.assertColor(x = "#562108"))
+})
