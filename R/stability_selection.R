@@ -139,11 +139,11 @@
 #'         \item{x}{: the predictor matrix.}
 #'         }
 #'       }
-#'       \item{rowData}{: a DataFrame with columns: \describe{
+#'       \item{rowData}{: a \code{DataFrame} with columns: \describe{
 #'         \item{y}{: the response vector.}
 #'         }
 #'       }
-#'       \item{colData}{: a DataFrame with columns: \describe{
+#'       \item{colData}{: a \code{DataFrame} with columns: \describe{
 #'         \item{selProb}{: the final selection probabilities for the
 #'           predictors (from the last regularization step).}
 #'         \item{selected}{: logical indicating the predictors that made

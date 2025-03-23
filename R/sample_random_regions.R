@@ -3,8 +3,8 @@
 #' @description Sample random regions from the mappable parts of the genome with
 #'     a given fraction from CpG islands.
 #'
-#' @param allowedRegions An unstranded GRanges object of the "allowed" of the 
-#'     genome, usually the mappable regions. 
+#' @param allowedRegions An unstranded \code{GRanges} object of the "allowed" 
+#'     of the genome, usually the mappable regions. 
 #' @param N Number of regions to sample.
 #' @param regWidth Region width.
 #'
@@ -13,8 +13,8 @@
 #'     number seed before calling \code{sampleRandomRegions} using 
 #'     \code{set.seed}.
 #'
-#' @return A GRanges object with randomly sampled mappable regions of width 
-#'     \code{regWidth} with \code{fractionCGI} coming from CpG islands.
+#' @return A \code{GRanges} object with randomly sampled mappable regions of 
+#'     width \code{regWidth} with \code{fractionCGI} coming from CpG islands.
 #'
 #' @examples 
 #' regs <- GenomicRanges::GRanges(

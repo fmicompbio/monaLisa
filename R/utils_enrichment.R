@@ -97,9 +97,9 @@
 
 #' @title Check if seqinfo DataFrame is valid
 #'
-#' @description Check if the DataFrame with sequence information is valid,
-#'   i.e. is of the correct object type (DataFrame) and has all expected
-#'   columns and attributes.
+#' @description Check if the \code{DataFrame} with sequence information is 
+#'   valid, i.e. is of the correct object type (\code{DataFrame}) and has all 
+#'   expected columns and attributes.
 #'
 #' @param df Input object to be checked. It should have an attribute \code{err}
 #'   and columns:
@@ -596,7 +596,7 @@
 #' @param verbose A logical scalar. If \code{TRUE}, report on k-mer composition
 #'   adjustment.
 #'
-#' @return A DataFrame containing: \describe{ \item{sequenceWeights}{: a
+#' @return A \code{DataFrame} containing: \describe{ \item{sequenceWeights}{: a
 #'   \code{dataframe} containing the sequence GC content, GC bins they were
 #'   assigned to, the weight to correct for GC differences between foreGround
 #'   and background sequences, the weight to adjust for kmer composition, and

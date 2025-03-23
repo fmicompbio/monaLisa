@@ -114,7 +114,8 @@
 #'   the bin for each sequence. Typically the return value of
 #'   \code{\link[monaLisa]{bin}}. For \code{background = "genome"}, \code{bins}
 #'   can be omitted.
-#' @param pwmL PWMatrixList with motifs for which to calculate enrichments.
+#' @param pwmL \code{PWMatrixList} with motifs for which to calculate 
+#'   enrichments.
 #' @param background A \code{character} scalar specifying the background
 #'   sequences to use. One of \code{"otherBins"} (default), \code{"allBins"},
 #'   \code{"zeroBin"} or \code{"genome"} (see "Details").
