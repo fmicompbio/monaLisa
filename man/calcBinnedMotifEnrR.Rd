@@ -29,7 +29,7 @@ calcBinnedMotifEnrR(
 \item{seqs}{\code{\link[Biostrings]{DNAStringSet}} object with sequences to
 test}
 
-\item{bins}{factor of the same length and order as \code{seqs}, indicating
+\item{bins}{Factor of the same length and order as \code{seqs}, indicating
 the bin for each sequence. Typically the return value of
 \code{\link[monaLisa]{bin}}. For \code{background = "genome"}, \code{bins}
 can be omitted.}
@@ -48,15 +48,15 @@ enrichment test is one-sided (enriched in foreground).}
 in a sequence (defaults to 0.7). Sequences with higher fractions are
 excluded from the analysis.}
 
-\item{maxKmerSize}{the maximum k-mer size to consider, when adjusting
+\item{maxKmerSize}{The maximum k-mer size to consider, when adjusting
 background sequence weights for k-mer composition compared to the
 foreground sequences. The default value (3) will correct for mono-, di-
 and tri-mer composition.}
 
-\item{min.score}{the minimal score for motif hits, used in
+\item{min.score}{The minimal score for motif hits, used in
 \code{\link[monaLisa]{findMotifHits}}.}
 
-\item{matchMethod}{the method used to scan for motif hits, passed to the
+\item{matchMethod}{The method used to scan for motif hits, passed to the
 \code{method} parameter in \code{\link[monaLisa]{findMotifHits}}.}
 
 \item{GCbreaks}{The breaks between GC bins. The default value is based on

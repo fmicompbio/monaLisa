@@ -34,7 +34,7 @@ foreground sequences.}
 the hard-coded bins used in Homer.}
 }
 \value{
-a \code{DataFrame} with sequences represented by rows and columns
+A \code{DataFrame} with sequences represented by rows and columns
   \code{seqs}, \code{isForeground}, \code{GCfrac}, \code{GCbin}, \code{GCwgt}
   and \code{seqWgt}. Only the first three are already filled in.
 }

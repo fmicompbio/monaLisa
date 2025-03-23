@@ -12,18 +12,18 @@
 )
 }
 \arguments{
-\item{motifHitMatrix}{matrix with 0 and 1 entries for absence or presence of
+\item{motifHitMatrix}{Matrix with 0 and 1 entries for absence or presence of
 motif hits in each sequence.}
 
-\item{df}{a \code{DataFrame} with sequence information as returned by
+\item{df}{A \code{DataFrame} with sequence information as returned by
 \code{.iterativeNormForKmers()}.}
 
-\item{test}{type of motif enrichment test to perform.}
+\item{test}{Type of motif enrichment test to perform.}
 
 \item{verbose}{A logical scalar. If \code{TRUE}, report on progress.}
 }
 \value{
-a \code{data.frame} containing the motifs as rows and the columns:
+A \code{data.frame} containing the motifs as rows and the columns:
   \describe{
     \item{motifName}{: the motif name}
     \item{logP}{: the log p-value for enrichment (natural logarithm).

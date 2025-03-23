@@ -6,22 +6,22 @@
 #'     lasso stability selection uses this function repeatedly
 #'     to select predictors.
 #'
-#' @param x the predictor matrix. Passed to \code{x}
+#' @param x The predictor matrix. Passed to \code{x}
 #'     of \code{glmnet.lasso} from \code{stabs} package.
-#' @param y the response vector. Passed to \code{y}
+#' @param y The response vector. Passed to \code{y}
 #'     of \code{glmnet.lasso} from \code{stabs} package.
-#' @param q the number of variables that are selected on each subsample.
+#' @param q The number of variables that are selected on each subsample.
 #'     Passed to \code{q} of \code{glmnet.lasso} from \code{stabs} package.
-#' @param weakness weakness parameter used in randomized lasso (see details).
-#' @param type parameter passed to \code{type} of \code{glmnet.lasso} from
+#' @param weakness Weakness parameter used in randomized lasso (see details).
+#' @param type Parameter passed to \code{type} of \code{glmnet.lasso} from
 #'     \code{stabs} package. It is a character vector specifying how much the
 #'     PFER should be controlled. If type is "conservative" (default), then the
 #'     number of selected variables per subsample is <= q. If type is
 #'     "anticonservative" then the number of selected variables per subsample
 #'     is >= q.
-#' @param ... additional parameters for \code{glmnet}.
+#' @param ... Additional parameters for \code{glmnet}.
 #'
-#' @return the regression output which consists of a list of length 2. The
+#' @return The regression output which consists of a list of length 2. The
 #'     list contains the following:
 #'     \describe{
 #'     \item{selected}{ - a logical vector of length equal to the total number
@@ -91,30 +91,30 @@
 #'     uses the \code{\link[stabs]{stabsel}} function from the \code{stabs}
 #'     package, but implements the randomized lasso version.
 #'
-#' @param x the predictor matrix.
-#' @param y the response vector.
-#' @param weakness value between 0 and 1 (default = 0.8).
+#' @param x The predictor matrix.
+#' @param y The response vector.
+#' @param weakness Value between 0 and 1 (default = 0.8).
 #'     It affects how strict the method will be in selecting predictors. The
 #'     closer it is to 0, the more stringent the selection. A weakness value
 #'     of 1 is identical to performing lasso stability selection (not the
 #'     randomized version).
-#' @param glmnet.args named list with additional arguments (beyond \code{x}, 
+#' @param glmnet.args Named list with additional arguments (beyond \code{x}, 
 #'     \code{y} and \code{weakness}, which are determined automatically, and 
 #'     \code{q} that can be passed via \code{...}) that 
 #'     will be passed to the internal \code{.glmnetRandomizedLasso} function. 
 #'     The available arguments to the latter are the same as the ones for 
 #'     \code{\link[stabs]{glmnet.lasso}}. A typical use case would be to define 
 #'     the \code{family} argument to \code{glmnet.lasso}. 
-#' @param cutoff value between 0 and 1 (default = 0.8) which is the cutoff
+#' @param cutoff Value between 0 and 1 (default = 0.8) which is the cutoff
 #'     for the selection probability. Any variable with a selection probability
 #'     that is higher than the set cutoff will be selected.
-#' @param PFER integer (default = 2) representing the absolute number of
+#' @param PFER Integer (default = 2) representing the absolute number of
 #'     false positives that we allow for in the final list of selected
 #'     variables. For details see Meinshausen and Bühlmann (2010).
-#' @param mc.cores integer (default = 1) specifying the number of cores to
+#' @param mc.cores Integer (default = 1) specifying the number of cores to
 #'     use in \code{\link[parallel]{mclapply}}, which is the default way
 #'     \code{\link[stabs]{stabsel}} does parallelization.
-#' @param ... additional parameters that can be passed on to
+#' @param ... Additional parameters that can be passed on to
 #'     \code{\link[stabs]{stabsel}}.
 #'
 #' @details Randomized lasso stability selection runs a randomized lasso

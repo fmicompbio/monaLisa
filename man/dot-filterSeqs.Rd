@@ -13,7 +13,7 @@
 )
 }
 \arguments{
-\item{seqs}{a \code{DNAStringSet} object.}
+\item{seqs}{A \code{DNAStringSet} object.}
 
 \item{maxFracN}{A numeric scalar with the maximal fraction of N bases allowed
 in a sequence (defaults to 0.7).}
@@ -27,7 +27,7 @@ Sequences bigger than this will be filtered out.}
 \item{verbose}{A logical scalar. If \code{TRUE}, report on filtering.}
 }
 \value{
-a logical vector of the same length as \code{seqs} with \code{TRUE}
+A logical vector of the same length as \code{seqs} with \code{TRUE}
   indicated to keep the sequence and \code{FALSE} to filter it out.
 }
 \description{

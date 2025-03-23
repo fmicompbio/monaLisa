@@ -16,29 +16,29 @@ randLassoStabSel(
 )
 }
 \arguments{
-\item{x}{the predictor matrix.}
+\item{x}{The predictor matrix.}
 
-\item{y}{the response vector.}
+\item{y}{The response vector.}
 
-\item{weakness}{value between 0 and 1 (default = 0.8).
+\item{weakness}{Value between 0 and 1 (default = 0.8).
 It affects how strict the method will be in selecting predictors. The
 closer it is to 0, the more stringent the selection. A weakness value
 of 1 is identical to performing lasso stability selection (not the
 randomized version).}
 
-\item{cutoff}{value between 0 and 1 (default = 0.8) which is the cutoff
+\item{cutoff}{Value between 0 and 1 (default = 0.8) which is the cutoff
 for the selection probability. Any variable with a selection probability
 that is higher than the set cutoff will be selected.}
 
-\item{PFER}{integer (default = 2) representing the absolute number of
+\item{PFER}{Integer (default = 2) representing the absolute number of
 false positives that we allow for in the final list of selected
 variables. For details see Meinshausen and Bühlmann (2010).}
 
-\item{mc.cores}{integer (default = 1) specifying the number of cores to
+\item{mc.cores}{Integer (default = 1) specifying the number of cores to
 use in \code{\link[parallel]{mclapply}}, which is the default way
 \code{\link[stabs]{stabsel}} does parallelization.}
 
-\item{glmnet.args}{named list with additional arguments (beyond \code{x}, 
+\item{glmnet.args}{Named list with additional arguments (beyond \code{x}, 
 \code{y} and \code{weakness}, which are determined automatically, and 
 \code{q} that can be passed via \code{...}) that 
 will be passed to the internal \code{.glmnetRandomizedLasso} function. 
@@ -46,7 +46,7 @@ The available arguments to the latter are the same as the ones for
 \code{\link[stabs]{glmnet.lasso}}. A typical use case would be to define 
 the \code{family} argument to \code{glmnet.lasso}.}
 
-\item{...}{additional parameters that can be passed on to
+\item{...}{Additional parameters that can be passed on to
 \code{\link[stabs]{stabsel}}.}
 }
 \value{

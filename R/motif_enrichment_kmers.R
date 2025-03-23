@@ -214,9 +214,9 @@ getKmerFreq <- function(seqs,
 #'   as is the case with the binomial test.
 #'
 #' @param k Numeric scalar giving the length of k-mers to analyze.
-#' @param df a \code{DataFrame} with sequence information as returned by
+#' @param df A \code{DataFrame} with sequence information as returned by
 #'   \code{.iterativeNormForKmers()}.
-#' @param test type of motif enrichment test to perform.
+#' @param test Type of motif enrichment test to perform.
 #' @param verbose A logical scalar. If \code{TRUE}, report on progress.
 #'
 #' @details The function works in ZOOPS mode, which means only one
@@ -301,7 +301,7 @@ getKmerFreq <- function(seqs,
 #'
 #' @param seqs \code{\link[Biostrings]{DNAStringSet}} object with sequences to
 #'   test
-#' @param bins factor of the same length and order as \code{seqs}, indicating
+#' @param bins Factor of the same length and order as \code{seqs}, indicating
 #'   the bin for each sequence. Typically the return value of
 #'   \code{\link[monaLisa]{bin}}. For \code{background = "genome"} or
 #'   \code{background = "model"}, \code{bins} can be omitted.
@@ -327,7 +327,7 @@ getKmerFreq <- function(seqs,
 #' @param maxFracN A numeric scalar with the maximal fraction of N bases allowed
 #'   in a sequence (defaults to 0.7). Sequences with higher fractions are
 #'   excluded from the analysis.
-#' @param maxKmerSize the maximum k-mer size to consider, when adjusting
+#' @param maxKmerSize The maximum k-mer size to consider, when adjusting
 #'   background sequence weights for k-mer composition compared to the
 #'   foreground sequences. The default value (3) will correct for mono-, di-
 #'   and tri-mer composition.

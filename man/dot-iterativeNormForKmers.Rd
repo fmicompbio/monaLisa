@@ -13,7 +13,7 @@
 )
 }
 \arguments{
-\item{df}{a \code{DataFrame} with sequence information as returned by
+\item{df}{A \code{DataFrame} with sequence information as returned by
 \code{.calculateGCweight}.}
 
 \item{maxKmerSize}{Integer scalar giving the maximum k-mer size to
@@ -32,7 +32,7 @@ times to run \code{.normForKmers}. the default is set to 160 (as in
 adjustment.}
 }
 \value{
-a DataFrame containing: \describe{ \item{sequenceWeights}{: a
+A DataFrame containing: \describe{ \item{sequenceWeights}{: a
   \code{dataframe} containing the sequence GC content, GC bins they were
   assigned to, the weight to correct for GC differences between foreGround
   and background sequences, the weight to adjust for kmer composition, and

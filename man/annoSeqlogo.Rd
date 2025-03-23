@@ -36,7 +36,7 @@ An annotation function which can be used in
   \code{\link[ComplexHeatmap]{HeatmapAnnotation}}.
 }
 \description{
-create an annotation for a \code{\link[ComplexHeatmap]{Heatmap}}
+Create an annotation for a \code{\link[ComplexHeatmap]{Heatmap}}
   containing sequence logos.
 }
 \examples{

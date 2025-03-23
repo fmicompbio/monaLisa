@@ -16,14 +16,14 @@
 #'   \code{alternative = "greater"}, making it a one-sided test for enrichment,
 #'   as is the case with the binomial test.
 #'
-#' @param motifHitMatrix matrix with 0 and 1 entries for absence or presence of
+#' @param motifHitMatrix Matrix with 0 and 1 entries for absence or presence of
 #'   motif hits in each sequence.
-#' @param df a \code{DataFrame} with sequence information as returned by
+#' @param df A \code{DataFrame} with sequence information as returned by
 #'   \code{.iterativeNormForKmers()}.
-#' @param test type of motif enrichment test to perform.
+#' @param test Type of motif enrichment test to perform.
 #' @param verbose A logical scalar. If \code{TRUE}, report on progress.
 #'
-#' @return a \code{data.frame} containing the motifs as rows and the columns:
+#' @return A \code{data.frame} containing the motifs as rows and the columns:
 #'   \describe{
 #'     \item{motifName}{: the motif name}
 #'     \item{logP}{: the log p-value for enrichment (natural logarithm).
@@ -110,7 +110,7 @@
 #'
 #' @param seqs \code{\link[Biostrings]{DNAStringSet}} object with sequences to
 #'   test
-#' @param bins factor of the same length and order as \code{seqs}, indicating
+#' @param bins Factor of the same length and order as \code{seqs}, indicating
 #'   the bin for each sequence. Typically the return value of
 #'   \code{\link[monaLisa]{bin}}. For \code{background = "genome"}, \code{bins}
 #'   can be omitted.
@@ -124,13 +124,13 @@
 #' @param maxFracN A numeric scalar with the maximal fraction of N bases allowed
 #'   in a sequence (defaults to 0.7). Sequences with higher fractions are
 #'   excluded from the analysis.
-#' @param maxKmerSize the maximum k-mer size to consider, when adjusting
+#' @param maxKmerSize The maximum k-mer size to consider, when adjusting
 #'   background sequence weights for k-mer composition compared to the
 #'   foreground sequences. The default value (3) will correct for mono-, di-
 #'   and tri-mer composition.
-#' @param min.score the minimal score for motif hits, used in
+#' @param min.score The minimal score for motif hits, used in
 #'   \code{\link[monaLisa]{findMotifHits}}.
-#' @param matchMethod the method used to scan for motif hits, passed to the
+#' @param matchMethod The method used to scan for motif hits, passed to the
 #'   \code{method} parameter in \code{\link[monaLisa]{findMotifHits}}.
 #' @param GCbreaks The breaks between GC bins. The default value is based on
 #'   the hard-coded bins used in Homer.
