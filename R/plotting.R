@@ -616,31 +616,31 @@ plotMotifHeatmaps <- function(x,
 #' @description Plot the stability paths of each variable (predictor),
 #'   showing the selection probability as a function of the regularization step.
 #'
-#' @param se the \code{SummarizedExperiment} object resulting from stability
+#' @param se The \code{SummarizedExperiment} object resulting from stability
 #'   selection, by running \code{\link[monaLisa]{randLassoStabSel}}.
 #' @param selProbMin A numerical scalar in [0,1]. Predictors with a selection
 #'   probability greater than \code{selProbMin} are shown as colored lines. The
 #'   color is defined by the \code{col} argument.
-#' @param selColor color for the selected predictors which have a selection
+#' @param selColor Color for the selected predictors which have a selection
 #'    probability greater than \code{selProbMin}.
-#' @param notSelColor color for the rest of the (un-selected) predictors.
-#' @param selProbCutoffColor color for the line depicting the selection 
+#' @param notSelColor Color for the rest of the (un-selected) predictors.
+#' @param selProbCutoffColor Color for the line depicting the selection 
 #'    probability cutoff.
-#' @param linewidth line width.
-#' @param alpha line transparency of the stability paths.
-#' @param ylim limits for y-axis.
-#' @param labelPaths if TRUE, the predictor labels will be shown at the end of 
+#' @param linewidth Line width.
+#' @param alpha Line transparency of the stability paths.
+#' @param ylim Limits for y-axis.
+#' @param labelPaths If TRUE, the predictor labels will be shown at the end of 
 #'    the stability paths. The predictor labels given in \code{labels} will
 #'    be shown. If unspecified, the labels corresponding to the selected
 #'    predictors will be added. If predictors have the same y-value in the last
 #'    regularization step, the labels will be shown in a random order. One 
 #'    needs to use \code{set.seed} to reproduce the plot in this case.
-#' @param labels if \code{labelPaths=TRUE}, the predictors which should be 
+#' @param labels If \code{labelPaths=TRUE}, the predictors which should be 
 #'    labelled. If \code{NULL}, the selected predictors greater than 
 #'    \code{metadata(se)$stabsel.params.cutoff} will be shown.
-#' @param labelNudgeX if \code{labelPaths=TRUE}, how much to nudge the labels
+#' @param labelNudgeX If \code{labelPaths=TRUE}, how much to nudge the labels
 #'    to the right of the x-axis.
-#' @param labelSize if \code{labelPaths=TRUE}, the size of the labels.
+#' @param labelSize If \code{labelPaths=TRUE}, the size of the labels.
 #'
 #' @return a \code{ggplot2} object.
 #'
