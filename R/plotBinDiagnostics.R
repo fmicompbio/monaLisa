@@ -14,7 +14,7 @@
 #'   (across the bins) is indicated as well.}
 #' }
 #' @param seqs \code{\link[Biostrings]{DNAStringSet}} object with sequences.
-#' @param bins factor of the same length and order as \code{seqs}, indicating
+#' @param bins Factor of the same length and order as \code{seqs}, indicating
 #'   the bin for each sequence. Typically the return value of \code{bin}.
 #' @param aspect The diagnostic to plot. Should be one of \code{"length"},
 #'   \code{"GCfrac"} and \code{"dinucfreq"}, to plot the distribution of
