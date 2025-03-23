@@ -76,13 +76,13 @@ in columns, and multiple assays with significance and magnitude of the enrichmen
 The inputs for `calcBinnedMotifEnrR` can be easily obtained using other
 Bioconductor packages:  
 ```
-# get sequences ('atacPeaks' is a GRanges)
+# get sequences ('lmrs' is a GRanges object)
 library(Biostrings)
 library(BSgenome.Mmusculus.UCSC.mm10)
-seqs <- getSeq(BSgenome.Mmusculus.UCSC.mm10, atacPeaks)
+seqs <- getSeq(BSgenome.Mmusculus.UCSC.mm10, lmrs)
 
-# bin sequences ('atacPeaksChange' is a numerical vector)
-bins <- monaLisa::bin(x = atacPeaksChange, binmode = "equalN", nElement = 400)
+# bin sequences ('deltaMeth' is a numerical vector)
+bins <- monaLisa::bin(x = deltaMeth, binmode = "equalN", nElement = 800)
 
 # obtain known motifs from Jaspar
 library(JASPAR2020)
@@ -92,7 +92,8 @@ pwms <- getMatrixSet(JASPAR2020, list(matrixtype = "PWM", tax_group = "vertebrat
 
 The results can be conveniently visualized:
 ```
-plotBinDensity(atacPeaksChange, bins, legendPosition = "none")
+plotBinDensity(deltaMeth, bins, legendPosition = "none") + 
+    labs(x = "Methylation difference")
 ```
 <img src="man/figures/monaLisa_binning_small_ggplot.png" align="center" alt="binning" width="412px"/>
 
