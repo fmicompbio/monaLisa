@@ -44,7 +44,7 @@ use in \code{\link[parallel]{mclapply}}, which is the default way
 will be passed to the internal \code{.glmnetRandomizedLasso} function. 
 The available arguments to the latter are the same as the ones for 
 \code{\link[glmnet]{glmnet}}. A typical use case would be to define 
-the \code{family} argument to \code{glmnet.lasso}.}
+the \code{family} argument to \code{glmnet}.}
 
 \item{...}{Additional parameters that can be passed on to
 \code{\link[stabs]{stabsel}}.}

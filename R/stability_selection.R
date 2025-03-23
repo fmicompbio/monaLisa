@@ -104,7 +104,7 @@
 #'     will be passed to the internal \code{.glmnetRandomizedLasso} function. 
 #'     The available arguments to the latter are the same as the ones for 
 #'     \code{\link[glmnet]{glmnet}}. A typical use case would be to define 
-#'     the \code{family} argument to \code{glmnet.lasso}. 
+#'     the \code{family} argument to \code{glmnet}. 
 #' @param cutoff Value between 0 and 1 (default = 0.8) which is the cutoff
 #'     for the selection probability. Any variable with a selection probability
 #'     that is higher than the set cutoff will be selected.
@@ -227,6 +227,7 @@
 #' @importFrom stabs stabsel
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom cli cli_abort
+#' @importFrom methods formalArgs
 #'
 #'@export
 randLassoStabSel <- function(x, y, weakness=0.8, cutoff=0.8, PFER=2,
@@ -256,7 +257,10 @@ randLassoStabSel <- function(x, y, weakness=0.8, cutoff=0.8, PFER=2,
     }
     .assertVector(x = glmnet.args, type = "list")
     if (length(glmnet.args) > 0) {
-        .assertVector(x = names(glmnet.args), type = "character")
+        .assertVector(x = names(glmnet.args), type = "character", 
+                      validValues = c("weakness",
+                                      union(formalArgs(glmnet::glmnet),
+                                            formalArgs(stabs::glmnet.lasso))))
         if (any(i <- names(glmnet.args) %in% c("x", "y", "q", "weakness"))) {
             warning(paste0("Ignoring the following elements of 'glmnet.args' (as ", 
                            "they are set automatically): ", 
