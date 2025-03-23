@@ -670,6 +670,7 @@ plotMotifHeatmaps <- function(x,
 #'     theme_classic theme
 #' @importFrom tidyr pivot_longer starts_with
 #' @importFrom cli cli_abort
+#' @importFrom rlang .data
 #'
 #' @export
 plotStabilityPaths <- function(se,
@@ -858,6 +859,7 @@ plotStabilityPaths <- function(se,
 #' @importFrom stats cor reorder
 #' @importFrom ggplot2 ggplot aes geom_bar scale_fill_manual geom_hline labs 
 #'     geom_text ylim theme theme_classic
+#' @importFrom rlang .data
 #'
 #' @export
 plotSelectionProb <- function(se,

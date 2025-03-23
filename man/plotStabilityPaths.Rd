@@ -20,42 +20,42 @@ plotStabilityPaths(
 )
 }
 \arguments{
-\item{se}{the \code{SummarizedExperiment} object resulting from stability
+\item{se}{The \code{SummarizedExperiment} object resulting from stability
 selection, by running \code{\link[monaLisa]{randLassoStabSel}}.}
 
 \item{selProbMin}{A numerical scalar in [0,1]. Predictors with a selection
 probability greater than \code{selProbMin} are shown as colored lines. The
 color is defined by the \code{col} argument.}
 
-\item{selColor}{color for the selected predictors which have a selection
+\item{selColor}{Color for the selected predictors which have a selection
 probability greater than \code{selProbMin}.}
 
-\item{notSelColor}{color for the rest of the (un-selected) predictors.}
+\item{notSelColor}{Color for the rest of the (un-selected) predictors.}
 
-\item{selProbCutoffColor}{color for the line depicting the selection 
+\item{selProbCutoffColor}{Color for the line depicting the selection 
 probability cutoff.}
 
-\item{linewidth}{line width.}
+\item{linewidth}{Line width.}
 
-\item{alpha}{line transparency of the stability paths.}
+\item{alpha}{Line transparency of the stability paths.}
 
-\item{ylim}{limits for y-axis.}
+\item{ylim}{Limits for y-axis.}
 
-\item{labelPaths}{if TRUE, the predictor labels will be shown at the end of 
-the stability paths. The predictor labels given in \code{labels} will
-be shown. If unspecified, the labels corresponding to the selected
+\item{labelPaths}{If \code{TRUE}, the predictor labels will be shown at the 
+end of the stability paths. The predictor labels given in \code{labels} 
+will be shown. If unspecified, the labels corresponding to the selected
 predictors will be added. If predictors have the same y-value in the last
 regularization step, the labels will be shown in a random order. One 
 needs to use \code{set.seed} to reproduce the plot in this case.}
 
-\item{labels}{if \code{labelPaths=TRUE}, the predictors which should be 
+\item{labels}{If \code{labelPaths = TRUE}, the predictors which should be 
 labelled. If \code{NULL}, the selected predictors greater than 
 \code{metadata(se)$stabsel.params.cutoff} will be shown.}
 
-\item{labelNudgeX}{if \code{labelPaths=TRUE}, how much to nudge the labels
+\item{labelNudgeX}{If \code{labelPaths = TRUE}, how much to nudge the labels
 to the right of the x-axis.}
 
-\item{labelSize}{if \code{labelPaths=TRUE}, the size of the labels.}
+\item{labelSize}{If \code{labelPaths = TRUE}, the size of the labels.}
 }
 \value{
 a \code{ggplot2} object.
