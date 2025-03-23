@@ -43,7 +43,7 @@ use in \code{\link[parallel]{mclapply}}, which is the default way
 \code{q} that can be passed via \code{...}) that 
 will be passed to the internal \code{.glmnetRandomizedLasso} function. 
 The available arguments to the latter are the same as the ones for 
-\code{\link[stabs]{glmnet.lasso}}. A typical use case would be to define 
+\code{\link[glmnet]{glmnet}}. A typical use case would be to define 
 the \code{family} argument to \code{glmnet.lasso}.}
 
 \item{...}{Additional parameters that can be passed on to
