@@ -858,7 +858,7 @@ plotStabilityPaths <- function(se,
 #' @importFrom SummarizedExperiment rowData assay
 #' @importFrom S4Vectors metadata
 #' @importFrom stats cor reorder
-#' @importFrom ggplot2 ggplot aes geom_bar scale_fill_manual geom_hline labs
+#' @importFrom ggplot2 ggplot aes geom_col scale_fill_manual geom_hline labs
 #'     geom_text ylim theme theme_classic
 #' @importFrom rlang .data
 #'
@@ -916,7 +916,7 @@ plotSelectionProb <- function(se,
                  mapping = aes(x = stats::reorder(.data$predNames,
                                                   -.data$probs),
                                y = .data$probs)) +
-      geom_bar(mapping = aes(fill = .data$selected), stat = "identity") +
+      geom_col(mapping = aes(fill = .data$selected)) +
       scale_fill_manual(values = c("TRUE" = selColor, "FALSE" = notSelColor)) +
       labs(x = element_blank(),
            y = ifelse(
