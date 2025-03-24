@@ -38,13 +38,14 @@ variables. For details see Meinshausen and Bühlmann (2010).}
 use in \code{\link[parallel]{mclapply}}, which is the default way
 \code{\link[stabs]{stabsel}} does parallelization.}
 
-\item{glmnet.args}{Named list with additional arguments (beyond \code{x}, 
+\item{glmnet.args}{Named list with additional arguments to the internal 
+\code{.glmnetRandomizedLasso} function (beyond \code{x}, 
 \code{y} and \code{weakness}, which are determined automatically, and 
-\code{q} that can be passed via \code{...}) that 
-will be passed to the internal \code{.glmnetRandomizedLasso} function. 
-The available arguments to the latter are the same as the ones for 
-\code{\link[glmnet]{glmnet}}. A typical use case would be to define 
-the \code{family} argument to \code{glmnet}.}
+\code{q}, which should not be specified (it will be determined from 
+\code{cutoff} and \code{PFER}). 
+The available arguments to \code{.glmnetRandomizedLasso} are the same as 
+the ones for \code{\link[stabs]{glmnet.lasso}}. A typical use case would 
+be to define the \code{family} argument to \code{\link[glmnet]{glmnet}}.}
 
 \item{...}{Additional parameters that can be passed on to
 \code{\link[stabs]{stabsel}}.}
@@ -158,9 +159,9 @@ N. Meinshausen and P. Bühlmann (2010), Stability Selection,
     \emph{Journal of the Royal Statistical Society: Series B
     (Statistical Methodology)}, \strong{72}, 417–73. \cr
     R.D. Shah and R.J. Samworth (2013), Variable Selection with Error
-   Control: Another Look at Stability Selection,
-   \emph{Journal of the Royal Statistical Society: Series B
-   (Statistical Methodology)}, \strong{75}, 55–80. \cr
+    Control: Another Look at Stability Selection,
+    \emph{Journal of the Royal Statistical Society: Series B
+    (Statistical Methodology)}, \strong{75}, 55–80. \cr
     B. Hofner, L. Boccuto, and M. Göker (2015), Controlling False
     Discoveries in High-Dimensional Situations: Boosting with Stability
     Selection, \emph{BMC Bioinformatics}, \strong{16} 144.
