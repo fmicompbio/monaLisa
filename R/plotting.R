@@ -838,6 +838,7 @@ plotStabilityPaths <- function(se,
 #'
 #' @examples
 #' ## create data set
+#' set.seed(321)
 #' Y <- rnorm(n = 500, mean = 2, sd = 1)
 #' X <- matrix(data = NA, nrow = length(Y), ncol = 50)
 #' for (i in seq_len(ncol(X))) {
@@ -845,8 +846,8 @@ plotStabilityPaths <- function(se,
 #' }
 #' s_cols <- sample(x = seq_len(ncol(X)), size = 10,
 #'   replace = FALSE)
-#' for (i in seq_along(s_cols)) {
-#'   X[ ,s_cols[i]] <- X[ ,s_cols[i]] + Y
+#' for (s in s_cols) {
+#'   X[ ,s] <- X[, s] + (Y + rnorm(500, 0, 4)) * ifelse(s %% 2, -1, 1)
 #' }
 #'
 #' ## reproducible randLassoStabSel() with 1 core
