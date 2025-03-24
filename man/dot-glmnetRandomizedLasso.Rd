@@ -14,28 +14,28 @@
 )
 }
 \arguments{
-\item{x}{the predictor matrix. Passed to \code{x}
+\item{x}{The predictor matrix. Passed to \code{x}
 of \code{glmnet.lasso} from \code{stabs} package.}
 
-\item{y}{the response vector. Passed to \code{y}
+\item{y}{The response vector. Passed to \code{y}
 of \code{glmnet.lasso} from \code{stabs} package.}
 
-\item{q}{the number of variables that are selected on each subsample.
+\item{q}{The number of variables that are selected on each subsample.
 Passed to \code{q} of \code{glmnet.lasso} from \code{stabs} package.}
 
-\item{weakness}{weakness parameter used in randomized lasso (see details).}
+\item{weakness}{Weakness parameter used in randomized lasso (see details).}
 
-\item{type}{parameter passed to \code{type} of \code{glmnet.lasso} from
+\item{type}{Parameter passed to \code{type} of \code{glmnet.lasso} from
 \code{stabs} package. It is a character vector specifying how much the
 PFER should be controlled. If type is "conservative" (default), then the
 number of selected variables per subsample is <= q. If type is
 "anticonservative" then the number of selected variables per subsample
 is >= q.}
 
-\item{...}{additional parameters for \code{glmnet}.}
+\item{...}{Additional parameters for \code{glmnet}.}
 }
 \value{
-the regression output which consists of a list of length 2. The
+The regression output which consists of a list of length 2. The
     list contains the following:
     \describe{
     \item{selected}{ - a logical vector of length equal to the total number

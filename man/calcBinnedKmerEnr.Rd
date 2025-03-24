@@ -29,7 +29,7 @@ calcBinnedKmerEnr(
 \item{seqs}{\code{\link[Biostrings]{DNAStringSet}} object with sequences to
 test}
 
-\item{bins}{factor of the same length and order as \code{seqs}, indicating
+\item{bins}{Factor of the same length and order as \code{seqs}, indicating
 the bin for each sequence. Typically the return value of
 \code{\link[monaLisa]{bin}}. For \code{background = "genome"} or
 \code{background = "model"}, \code{bins} can be omitted.}
@@ -62,7 +62,7 @@ corresponding forward sequence.}
 in a sequence (defaults to 0.7). Sequences with higher fractions are
 excluded from the analysis.}
 
-\item{maxKmerSize}{the maximum k-mer size to consider, when adjusting
+\item{maxKmerSize}{The maximum k-mer size to consider, when adjusting
 background sequence weights for k-mer composition compared to the
 foreground sequences. The default value (3) will correct for mono-, di-
 and tri-mer composition.}

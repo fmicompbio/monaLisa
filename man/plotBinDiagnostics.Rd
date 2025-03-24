@@ -15,7 +15,7 @@ plotBinDiagnostics(
 \arguments{
 \item{seqs}{\code{\link[Biostrings]{DNAStringSet}} object with sequences.}
 
-\item{bins}{factor of the same length and order as \code{seqs}, indicating
+\item{bins}{Factor of the same length and order as \code{seqs}, indicating
 the bin for each sequence. Typically the return value of \code{bin}.}
 
 \item{aspect}{The diagnostic to plot. Should be one of \code{"length"},

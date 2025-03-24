@@ -616,31 +616,31 @@ plotMotifHeatmaps <- function(x,
 #' @description Plot the stability paths of each variable (predictor),
 #'   showing the selection probability as a function of the regularization step.
 #'
-#' @param se the \code{SummarizedExperiment} object resulting from stability
+#' @param se The \code{SummarizedExperiment} object resulting from stability
 #'   selection, by running \code{\link[monaLisa]{randLassoStabSel}}.
 #' @param selProbMin A numerical scalar in [0,1]. Predictors with a selection
 #'   probability greater than \code{selProbMin} are shown as colored lines. The
 #'   color is defined by the \code{col} argument.
-#' @param selColor color for the selected predictors which have a selection
+#' @param selColor Color for the selected predictors which have a selection
 #'    probability greater than \code{selProbMin}.
-#' @param notSelColor color for the rest of the (un-selected) predictors.
-#' @param selProbCutoffColor color for the line depicting the selection 
+#' @param notSelColor Color for the rest of the (un-selected) predictors.
+#' @param selProbCutoffColor Color for the line depicting the selection 
 #'    probability cutoff.
-#' @param linewidth line width.
-#' @param alpha line transparency of the stability paths.
-#' @param ylim limits for y-axis.
-#' @param labelPaths if TRUE, the predictor labels will be shown at the end of 
-#'    the stability paths. The predictor labels given in \code{labels} will
-#'    be shown. If unspecified, the labels corresponding to the selected
+#' @param linewidth Line width.
+#' @param alpha Line transparency of the stability paths.
+#' @param ylim Limits for y-axis.
+#' @param labelPaths If \code{TRUE}, the predictor labels will be shown at the 
+#'    end of the stability paths. The predictor labels given in \code{labels} 
+#'    will be shown. If unspecified, the labels corresponding to the selected
 #'    predictors will be added. If predictors have the same y-value in the last
 #'    regularization step, the labels will be shown in a random order. One 
 #'    needs to use \code{set.seed} to reproduce the plot in this case.
-#' @param labels if \code{labelPaths=TRUE}, the predictors which should be 
+#' @param labels If \code{labelPaths = TRUE}, the predictors which should be 
 #'    labelled. If \code{NULL}, the selected predictors greater than 
 #'    \code{metadata(se)$stabsel.params.cutoff} will be shown.
-#' @param labelNudgeX if \code{labelPaths=TRUE}, how much to nudge the labels
+#' @param labelNudgeX If \code{labelPaths = TRUE}, how much to nudge the labels
 #'    to the right of the x-axis.
-#' @param labelSize if \code{labelPaths=TRUE}, the size of the labels.
+#' @param labelSize If \code{labelPaths = TRUE}, the size of the labels.
 #'
 #' @return a \code{ggplot2} object.
 #'
@@ -670,6 +670,7 @@ plotMotifHeatmaps <- function(x,
 #'     theme_classic theme
 #' @importFrom tidyr pivot_longer starts_with
 #' @importFrom cli cli_abort
+#' @importFrom rlang .data
 #'
 #' @export
 plotStabilityPaths <- function(se,
@@ -698,14 +699,11 @@ plotStabilityPaths <- function(se,
     .assertVector(x = colnames(se), type = "character", len = ncol(se))
     .assertVector(x = rownames(se), type = "character", len = nrow(se))
     .assertVector(x = colnames(colData(se)), type = "character")
-    if (!any(grepl(pattern = "regStep", x = colnames(colData(se))))) {
+    if (!any(grepl(pattern = "^regStep", x = colnames(colData(se))))) {
         cli_abort("the columns in {.code colData(se)} containing the selection 
                 probabilities for each regularization step {.code i} must have
                 column names starting with {.emph regStep}. See 
                 {.fn randLassoStabSel} for more details.")
-    }
-    if (is.null(rownames(colData(se)))) {
-        cli_abort("{.code rownames(colData(se))} must not be empty.")
     }
 
     # prepare dataframe to plot
@@ -756,33 +754,32 @@ plotStabilityPaths <- function(se,
                      mapping = aes(x = x, xend = x, y = y, yend = yend)) + 
         theme(axis.line = element_blank())
     
-    if(labelPaths){
-      .assertPackagesAvailable("ggrepel")
-      .assertScalar(x = labelNudgeX, type = "numeric")
-      .assertScalar(x = labelSize, type = "numeric")
-      
-      if(is.null(labels)){
-        labels <- unique(df$predictor[df$selected])
-      }
-      else {
-        # check that the labels are correct and exist
-        .assertVector(x = labels, type = "character", 
-                      validValues = unique(df$predictor))
-      }
-      gg <- gg + 
-        ggrepel::geom_text_repel(data = df[(df$predictor %in% labels) & 
-                                             (df$regStep == max(df$regStep)), ], 
-                                 aes(label = .data$predictor, 
-                                     color = .data$selected), 
-                                 max.overlaps = Inf, 
-                                 nudge_x = labelNudgeX, na.rm = TRUE, 
-                                 size = labelSize, direction = "y", 
-                                 hjust = 0, segment.linetype = "dotted", 
-                                 segment.size = 0.7, segment.curvature = -0.1, 
-                                 segment.angle = 20, box.padding = 0.4, 
-                                 segment.alpha = 0.5, vjust = 0, 
-                                 show.legend = FALSE) 
-      
+    if (labelPaths) {
+        .assertPackagesAvailable("ggrepel")
+        .assertScalar(x = labelNudgeX, type = "numeric")
+        .assertScalar(x = labelSize, type = "numeric")
+        
+        if (is.null(labels)) {
+            labels <- unique(df$predictor[df$selected])
+        } else {
+            # check that the labels are correct and exist
+            .assertVector(x = labels, type = "character", 
+                          validValues = unique(df$predictor))
+        }
+        gg <- gg + 
+            ggrepel::geom_text_repel(data = df[(df$predictor %in% labels) & 
+                                                   (df$regStep == max(df$regStep)), ], 
+                                     aes(label = .data$predictor, 
+                                         color = .data$selected), 
+                                     max.overlaps = Inf, 
+                                     nudge_x = labelNudgeX, na.rm = TRUE, 
+                                     size = labelSize, direction = "y", 
+                                     hjust = 0, segment.linetype = "dotted", 
+                                     segment.size = 0.7, segment.curvature = -0.1, 
+                                     segment.angle = 20, box.padding = 0.4, 
+                                     segment.alpha = 0.5, vjust = 0, 
+                                     show.legend = FALSE) 
+        
     }
     gg
 }
@@ -862,6 +859,7 @@ plotStabilityPaths <- function(se,
 #' @importFrom stats cor reorder
 #' @importFrom ggplot2 ggplot aes geom_bar scale_fill_manual geom_hline labs 
 #'     geom_text ylim theme theme_classic
+#' @importFrom rlang .data
 #'
 #' @export
 plotSelectionProb <- function(se,

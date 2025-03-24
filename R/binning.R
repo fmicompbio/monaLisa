@@ -98,7 +98,7 @@
 #' @param breaks Numerical vector with bin boundaries (only for
 #'   \code{binmode="breaks"}). \code{breaks} has to be ordered and strictly
 #'   increasing, and has to be of length (number of bins) + 1.
-#' @param ... further arguments to be passed to \code{cut(x, breaks,
+#' @param ... Further arguments to be passed to \code{cut(x, breaks,
 #'   include.lowest = TRUE, ...)}, such as \code{labels=FALSE}.
 #'
 #' @details Elements are binned according to the values in \code{x} depending on

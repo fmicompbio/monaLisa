@@ -7,7 +7,7 @@
 .checkIfSeqsAreEqualLength(x)
 }
 \arguments{
-\item{x}{an object that implements a \code{width} method, typically a
+\item{x}{An object that implements a \code{width} method, typically a
 \code{GRanges} or \code{DNAStringSet} object.}
 }
 \value{

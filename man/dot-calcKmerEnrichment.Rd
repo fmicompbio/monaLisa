@@ -9,10 +9,10 @@
 \arguments{
 \item{k}{Numeric scalar giving the length of k-mers to analyze.}
 
-\item{df}{a \code{DataFrame} with sequence information as returned by
+\item{df}{A \code{DataFrame} with sequence information as returned by
 \code{.iterativeNormForKmers()}.}
 
-\item{test}{type of motif enrichment test to perform.}
+\item{test}{Type of motif enrichment test to perform.}
 
 \item{verbose}{A logical scalar. If \code{TRUE}, report on progress.}
 }

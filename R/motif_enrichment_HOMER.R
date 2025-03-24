@@ -343,7 +343,7 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
     return(homerFile)
 }
 
-#' @title load output from HOMER findMotifsGenome.pl into R
+#' @title Load output from HOMER findMotifsGenome.pl into R
 #'
 #' @description Parse HOMER output files into R data structures.
 #'

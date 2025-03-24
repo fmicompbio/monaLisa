@@ -97,9 +97,9 @@
 
 #' @title Check if seqinfo DataFrame is valid
 #'
-#' @description Check if the DataFrame with sequence information is valid,
-#'   i.e. is of the correct object type (DataFrame) and has all expected
-#'   columns and attributes.
+#' @description Check if the \code{DataFrame} with sequence information is 
+#'   valid, i.e. is of the correct object type (\code{DataFrame}) and has all 
+#'   expected columns and attributes.
 #'
 #' @param df Input object to be checked. It should have an attribute \code{err}
 #'   and columns:
@@ -156,7 +156,7 @@
 #'   enrichment analysis. The current defaults are based on HOMER
 #'   (version 4.11).
 #'
-#' @param seqs a \code{DNAStringSet} object.
+#' @param seqs A \code{DNAStringSet} object.
 #' @param maxFracN A numeric scalar with the maximal fraction of N bases allowed
 #'   in a sequence (defaults to 0.7).
 #' @param minLength The minimum sequence length (default from Homer).
@@ -167,7 +167,7 @@
 #'
 #' @details The filtering logic is based on \code{removePoorSeq.pl} from Homer.
 #'
-#' @return a logical vector of the same length as \code{seqs} with \code{TRUE}
+#' @return A logical vector of the same length as \code{seqs} with \code{TRUE}
 #'   indicated to keep the sequence and \code{FALSE} to filter it out.
 #'
 #' @importFrom Biostrings alphabetFrequency DNAStringSet
@@ -230,7 +230,7 @@
 #' @param GCbreaks The breaks between GC bins. The default value is based on
 #'   the hard-coded bins used in Homer.
 #'
-#' @return a \code{DataFrame} with sequences represented by rows and columns
+#' @return A \code{DataFrame} with sequences represented by rows and columns
 #'   \code{seqs}, \code{isForeground}, \code{GCfrac}, \code{GCbin}, \code{GCwgt}
 #'   and \code{seqWgt}. Only the first three are already filled in.
 #'
@@ -388,13 +388,13 @@
 #'   weight_i = (number_fg_seqs_i / number_bg_seqs_i) * (number_bg_seqs_total /
 #'   number_fg_seqs_total)
 #'
-#' @param df a \code{DataFrame} with sequence information.
+#' @param df A \code{DataFrame} with sequence information.
 #' @param GCbreaks The breaks between GC bins. The default value is based on
 #'   the hard-coded bins used in Homer.
 #' @param verbose A logical scalar. If \code{TRUE}, report on GC weight
 #'   calculation.
 #'
-#' @return a \code{DataFrame} of the same dimensions as the input \code{df},
+#' @return A \code{DataFrame} of the same dimensions as the input \code{df},
 #'   with the columns \code{GCfrac}, \code{GCbin} and \code{GCwgt}
 #'   filled in with the sequence GC content, assigned GC bins and weights to
 #'   correct differences in GC distributions between foreground and background
@@ -470,18 +470,18 @@
 #'   composition. The logic is based on Homer's
 #'   \code{normalizeSequenceIteration()} function found in \code{Motif2.cpp}.
 #'
-#' @param kmerFreq a \code{list} with of matrices. The matrix at index \code{i}
+#' @param kmerFreq A \code{list} with of matrices. The matrix at index \code{i}
 #'   in the list contains the probability of k-mers of length \code{i}, for each
 #'   k-mer (columns) and sequence (rows).
-#' @param goodKmers a \code{list} of \code{numeric} vectors; the element at
+#' @param goodKmers A \code{list} of \code{numeric} vectors; the element at
 #'   index \code{i} contains the number of good (non-N-containing) k-mers of
 #'   length \code{i} for each sequence.
-#' @param kmerRC a \code{list} of character vectors; the element at index
+#' @param kmerRC A \code{list} of character vectors; the element at index
 #'   \code{i} contains the reverse complement sequences of all k-mers of length
 #'   \code{i}.
-#' @param seqWgt a \code{numeric} vector with starting sequence weights
+#' @param seqWgt A \code{numeric} vector with starting sequence weights
 #'   at the beginning of the iteration.
-#' @param isForeground logical vector of the same length as \code{seqs}.
+#' @param isForeground Logical vector of the same length as \code{seqs}.
 #'   \code{TRUE} indicates that the sequence is from the foreground,
 #'   \code{FALSE} that it is a background sequence.
 #' @param minSeqWgt Numeric scalar greater than zero giving the
@@ -491,7 +491,7 @@
 #'   maximal weight of a sequence. The default value (1000) is based on
 #'   \code{HOMER} (1 / HOMER_MINIMUM_SEQ_WEIGHT constant in Motif2.h).
 #'
-#' @return a named \code{list} with elements \code{seqWgt} (updated
+#' @return A named \code{list} with elements \code{seqWgt} (updated
 #'   weights) and \code{err} (error measuring difference of foreground
 #'   and weighted background sequence compositions).
 #'
@@ -582,7 +582,7 @@
 #'   \code{normalizeSequence()} one last time after going through all iterations
 #'   or reaching a low error, which we do not do here.
 #'
-#' @param df a \code{DataFrame} with sequence information as returned by
+#' @param df A \code{DataFrame} with sequence information as returned by
 #'   \code{.calculateGCweight}.
 #' @param maxKmerSize Integer scalar giving the maximum k-mer size to
 #'   consider. The default is set to 3 (like in \code{HOMER}), meaning that
@@ -596,7 +596,7 @@
 #' @param verbose A logical scalar. If \code{TRUE}, report on k-mer composition
 #'   adjustment.
 #'
-#' @return a DataFrame containing: \describe{ \item{sequenceWeights}{: a
+#' @return A \code{DataFrame} containing: \describe{ \item{sequenceWeights}{: a
 #'   \code{dataframe} containing the sequence GC content, GC bins they were
 #'   assigned to, the weight to correct for GC differences between foreGround
 #'   and background sequences, the weight to adjust for kmer composition, and
@@ -672,7 +672,7 @@
 #' @description Check if the elements of `x` are all equally long.
 #'   If not, generate a warning.
 #'
-#' @param x an object that implements a \code{width} method, typically a
+#' @param x An object that implements a \code{width} method, typically a
 #'   \code{GRanges} or \code{DNAStringSet} object.
 #'
 #' @return \code{NULL} (invisibly). The function is called for its side-effect

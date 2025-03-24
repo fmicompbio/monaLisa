@@ -204,7 +204,7 @@ seqLogoGrob <- function(x, xmax = NULL, ymax = 2.0,
 
 #' @title Sequence logo annotation
 #'
-#' @description create an annotation for a \code{\link[ComplexHeatmap]{Heatmap}}
+#' @description Create an annotation for a \code{\link[ComplexHeatmap]{Heatmap}}
 #'   containing sequence logos.
 #'
 #' @param grobL A \code{list} of sequence logo grobs, typically created using

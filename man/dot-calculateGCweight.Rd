@@ -11,7 +11,7 @@
 )
 }
 \arguments{
-\item{df}{a \code{DataFrame} with sequence information.}
+\item{df}{A \code{DataFrame} with sequence information.}
 
 \item{GCbreaks}{The breaks between GC bins. The default value is based on
 the hard-coded bins used in Homer.}
@@ -20,7 +20,7 @@ the hard-coded bins used in Homer.}
 calculation.}
 }
 \value{
-a \code{DataFrame} of the same dimensions as the input \code{df},
+A \code{DataFrame} of the same dimensions as the input \code{df},
   with the columns \code{GCfrac}, \code{GCbin} and \code{GCwgt}
   filled in with the sequence GC content, assigned GC bins and weights to
   correct differences in GC distributions between foreground and background

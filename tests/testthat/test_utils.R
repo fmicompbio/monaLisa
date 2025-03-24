@@ -96,3 +96,32 @@ test_that(".assertVector works", {
     expect_error(.assertVector(x = test, type = "numeric"),
                  ".test. must be of class .numeric.")
 })
+
+## -------------------------------------------------------------------------- ##
+## Checks, .assertPackagesAvailable
+## -------------------------------------------------------------------------- ##
+test_that(".assertPackagesAvailable works", {
+    testfunc <- function(...) .assertPackagesAvailable(...)
+    expect_error(testfunc(1L))
+    expect_error(testfunc("test", "error"))
+    expect_error(testfunc("test", c(TRUE, FALSE)))
+    
+    expect_true(testfunc("base"))
+    expect_true(testfunc("githubuser/base"))
+    expect_true(testfunc(c("base", "methods")))
+    expect_error(testfunc(c("error", "error2")), "BiocManager")
+    expect_error(testfunc("error1", suggestInstallation = FALSE), "installed.\n$")
+    rm(testfunc)
+})
+
+## -------------------------------------------------------------------------- ##
+## Checks, .assertColor
+## -------------------------------------------------------------------------- ##
+test_that(".assertColor works", {
+    expect_error(.assertColor(x = "nocolor"), "not a valid color")
+    expect_error(.assertColor(x = c("nocolor1", "nocolor2")), "not a valid color")
+    expect_error(.assertColor(x = c("green", "nocolor2")), "not a valid color")
+    expect_error(.assertColor(x = 1), "must be of class")
+    expect_true(.assertColor(x = "green"))
+    expect_true(.assertColor(x = "#562108"))
+})

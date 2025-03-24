@@ -7,16 +7,16 @@
 sampleRandomRegions(allowedRegions = NULL, N = 100L, regWidth = 200L)
 }
 \arguments{
-\item{allowedRegions}{An unstranded GRanges object of the "allowed" of the 
-genome, usually the mappable regions.}
+\item{allowedRegions}{An unstranded \code{GRanges} object of the "allowed" 
+of the genome, usually the mappable regions.}
 
 \item{N}{Number of regions to sample.}
 
 \item{regWidth}{Region width.}
 }
 \value{
-A GRanges object with randomly sampled mappable regions of width 
-    \code{regWidth} with \code{fractionCGI} coming from CpG islands.
+A \code{GRanges} object with randomly sampled mappable regions of 
+    width \code{regWidth} with \code{fractionCGI} coming from CpG islands.
 }
 \description{
 Sample random regions from the mappable parts of the genome with
