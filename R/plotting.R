@@ -748,10 +748,12 @@ plotStabilityPaths <- function(se,
         theme_classic() +
         geom_segment(data = data.frame(x = min(df$regStep),
                                        xend = max(df$regStep), y = 0),
-                     mapping = aes(x = x, xend = xend, y = y, yend = y)) +
+                     mapping = aes(x = .data$x, xend = .data$xend,
+                                   y = .data$y, yend = .data$y)) +
         geom_segment(data = data.frame(x = min(df$regStep), y = ylim[1],
                                        yend = ylim[2]),
-                     mapping = aes(x = x, xend = x, y = y, yend = yend)) +
+                     mapping = aes(x = .data$x, xend = .data$x,
+                                   y = .data$y, yend = .data$yend)) +
         theme(axis.line = element_blank())
 
     if (labelPaths) {
