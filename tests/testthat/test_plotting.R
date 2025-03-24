@@ -1,5 +1,3 @@
-context("plotting")
-
 # create data
 
 # ... binning
@@ -7,11 +5,11 @@ set.seed(1)
 x <- rnorm(1000)
 b1 <- bin(x, binmode = "equalN", nElements = 100)
 b2 <- bin(x, binmode = "equalN", nElements = 50, minAbsX = 0.6)
-se <- readRDS(system.file("extdata", "results.binned_motif_enrichment_LMRs.rds", 
+se <- readRDS(system.file("extdata", "results.binned_motif_enrichment_LMRs.rds",
                           package = "monaLisa"))[1:10, 1:8]
 seqs <- Biostrings::DNAStringSet(
-    vapply(seq_along(x), 
-           function(i) paste(sample(c("A", "C", "G", "T"), 10, 
+    vapply(seq_along(x),
+           function(i) paste(sample(c("A", "C", "G", "T"), 10,
                                     replace = TRUE), collapse = ""), "")
 )
 
@@ -34,10 +32,13 @@ test_that("getColsByBin() works properly", {
 
 
 test_that("plotBinHist() runs", {
+    expect_warning(plotBinHist(x = x, b = b1, legend = "topright"))
+    expect_warning(plotBinHist(x = x, b = b1, legend.cex = 1.0))
+
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)
 
-    expect_is(plotBinHist(x = x, b = b1), "histogram")
+    expect_s3_class(plotBinHist(x = x, b = b1), "ggplot")
 
     dev.off()
     unlink(tf)
@@ -45,29 +46,37 @@ test_that("plotBinHist() runs", {
 
 
 test_that("plotBinDensity() runs", {
+    expect_warning(plotBinDensity(x = x, b = b1, legend = "topright"))
+    expect_warning(plotBinDensity(x = x, b = b1, legend.cex = 1.0))
+
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)
 
-    expect_is(plotBinDensity(x = x, b = b1), "density")
+    expect_s3_class(plotBinDensity(x = x, b = b1), "ggplot")
 
     dev.off()
     unlink(tf)
 })
 
 test_that("plotBinDiagnostics() runs", {
+    expect_error(plotBinDiagnostics(seqs = seqs, bins = b1[1:3]))
+
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)
-    
-    expect_is(plotBinDiagnostics(seqs = seqs, bins = b1, aspect = "length"), 
-              "list")
-    expect_is(plotBinDiagnostics(seqs = seqs, bins = b1, aspect = "GCfrac"), 
-              "list")
-    expect_is(plotBinDiagnostics(seqs = seqs, bins = b1, aspect = "dinucfreq"), 
-              "Heatmap")
-    
+
+    expect_s3_class(
+        plotBinDiagnostics(seqs = seqs, bins = b1, aspect = "length"),
+        "ggplot")
+    expect_s3_class(
+        plotBinDiagnostics(seqs = seqs, bins = b1, aspect = "GCfrac"),
+        "ggplot")
+    expect_s4_class(
+        plotBinDiagnostics(seqs = seqs, bins = b1, aspect = "dinucfreq"),
+        "Heatmap")
+
     dev.off()
     unlink(tf)
-    
+
     expect_error(plotBinDiagnostics(seqs = x, bins = b1))
     expect_error(plotBinDiagnostics(seqs = seqs, bins = as.numeric(b1)))
     expect_error(plotBinDiagnostics(seqs = seqs, bins = as.character(b1)))
@@ -75,12 +84,18 @@ test_that("plotBinDiagnostics() runs", {
 })
 
 test_that("plotBinScatter() runs", {
+    expect_warning(plotBinScatter(x = x, y = x, b = b1, cols = "red",
+                                  legendPosition = "right"))
+    expect_warning(plotBinScatter(x = x, y = x, b = b1, legend = "topright"))
+    expect_warning(plotBinScatter(x = x, y = x, b = b1, legend.cex = 1.0))
+
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)
 
-    expect_true(plotBinScatter(x = x, y = x, b = b1))
-    expect_error(plotBinScatter(x = x, y = x, b = b1, cols = "gray"))
-    expect_true(plotBinScatter(x = x, y = x, b = b1, cols = "gray", legend = FALSE))
+    expect_s3_class(plotBinScatter(x = x, y = x, b = b1), "ggplot")
+    expect_s3_class(plotBinScatter(x = x, y = x, b = b1,
+                                   cols = "gray",
+                                   legendPosition = "none"), "ggplot")
 
     dev.off()
     unlink(tf)
@@ -93,26 +108,30 @@ test_that("plotMotifHeatmaps() runs", {
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)
 
-    expect_is(plotMotifHeatmaps(x = se, which.plots = "pearsonResid", cluster = FALSE, show_motif_GC = TRUE), "list")
-    expect_is(plotMotifHeatmaps(x = se, which.plots = "negLog10Padj", cluster = TRUE, show_seqlogo = TRUE), "list")
+    expect_type(plotMotifHeatmaps(x = se, which.plots = "pearsonResid", cluster = FALSE, show_motif_GC = TRUE), "list")
+    expect_type(plotMotifHeatmaps(x = se, which.plots = "negLog10Padj", cluster = TRUE, show_seqlogo = TRUE), "list")
     cl <- hclust(dist(SummarizedExperiment::assay(se, "log2enr")))
-    expect_is(plotMotifHeatmaps(x = se, which.plots = "log2enr", cluster = cl, show_dendrogram = TRUE), "list")
+    expect_type(plotMotifHeatmaps(x = se, which.plots = "log2enr", cluster = cl, show_dendrogram = TRUE), "list")
 
     se2 <- se
     tmp <- SummarizedExperiment::assay(se2, "pearsonResid")
     tmp[1:2, ] <- NA
     SummarizedExperiment::assay(se2, "pearsonResid") <- tmp
     expect_warning(res <- plotMotifHeatmaps(x = se2, which.plots = "log2enr", cluster = TRUE))
-    expect_is(res, "list")
-    
+    expect_type(res, "list")
+
     expect_error(plotMotifHeatmaps(x = se, show_bin_legend = "error"))
-    
-    result_true <- plotMotifHeatmaps(x = se, which.plots = "pearsonResid", show_bin_legend = TRUE, doPlot = FALSE)
+
+    result_true <- plotMotifHeatmaps(x = se, which.plots = "pearsonResid",
+                                     show_bin_legend = TRUE, doPlot = FALSE,
+                                     highlight = rep(c(TRUE, FALSE), c(3, 7)))
     expect_true(result_true$pearsonResid@top_annotation@anno_list$bin@show_legend)
-    
-    result_false <- plotMotifHeatmaps(x = se, which.plots = "pearsonResid", show_bin_legend = FALSE, doPlot = FALSE)
+
+    result_false <- plotMotifHeatmaps(x = se, which.plots = c("pearsonResid", "negLog10P"),
+                                      show_bin_legend = FALSE, doPlot = FALSE,
+                                      maxEnr = 4, maxSig = 8)
     expect_false(result_false$pearsonResid@top_annotation@anno_list$bin@show_legend)
-    
+
     dev.off()
     unlink(tf)
 })
@@ -121,12 +140,35 @@ test_that("plotMotifHeatmaps() runs", {
 test_that("plotStabilityPaths() runs", {
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)
-
     expect_error(plotStabilityPaths("error"))
-    expect_true(plotStabilityPaths(ss))
-
+    expect_s3_class(plotStabilityPaths(ss), "ggplot")
     dev.off()
     unlink(tf)
+    
+    # with labels
+    tf <- tempfile(fileext = ".pdf")
+    pdf(file = tf)
+    expect_s3_class(plotStabilityPaths(ss, labelPaths = TRUE), "ggplot")
+    dev.off()
+    unlink(tf)
+    
+    # with predefined labels
+    tf <- tempfile(fileext = ".pdf")
+    pdf(file = tf)
+    expect_s3_class(plotStabilityPaths(ss, labelPaths = TRUE, labels = c("pred1", "pred2")), "ggplot")
+    dev.off()
+    unlink(tf)
+    
+    # catch invalid input
+    sstmp <- ss
+    rsidx <- grep("regStep", colnames(colData(sstmp)))
+    colnames(SummarizedExperiment::colData(sstmp))[rsidx] <- 
+        paste0("abc_", colnames(SummarizedExperiment::colData(sstmp))[rsidx])
+    expect_error(plotStabilityPaths(sstmp), "the columns in")
+    
+    sstmp <- ss
+    rownames(SummarizedExperiment::colData(sstmp)) <- NULL
+    expect_error(plotStabilityPaths(sstmp), "must not be")
 })
 
 
@@ -137,18 +179,14 @@ test_that("plotSelectionProb() runs", {
 
     expect_error(plotSelectionProb(se = "error", selProbMin = 0.5))
     expect_error(plotSelectionProb(se = ss, directional = "error"), "logical")
-    expect_error(plotSelectionProb(se = ss, directional = TRUE, selProbMin = 2.0), "within")
+    expect_error(plotSelectionProb(se = ss, directional = TRUE, selProbMin = 2.0), "between")
     expect_error(plotSelectionProb(se = ss, selProbMinPlot = "error"), "numeric")
     expect_error(plotSelectionProb(se = ss, selProbMin = 0.5, selProbMinPlot = 0.6))
-    expect_error(plotSelectionProb(se = ss, showSelProbMin = "error"))
-    expect_error(plotSelectionProb(se = ss, col = "error"), "length 3")
+    expect_error(plotSelectionProb(se = ss, showSelProbMin = "error"), "logical")
+    expect_error(plotSelectionProb(se = ss, selColor = "error"))
     expect_error(plotSelectionProb(se = ss, method = "error"), "should be one of")
-    expect_error(plotSelectionProb(se = ss, legend = "error"))
+    expect_s3_class(plotSelectionProb(ss), "ggplot")
 
-    expect_null(plotSelectionProb(ss, selProbMin = 1.0, selProbMinPlot = 0.99))
-    expect_is(plotSelectionProb(ss), "matrix")
-    expect_is(plotSelectionProb(ss, FALSE), "matrix")
-    
     dev.off()
     unlink(tf)
 })

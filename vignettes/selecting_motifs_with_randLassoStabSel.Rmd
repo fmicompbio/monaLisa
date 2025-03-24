@@ -93,6 +93,7 @@ library(Biostrings)
 library(SummarizedExperiment)
 library(ComplexHeatmap)
 library(circlize)
+library(ggrepel)
 ```
 
 ## Load dataset
@@ -240,7 +241,7 @@ colnames(se)[se$selected]
 The stability paths visualize how predictors get selected over decreasing 
 regularization stringency (from left to right): 
 
-```{r plotStabilityPaths}
+```{r plotStabilityPaths, fig.width=8, fig.height=4}
 plotStabilityPaths(se)
 ```
 
@@ -249,6 +250,25 @@ probabilities as a function of the regularization steps, corresponding to
 decreasing values for the lambda regularization parameter in lasso. The 
 predictor (TF motif) selection happens at the last step, given the specified 
 minimum probability.
+
+We can additionally show the labels of the predictors which were selected. Note 
+that if predictors have the same y-value at the last regularization step, they
+are shown in a random order. To reproduce the plot, you will need to set a seed.
+
+```{r plotStabilityPathsWithSelLabels, fig.width=10, fig.height=4}
+set.seed(123)
+plotStabilityPaths(se, labelPaths = TRUE)
+```
+
+
+Alternatively, we can visualize specific predictors, regardless of whether or 
+not they were selected.
+
+```{r plotStabilityPathsWithLabels, fig.width=8, fig.height=4}
+set.seed(123)
+plotStabilityPaths(se, labelPaths = TRUE, labelNudgeX = 3,
+                   labels = c("ISL2", "NR2C2", "NR2F1", "GATA4"))
+```
 
 We can also visualize the selection probabilities of the selected TF motifs,
 optionally multiplied by the sign of the correlation to the response vector, to
@@ -261,8 +281,8 @@ selection probability cutoff, it is best to re-run randomized lasso stability
 selection with the new cutoff, as this influences other parameter choices the
 model uses internally. See @StabSel for more details.
 
-```{r plotSelProbs, fig.width=8, fig.height=5}
-plotSelectionProb(se, directional = TRUE)
+```{r plotSelProbs, fig.width=10, fig.height=5}
+plotSelectionProb(se, directional = TRUE, ylimext = 0.5)
 ```
 
 Next, we visualize the correlation structure of the selected TF motifs within

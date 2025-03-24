@@ -15,22 +15,22 @@
 )
 }
 \arguments{
-\item{kmerFreq}{a \code{list} with of matrices. The matrix at index \code{i}
+\item{kmerFreq}{A \code{list} with of matrices. The matrix at index \code{i}
 in the list contains the probability of k-mers of length \code{i}, for each
 k-mer (columns) and sequence (rows).}
 
-\item{goodKmers}{a \code{list} of \code{numeric} vectors; the element at
+\item{goodKmers}{A \code{list} of \code{numeric} vectors; the element at
 index \code{i} contains the number of good (non-N-containing) k-mers of
 length \code{i} for each sequence.}
 
-\item{kmerRC}{a \code{list} of character vectors; the element at index
+\item{kmerRC}{A \code{list} of character vectors; the element at index
 \code{i} contains the reverse complement sequences of all k-mers of length
 \code{i}.}
 
-\item{seqWgt}{a \code{numeric} vector with starting sequence weights
+\item{seqWgt}{A \code{numeric} vector with starting sequence weights
 at the beginning of the iteration.}
 
-\item{isForeground}{logical vector of the same length as \code{seqs}.
+\item{isForeground}{Logical vector of the same length as \code{seqs}.
 \code{TRUE} indicates that the sequence is from the foreground,
 \code{FALSE} that it is a background sequence.}
 
@@ -43,7 +43,7 @@ maximal weight of a sequence. The default value (1000) is based on
 \code{HOMER} (1 / HOMER_MINIMUM_SEQ_WEIGHT constant in Motif2.h).}
 }
 \value{
-a named \code{list} with elements \code{seqWgt} (updated
+A named \code{list} with elements \code{seqWgt} (updated
   weights) and \code{err} (error measuring difference of foreground
   and weighted background sequence compositions).
 }

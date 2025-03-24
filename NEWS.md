@@ -1,3 +1,14 @@
+# monaLisa 1.13.3
+
+* switched to `ggplot2` with all plotting functions (except `plotMotifHeatmaps`
+  that is still based on `ComplexHeatmaps`)
+* new arguments introduced in `plotStabilityPaths()` to allow for labels to be
+  shown at the end of the stability paths if desired
+* changed some argument names in `plotStabilityPaths()` and 
+  `plotStabilityPaths()`. See the help pages of these function for more details
+* updated the stability selection vignette to showcase labeling predictors
+* exposed `glmnet` arguments in `randLassoStabSel()`
+
 # monaLisa 1.13.2
 
 * minor fix to ensure that heatmap bin legends are ordered in the same way as the heatmap columns

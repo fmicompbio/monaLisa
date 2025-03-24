@@ -2,7 +2,7 @@
 # score := correlation of single base frequencies of aligned and padded matrices
 # (internal function used by motifSimilarity)
 #' @importFrom stats cor
-#' 
+#'
 #' @keywords internal
 .compareMotifPair <- function(m1, m2) {
     bestScore <- -2
@@ -23,15 +23,15 @@
         # padding of matrices
         mm1 <- cbind(matrix(0.25, nrow = 4, ncol = max(0, offset)),
                      m1,
-                     matrix(0.25, nrow = 4, 
+                     matrix(0.25, nrow = 4,
                             ncol = max(0, len2 - (len1 + offset))))
         mm2 <- cbind(matrix(0.25, nrow = 4, ncol = max(0, -offset)),
                      m2,
-                     matrix(0.25, nrow = 4, 
+                     matrix(0.25, nrow = 4,
                             ncol = max(0, (len1 + offset) - len2)))
         mm2r <- cbind(matrix(0.25, nrow = 4, ncol = max(0, -offset)),
                       rv2,
-                      matrix(0.25, nrow = 4, 
+                      matrix(0.25, nrow = 4,
                              ncol = max(0, (len1 + offset) - len2)))
 
         score <- cor(as.vector(mm1), as.vector(mm2))
@@ -49,15 +49,15 @@
         }
     }
 
-    return(list(bestScore = bestScore, bestOffset = bestOffset, 
+    return(list(bestScore = bestScore, bestOffset = bestOffset,
                 bestDirection = bestDirection))
 }
 
-# compare a PFM to all k-mer of any length (padd left/right with 
+# compare a PFM to all k-mer of any length (padd left/right with
 # background positions)
 # score := maximal probability of observing k-mer under (potentially padded) PFM
 # (internal function used by motifKmerSimilarity)
-#' 
+#'
 #' @keywords internal
 .compareMotifKmer <- function(m, kmers) {
     bestScore <- rep(-2, length(kmers))
@@ -77,9 +77,9 @@
         # minimal overlap of 1
         # padding of matrix and kmers
         mm <- cbind(matrix(0.25, nrow = 4, ncol = max(0, offset)),
-                    m[, seq.int(min(len1 + offset, 
+                    m[, seq.int(min(len1 + offset,
                                     len2 - offset, len2)) + max(0, -offset)],
-                    matrix(0.25, nrow = 4, 
+                    matrix(0.25, nrow = 4,
                            ncol = max(0, len2 - (len1 + offset))))
         score <- unlist(lapply(kmersN, function(i) prod(mm[cbind(i, j)])))
         b <- score > bestScore
@@ -129,7 +129,7 @@
 #' @return A matrix of Pearson's correlation coefficients for each pair of
 #'   motifs.
 #'
-#' @examples 
+#' @examples
 #' m <- rbind(A = c(12,  0,  0),
 #'            C = c( 3,  2,  0),
 #'            G = c( 0, 14,  0),
@@ -147,7 +147,7 @@
 #'   \code{method = "HOMER"}.
 #'
 #' @importFrom BiocParallel bplapply SerialParam bpnworkers
-#' 
+#'
 #' @export
 motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
                             homerfile = findHomer("compareMotifs.pl"),
@@ -159,9 +159,7 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
     if (method == "R") {
         ## pre-flight checks for "R"
         if (is.character(x) && length(x) == 1L && file.exists(x)) {
-            if (verbose) {
-                message("reading motifs from ", basename(x))
-            }
+            .message("reading motifs from {.file {x}}", noTimer = TRUE)
             x <- homerToPFMatrixList(x)
         }
         stopifnot(exprs = {
@@ -174,48 +172,39 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
             y <- x
         }
 
-        xm <- lapply(TFBSTools::Matrix(x), 
+        xm <- lapply(TFBSTools::Matrix(x),
                      function(x) sweep(x, 2, colSums(x), "/"))
 
         if (is.null(y)) { # compare x to itself, n*(n-1)/2 comparisons
-            if (verbose) {
-                message("calculating ", length(xm) * (length(xm) - 1) / 2,
-                        " similarities...", appendLF = FALSE)
-            }
-            M <- matrix(NA, nrow = length(xm), ncol = length(xm), 
+            .message("calculating {length(xm) * (length(xm) - 1) / 2} similarities")
+            M <- matrix(NA, nrow = length(xm), ncol = length(xm),
                         dimnames = list(name(x), name(x)))
             diag(M) <- 1.0
             for (i in seq.int(length(x) - 1L)) {
                 for (j in seq(i + 1, length(x))) {
-                    M[i, j] <- M[j, i] <- 
+                    M[i, j] <- M[j, i] <-
                         .compareMotifPair(xm[[i]], xm[[j]])$bestScore
                 }
             }
-            if (verbose) {
-                message("done")
-            }
         } else {#           compare x to y, n*m comparisons
-            ym <- lapply(TFBSTools::Matrix(y), 
+            ym <- lapply(TFBSTools::Matrix(y),
                          function(x) sweep(x, 2, colSums(x), "/"))
-            if (verbose) {
-                message(
-                    "calculating ", length(xm) * length(ym),
-                    " similarities using ", bpnworkers(BPPARAM),
-                    if (bpnworkers(BPPARAM) > 1) " cores..." else " core...",
-                    appendLF = FALSE
-                )
-            }
+            .message(paste0(
+                "calculating {length(xm) * length(ym)} similarities using ",
+                "{bpnworkers(BPPARAM)} core{?s}"))
+            # exclude .compareMotifPair from coverage (tested separatelly)
+            # nocov start
             if (bpnworkers(BPPARAM) > 1) {
                 M <- do.call(rbind, bplapply(seq_along(xm), function(i) {
                     unlist(lapply(
-                        seq_along(ym), 
-                        function(j) .compareMotifPair(xm[[i]], 
+                        seq_along(ym),
+                        function(j) .compareMotifPair(xm[[i]],
                                                       ym[[j]])$bestScore
                     ))
                 }, BPPARAM = BPPARAM))
                 dimnames(M) <- list(name(x), name(y))
-            } else {
-                M <- matrix(NA, nrow = length(xm), ncol = length(ym), 
+            } else { # nocov end
+                M <- matrix(NA, nrow = length(xm), ncol = length(ym),
                             dimnames = list(name(x), name(y)))
                 for (i in seq_along(xm)) {
                     for (j in seq_along(ym)) {
@@ -223,26 +212,21 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
                     }
                 }
             }
-            if (verbose) {
-                message("done")
-            }
         }
 
     } else if (method == "HOMER") {
         ## pre-flight checks for "HOMER"
         stopifnot(exprs = {is.character(x); length(x) == 1L; file.exists(x)})
-        stopifnot(exprs = {!is.na(homerfile); is.character(homerfile); 
+        stopifnot(exprs = {!is.na(homerfile); is.character(homerfile);
             length(homerfile) == 1L; file.exists(homerfile)})
         if (is.null(homerOutfile)) {
             homerOutfile <- tempfile(fileext = ".simmat")
         }
-        stopifnot(exprs = {is.character(homerOutfile); 
+        stopifnot(exprs = {is.character(homerOutfile);
             length(homerOutfile) == 1L; !file.exists(homerOutfile)})
 
         ## run
-        if (verbose) {
-            message("running compareMotifs.pl...")
-        }
+        .message("running compareMotifs.pl...")
         system2(command = homerfile,
                 args = sprintf("%s test -matrix %s", x, homerOutfile),
                 stdout = FALSE, stderr = FALSE)
@@ -267,19 +251,19 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
 #'   \code{\link[TFBSTools]{PFMatrixList}} by \code{\link{homerToPFMatrixList}}
 #'   for \code{method = "R"}).
 #' @param kmerLen A \code{numeric} scalar giving the k-mer length.
-#' @param kmers Either a character vector of k-mers for which to calculate 
+#' @param kmers Either a character vector of k-mers for which to calculate
 #'   the similarity to each motif, or \code{NULL}, in which case all k-mers
 #'   of length \code{kmerLen} are used.
-#' @param includeRevComp A \code{logical} scalar. If set to \code{TRUE}, each 
-#'   k-mer as well as its reverse complement is compared to each motif, and the 
-#'   larger of the two similarities is returned. 
+#' @param includeRevComp A \code{logical} scalar. If set to \code{TRUE}, each
+#'   k-mer as well as its reverse complement is compared to each motif, and the
+#'   larger of the two similarities is returned.
 #' @param BPPARAM An optional \code{\link[BiocParallel]{BiocParallelParam}}
 #'   instance determining the parallel back-end to be used during evaluation.
 #' @param verbose A logical scalar. If \code{TRUE}, report on progress.
 #'
 #' @return A matrix of probabilties for each motif - k-mer pair.
-#' 
-#' @examples 
+#'
+#' @examples
 #' m <- rbind(A = c(12,  0,  0),
 #'            C = c( 3,  2,  0),
 #'            G = c( 0, 14,  0),
@@ -294,27 +278,25 @@ motifSimilarity <- function(x, y = NULL, method = c("R", "HOMER"),
 #'
 #' @importFrom BiocParallel bplapply SerialParam bpnworkers
 #' @importFrom Biostrings DNA_ALPHABET
-#' 
+#'
 #' @export
 motifKmerSimilarity <- function(x,
                                 kmerLen = 5,
                                 kmers = NULL,
-                                includeRevComp = FALSE, 
+                                includeRevComp = FALSE,
                                 BPPARAM = SerialParam(),
                                 verbose = FALSE) {
     ## pre-flight checks
     .assertScalar(x = verbose, type = "logical")
     .assertScalar(x = includeRevComp, type = "logical")
     if (is.character(x) && length(x) == 1L && file.exists(x)) {
-        if (verbose) {
-            message("reading motifs from ", basename(x))
-        }
+        .message("reading motifs from {.file {x}}", noTimer = TRUE)
         x <- homerToPFMatrixList(x)
     }
     .assertScalar(x = kmerLen, type = "numeric", rngExcl = c(0, Inf))
     stopifnot(exprs = {
-        is.null(kmers) || 
-            (.assertVector(kmers, type = "character") && 
+        is.null(kmers) ||
+            (.assertVector(kmers, type = "character") &&
                  all(unlist(strsplit(kmers, "")) %in% Biostrings::DNA_ALPHABET))
     })
     stopifnot(exprs = {
@@ -328,13 +310,10 @@ motifKmerSimilarity <- function(x,
         kmers <- Biostrings::mkAllStrings(c("A", "C", "G", "T"), kmerLen)
     }
 
-    if (verbose) {
-        message("calculating ", length(xm) * length(kmers),
-                " similarities using ", bpnworkers(BPPARAM),
-                if (bpnworkers(BPPARAM) > 1) " cores..." else " core...",
-                appendLF = FALSE)
-    }
-    
+    .message(paste0(
+        "calculating {length(xm) * length(kmers)} similarities using ",
+        "{bpnworkers(BPPARAM)} core{?s}"))
+
     if (includeRevComp) {
         kmersrevcomp <- as.character(Biostrings::reverseComplement(
             Biostrings::DNAStringSet(kmers)
@@ -343,24 +322,20 @@ motifKmerSimilarity <- function(x,
     } else {
         kmersall <- kmers
     }
-    
+
     M0 <- do.call(rbind, bplapply(
         xm, function(m) .compareMotifKmer(m = m, kmers = kmersall)$bestScore,
         BPPARAM = BPPARAM))
     dimnames(M0) <- list(name(x), kmersall)
-    
+
     ## Get the matrix for the originally specified k-mers
     M <- M0[, kmers, drop = FALSE]
-    
+
     if (includeRevComp) {
-        ## Get the matrix for the corresponding reverse complement k-mers, 
+        ## Get the matrix for the corresponding reverse complement k-mers,
         ## and take the maximum similarity for each motif
         Mrev <- M0[, kmersrevcomp, drop = FALSE]
         M <- pmax(M, Mrev)
-    }
-    
-    if (verbose) {
-        message("done")
     }
 
     return(M)

@@ -23,11 +23,11 @@ and columns:
 }
 \value{
 \code{TRUE} (invisibly) if \code{df} is valid, otherwise it
-  raises an exception using \code{stop()}
+  raises an exception using \code{cli::cli_abort()}
 }
 \description{
-Check if the DataFrame with sequence information is valid,
-  i.e. is of the correct object type (DataFrame) and has all expected
-  columns and attributes.
+Check if the \code{DataFrame} with sequence information is 
+  valid, i.e. is of the correct object type (\code{DataFrame}) and has all 
+  expected columns and attributes.
 }
 \keyword{internal}

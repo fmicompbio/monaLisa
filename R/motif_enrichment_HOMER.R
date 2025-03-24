@@ -75,6 +75,7 @@ findHomer <- function(homerfile = "findMotifsGenome.pl", dirs = NULL) {
 #' @importFrom methods existsMethod
 #' @importFrom TFBSTools getMatrixSet Matrix ID name
 #' @importFrom RSQLite dbConnect dbDisconnect SQLite
+#' @importFrom cli cli_abort
 #'
 #' @export
 dumpJaspar <- function(filename,
@@ -88,7 +89,7 @@ dumpJaspar <- function(filename,
     .assertScalar(x = pseudocount, type = "numeric", rngIncl = c(0, Inf))
     .assertScalar(x = relScoreCutoff, type = "numeric", rngIncl = c(0, 1))
     if ("matrixtype" %in% names(opts) && opts[["matrixtype"]] != "PFM") {
-      stop("opts[['matrixtype']] must be set to 'PFM'")
+      cli_abort("{.arg opts[['matrixtype']]} must be set to {.code 'PFM'}")
     } else {
       opts[["matrixtype"]] <- "PFM"
     }
@@ -105,12 +106,11 @@ dumpJaspar <- function(filename,
             mdb <- RSQLite::dbConnect(RSQLite::SQLite(), dbfunc(jobj))
             on.exit(expr = RSQLite::dbDisconnect(mdb))
         } else {
-            stop("I don't know how to extract motifs from '", pkg, "'")
+            cli_abort("I don't know how to extract motifs from {.pkg {pkg}}")
         }
     }
     siteList <- TFBSTools::getMatrixSet(mdb, opts)
-    if (verbose)
-        message("extracted ",length(siteList)," motifs from ",pkg)
+    .message("extracted {length(siteList)} motifs from {.pkg pkg}", noTimer = TRUE)
 
     # remark: pseudocount of 4 corresponds to adding 1 to each base count
     #         the following are identical:
@@ -118,8 +118,7 @@ dumpJaspar <- function(filename,
     #wm2 <- Matrix(siteList[[1]])+1 ; wm2 <- t(t(wm2) /colSums(wm2))
     #identical(wm1, wm2)
 
-    if (verbose)
-        message("converting to HOMER format...", appendLF = FALSE)
+    .message("converting to HOMER format...")
     fh <- file(filename, "wb")
     for (i in seq_len(length(siteList))) {
         ppm <- TFBSTools::Matrix(siteList[[i]]) + pseudocount
@@ -146,8 +145,6 @@ dumpJaspar <- function(filename,
         flush(fh)
     }
     close(fh)
-    if (verbose)
-        message("done")
 
     return(TRUE)
 }
@@ -303,18 +300,16 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
     .assertScalar(x = verbose, type = "logical")
 
     if (file.exists(outdir))
-        stop(outdir," already exists - will not overwrite existing folder")
+        cli_abort("{.path outdir} already exists - will not overwrite existing folder")
     dir.create(outdir)
 
     homerFile <- file.path(outdir, "run.sh")
     fh <- file(homerFile, "w")
 
-    if (verbose)
-        message("creating foreground/background region files for HOMER")
+    .message("creating foreground/background region files for HOMER")
     for (i in seq_len(nlevels(b))) {
         bn <- levels(b)[i]
-        if (verbose)
-            message("  bin ",bn)
+        .message("  bin {bn}")
 
         fgfile  <- sprintf("%s/bin_%03d_foreground.tab", outdir, i)
         bgfile  <- sprintf("%s/bin_%03d_background.tab", outdir, i)
@@ -348,7 +343,7 @@ prepareHomer <- function(gr, b, genomedir, outdir, motifFile,
     return(homerFile)
 }
 
-#' @title load output from HOMER findMotifsGenome.pl into R
+#' @title Load output from HOMER findMotifsGenome.pl into R
 #'
 #' @description Parse HOMER output files into R data structures.
 #'
@@ -602,6 +597,7 @@ parseHomerOutput <- function(infiles,
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom S4Vectors DataFrame
 #' @importFrom TFBSTools ID name Matrix
+#' @importFrom cli cli_abort
 #'
 #' @export
 calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
@@ -640,9 +636,7 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
     ##         check again
     if (.checkHomerRun(motifFile = motifFile, outdir = outdir,
                        nbins = nlevels(b))) {
-        if (verbose)
-            message("\nHOMER output files already exist, ",
-                    "using existing files...")
+        .message("HOMER output files already exist, using existing files...", noTimer = TRUE)
     } else {
 
       ## ... case: all/some files exist and/or HOMER didn't run correctly:
@@ -651,25 +645,23 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
                               full.names = TRUE, recursive = TRUE,
                               ignore.case = FALSE)))) {
 
-          stop("\nThere are existing 'knownResults.txt' file(s) in outdir. ",
-               "There may be missing 'knownResults.txt' files for some bins ",
-               "and/or the existing files are incomplete (cases where the ",
-               "HOMER run failed). Please delete these files and rerun ",
-               "'calcBinnedMotifEnrHomer'.")
+          cli_abort(c("\nThere are existing {.file knownResults.txt} file(s) in {.path {outdir}}. ",
+                      "There may be missing {.file knownResults.txt} files for some bins ",
+                      "and/or the existing files are incomplete (cases where the ",
+                      "HOMER run failed). Please delete these files and rerun ",
+                      "{.fn calcBinnedMotifEnrHomer}."))
 
       }
 
       ## ... prepare
-      if (verbose)
-          message("\npreparing input files...")
+      .message("preparing input files...")
       runfile <- prepareHomer(gr = gr, b = b, genomedir = genomedir,
                               outdir = outdir,
                               motifFile = motifFile, homerfile = homerfile,
                               regionsize = regionsize, Ncpu = Ncpu)
 
       ## ... run
-      if (verbose)
-          message("\nrunning HOMER...")
+      .message("running HOMER...")
       system2(command = "sh", args = runfile,
               stdout = ifelse(verbose.Homer, "", FALSE),
               stderr = ifelse(verbose.Homer, "", FALSE),
@@ -679,7 +671,7 @@ calcBinnedMotifEnrHomer <- function(gr, b, genomedir, outdir, motifFile,
       ## ... check HOMER ran correctly
       if (!.checkHomerRun(motifFile = motifFile, outdir = outdir,
                           nbins = length(levels(b)))) {
-          stop("HOMER output wasn't complete. Try running again.")
+          cli_abort("HOMER output wasn't complete. Try running again.")
       }
 
     }

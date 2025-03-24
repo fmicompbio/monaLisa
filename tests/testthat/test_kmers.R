@@ -1,20 +1,20 @@
-context("k-mers")
-
 test_that(".cons2matrix works as expected", {
     expect_error(.cons2matrix(x = c("error","error")))
     expect_error(.cons2matrix(x = 1L))
     expect_error(.cons2matrix("ACGT", n = "error"))
-    
-    expect_is(res1 <- .cons2matrix(x = "ACGT", n = 1L), "matrix")
-    expect_is(res2 <- .cons2matrix(x = "ACGT", n = 2L), "matrix")
+
+    expect_type(res1 <- .cons2matrix(x = "ACGT", n = 1L), "integer")
+    expect_type(res2 <- .cons2matrix(x = "ACGT", n = 2L), "integer")
     expect_identical(dim(res1), c(4L, 4L))
     expect_identical(rownames(res1), c("A","C","G","T"))
-    expect_equal(res1, diag(4), check.attributes = FALSE)
+    expect_equal(res1, diag(4), ignore_attr = TRUE)
     expect_identical(res1 * 2L, res2)
 })
 
 test_that("getKmerFreq works as expected", {
-    library(Biostrings)
+    suppressPackageStartupMessages({
+        library(Biostrings)
+    })
 
     ## truly random sequences...
     set.seed(1)
@@ -38,8 +38,8 @@ test_that("getKmerFreq works as expected", {
     expect_error(getKmerFreq(seqs, 3, includeRevComp = "error"))
 
     ## zoops = FALSE
-    expect_is(res1 <- getKmerFreq(seqs, kmerLen = 4, zoops = FALSE),    "list")
-    expect_is(res2 <- getKmerFreq(seqsDSS, kmerLen = 4, zoops = FALSE), "list")
+    expect_type(res1 <- getKmerFreq(seqs, kmerLen = 4, zoops = FALSE),    "list")
+    expect_type(res2 <- getKmerFreq(seqsDSS, kmerLen = 4, zoops = FALSE), "list")
     expect_identical(res1, res2)
     expect_equal(sum(res1$freq.obs), sum(res1$freq.exp), tolerance = 0.001)
     expect_identical(names(res1$log2enr)[which.max(res1$log2enr)], "ACGT")
@@ -51,14 +51,14 @@ test_that("getKmerFreq works as expected", {
                                                    size = 500L, replace = TRUE),
                                             collapse = ""))
     seqs <- c(DNAStringSet(DNAString(paste(rep("CA", 250), collapse = ""))), seqs[-1])
-    expect_is(res3 <- getKmerFreq(seqs, kmerLen = 4, zoops = TRUE),  "list")
-    expect_is(res4 <- getKmerFreq(seqs, kmerLen = 4, zoops = FALSE, includeRevComp = FALSE), "list")
+    expect_type(res3 <- getKmerFreq(seqs, kmerLen = 4, zoops = TRUE),  "list")
+    expect_type(res4 <- getKmerFreq(seqs, kmerLen = 4, zoops = FALSE, includeRevComp = FALSE), "list")
     expect_equal(sum(res3$padj < 0.001), 0L)
     expect_equal(sum(res4$padj < 0.001), 2L)
     expect_equal(names(res4$padj[res4$padj < 0.001]), c("ACAC", "CACA"))
 
     ## strata
-    expect_is(res5 <- getKmerFreq(seqsDSS, kmerLen = 4, zoops = FALSE, strata = 3), "list")
+    expect_type(res5 <- getKmerFreq(seqsDSS, kmerLen = 4, zoops = FALSE, strata = 3), "list")
     expect_equal(sum(res1$freq.obs), sum(res5$freq.obs), tolerance = 0.001)
     expect_equal(sum(res1$freq.exp), sum(res5$freq.exp), tolerance = 0.001)
     expect_true(all(res5$strata %in% c(1L, 2L, 3L)))
@@ -85,24 +85,26 @@ test_that(".calcKmerEnrichment works", {
     k <- 2L
 
     expect_error(.calcKmerEnrichment(k = "error", df = df),
-                 "'k' must be of type 'numeric'")
+                 ".k. must be of class .*numeric.")
     expect_error(.calcKmerEnrichment(k = k, df = "error"),
-                 "'df' should be a DataFrame")
+                 ".df. should be a .*DataFrame.")
     expect_error(.calcKmerEnrichment(k = k, df = df,
                                      test = "error"),
                  "should be one of")
     expect_error(.calcKmerEnrichment(k = k, df = df,
                                      test = "fisher", verbose = "error"),
-                 "'verbose' must be of type 'logical'")
-    
-    expect_message(res1 <- .calcKmerEnrichment(k = k, df = df,
-                                               test = "binomial", verbose = TRUE))
-    expect_message(res3 <- .calcKmerEnrichment(k = k, df = df,
-                                               test = "fisher", verbose = TRUE))
-    
-    expect_is(res1, "data.frame")
-    expect_is(res3, "data.frame")
-    
+                 ".verbose. must be of class .*logical.")
+
+    suppressMessages(expect_message(
+        res1 <- .calcKmerEnrichment(k = k, df = df,
+                                    test = "binomial", verbose = TRUE)))
+    suppressMessages(expect_message(
+        res3 <- .calcKmerEnrichment(k = k, df = df,
+                                    test = "fisher", verbose = TRUE)))
+
+    expect_type(res1, "list")
+    expect_type(res3, "list")
+
     expect_equal(dim(res1), c(4^k, 6))
     expect_identical(res1$sumForegroundWgtWithHits, res3$sumForegroundWgtWithHits)
     expect_identical(res1$sumBackgroundWgtWithHits, res3$sumBackgroundWgtWithHits)
@@ -114,8 +116,10 @@ test_that(".calcKmerEnrichment works", {
 
 
 test_that("calcBinnedKmerEnr works as expected", {
-    library(SummarizedExperiment)
-    library(BiocParallel)
+    suppressPackageStartupMessages({
+        library(SummarizedExperiment)
+        library(BiocParallel)
+    })
     if (.Platform$OS.type == "unix") {
         pparams <- MulticoreParam(2L, RNGseed = 42L)
     } else {
@@ -142,7 +146,7 @@ test_that("calcBinnedKmerEnr works as expected", {
                                                                replace = TRUE),
                                                         collapse = ""))))
     names(gnm) <- paste0("g", seq_along(gnm))
-    
+
 
     expect_error(calcBinnedKmerEnr("error"))
     expect_error(calcBinnedKmerEnr(seqs, bins = NULL))
@@ -176,7 +180,9 @@ test_that("calcBinnedKmerEnr works as expected", {
                                    genome = gnm, genome.seed = "error"))
     expect_error(calcBinnedKmerEnr(seqs, b, k, BPPARAM = "error"))
     expect_error(calcBinnedKmerEnr(DNAStringSet(rep("NNNNNNNNNN", 10)), background = "model"))
-    expect_message(res1 <- calcBinnedKmerEnr(seqs, b, k, includeRevComp = FALSE, verbose = TRUE))
+    suppressMessages(
+        expect_message(res1 <- calcBinnedKmerEnr(seqs, b, k, includeRevComp = FALSE, verbose = TRUE))
+    )
 
     res2 <- calcBinnedKmerEnr(seqs, b, k, background = "genome", genome = gnm,
                               includeRevComp = FALSE, verbose = FALSE, BPPARAM = pparams)
@@ -185,10 +191,10 @@ test_that("calcBinnedKmerEnr works as expected", {
     res4 <- calcBinnedKmerEnr(seqs, b, k, background = "model",
                               test = "binomial")
 
-    expect_is(res1, "SummarizedExperiment")
-    expect_is(res2, "SummarizedExperiment")
-    expect_is(res3, "SummarizedExperiment")
-    expect_is(res4, "SummarizedExperiment")
+    expect_s4_class(res1, "SummarizedExperiment")
+    expect_s4_class(res2, "SummarizedExperiment")
+    expect_s4_class(res3, "SummarizedExperiment")
+    expect_s4_class(res4, "SummarizedExperiment")
     expect_identical(assayNames(res1),
                      c("negLog10P", "negLog10Padj", "pearsonResid",
                        "expForegroundWgtWithHits", "log2enr",
@@ -212,9 +218,9 @@ test_that("calcBinnedKmerEnr works as expected", {
     expect_identical(assay(res1, "sumForegroundWgtWithHits")[,1],
                      assay(res2, "sumForegroundWgtWithHits")[,1])
     expect_identical(assays(res3)[-c(1, 2)], assays(res4)[-c(1, 2)])
-    
+
     skip_on_os("windows")
-    ## Note that all tests after this point (within the test_that block) will 
+    ## Note that all tests after this point (within the test_that block) will
     ## be skipped on windows.
     expect_equal(colSums(assay(res2, "negLog10P")),
                  c(`[1,1.5]` = 34.8521231337902, `(1.5,2]` = 35.6739828473288))

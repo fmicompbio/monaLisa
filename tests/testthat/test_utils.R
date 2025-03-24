@@ -1,56 +1,127 @@
+## -------------------------------------------------------------------------- ##
+## Checks, .assertScalar
+## -------------------------------------------------------------------------- ##
 test_that(".assertScalar works", {
-    expect_error(.assertScalar(numeric(0)), "scalar value")
-    expect_error(.assertScalar(1:3),        "scalar value")
-    expect_true(.assertScalar(1))
-    expect_true(.assertScalar("test"))
-    
-    expect_error(.assertScalar(1, type = "character"), "must be of type")
-    expect_error(.assertScalar("1", type = "numeric"), "must be of type")
-    expect_error(.assertScalar(1.5, type = "integer"), "must be of type")
-    expect_error(.assertScalar("0.5", rngIncl = 0:1),  "must be of type")
-    expect_true(.assertScalar(1, type = "numeric"))
-    expect_true(.assertScalar(TRUE, type = "logical"))
-    
-    expect_error(.assertScalar( 2, rngIncl = 0:1), "inclusive")
-    expect_error(.assertScalar(-1, rngIncl = 0:1), "inclusive")
-    expect_true(.assertScalar( 4, rngIncl = c(1,10)))
-    expect_true(.assertScalar(-4, rngIncl = c(-4,0)))
-    
-    expect_error(.assertScalar( 2, rngExcl = 1:2),    "exclusive")
-    expect_error(.assertScalar(-1, rngExcl = c(-1,1), "exclusive"))
-    expect_true(.assertScalar(1.5, rngExcl = 1:2))
-    expect_true(.assertScalar(0, rngExcl = c(-1,1)))
-    
-    expect_error(.assertScalar("a", validValues = c("b", "c")))
-    expect_error(.assertScalar(2, validValues = c(1, 3)))
-    expect_true(.assertScalar("b", validValues = c("b", "c")))
-    expect_true(.assertScalar(1, validValues = c(1, 3)))
+    expect_error(.assertScalar(1, type = TRUE))
+    expect_error(.assertScalar(1, type = 1))
+    expect_error(.assertScalar(1, type = c("numeric", "character")))
+    expect_error(.assertScalar(1, type = "numeric", rngIncl = TRUE))
+    expect_error(.assertScalar(1, type = "numeric", rngIncl = "rng"))
+    expect_error(.assertScalar(1, type = "numeric", rngIncl = 1))
+    expect_error(.assertScalar(1, type = "numeric", rngIncl = 1:3))
+    expect_error(.assertScalar(1, type = "numeric", rngExcl = TRUE))
+    expect_error(.assertScalar(1, type = "numeric", rngExcl = "rng"))
+    expect_error(.assertScalar(1, type = "numeric", rngExcl = 1))
+    expect_error(.assertScalar(1, type = "numeric", rngExcl = 1:3))
+    expect_error(.assertScalar(1, type = "numeric", rngIncl = c(0, 2), rngExcl = c(0, 2)))
+    expect_error(.assertScalar(1, type = "numeric", allowNULL = 1))
+    expect_error(.assertScalar(1, type = "numeric", allowNULL = "rng"))
+    expect_error(.assertScalar(1, type = "numeric", allowNULL = NULL))
+    expect_error(.assertScalar(1, type = "numeric", allowNULL = c(TRUE, FALSE)))
+
+    expect_true(.assertScalar(1, type = "numeric", rngIncl = c(1, 3)))
+    expect_error(.assertScalar(1, type = "numeric", rngExcl = c(1, 3)))
+    expect_true(.assertScalar(1, type = "numeric", rngExcl = c(1, 3), validValues = 1))
+    expect_true(.assertScalar(-1, type = "numeric", rngIncl = c(1, 3), validValues = c(-1, 0)))
+    expect_error(.assertScalar(-1, type = "numeric", rngIncl = c(1, 3), validValues = 0))
+    expect_true(.assertScalar(-1, type = "numeric", validValues = c(-1, 0)))
+    expect_error(.assertScalar(-1, type = "numeric", validValues = c(-2, 0)))
+    expect_true(.assertScalar(NA_real_, type = "numeric", rngIncl = c(1, 2), validValues = NA_real_))
+    expect_error(.assertScalar(NA, type = "numeric", rngIncl = c(1, 2), validValues = NA_real_))
+    expect_true(.assertScalar(NA_real_, type = "numeric", rngIncl = c(1, 2), validValues = NA))
+    expect_true(.assertScalar(1, type = "numeric", rngIncl = c(0, 3), validValues = 3))
+    expect_true(.assertScalar(1, rngIncl = c(0, 3), validValues = 3))
+    expect_true(.assertScalar(1, type = "numeric", rngIncl = c(0, 1)))
+    expect_error(.assertScalar(1, type = "numeric", rngExcl = c(0, 1)))
+    expect_true(.assertScalar(1, type = "numeric", rngExcl = c(0, 1), validValues = 1))
+    expect_error(.assertScalar(1, type = "numeric", rngExcl = c(0, 1), validValues = 3:4))
+    expect_true(.assertScalar(NULL, type = "numeric", allowNULL = TRUE))
+    expect_error(.assertScalar(NULL, type = "numeric", allowNULL = FALSE))
+    expect_error(.assertScalar(1, type = "character"))
+    expect_error(.assertScalar("x", type = "numeric"))
+    expect_error(.assertScalar(FALSE, type = "character"))
+    expect_error(.assertScalar(c(1, 2), type = "numeric"))
+    test <- "text"
+    expect_error(.assertScalar(x = test, type = "numeric"),
+                 ".test. must be of class .numeric.")
+    expect_error(.assertScalar(x = list(a = 1)$a, type = "logical"),
+                 "list(a = 1)$a", fixed = TRUE)
+    tmp <- matrix(1:4, ncol = 2)
+    expect_error(.assertScalar(x = tmp[, 1], type = "logical"),
+                 "tmp[, 1]", fixed = TRUE)
 })
 
+## -------------------------------------------------------------------------- ##
+## Checks, .assertVector
+## -------------------------------------------------------------------------- ##
 test_that(".assertVector works", {
-    expect_true(.assertVector(1))
-    expect_true(.assertVector(1:3))
-    expect_true(.assertVector("test"))
-    expect_true(.assertVector(list()))
+    expect_error(.assertVector(1, type = TRUE))
+    expect_error(.assertVector(1, type = 1))
+    expect_error(.assertVector(1, type = c("numeric", "character")))
+    expect_error(.assertVector(1, type = "numeric", rngIncl = TRUE))
+    expect_error(.assertVector(1, type = "numeric", rngIncl = "rng"))
+    expect_error(.assertVector(1, type = "numeric", rngIncl = 1))
+    expect_error(.assertVector(1, type = "numeric", rngIncl = 1:3))
+    expect_error(.assertVector(1, type = "numeric", rngExcl = TRUE))
+    expect_error(.assertVector(1, type = "numeric", rngExcl = "rng"))
+    expect_error(.assertVector(1, type = "numeric", rngExcl = 1))
+    expect_error(.assertVector(1, type = "numeric", rngExcl = 1:3))
+    expect_error(.assertVector(1, type = "numeric", rngIncl = c(0, 2), rngExcl = c(0, 2)))
+    expect_error(.assertVector(1, type = "numeric", allowNULL = 1))
+    expect_error(.assertVector(1, type = "numeric", allowNULL = "rng"))
+    expect_error(.assertVector(1, type = "numeric", allowNULL = NULL))
+    expect_error(.assertVector(1, type = "numeric", allowNULL = c(TRUE, FALSE)))
+    expect_error(.assertVector(1, type = "numeric", len = TRUE))
+    expect_error(.assertVector(1, type = "numeric", len = "rng"))
+    expect_error(.assertVector(1, type = "numeric", len = 1:3))
+    expect_error(.assertVector(1, type = "numeric", rngLen = TRUE))
+    expect_error(.assertVector(1, type = "numeric", rngLen = "rng"))
+    expect_error(.assertVector(1, type = "numeric", rngLen = 1))
+    expect_error(.assertVector(1, type = "numeric", rngLen = 1:3))
+
+    expect_true(.assertVector(c(1, 2), type = "numeric", rngIncl = c(1, 3)))
+    expect_error(.assertVector(c(1, 2), type = "numeric", rngIncl = c(1, 1.5)))
+    expect_error(.assertVector(c(1, 2), type = "numeric", rngExcl = c(1, 3)))
+    expect_true(.assertVector(c(1, 2), type = "numeric", rngExcl = c(1, 3), validValues = 1))
+    expect_error(.assertVector(c(1, 2), type = "numeric", validValues = c(1, 3)))
+    expect_true(.assertVector(c(1, 2), type = "numeric", validValues = c(1, 2)))
+    expect_error(.assertVector(c(1, 2), type = "numeric", len = 1))
+    expect_true(.assertVector(c(1, 2), type = "numeric", len = 2))
+    expect_error(.assertVector(c(1, 2), type = "numeric", rngLen = c(3, 5)))
+    expect_true(.assertVector(c(1, 2), type = "numeric", rngLen = c(2, 5)))
+    expect_true(.assertVector(c(1, 2), type = "numeric", rngLen = c(1, 2)))
+    expect_error(.assertVector(c("a", "b"), type = "character", validValues = c("A", "B")))
+    expect_true(.assertVector(LETTERS[1:2], type = "character", validValues = LETTERS))
+    test <- "text"
+    expect_error(.assertVector(x = test, type = "numeric"),
+                 ".test. must be of class .numeric.")
+})
+
+## -------------------------------------------------------------------------- ##
+## Checks, .assertPackagesAvailable
+## -------------------------------------------------------------------------- ##
+test_that(".assertPackagesAvailable works", {
+    testfunc <- function(...) .assertPackagesAvailable(...)
+    expect_error(testfunc(1L))
+    expect_error(testfunc("test", "error"))
+    expect_error(testfunc("test", c(TRUE, FALSE)))
     
-    expect_error(.assertVector(1, type = "character"),    "must be of class")
-    expect_error(.assertVector("test", type = "numeric"), "must be of class")
-    expect_error(.assertVector("0.5", rngIncl = 0:1),     "must be of class")
-    expect_true(.assertVector(1:3, type = "numeric"))
-    expect_true(.assertVector(letters, type = "character"))
-    
-    expect_error(.assertVector(1:4, rngIncl = c(2,10)), "inclusive")
-    expect_error(.assertVector(1:4, rngIncl = c(-2,3)), "inclusive")
-    expect_true(.assertVector(1:4, rngIncl = c(1,4)))
-    expect_true(.assertVector(-3, rngIncl = c(-3,-3)))
-    
-    expect_error(.assertVector(1:4, rngExcl = c(1,5)),    "exclusive")
-    expect_error(.assertVector(-1:4, rngExcl = c(10,12)), "exclusive")
-    expect_true(.assertVector(1:4, rngExcl = c(.5,4.5)))
-    expect_true(.assertVector(-1:4, rngExcl = c(-2,5)))
-    
-    expect_error(.assertVector(1:4, len = 2),    "length")
-    expect_error(.assertVector("test", len = 2), "length")
-    expect_true(.assertVector("test", len = 1))
-    expect_true(.assertVector(1:3, len = 3))
+    expect_true(testfunc("base"))
+    expect_true(testfunc("githubuser/base"))
+    expect_true(testfunc(c("base", "methods")))
+    expect_error(testfunc(c("error", "error2")), "BiocManager")
+    expect_error(testfunc("error1", suggestInstallation = FALSE), "installed.\n$")
+    rm(testfunc)
+})
+
+## -------------------------------------------------------------------------- ##
+## Checks, .assertColor
+## -------------------------------------------------------------------------- ##
+test_that(".assertColor works", {
+    expect_error(.assertColor(x = "nocolor"), "not a valid color")
+    expect_error(.assertColor(x = c("nocolor1", "nocolor2")), "not a valid color")
+    expect_error(.assertColor(x = c("green", "nocolor2")), "not a valid color")
+    expect_error(.assertColor(x = 1), "must be of class")
+    expect_true(.assertColor(x = "green"))
+    expect_true(.assertColor(x = "#562108"))
 })

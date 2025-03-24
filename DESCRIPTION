@@ -1,9 +1,9 @@
 Package: monaLisa
 Type: Package
 Title: Binned Motif Enrichment Analysis and Visualization
-Version: 1.13.2
+Version: 1.13.3
 Authors@R: c(
-    person("Dania", "Machlab", email = "dania.machlab@fmi.ch", role = c("aut"), 
+    person("Dania", "Machlab", email = "dania.machlab@gmail.com", role = c("aut"), 
            comment = c(ORCID = "0000-0002-2578-6930")),
     person("Lukas", "Burger", email = "lukas.burger@fmi.ch", role = c("aut"),
            comment = c(ORCID = "0000-0001-5596-7567")),
@@ -21,43 +21,46 @@ Description: Useful functions to work with sequence motifs in the analysis of
     informative visualizations of the obtained results are also provided. 
 Depends: R (>= 4.1)
 Imports: 
-    methods,
-    stats,
-    utils,
-    grDevices,
-    graphics,
     BiocGenerics,
-    GenomicRanges,
-    TFBSTools,
-    Biostrings,
-    IRanges,
-    stabs,
-    BSgenome,
-    glmnet,
-    S4Vectors,
-    SummarizedExperiment,
     BiocParallel,
-    grid,
+    Biostrings,
+    BSgenome,
     circlize,
     ComplexHeatmap (>= 2.11.1),
-    XVector,
     GenomeInfoDb,
+    GenomicRanges,
+    cli,
+    ggplot2,
+    glmnet,
+    grDevices,
+    grid,
+    IRanges,
+    methods,
+    rlang,
+    RSQLite, 
+    stabs,
+    stats,
+    SummarizedExperiment,
+    S4Vectors,
+    TFBSTools,
+    tidyr,
     tools,
-    vioplot,
-    RSQLite
+    utils,
+    XVector
 Suggests: 
+    BiocManager,
+    BiocStyle, 
+    BSgenome.Mmusculus.UCSC.mm10, 
+    ggrepel,
+    gridExtra,
     JASPAR2020,
     JASPAR2024,
-    BSgenome.Mmusculus.UCSC.mm10, 
-    TxDb.Mmusculus.UCSC.mm10.knownGene,
     knitr, 
     rmarkdown, 
     testthat, 
-    BiocStyle, 
-    gridExtra
+    TxDb.Mmusculus.UCSC.mm10.knownGene
 License: GPL (>= 3)
 Encoding: UTF-8
-LazyData: false
 RoxygenNote: 7.3.2
 VignetteBuilder: knitr
 biocViews: 
@@ -65,6 +68,7 @@ biocViews:
     Visualization, 
     FeatureExtraction,
     Epigenetics
+Config/testthat/edition: 3
 URL: https://github.com/fmicompbio/monaLisa, 
     https://bioconductor.org/packages/monaLisa/, 
     https://fmicompbio.github.io/monaLisa/

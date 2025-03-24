@@ -22,7 +22,7 @@ test_that("randLassoStabSel() works properly", {
     ss <- monaLisa::randLassoStabSel(x = X, y = Y)
 
     # tests
-    expect_true(is(ss, "SummarizedExperiment"))
+    expect_s4_class(ss, "SummarizedExperiment")
     expect_identical(rowData(ss)$y, Y)
     expect_identical(ss$selProb, colData(ss)[, ncol(colData(ss))])
     expect_identical(ss$selAUC,
@@ -36,10 +36,35 @@ test_that("randLassoStabSel() works properly", {
     expect_error(randLassoStabSel(x = as.data.frame(X), y = Y))
     expect_error(randLassoStabSel(x = X2[1:100, ], y = Y2[2:101]))
     expect_error(randLassoStabSel(x = X2[1:100, ], y = Y2[2:100]))
+    
+    # with a different family
+    set.seed(123)
+    ssbnf <- randLassoStabSel(x = X, y = as.numeric(Y > 2), 
+                              glmnet.args = list(family = "binomial"))
+    expect_s4_class(ssbnf, "SummarizedExperiment")
+    expect_identical(rowData(ssbnf)$y, as.numeric(Y > 2))
+    expect_identical(ssbnf$selProb, colData(ssbnf)[, ncol(colData(ssbnf))])
+    expect_identical(ssbnf$selAUC,
+                     rowMeans(as.matrix(colData(ssbnf)[, grep("^regStep", colnames(colData(ssbnf)))])))
+    expect_true(all(ssbnf$selProb >= 0 & ssbnf$selProb <= 1))
+    expect_true(all(ssbnf$selAUC >= 0 & ssbnf$selAUC <= 1))
+    expect_true(all(metadata(ssbnf)$stabsel.params.selected %in% s_cols))
+    expect_identical(dim(ssbnf), c(500L, 50L))
+    expect_identical(length(Y), nrow(ssbnf))
+    expect_true(!is.null(SummarizedExperiment::assay(ssbnf)))
+    
+    # ignore selected arguments if passed to glmnet.args
+    set.seed(123)
+    expect_warning({
+        ssbnf2 <- randLassoStabSel(x = X, y = as.numeric(Y > 2), 
+                                   glmnet.args = list(family = "binomial", 
+                                                      x = 3, weakness = 0.1))
+    }, "Ignoring the following elements")
+    expect_identical(ssbnf, ssbnf2)
 })
 
 test_that("randLassoStabSel() is deterministic", {
-  
+
   # create data set
   set.seed(555)
   Y <- rnorm(n = 500, mean = 2, sd = 1)
@@ -51,21 +76,21 @@ test_that("randLassoStabSel() is deterministic", {
   for (i in seq_along(s_cols)) {
     X[ ,s_cols[i]] <- X[ ,s_cols[i]] + Y
   }
-  
+
   # randomized lasso stability selection
   set.seed(123)
   ss1 <- monaLisa::randLassoStabSel(x = X, y = Y)
   set.seed(123)
   ss2 <- monaLisa::randLassoStabSel(x = X, y = Y)
-  
+
   # tests
   expect_identical(ss1, ss2)
-  
+
 })
 
 
 test_that(".glmnetRandomizedLasso() works properly", {
-    
+
     # create data set
     set.seed(555)
     Y <- rnorm(n = 500, mean = 2, sd = 1)
@@ -84,20 +109,31 @@ test_that(".glmnetRandomizedLasso() works properly", {
       expect_message(.glmnetRandomizedLasso(x = as.data.frame(X), y = Y, q = 11),
                      "coerced to a model matrix without intercept"),
       "Number of nonzero coefficients along the path exceeds")
-  
+
     # ... with specific lambda
     expect_error(.glmnetRandomizedLasso(x = X, y = Y, q = 11, lambda = 5))
-  
+
     # ... with type="anticonservative"
     set.seed(123)
     rl <- .glmnetRandomizedLasso(x = X, y = Y, q = 11, type = "anticonservative")
-    expect_is(rl, "list")
+    expect_type(rl, "list")
     expect_identical(names(rl), c("selected", "path"))
-    expect_is(rl$selected, "logical")
-    expect_is(rl$path, "matrix")
-  
+    expect_type(rl$selected, "logical")
+    expect_type(rl$path, "logical")
+
     # expected number of selected variables
     expect_identical(sum(rl$selected), 11L)
     
+    # with different family
+    set.seed(123)
+    expect_warning(
+        expect_message(
+            bnf <- .glmnetRandomizedLasso(x = as.data.frame(X), 
+                                          y = as.numeric(Y > 0), 
+                                          q = 11, family = "binomial"),
+            "coerced to a model matrix without intercept"),
+        "Number of nonzero coefficients along the path exceeds")
+    expect_identical(sum(bnf$selected), 10L)
+
 })
 

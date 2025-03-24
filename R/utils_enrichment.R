@@ -6,10 +6,7 @@
     .assertScalar(totalWeightFg, type = "numeric")
     .assertScalar(verbose, type = "logical")
 
-    if (verbose) {
-        message("using binomial test to calculate ",
-                "log(p-values) for enrichments")
-    }
+    .message("using binomial test to calculate log(p-values) for enrichments")
 
     prob <- matchCountBg / totalWeightBg
     minProb <- 1 / totalWeightBg
@@ -34,10 +31,7 @@
     .assertScalar(totalWeightFg, type = "numeric")
     .assertScalar(verbose, type = "logical")
 
-    if (verbose) {
-        message("using Fisher's exact test (one-sided) to calculate ",
-                "log(p-values) for enrichments")
-    }
+    .message("using Fisher's exact test (one-sided) to calculate log(p-values) for enrichments")
 
     # contingency table per sequence for Fisher's exact test
     # (rounded to integer):
@@ -103,9 +97,9 @@
 
 #' @title Check if seqinfo DataFrame is valid
 #'
-#' @description Check if the DataFrame with sequence information is valid,
-#'   i.e. is of the correct object type (DataFrame) and has all expected
-#'   columns and attributes.
+#' @description Check if the \code{DataFrame} with sequence information is 
+#'   valid, i.e. is of the correct object type (\code{DataFrame}) and has all 
+#'   expected columns and attributes.
 #'
 #' @param df Input object to be checked. It should have an attribute \code{err}
 #'   and columns:
@@ -122,7 +116,9 @@
 #'   }
 #'
 #' @return \code{TRUE} (invisibly) if \code{df} is valid, otherwise it
-#'   raises an exception using \code{stop()}
+#'   raises an exception using \code{cli::cli_abort()}
+#'
+#' @importFrom cli cli_abort
 #'
 #' @keywords internal
 .checkDfValidity <- function(df) {
@@ -133,22 +129,22 @@
     expected_attrs <- c("err")
 
     if (!is(df, "DataFrame")) {
-        stop("'df' should be a DataFrame, but it is a ", class(df))
+        cli_abort("{.arg df} should be a {.cls DataFrame}, but it is a {.cls {class(df)}}")
 
     } else if (!all(expected_cols %in% colnames(df))) {
-        stop("'df' has to have columns: ",
-             paste(expected_cols, collapse = ", "))
+        cli_abort("{.arg df} has to have columns: {expected_cols}")
 
     } else if (!all(unlist(lapply(seq_along(expected_cols), function(i) {
         is(df[, expected_cols[i]], expected_types[i])
     })))) {
-        stop("Not all columns in 'df' have the expected types:\n ",
-             paste(paste0(expected_cols, ": '", expected_types, "'"),
-                   collapse = "\n "))
+        cli_abort(c(
+            "Not all columns in {.arg df} have the expected types:",
+            vapply(seq.int(length(expected_cols)),
+                   \(i) paste0(expected_cols[i], ": {.cls ", expected_types[i], "}"),
+                   character(1))))
 
     } else if (!all(expected_attrs %in% names(attributes(df)))) {
-        stop("'df' has to have attributes: ",
-             paste(expected_attrs, collapse = ", "))
+        cli_abort("{.arg df} has to have the attribute{?s}: {expected_attrs}")
     }
 
     return(invisible(TRUE))
@@ -160,7 +156,7 @@
 #'   enrichment analysis. The current defaults are based on HOMER
 #'   (version 4.11).
 #'
-#' @param seqs a \code{DNAStringSet} object.
+#' @param seqs A \code{DNAStringSet} object.
 #' @param maxFracN A numeric scalar with the maximal fraction of N bases allowed
 #'   in a sequence (defaults to 0.7).
 #' @param minLength The minimum sequence length (default from Homer).
@@ -171,18 +167,19 @@
 #'
 #' @details The filtering logic is based on \code{removePoorSeq.pl} from Homer.
 #'
-#' @return a logical vector of the same length as \code{seqs} with \code{TRUE}
+#' @return A logical vector of the same length as \code{seqs} with \code{TRUE}
 #'   indicated to keep the sequence and \code{FALSE} to filter it out.
 #'
 #' @importFrom Biostrings alphabetFrequency DNAStringSet
 #' @importFrom S4Vectors DataFrame
+#' @importFrom cli cli_abort
 #'
 #' @keywords internal
 .filterSeqs <- function(seqs, maxFracN = 0.7, minLength = 5L,
                         maxLength = 100000L, verbose = FALSE) {
 
     if (!is(seqs, "DNAStringSet")) {
-        stop("'seqs' must be a DNAStringSet object.")
+        cli_abort("{.arg seqs} must be a {.cls DNAStringSet} object.")
     }
     .assertScalar(x = maxFracN,  type = "numeric", rngIncl = c(0, 1))
     .assertScalar(x = minLength, type = "numeric", rngIncl = c(0, Inf))
@@ -195,23 +192,22 @@
 
     f1 <- width(seqs) > 0 & observedFracN > maxFracN
     if (sum(f1) > 0 && verbose) {
-        message("  ", sum(f1), " of ", length(seqs),
-                " sequences (", round(100 * sum(f1) / length(seqs), 1), "%)",
-                " have too many N bases")
+        .message(paste0(
+            "  {sum(f1)} of {length(seqs)} sequences (",
+            "{round(100 * sum(f1) / length(seqs), 1)}%) have too many N bases"))
     }
 
     f2 <- (width(seqs) < minLength) | (width(seqs) > maxLength)
     if (sum(f2) > 0 && verbose) {
-        message("  ", sum(f2), " of ", length(seqs),
-                " sequences (", round(100 * sum(f2) / length(seqs), 1), "%)",
-                " are too short or too long")
+        .message(paste0(
+            "  {sum(f2)} of {length(seqs)} sequences (",
+            "{round(100 * sum(f2) / length(seqs), 1)}%) are too short or too long"))
     }
 
     res <- !(f1 | f2)
-    if (verbose) {
-        message("  in total filtering out ", sum(!res), " of ", length(seqs),
-                " sequences (", round(100 * sum(!res) / length(seqs), 1), "%)")
-    }
+    .message(paste0(
+        "  in total filtering out {sum(!res)} of {length(seqs)} sequences (",
+        "{round(100 * sum(!res) / length(seqs), 1)}%)"))
 
     return(res)
 }
@@ -234,7 +230,7 @@
 #' @param GCbreaks The breaks between GC bins. The default value is based on
 #'   the hard-coded bins used in Homer.
 #'
-#' @return a \code{DataFrame} with sequences represented by rows and columns
+#' @return A \code{DataFrame} with sequences represented by rows and columns
 #'   \code{seqs}, \code{isForeground}, \code{GCfrac}, \code{GCbin}, \code{GCwgt}
 #'   and \code{seqWgt}. Only the first three are already filled in.
 #'
@@ -392,13 +388,13 @@
 #'   weight_i = (number_fg_seqs_i / number_bg_seqs_i) * (number_bg_seqs_total /
 #'   number_fg_seqs_total)
 #'
-#' @param df a \code{DataFrame} with sequence information.
+#' @param df A \code{DataFrame} with sequence information.
 #' @param GCbreaks The breaks between GC bins. The default value is based on
 #'   the hard-coded bins used in Homer.
 #' @param verbose A logical scalar. If \code{TRUE}, report on GC weight
 #'   calculation.
 #'
-#' @return a \code{DataFrame} of the same dimensions as the input \code{df},
+#' @return A \code{DataFrame} of the same dimensions as the input \code{df},
 #'   with the columns \code{GCfrac}, \code{GCbin} and \code{GCwgt}
 #'   filled in with the sequence GC content, assigned GC bins and weights to
 #'   correct differences in GC distributions between foreground and background
@@ -408,6 +404,7 @@
 #' @importFrom stats median
 #' @importFrom Biostrings oligonucleotideFrequency DNAStringSet
 #' @importFrom S4Vectors DataFrame
+#' @importFrom cli cli_abort
 #'
 #' @keywords internal
 .calculateGCweight <- function(df,
@@ -419,7 +416,7 @@
     GCbreaks <- sort(GCbreaks, decreasing = FALSE)
     .assertVector(x = GCbreaks, type = "numeric", rngIncl = c(0, 1))
     if (length(GCbreaks) < 2) {
-        stop("'GCbreaks' must be of length 2 or greater")
+        cli_abort("{.arg GCbreaks} must be of length 2 or greater")
     }
     .assertScalar(x = verbose,   type = "logical")
 
@@ -437,13 +434,11 @@
     used_bins <- sort(intersect(df$GCbin[df$isForeground],
                                 df$GCbin[!df$isForeground]))
     keep <- df$GCbin %in% used_bins
-    if (verbose) {
-        message("  ", length(used_bins), " of ", length(GCbreaks) - 1,
-                " GC-bins used (have both fore- and background sequences)\n",
-                "  ", sum(!keep), " of ", nrow(df), " sequences (",
-                round(100 * sum(!keep) / nrow(df), 1),
-                "%) filtered out from unused GC-bins.")
-    }
+    .message(paste0(
+        "  {length(used_bins)} of {length(GCbreaks) - 1} GC-bins used (",
+        "have both fore- and background sequences)\n",
+        "  {sum(!keep)} of {nrow(df)} sequences ({round(100 * sum(!keep) / nrow(df), 1)}%) ",
+        "filtered out from unused GC-bins."))
     df <- df[keep, ]
 
     # total number of foreground and background sequences
@@ -475,18 +470,18 @@
 #'   composition. The logic is based on Homer's
 #'   \code{normalizeSequenceIteration()} function found in \code{Motif2.cpp}.
 #'
-#' @param kmerFreq a \code{list} with of matrices. The matrix at index \code{i}
+#' @param kmerFreq A \code{list} with of matrices. The matrix at index \code{i}
 #'   in the list contains the probability of k-mers of length \code{i}, for each
 #'   k-mer (columns) and sequence (rows).
-#' @param goodKmers a \code{list} of \code{numeric} vectors; the element at
+#' @param goodKmers A \code{list} of \code{numeric} vectors; the element at
 #'   index \code{i} contains the number of good (non-N-containing) k-mers of
 #'   length \code{i} for each sequence.
-#' @param kmerRC a \code{list} of character vectors; the element at index
+#' @param kmerRC A \code{list} of character vectors; the element at index
 #'   \code{i} contains the reverse complement sequences of all k-mers of length
 #'   \code{i}.
-#' @param seqWgt a \code{numeric} vector with starting sequence weights
+#' @param seqWgt A \code{numeric} vector with starting sequence weights
 #'   at the beginning of the iteration.
-#' @param isForeground logical vector of the same length as \code{seqs}.
+#' @param isForeground Logical vector of the same length as \code{seqs}.
 #'   \code{TRUE} indicates that the sequence is from the foreground,
 #'   \code{FALSE} that it is a background sequence.
 #' @param minSeqWgt Numeric scalar greater than zero giving the
@@ -496,7 +491,7 @@
 #'   maximal weight of a sequence. The default value (1000) is based on
 #'   \code{HOMER} (1 / HOMER_MINIMUM_SEQ_WEIGHT constant in Motif2.h).
 #'
-#' @return a named \code{list} with elements \code{seqWgt} (updated
+#' @return A named \code{list} with elements \code{seqWgt} (updated
 #'   weights) and \code{err} (error measuring difference of foreground
 #'   and weighted background sequence compositions).
 #'
@@ -587,7 +582,7 @@
 #'   \code{normalizeSequence()} one last time after going through all iterations
 #'   or reaching a low error, which we do not do here.
 #'
-#' @param df a \code{DataFrame} with sequence information as returned by
+#' @param df A \code{DataFrame} with sequence information as returned by
 #'   \code{.calculateGCweight}.
 #' @param maxKmerSize Integer scalar giving the maximum k-mer size to
 #'   consider. The default is set to 3 (like in \code{HOMER}), meaning that
@@ -601,7 +596,7 @@
 #' @param verbose A logical scalar. If \code{TRUE}, report on k-mer composition
 #'   adjustment.
 #'
-#' @return a DataFrame containing: \describe{ \item{sequenceWeights}{: a
+#' @return A \code{DataFrame} containing: \describe{ \item{sequenceWeights}{: a
 #'   \code{dataframe} containing the sequence GC content, GC bins they were
 #'   assigned to, the weight to correct for GC differences between foreGround
 #'   and background sequences, the weight to adjust for kmer composition, and
@@ -641,10 +636,7 @@
 
     # run .normForKmers() up to maxIter times or
     # stop when new error is bigger than the error from the previous iteration
-    if (verbose) {
-        message("  starting iterative adjustment for k-mer composition (up to ",
-                maxIter, " iterations)")
-    }
+    .message("  starting iterative adjustment for k-mer composition (up to {maxIter} iterations)")
 
     res <- list()
     for (i in seq_len(maxIter)) {
@@ -657,25 +649,17 @@
                              minSeqWgt = minSeqWgt)
 
         if (res$err >= lastErr) {
-            if (verbose) {
-                tmpmsg <- paste0(
-                    "    detected increasing error - stopping after ",
-                    i, " iterations"
-                )
-                message(tmpmsg)
-            }
+            .message("    detected increasing error - stopping after {i} iterations")
             break
         } else {
             if (verbose && (i %% 40 == 0)) {
-                message("    ", i, " of ", maxIter, " iterations done")
+                .message("    {i} of {maxIter} iterations done")
             }
             curWgt <- res$seqWgt
             lastErr <- res$err
         }
     }
-    if (verbose) {
-        message("    iterations finished")
-    }
+    .message("    iterations finished", noTimer = TRUE)
 
     # return final weights
     df$seqWgt <- curWgt
@@ -688,7 +672,7 @@
 #' @description Check if the elements of `x` are all equally long.
 #'   If not, generate a warning.
 #'
-#' @param x an object that implements a \code{width} method, typically a
+#' @param x An object that implements a \code{width} method, typically a
 #'   \code{GRanges} or \code{DNAStringSet} object.
 #'
 #' @return \code{NULL} (invisibly). The function is called for its side-effect

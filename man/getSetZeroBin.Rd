@@ -11,15 +11,15 @@ getZeroBin(bins)
 setZeroBin(bins, zeroBin)
 }
 \arguments{
-\item{bins}{Factor, typically the return value of 
+\item{bins}{Factor, typically the return value of
 \code{\link[monaLisa]{bin}}.}
 
-\item{zeroBin}{Numeric or character scalar indicating the level to use as 
+\item{zeroBin}{Numeric or character scalar indicating the level to use as
 the zero bin, or NA.}
 }
 \value{
-For \code{getZeroBin}, the index of the level representing the zero bin. 
-For \code{setZeroBin}, a modified factor with the zero bin set to the 
+For \code{getZeroBin}, the index of the level representing the zero bin.
+For \code{setZeroBin}, a modified factor with the zero bin set to the
 provided value.
 }
 \description{

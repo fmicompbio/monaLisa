@@ -16,14 +16,14 @@
 #'   \code{alternative = "greater"}, making it a one-sided test for enrichment,
 #'   as is the case with the binomial test.
 #'
-#' @param motifHitMatrix matrix with 0 and 1 entries for absence or presence of
+#' @param motifHitMatrix Matrix with 0 and 1 entries for absence or presence of
 #'   motif hits in each sequence.
-#' @param df a \code{DataFrame} with sequence information as returned by
+#' @param df A \code{DataFrame} with sequence information as returned by
 #'   \code{.iterativeNormForKmers()}.
-#' @param test type of motif enrichment test to perform.
+#' @param test Type of motif enrichment test to perform.
 #' @param verbose A logical scalar. If \code{TRUE}, report on progress.
 #'
-#' @return a \code{data.frame} containing the motifs as rows and the columns:
+#' @return A \code{data.frame} containing the motifs as rows and the columns:
 #'   \describe{
 #'     \item{motifName}{: the motif name}
 #'     \item{logP}{: the log p-value for enrichment (natural logarithm).
@@ -42,6 +42,7 @@
 #'   }
 #'
 #' @importFrom stats pbinom fisher.test
+#' @importFrom cli cli_abort
 #'
 #' @keywords internal
 .calcMotifEnrichment <- function(motifHitMatrix,
@@ -51,14 +52,14 @@
 
     # checks
     if (!is.matrix(motifHitMatrix)) {
-        stop("'motifHitMatrix' has to be a matrix")
+        cli_abort("{.arg motifHitMatrix} has to be a matrix")
     }
     if (nrow(motifHitMatrix) != nrow(df)) {
-        stop("'motifHitMatrix' and 'df' must have the same number of rows")
+        cli_abort("{.arg motifHitMatrix} and {.arg df} must have the same number of rows")
     }
     if (!is.null(rownames(motifHitMatrix)) && !is.null(rownames(df)) &&
         !identical(rownames(motifHitMatrix), rownames(df))) {
-        stop("'motifHitMatrix' and 'df' must have identical rownames")
+        cli_abort("{.arg motifHitMatrix} and {.arg df} must have identical rownames")
     }
     .checkDfValidity(df)
     test <- match.arg(test)
@@ -109,11 +110,12 @@
 #'
 #' @param seqs \code{\link[Biostrings]{DNAStringSet}} object with sequences to
 #'   test
-#' @param bins factor of the same length and order as \code{seqs}, indicating
+#' @param bins Factor of the same length and order as \code{seqs}, indicating
 #'   the bin for each sequence. Typically the return value of
 #'   \code{\link[monaLisa]{bin}}. For \code{background = "genome"}, \code{bins}
 #'   can be omitted.
-#' @param pwmL PWMatrixList with motifs for which to calculate enrichments.
+#' @param pwmL \code{PWMatrixList} with motifs for which to calculate 
+#'   enrichments.
 #' @param background A \code{character} scalar specifying the background
 #'   sequences to use. One of \code{"otherBins"} (default), \code{"allBins"},
 #'   \code{"zeroBin"} or \code{"genome"} (see "Details").
@@ -123,13 +125,13 @@
 #' @param maxFracN A numeric scalar with the maximal fraction of N bases allowed
 #'   in a sequence (defaults to 0.7). Sequences with higher fractions are
 #'   excluded from the analysis.
-#' @param maxKmerSize the maximum k-mer size to consider, when adjusting
+#' @param maxKmerSize The maximum k-mer size to consider, when adjusting
 #'   background sequence weights for k-mer composition compared to the
 #'   foreground sequences. The default value (3) will correct for mono-, di-
 #'   and tri-mer composition.
-#' @param min.score the minimal score for motif hits, used in
+#' @param min.score The minimal score for motif hits, used in
 #'   \code{\link[monaLisa]{findMotifHits}}.
-#' @param matchMethod the method used to scan for motif hits, passed to the
+#' @param matchMethod The method used to scan for motif hits, passed to the
 #'   \code{method} parameter in \code{\link[monaLisa]{findMotifHits}}.
 #' @param GCbreaks The breaks between GC bins. The default value is based on
 #'   the hard-coded bins used in Homer.
@@ -251,6 +253,7 @@
 #' @importFrom GenomeInfoDb seqnames seqlevels
 #' @importFrom BiocParallel bplapply SerialParam bpnworkers
 #' @importFrom stats p.adjust
+#' @importFrom cli cli_abort cli_progress_step
 #'
 #' @export
 calcBinnedMotifEnrR <- function(seqs,
@@ -282,7 +285,7 @@ calcBinnedMotifEnrR <- function(seqs,
     }
     .assertVector(x = bins, type = "factor")
     if (length(seqs) != length(bins)) {
-        stop("'seqs' and 'bins' must be of equal length and in the same order")
+        cli_abort("{.arg seqs} and {.arg bins} must be of equal length")
     }
     .assertVector(x = pwmL, type = "PWMatrixList")
     .assertScalar(x = pseudocount.log2enr, type = "numeric",
@@ -291,23 +294,22 @@ calcBinnedMotifEnrR <- function(seqs,
                   validValues = stats::p.adjust.methods)
     if (identical(background, "zeroBin") &&
         (is.null(getZeroBin(bins)) || is.na(getZeroBin(bins)))) {
-        stop("For background = 'zeroBin', 'bins' has to define a zero bin ",
-             "(see 'maxAbsX' arugment of 'bin' function).")
+        cli_abort(c("For {.code background = 'zeroBin'}, {.arg bins} has to define a zero bin ",
+                    "(see {.arg maxAbsX} arugment of {.fn bin} function)."))
     }
     if (identical(background, "genome")) {
         if (is.null(genome) || !(is(genome, "DNAStringSet") ||
                                  is(genome, "BSgenome"))) {
-            stop("For background = 'genome', 'genome' must be either a ",
-                 "DNAStringSet or a BSgenome object.")
+            cli_abort(c("For {.code background = 'genome'}, {.arg genome} must be either a ",
+                        "{.cls DNAStringSet} or a {.cls BSgenome} object."))
         }
         if (!is.null(genome.regions)) {
             if (!is(genome.regions, "GRanges")) {
-                stop("For background = 'genome', 'genome.regions' must be ",
-                     "either NULL or a GRanges object.")
+                cli_abort(c("For {.code background = 'genome'}, {.arg genome.regions} must be ",
+                            "either {.code NULL} or a {.cls GRanges} object."))
             }
             if (!all(seqlevels(genome.regions) %in% names(genome))) {
-                stop("'genome.regions' contains seqlevels not contained in ",
-                     "'genome'")
+                cli_abort("{.arg genome.regions} contains seqlevels not contained in {.arg genome}")
             }
         }
         .assertScalar(x = genome.oversample, type = "numeric",
@@ -322,9 +324,7 @@ calcBinnedMotifEnrR <- function(seqs,
 
 
     # filter sequences
-    if (verbose) {
-        message("Filtering sequences ...")
-    }
+    .message("Filtering sequences ...")
     keep <- .filterSeqs(seqs, maxFracN = maxFracN, verbose = verbose)
     battr <- attributes(bins) # rescue attributes dropped by subsetting
     bin0 <- getZeroBin(bins)
@@ -338,25 +338,22 @@ calcBinnedMotifEnrR <- function(seqs,
 
     # stop if all sequences were filtered out
     if (sum(keep) == 0) {
-      stop("No sequence passed the filtering step. Cannot proceed with the ",
-           "enrichment analysis ...")
+      cli_abort(paste0(
+          "No sequence passed the filtering step. Cannot proceed with the ",
+          "enrichment analysis ..."))
     }
 
     # scan sequences with motif
-    if (verbose) {
-        message("Scanning sequences for motif hits...")
-    }
+    .message("Scanning sequences for motif hits...")
     hits <- findMotifHits(query = pwmL, subject = seqs, min.score = min.score,
                           method = matchMethod, BPPARAM = BPPARAM, ...)
     if (isEmpty(hits)) {
-        stop("No motif hits found in any of the sequences - aborting.")
+        cli_abort("No motif hits found in any of the sequences - aborting.")
     }
 
 
     # create motif hit matrix
-    if (verbose) {
-        message("Create motif hit matrix...")
-    }
+    .message("Create motif hit matrix...")
     hitmatrix <- unclass(table(
         factor(seqnames(hits), levels = seqlevels(hits)),
         factor(hits$pwmid, levels = TFBSTools::ID(pwmL))
@@ -368,13 +365,12 @@ calcBinnedMotifEnrR <- function(seqs,
     enrichL <- bplapply(structure(seq.int(nlevels(bins)), names = levels(bins)),
                         function(i) {
 
-        if (verbose)
-            message("starting analysis of bin ", levels(bins)[i])
+        .message("starting analysis of bin {levels(bins)[i]}")
         verbose1 <- verbose && bpnworkers(BPPARAM) == 1L
 
         # define background set and create sequence info data frame
         if (verbose1) {
-            message("Defining background sequence set (", background, ")...")
+            cli_progress_step("Defining background sequence set ({background})...")
         }
         df <- .defineBackground(sqs = seqs,
                                 bns = bins,
@@ -389,15 +385,16 @@ calcBinnedMotifEnrR <- function(seqs,
         # motifs
         if (identical(background, "genome")) {
             if (verbose1) {
-              message("Scanning genomic background sequences for motif hits...")
+                cli_progress_step("Scanning genomic background sequences for motif hits...")
             }
             hits.genome <- findMotifHits(
                 query = pwmL, subject = df$seqs[!df$isForeground],
                 min.score = min.score, method = matchMethod,
                 BPPARAM = BPPARAM, ...)
             if (isEmpty(hits.genome)) {
-              stop("No motif hits found in any of the genomic background ",
-                   "sequences - aborting.")
+              cli_abort(paste0(
+                  "No motif hits found in any of the genomic background ",
+                  "sequences - aborting."))
             }
 
             # create motif hit matrix
@@ -418,8 +415,7 @@ calcBinnedMotifEnrR <- function(seqs,
 
         # calculate initial background sequence weights based on G+C composition
         if (verbose1) {
-            message("Correcting for GC differences to the background ",
-                    "sequences...")
+            cli_progress_step("Correcting for GC differences to the background sequences...")
         }
         df <- .calculateGCweight(df = df,
                                  GCbreaks = GCbreaks,
@@ -428,16 +424,18 @@ calcBinnedMotifEnrR <- function(seqs,
         # if df is empty, then all seqs were filtered out in the GC weight
         # calculation step
         if (nrow(df) == 0) {
-          stop("No sequences remained after the GC weight calculation ",
-               "step in bin ", levels(bins)[i],
-               " due to no GC bin containing both fore- and background ",
-               "sequences. Cannot proceed with the enrichment analysis ...")
+          cli_abort(c(
+              "No sequences remained after the GC weight calculation ",
+              "step in bin {.emph {levels(bins)[i]}} due to no GC bin ",
+              "containing both fore- and background sequences. ",
+              "Cannot proceed with the enrichment analysis ..."))
         }
 
         # update background sequence weights based on k-mer composition
         if (verbose1) {
-            message("Correcting for k-mer differences between fore- and ",
-                    "background sequences...")
+            cli_progress_step(paste0(
+                "Correcting for k-mer differences between fore- and ",
+                "background sequences..."))
         }
         df <- .iterativeNormForKmers(df = df,
                                      maxKmerSize = maxKmerSize,
@@ -445,7 +443,7 @@ calcBinnedMotifEnrR <- function(seqs,
 
         # calculate motif enrichments
         if (verbose1) {
-            message("Calculating motif enrichment...")
+            cli_progress_step("Calculating motif enrichment...")
         }
         enrich1 <- .calcMotifEnrichment(
             motifHitMatrix = hitmatrix2[rownames(df), , drop = FALSE],

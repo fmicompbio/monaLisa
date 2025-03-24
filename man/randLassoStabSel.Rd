@@ -11,33 +11,43 @@ randLassoStabSel(
   cutoff = 0.8,
   PFER = 2,
   mc.cores = 1L,
+  glmnet.args = list(),
   ...
 )
 }
 \arguments{
-\item{x}{the predictor matrix.}
+\item{x}{The predictor matrix.}
 
-\item{y}{the response vector.}
+\item{y}{The response vector.}
 
-\item{weakness}{value between 0 and 1 (default = 0.8).
+\item{weakness}{Value between 0 and 1 (default = 0.8).
 It affects how strict the method will be in selecting predictors. The
 closer it is to 0, the more stringent the selection. A weakness value
 of 1 is identical to performing lasso stability selection (not the
 randomized version).}
 
-\item{cutoff}{value between 0 and 1 (default = 0.8) which is the cutoff
+\item{cutoff}{Value between 0 and 1 (default = 0.8) which is the cutoff
 for the selection probability. Any variable with a selection probability
 that is higher than the set cutoff will be selected.}
 
-\item{PFER}{integer (default = 2) representing the absolute number of
+\item{PFER}{Integer (default = 2) representing the absolute number of
 false positives that we allow for in the final list of selected
 variables. For details see Meinshausen and Bühlmann (2010).}
 
-\item{mc.cores}{integer (default = 1) specifying the number of cores to
+\item{mc.cores}{Integer (default = 1) specifying the number of cores to
 use in \code{\link[parallel]{mclapply}}, which is the default way
 \code{\link[stabs]{stabsel}} does parallelization.}
 
-\item{...}{additional parameters that can be passed on to
+\item{glmnet.args}{Named list with additional arguments to the internal 
+\code{.glmnetRandomizedLasso} function (beyond \code{x}, 
+\code{y} and \code{weakness}, which are determined automatically, and 
+\code{q}, which should not be specified (it will be determined from 
+\code{cutoff} and \code{PFER}). 
+The available arguments to \code{.glmnetRandomizedLasso} are the same as 
+the ones for \code{\link[stabs]{glmnet.lasso}}. A typical use case would 
+be to define the \code{family} argument to \code{\link[glmnet]{glmnet}}.}
+
+\item{...}{Additional parameters that can be passed on to
 \code{\link[stabs]{stabsel}}.}
 }
 \value{
@@ -49,11 +59,11 @@ A \code{SummarizedExperiment} object where the rows are the
         \item{x}{: the predictor matrix.}
         }
       }
-      \item{rowData}{: a DataFrame with columns: \describe{
+      \item{rowData}{: a \code{DataFrame} with columns: \describe{
         \item{y}{: the response vector.}
         }
       }
-      \item{colData}{: a DataFrame with columns: \describe{
+      \item{colData}{: a \code{DataFrame} with columns: \describe{
         \item{selProb}{: the final selection probabilities for the
           predictors (from the last regularization step).}
         \item{selected}{: logical indicating the predictors that made
@@ -149,9 +159,9 @@ N. Meinshausen and P. Bühlmann (2010), Stability Selection,
     \emph{Journal of the Royal Statistical Society: Series B
     (Statistical Methodology)}, \strong{72}, 417–73. \cr
     R.D. Shah and R.J. Samworth (2013), Variable Selection with Error
-   Control: Another Look at Stability Selection,
-   \emph{Journal of the Royal Statistical Society: Series B
-   (Statistical Methodology)}, \strong{75}, 55–80. \cr
+    Control: Another Look at Stability Selection,
+    \emph{Journal of the Royal Statistical Society: Series B
+    (Statistical Methodology)}, \strong{75}, 55–80. \cr
     B. Hofner, L. Boccuto, and M. Göker (2015), Controlling False
     Discoveries in High-Dimensional Situations: Boosting with Stability
     Selection, \emph{BMC Bioinformatics}, \strong{16} 144.

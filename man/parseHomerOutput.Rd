@@ -2,7 +2,7 @@
 % Please edit documentation in R/motif_enrichment_HOMER.R
 \name{parseHomerOutput}
 \alias{parseHomerOutput}
-\title{load output from HOMER findMotifsGenome.pl into R}
+\title{Load output from HOMER findMotifsGenome.pl into R}
 \usage{
 parseHomerOutput(infiles, pseudocount.log2enr = 8, p.adjust.method = "BH")
 }
