@@ -26,30 +26,30 @@ are plotted with the sign of the marginal correlation between a predictor
 and the response.}
 
 \item{selProbMin}{A numerical scalar in [0,1]. Predictors with a selection
-probability greater than \code{selProbMin} are considered selected and 
+probability greater than \code{selProbMin} are considered selected and
 colored by the input from \code{selColor}. By default, \code{selProbMin} is
 extracted from the parameters stored in \code{se}.}
 
-\item{selProbMinPlot}{A numerical scalar in [0,1] less than 
-\code{selProbMin}. Predictors with a selection probability greater 
-than \code{selProbMinPlot} but less than \code{selProbMin} are shown as 
-bars with color defined in \code{notSelColor}. \code{selProbMinPlot} is 
-useful in order to include additional predictors in the barplot, that were 
+\item{selProbMinPlot}{A numerical scalar in [0,1] less than
+\code{selProbMin}. Predictors with a selection probability greater
+than \code{selProbMinPlot} but less than \code{selProbMin} are shown as
+bars with color defined in \code{notSelColor}. \code{selProbMinPlot} is
+useful in order to include additional predictors in the barplot, that were
 not selected according to \code{selProbMin} but may be close to that cutoff
-or are simply nice to visualize alongside the selected predictors. Setting 
+or are simply nice to visualize alongside the selected predictors. Setting
 \code{selProbMinPlot = 0} will include all predictors.}
 
 \item{showSelProbMin}{A logical scalar. If \code{TRUE}, the value of
-\code{selProbMin} is shown by a horizontal line with the color defined 
+\code{selProbMin} is shown by a horizontal line with the color defined
 by \code{selProbCutoffColor}.}
 
 \item{selColor}{Color for the selected predictors which have a selection
 probability greater than \code{selProbMin}.}
 
-\item{notSelColor}{Color for the rest of the (unselected) predictors which 
+\item{notSelColor}{Color for the rest of the (unselected) predictors which
 will be show in the barplot.}
 
-\item{selProbCutoffColor}{Color for the line depicting the selection 
+\item{selProbCutoffColor}{Color for the line depicting the selection
 probability cutoff.}
 
 \item{method}{A character scalar with the correlation method to use in the
@@ -58,7 +58,7 @@ calculation of predictor-response marginal correlations. One of "pearson",
 
 \item{ylimext}{A numeric scalar defining how much the y axis limits should be
 expanded beyond the plotted probabilities to allow for space for the
-bar labels. This value can be increased if the predictor names above the 
+bar labels. This value can be increased if the predictor names above the
 bars are too long and not showing in the plot.}
 }
 \value{
@@ -73,14 +73,15 @@ This function plots the selection probabilities of predictors
 }
 \details{
 This function creates a bar plot with \code{ggplot}.
-  Each bar corresponds to a predictor (motif) and the colors correspond to 
-  whether or not it was selected. The y-axis shows the selection 
-  probabilities (\code{directional=FALSE}) or selection probabilities with 
-  the sign of the marginal correlation to the response 
+  Each bar corresponds to a predictor (motif) and the colors correspond to
+  whether or not it was selected. The y-axis shows the selection
+  probabilities (\code{directional=FALSE}) or selection probabilities with
+  the sign of the marginal correlation to the response
   (\code{directional=TRUE}).
 }
 \examples{
 ## create data set
+set.seed(321)
 Y <- rnorm(n = 500, mean = 2, sd = 1)
 X <- matrix(data = NA, nrow = length(Y), ncol = 50)
 for (i in seq_len(ncol(X))) {
@@ -88,8 +89,8 @@ for (i in seq_len(ncol(X))) {
 }
 s_cols <- sample(x = seq_len(ncol(X)), size = 10,
   replace = FALSE)
-for (i in seq_along(s_cols)) {
-  X[ ,s_cols[i]] <- X[ ,s_cols[i]] + Y
+for (s in s_cols) {
+  X[ ,s] <- X[, s] + (Y + rnorm(500, 0, 4)) * ifelse(s \%\% 2, -1, 1)
 }
 
 ## reproducible randLassoStabSel() with 1 core

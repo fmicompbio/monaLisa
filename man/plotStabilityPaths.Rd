@@ -32,7 +32,7 @@ probability greater than \code{selProbMin}.}
 
 \item{notSelColor}{Color for the rest of the (un-selected) predictors.}
 
-\item{selProbCutoffColor}{Color for the line depicting the selection 
+\item{selProbCutoffColor}{Color for the line depicting the selection
 probability cutoff.}
 
 \item{linewidth}{Line width.}
@@ -41,15 +41,15 @@ probability cutoff.}
 
 \item{ylim}{Limits for y-axis.}
 
-\item{labelPaths}{If \code{TRUE}, the predictor labels will be shown at the 
-end of the stability paths. The predictor labels given in \code{labels} 
+\item{labelPaths}{If \code{TRUE}, the predictor labels will be shown at the
+end of the stability paths. The predictor labels given in \code{labels}
 will be shown. If unspecified, the labels corresponding to the selected
 predictors will be added. If predictors have the same y-value in the last
-regularization step, the labels will be shown in a random order. One 
+regularization step, the labels will be shown in a random order. One
 needs to use \code{set.seed} to reproduce the plot in this case.}
 
-\item{labels}{If \code{labelPaths = TRUE}, the predictors which should be 
-labelled. If \code{NULL}, the selected predictors greater than 
+\item{labels}{If \code{labelPaths = TRUE}, the predictors which should be
+labelled. If \code{NULL}, the selected predictors greater than
 \code{metadata(se)$stabsel.params.cutoff} will be shown.}
 
 \item{labelNudgeX}{If \code{labelPaths = TRUE}, how much to nudge the labels
