@@ -624,19 +624,19 @@ plotMotifHeatmaps <- function(x,
 #' @param selColor Color for the selected predictors which have a selection
 #'    probability greater than \code{selProbMin}.
 #' @param notSelColor Color for the rest of the (un-selected) predictors.
-#' @param selProbCutoffColor Color for the line depicting the selection 
+#' @param selProbCutoffColor Color for the line depicting the selection
 #'    probability cutoff.
 #' @param linewidth Line width.
 #' @param alpha Line transparency of the stability paths.
 #' @param ylim Limits for y-axis.
-#' @param labelPaths If \code{TRUE}, the predictor labels will be shown at the 
-#'    end of the stability paths. The predictor labels given in \code{labels} 
+#' @param labelPaths If \code{TRUE}, the predictor labels will be shown at the
+#'    end of the stability paths. The predictor labels given in \code{labels}
 #'    will be shown. If unspecified, the labels corresponding to the selected
 #'    predictors will be added. If predictors have the same y-value in the last
-#'    regularization step, the labels will be shown in a random order. One 
+#'    regularization step, the labels will be shown in a random order. One
 #'    needs to use \code{set.seed} to reproduce the plot in this case.
-#' @param labels If \code{labelPaths = TRUE}, the predictors which should be 
-#'    labelled. If \code{NULL}, the selected predictors greater than 
+#' @param labels If \code{labelPaths = TRUE}, the predictors which should be
+#'    labelled. If \code{NULL}, the selected predictors greater than
 #'    \code{metadata(se)$stabsel.params.cutoff} will be shown.
 #' @param labelNudgeX If \code{labelPaths = TRUE}, how much to nudge the labels
 #'    to the right of the x-axis.
@@ -666,7 +666,7 @@ plotMotifHeatmaps <- function(x,
 #'
 #' @importFrom SummarizedExperiment assay rowData colData
 #' @importFrom ggplot2 ggplot aes geom_line scale_color_manual geom_segment labs
-#'     scale_y_continuous scale_x_continuous guides guide_legend 
+#'     scale_y_continuous scale_x_continuous guides guide_legend
 #'     theme_classic theme
 #' @importFrom tidyr pivot_longer starts_with
 #' @importFrom cli cli_abort
@@ -675,15 +675,15 @@ plotMotifHeatmaps <- function(x,
 #' @export
 plotStabilityPaths <- function(se,
                                selProbMin = metadata(se)$stabsel.params.cutoff,
-                               selColor = "cadetblue", 
+                               selColor = "cadetblue",
                                notSelColor = "grey",
                                selProbCutoffColor = "firebrick",
-                               linewidth = 0.5, 
-                               alpha = 1, 
-                               ylim = c(0, 1), 
-                               labelPaths = FALSE, 
-                               labels = NULL, 
-                               labelNudgeX = 8, 
+                               linewidth = 0.5,
+                               alpha = 1,
+                               ylim = c(0, 1),
+                               labelPaths = FALSE,
+                               labels = NULL,
+                               labelNudgeX = 8,
                                labelSize = 3) {
     # checks
     if (!is(se, "SummarizedExperiment")) {
@@ -700,9 +700,9 @@ plotStabilityPaths <- function(se,
     .assertVector(x = rownames(se), type = "character", len = nrow(se))
     .assertVector(x = colnames(colData(se)), type = "character")
     if (!any(grepl(pattern = "^regStep", x = colnames(colData(se))))) {
-        cli_abort("the columns in {.code colData(se)} containing the selection 
+        cli_abort("the columns in {.code colData(se)} containing the selection
                 probabilities for each regularization step {.code i} must have
-                column names starting with {.emph regStep}. See 
+                column names starting with {.emph regStep}. See
                 {.fn randLassoStabSel} for more details.")
     }
 
@@ -719,67 +719,67 @@ plotStabilityPaths <- function(se,
                                   x = df$regStep))
     df$yintercept <- selProbMin
     df$cutoff <- paste0("selProbMin = ", selProbMin)
-    xAxisTicks <- round(seq(from = min(df$regStep), 
-                            to = max(df$regStep), 
+    xAxisTicks <- round(seq(from = min(df$regStep),
+                            to = max(df$regStep),
                             length.out = 5))
 
     # plot stability paths (returns ggplot object)
-    gg <- ggplot(data = df, 
+    gg <- ggplot(data = df,
            mapping = aes(x = .data$regStep, y = .data$selectionProbability)) +
         geom_line(mapping = aes(group = .data$predictor, color = .data$selected),
-                  linewidth = linewidth, 
+                  linewidth = linewidth,
                   alpha = alpha) +
-        scale_color_manual(values = c("TRUE" = selColor, 
+        scale_color_manual(values = c("TRUE" = selColor,
                                       "FALSE" = notSelColor)) +
-        geom_segment(mapping = aes(x = min(.data$regStep), 
-                                   xend = max(.data$regStep), 
-                                   y = .data$yintercept, 
-                                   yend = .data$yintercept, 
+        geom_segment(mapping = aes(x = min(.data$regStep),
+                                   xend = max(.data$regStep),
+                                   y = .data$yintercept,
+                                   yend = .data$yintercept,
                                    linetype = .data$cutoff),
-                     color = selProbCutoffColor, 
+                     color = selProbCutoffColor,
                    linewidth = linewidth) +
         labs(x = "Regularization Step",
              y = "Selection Probability") +
-        scale_y_continuous(expand = c(0, 0), limits = ylim) + 
-        scale_x_continuous(expand = c(0, 0), 
-                           breaks = xAxisTicks, 
-                           labels = xAxisTicks) + 
+        scale_y_continuous(expand = c(0, 0), limits = ylim) +
+        scale_x_continuous(expand = c(0, 0),
+                           breaks = xAxisTicks,
+                           labels = xAxisTicks) +
         guides(colour = guide_legend(override.aes = list(alpha = 1))) +
-        theme_classic() + 
-        geom_segment(data = data.frame(x = min(df$regStep), 
-                                       xend = max(df$regStep), y = 0), 
-                     mapping = aes(x = x, xend = xend, y = y, yend = y)) + 
-        geom_segment(data = data.frame(x = min(df$regStep), y = ylim[1], 
-                                       yend = ylim[2]), 
-                     mapping = aes(x = x, xend = x, y = y, yend = yend)) + 
+        theme_classic() +
+        geom_segment(data = data.frame(x = min(df$regStep),
+                                       xend = max(df$regStep), y = 0),
+                     mapping = aes(x = x, xend = xend, y = y, yend = y)) +
+        geom_segment(data = data.frame(x = min(df$regStep), y = ylim[1],
+                                       yend = ylim[2]),
+                     mapping = aes(x = x, xend = x, y = y, yend = yend)) +
         theme(axis.line = element_blank())
-    
+
     if (labelPaths) {
         .assertPackagesAvailable("ggrepel")
         .assertScalar(x = labelNudgeX, type = "numeric")
         .assertScalar(x = labelSize, type = "numeric")
-        
+
         if (is.null(labels)) {
             labels <- unique(df$predictor[df$selected])
         } else {
             # check that the labels are correct and exist
-            .assertVector(x = labels, type = "character", 
+            .assertVector(x = labels, type = "character",
                           validValues = unique(df$predictor))
         }
-        gg <- gg + 
-            ggrepel::geom_text_repel(data = df[(df$predictor %in% labels) & 
-                                                   (df$regStep == max(df$regStep)), ], 
-                                     aes(label = .data$predictor, 
-                                         color = .data$selected), 
-                                     max.overlaps = Inf, 
-                                     nudge_x = labelNudgeX, na.rm = TRUE, 
-                                     size = labelSize, direction = "y", 
-                                     hjust = 0, segment.linetype = "dotted", 
-                                     segment.size = 0.7, segment.curvature = -0.1, 
-                                     segment.angle = 20, box.padding = 0.4, 
-                                     segment.alpha = 0.5, vjust = 0, 
-                                     show.legend = FALSE) 
-        
+        gg <- gg +
+            ggrepel::geom_text_repel(data = df[(df$predictor %in% labels) &
+                                                   (df$regStep == max(df$regStep)), ],
+                                     aes(label = .data$predictor,
+                                         color = .data$selected),
+                                     max.overlaps = Inf,
+                                     nudge_x = labelNudgeX, na.rm = TRUE,
+                                     size = labelSize, direction = "y",
+                                     hjust = 0, segment.linetype = "dotted",
+                                     segment.size = 0.7, segment.curvature = -0.1,
+                                     segment.angle = 20, box.padding = 0.4,
+                                     segment.alpha = 0.5, vjust = 0,
+                                     show.legend = FALSE)
+
     }
     gg
 }
@@ -799,40 +799,40 @@ plotStabilityPaths <- function(se,
 #'   are plotted with the sign of the marginal correlation between a predictor
 #'   and the response.
 #' @param selProbMin A numerical scalar in [0,1]. Predictors with a selection
-#'   probability greater than \code{selProbMin} are considered selected and 
+#'   probability greater than \code{selProbMin} are considered selected and
 #'   colored by the input from \code{selColor}. By default, \code{selProbMin} is
 #'   extracted from the parameters stored in \code{se}.
-#' @param selProbMinPlot A numerical scalar in [0,1] less than 
-#'   \code{selProbMin}. Predictors with a selection probability greater 
-#'   than \code{selProbMinPlot} but less than \code{selProbMin} are shown as 
-#'   bars with color defined in \code{notSelColor}. \code{selProbMinPlot} is 
-#'   useful in order to include additional predictors in the barplot, that were 
+#' @param selProbMinPlot A numerical scalar in [0,1] less than
+#'   \code{selProbMin}. Predictors with a selection probability greater
+#'   than \code{selProbMinPlot} but less than \code{selProbMin} are shown as
+#'   bars with color defined in \code{notSelColor}. \code{selProbMinPlot} is
+#'   useful in order to include additional predictors in the barplot, that were
 #'   not selected according to \code{selProbMin} but may be close to that cutoff
-#'   or are simply nice to visualize alongside the selected predictors. Setting 
+#'   or are simply nice to visualize alongside the selected predictors. Setting
 #'   \code{selProbMinPlot = 0} will include all predictors.
 #' @param showSelProbMin A logical scalar. If \code{TRUE}, the value of
-#'   \code{selProbMin} is shown by a horizontal line with the color defined 
+#'   \code{selProbMin} is shown by a horizontal line with the color defined
 #'   by \code{selProbCutoffColor}.
 #' @param selColor Color for the selected predictors which have a selection
 #'    probability greater than \code{selProbMin}.
-#' @param notSelColor Color for the rest of the (unselected) predictors which 
+#' @param notSelColor Color for the rest of the (unselected) predictors which
 #'    will be show in the barplot.
-#' @param selProbCutoffColor Color for the line depicting the selection 
+#' @param selProbCutoffColor Color for the line depicting the selection
 #'    probability cutoff.
 #' @param method A character scalar with the correlation method to use in the
 #'   calculation of predictor-response marginal correlations. One of "pearson",
 #'   "kendall" or "spearman" (see \code{\link[stats]{cor}}).
 #' @param ylimext A numeric scalar defining how much the y axis limits should be
 #'   expanded beyond the plotted probabilities to allow for space for the
-#'   bar labels. This value can be increased if the predictor names above the 
+#'   bar labels. This value can be increased if the predictor names above the
 #'   bars are too long and not showing in the plot.
 #'
 #' @details This function creates a bar plot with \code{ggplot}.
-#'   Each bar corresponds to a predictor (motif) and the colors correspond to 
-#'   whether or not it was selected. The y-axis shows the selection 
-#'   probabilities (\code{directional=FALSE}) or selection probabilities with 
-#'   the sign of the marginal correlation to the response 
-#'   (\code{directional=TRUE}). 
+#'   Each bar corresponds to a predictor (motif) and the colors correspond to
+#'   whether or not it was selected. The y-axis shows the selection
+#'   probabilities (\code{directional=FALSE}) or selection probabilities with
+#'   the sign of the marginal correlation to the response
+#'   (\code{directional=TRUE}).
 #'
 #' @return a \code{ggplot2} object.
 #'
@@ -858,7 +858,7 @@ plotStabilityPaths <- function(se,
 #' @importFrom SummarizedExperiment rowData assay
 #' @importFrom S4Vectors metadata
 #' @importFrom stats cor reorder
-#' @importFrom ggplot2 ggplot aes geom_bar scale_fill_manual geom_hline labs 
+#' @importFrom ggplot2 ggplot aes geom_bar scale_fill_manual geom_hline labs
 #'     geom_text ylim theme theme_classic
 #' @importFrom rlang .data
 #'
@@ -868,9 +868,9 @@ plotSelectionProb <- function(se,
                               selProbMin = metadata(se)$stabsel.params.cutoff,
                               selProbMinPlot = 0.4,
                               showSelProbMin = TRUE,
-                              selColor = "cadetblue", 
+                              selColor = "cadetblue",
                               notSelColor = "grey",
-                              selProbCutoffColor = "firebrick", 
+                              selProbCutoffColor = "firebrick",
                               method = c("pearson", "kendall", "spearman"),
                               ylimext = 0.2) {
 
@@ -888,14 +888,14 @@ plotSelectionProb <- function(se,
     .assertColor(x = selProbCutoffColor, len = 1)
     method <- match.arg(method)
     .assertScalar(x = ylimext, type = "numeric", rngIncl = c(0, Inf))
-    
+
     # prepare dataframe to plot
     df <- data.frame(
       corcoef = as.vector(cor(x = SummarizedExperiment::rowData(se)$y,
                               y = SummarizedExperiment::assay(se, "x"),
-                              method = method)), 
+                              method = method)),
       probs = se$selProb,
-      predNames = colnames(se), 
+      predNames = colnames(se),
       selected = se$selProb > selProbMin
     )
     df$yintercept <- selProbMin
@@ -905,48 +905,48 @@ plotSelectionProb <- function(se,
     if(directional){
       df$probs <- df$probs * sign(df$corcoef)
     }
-    
+
     # ... only keep abs(probs) >= selProbMinPlot
     df <- df[abs(df$probs) >= selProbMinPlot, ]
     ymin <- min(min(df$probs), 0) - ylimext*max(df$probs)
     ymax <- max(df$probs) + ylimext*max(df$probs)
-    
+
     # plot (returns ggplot object)
-    gg <- ggplot(data = df, 
-                 mapping = aes(x = stats::reorder(.data$predNames, 
-                                                  -.data$probs), 
-                               y = .data$probs)) + 
-      geom_bar(mapping = aes(fill = .data$selected), stat = "identity") + 
-      scale_fill_manual(values = c("TRUE" = selColor, "FALSE" = notSelColor)) + 
-      labs(x = element_blank(), 
+    gg <- ggplot(data = df,
+                 mapping = aes(x = stats::reorder(.data$predNames,
+                                                  -.data$probs),
+                               y = .data$probs)) +
+      geom_bar(mapping = aes(fill = .data$selected), stat = "identity") +
+      scale_fill_manual(values = c("TRUE" = selColor, "FALSE" = notSelColor)) +
+      labs(x = element_blank(),
            y = ifelse(
-             directional, 
+             directional,
              "Directional selection probability",
              "Selection probability"
-           )) + 
-      ylim(c(ymin, ymax)) + 
-      geom_text(mapping = aes(label = .data$predNames, 
-                              hjust = ifelse(.data$probs >= 0, 0, 1)),  
-                angle = 90) + 
-      theme_classic() + 
-      theme(axis.text.x = element_blank(), 
-            axis.line.x = element_blank(), 
-            axis.ticks.x = element_blank(), 
+           )) +
+      ylim(c(ymin, ymax)) +
+      geom_text(mapping = aes(label = .data$predNames,
+                              hjust = ifelse(.data$probs >= 0, -0.1, 1.1)),
+                angle = 90) +
+      theme_classic() +
+      theme(axis.text.x = element_blank(),
+            axis.line.x = element_blank(),
+            axis.ticks.x = element_blank(),
             axis.ticks.length.y  = unit(0.2, "cm"))
     if(showSelProbMin){
-      gg <- gg + 
-        geom_hline(mapping = aes(yintercept = .data$yintercept, 
-                                 linetype = .data$cutoff), 
+      gg <- gg +
+        geom_hline(mapping = aes(yintercept = .data$yintercept,
+                                 linetype = .data$cutoff),
                    color = selProbCutoffColor, linewidth = 1)
       if(directional & min(df$probs) <= -selProbMin){
-        gg <- gg + 
-          geom_hline(yintercept = -selProbMin, 
-                     color = selProbCutoffColor, 
+        gg <- gg +
+          geom_hline(yintercept = -selProbMin,
+                     color = selProbCutoffColor,
                      linewidth = 1)
       }
 
     }
-    
+
     gg
-    
+
 }
