@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">monaLisa</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.13.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.15.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,12 +46,13 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plotBinHist</span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
 <span>  <span class="va">b</span>,</span>
-<span>  breaks <span class="op">=</span> <span class="fl">10</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/nlevels.html" class="external-link">nlevels</a></span><span class="op">(</span><span class="va">b</span><span class="op">)</span>,</span>
+<span>  breaks <span class="op">=</span> <span class="fl">6</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/nlevels.html" class="external-link">nlevels</a></span><span class="op">(</span><span class="va">b</span><span class="op">)</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/deparse.html" class="external-link">deparse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">substitute</a></span><span class="op">(</span><span class="va">x</span>, env <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.environment.html" class="external-link">as.environment</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"Frequency"</span>,</span>
 <span>  main <span class="op">=</span> <span class="st">""</span>,</span>
-<span>  legend <span class="op">=</span> <span class="st">"topright"</span>,</span>
-<span>  legend.cex <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  legendPosition <span class="op">=</span> <span class="st">"right"</span>,</span>
+<span>  legend <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  legend.cex <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -70,29 +71,31 @@ the output of <code><a href="bin.html">bin</a></code>).</p></dd>
 
 
 <dt id="arg-breaks">breaks<a class="anchor" aria-label="anchor" href="#arg-breaks"></a></dt>
-<dd><p>Controls the histogram breaks (passed to <code>hist(...)</code>).</p></dd>
+<dd><p>A <code>numeric</code> scalar controlling the histogram breaks
+(passed to <code>geom_hist(..., bins = breaks)</code>).</p></dd>
 
 
-<dt id="arg-xlab">xlab<a class="anchor" aria-label="anchor" href="#arg-xlab"></a></dt>
-<dd><p>Label for x-axis.</p></dd>
+<dt id="arg-xlab-ylab-main">xlab, ylab, main<a class="anchor" aria-label="anchor" href="#arg-xlab-ylab-main"></a></dt>
+<dd><p><code>character</code> scalars that set the x-axis label,
+y-axis label and the main title. Use <code>""</code> to suppress the label.</p></dd>
 
 
-<dt id="arg-ylab">ylab<a class="anchor" aria-label="anchor" href="#arg-ylab"></a></dt>
-<dd><p>Label for y-axis.</p></dd>
-
-
-<dt id="arg-main">main<a class="anchor" aria-label="anchor" href="#arg-main"></a></dt>
-<dd><p>Main title.</p></dd>
+<dt id="arg-legendposition">legendPosition<a class="anchor" aria-label="anchor" href="#arg-legendposition"></a></dt>
+<dd><p>A <code>character</code> scalar.
+If not <code>"none"</code>, draw a legend with binning information. The value
+is used to control the legend position and will be passed to
+<code>theme(legend.position = legendPosition)</code>.</p></dd>
 
 
 <dt id="arg-legend">legend<a class="anchor" aria-label="anchor" href="#arg-legend"></a></dt>
-<dd><p>If not <code>NULL</code>, draw a legend with binning information
-(will be passed to <code>legend(x=legend)</code> to control legend position).</p></dd>
+<dd><p>Deprecated (ignored). Please use <code>legendPosition</code> to
+control the drawing and position of the legend.</p></dd>
 
 
 <dt id="arg-legend-cex">legend.cex<a class="anchor" aria-label="anchor" href="#arg-legend-cex"></a></dt>
-<dd><p>A scalar that controls the text size in the legend relative
-to the current <code>par("cex")</code> (see <code><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></code>).</p></dd>
+<dd><p>Deprecated (ignored). You can use
+<code><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></code> to set legend and other graphical
+parameters.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -101,12 +104,11 @@ to the current <code>par("cex")</code> (see <code><a href="https://rdrr.io/r/gra
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Invisibly the return value of <code>hist(...)</code> that generated the
-    plot.</p>
+    <p>The generated histogram as a <code>ggplot</code> object.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="getColsByBin.html">getColsByBin</a></code>, <code><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></code></p></div>
+    <div class="dont-index"><p><code><a href="getColsByBin.html">getColsByBin</a></code>, <code><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></code></p></div>
     </div>
 
     <div class="section level2">
@@ -128,7 +130,7 @@ to the current <code>par("cex")</code> (see <code><a href="https://rdrr.io/r/gra
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.9000.</p>
 </div>
 
     </footer></div>

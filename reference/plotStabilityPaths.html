@@ -9,7 +9,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">monaLisa</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.13.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.15.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,11 +49,16 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plotStabilityPaths</span><span class="op">(</span></span>
 <span>  <span class="va">se</span>,</span>
 <span>  selProbMin <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Annotated-class.html" class="external-link">metadata</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span><span class="op">$</span><span class="va">stabsel.params.cutoff</span>,</span>
-<span>  col <span class="op">=</span> <span class="st">"cadetblue"</span>,</span>
-<span>  lwd <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  lty <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1.1</span><span class="op">)</span>,</span>
-<span>  <span class="va">...</span></span>
+<span>  selColor <span class="op">=</span> <span class="st">"cadetblue"</span>,</span>
+<span>  notSelColor <span class="op">=</span> <span class="st">"grey"</span>,</span>
+<span>  selProbCutoffColor <span class="op">=</span> <span class="st">"firebrick"</span>,</span>
+<span>  linewidth <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  alpha <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  labelPaths <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  labels <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  labelNudgeX <span class="op">=</span> <span class="fl">8</span>,</span>
+<span>  labelSize <span class="op">=</span> <span class="fl">3</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -62,7 +67,7 @@
 
 
 <dl><dt id="arg-se">se<a class="anchor" aria-label="anchor" href="#arg-se"></a></dt>
-<dd><p>the <code>SummarizedExperiment</code> object resulting from stability
+<dd><p>The <code>SummarizedExperiment</code> object resulting from stability
 selection, by running <code><a href="randLassoStabSel.html">randLassoStabSel</a></code>.</p></dd>
 
 
@@ -72,33 +77,63 @@ probability greater than <code>selProbMin</code> are shown as colored lines. The
 color is defined by the <code>col</code> argument.</p></dd>
 
 
-<dt id="arg-col">col<a class="anchor" aria-label="anchor" href="#arg-col"></a></dt>
-<dd><p>color of the selected predictors.</p></dd>
+<dt id="arg-selcolor">selColor<a class="anchor" aria-label="anchor" href="#arg-selcolor"></a></dt>
+<dd><p>Color for the selected predictors which have a selection
+probability greater than <code>selProbMin</code>.</p></dd>
 
 
-<dt id="arg-lwd">lwd<a class="anchor" aria-label="anchor" href="#arg-lwd"></a></dt>
-<dd><p>line width (default = 1).</p></dd>
+<dt id="arg-notselcolor">notSelColor<a class="anchor" aria-label="anchor" href="#arg-notselcolor"></a></dt>
+<dd><p>Color for the rest of the (un-selected) predictors.</p></dd>
 
 
-<dt id="arg-lty">lty<a class="anchor" aria-label="anchor" href="#arg-lty"></a></dt>
-<dd><p>line type (default = 1).</p></dd>
+<dt id="arg-selprobcutoffcolor">selProbCutoffColor<a class="anchor" aria-label="anchor" href="#arg-selprobcutoffcolor"></a></dt>
+<dd><p>Color for the line depicting the selection
+probability cutoff.</p></dd>
+
+
+<dt id="arg-linewidth">linewidth<a class="anchor" aria-label="anchor" href="#arg-linewidth"></a></dt>
+<dd><p>Line width.</p></dd>
+
+
+<dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
+<dd><p>Line transparency of the stability paths.</p></dd>
 
 
 <dt id="arg-ylim">ylim<a class="anchor" aria-label="anchor" href="#arg-ylim"></a></dt>
-<dd><p>limits for y-axis (default = c(0,1.1)).</p></dd>
+<dd><p>Limits for y-axis.</p></dd>
 
 
-<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>additional parameters to pass on to <code>matplot</code>.</p></dd>
+<dt id="arg-labelpaths">labelPaths<a class="anchor" aria-label="anchor" href="#arg-labelpaths"></a></dt>
+<dd><p>If <code>TRUE</code>, the predictor labels will be shown at the
+end of the stability paths. The predictor labels given in <code>labels</code>
+will be shown. If unspecified, the labels corresponding to the selected
+predictors will be added. If predictors have the same y-value in the last
+regularization step, the labels will be shown in a random order. One
+needs to use <code>set.seed</code> to reproduce the plot in this case.</p></dd>
+
+
+<dt id="arg-labels">labels<a class="anchor" aria-label="anchor" href="#arg-labels"></a></dt>
+<dd><p>If <code>labelPaths = TRUE</code>, the predictors which should be
+labelled. If <code>NULL</code>, the selected predictors greater than
+<code>metadata(se)$stabsel.params.cutoff</code> will be shown.</p></dd>
+
+
+<dt id="arg-labelnudgex">labelNudgeX<a class="anchor" aria-label="anchor" href="#arg-labelnudgex"></a></dt>
+<dd><p>If <code>labelPaths = TRUE</code>, how much to nudge the labels
+to the right of the x-axis.</p></dd>
+
+
+<dt id="arg-labelsize">labelSize<a class="anchor" aria-label="anchor" href="#arg-labelsize"></a></dt>
+<dd><p>If <code>labelPaths = TRUE</code>, the size of the labels.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p><code>TRUE</code> (invisibly).</p>
+    <p>a <code>ggplot2</code> object.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="https://rdrr.io/pkg/stabs/man/stabsel.html" class="external-link">stabsel</a></code> and <code><a href="https://rdrr.io/r/graphics/matplot.html" class="external-link">matplot</a></code></p></div>
+    <div class="dont-index"><p><code><a href="https://rdrr.io/pkg/stabs/man/stabsel.html" class="external-link">stabsel</a></code></p></div>
     </div>
 
     <div class="section level2">
@@ -109,12 +144,12 @@ color is defined by the <code>col</code> argument.</p></dd>
 <span class="r-in"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span>  <span class="va">X</span><span class="op">[</span> ,<span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">500</span>, min <span class="op">=</span> <span class="fl">0</span>, max <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-in"><span><span class="va">s_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">10</span>, </span></span>
+<span class="r-in"><span><span class="va">s_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">10</span>,</span></span>
 <span class="r-in"><span>  replace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">s_cols</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span>  <span class="va">X</span><span class="op">[</span> ,<span class="va">s_cols</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op">[</span> ,<span class="va">s_cols</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">+</span> <span class="va">Y</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-in"><span>  </span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## reproducible randLassoStabSel() with 1 core</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">ss</span> <span class="op">&lt;-</span> <span class="fu"><a href="randLassoStabSel.html">randLassoStabSel</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span><span class="op">)</span></span></span>
@@ -132,7 +167,7 @@ color is defined by the <code>col</code> argument.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.9000.</p>
 </div>
 
     </footer></div>

@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">monaLisa</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.13.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.15.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -117,21 +117,22 @@
 <span>                          verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre>
 <p>The return value <code>se</code> is a <code>SummarizedExperiment</code> with motifs in rows and bins in columns, and multiple assays with significance and magnitude of the enrichments.</p>
 <p>The inputs for <code>calcBinnedMotifEnrR</code> can be easily obtained using other Bioconductor packages:</p>
-<pre><code><span><span class="co"># get sequences ('atacPeaks' is a GRanges)</span></span>
+<pre><code><span><span class="co"># get sequences ('lmrs' is a GRanges object)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/Biostrings" class="external-link">Biostrings</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">BSgenome.Mmusculus.UCSC.mm10</span><span class="op">)</span></span>
-<span><span class="va">seqs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Biostrings/man/getSeq.html" class="external-link">getSeq</a></span><span class="op">(</span><span class="va">BSgenome.Mmusculus.UCSC.mm10</span>, <span class="va">atacPeaks</span><span class="op">)</span></span>
+<span><span class="va">seqs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Biostrings/man/getSeq.html" class="external-link">getSeq</a></span><span class="op">(</span><span class="va">BSgenome.Mmusculus.UCSC.mm10</span>, <span class="va">lmrs</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># bin sequences ('atacPeaksChange' is a numerical vector)</span></span>
-<span><span class="va">bins</span> <span class="op">&lt;-</span> <span class="fu">monaLisa</span><span class="fu">::</span><span class="fu"><a href="reference/bin.html">bin</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">atacPeaksChange</span>, binmode <span class="op">=</span> <span class="st">"equalN"</span>, nElement <span class="op">=</span> <span class="fl">400</span><span class="op">)</span></span>
+<span><span class="co"># bin sequences ('deltaMeth' is a numerical vector)</span></span>
+<span><span class="va">bins</span> <span class="op">&lt;-</span> <span class="fu">monaLisa</span><span class="fu">::</span><span class="fu"><a href="reference/bin.html">bin</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">deltaMeth</span>, binmode <span class="op">=</span> <span class="st">"equalN"</span>, nElement <span class="op">=</span> <span class="fl">800</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># obtain known motifs from Jaspar</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://jaspar.genereg.net/" class="external-link">JASPAR2020</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ge11232002/TFBSTools" class="external-link">TFBSTools</a></span><span class="op">)</span></span>
 <span><span class="va">pwms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/getMatrixSet-methods.html" class="external-link">getMatrixSet</a></span><span class="op">(</span><span class="va">JASPAR2020</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>matrixtype <span class="op">=</span> <span class="st">"PWM"</span>, tax_group <span class="op">=</span> <span class="st">"vertebrates"</span><span class="op">)</span><span class="op">)</span></span></code></pre>
 <p>The results can be conveniently visualized:</p>
-<pre><code><span><span class="fu"><a href="reference/plotBinDensity.html">plotBinDensity</a></span><span class="op">(</span><span class="va">atacPeaksChange</span>, <span class="va">bins</span>, legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre>
-<p><img src="reference/figures/monaLisa_binning_small.png" align="center" alt="binning" width="412px"></p>
+<pre><code><span><span class="fu"><a href="reference/plotBinDensity.html">plotBinDensity</a></span><span class="op">(</span><span class="va">deltaMeth</span>, <span class="va">bins</span>, legendPosition <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Methylation difference"</span><span class="op">)</span></span></code></pre>
+<p><img src="reference/figures/monaLisa_binning_small_ggplot.png" align="center" alt="binning" width="412px"></p>
 <pre><code><span><span class="fu"><a href="reference/plotMotifHeatmaps.html">plotMotifHeatmaps</a></span><span class="op">(</span><span class="va">se</span>, cluster <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                  which.plots <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"enr"</span>, <span class="st">"FDR"</span><span class="op">)</span>,</span>
 <span>                  show_seqlogo <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre>
@@ -170,13 +171,13 @@
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>
-<a href="https://github.com/machlabd" class="external-link">Dania Machlab</a> <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-2578-6930" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<a href="https://github.com/machlabd" class="external-link">Dania Machlab</a> <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-2578-6930" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 <li>
-<a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a> <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0001-5596-7567" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<a href="https://github.com/LukasBurger" class="external-link">Lukas Burger</a> <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0001-5596-7567" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 <li>
-<a href="https://github.com/csoneson" class="external-link">Charlotte Soneson</a> <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0003-3833-2169" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<a href="https://github.com/csoneson" class="external-link">Charlotte Soneson</a> <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0003-3833-2169" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 <li>
-<a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a> <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0002-2269-4934" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<a href="https://github.com/mbstadler" class="external-link">Michael Stadler</a> <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0002-2269-4934" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 <li><a href="authors.html">More about authors...</a></li>
 </ul>
 </div>
@@ -184,8 +185,8 @@
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/fmicompbio/monaLisa/actions" class="external-link"><img src="https://github.com/fmicompbio/monaLisa/workflows/R-CMD-check/badge.svg" alt="R build status"></a></li>
-<li><a href="https://codecov.io/github/fmicompbio/monaLisa" class="external-link"><img src="https://codecov.io/github/fmicompbio/monaLisa/coverage.svg?branch=master" alt="Codecov.io coverage status"></a></li>
+<li><a href="https://github.com/fmicompbio/monaLisa/actions" class="external-link"><img src="https://github.com/fmicompbio/monaLisa/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R build status"></a></li>
+<li><a href="https://codecov.io/github/fmicompbio/monaLisa" class="external-link"><img src="https://codecov.io/github/fmicompbio/monaLisa/coverage.svg?branch=devel" alt="Codecov.io coverage status"></a></li>
 </ul>
 </div>
 
@@ -198,7 +199,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.9000.</p>
 </div>
 
     </footer>

@@ -45,7 +45,7 @@ plots a heatmap of the relative frequency of each
 
     <a class="navbar-brand me-2" href="../index.html">monaLisa</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.13.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.15.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -101,6 +101,7 @@ available:</p><dl><dt><code>length</code></dt>
 <span>  <span class="va">seqs</span>,</span>
 <span>  <span class="va">bins</span>,</span>
 <span>  aspect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"length"</span>, <span class="st">"GCfrac"</span>, <span class="st">"dinucfreq"</span><span class="op">)</span>,</span>
+<span>  draw_quantiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -110,12 +111,12 @@ available:</p><dl><dt><code>length</code></dt>
 
 
 <dl><dt id="arg-seqs">seqs<a class="anchor" aria-label="anchor" href="#arg-seqs"></a></dt>
-<dd><p>DNAStringSet object with sequences.</p></dd>
+<dd><p><code><a href="https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html" class="external-link">DNAStringSet</a></code> object with sequences.</p></dd>
 
 
 <dt id="arg-bins">bins<a class="anchor" aria-label="anchor" href="#arg-bins"></a></dt>
-<dd><p>factor of the same length and order as seqs, indicating the bin
-for each sequence. Typically the return value of <code>bin</code>.</p></dd>
+<dd><p>Factor of the same length and order as <code>seqs</code>, indicating
+the bin for each sequence. Typically the return value of <code>bin</code>.</p></dd>
 
 
 <dt id="arg-aspect">aspect<a class="anchor" aria-label="anchor" href="#arg-aspect"></a></dt>
@@ -125,29 +126,37 @@ sequence lengths, the distribution of GC fractions and the average
 relative dinucleotide frequencies across the bins.</p></dd>
 
 
+<dt id="arg-draw-quantiles">draw_quantiles<a class="anchor" aria-label="anchor" href="#arg-draw-quantiles"></a></dt>
+<dd><p>For aspect=<code>"length"</code> or <code>"GCfrac"</code>,
+draw vertical lines at the given quantiles of the density estimate.
+If <code>NULL</code>, no quantile lines will be drawn.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional argument passed to <code>getColsByBin</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>For aspect=<code>"length"</code> or <code>"GCfrac"</code>, returns (invisibly)
-  the output of <code>vioplot()</code>, which generates the plot. For
-  aspect=<code>"dinucfreq"</code>, returns (invisibly) the ComplexHeatmap
-  object.</p>
+    <p>For aspect=<code>"length"</code> or <code>"GCfrac"</code>, returns a
+  <code><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></code> object. For aspect=<code>"dinucfreq"</code>,
+  returns (invisibly) a <code><a href="https://rdrr.io/pkg/ComplexHeatmap/man/Heatmap-class.html" class="external-link">Heatmap-class</a></code> object.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">seqs</span> <span class="op">&lt;-</span> <span class="fu">Biostrings</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html" class="external-link">DNAStringSet</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">100</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"C"</span>, <span class="st">"G"</span>, <span class="st">"T"</span><span class="op">)</span>, <span class="fl">10</span>,</span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">250</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"C"</span>, <span class="st">"G"</span>, <span class="st">"T"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                         size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">20</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                                         replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, collapse <span class="op">=</span> <span class="st">""</span><span class="op">)</span>, <span class="st">""</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">bins</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, each <span class="op">=</span> <span class="fl">50</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">plotBinDiagnostics</span><span class="op">(</span><span class="va">seqs</span>, <span class="va">bins</span>, aspect <span class="op">=</span> <span class="st">"GCfrac"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">bins</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>, <span class="st">"d"</span>, <span class="st">"e"</span><span class="op">)</span>, each <span class="op">=</span> <span class="fl">50</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">plotBinDiagnostics</span><span class="op">(</span><span class="va">seqs</span>, <span class="va">bins</span>, aspect <span class="op">=</span> <span class="st">"length"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plotBinDiagnostics-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">plotBinDiagnostics</span><span class="op">(</span><span class="va">seqs</span>, <span class="va">bins</span>, aspect <span class="op">=</span> <span class="st">"dinucfreq"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">plotBinDiagnostics</span><span class="op">(</span><span class="va">seqs</span>, <span class="va">bins</span>, aspect <span class="op">=</span> <span class="st">"GCfrac"</span>, draw_quantiles <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plotBinDiagnostics-2.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">plotBinDiagnostics</span><span class="op">(</span><span class="va">seqs</span>, <span class="va">bins</span>, aspect <span class="op">=</span> <span class="st">"dinucfreq"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="plotBinDiagnostics-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -160,7 +169,7 @@ relative dinucleotide frequencies across the bins.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.9000.</p>
 </div>
 
     </footer></div>
