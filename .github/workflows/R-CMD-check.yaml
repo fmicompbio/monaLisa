@@ -29,6 +29,7 @@ jobs:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
       PKG_PATH: monaLisa
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      cache-version: v1
 
     # steps to run in the defined environments
     steps:
@@ -78,8 +79,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-bioc-${{ matrix.config.bioc }}-${{ hashFiles('depends.Rds') }}
-          restore-keys: ${{ runner.os }}-bioc-${{ matrix.config.bioc }}-
+          key: ${{ env.cache-version }}-${{ runner.os }}-bioc-${{ matrix.config.bioc }}-${{ hashFiles('depends.Rds') }}
+          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-bioc-${{ matrix.config.bioc }}-
 
       - name: Install system dependencies for Linux
         if: runner.os == 'Linux'
