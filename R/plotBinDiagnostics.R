@@ -77,9 +77,10 @@ plotBinDiagnostics <- function(seqs, bins,
         }
         p <- ggplot(data = pd,
                     mapping = aes(.data$xvalue, .data$bin, fill = .data$bin)) +
-            geom_violin(draw_quantiles = draw_quantiles, show.legend = FALSE) +
+            geom_violin(quantiles = draw_quantiles, quantile.linetype = "solid",
+                        show.legend = FALSE) +
             scale_fill_manual(values = attr(binCols, "cols")) +
-            labs(x = xlab, y = element_blank()) +
+            labs(x = xlab, y = NULL) +
             theme_classic()
         return(p)
     } else if (aspect == "dinucfreq") {
