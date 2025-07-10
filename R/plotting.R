@@ -696,7 +696,7 @@ plotMotifHeatmaps <- function(x,
 #'
 #' @importFrom SummarizedExperiment assay rowData colData
 #' @importFrom ggplot2 ggplot aes geom_line scale_color_manual geom_segment labs
-#'     scale_y_continuous scale_x_continuous guides guide_legend
+#'     scale_y_continuous scale_x_continuous guides guide_legend element_blank
 #'     theme_classic theme
 #' @importFrom tidyr pivot_longer starts_with
 #' @importFrom cli cli_abort
@@ -891,7 +891,7 @@ plotStabilityPaths <- function(se,
 #' @importFrom S4Vectors metadata
 #' @importFrom stats cor reorder
 #' @importFrom ggplot2 ggplot aes geom_col scale_fill_manual geom_hline labs
-#'     geom_text ylim theme theme_classic
+#'     geom_text ylim element_blank theme theme_classic
 #' @importFrom rlang .data
 #'
 #' @export
@@ -950,7 +950,7 @@ plotSelectionProb <- function(se,
                                y = .data$probs)) +
       geom_col(mapping = aes(fill = .data$selected)) +
       scale_fill_manual(values = c("TRUE" = selColor, "FALSE" = notSelColor)) +
-      labs(x = element_blank(),
+      labs(x = NULL,
            y = ifelse(
              directional,
              "Directional selection probability",
