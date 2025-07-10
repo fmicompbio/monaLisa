@@ -39,7 +39,7 @@ test_that("plotBinHist() runs", {
     pdf(file = tf)
 
     expect_s3_class(plotBinHist(x = x, b = b1), "ggplot")
-    expect_s3_class(plotBinHist(x = x, b = b1, xlab = "A", ylab = "B", main = "C"), "ggplot")
+    expect_s3_class(plotBinHist(x = x, b = b1, xlab = "", ylab = "", main = "TEST"), "ggplot")
 
     dev.off()
     unlink(tf)
@@ -54,7 +54,7 @@ test_that("plotBinDensity() runs", {
     pdf(file = tf)
 
     expect_s3_class(plotBinDensity(x = x, b = b1), "ggplot")
-    expect_s3_class(plotBinDensity(x = x, b = b1, xlab = "A", ylab = "B", main = "C"), "ggplot")
+    expect_s3_class(plotBinDensity(x = x, b = b1, xlab = "", ylab = "", main = "TEST"), "ggplot")
 
     dev.off()
     unlink(tf)
@@ -95,7 +95,7 @@ test_that("plotBinScatter() runs", {
     pdf(file = tf)
 
     expect_s3_class(plotBinScatter(x = x, y = x, b = b1), "ggplot")
-    expect_s3_class(plotBinScatter(x = x, y = x, b = b1, xlab = "A", ylab = "B", main = "C"), "ggplot")
+    expect_s3_class(plotBinScatter(x = x, y = x, b = b1, xlab = "", ylab = "", main = "TEST"), "ggplot")
     expect_s3_class(plotBinScatter(x = x, y = x, b = b1,
                                    cols = "gray",
                                    legendPosition = "none"), "ggplot")
