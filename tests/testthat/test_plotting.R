@@ -39,6 +39,7 @@ test_that("plotBinHist() runs", {
     pdf(file = tf)
 
     expect_s3_class(plotBinHist(x = x, b = b1), "ggplot")
+    expect_s3_class(plotBinHist(x = x, b = b1, xlab = "A", ylab = "B", main = "C"), "ggplot")
 
     dev.off()
     unlink(tf)
@@ -53,6 +54,7 @@ test_that("plotBinDensity() runs", {
     pdf(file = tf)
 
     expect_s3_class(plotBinDensity(x = x, b = b1), "ggplot")
+    expect_s3_class(plotBinDensity(x = x, b = b1, xlab = "A", ylab = "B", main = "C"), "ggplot")
 
     dev.off()
     unlink(tf)
@@ -93,6 +95,7 @@ test_that("plotBinScatter() runs", {
     pdf(file = tf)
 
     expect_s3_class(plotBinScatter(x = x, y = x, b = b1), "ggplot")
+    expect_s3_class(plotBinScatter(x = x, y = x, b = b1, xlab = "A", ylab = "B", main = "C"), "ggplot")
     expect_s3_class(plotBinScatter(x = x, y = x, b = b1,
                                    cols = "gray",
                                    legendPosition = "none"), "ggplot")
@@ -144,28 +147,28 @@ test_that("plotStabilityPaths() runs", {
     expect_s3_class(plotStabilityPaths(ss), "ggplot")
     dev.off()
     unlink(tf)
-    
+
     # with labels
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)
     expect_s3_class(plotStabilityPaths(ss, labelPaths = TRUE), "ggplot")
     dev.off()
     unlink(tf)
-    
+
     # with predefined labels
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)
     expect_s3_class(plotStabilityPaths(ss, labelPaths = TRUE, labels = c("pred1", "pred2")), "ggplot")
     dev.off()
     unlink(tf)
-    
+
     # catch invalid input
     sstmp <- ss
     rsidx <- grep("regStep", colnames(colData(sstmp)))
-    colnames(SummarizedExperiment::colData(sstmp))[rsidx] <- 
+    colnames(SummarizedExperiment::colData(sstmp))[rsidx] <-
         paste0("abc_", colnames(SummarizedExperiment::colData(sstmp))[rsidx])
     expect_error(plotStabilityPaths(sstmp), "the columns in")
-    
+
     sstmp <- ss
     rownames(SummarizedExperiment::colData(sstmp)) <- NULL
     expect_error(plotStabilityPaths(sstmp), "must not be")
