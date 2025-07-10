@@ -234,13 +234,23 @@ plotBinDensity <- function(x, b,
                  mapping = aes(.data$x), colour = "gray20") +
         scale_colour_manual(values = bincols) +
         scale_fill_manual(values = bincols) +
-        labs(x = ifelse(xlab != "", xlab, element_blank()),
-             y = ifelse(ylab != "", ylab, element_blank()),
-             main = ifelse(main != "", main, element_blank()),
-             colour = "Bins",
+        labs(colour = "Bins",
              fill = "Bins") +
         theme_classic() +
         theme(legend.position = legendPosition)
+    if (!identical(xlab, "")) {
+        p <- p + labs(x = xlab)
+    } else {
+        p <- p + labs(x = element_blank())
+    }
+    if (!identical(ylab, "")) {
+        p <- p + labs(y = ylab)
+    } else {
+        p <- p + labs(y = element_blank())
+    }
+    if (!identical(main, "")) {
+        p <- p + labs(title = main)
+    }
 
     return(p)
 }
