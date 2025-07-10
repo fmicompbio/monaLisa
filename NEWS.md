@@ -1,3 +1,7 @@
+# monaLisa 1.15.1
+
+* minor updates to adjust to breaking changes in `ggplot2` version 4
+
 # monaLisa 1.13.3
 
 * switched to `ggplot2` with all plotting functions (except `plotMotifHeatmaps`
