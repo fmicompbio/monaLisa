@@ -91,7 +91,7 @@ getColsByBin <- function(b,
 #' b <- bin(x, "equalN", nElements = 10)
 #' plotBinHist(x, b)
 #'
-#' @importFrom ggplot2 ggplot aes geom_histogram element_blank theme_classic theme
+#' @importFrom ggplot2 ggplot aes geom_histogram theme_classic theme
 #' @importFrom cli cli_warn
 #'
 #' @export
@@ -134,12 +134,12 @@ plotBinHist <- function(x, b,
     if (!identical(xlab, "")) {
         p <- p + labs(x = xlab)
     } else {
-        p <- p + labs(x = element_blank())
+        p <- p + labs(x = NULL)
     }
     if (!identical(ylab, "")) {
         p <- p + labs(y = ylab)
     } else {
-        p <- p + labs(y = element_blank())
+        p <- p + labs(y = NULL)
     }
     if (!identical(main, "")) {
         p <- p + labs(title = main)
@@ -180,8 +180,8 @@ plotBinHist <- function(x, b,
 #' plotBinDensity(x, b)
 #'
 #' @importFrom stats density
-#' @importFrom ggplot2 ggplot aes geom_area geom_line geom_rug element_blank
-#'     theme_classic theme
+#' @importFrom ggplot2 ggplot aes geom_area geom_line geom_rug theme_classic
+#'     theme
 #' @importFrom cli cli_warn
 #' @importFrom rlang .data
 #'
@@ -241,12 +241,12 @@ plotBinDensity <- function(x, b,
     if (!identical(xlab, "")) {
         p <- p + labs(x = xlab)
     } else {
-        p <- p + labs(x = element_blank())
+        p <- p + labs(x = NULL)
     }
     if (!identical(ylab, "")) {
         p <- p + labs(y = ylab)
     } else {
-        p <- p + labs(y = element_blank())
+        p <- p + labs(y = NULL)
     }
     if (!identical(main, "")) {
         p <- p + labs(title = main)
@@ -295,7 +295,7 @@ plotBinDensity <- function(x, b,
 #' b <- bin(y, "equalN", nElements = 10)
 #' plotBinScatter(x, y, b)
 #'
-#' @importFrom ggplot2 ggplot aes geom_point element_blank theme_classic theme
+#' @importFrom ggplot2 ggplot aes geom_point theme_classic theme
 #' @importFrom cli cli_warn
 #'
 #' @export
@@ -351,12 +351,12 @@ plotBinScatter <- function(x, y, b,
     if (!identical(xlab, "")) {
         p <- p + labs(x = xlab)
     } else {
-        p <- p + labs(x = element_blank())
+        p <- p + labs(x = NULL)
     }
     if (!identical(ylab, "")) {
         p <- p + labs(y = ylab)
     } else {
-        p <- p + labs(y = element_blank())
+        p <- p + labs(y = NULL)
     }
     if (!identical(main, "")) {
         p <- p + labs(title = main)
