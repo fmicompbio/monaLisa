@@ -344,13 +344,23 @@ plotBinScatter <- function(x, y, b,
 
     p <- ggplot(data = data.frame(x = x, y = y, b = b, cols = cols),
                 mapping = aes(x, y)) +
-        labs(x = ifelse(xlab != "", xlab, element_blank()),
-             y = ifelse(ylab != "", ylab, element_blank()),
-             main = ifelse(main != "", main, element_blank()),
-             colour = "Bins",
+        labs(colour = "Bins",
              fill = "Bins") +
         theme_classic() +
         theme(legend.position = legendPosition)
+    if (!identical(xlab, "")) {
+        p <- p + labs(x = xlab)
+    } else {
+        p <- p + labs(x = element_blank())
+    }
+    if (!identical(ylab, "")) {
+        p <- p + labs(y = ylab)
+    } else {
+        p <- p + labs(y = element_blank())
+    }
+    if (!identical(main, "")) {
+        p <- p + labs(title = main)
+    }
 
     if (is.null(bincols)) {
         p <- p + geom_point(colour = cols)
