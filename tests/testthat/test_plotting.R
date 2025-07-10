@@ -38,8 +38,8 @@ test_that("plotBinHist() runs", {
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)
 
-    expect_s3_class(plotBinHist(x = x, b = b1), "ggplot")
-    expect_s3_class(plotBinHist(x = x, b = b1, xlab = "", ylab = "", main = "TEST"), "ggplot")
+    expect_true(ggplot2::is_ggplot(plotBinHist(x = x, b = b1)))
+    expect_true(ggplot2::is_ggplot(plotBinHist(x = x, b = b1, xlab = "", ylab = "", main = "TEST")))
 
     dev.off()
     unlink(tf)
@@ -53,8 +53,8 @@ test_that("plotBinDensity() runs", {
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)
 
-    expect_s3_class(plotBinDensity(x = x, b = b1), "ggplot")
-    expect_s3_class(plotBinDensity(x = x, b = b1, xlab = "", ylab = "", main = "TEST"), "ggplot")
+    expect_true(ggplot2::is_ggplot(plotBinDensity(x = x, b = b1)))
+    expect_true(ggplot2::is_ggplot(plotBinDensity(x = x, b = b1, xlab = "", ylab = "", main = "TEST")))
 
     dev.off()
     unlink(tf)
@@ -94,11 +94,11 @@ test_that("plotBinScatter() runs", {
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)
 
-    expect_s3_class(plotBinScatter(x = x, y = x, b = b1), "ggplot")
-    expect_s3_class(plotBinScatter(x = x, y = x, b = b1, xlab = "", ylab = "", main = "TEST"), "ggplot")
-    expect_s3_class(plotBinScatter(x = x, y = x, b = b1,
-                                   cols = "gray",
-                                   legendPosition = "none"), "ggplot")
+    expect_true(ggplot2::is_ggplot(plotBinScatter(x = x, y = x, b = b1)))
+    expect_true(ggplot2::is_ggplot(plotBinScatter(x = x, y = x, b = b1, xlab = "", ylab = "", main = "TEST")))
+    expect_true(ggplot2::is_ggplot(plotBinScatter(x = x, y = x, b = b1,
+                                                  cols = "gray",
+                                                  legendPosition = "none")))
 
     dev.off()
     unlink(tf)
@@ -144,21 +144,21 @@ test_that("plotStabilityPaths() runs", {
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)
     expect_error(plotStabilityPaths("error"))
-    expect_s3_class(plotStabilityPaths(ss), "ggplot")
+    expect_true(ggplot2::is_ggplot(plotStabilityPaths(ss)))
     dev.off()
     unlink(tf)
 
     # with labels
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)
-    expect_s3_class(plotStabilityPaths(ss, labelPaths = TRUE), "ggplot")
+    expect_true(ggplot2::is_ggplot(plotStabilityPaths(ss, labelPaths = TRUE)))
     dev.off()
     unlink(tf)
 
     # with predefined labels
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)
-    expect_s3_class(plotStabilityPaths(ss, labelPaths = TRUE, labels = c("pred1", "pred2")), "ggplot")
+    expect_true(ggplot2::is_ggplot(plotStabilityPaths(ss, labelPaths = TRUE, labels = c("pred1", "pred2"))))
     dev.off()
     unlink(tf)
 
@@ -188,7 +188,7 @@ test_that("plotSelectionProb() runs", {
     expect_error(plotSelectionProb(se = ss, showSelProbMin = "error"), "logical")
     expect_error(plotSelectionProb(se = ss, selColor = "error"))
     expect_error(plotSelectionProb(se = ss, method = "error"), "should be one of")
-    expect_s3_class(plotSelectionProb(ss), "ggplot")
+    expect_true(ggplot2::is_ggplot(plotSelectionProb(ss)))
 
     dev.off()
     unlink(tf)
