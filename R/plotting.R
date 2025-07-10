@@ -128,12 +128,22 @@ plotBinHist <- function(x, b,
     p <- ggplot(data = data.frame(x = x, b = b), mapping = aes(x = x, fill = b)) +
         geom_histogram(bins = breaks, colour = "gray20") +
         scale_fill_manual(values = bincols) +
-        labs(x = ifelse(xlab != "", xlab, element_blank()),
-             y = ifelse(ylab != "", ylab, element_blank()),
-             main = ifelse(main != "", main, element_blank()),
-             fill = "Bins") +
+        labs(fill = "Bins") +
         theme_classic() +
         theme(legend.position = legendPosition)
+    if (!identical(xlab, "")) {
+        p <- p + labs(x = xlab)
+    } else {
+        p <- p + labs(x = element_blank())
+    }
+    if (!identical(ylab, "")) {
+        p <- p + labs(y = ylab)
+    } else {
+        p <- p + labs(y = element_blank())
+    }
+    if (!identical(main, "")) {
+        p <- p + labs(title = main)
+    }
 
     return(p)
 }
