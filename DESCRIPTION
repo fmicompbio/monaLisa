@@ -30,7 +30,7 @@ Imports:
     GenomeInfoDb,
     GenomicRanges,
     cli,
-    ggplot2,
+    ggplot2 (>= 3.5.2.9001),
     glmnet,
     grDevices,
     grid,
