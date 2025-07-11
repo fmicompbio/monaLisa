@@ -43,7 +43,7 @@
 #' plotBinDiagnostics(seqs, bins, aspect = "dinucfreq")
 #'
 #' @importFrom ggplot2 ggplot aes geom_violin scale_fill_manual
-#'   scale_colour_manual labs element_blank theme_classic
+#'   scale_colour_manual labs theme_classic
 #' @importFrom ComplexHeatmap Heatmap rowAnnotation
 #' @importFrom circlize colorRamp2
 #' @importFrom Biostrings oligonucleotideFrequency
