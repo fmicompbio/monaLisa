@@ -66,12 +66,10 @@ test_that("plotBinDiagnostics() runs", {
     tf <- tempfile(fileext = ".pdf")
     pdf(file = tf)
 
-    expect_s3_class(
-        plotBinDiagnostics(seqs = seqs, bins = b1, aspect = "length"),
-        "ggplot")
-    expect_s3_class(
-        plotBinDiagnostics(seqs = seqs, bins = b1, aspect = "GCfrac"),
-        "ggplot")
+    expect_true(ggplot2::is_ggplot(
+        plotBinDiagnostics(seqs = seqs, bins = b1, aspect = "length")))
+    expect_true(ggplot2::is_ggplot(
+        plotBinDiagnostics(seqs = seqs, bins = b1, aspect = "GCfrac")))
     expect_s4_class(
         plotBinDiagnostics(seqs = seqs, bins = b1, aspect = "dinucfreq"),
         "Heatmap")
