@@ -182,7 +182,7 @@ test_that("calcBinnedMotifEnrHomer() works properly (synthetic data)", {
                                opts = list(ID = selids)))
         # ... plant motifs
         for (chr1 in names(chrsstr)) {
-            i <- which(as.character(GenomeInfoDb::seqnames(gr)) == chr1)
+            i <- which(as.character(Seqinfo::seqnames(gr)) == chr1)
             j <- sample(x = GenomicRanges::start(gr)[i], size = round(length(i) / 3))
             m <- match(chr1, names(chrsstr))
             for (j1 in j)
