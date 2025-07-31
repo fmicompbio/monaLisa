@@ -6,11 +6,11 @@
 basedir <- "/tungstenfs/groups/gbioinfo/machdani/monaLisa_synthetic_genome_creation_for_example"
 setwd(basedir)
 
+library(Seqinfo)
 library(GenomicRanges)
 library(TFBSTools)
 library(JASPAR2020)
 library(Biostrings)
-library(GenomeInfoDb)
 
 ## generate random sequences for 3 chromosomes
 set.seed(42)
@@ -63,7 +63,7 @@ cons
 
 ## plant motifs
 for (chr1 in names(chrsstr)) {
-    i <- which(as.character(GenomeInfoDb::seqnames(gr)) == chr1)
+    i <- which(as.character(Seqinfo::seqnames(gr)) == chr1)
     j <- sample(x = GenomicRanges::start(gr)[i], size = round(length(i) / 3))
     m <- match(chr1, names(chrsstr))
     for (j1 in j)

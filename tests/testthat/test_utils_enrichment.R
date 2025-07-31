@@ -194,7 +194,7 @@ test_that(".defineBackground() works", {
 
     # for background = "genome", does the sampling make the G+C distribution more similar?
     gnm.tiles <- BSgenome::getSeq(gnm,
-                                  unlist(GenomicRanges::tileGenome(GenomeInfoDb::seqlengths(gnm),
+                                  unlist(GenomicRanges::tileGenome(Seqinfo::seqlengths(gnm),
                                                                    tilewidth = 20)))
     set.seed(42L)
     df4b <- .defineBackground(gnm.tiles, factor(rep(1, length(gnm.tiles))), "otherBins", 1,
