@@ -1,6 +1,10 @@
-# monaLisa 1.15.1
+# monaLisa 1.15.3
 
 * minor updates to adjust to breaking changes in `ggplot2` version 4
+
+# monaLisa 1.15.2
+
+* minor updates to adjust to functionality migrated from `GenomeInfoDb` to new `Seqinfo` package
 
 # monaLisa 1.13.3
 

@@ -250,7 +250,7 @@
 #' @importFrom TFBSTools ID name
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom S4Vectors DataFrame
-#' @importFrom GenomeInfoDb seqnames seqlevels
+#' @importFrom Seqinfo seqnames seqlevels
 #' @importFrom BiocParallel bplapply SerialParam bpnworkers
 #' @importFrom stats p.adjust
 #' @importFrom cli cli_abort cli_progress_step

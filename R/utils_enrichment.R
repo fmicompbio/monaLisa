@@ -237,7 +237,7 @@
 #' @importFrom Biostrings oligonucleotideFrequency DNAStringSet
 #' @importFrom S4Vectors DataFrame
 #' @importFrom BSgenome getSeq
-#' @importFrom GenomeInfoDb seqlengths seqnames
+#' @importFrom Seqinfo seqlengths seqnames
 #' @importFrom BiocGenerics width
 #' @importFrom GenomicRanges GRanges
 #' @importFrom IRanges IRanges
