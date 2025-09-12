@@ -30,7 +30,7 @@ Imports:
     Seqinfo,
     GenomicRanges,
     cli,
-    ggplot2 (>= 3.5.2.9001),
+    ggplot2 (>= 4.0.0),
     glmnet,
     grDevices,
     grid,
