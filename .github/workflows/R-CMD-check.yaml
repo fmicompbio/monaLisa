@@ -69,11 +69,6 @@ jobs:
           install.packages('remotes')
         shell: Rscript {0}
 
-      - name: Install development version of ggplot2 to prepare for v4
-        run: |
-          BiocManager::install('tidyverse/ggplot2')
-        shell: Rscript {0}
-
       - name: List package dependencies
         run: |
           saveRDS(remotes::dev_package_deps(pkgdir = "${{env.PKG_PATH}}", dependencies = TRUE, repos = c(getOption('repos'), BiocManager::repositories())), 'depends.Rds', version = 2)
