@@ -91,7 +91,7 @@ getColsByBin <- function(b,
 #' b <- bin(x, "equalN", nElements = 10)
 #' plotBinHist(x, b)
 #'
-#' @importFrom ggplot2 ggplot aes geom_histogram element_blank theme_classic theme
+#' @importFrom ggplot2 ggplot aes geom_histogram theme_classic theme
 #' @importFrom cli cli_warn
 #'
 #' @export
@@ -128,12 +128,22 @@ plotBinHist <- function(x, b,
     p <- ggplot(data = data.frame(x = x, b = b), mapping = aes(x = x, fill = b)) +
         geom_histogram(bins = breaks, colour = "gray20") +
         scale_fill_manual(values = bincols) +
-        labs(x = ifelse(xlab != "", xlab, element_blank()),
-             y = ifelse(ylab != "", ylab, element_blank()),
-             main = ifelse(main != "", main, element_blank()),
-             fill = "Bins") +
+        labs(fill = "Bins") +
         theme_classic() +
         theme(legend.position = legendPosition)
+    if (!identical(xlab, "")) {
+        p <- p + labs(x = xlab)
+    } else {
+        p <- p + labs(x = NULL)
+    }
+    if (!identical(ylab, "")) {
+        p <- p + labs(y = ylab)
+    } else {
+        p <- p + labs(y = NULL)
+    }
+    if (!identical(main, "")) {
+        p <- p + labs(title = main)
+    }
 
     return(p)
 }
@@ -170,8 +180,8 @@ plotBinHist <- function(x, b,
 #' plotBinDensity(x, b)
 #'
 #' @importFrom stats density
-#' @importFrom ggplot2 ggplot aes geom_area geom_line geom_rug element_blank
-#'     theme_classic theme
+#' @importFrom ggplot2 ggplot aes geom_area geom_line geom_rug theme_classic
+#'     theme
 #' @importFrom cli cli_warn
 #' @importFrom rlang .data
 #'
@@ -224,13 +234,23 @@ plotBinDensity <- function(x, b,
                  mapping = aes(.data$x), colour = "gray20") +
         scale_colour_manual(values = bincols) +
         scale_fill_manual(values = bincols) +
-        labs(x = ifelse(xlab != "", xlab, element_blank()),
-             y = ifelse(ylab != "", ylab, element_blank()),
-             main = ifelse(main != "", main, element_blank()),
-             colour = "Bins",
+        labs(colour = "Bins",
              fill = "Bins") +
         theme_classic() +
         theme(legend.position = legendPosition)
+    if (!identical(xlab, "")) {
+        p <- p + labs(x = xlab)
+    } else {
+        p <- p + labs(x = NULL)
+    }
+    if (!identical(ylab, "")) {
+        p <- p + labs(y = ylab)
+    } else {
+        p <- p + labs(y = NULL)
+    }
+    if (!identical(main, "")) {
+        p <- p + labs(title = main)
+    }
 
     return(p)
 }
@@ -275,7 +295,7 @@ plotBinDensity <- function(x, b,
 #' b <- bin(y, "equalN", nElements = 10)
 #' plotBinScatter(x, y, b)
 #'
-#' @importFrom ggplot2 ggplot aes geom_point element_blank theme_classic theme
+#' @importFrom ggplot2 ggplot aes geom_point theme_classic theme
 #' @importFrom cli cli_warn
 #'
 #' @export
@@ -324,13 +344,23 @@ plotBinScatter <- function(x, y, b,
 
     p <- ggplot(data = data.frame(x = x, y = y, b = b, cols = cols),
                 mapping = aes(x, y)) +
-        labs(x = ifelse(xlab != "", xlab, element_blank()),
-             y = ifelse(ylab != "", ylab, element_blank()),
-             main = ifelse(main != "", main, element_blank()),
-             colour = "Bins",
+        labs(colour = "Bins",
              fill = "Bins") +
         theme_classic() +
         theme(legend.position = legendPosition)
+    if (!identical(xlab, "")) {
+        p <- p + labs(x = xlab)
+    } else {
+        p <- p + labs(x = NULL)
+    }
+    if (!identical(ylab, "")) {
+        p <- p + labs(y = ylab)
+    } else {
+        p <- p + labs(y = NULL)
+    }
+    if (!identical(main, "")) {
+        p <- p + labs(title = main)
+    }
 
     if (is.null(bincols)) {
         p <- p + geom_point(colour = cols)
@@ -666,7 +696,7 @@ plotMotifHeatmaps <- function(x,
 #'
 #' @importFrom SummarizedExperiment assay rowData colData
 #' @importFrom ggplot2 ggplot aes geom_line scale_color_manual geom_segment labs
-#'     scale_y_continuous scale_x_continuous guides guide_legend
+#'     scale_y_continuous scale_x_continuous guides guide_legend element_blank
 #'     theme_classic theme
 #' @importFrom tidyr pivot_longer starts_with
 #' @importFrom cli cli_abort
@@ -861,7 +891,7 @@ plotStabilityPaths <- function(se,
 #' @importFrom S4Vectors metadata
 #' @importFrom stats cor reorder
 #' @importFrom ggplot2 ggplot aes geom_col scale_fill_manual geom_hline labs
-#'     geom_text ylim theme theme_classic
+#'     geom_text ylim element_blank theme theme_classic
 #' @importFrom rlang .data
 #'
 #' @export
@@ -920,7 +950,7 @@ plotSelectionProb <- function(se,
                                y = .data$probs)) +
       geom_col(mapping = aes(fill = .data$selected)) +
       scale_fill_manual(values = c("TRUE" = selColor, "FALSE" = notSelColor)) +
-      labs(x = element_blank(),
+      labs(x = NULL,
            y = ifelse(
              directional,
              "Directional selection probability",
