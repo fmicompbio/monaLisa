@@ -1,0 +1,211 @@
+# `monaLisa`: MOtif aNAlysis with Lisa
+
+![monaLisa](reference/figures/monaLisa.png)
+
+  
+
+  
+
+## Overview
+
+`monaLisa` was inspired by her father
+[Homer](http://homer.ucsd.edu/homer/index.md) to look for enriched
+motifs in sets (bins) of genomic regions, compared to all other regions
+(“binned motif enrichment analysis”).
+
+It uses known motifs representing transcription factor binding
+preferences, for example for the `JASPAR2020` Bioconductor package. The
+regions are for example promoters or accessible regions, which are
+grouped into bins according to a numerical value assigned to each
+region, such as change of expression or accessibility. The goal of the
+analysis is to identify transcription factors that are associated to
+that numerical value and thus candidates to be drivers in the underlying
+biological process.
+
+In addition to the “binned motif enrichment analysis”, `monaLisa` can
+also be used to address the above question using stability selection (a
+form of linear regression), or to look for motif matches in sequences.
+
+Current contributors include:
+
+- [Michael Stadler](https://github.com/mbstadler)
+- [Dania Machlab](https://github.com/machlabd)
+- [Lukas Burger](https://github.com/LukasBurger)
+- [Charlotte Soneson](https://github.com/csoneson)
+
+## News
+
+- information on the latest changes can be found
+  [here](https://github.com/fmicompbio/monaLisa/blob/master/NEWS.md)
+- a preprint is available on
+  [bioRxiv](https://doi.org/10.1101/2021.11.30.470570)
+- `monaLisa` is available on
+  [Bioconductor](https://bioconductor.org/packages/monaLisa)
+- `monaLisa` is now published in
+  [Bioinformatics](https://doi.org/10.1093/bioinformatics/btac102)
+
+## Citation
+
+To cite `monaLisa` please use the publication found
+[here](https://doi.org/10.1093/bioinformatics/btac102) or see
+`citation("monaLisa")`.
+
+## Installation
+
+`monaLisa` can be installed from Bioconductor via the `BiocManager`
+package:
+
+    if (!requireNamespace("BiocManager", quietly = TRUE))
+        install.packages("BiocManager")
+
+    BiocManager::install("monaLisa")
+
+## Functionality
+
+Here is a minimal example to run a `monaLisa` analysis:
+
+    library(monaLisa)
+
+    mcparams <- BiocParallel::MulticoreParam(10L)
+    se <- calcBinnedMotifEnrR(seqs = seqs,   # DNAStringSet (e.g. peak sequences)
+                              bins = bins,   # factor that groups 'seqs'
+                              pwmL = pwms, # PWMatrixList (know motifs)
+                              BPPARAM = mcparams,
+                              min.score = 10,
+                              verbose = TRUE)
+
+The return value `se` is a `SummarizedExperiment` with motifs in rows
+and bins in columns, and multiple assays with significance and magnitude
+of the enrichments.
+
+The inputs for `calcBinnedMotifEnrR` can be easily obtained using other
+Bioconductor packages:
+
+    # get sequences ('lmrs' is a GRanges object)
+    library(Biostrings)
+    library(BSgenome.Mmusculus.UCSC.mm10)
+    seqs <- getSeq(BSgenome.Mmusculus.UCSC.mm10, lmrs)
+
+    # bin sequences ('deltaMeth' is a numerical vector)
+    bins <- monaLisa::bin(x = deltaMeth, binmode = "equalN", nElement = 800)
+
+    # obtain known motifs from Jaspar
+    library(JASPAR2020)
+    library(TFBSTools)
+    pwms <- getMatrixSet(JASPAR2020, list(matrixtype = "PWM", tax_group = "vertebrates"))
+
+The results can be conveniently visualized:
+
+    plotBinDensity(deltaMeth, bins, legendPosition = "none") +
+        labs(x = "Methylation difference")
+
+![binning](reference/figures/monaLisa_binning_small_ggplot.png)
+
+    plotMotifHeatmaps(se, cluster = TRUE,
+                      which.plots = c("enr", "FDR"),
+                      show_seqlogo = TRUE)
+
+![heatmaps](reference/figures/monaLisa_heatmaps_small.png)
+
+# Package index
+
+## monaLisa package overview
+
+- [`monaLisa-package`](https://fmicompbio.github.io/monaLisa/reference/monaLisa-package.md)
+  [`monaLisa`](https://fmicompbio.github.io/monaLisa/reference/monaLisa-package.md)
+  : monaLisa - MOtif aNAlysis with Lisa.
+
+## Binned motif-enrichment analysis
+
+Bin regions of interest and analyse motifs enrichments in bins.
+
+- [`bin()`](https://fmicompbio.github.io/monaLisa/reference/bin.md) :
+
+  Bin elements of `x`.
+
+- [`getZeroBin()`](https://fmicompbio.github.io/monaLisa/reference/getSetZeroBin.md)
+  [`setZeroBin()`](https://fmicompbio.github.io/monaLisa/reference/getSetZeroBin.md)
+  : Get and set the zero bin manually
+
+- [`calcBinnedMotifEnrR()`](https://fmicompbio.github.io/monaLisa/reference/calcBinnedMotifEnrR.md)
+  :
+
+  Binned Motif Enrichment Analysis with `monaLisa`
+
+- [`calcBinnedMotifEnrHomer()`](https://fmicompbio.github.io/monaLisa/reference/calcBinnedMotifEnrHomer.md)
+  : Prepare and run HOMER motif enrichment analysis.
+
+- [`plotBinDiagnostics()`](https://fmicompbio.github.io/monaLisa/reference/plotBinDiagnostics.md)
+  : Plot diagnostics of binned sequences
+
+- [`plotBinDensity()`](https://fmicompbio.github.io/monaLisa/reference/plotBinDensity.md)
+  : Density plot of binned elements.
+
+- [`plotBinHist()`](https://fmicompbio.github.io/monaLisa/reference/plotBinHist.md)
+  : Histogram of binned elements.
+
+- [`plotBinScatter()`](https://fmicompbio.github.io/monaLisa/reference/plotBinScatter.md)
+  : Scatter plot (xy-plot) of binned elements.
+
+- [`plotMotifHeatmaps()`](https://fmicompbio.github.io/monaLisa/reference/plotMotifHeatmaps.md)
+  : Heatmap of motif enrichments.
+
+## K-mer analysis
+
+Functions for analysing word (k-mer) occurrences in sequences.
+
+- [`getKmerFreq()`](https://fmicompbio.github.io/monaLisa/reference/getKmerFreq.md)
+  : Calculate observed and expected k-mer frequencies
+- [`calcBinnedKmerEnr()`](https://fmicompbio.github.io/monaLisa/reference/calcBinnedKmerEnr.md)
+  : Calculate k-mer enrichment in bins of sequences.
+
+## Identify predictive motifs using stability selection
+
+Functions for selecting motifs that explain observed changes using
+Stability Selection.
+
+- [`randLassoStabSel()`](https://fmicompbio.github.io/monaLisa/reference/randLassoStabSel.md)
+  : Randomized Lasso Stability Selection
+- [`plotSelectionProb()`](https://fmicompbio.github.io/monaLisa/reference/plotSelectionProb.md)
+  : Plot selection probabilities of predictors
+- [`plotStabilityPaths()`](https://fmicompbio.github.io/monaLisa/reference/plotStabilityPaths.md)
+  : Plot Stability Paths
+
+## Miscellaneous
+
+Various utilites and helper functions, typically used in the functions
+above.
+
+- [`findMotifHits()`](https://fmicompbio.github.io/monaLisa/reference/findMotifHits-methods.md)
+  : Find motif matches in sequences.
+- [`annoSeqlogo()`](https://fmicompbio.github.io/monaLisa/reference/annoSeqlogo.md)
+  : Sequence logo annotation
+- [`dumpJaspar()`](https://fmicompbio.github.io/monaLisa/reference/dumpJaspar.md)
+  : Dump Jaspar motifs into a HOMER motif file.
+- [`homerToPFMatrixList()`](https://fmicompbio.github.io/monaLisa/reference/homerToPFMatrixList.md)
+  : Read a HOMER motif file and create a PFMatrixList
+- [`findHomer()`](https://fmicompbio.github.io/monaLisa/reference/findHomer.md)
+  : Find HOMER script file.
+- [`prepareHomer()`](https://fmicompbio.github.io/monaLisa/reference/prepareHomer.md)
+  : Prepare input files for HOMER motif enrichment analysis.
+- [`parseHomerOutput()`](https://fmicompbio.github.io/monaLisa/reference/parseHomerOutput.md)
+  : Load output from HOMER findMotifsGenome.pl into R
+- [`motifSimilarity()`](https://fmicompbio.github.io/monaLisa/reference/motifSimilarity.md)
+  : Calculate similarities between pairs of motifs.
+- [`motifKmerSimilarity()`](https://fmicompbio.github.io/monaLisa/reference/motifKmerSimilarity.md)
+  : Calculate similarities between motifs and k-mers.
+- [`seqLogoGrob()`](https://fmicompbio.github.io/monaLisa/reference/seqLogoGrob.md)
+  : Create a simple sequence logo grob.
+- [`getColsByBin()`](https://fmicompbio.github.io/monaLisa/reference/getColsByBin.md)
+  : Get colors by bin.
+- [`sampleRandomRegions()`](https://fmicompbio.github.io/monaLisa/reference/sampleRandomRegions.md)
+  : Sample random regions of fixed length.
+
+# Articles
+
+### All vignettes
+
+- [monaLisa - MOtif aNAlysis with
+  Lisa](https://fmicompbio.github.io/monaLisa/articles/monaLisa.md):
+- [Regression Based Approach for Motif
+  Selection](https://fmicompbio.github.io/monaLisa/articles/selecting_motifs_with_randLassoStabSel.md):

@@ -1,0 +1,276 @@
+# Binned Motif Enrichment Analysis with `monaLisa`
+
+This function performs a motif enrichment analysis on bins of sequences.
+For each bin, the sequences in all other bins are used as background.
+
+## Usage
+
+``` r
+calcBinnedMotifEnrR(
+  seqs,
+  bins = NULL,
+  pwmL = NULL,
+  background = c("otherBins", "allBins", "zeroBin", "genome"),
+  test = c("fisher", "binomial"),
+  maxFracN = 0.7,
+  maxKmerSize = 3L,
+  min.score = 10,
+  matchMethod = "matchPWM",
+  GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.7, 0.8),
+  pseudocount.log2enr = 8,
+  p.adjust.method = "BH",
+  genome = NULL,
+  genome.regions = NULL,
+  genome.oversample = 2,
+  BPPARAM = SerialParam(),
+  verbose = FALSE,
+  ...
+)
+```
+
+## Arguments
+
+- seqs:
+
+  [`DNAStringSet`](https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html)
+  object with sequences to test
+
+- bins:
+
+  Factor of the same length and order as `seqs`, indicating the bin for
+  each sequence. Typically the return value of
+  [`bin`](https://fmicompbio.github.io/monaLisa/reference/bin.md). For
+  `background = "genome"`, `bins` can be omitted.
+
+- pwmL:
+
+  `PWMatrixList` with motifs for which to calculate enrichments.
+
+- background:
+
+  A `character` scalar specifying the background sequences to use. One
+  of `"otherBins"` (default), `"allBins"`, `"zeroBin"` or `"genome"`
+  (see "Details").
+
+- test:
+
+  A `character` scalar specifying the type of enrichment test to
+  perform. One of `"fisher"` (default) or `"binomial"`. The enrichment
+  test is one-sided (enriched in foreground).
+
+- maxFracN:
+
+  A numeric scalar with the maximal fraction of N bases allowed in a
+  sequence (defaults to 0.7). Sequences with higher fractions are
+  excluded from the analysis.
+
+- maxKmerSize:
+
+  The maximum k-mer size to consider, when adjusting background sequence
+  weights for k-mer composition compared to the foreground sequences.
+  The default value (3) will correct for mono-, di- and tri-mer
+  composition.
+
+- min.score:
+
+  The minimal score for motif hits, used in
+  [`findMotifHits`](https://fmicompbio.github.io/monaLisa/reference/findMotifHits-methods.md).
+
+- matchMethod:
+
+  The method used to scan for motif hits, passed to the `method`
+  parameter in
+  [`findMotifHits`](https://fmicompbio.github.io/monaLisa/reference/findMotifHits-methods.md).
+
+- GCbreaks:
+
+  The breaks between GC bins. The default value is based on the
+  hard-coded bins used in Homer.
+
+- pseudocount.log2enr:
+
+  A numerical scalar with the pseudocount to add to foreground and
+  background counts when calculating log2 motif enrichments
+
+- p.adjust.method:
+
+  A character scalar selecting the p value adjustment method (used in
+  [`p.adjust`](https://rdrr.io/r/stats/p.adjust.html)).
+
+- genome:
+
+  A `BSgenome` or `DNAStringSet` object with the genome sequence. Only
+  used for `background = "genome"` for extracting background sequences.
+
+- genome.regions:
+
+  An optional
+  [`GRanges`](https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html)
+  object defining the intervals in `genome` from which background
+  sequences are sampled for `background = "genome"`. If `NULL`,
+  background sequences are sampled randomly from `genome`.
+
+- genome.oversample:
+
+  A `numeric` scalar of at least 1.0 defining how many background
+  sequences will be sampled per foreground sequence for
+  `background = "genome"`. Larger values will take longer but improve
+  the sequence composition similarity between foreground and background
+  (see `"Details"`).
+
+- BPPARAM:
+
+  An optional
+  [`BiocParallelParam`](https://rdrr.io/pkg/BiocParallel/man/BiocParallelParam-class.html)
+  instance determining the parallel back-end to be used during
+  evaluation.
+
+- verbose:
+
+  A logical scalar. If `TRUE`, print progress messages.
+
+- ...:
+
+  Additional arguments for
+  [`findMotifHits`](https://fmicompbio.github.io/monaLisa/reference/findMotifHits-methods.md).
+
+## Value
+
+A
+[`SummarizedExperiment`](https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html)
+object with motifs in rows and bins in columns, containing seven assays:
+
+- negLog10P:
+
+  : -log10 P values
+
+- negLog10Padj:
+
+  : -log10 adjusted P values
+
+- pearsonResid:
+
+  : motif enrichments as Pearson residuals
+
+- expForegroundWgtWithHits:
+
+  : expected number of foreground sequences with motif hits
+
+- log2enr:
+
+  : motif enrichments as log2 ratios
+
+- sumForegroundWgtWithHits:
+
+  : Sum of foreground sequence weights in a bin that have motif hits
+
+- sumBackgroundWgtWithHits:
+
+  : Sum of background sequence weights in a bin that have motif hits
+
+The `rowData` of the object contains annotations (name, PFMs, PWMs and
+GC fraction) for the motifs, while the `colData` slot contains summary
+information about the bins.
+
+## Details
+
+This function implements a binned motif enrichment analysis. In each
+enrichment analysis, the sequences in a specific bin are used as
+foreground sequences to test for motif enrichments comparing to
+background sequences (defined by `background`, see below). The logic
+follows the `findMotifsGenome.pl` tool from `Homer` version 4.11, with
+`-size given -nomotif -mknown` and additionally `-h` if using
+`test = "fisher"`, and gives very similar results. As in the `Homer`
+tool, sequences are weighted to correct for GC and k-mer composition
+differences between fore- and background sets.
+
+The background sequences are defined according to the value of the
+`background` argument:
+
+- otherBins:
+
+  : sequences from all other bins (excluding the current bin)
+
+- allBins:
+
+  : sequences from all bins (including the current bin)
+
+- zeroBin:
+
+  : sequences from the "zero bin", defined by the `maxAbsX` argument of
+  [`bin`](https://fmicompbio.github.io/monaLisa/reference/bin.md). If
+  `bins` does not define a "zero bin", for example because it was
+  created by `bin(..., maxAbsX = NULL)`, selecting this background
+  definition will abort with an error.
+
+- genome:
+
+  : sequences randomly sampled from the genome (or the intervals defined
+  in `genome.regions` if given). For each foreground sequence,
+  `genome.oversample` background sequences of the same size are sampled
+  (on average). From these, one per foreground sequence is selected
+  trying to match the G+C composition. In order to make the sampling
+  deterministic, a seed number needs to be provided to the `RNGseed`
+  parameter in
+  [`SerialParam`](https://rdrr.io/pkg/BiocParallel/man/SerialParam-class.html)
+  or
+  [`MulticoreParam`](https://rdrr.io/pkg/BiocParallel/man/MulticoreParam-class.html)
+  when creating the `BiocParallelParam` instance in `BPPARAM`.
+
+Motif hits are predicted using
+[`findMotifHits`](https://fmicompbio.github.io/monaLisa/reference/findMotifHits-methods.md)
+and multiple hits per sequence are counted as just one hit (ZOOPS mode).
+For each motif, the weights of sequences that have a hit are summed
+separately for foreground (`sumForegroundWgtWithHits`) and background
+(`sumBackgroundWgtWithHits`). The total foreground
+(`totalWgtForeground`) and background (`totalWgtBackground`) sum of
+sequence weights is also calculated. If a motif has zero
+`sumForegroundWgtWithHits` and `sumBackgroundWgtWithHits`, then any
+values (p-values and enrichment) that are calculated using these two
+numbers are set to NA.
+
+Two statistical tests for the calculation of enrichment log p-value are
+available: `test = "fisher"` (default) to perform Fisher's exact tests,
+or `test = "binomial"` to perform binomial tests (default in `Homer`),
+using:
+
+- fisher:
+
+  : `fisher.test(x = tab, alternative = "greater")`, where `tab` is the
+  contingency table with the summed weights of sequences in foreground
+  or background sets (rows), and with or without a hit for a particular
+  motif (columns).
+
+- binomial:
+
+  :
+  `pbinom(q = sumForegroundWgtWithHits - 1, size = totalWgtForeground, prob = sumBackgroundWgtWithHits / totalWgtBackground, lower.tail = FALSE, log.p = TRUE)`
+
+## Examples
+
+``` r
+seqs <- Biostrings::DNAStringSet(c("GTCAGTCGATC", "CAGTCTAGCTG",
+                                   "CGATCGTCAGT", "AGCTGCAGTCT"))
+bins <- factor(rep(1:2, each = 2))
+m <- rbind(A = c(2, 0, 0),
+           C = c(1, 1, 0),
+           G = c(0, 2, 0),
+           T = c(0, 0, 3))
+pwms <- TFBSTools::PWMatrixList(
+    TFBSTools::PWMatrix(ID = "m1", profileMatrix = m),
+    TFBSTools::PWMatrix(ID = "m2", profileMatrix = m[, 3:1])
+)
+calcBinnedMotifEnrR(seqs = seqs, bins = bins, pwmL = pwms,
+                    min.score = 3)
+#> class: SummarizedExperiment 
+#> dim: 2 2 
+#> metadata(5): bins bins.binmode bins.breaks bins.bin0 param
+#> assays(7): negLog10P negLog10Padj ... sumForegroundWgtWithHits
+#>   sumBackgroundWgtWithHits
+#> rownames(2): m1 m2
+#> rowData names(5): motif.id motif.name motif.pfm motif.pwm
+#>   motif.percentGC
+#> colnames(2): 1 2
+#> colData names(6): bin.names bin.lower ... totalWgtForeground
+#>   totalWgtBackground
+```

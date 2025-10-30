@@ -1,0 +1,39 @@
+# Get background sequence weights for GC bins
+
+The logic is based on Homer (version 4.11). All sequences binned
+depending on GC content (`GCbreaks`). The numbers of foreground and
+background sequences in each bin are counted, and weights for background
+sequences in bin i are defined as: weight_i = (number_fg_seqs_i /
+number_bg_seqs_i) \* (number_bg_seqs_total / number_fg_seqs_total)
+
+## Usage
+
+``` r
+.calculateGCweight(
+  df,
+  GCbreaks = c(0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.7, 0.8),
+  verbose = FALSE
+)
+```
+
+## Arguments
+
+- df:
+
+  A `DataFrame` with sequence information.
+
+- GCbreaks:
+
+  The breaks between GC bins. The default value is based on the
+  hard-coded bins used in Homer.
+
+- verbose:
+
+  A logical scalar. If `TRUE`, report on GC weight calculation.
+
+## Value
+
+A `DataFrame` of the same dimensions as the input `df`, with the columns
+`GCfrac`, `GCbin` and `GCwgt` filled in with the sequence GC content,
+assigned GC bins and weights to correct differences in GC distributions
+between foreground and background sequences.
