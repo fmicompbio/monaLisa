@@ -18,7 +18,9 @@ randLassoStabSel(
 \arguments{
 \item{x}{The predictor matrix.}
 
-\item{y}{The response vector.}
+\item{y}{The response vector. This should be a numeric vector (also for 
+the binomial case - in this case it will be converted to a factor 
+internally by \code{glmnet}).}
 
 \item{weakness}{Value between 0 and 1 (default = 0.8).
 It affects how strict the method will be in selecting predictors. The
@@ -45,7 +47,8 @@ use in \code{\link[parallel]{mclapply}}, which is the default way
 \code{cutoff} and \code{PFER}). 
 The available arguments to \code{.glmnetRandomizedLasso} are the same as 
 the ones for \code{\link[stabs]{glmnet.lasso}}. A typical use case would 
-be to define the \code{family} argument to \code{\link[glmnet]{glmnet}}.}
+be to define the \code{family} argument to \code{\link[glmnet]{glmnet}} 
+(currently "gaussian" and "binomial" are supported).}
 
 \item{...}{Additional parameters that can be passed on to
 \code{\link[stabs]{stabsel}}.}

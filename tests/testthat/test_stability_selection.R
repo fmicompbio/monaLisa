@@ -5,11 +5,11 @@ test_that("randLassoStabSel() works properly", {
     Y <- rnorm(n = 500, mean = 2, sd = 1)
     X <- matrix(data = NA, nrow = length(Y), ncol = 50)
     for (i in seq_len(ncol(X))) {
-        X[ ,i] <- runif(n = 500, min = 0, max = 3)
+        X[, i] <- runif(n = 500, min = 0, max = 3)
     }
     s_cols <- sample(x = seq_len(ncol(X)), size = 10, replace = FALSE)
     for (i in seq_along(s_cols)) {
-        X[ ,s_cols[i]] <- X[ ,s_cols[i]] + Y
+        X[, s_cols[i]] <- X[, s_cols[i]] + Y
     }
 
     X2 <- X
@@ -61,6 +61,12 @@ test_that("randLassoStabSel() works properly", {
                                                       x = 3, weakness = 0.1))
     }, "Ignoring the following elements")
     expect_identical(ssbnf, ssbnf2)
+    
+    expect_error(randLassoStabSel(x = X, y = factor(Y > 2)), 
+                 ".y. must be of class .numeric.")
+    expect_error(randLassoStabSel(x = X, y = as.numeric(Y > 2), 
+                                  glmnet.args = list(family = "multinomial")),
+                 "currently only binomial and gaussian")
 })
 
 test_that("randLassoStabSel() is deterministic", {

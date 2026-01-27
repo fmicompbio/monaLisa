@@ -41,8 +41,8 @@
 #'
 #' @seealso \code{\link[stabs]{glmnet.lasso}} and \code{\link[glmnet]{glmnet}}
 #'
-#' @importFrom glmnet glmnet predict.glmnet
-#' @importFrom stats model.matrix runif
+#' @importFrom glmnet glmnet
+#' @importFrom stats model.matrix runif predict
 #' @importFrom cli cli_abort cli_inform
 #'
 #' @keywords internal
@@ -71,7 +71,7 @@
       x, y, dfmax = q - 1,
       penalty.factor = 1/stats::runif(ncol(x), weakness,  1), ...)
 
-  selected <- glmnet::predict.glmnet(fit, type = "nonzero")
+  selected <- predict(fit, type = "nonzero")
   selected <- selected[[length(selected)]]
   ret <- logical(ncol(x))
   ret[selected] <- TRUE
@@ -92,7 +92,9 @@
 #'     package, but implements the randomized lasso version.
 #'
 #' @param x The predictor matrix.
-#' @param y The response vector.
+#' @param y The response vector. This should be a numeric vector (also for 
+#'     the binomial case - in this case it will be converted to a factor 
+#'     internally by \code{glmnet}).
 #' @param weakness Value between 0 and 1 (default = 0.8).
 #'     It affects how strict the method will be in selecting predictors. The
 #'     closer it is to 0, the more stringent the selection. A weakness value
@@ -105,7 +107,8 @@
 #'     \code{cutoff} and \code{PFER}). 
 #'     The available arguments to \code{.glmnetRandomizedLasso} are the same as 
 #'     the ones for \code{\link[stabs]{glmnet.lasso}}. A typical use case would 
-#'     be to define the \code{family} argument to \code{\link[glmnet]{glmnet}}. 
+#'     be to define the \code{family} argument to \code{\link[glmnet]{glmnet}} 
+#'     (currently "gaussian" and "binomial" are supported). 
 #' @param cutoff Value between 0 and 1 (default = 0.8) which is the cutoff
 #'     for the selection probability. Any variable with a selection probability
 #'     that is higher than the set cutoff will be selected.
@@ -238,7 +241,7 @@ randLassoStabSel <- function(x, y, weakness=0.8, cutoff=0.8, PFER=2,
     if (!is(x, "matrix")) {
         cli_abort("{.arg x} must be a {.cls matrix}")
     }
-    .assertVector(y, type = "numeric")
+    .assertVector(x = y, type = "numeric")
     if (nrow(x) != length(y)) {
         cli_abort(paste0(
         "nrow of {.arg x} and length of {.arg y} are not equal. The rows of ",
@@ -267,6 +270,10 @@ randLassoStabSel <- function(x, y, weakness=0.8, cutoff=0.8, PFER=2,
                            "they are set automatically): ", 
                            paste(names(glmnet.args)[i], collapse = ",")))    
             glmnet.args <- glmnet.args[!i]
+        }
+        if ("family" %in% names(glmnet.args) && 
+            !glmnet.args$family %in% c("binomial", "gaussian")) {
+            cli_abort("currently only binomial and gaussian families are supported")
         }
     }
 
