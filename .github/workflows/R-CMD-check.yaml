@@ -155,6 +155,11 @@ jobs:
           covr::codecov(path = "${{env.PKG_PATH}}", token = "${{secrets.CODECOV_TOKEN}}")
         shell: Rscript {0}
 
+      - name: Install fansi
+        run: |
+          BiocManager::install("fansi", type = "source")
+        shell: Rscript {0}
+
       - name: Deploy
         if: github.event_name == 'push' && github.ref == 'refs/heads/devel' && matrix.config.os == 'macOS-latest'
         working-directory: ${{env.PKG_PATH}}
