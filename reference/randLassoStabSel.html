@@ -15,7 +15,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">monaLisa</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.17.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.17.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,7 +76,9 @@
 
 
 <dt id="arg-y">y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
-<dd><p>The response vector.</p></dd>
+<dd><p>The response vector. This should be a numeric vector (also for
+the binomial case - in this case it will be converted to a factor
+internally by <code>glmnet</code>).</p></dd>
 
 
 <dt id="arg-weakness">weakness<a class="anchor" aria-label="anchor" href="#arg-weakness"></a></dt>
@@ -113,7 +115,8 @@ use in <code><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-
 <code>cutoff</code> and <code>PFER</code>).
 The available arguments to <code>.glmnetRandomizedLasso</code> are the same as
 the ones for <code><a href="https://rdrr.io/pkg/stabs/man/fitfuns.html" class="external-link">glmnet.lasso</a></code>. A typical use case would
-be to define the <code>family</code> argument to <code><a href="https://glmnet.stanford.edu/reference/glmnet.html" class="external-link">glmnet</a></code>.</p></dd>
+be to define the <code>family</code> argument to <code><a href="https://glmnet.stanford.edu/reference/glmnet.html" class="external-link">glmnet</a></code>
+(currently "gaussian" and "binomial" are supported).</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -287,7 +290,7 @@ be to define the <code>family</code> argument to <code><a href="https://glmnet.s
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.9000.</p>
 </div>
 
     </footer></div>

@@ -4,13 +4,13 @@
 
 ## Introduction
 
-*[monaLisa](https://bioconductor.org/packages/3.22/monaLisa)* is a
+*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)* is a
 collection of functions for working with biological sequences and motifs
 that represent the binding preferences of transcription factors or
 nucleic acid binding proteins.
 
 For example,
-*[monaLisa](https://bioconductor.org/packages/3.22/monaLisa)* can be
+*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)* can be
 used to conveniently find motif hits in sequences (see section
 @ref(findhits)), or to identify motifs that are likely associated with
 observed experimental data. Such analyses are supposed to provide
@@ -21,7 +21,7 @@ expression/methylation/accessibility?”.
 Several other approaches have been described that also address this
 problem, among them REDUCE (Roven and Bussemaker 2003), AME (McLeay and
 Bailey 2010) and ISMARA (Balwierz et al. 2014). In
-*[monaLisa](https://bioconductor.org/packages/3.22/monaLisa)*, we aim to
+*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)*, we aim to
 provide a flexible implementation that integrates well with other
 Bioconductor resources, makes use of the sequence composition correction
 developed for Homer (Heinz et al. 2010) or stability selection
@@ -31,7 +31,7 @@ motifs.
 
 You can use known motifs from collections of transcription factor
 binding specificities such as
-*[JASPAR2020](https://bioconductor.org/packages/3.22/JASPAR2020)*, also
+*[JASPAR2020](https://bioconductor.org/packages/3.23/JASPAR2020)*, also
 available from Bioconductor. Genomic regions could be for example
 promoters, enhancers or accessible regions for which experimental data
 is available.
@@ -66,8 +66,8 @@ motifs:
 
 - **Randomized Lasso stability selection** (`randLassoStabSel`, see [the
   stability selection
-  vignette](https://bioconductor.org/packages/3.22/monaLisa/vignettes/selecting_motifs_with_randLassoStabSel.html)
-  in *[monaLisa](https://bioconductor.org/packages/3.22/monaLisa)*) uses
+  vignette](https://bioconductor.org/packages/3.23/monaLisa/vignettes/selecting_motifs_with_randLassoStabSel.html)
+  in *[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)*) uses
   a robust regression approach (stability selection, Meinshausen and
   Bühlmann (2010)) to predict what transcription factors can explain
   experimental measurements, for example changes in chromatin
@@ -90,7 +90,7 @@ background sampled from the genome) are illustrated in section
 
 ## Installation
 
-*[monaLisa](https://bioconductor.org/packages/3.22/monaLisa)* can be
+*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)* can be
 installed from Bioconductor via the
 *[BiocManager](https://CRAN.R-project.org/package=BiocManager)* package:
 
@@ -105,7 +105,7 @@ BiocManager::install("monaLisa")
 
 The quick example below, which we do not run, illustrates how a binned
 motif enrichment analysis can be performed in
-*[monaLisa](https://bioconductor.org/packages/3.22/monaLisa)*. We assume
+*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)*. We assume
 that you already have a set of peaks. The sequences of the peak regions
 are stored in a
 [`Biostrings::DNAStringSet`](https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html)
@@ -174,7 +174,7 @@ information about parameter values.
 ## Binned motif enrichment analysis with multiple sets of sequences (more than two): Finding TFs enriched in differentially methylated regions
 
 This section illustrates the use of
-*[monaLisa](https://bioconductor.org/packages/3.22/monaLisa)* to analyze
+*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)* to analyze
 regions or sequences with associated numerical values (here: changes of
 DNA methylation), grouped into several bins according to these values.
 The special cases of just two sets of sequences (binary motif enrichment
@@ -214,7 +214,7 @@ library(circlize)
 
 ### Genomic regions or sequences of interest
 
-*[monaLisa](https://bioconductor.org/packages/3.22/monaLisa)* provides a
+*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)* provides a
 file with genomic coordinates (mouse mm10 assembly) of LMRs, with the
 respective changes of methylation. We load this `GRanges` object into
 `R`.
@@ -286,7 +286,7 @@ lmrsel <- lmr[ sample(x = length(lmr), size = 10000, replace = FALSE) ]
 
 Now let’s bin our LMRs by how much they change methylation, using the
 `bin` function from
-*[monaLisa](https://bioconductor.org/packages/3.22/monaLisa)*. We are
+*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)*. We are
 not interested in small changes of methylation, say less than 0.3, so
 we’ll use the `minAbsX` argument to create a *no-change* bin in \[-0.3,
 0.3). The remaining LMRs are put into bins of 800 each:
@@ -330,7 +330,7 @@ plotBinDensity(lmrsel$deltaMeth, bins)
 Note that the bin breaks around the *no-change* bin are not exactly -0.3
 to 0.3. They have been adjusted to have the required 800 LMRs per bin
 below and above it.
-*[monaLisa](https://bioconductor.org/packages/3.22/monaLisa)* will give
+*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)* will give
 a warning if the adjusted bin breaks are strongly deviating from the
 requested `minAbsX` value, and `bin(..., model = "breaks")` can be used
 in cases where exactly defined bin boundaries are required.
@@ -340,7 +340,7 @@ in cases where exactly defined bin boundaries are required.
 Next we prepare the motif enrichment analysis. We first need known
 motifs representing transcription factor binding site preferences. We
 extract all vertebrate motifs from the
-*[JASPAR2020](https://bioconductor.org/packages/3.22/JASPAR2020)*
+*[JASPAR2020](https://bioconductor.org/packages/3.23/JASPAR2020)*
 package as positional weight matrices (PWMs):
 
 ``` r
@@ -372,7 +372,7 @@ summary(width(lmrsel))
 ```
 
 We can now directly extract the corresponding sequences from the
-*[BSgenome.Mmusculus.UCSC.mm10](https://bioconductor.org/packages/3.22/BSgenome.Mmusculus.UCSC.mm10)*
+*[BSgenome.Mmusculus.UCSC.mm10](https://bioconductor.org/packages/3.23/BSgenome.Mmusculus.UCSC.mm10)*
 package (assuming you have started the analysis with genomic regions -
 if you already have sequences, just skip this step)
 
@@ -641,7 +641,7 @@ illustrated in section @ref(vsgenome).
 
 ### Convert between motif text file for `Homer` and motif objects in `R`
 
-*[monaLisa](https://bioconductor.org/packages/3.22/monaLisa)* provides
+*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)* provides
 two functions for performing binned motif enrichment analysis
 (`calcBinnedMotifEnrR` and `calcBinnedMotifEnrHomer`).
 `calcBinnedMotifEnrR` implements the binned motif enrichment analysis in
@@ -692,7 +692,7 @@ object to scan for motif hits. `calcBinnedMotifEnrHomer` on the other
 hand takes a motif text file with PPMs, and requires the user to have
 `Homer` installed to use it for the binned motif enrichment analysis.
 Here, we show how one can get motif PFMs from
-*[JASPAR2020](https://bioconductor.org/packages/3.22/JASPAR2020)* and
+*[JASPAR2020](https://bioconductor.org/packages/3.23/JASPAR2020)* and
 convert them to a `Homer`-compatible text file with PPMs (`dumpJaspar`)
 and vice versa (`homerToPFMatrixList`), and how to convert a
 [`TFBSTools::PFMatrixList`](https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html)
@@ -764,7 +764,7 @@ not be available. Or we may be interested in analyzing just a single set
 of sequences (for example a set of ChIP-seq peaks), relative to some
 neutral background. In this section, we show how such binary or
 single-set motif enrichment analyses can be performed using
-*[monaLisa](https://bioconductor.org/packages/3.22/monaLisa)*.
+*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)*.
 
 ### Binary motif enrichment analysis: comparing two sets of sequences
 
@@ -865,11 +865,11 @@ same genome, or sequences obtained by randomization of the foreground
 sequences by shuffling or permutation.
 
 A noteworthy package in this context is
-*[nullranges](https://bioconductor.org/packages/3.22/nullranges)* that
+*[nullranges](https://bioconductor.org/packages/3.23/nullranges)* that
 focuses on the selection of such background ranges (representing the
 null hypothesis), for example controlling for confounding covariates
 like GC composition. After a suitable background set has been identified
-using *[nullranges](https://bioconductor.org/packages/3.22/nullranges)*,
+using *[nullranges](https://bioconductor.org/packages/3.23/nullranges)*,
 a binary motif enrichment analysis as described in section @ref(binary)
 can be performed. Manually defining the background set is recommended to
 control for covariates other than GC composition and to get access to
@@ -878,7 +878,7 @@ indeed similar to the foreground sequences for those covariates.
 
 A quick alternative with less flexibility in the background set
 definition is available directly in
-*[monaLisa](https://bioconductor.org/packages/3.22/monaLisa)*, by using
+*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)*, by using
 `calcBinnedMotifEnrR(..., background = "genome")`. This will select the
 background set by randomly sampling sequences from the genome (given by
 the `genome` argument, optionally restricted to the intervals defined in
@@ -913,45 +913,45 @@ se3 <- calcBinnedMotifEnrR(seqs = lmrseqs3,
                            verbose = TRUE)
 #> ℹ Filtering sequences ...
 #> ℹ in total filtering out 0 of 800 sequences (0%)
-#> ✔ in total filtering out 0 of 800 sequences (0%) [8ms]
+#> ✔ in total filtering out 0 of 800 sequences (0%) [9ms]
 #> 
-#> ℹ Filtering sequences ...✔ Filtering sequences ... [40ms]
+#> ℹ Filtering sequences ...✔ Filtering sequences ... [43ms]
 #> 
 #> ℹ Scanning sequences for motif hits...
-#> ✔ Scanning sequences for motif hits... [2.3s]
+#> ✔ Scanning sequences for motif hits... [4.2s]
 #> 
 #> ℹ Create motif hit matrix...
 #> ℹ starting analysis of bin 1
 #> ✔ starting analysis of bin 1 [6ms]
 #> 
 #> ℹ Create motif hit matrix...ℹ Defining background sequence set (genome)...
-#> ✔ Defining background sequence set (genome)... [1.5s]
+#> ✔ Defining background sequence set (genome)... [2.6s]
 #> 
 #> ℹ Create motif hit matrix...ℹ Scanning genomic background sequences for motif hits...
-#> ✔ Scanning genomic background sequences for motif hits... [2.2s]
+#> ✔ Scanning genomic background sequences for motif hits... [3.7s]
 #> 
 #> ℹ Create motif hit matrix...ℹ Correcting for GC differences to the background sequences...
 #> ℹ 8 of 9 GC-bins used (have both fore- and background sequences) 0 of 1600 sequ…
 #> ✔ 8 of 9 GC-bins used (have both fore- and background sequences) 0 of 1600 sequ…
 #> 
-#> ℹ Correcting for GC differences to the background sequences...✔ Correcting for GC differences to the background sequences... [49ms]
+#> ℹ Correcting for GC differences to the background sequences...✔ Correcting for GC differences to the background sequences... [66ms]
 #> 
 #> ℹ Create motif hit matrix...ℹ Correcting for k-mer differences between fore- and background sequences...
 #> ℹ starting iterative adjustment for k-mer composition (up to 160 iterations)
-#> ✔ starting iterative adjustment for k-mer composition (up to 160 iterations) [1…
+#> ✔ starting iterative adjustment for k-mer composition (up to 160 iterations) [2…
 #> 
 #> ℹ Correcting for k-mer differences between fore- and background sequences...ℹ 40 of 160 iterations done
-#> ✔ 80 of 160 iterations done [149ms]
+#> ✔ 80 of 160 iterations done [169ms]
 #> 
 #> ℹ Correcting for k-mer differences between fore- and background sequences...ℹ 80 of 160 iterations done
-#> ✔ 120 of 160 iterations done [167ms]
+#> ✔ 120 of 160 iterations done [169ms]
 #> 
 #> ℹ Correcting for k-mer differences between fore- and background sequences...ℹ 120 of 160 iterations done
-#> ✔ 160 of 160 iterations done [128ms]
+#> ✔ 160 of 160 iterations done [170ms]
 #> 
 #> ℹ Correcting for k-mer differences between fore- and background sequences...ℹ 160 of 160 iterations done
 #> ℹ     iterations finished
-#> ℹ 160 of 160 iterations done✔ 160 of 160 iterations done [28ms]
+#> ℹ 160 of 160 iterations done✔ 160 of 160 iterations done [18ms]
 #> 
 #> ℹ Correcting for k-mer differences between fore- and background sequences...✔ Correcting for k-mer differences between fore- and background sequences... [7…
 #> 
@@ -959,9 +959,9 @@ se3 <- calcBinnedMotifEnrR(seqs = lmrseqs3,
 #> ℹ using Fisher's exact test (one-sided) to calculate log(p-values) for enrichme…
 #> ✔ using Fisher's exact test (one-sided) to calculate log(p-values) for enrichme…
 #> 
-#> ℹ Calculating motif enrichment...✔ Calculating motif enrichment... [50ms]
+#> ℹ Calculating motif enrichment...✔ Calculating motif enrichment... [58ms]
 #> 
-#> ℹ Create motif hit matrix...✔ Create motif hit matrix... [4.5s]
+#> ℹ Create motif hit matrix...✔ Create motif hit matrix... [7.3s]
 ```
 
 Note that we did not have to provide a `bins` argument, and that the
@@ -1117,10 +1117,10 @@ Heatmap(sims,
 
 ![](monaLisa_files/figure-html/unnamed-chunk-6-1.png)
 
-## Use *[monaLisa](https://bioconductor.org/packages/3.22/monaLisa)* to annotate genomic regions with predicted motifs
+## Use *[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)* to annotate genomic regions with predicted motifs
 
 As mentioned,
-*[monaLisa](https://bioconductor.org/packages/3.22/monaLisa)* can also
+*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)* can also
 be used to scan sequences for motifs. For a quick description of motif
 representations see section @ref(motifConvert). Here is an example (just
 on a few sequences/motifs for illustration):
@@ -1226,13 +1226,13 @@ This vignette was built using:
 
 ``` r
 sessionInfo()
-#> R version 4.5.1 (2025-06-13)
+#> R Under development (unstable) (2026-01-26 r89334)
 #> Platform: aarch64-apple-darwin20
-#> Running under: macOS Sequoia 15.7.1
+#> Running under: macOS Sequoia 15.7.3
 #> 
 #> Matrix products: default
-#> BLAS:   /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRblas.0.dylib 
-#> LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+#> BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+#> LAPACK: /Library/Frameworks/R.framework/Versions/4.6-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
 #> 
 #> locale:
 #> [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -1246,78 +1246,79 @@ sessionInfo()
 #> 
 #> other attached packages:
 #>  [1] TxDb.Mmusculus.UCSC.mm10.knownGene_3.10.0
-#>  [2] GenomicFeatures_1.61.6                   
-#>  [3] AnnotationDbi_1.71.2                     
-#>  [4] circlize_0.4.16                          
-#>  [5] ComplexHeatmap_2.25.2                    
-#>  [6] monaLisa_1.17.0                          
+#>  [2] GenomicFeatures_1.63.1                   
+#>  [3] AnnotationDbi_1.73.0                     
+#>  [4] circlize_0.4.17                          
+#>  [5] ComplexHeatmap_2.27.0                    
+#>  [6] monaLisa_1.17.1                          
 #>  [7] BSgenome.Mmusculus.UCSC.mm10_1.4.3       
-#>  [8] BSgenome_1.77.3                          
-#>  [9] rtracklayer_1.69.1                       
-#> [10] BiocIO_1.19.0                            
-#> [11] Biostrings_2.77.2                        
-#> [12] XVector_0.49.3                           
-#> [13] TFBSTools_1.47.1                         
+#>  [8] BSgenome_1.79.1                          
+#>  [9] rtracklayer_1.71.3                       
+#> [10] BiocIO_1.21.0                            
+#> [11] Biostrings_2.79.4                        
+#> [12] XVector_0.51.0                           
+#> [13] TFBSTools_1.49.0                         
 #> [14] JASPAR2020_0.99.10                       
-#> [15] SummarizedExperiment_1.39.2              
-#> [16] Biobase_2.69.1                           
-#> [17] MatrixGenerics_1.21.0                    
+#> [15] SummarizedExperiment_1.41.0              
+#> [16] Biobase_2.71.0                           
+#> [17] MatrixGenerics_1.23.0                    
 #> [18] matrixStats_1.5.0                        
-#> [19] GenomicRanges_1.61.8                     
-#> [20] Seqinfo_0.99.4                           
-#> [21] IRanges_2.43.8                           
-#> [22] S4Vectors_0.47.6                         
-#> [23] BiocGenerics_0.55.4                      
+#> [19] GenomicRanges_1.63.1                     
+#> [20] Seqinfo_1.1.0                            
+#> [21] IRanges_2.45.0                           
+#> [22] S4Vectors_0.49.0                         
+#> [23] BiocGenerics_0.57.0                      
 #> [24] generics_0.1.4                           
-#> [25] BiocStyle_2.37.1                         
+#> [25] BiocStyle_2.39.0                         
 #> 
 #> loaded via a namespace (and not attached):
 #>  [1] DBI_1.2.3                   bitops_1.0-9               
-#>  [3] stabs_0.6-4                 rlang_1.1.6                
+#>  [3] stabs_0.6-4                 rlang_1.1.7                
 #>  [5] magrittr_2.0.4              clue_0.3-66                
-#>  [7] GetoptLong_1.0.5            compiler_4.5.1             
-#>  [9] RSQLite_2.4.3               png_0.1-8                  
-#> [11] systemfonts_1.3.1           vctrs_0.6.5                
-#> [13] pwalign_1.5.0               pkgconfig_2.0.3            
+#>  [7] GetoptLong_1.1.0            compiler_4.6.0             
+#>  [9] RSQLite_2.4.5               png_0.1-8                  
+#> [11] systemfonts_1.3.1           vctrs_0.7.1                
+#> [13] pwalign_1.7.0               pkgconfig_2.0.3            
 #> [15] shape_1.4.6.1               crayon_1.5.3               
 #> [17] fastmap_1.2.0               labeling_0.4.3             
-#> [19] caTools_1.18.3              Rsamtools_2.25.3           
+#> [19] caTools_1.18.3              Rsamtools_2.27.0           
 #> [21] rmarkdown_2.30              ragg_1.5.0                 
-#> [23] DirichletMultinomial_1.51.0 purrr_1.1.0                
-#> [25] bit_4.6.0                   xfun_0.53                  
+#> [23] DirichletMultinomial_1.53.0 purrr_1.2.1                
+#> [25] bit_4.6.0                   xfun_0.56                  
 #> [27] glmnet_4.1-10               cachem_1.1.0               
-#> [29] jsonlite_2.0.0              blob_1.2.4                 
-#> [31] DelayedArray_0.35.3         BiocParallel_1.43.4        
-#> [33] parallel_4.5.1              cluster_2.1.8.1            
-#> [35] R6_2.6.1                    bslib_0.9.0                
-#> [37] RColorBrewer_1.1-3          jquerylib_0.1.4            
-#> [39] Rcpp_1.1.0                  bookdown_0.45              
-#> [41] iterators_1.0.14            knitr_1.50                 
-#> [43] splines_4.5.1               Matrix_1.7-4               
-#> [45] tidyselect_1.2.1            abind_1.4-8                
-#> [47] yaml_2.3.10                 doParallel_1.0.17          
-#> [49] codetools_0.2-20            curl_7.0.0                 
-#> [51] lattice_0.22-7              tibble_3.3.0               
-#> [53] KEGGREST_1.49.2             withr_3.0.2                
-#> [55] S7_0.2.0                    evaluate_1.0.5             
-#> [57] desc_1.4.3                  survival_3.8-3             
-#> [59] pillar_1.11.1               BiocManager_1.30.26        
-#> [61] foreach_1.5.2               RCurl_1.98-1.17            
-#> [63] ggplot2_4.0.0               scales_1.4.0               
-#> [65] gtools_3.9.5                glue_1.8.0                 
-#> [67] seqLogo_1.75.0              tools_4.5.1                
-#> [69] TFMPvalue_0.0.9             GenomicAlignments_1.45.4   
-#> [71] fs_1.6.6                    XML_3.99-0.19              
-#> [73] tidyr_1.3.1                 colorspace_2.1-2           
-#> [75] restfulr_0.0.16             cli_3.6.5                  
-#> [77] textshaping_1.0.4           S4Arrays_1.9.1             
-#> [79] dplyr_1.1.4                 gtable_0.3.6               
-#> [81] sass_0.4.10                 digest_0.6.37              
-#> [83] SparseArray_1.9.1           rjson_0.2.23               
-#> [85] farver_2.1.2                memoise_2.0.1              
-#> [87] htmltools_0.5.8.1           pkgdown_2.1.3.9000         
-#> [89] lifecycle_1.0.4             httr_1.4.7                 
-#> [91] GlobalOptions_0.1.2         bit64_4.6.0-1
+#> [29] cigarillo_1.1.0             jsonlite_2.0.0             
+#> [31] blob_1.3.0                  DelayedArray_0.37.0        
+#> [33] BiocParallel_1.45.0         parallel_4.6.0             
+#> [35] cluster_2.1.8.1             R6_2.6.1                   
+#> [37] bslib_0.10.0                RColorBrewer_1.1-3         
+#> [39] jquerylib_0.1.4             Rcpp_1.1.1                 
+#> [41] bookdown_0.46               iterators_1.0.14           
+#> [43] knitr_1.51                  splines_4.6.0              
+#> [45] Matrix_1.7-4                tidyselect_1.2.1           
+#> [47] abind_1.4-8                 yaml_2.3.12                
+#> [49] doParallel_1.0.17           codetools_0.2-20           
+#> [51] curl_7.0.0                  lattice_0.22-7             
+#> [53] tibble_3.3.1                KEGGREST_1.51.1            
+#> [55] withr_3.0.2                 S7_0.2.1                   
+#> [57] evaluate_1.0.5              survival_3.8-6             
+#> [59] desc_1.4.3                  pillar_1.11.1              
+#> [61] BiocManager_1.30.27         foreach_1.5.2              
+#> [63] RCurl_1.98-1.17             ggplot2_4.0.1              
+#> [65] scales_1.4.0                gtools_3.9.5               
+#> [67] glue_1.8.0                  seqLogo_1.77.0             
+#> [69] tools_4.6.0                 TFMPvalue_1.0.0            
+#> [71] GenomicAlignments_1.47.0    fs_1.6.6                   
+#> [73] XML_3.99-0.20               tidyr_1.3.2                
+#> [75] colorspace_2.1-2            restfulr_0.0.16            
+#> [77] cli_3.6.5                   textshaping_1.0.4          
+#> [79] S4Arrays_1.11.1             dplyr_1.1.4                
+#> [81] gtable_0.3.6                sass_0.4.10                
+#> [83] digest_0.6.39               SparseArray_1.11.10        
+#> [85] rjson_0.2.23                farver_2.1.2               
+#> [87] memoise_2.0.1               htmltools_0.5.9            
+#> [89] pkgdown_2.2.0.9000          lifecycle_1.0.5            
+#> [91] httr_1.4.7                  GlobalOptions_0.1.3        
+#> [93] bit64_4.6.0-1
 ```
 
 ## References

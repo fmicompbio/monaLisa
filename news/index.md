@@ -1,5 +1,9 @@
 # Changelog
 
+## monaLisa 1.17.1
+
+- clarifications of supported families for the stability selection
+
 ## monaLisa 1.15.3
 
 - minor updates to adjust to breaking changes in `ggplot2` version 4

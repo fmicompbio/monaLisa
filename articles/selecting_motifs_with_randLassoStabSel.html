@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">monaLisa</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.17.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.17.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,7 +59,7 @@
                         <h4 data-toc-skip class="author">Dania Machlab,
 Lukas Burger, Charlotte Soneson, Michael Stadler</h4>
             
-            <h4 data-toc-skip class="date">2025-10-30</h4>
+            <h4 data-toc-skip class="date">2026-01-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/devel/vignettes/selecting_motifs_with_randLassoStabSel.Rmd" class="external-link"><code>vignettes/selecting_motifs_with_randLassoStabSel.Rmd</code></a></small>
       <div class="d-none name"><code>selecting_motifs_with_randLassoStabSel.Rmd</code></div>
@@ -73,13 +73,13 @@ margin-right: auto; width: 50%; border: 0"></p>
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
 <p>Identifying important transcription factor (TF) motifs, as shown in
-<a href="https://bioconductor.org/packages/3.22/monaLisa/vignettes/monaLisa.html" class="external-link">the
+<a href="https://bioconductor.org/packages/3.23/monaLisa/vignettes/monaLisa.html" class="external-link">the
 main vignette</a>, could also be done using a regression-based approach,
 where motifs have to compete against each other for selection. In this
 framework, the response vector can be the observed experimental measure
 of interest, e.g. log-fold changes of accessibility for a set of
 regions, and the predictors consist of the TF motif hits across those
-regions. In <em><a href="https://bioconductor.org/packages/3.22/monaLisa" class="external-link">monaLisa</a></em>,
+regions. In <em><a href="https://bioconductor.org/packages/3.23/monaLisa" class="external-link">monaLisa</a></em>,
 we implement the randomized lasso stability selection proposed by <span class="citation">Meinshausen and Bühlmann (2010)</span> with the
 improved error bounds introduced by <span class="citation">Shah and
 Samworth (2013)</span>. We have modified the
@@ -148,7 +148,7 @@ tissue.</p>
 <h3 id="load-dataset">Load dataset<a class="anchor" aria-label="anchor" href="#load-dataset"></a>
 </h3>
 <p>In this example dataset from ENCODE <span class="citation">(The
-ENCODE Project Consortium 2012)</span>, and available in <em><a href="https://bioconductor.org/packages/3.22/monaLisa" class="external-link">monaLisa</a></em>,
+ENCODE Project Consortium 2012)</span>, and available in <em><a href="https://bioconductor.org/packages/3.23/monaLisa" class="external-link">monaLisa</a></em>,
 we have quantified ATAC-seq reads on enhancers in mouse P0 lung and
 liver tissues. The log2-fold change (our response vector in this
 example) is for liver vs lung chromatin accessibility. We are using a
@@ -164,7 +164,7 @@ lasso stability selection can be used to select TF motifs.</p>
 <h3 id="get-tfbs-per-motif-and-peak">Get TFBS per motif and peak<a class="anchor" aria-label="anchor" href="#get-tfbs-per-motif-and-peak"></a>
 </h3>
 <p>We will now construct the transcription factor binding site (TFBS)
-matrix for known motifs (from a database like <em><a href="https://bioconductor.org/packages/3.22/JASPAR2020" class="external-link">JASPAR2020</a></em>)
+matrix for known motifs (from a database like <em><a href="https://bioconductor.org/packages/3.23/JASPAR2020" class="external-link">JASPAR2020</a></em>)
 in the given peak regions. We use the <code>findMotifHits</code>
 function to scan for TF motif hits. This matrix will be the predictor
 matrix in our regression. This step may take a while, and it may be
@@ -258,7 +258,7 @@ regression, using tools such as for example RSAT <span class="citation">(Castro-
 clusters of Jaspar weight matrices can be found at <a href="https://jaspar.genereg.net/matrix-clusters/vertebrates/" class="external-link uri">https://jaspar.genereg.net/matrix-clusters/vertebrates/</a>.</p>
 <p>If the user is interested in working with all correlated motifs, the
 binned approach is preferable as the motifs are independently tested for
-significance (see the <a href="https://bioconductor.org/packages/3.22/monaLisa/vignettes/monaLisa.html" class="external-link">binned
+significance (see the <a href="https://bioconductor.org/packages/3.23/monaLisa/vignettes/monaLisa.html" class="external-link">binned
 enrichment vignette</a>). In the regression-based approach on the other
 hand, we can more clearly understand the relative contributions of TF
 motifs to the response in the context of each other.</p>
@@ -320,7 +320,7 @@ implementation by <span class="citation">Shah and Samworth
 decreasing regularization stringency (from left to right):</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotStabilityPaths.html">plotStabilityPaths</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span></span></code></pre></div>
-<p><img src="selecting_motifs_with_randLassoStabSel_files/figure-html/plotStabilityPaths-1.png" class="r-plt" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="selecting_motifs_with_randLassoStabSel_files/figure-html/plotStabilityPaths-1.png" class="r-plt" alt="" width="80%" style="display: block; margin: auto;"></p>
 <p>Each line corresponds to a predictor, and we can see the selection
 probabilities as a function of the regularization steps, corresponding
 to decreasing values for the lambda regularization parameter in lasso.
@@ -333,14 +333,14 @@ plot, you will need to set a seed.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plotStabilityPaths.html">plotStabilityPaths</a></span><span class="op">(</span><span class="va">se</span>, labelPaths <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="selecting_motifs_with_randLassoStabSel_files/figure-html/plotStabilityPathsWithSelLabels-1.png" class="r-plt" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="selecting_motifs_with_randLassoStabSel_files/figure-html/plotStabilityPathsWithSelLabels-1.png" class="r-plt" alt="" width="80%" style="display: block; margin: auto;"></p>
 <p>Alternatively, we can visualize specific predictors, regardless of
 whether or not they were selected.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plotStabilityPaths.html">plotStabilityPaths</a></span><span class="op">(</span><span class="va">se</span>, labelPaths <span class="op">=</span> <span class="cn">TRUE</span>, labelNudgeX <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>                   labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ISL2"</span>, <span class="st">"NR2C2"</span>, <span class="st">"NR2F1"</span>, <span class="st">"GATA4"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="selecting_motifs_with_randLassoStabSel_files/figure-html/plotStabilityPathsWithLabels-1.png" class="r-plt" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="selecting_motifs_with_randLassoStabSel_files/figure-html/plotStabilityPathsWithLabels-1.png" class="r-plt" alt="" width="80%" style="display: block; margin: auto;"></p>
 <p>We can also visualize the selection probabilities of the selected TF
 motifs, optionally multiplied by the sign of the correlation to the
 response vector, to know how the TF relates to the change of
@@ -355,7 +355,7 @@ parameter choices the model uses internally. See <span class="citation">Meinshau
 details.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSelectionProb.html">plotSelectionProb</a></span><span class="op">(</span><span class="va">se</span>, directional <span class="op">=</span> <span class="cn">TRUE</span>, ylimext <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
-<p><img src="selecting_motifs_with_randLassoStabSel_files/figure-html/plotSelProbs-1.png" class="r-plt" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="selecting_motifs_with_randLassoStabSel_files/figure-html/plotSelProbs-1.png" class="r-plt" alt="" width="80%" style="display: block; margin: auto;"></p>
 <p>Next, we visualize the correlation structure of the selected TF
 motifs within the TFBS matrix. While the collinearity of predictors is a
 general issue in regression-based approaches, randomized lasso stability
@@ -403,7 +403,7 @@ might not end up being co-selected (see section @ref(collinearity)).</p>
 <span>        col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/circlize/man/colorRamp2.html" class="external-link">colorRamp2</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"blue"</span>, <span class="st">"white"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span>, </span>
 <span>        right_annotation <span class="op">=</span> <span class="va">hmSeqlogo</span>,</span>
 <span>        top_annotation <span class="op">=</span> <span class="va">colAnn</span><span class="op">)</span></span></code></pre></div>
-<p><img src="selecting_motifs_with_randLassoStabSel_files/figure-html/TFBScor_selected-1.png" class="r-plt" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="selecting_motifs_with_randLassoStabSel_files/figure-html/TFBScor_selected-1.png" class="r-plt" alt="" width="80%" style="display: block; margin: auto;"></p>
 <p> </p>
 <p>We can examine the peaks that have hits for a selected TF motif of
 interest, ordered by absolute accessibility changes.</p>
@@ -443,13 +443,13 @@ Creative Commons attribution - non-commercial 3.0 license: <a href="https://crea
 <p>This vignette was built using:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; R version 4.5.1 (2025-06-13)</span></span>
+<span><span class="co">#&gt; R Under development (unstable) (2026-01-26 r89334)</span></span>
 <span><span class="co">#&gt; Platform: aarch64-apple-darwin20</span></span>
-<span><span class="co">#&gt; Running under: macOS Sequoia 15.7.1</span></span>
+<span><span class="co">#&gt; Running under: macOS Sequoia 15.7.3</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matrix products: default</span></span>
-<span><span class="co">#&gt; BLAS:   /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRblas.0.dylib </span></span>
-<span><span class="co">#&gt; LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1</span></span>
+<span><span class="co">#&gt; BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib </span></span>
+<span><span class="co">#&gt; LAPACK: /Library/Frameworks/R.framework/Versions/4.6-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; locale:</span></span>
 <span><span class="co">#&gt; [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8</span></span>
@@ -462,65 +462,66 @@ Creative Commons attribution - non-commercial 3.0 license: <a href="https://crea
 <span><span class="co">#&gt; [8] methods   base     </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
-<span><span class="co">#&gt;  [1] ggrepel_0.9.6                      ggplot2_4.0.0                     </span></span>
-<span><span class="co">#&gt;  [3] circlize_0.4.16                    ComplexHeatmap_2.25.2             </span></span>
-<span><span class="co">#&gt;  [5] SummarizedExperiment_1.39.2        Biobase_2.69.1                    </span></span>
-<span><span class="co">#&gt;  [7] MatrixGenerics_1.21.0              matrixStats_1.5.0                 </span></span>
-<span><span class="co">#&gt;  [9] BSgenome.Mmusculus.UCSC.mm10_1.4.3 BSgenome_1.77.3                   </span></span>
-<span><span class="co">#&gt; [11] rtracklayer_1.69.1                 BiocIO_1.19.0                     </span></span>
-<span><span class="co">#&gt; [13] Biostrings_2.77.2                  XVector_0.49.3                    </span></span>
-<span><span class="co">#&gt; [15] GenomicRanges_1.61.8               Seqinfo_0.99.4                    </span></span>
-<span><span class="co">#&gt; [17] IRanges_2.43.8                     S4Vectors_0.47.6                  </span></span>
-<span><span class="co">#&gt; [19] BiocGenerics_0.55.4                generics_0.1.4                    </span></span>
-<span><span class="co">#&gt; [21] TFBSTools_1.47.1                   JASPAR2020_0.99.10                </span></span>
-<span><span class="co">#&gt; [23] monaLisa_1.17.0                    BiocStyle_2.37.1                  </span></span>
+<span><span class="co">#&gt;  [1] ggrepel_0.9.6                      ggplot2_4.0.1                     </span></span>
+<span><span class="co">#&gt;  [3] circlize_0.4.17                    ComplexHeatmap_2.27.0             </span></span>
+<span><span class="co">#&gt;  [5] SummarizedExperiment_1.41.0        Biobase_2.71.0                    </span></span>
+<span><span class="co">#&gt;  [7] MatrixGenerics_1.23.0              matrixStats_1.5.0                 </span></span>
+<span><span class="co">#&gt;  [9] BSgenome.Mmusculus.UCSC.mm10_1.4.3 BSgenome_1.79.1                   </span></span>
+<span><span class="co">#&gt; [11] rtracklayer_1.71.3                 BiocIO_1.21.0                     </span></span>
+<span><span class="co">#&gt; [13] Biostrings_2.79.4                  XVector_0.51.0                    </span></span>
+<span><span class="co">#&gt; [15] GenomicRanges_1.63.1               Seqinfo_1.1.0                     </span></span>
+<span><span class="co">#&gt; [17] IRanges_2.45.0                     S4Vectors_0.49.0                  </span></span>
+<span><span class="co">#&gt; [19] BiocGenerics_0.57.0                generics_0.1.4                    </span></span>
+<span><span class="co">#&gt; [21] TFBSTools_1.49.0                   JASPAR2020_0.99.10                </span></span>
+<span><span class="co">#&gt; [23] monaLisa_1.17.1                    BiocStyle_2.39.0                  </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
 <span><span class="co">#&gt;  [1] DBI_1.2.3                   bitops_1.0-9               </span></span>
-<span><span class="co">#&gt;  [3] stabs_0.6-4                 rlang_1.1.6                </span></span>
+<span><span class="co">#&gt;  [3] stabs_0.6-4                 rlang_1.1.7                </span></span>
 <span><span class="co">#&gt;  [5] magrittr_2.0.4              clue_0.3-66                </span></span>
-<span><span class="co">#&gt;  [7] GetoptLong_1.0.5            compiler_4.5.1             </span></span>
-<span><span class="co">#&gt;  [9] RSQLite_2.4.3               png_0.1-8                  </span></span>
-<span><span class="co">#&gt; [11] systemfonts_1.3.1           vctrs_0.6.5                </span></span>
-<span><span class="co">#&gt; [13] pwalign_1.5.0               pkgconfig_2.0.3            </span></span>
+<span><span class="co">#&gt;  [7] GetoptLong_1.1.0            compiler_4.6.0             </span></span>
+<span><span class="co">#&gt;  [9] RSQLite_2.4.5               png_0.1-8                  </span></span>
+<span><span class="co">#&gt; [11] systemfonts_1.3.1           vctrs_0.7.1                </span></span>
+<span><span class="co">#&gt; [13] pwalign_1.7.0               pkgconfig_2.0.3            </span></span>
 <span><span class="co">#&gt; [15] shape_1.4.6.1               crayon_1.5.3               </span></span>
 <span><span class="co">#&gt; [17] fastmap_1.2.0               labeling_0.4.3             </span></span>
-<span><span class="co">#&gt; [19] caTools_1.18.3              Rsamtools_2.25.3           </span></span>
+<span><span class="co">#&gt; [19] caTools_1.18.3              Rsamtools_2.27.0           </span></span>
 <span><span class="co">#&gt; [21] rmarkdown_2.30              ragg_1.5.0                 </span></span>
-<span><span class="co">#&gt; [23] DirichletMultinomial_1.51.0 purrr_1.1.0                </span></span>
-<span><span class="co">#&gt; [25] bit_4.6.0                   xfun_0.53                  </span></span>
+<span><span class="co">#&gt; [23] DirichletMultinomial_1.53.0 purrr_1.2.1                </span></span>
+<span><span class="co">#&gt; [25] bit_4.6.0                   xfun_0.56                  </span></span>
 <span><span class="co">#&gt; [27] glmnet_4.1-10               cachem_1.1.0               </span></span>
-<span><span class="co">#&gt; [29] jsonlite_2.0.0              blob_1.2.4                 </span></span>
-<span><span class="co">#&gt; [31] DelayedArray_0.35.3         BiocParallel_1.43.4        </span></span>
-<span><span class="co">#&gt; [33] parallel_4.5.1              cluster_2.1.8.1            </span></span>
-<span><span class="co">#&gt; [35] R6_2.6.1                    bslib_0.9.0                </span></span>
-<span><span class="co">#&gt; [37] RColorBrewer_1.1-3          jquerylib_0.1.4            </span></span>
-<span><span class="co">#&gt; [39] Rcpp_1.1.0                  bookdown_0.45              </span></span>
-<span><span class="co">#&gt; [41] iterators_1.0.14            knitr_1.50                 </span></span>
-<span><span class="co">#&gt; [43] Matrix_1.7-4                splines_4.5.1              </span></span>
-<span><span class="co">#&gt; [45] tidyselect_1.2.1            abind_1.4-8                </span></span>
-<span><span class="co">#&gt; [47] yaml_2.3.10                 doParallel_1.0.17          </span></span>
-<span><span class="co">#&gt; [49] codetools_0.2-20            curl_7.0.0                 </span></span>
-<span><span class="co">#&gt; [51] lattice_0.22-7              tibble_3.3.0               </span></span>
-<span><span class="co">#&gt; [53] withr_3.0.2                 S7_0.2.0                   </span></span>
-<span><span class="co">#&gt; [55] evaluate_1.0.5              desc_1.4.3                 </span></span>
-<span><span class="co">#&gt; [57] survival_3.8-3              pillar_1.11.1              </span></span>
-<span><span class="co">#&gt; [59] BiocManager_1.30.26         foreach_1.5.2              </span></span>
-<span><span class="co">#&gt; [61] RCurl_1.98-1.17             scales_1.4.0               </span></span>
-<span><span class="co">#&gt; [63] gtools_3.9.5                glue_1.8.0                 </span></span>
-<span><span class="co">#&gt; [65] seqLogo_1.75.0              tools_4.5.1                </span></span>
-<span><span class="co">#&gt; [67] TFMPvalue_0.0.9             GenomicAlignments_1.45.4   </span></span>
-<span><span class="co">#&gt; [69] fs_1.6.6                    XML_3.99-0.19              </span></span>
-<span><span class="co">#&gt; [71] tidyr_1.3.1                 colorspace_2.1-2           </span></span>
-<span><span class="co">#&gt; [73] restfulr_0.0.16             cli_3.6.5                  </span></span>
-<span><span class="co">#&gt; [75] textshaping_1.0.4           S4Arrays_1.9.1             </span></span>
-<span><span class="co">#&gt; [77] dplyr_1.1.4                 gtable_0.3.6               </span></span>
-<span><span class="co">#&gt; [79] sass_0.4.10                 digest_0.6.37              </span></span>
-<span><span class="co">#&gt; [81] SparseArray_1.9.1           rjson_0.2.23               </span></span>
-<span><span class="co">#&gt; [83] farver_2.1.2                memoise_2.0.1              </span></span>
-<span><span class="co">#&gt; [85] htmltools_0.5.8.1           pkgdown_2.1.3.9000         </span></span>
-<span><span class="co">#&gt; [87] lifecycle_1.0.4             httr_1.4.7                 </span></span>
-<span><span class="co">#&gt; [89] GlobalOptions_0.1.2         bit64_4.6.0-1</span></span></code></pre></div>
+<span><span class="co">#&gt; [29] cigarillo_1.1.0             jsonlite_2.0.0             </span></span>
+<span><span class="co">#&gt; [31] blob_1.3.0                  DelayedArray_0.37.0        </span></span>
+<span><span class="co">#&gt; [33] BiocParallel_1.45.0         parallel_4.6.0             </span></span>
+<span><span class="co">#&gt; [35] cluster_2.1.8.1             R6_2.6.1                   </span></span>
+<span><span class="co">#&gt; [37] bslib_0.10.0                RColorBrewer_1.1-3         </span></span>
+<span><span class="co">#&gt; [39] jquerylib_0.1.4             Rcpp_1.1.1                 </span></span>
+<span><span class="co">#&gt; [41] bookdown_0.46               iterators_1.0.14           </span></span>
+<span><span class="co">#&gt; [43] knitr_1.51                  Matrix_1.7-4               </span></span>
+<span><span class="co">#&gt; [45] splines_4.6.0               tidyselect_1.2.1           </span></span>
+<span><span class="co">#&gt; [47] abind_1.4-8                 yaml_2.3.12                </span></span>
+<span><span class="co">#&gt; [49] doParallel_1.0.17           codetools_0.2-20           </span></span>
+<span><span class="co">#&gt; [51] curl_7.0.0                  lattice_0.22-7             </span></span>
+<span><span class="co">#&gt; [53] tibble_3.3.1                withr_3.0.2                </span></span>
+<span><span class="co">#&gt; [55] S7_0.2.1                    evaluate_1.0.5             </span></span>
+<span><span class="co">#&gt; [57] desc_1.4.3                  survival_3.8-6             </span></span>
+<span><span class="co">#&gt; [59] pillar_1.11.1               BiocManager_1.30.27        </span></span>
+<span><span class="co">#&gt; [61] foreach_1.5.2               RCurl_1.98-1.17            </span></span>
+<span><span class="co">#&gt; [63] scales_1.4.0                gtools_3.9.5               </span></span>
+<span><span class="co">#&gt; [65] glue_1.8.0                  seqLogo_1.77.0             </span></span>
+<span><span class="co">#&gt; [67] tools_4.6.0                 TFMPvalue_1.0.0            </span></span>
+<span><span class="co">#&gt; [69] GenomicAlignments_1.47.0    fs_1.6.6                   </span></span>
+<span><span class="co">#&gt; [71] XML_3.99-0.20               tidyr_1.3.2                </span></span>
+<span><span class="co">#&gt; [73] colorspace_2.1-2            restfulr_0.0.16            </span></span>
+<span><span class="co">#&gt; [75] cli_3.6.5                   textshaping_1.0.4          </span></span>
+<span><span class="co">#&gt; [77] S4Arrays_1.11.1             dplyr_1.1.4                </span></span>
+<span><span class="co">#&gt; [79] gtable_0.3.6                sass_0.4.10                </span></span>
+<span><span class="co">#&gt; [81] digest_0.6.39               SparseArray_1.11.10        </span></span>
+<span><span class="co">#&gt; [83] rjson_0.2.23                farver_2.1.2               </span></span>
+<span><span class="co">#&gt; [85] memoise_2.0.1               htmltools_0.5.9            </span></span>
+<span><span class="co">#&gt; [87] pkgdown_2.2.0.9000          lifecycle_1.0.5            </span></span>
+<span><span class="co">#&gt; [89] httr_1.4.7                  GlobalOptions_0.1.3        </span></span>
+<span><span class="co">#&gt; [91] bit64_4.6.0-1</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
@@ -562,7 +563,7 @@ of <span>DNA</span> Elements in the Human Genome.”</span>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.9000.</p>
 </div>
 
     </footer>

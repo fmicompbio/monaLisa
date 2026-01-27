@@ -29,7 +29,9 @@ randLassoStabSel(
 
 - y:
 
-  The response vector.
+  The response vector. This should be a numeric vector (also for the
+  binomial case - in this case it will be converted to a factor
+  internally by `glmnet`).
 
 - weakness:
 
@@ -66,7 +68,8 @@ randLassoStabSel(
   available arguments to `.glmnetRandomizedLasso` are the same as the
   ones for [`glmnet.lasso`](https://rdrr.io/pkg/stabs/man/fitfuns.html).
   A typical use case would be to define the `family` argument to
-  [`glmnet`](https://glmnet.stanford.edu/reference/glmnet.html).
+  [`glmnet`](https://glmnet.stanford.edu/reference/glmnet.html)
+  (currently "gaussian" and "binomial" are supported).
 
 - ...:
 

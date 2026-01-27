@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">monaLisa</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.17.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.17.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,7 +59,7 @@
                         <h4 data-toc-skip class="author">Dania Machlab,
 Lukas Burger, Charlotte Soneson, Michael Stadler</h4>
             
-            <h4 data-toc-skip class="date">2025-10-30</h4>
+            <h4 data-toc-skip class="date">2026-01-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/fmicompbio/monaLisa/blob/devel/vignettes/monaLisa.Rmd" class="external-link"><code>vignettes/monaLisa.Rmd</code></a></small>
       <div class="d-none name"><code>monaLisa.Rmd</code></div>
@@ -72,11 +72,11 @@ margin-right: auto; width: 50%; border: 0"></p>
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p><em><a href="https://bioconductor.org/packages/3.22/monaLisa" class="external-link">monaLisa</a></em>
+<p><em><a href="https://bioconductor.org/packages/3.23/monaLisa" class="external-link">monaLisa</a></em>
 is a collection of functions for working with biological sequences and
 motifs that represent the binding preferences of transcription factors
 or nucleic acid binding proteins.</p>
-<p>For example, <em><a href="https://bioconductor.org/packages/3.22/monaLisa" class="external-link">monaLisa</a></em>
+<p>For example, <em><a href="https://bioconductor.org/packages/3.23/monaLisa" class="external-link">monaLisa</a></em>
 can be used to conveniently find motif hits in sequences (see section
 @ref(findhits)), or to identify motifs that are likely associated with
 observed experimental data. Such analyses are supposed to provide
@@ -87,7 +87,7 @@ expression/methylation/accessibility?”.</p>
 problem, among them REDUCE <span class="citation">(Roven and Bussemaker
 2003)</span>, AME <span class="citation">(McLeay and Bailey 2010)</span>
 and ISMARA <span class="citation">(Balwierz et al. 2014)</span>. In
-<em><a href="https://bioconductor.org/packages/3.22/monaLisa" class="external-link">monaLisa</a></em>,
+<em><a href="https://bioconductor.org/packages/3.23/monaLisa" class="external-link">monaLisa</a></em>,
 we aim to provide a flexible implementation that integrates well with
 other Bioconductor resources, makes use of the sequence composition
 correction developed for Homer <span class="citation">(Heinz et al.
@@ -96,7 +96,7 @@ and Bühlmann 2010)</span> and provides several alternative ways to study
 the relationship between experimental measurements and sequence
 motifs.</p>
 <p>You can use known motifs from collections of transcription factor
-binding specificities such as <em><a href="https://bioconductor.org/packages/3.22/JASPAR2020" class="external-link">JASPAR2020</a></em>,
+binding specificities such as <em><a href="https://bioconductor.org/packages/3.23/JASPAR2020" class="external-link">JASPAR2020</a></em>,
 also available from Bioconductor. Genomic regions could be for example
 promoters, enhancers or accessible regions for which experimental data
 is available.</p>
@@ -128,8 +128,8 @@ of Homer</a>, and <code>calcBinnedKmerEnr</code>(see section
 to study sequence enrichments without the requirement of known
 motifs.</p></li>
 <li><p><strong>Randomized Lasso stability selection</strong>
-(<code>randLassoStabSel</code>, see <a href="https://bioconductor.org/packages/3.22/monaLisa/vignettes/selecting_motifs_with_randLassoStabSel.html" class="external-link">the
-stability selection vignette</a> in <em><a href="https://bioconductor.org/packages/3.22/monaLisa" class="external-link">monaLisa</a></em>)
+(<code>randLassoStabSel</code>, see <a href="https://bioconductor.org/packages/3.23/monaLisa/vignettes/selecting_motifs_with_randLassoStabSel.html" class="external-link">the
+stability selection vignette</a> in <em><a href="https://bioconductor.org/packages/3.23/monaLisa" class="external-link">monaLisa</a></em>)
 uses a robust regression approach (stability selection, <span class="citation">Meinshausen and Bühlmann (2010)</span>) to predict what
 transcription factors can explain experimental measurements, for example
 changes in chromatin accessibility between two conditions. Also this
@@ -152,7 +152,7 @@ background sampled from the genome) are illustrated in section
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p><em><a href="https://bioconductor.org/packages/3.22/monaLisa" class="external-link">monaLisa</a></em>
+<p><em><a href="https://bioconductor.org/packages/3.23/monaLisa" class="external-link">monaLisa</a></em>
 can be installed from Bioconductor via the <em><a href="https://CRAN.R-project.org/package=BiocManager" class="external-link">BiocManager</a></em>
 package:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -165,7 +165,7 @@ package:</p>
 <h2 id="quick">Quick example: Identify enriched motifs in bins<a class="anchor" aria-label="anchor" href="#quick"></a>
 </h2>
 <p>The quick example below, which we do not run, illustrates how a
-binned motif enrichment analysis can be performed in <em><a href="https://bioconductor.org/packages/3.22/monaLisa" class="external-link">monaLisa</a></em>.
+binned motif enrichment analysis can be performed in <em><a href="https://bioconductor.org/packages/3.23/monaLisa" class="external-link">monaLisa</a></em>.
 We assume that you already have a set of peaks. The sequences of the
 peak regions are stored in a <code><a href="https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html" class="external-link">Biostrings::DNAStringSet</a></code>
 object (<code>peak_seqs</code>), and additionally each peak is
@@ -258,7 +258,7 @@ values.</p>
 (more than two): Finding TFs enriched in differentially methylated
 regions<a class="anchor" aria-label="anchor" href="#binned"></a>
 </h2>
-<p>This section illustrates the use of <em><a href="https://bioconductor.org/packages/3.22/monaLisa" class="external-link">monaLisa</a></em>
+<p>This section illustrates the use of <em><a href="https://bioconductor.org/packages/3.23/monaLisa" class="external-link">monaLisa</a></em>
 to analyze regions or sequences with associated numerical values (here:
 changes of DNA methylation), grouped into several bins according to
 these values. The special cases of just two sets of sequences (binary
@@ -296,7 +296,7 @@ and NP cell states.</p>
 <div class="section level3">
 <h3 id="genomic-regions-or-sequences-of-interest">Genomic regions or sequences of interest<a class="anchor" aria-label="anchor" href="#genomic-regions-or-sequences-of-interest"></a>
 </h3>
-<p><em><a href="https://bioconductor.org/packages/3.22/monaLisa" class="external-link">monaLisa</a></em>
+<p><em><a href="https://bioconductor.org/packages/3.23/monaLisa" class="external-link">monaLisa</a></em>
 provides a file with genomic coordinates (mouse mm10 assembly) of LMRs,
 with the respective changes of methylation. We load this
 <code>GRanges</code> object into <code>R</code>.</p>
@@ -346,7 +346,7 @@ between ES and NP stages:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">lmr</span><span class="op">$</span><span class="va">deltaMeth</span>, <span class="fl">100</span>, col <span class="op">=</span> <span class="st">"gray"</span>, main <span class="op">=</span> <span class="st">""</span>,</span>
 <span>     xlab <span class="op">=</span> <span class="st">"Change of methylation (NP - ES)"</span>, ylab <span class="op">=</span> <span class="st">"Number of LMRs"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="monaLisa_files/figure-html/deltameth-1.png" class="r-plt" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="monaLisa_files/figure-html/deltameth-1.png" class="r-plt" alt="" width="80%" style="display: block; margin: auto;"></p>
 <p>In order to keep the computation time reasonable, we’ll select 10,000
 of the LMRs randomly:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -357,7 +357,7 @@ of the LMRs randomly:</p>
 <h3 id="bin-genomic-regions">Bin genomic regions<a class="anchor" aria-label="anchor" href="#bin-genomic-regions"></a>
 </h3>
 <p>Now let’s bin our LMRs by how much they change methylation, using the
-<code>bin</code> function from <em><a href="https://bioconductor.org/packages/3.22/monaLisa" class="external-link">monaLisa</a></em>.
+<code>bin</code> function from <em><a href="https://bioconductor.org/packages/3.23/monaLisa" class="external-link">monaLisa</a></em>.
 We are not interested in small changes of methylation, say less than
 0.3, so we’ll use the <code>minAbsX</code> argument to create a
 <em>no-change</em> bin in [-0.3, 0.3). The remaining LMRs are put into
@@ -388,10 +388,10 @@ or unstable enrichments.</p>
 single bin with LMRs that lost methylation and many that gained:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotBinDensity.html">plotBinDensity</a></span><span class="op">(</span><span class="va">lmrsel</span><span class="op">$</span><span class="va">deltaMeth</span>, <span class="va">bins</span><span class="op">)</span></span></code></pre></div>
-<p><img src="monaLisa_files/figure-html/plotbins-1.png" class="r-plt" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="monaLisa_files/figure-html/plotbins-1.png" class="r-plt" alt="" width="80%" style="display: block; margin: auto;"></p>
 <p>Note that the bin breaks around the <em>no-change</em> bin are not
 exactly -0.3 to 0.3. They have been adjusted to have the required 800
-LMRs per bin below and above it. <em><a href="https://bioconductor.org/packages/3.22/monaLisa" class="external-link">monaLisa</a></em>
+LMRs per bin below and above it. <em><a href="https://bioconductor.org/packages/3.23/monaLisa" class="external-link">monaLisa</a></em>
 will give a warning if the adjusted bin breaks are strongly deviating
 from the requested <code>minAbsX</code> value, and
 <code>bin(..., model = "breaks")</code> can be used in cases where
@@ -402,7 +402,7 @@ exactly defined bin boundaries are required.</p>
 </h3>
 <p>Next we prepare the motif enrichment analysis. We first need known
 motifs representing transcription factor binding site preferences. We
-extract all vertebrate motifs from the <em><a href="https://bioconductor.org/packages/3.22/JASPAR2020" class="external-link">JASPAR2020</a></em>
+extract all vertebrate motifs from the <em><a href="https://bioconductor.org/packages/3.23/JASPAR2020" class="external-link">JASPAR2020</a></em>
 package as positional weight matrices (PWMs):</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pwms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/TFBSTools/man/getMatrixSet-methods.html" class="external-link">getMatrixSet</a></span><span class="op">(</span><span class="va">JASPAR2020</span>,</span>
@@ -426,7 +426,7 @@ have to be constrained to the chromosome boundaries using trim:</p>
 <span><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
 <span><span class="co">#&gt;     401     401     401     401     401     401</span></span></code></pre></div>
 <p>We can now directly extract the corresponding sequences from the
-<em><a href="https://bioconductor.org/packages/3.22/BSgenome.Mmusculus.UCSC.mm10" class="external-link">BSgenome.Mmusculus.UCSC.mm10</a></em>
+<em><a href="https://bioconductor.org/packages/3.23/BSgenome.Mmusculus.UCSC.mm10" class="external-link">BSgenome.Mmusculus.UCSC.mm10</a></em>
 package (assuming you have started the analysis with genomic regions -
 if you already have sequences, just skip this step)</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
@@ -438,10 +438,10 @@ heatmap of average di-nucleotide frequencies in each bin, relative to
 the overall average.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotBinDiagnostics.html">plotBinDiagnostics</a></span><span class="op">(</span>seqs <span class="op">=</span> <span class="va">lmrseqs</span>, bins <span class="op">=</span> <span class="va">bins</span>, aspect <span class="op">=</span> <span class="st">"GCfrac"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="monaLisa_files/figure-html/bindiag-1.png" class="r-plt" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="monaLisa_files/figure-html/bindiag-1.png" class="r-plt" alt="" width="80%" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotBinDiagnostics.html">plotBinDiagnostics</a></span><span class="op">(</span>seqs <span class="op">=</span> <span class="va">lmrseqs</span>, bins <span class="op">=</span> <span class="va">bins</span>, aspect <span class="op">=</span> <span class="st">"dinucfreq"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="monaLisa_files/figure-html/bindiag-2.png" class="r-plt" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="monaLisa_files/figure-html/bindiag-2.png" class="r-plt" alt="" width="80%" style="display: block; margin: auto;"></p>
 <p>From these plots, we can see that LMRs with lower methylation in NP
 cells compared to ES cells (bin [-0.935,-0.242]) tend to be GC-poorer
 than LMRs in other bins. A strong bias of this kind could give rise to
@@ -602,7 +602,7 @@ FDR values are stored in the <code>negLog10Padj</code> assay:</p>
 <span><span class="fu"><a href="../reference/plotMotifHeatmaps.html">plotMotifHeatmaps</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">seSel</span>, which.plots <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log2enr"</span>, <span class="st">"negLog10Padj"</span><span class="op">)</span>, </span>
 <span>                  width <span class="op">=</span> <span class="fl">2.0</span>, cluster <span class="op">=</span> <span class="cn">TRUE</span>, maxEnr <span class="op">=</span> <span class="fl">2</span>, maxSig <span class="op">=</span> <span class="fl">10</span>, </span>
 <span>                  show_motif_GC <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="monaLisa_files/figure-html/plottfs-1.png" class="r-plt" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="monaLisa_files/figure-html/plottfs-1.png" class="r-plt" alt="" width="80%" style="display: block; margin: auto;"></p>
 <p>In order to select only motifs with significant enrichments in a
 specific bin, or in any bin except the “zero” bin, you could use:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
@@ -655,7 +655,7 @@ logos using <code>show_seqlogo</code>:</p>
 <span>                  width <span class="op">=</span> <span class="fl">1.8</span>, cluster <span class="op">=</span> <span class="va">hcl</span>, maxEnr <span class="op">=</span> <span class="fl">2</span>, maxSig <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>                  show_dendrogram <span class="op">=</span> <span class="cn">TRUE</span>, show_seqlogo <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                  width.seqlogo <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="monaLisa_files/figure-html/plottfsclustered-1.png" class="r-plt" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="monaLisa_files/figure-html/plottfsclustered-1.png" class="r-plt" alt="" width="80%" style="display: block; margin: auto;"></p>
 <p>We have seen above that sequences in the [-0.935,-0.242] bin (first
 column from the left in the heatmap) were GC-poorer than the sequences
 in other bins. While some of the enriched motifs in that bin are not
@@ -671,7 +671,7 @@ is illustrated in section @ref(vsgenome).</p>
 <h3 id="motifConvert">Convert between motif text file for <code>Homer</code> and motif
 objects in <code>R</code><a class="anchor" aria-label="anchor" href="#motifConvert"></a>
 </h3>
-<p><em><a href="https://bioconductor.org/packages/3.22/monaLisa" class="external-link">monaLisa</a></em>
+<p><em><a href="https://bioconductor.org/packages/3.23/monaLisa" class="external-link">monaLisa</a></em>
 provides two functions for performing binned motif enrichment analysis
 (<code>calcBinnedMotifEnrR</code> and
 <code>calcBinnedMotifEnrHomer</code>). <code>calcBinnedMotifEnrR</code>
@@ -724,7 +724,7 @@ motif matches. In <code>R</code>, PWMs are often represented using
 <code>calcBinnedMotifEnrHomer</code> on the other hand takes a motif
 text file with PPMs, and requires the user to have <code>Homer</code>
 installed to use it for the binned motif enrichment analysis. Here, we
-show how one can get motif PFMs from <em><a href="https://bioconductor.org/packages/3.22/JASPAR2020" class="external-link">JASPAR2020</a></em>
+show how one can get motif PFMs from <em><a href="https://bioconductor.org/packages/3.23/JASPAR2020" class="external-link">JASPAR2020</a></em>
 and convert them to a <code>Homer</code>-compatible text file with PPMs
 (<code>dumpJaspar</code>) and vice versa
 (<code>homerToPFMatrixList</code>), and how to convert a
@@ -796,7 +796,7 @@ Numerical values that could be used for grouping the regions in multiple
 bins may not be available. Or we may be interested in analyzing just a
 single set of sequences (for example a set of ChIP-seq peaks), relative
 to some neutral background. In this section, we show how such binary or
-single-set motif enrichment analyses can be performed using <em><a href="https://bioconductor.org/packages/3.22/monaLisa" class="external-link">monaLisa</a></em>.</p>
+single-set motif enrichment analyses can be performed using <em><a href="https://bioconductor.org/packages/3.23/monaLisa" class="external-link">monaLisa</a></em>.</p>
 <div class="section level3">
 <h3 id="binary">Binary motif enrichment analysis: comparing two sets of
 sequences<a class="anchor" aria-label="anchor" href="#binary"></a>
@@ -875,7 +875,7 @@ unchanged, up):</p>
 <span><span class="fu"><a href="../reference/plotMotifHeatmaps.html">plotMotifHeatmaps</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">se2</span><span class="op">[</span><span class="va">sel2</span>,<span class="op">]</span>, which.plots <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log2enr"</span>, <span class="st">"negLog10Padj"</span><span class="op">)</span>, </span>
 <span>                  width <span class="op">=</span> <span class="fl">1.8</span>, cluster <span class="op">=</span> <span class="cn">TRUE</span>, maxEnr <span class="op">=</span> <span class="fl">2</span>, maxSig <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>                  show_seqlogo <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="monaLisa_files/figure-html/plotBinary-1.png" class="r-plt" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="monaLisa_files/figure-html/plotBinary-1.png" class="r-plt" alt="" width="80%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="vsgenome">Single set motif enrichment analysis: comparing a set of sequences
@@ -887,18 +887,18 @@ background set. A suitable background set could be for example sequences
 with a similar sequence composition that are randomly selected from the
 same genome, or sequences obtained by randomization of the foreground
 sequences by shuffling or permutation.</p>
-<p>A noteworthy package in this context is <em><a href="https://bioconductor.org/packages/3.22/nullranges" class="external-link">nullranges</a></em>
+<p>A noteworthy package in this context is <em><a href="https://bioconductor.org/packages/3.23/nullranges" class="external-link">nullranges</a></em>
 that focuses on the selection of such background ranges (representing
 the null hypothesis), for example controlling for confounding covariates
 like GC composition. After a suitable background set has been identified
-using <em><a href="https://bioconductor.org/packages/3.22/nullranges" class="external-link">nullranges</a></em>,
+using <em><a href="https://bioconductor.org/packages/3.23/nullranges" class="external-link">nullranges</a></em>,
 a binary motif enrichment analysis as described in section @ref(binary)
 can be performed. Manually defining the background set is recommended to
 control for covariates other than GC composition and to get access to
 the selected background sequences, for example to verify if they are
 indeed similar to the foreground sequences for those covariates.</p>
 <p>A quick alternative with less flexibility in the background set
-definition is available directly in <em><a href="https://bioconductor.org/packages/3.22/monaLisa" class="external-link">monaLisa</a></em>,
+definition is available directly in <em><a href="https://bioconductor.org/packages/3.23/monaLisa" class="external-link">monaLisa</a></em>,
 by using <code>calcBinnedMotifEnrR(..., background = "genome")</code>.
 This will select the background set by randomly sampling sequences from
 the genome (given by the <code>genome</code> argument, optionally
@@ -931,45 +931,45 @@ only include the motifs we had selected above in <code>seSel</code>:</p>
 <span>                           verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Filtering sequences ...</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> in total filtering out 0 of 800 sequences (0%)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> in total filtering out 0 of 800 sequences (0%) <span style="color: #B2B2B2;">[8ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> in total filtering out 0 of 800 sequences (0%) <span style="color: #B2B2B2;">[9ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Filtering sequences ...<span style="color: #00BB00;">✔</span> Filtering sequences ... <span style="color: #B2B2B2;">[40ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Filtering sequences ...<span style="color: #00BB00;">✔</span> Filtering sequences ... <span style="color: #B2B2B2;">[43ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Scanning sequences for motif hits...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Scanning sequences for motif hits... <span style="color: #B2B2B2;">[2.3s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Scanning sequences for motif hits... <span style="color: #B2B2B2;">[4.2s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Create motif hit matrix...</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> starting analysis of bin 1</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> starting analysis of bin 1 <span style="color: #B2B2B2;">[6ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Create motif hit matrix...<span style="color: #00BBBB;">ℹ</span> Defining background sequence set (genome)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Defining background sequence set (genome)... <span style="color: #B2B2B2;">[1.5s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Defining background sequence set (genome)... <span style="color: #B2B2B2;">[2.6s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Create motif hit matrix...<span style="color: #00BBBB;">ℹ</span> Scanning genomic background sequences for motif hits...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Scanning genomic background sequences for motif hits... <span style="color: #B2B2B2;">[2.2s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Scanning genomic background sequences for motif hits... <span style="color: #B2B2B2;">[3.7s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Create motif hit matrix...<span style="color: #00BBBB;">ℹ</span> Correcting for GC differences to the background sequences...</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> 8 of 9 GC-bins used (have both fore- and background sequences) 0 of 1600 sequ…</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> 8 of 9 GC-bins used (have both fore- and background sequences) 0 of 1600 sequ…</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Correcting for GC differences to the background sequences...<span style="color: #00BB00;">✔</span> Correcting for GC differences to the background sequences... <span style="color: #B2B2B2;">[49ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Correcting for GC differences to the background sequences...<span style="color: #00BB00;">✔</span> Correcting for GC differences to the background sequences... <span style="color: #B2B2B2;">[66ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Create motif hit matrix...<span style="color: #00BBBB;">ℹ</span> Correcting for k-mer differences between fore- and background sequences...</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> starting iterative adjustment for k-mer composition (up to 160 iterations)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> starting iterative adjustment for k-mer composition (up to 160 iterations) <span style="color: #B2B2B2;">[1</span>…</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> starting iterative adjustment for k-mer composition (up to 160 iterations) <span style="color: #B2B2B2;">[2</span>…</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Correcting for k-mer differences between fore- and background sequences...<span style="color: #00BBBB;">ℹ</span> 40 of 160 iterations done</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> 80 of 160 iterations done <span style="color: #B2B2B2;">[149ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> 80 of 160 iterations done <span style="color: #B2B2B2;">[169ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Correcting for k-mer differences between fore- and background sequences...<span style="color: #00BBBB;">ℹ</span> 80 of 160 iterations done</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> 120 of 160 iterations done <span style="color: #B2B2B2;">[167ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> 120 of 160 iterations done <span style="color: #B2B2B2;">[169ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Correcting for k-mer differences between fore- and background sequences...<span style="color: #00BBBB;">ℹ</span> 120 of 160 iterations done</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> 160 of 160 iterations done <span style="color: #B2B2B2;">[128ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> 160 of 160 iterations done <span style="color: #B2B2B2;">[170ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Correcting for k-mer differences between fore- and background sequences...<span style="color: #00BBBB;">ℹ</span> 160 of 160 iterations done</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span>     iterations finished</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> 160 of 160 iterations done<span style="color: #00BB00;">✔</span> 160 of 160 iterations done <span style="color: #B2B2B2;">[28ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> 160 of 160 iterations done<span style="color: #00BB00;">✔</span> 160 of 160 iterations done <span style="color: #B2B2B2;">[18ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Correcting for k-mer differences between fore- and background sequences...<span style="color: #00BB00;">✔</span> Correcting for k-mer differences between fore- and background sequences... <span style="color: #B2B2B2;">[7</span>…</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -977,9 +977,9 @@ only include the motifs we had selected above in <code>seSel</code>:</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> using Fisher's exact test (one-sided) to calculate log(p-values) for enrichme…</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> using Fisher's exact test (one-sided) to calculate log(p-values) for enrichme…</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Calculating motif enrichment...<span style="color: #00BB00;">✔</span> Calculating motif enrichment... <span style="color: #B2B2B2;">[50ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Calculating motif enrichment...<span style="color: #00BB00;">✔</span> Calculating motif enrichment... <span style="color: #B2B2B2;">[58ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Create motif hit matrix...<span style="color: #00BB00;">✔</span> Create motif hit matrix... <span style="color: #B2B2B2;">[4.5s]</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Create motif hit matrix...<span style="color: #00BB00;">✔</span> Create motif hit matrix... <span style="color: #B2B2B2;">[7.3s]</span></span></span></code></pre></div>
 <p>Note that we did not have to provide a <code>bins</code> argument,
 and that the result will only have a single column, corresponding to the
 single set of sequences that we analyzed:</p>
@@ -1003,7 +1003,7 @@ background supports that it may be a real biological signal.</p>
 <span><span class="fu"><a href="../reference/plotMotifHeatmaps.html">plotMotifHeatmaps</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">se3</span><span class="op">[</span><span class="va">sel3</span>,<span class="op">]</span>, which.plots <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log2enr"</span>, <span class="st">"negLog10Padj"</span><span class="op">)</span>, </span>
 <span>                  width <span class="op">=</span> <span class="fl">1.8</span>, maxEnr <span class="op">=</span> <span class="fl">2</span>, maxSig <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>                  show_seqlogo <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="monaLisa_files/figure-html/plotSingleBin-1.png" class="r-plt" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="monaLisa_files/figure-html/plotSingleBin-1.png" class="r-plt" alt="" width="80%" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># analyzed HOX motifs</span></span>
@@ -1039,7 +1039,7 @@ significant in either of the two analyses:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">0</span>, b <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fl">0</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
-<p><img src="monaLisa_files/figure-html/compareGenomeVsBinned-1.png" class="r-plt" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="monaLisa_files/figure-html/compareGenomeVsBinned-1.png" class="r-plt" alt="" width="80%" style="display: block; margin: auto;"></p>
 </div>
 </div>
 <div class="section level2">
@@ -1110,13 +1110,13 @@ to correspond to an annotated motif.</p>
 <span>        name <span class="op">=</span> <span class="st">"Similarity"</span>, column_title <span class="op">=</span> <span class="st">"Selected TFs and enriched k-mers"</span>,</span>
 <span>        col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/circlize/man/colorRamp2.html" class="external-link">colorRamp2</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"white"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span>, </span>
 <span>        right_annotation <span class="op">=</span> <span class="va">hmSeqlogo</span><span class="op">)</span></span></code></pre></div>
-<p><img src="monaLisa_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="monaLisa_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="80%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
-<h2 id="findhits">Use <em><a href="https://bioconductor.org/packages/3.22/monaLisa" class="external-link">monaLisa</a></em>
+<h2 id="findhits">Use <em><a href="https://bioconductor.org/packages/3.23/monaLisa" class="external-link">monaLisa</a></em>
 to annotate genomic regions with predicted motifs<a class="anchor" aria-label="anchor" href="#findhits"></a>
 </h2>
-<p>As mentioned, <em><a href="https://bioconductor.org/packages/3.22/monaLisa" class="external-link">monaLisa</a></em>
+<p>As mentioned, <em><a href="https://bioconductor.org/packages/3.23/monaLisa" class="external-link">monaLisa</a></em>
 can also be used to scan sequences for motifs. For a quick description
 of motif representations see section @ref(motifConvert). Here is an
 example (just on a few sequences/motifs for illustration):</p>
@@ -1217,13 +1217,13 @@ Creative Commons attribution - non-commercial 3.0 license: <a href="https://crea
 <p>This vignette was built using:</p>
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; R version 4.5.1 (2025-06-13)</span></span>
+<span><span class="co">#&gt; R Under development (unstable) (2026-01-26 r89334)</span></span>
 <span><span class="co">#&gt; Platform: aarch64-apple-darwin20</span></span>
-<span><span class="co">#&gt; Running under: macOS Sequoia 15.7.1</span></span>
+<span><span class="co">#&gt; Running under: macOS Sequoia 15.7.3</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matrix products: default</span></span>
-<span><span class="co">#&gt; BLAS:   /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRblas.0.dylib </span></span>
-<span><span class="co">#&gt; LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1</span></span>
+<span><span class="co">#&gt; BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib </span></span>
+<span><span class="co">#&gt; LAPACK: /Library/Frameworks/R.framework/Versions/4.6-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; locale:</span></span>
 <span><span class="co">#&gt; [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8</span></span>
@@ -1237,78 +1237,79 @@ Creative Commons attribution - non-commercial 3.0 license: <a href="https://crea
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
 <span><span class="co">#&gt;  [1] TxDb.Mmusculus.UCSC.mm10.knownGene_3.10.0</span></span>
-<span><span class="co">#&gt;  [2] GenomicFeatures_1.61.6                   </span></span>
-<span><span class="co">#&gt;  [3] AnnotationDbi_1.71.2                     </span></span>
-<span><span class="co">#&gt;  [4] circlize_0.4.16                          </span></span>
-<span><span class="co">#&gt;  [5] ComplexHeatmap_2.25.2                    </span></span>
-<span><span class="co">#&gt;  [6] monaLisa_1.17.0                          </span></span>
+<span><span class="co">#&gt;  [2] GenomicFeatures_1.63.1                   </span></span>
+<span><span class="co">#&gt;  [3] AnnotationDbi_1.73.0                     </span></span>
+<span><span class="co">#&gt;  [4] circlize_0.4.17                          </span></span>
+<span><span class="co">#&gt;  [5] ComplexHeatmap_2.27.0                    </span></span>
+<span><span class="co">#&gt;  [6] monaLisa_1.17.1                          </span></span>
 <span><span class="co">#&gt;  [7] BSgenome.Mmusculus.UCSC.mm10_1.4.3       </span></span>
-<span><span class="co">#&gt;  [8] BSgenome_1.77.3                          </span></span>
-<span><span class="co">#&gt;  [9] rtracklayer_1.69.1                       </span></span>
-<span><span class="co">#&gt; [10] BiocIO_1.19.0                            </span></span>
-<span><span class="co">#&gt; [11] Biostrings_2.77.2                        </span></span>
-<span><span class="co">#&gt; [12] XVector_0.49.3                           </span></span>
-<span><span class="co">#&gt; [13] TFBSTools_1.47.1                         </span></span>
+<span><span class="co">#&gt;  [8] BSgenome_1.79.1                          </span></span>
+<span><span class="co">#&gt;  [9] rtracklayer_1.71.3                       </span></span>
+<span><span class="co">#&gt; [10] BiocIO_1.21.0                            </span></span>
+<span><span class="co">#&gt; [11] Biostrings_2.79.4                        </span></span>
+<span><span class="co">#&gt; [12] XVector_0.51.0                           </span></span>
+<span><span class="co">#&gt; [13] TFBSTools_1.49.0                         </span></span>
 <span><span class="co">#&gt; [14] JASPAR2020_0.99.10                       </span></span>
-<span><span class="co">#&gt; [15] SummarizedExperiment_1.39.2              </span></span>
-<span><span class="co">#&gt; [16] Biobase_2.69.1                           </span></span>
-<span><span class="co">#&gt; [17] MatrixGenerics_1.21.0                    </span></span>
+<span><span class="co">#&gt; [15] SummarizedExperiment_1.41.0              </span></span>
+<span><span class="co">#&gt; [16] Biobase_2.71.0                           </span></span>
+<span><span class="co">#&gt; [17] MatrixGenerics_1.23.0                    </span></span>
 <span><span class="co">#&gt; [18] matrixStats_1.5.0                        </span></span>
-<span><span class="co">#&gt; [19] GenomicRanges_1.61.8                     </span></span>
-<span><span class="co">#&gt; [20] Seqinfo_0.99.4                           </span></span>
-<span><span class="co">#&gt; [21] IRanges_2.43.8                           </span></span>
-<span><span class="co">#&gt; [22] S4Vectors_0.47.6                         </span></span>
-<span><span class="co">#&gt; [23] BiocGenerics_0.55.4                      </span></span>
+<span><span class="co">#&gt; [19] GenomicRanges_1.63.1                     </span></span>
+<span><span class="co">#&gt; [20] Seqinfo_1.1.0                            </span></span>
+<span><span class="co">#&gt; [21] IRanges_2.45.0                           </span></span>
+<span><span class="co">#&gt; [22] S4Vectors_0.49.0                         </span></span>
+<span><span class="co">#&gt; [23] BiocGenerics_0.57.0                      </span></span>
 <span><span class="co">#&gt; [24] generics_0.1.4                           </span></span>
-<span><span class="co">#&gt; [25] BiocStyle_2.37.1                         </span></span>
+<span><span class="co">#&gt; [25] BiocStyle_2.39.0                         </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
 <span><span class="co">#&gt;  [1] DBI_1.2.3                   bitops_1.0-9               </span></span>
-<span><span class="co">#&gt;  [3] stabs_0.6-4                 rlang_1.1.6                </span></span>
+<span><span class="co">#&gt;  [3] stabs_0.6-4                 rlang_1.1.7                </span></span>
 <span><span class="co">#&gt;  [5] magrittr_2.0.4              clue_0.3-66                </span></span>
-<span><span class="co">#&gt;  [7] GetoptLong_1.0.5            compiler_4.5.1             </span></span>
-<span><span class="co">#&gt;  [9] RSQLite_2.4.3               png_0.1-8                  </span></span>
-<span><span class="co">#&gt; [11] systemfonts_1.3.1           vctrs_0.6.5                </span></span>
-<span><span class="co">#&gt; [13] pwalign_1.5.0               pkgconfig_2.0.3            </span></span>
+<span><span class="co">#&gt;  [7] GetoptLong_1.1.0            compiler_4.6.0             </span></span>
+<span><span class="co">#&gt;  [9] RSQLite_2.4.5               png_0.1-8                  </span></span>
+<span><span class="co">#&gt; [11] systemfonts_1.3.1           vctrs_0.7.1                </span></span>
+<span><span class="co">#&gt; [13] pwalign_1.7.0               pkgconfig_2.0.3            </span></span>
 <span><span class="co">#&gt; [15] shape_1.4.6.1               crayon_1.5.3               </span></span>
 <span><span class="co">#&gt; [17] fastmap_1.2.0               labeling_0.4.3             </span></span>
-<span><span class="co">#&gt; [19] caTools_1.18.3              Rsamtools_2.25.3           </span></span>
+<span><span class="co">#&gt; [19] caTools_1.18.3              Rsamtools_2.27.0           </span></span>
 <span><span class="co">#&gt; [21] rmarkdown_2.30              ragg_1.5.0                 </span></span>
-<span><span class="co">#&gt; [23] DirichletMultinomial_1.51.0 purrr_1.1.0                </span></span>
-<span><span class="co">#&gt; [25] bit_4.6.0                   xfun_0.53                  </span></span>
+<span><span class="co">#&gt; [23] DirichletMultinomial_1.53.0 purrr_1.2.1                </span></span>
+<span><span class="co">#&gt; [25] bit_4.6.0                   xfun_0.56                  </span></span>
 <span><span class="co">#&gt; [27] glmnet_4.1-10               cachem_1.1.0               </span></span>
-<span><span class="co">#&gt; [29] jsonlite_2.0.0              blob_1.2.4                 </span></span>
-<span><span class="co">#&gt; [31] DelayedArray_0.35.3         BiocParallel_1.43.4        </span></span>
-<span><span class="co">#&gt; [33] parallel_4.5.1              cluster_2.1.8.1            </span></span>
-<span><span class="co">#&gt; [35] R6_2.6.1                    bslib_0.9.0                </span></span>
-<span><span class="co">#&gt; [37] RColorBrewer_1.1-3          jquerylib_0.1.4            </span></span>
-<span><span class="co">#&gt; [39] Rcpp_1.1.0                  bookdown_0.45              </span></span>
-<span><span class="co">#&gt; [41] iterators_1.0.14            knitr_1.50                 </span></span>
-<span><span class="co">#&gt; [43] splines_4.5.1               Matrix_1.7-4               </span></span>
-<span><span class="co">#&gt; [45] tidyselect_1.2.1            abind_1.4-8                </span></span>
-<span><span class="co">#&gt; [47] yaml_2.3.10                 doParallel_1.0.17          </span></span>
-<span><span class="co">#&gt; [49] codetools_0.2-20            curl_7.0.0                 </span></span>
-<span><span class="co">#&gt; [51] lattice_0.22-7              tibble_3.3.0               </span></span>
-<span><span class="co">#&gt; [53] KEGGREST_1.49.2             withr_3.0.2                </span></span>
-<span><span class="co">#&gt; [55] S7_0.2.0                    evaluate_1.0.5             </span></span>
-<span><span class="co">#&gt; [57] desc_1.4.3                  survival_3.8-3             </span></span>
-<span><span class="co">#&gt; [59] pillar_1.11.1               BiocManager_1.30.26        </span></span>
-<span><span class="co">#&gt; [61] foreach_1.5.2               RCurl_1.98-1.17            </span></span>
-<span><span class="co">#&gt; [63] ggplot2_4.0.0               scales_1.4.0               </span></span>
-<span><span class="co">#&gt; [65] gtools_3.9.5                glue_1.8.0                 </span></span>
-<span><span class="co">#&gt; [67] seqLogo_1.75.0              tools_4.5.1                </span></span>
-<span><span class="co">#&gt; [69] TFMPvalue_0.0.9             GenomicAlignments_1.45.4   </span></span>
-<span><span class="co">#&gt; [71] fs_1.6.6                    XML_3.99-0.19              </span></span>
-<span><span class="co">#&gt; [73] tidyr_1.3.1                 colorspace_2.1-2           </span></span>
-<span><span class="co">#&gt; [75] restfulr_0.0.16             cli_3.6.5                  </span></span>
-<span><span class="co">#&gt; [77] textshaping_1.0.4           S4Arrays_1.9.1             </span></span>
-<span><span class="co">#&gt; [79] dplyr_1.1.4                 gtable_0.3.6               </span></span>
-<span><span class="co">#&gt; [81] sass_0.4.10                 digest_0.6.37              </span></span>
-<span><span class="co">#&gt; [83] SparseArray_1.9.1           rjson_0.2.23               </span></span>
-<span><span class="co">#&gt; [85] farver_2.1.2                memoise_2.0.1              </span></span>
-<span><span class="co">#&gt; [87] htmltools_0.5.8.1           pkgdown_2.1.3.9000         </span></span>
-<span><span class="co">#&gt; [89] lifecycle_1.0.4             httr_1.4.7                 </span></span>
-<span><span class="co">#&gt; [91] GlobalOptions_0.1.2         bit64_4.6.0-1</span></span></code></pre></div>
+<span><span class="co">#&gt; [29] cigarillo_1.1.0             jsonlite_2.0.0             </span></span>
+<span><span class="co">#&gt; [31] blob_1.3.0                  DelayedArray_0.37.0        </span></span>
+<span><span class="co">#&gt; [33] BiocParallel_1.45.0         parallel_4.6.0             </span></span>
+<span><span class="co">#&gt; [35] cluster_2.1.8.1             R6_2.6.1                   </span></span>
+<span><span class="co">#&gt; [37] bslib_0.10.0                RColorBrewer_1.1-3         </span></span>
+<span><span class="co">#&gt; [39] jquerylib_0.1.4             Rcpp_1.1.1                 </span></span>
+<span><span class="co">#&gt; [41] bookdown_0.46               iterators_1.0.14           </span></span>
+<span><span class="co">#&gt; [43] knitr_1.51                  splines_4.6.0              </span></span>
+<span><span class="co">#&gt; [45] Matrix_1.7-4                tidyselect_1.2.1           </span></span>
+<span><span class="co">#&gt; [47] abind_1.4-8                 yaml_2.3.12                </span></span>
+<span><span class="co">#&gt; [49] doParallel_1.0.17           codetools_0.2-20           </span></span>
+<span><span class="co">#&gt; [51] curl_7.0.0                  lattice_0.22-7             </span></span>
+<span><span class="co">#&gt; [53] tibble_3.3.1                KEGGREST_1.51.1            </span></span>
+<span><span class="co">#&gt; [55] withr_3.0.2                 S7_0.2.1                   </span></span>
+<span><span class="co">#&gt; [57] evaluate_1.0.5              survival_3.8-6             </span></span>
+<span><span class="co">#&gt; [59] desc_1.4.3                  pillar_1.11.1              </span></span>
+<span><span class="co">#&gt; [61] BiocManager_1.30.27         foreach_1.5.2              </span></span>
+<span><span class="co">#&gt; [63] RCurl_1.98-1.17             ggplot2_4.0.1              </span></span>
+<span><span class="co">#&gt; [65] scales_1.4.0                gtools_3.9.5               </span></span>
+<span><span class="co">#&gt; [67] glue_1.8.0                  seqLogo_1.77.0             </span></span>
+<span><span class="co">#&gt; [69] tools_4.6.0                 TFMPvalue_1.0.0            </span></span>
+<span><span class="co">#&gt; [71] GenomicAlignments_1.47.0    fs_1.6.6                   </span></span>
+<span><span class="co">#&gt; [73] XML_3.99-0.20               tidyr_1.3.2                </span></span>
+<span><span class="co">#&gt; [75] colorspace_2.1-2            restfulr_0.0.16            </span></span>
+<span><span class="co">#&gt; [77] cli_3.6.5                   textshaping_1.0.4          </span></span>
+<span><span class="co">#&gt; [79] S4Arrays_1.11.1             dplyr_1.1.4                </span></span>
+<span><span class="co">#&gt; [81] gtable_0.3.6                sass_0.4.10                </span></span>
+<span><span class="co">#&gt; [83] digest_0.6.39               SparseArray_1.11.10        </span></span>
+<span><span class="co">#&gt; [85] rjson_0.2.23                farver_2.1.2               </span></span>
+<span><span class="co">#&gt; [87] memoise_2.0.1               htmltools_0.5.9            </span></span>
+<span><span class="co">#&gt; [89] pkgdown_2.2.0.9000          lifecycle_1.0.5            </span></span>
+<span><span class="co">#&gt; [91] httr_1.4.7                  GlobalOptions_0.1.3        </span></span>
+<span><span class="co">#&gt; [93] bit64_4.6.0-1</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
@@ -1388,7 +1389,7 @@ Distal Regulatory Regions.”</span> <em>Nature</em> 480: 490–95. <a href="htt
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.9000.</p>
 </div>
 
     </footer>
