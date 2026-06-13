@@ -4,13 +4,13 @@
 
 ## Introduction
 
-*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)* is a
+*[monaLisa](https://bioconductor.org/packages/3.24/monaLisa)* is a
 collection of functions for working with biological sequences and motifs
 that represent the binding preferences of transcription factors or
 nucleic acid binding proteins.
 
 For example,
-*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)* can be
+*[monaLisa](https://bioconductor.org/packages/3.24/monaLisa)* can be
 used to conveniently find motif hits in sequences (see section
 @ref(findhits)), or to identify motifs that are likely associated with
 observed experimental data. Such analyses are supposed to provide
@@ -21,7 +21,7 @@ expression/methylation/accessibility?”.
 Several other approaches have been described that also address this
 problem, among them REDUCE (Roven and Bussemaker 2003), AME (McLeay and
 Bailey 2010) and ISMARA (Balwierz et al. 2014). In
-*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)*, we aim to
+*[monaLisa](https://bioconductor.org/packages/3.24/monaLisa)*, we aim to
 provide a flexible implementation that integrates well with other
 Bioconductor resources, makes use of the sequence composition correction
 developed for Homer (Heinz et al. 2010) or stability selection
@@ -31,7 +31,7 @@ motifs.
 
 You can use known motifs from collections of transcription factor
 binding specificities such as
-*[JASPAR2020](https://bioconductor.org/packages/3.23/JASPAR2020)*, also
+*[JASPAR2020](https://bioconductor.org/packages/3.24/JASPAR2020)*, also
 available from Bioconductor. Genomic regions could be for example
 promoters, enhancers or accessible regions for which experimental data
 is available.
@@ -66,8 +66,8 @@ motifs:
 
 - **Randomized Lasso stability selection** (`randLassoStabSel`, see [the
   stability selection
-  vignette](https://bioconductor.org/packages/3.23/monaLisa/vignettes/selecting_motifs_with_randLassoStabSel.html)
-  in *[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)*) uses
+  vignette](https://bioconductor.org/packages/3.24/monaLisa/vignettes/selecting_motifs_with_randLassoStabSel.html)
+  in *[monaLisa](https://bioconductor.org/packages/3.24/monaLisa)*) uses
   a robust regression approach (stability selection, Meinshausen and
   Bühlmann (2010)) to predict what transcription factors can explain
   experimental measurements, for example changes in chromatin
@@ -90,11 +90,12 @@ background sampled from the genome) are illustrated in section
 
 ## Installation
 
-*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)* can be
+*[monaLisa](https://bioconductor.org/packages/3.24/monaLisa)* can be
 installed from Bioconductor via the
 *[BiocManager](https://CRAN.R-project.org/package=BiocManager)* package:
 
 ``` r
+
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
@@ -105,7 +106,7 @@ BiocManager::install("monaLisa")
 
 The quick example below, which we do not run, illustrates how a binned
 motif enrichment analysis can be performed in
-*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)*. We assume
+*[monaLisa](https://bioconductor.org/packages/3.24/monaLisa)*. We assume
 that you already have a set of peaks. The sequences of the peak regions
 are stored in a
 [`Biostrings::DNAStringSet`](https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html)
@@ -115,6 +116,7 @@ stored in the `peak_change` vector), that will be used to bin the
 regions before finding motifs enriched in each bin.
 
 ``` r
+
 # load package
 library(monaLisa)
 
@@ -137,7 +139,7 @@ The returned `se` is a `SummarizedExperiment` with `assays` *negLog10P*,
 containing a matrix with motifs (rows) by bins (columns). The values
 are:
 
-- *negLog10P*: the raw P value ($- \log_{10}p$) of a given motif
+- *negLog10P*: the raw P value ($`-\log_{10} p`$) of a given motif
   enrichment in a given bin. Each P value results from an enrichment
   calculation comparing occurrences of each motif in the bin to its
   occurrences in background sequences, defined by the `background`
@@ -149,17 +151,17 @@ are:
 - *pearsonResid*: Standardized Pearson residuals, a measure of motif
   enrichment akin to a z-score for the number of regions in the bin
   containing the motif. The standardized Pearson residuals are given by
-  $resid = (o - \mu)/\sigma$, where $\mu$ is the expected count and
-  $\sigma$ the standard deviation of the expression in the numerator,
+  $`resid = (o - \mu)/\sigma`$, where $`\mu`$ is the expected count and
+  $`\sigma`$ the standard deviation of the expression in the numerator,
   under the null hypothesis that the probability of containing a motif
   is independent of whether the sequence is in the foreground or the
   background (see e.g. Agresti (2007), section @ref(runBinned)).
 - *expForegroundWgtWithHits*: The expected number of regions in the bin
   containing a given motif.
 - *log2enr*: Motif enrichments, calculated as:
-  $log2enr = log2\left( (o + c)/(e + c) \right)$, where $o$ and $e$ are
-  the observed and expected numbers of regions in the bin containing a
-  given motif, respectively, and $c$ is a pseudocount defined by the
+  $`log2enr = log2((o + c)/(e + c))`$, where $`o`$ and $`e`$ are the
+  observed and expected numbers of regions in the bin containing a given
+  motif, respectively, and $`c`$ is a pseudocount defined by the
   `pseudocount.log2enr` argument.  
 - *sumForegroundWgtWithHits* and *sumBackgroundWgtWithHits* are the sum
   of foreground and background sequences that have at least one
@@ -174,7 +176,7 @@ information about parameter values.
 ## Binned motif enrichment analysis with multiple sets of sequences (more than two): Finding TFs enriched in differentially methylated regions
 
 This section illustrates the use of
-*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)* to analyze
+*[monaLisa](https://bioconductor.org/packages/3.24/monaLisa)* to analyze
 regions or sequences with associated numerical values (here: changes of
 DNA methylation), grouped into several bins according to these values.
 The special cases of just two sets of sequences (binary motif enrichment
@@ -202,6 +204,7 @@ change their methylation between ES and NP cell states.
 We start by loading the needed packages:
 
 ``` r
+
 library(GenomicRanges)
 library(SummarizedExperiment)
 library(JASPAR2020)
@@ -214,12 +217,13 @@ library(circlize)
 
 ### Genomic regions or sequences of interest
 
-*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)* provides a
+*[monaLisa](https://bioconductor.org/packages/3.24/monaLisa)* provides a
 file with genomic coordinates (mouse mm10 assembly) of LMRs, with the
 respective changes of methylation. We load this `GRanges` object into
 `R`.
 
 ``` r
+
 lmrfile <- system.file("extdata", "LMRsESNPmerged.gr.rds", 
                        package = "monaLisa")
 lmr <- readRDS(lmrfile)
@@ -248,6 +252,7 @@ The following example code illustrates how to do this, but should not be
 run if you are following the examples in this vignette.
 
 ``` r
+
 # starting from a bed file
 #   import as `GRanges` using `rtracklayer::import`
 #   remark: if the bed file also contains scores (5th column), these will be
@@ -268,6 +273,7 @@ We can see there are 45414 LMRs, most of which gain methylation between
 ES and NP stages:
 
 ``` r
+
 hist(lmr$deltaMeth, 100, col = "gray", main = "",
      xlab = "Change of methylation (NP - ES)", ylab = "Number of LMRs")
 ```
@@ -278,6 +284,7 @@ In order to keep the computation time reasonable, we’ll select 10,000 of
 the LMRs randomly:
 
 ``` r
+
 set.seed(1)
 lmrsel <- lmr[ sample(x = length(lmr), size = 10000, replace = FALSE) ]
 ```
@@ -286,12 +293,13 @@ lmrsel <- lmr[ sample(x = length(lmr), size = 10000, replace = FALSE) ]
 
 Now let’s bin our LMRs by how much they change methylation, using the
 `bin` function from
-*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)*. We are
+*[monaLisa](https://bioconductor.org/packages/3.24/monaLisa)*. We are
 not interested in small changes of methylation, say less than 0.3, so
 we’ll use the `minAbsX` argument to create a *no-change* bin in \[-0.3,
 0.3). The remaining LMRs are put into bins of 800 each:
 
 ``` r
+
 bins <- bin(x = lmrsel$deltaMeth, binmode = "equalN", nElement = 800, 
             minAbsX = 0.3)
 table(bins)
@@ -310,6 +318,7 @@ We can see which bin has been set to be the zero bin using `getZeroBin`,
 or set it to a different bin using `setZeroBin`:
 
 ``` r
+
 # find the index of the level representing the zero bin 
 levels(bins)
 #> [1] "[-0.935,-0.242]" "(-0.242,0.327]"  "(0.327,0.388]"   "(0.388,0.443]"  
@@ -322,6 +331,7 @@ Because of the asymmetry of methylation changes, there is only a single
 bin with LMRs that lost methylation and many that gained:
 
 ``` r
+
 plotBinDensity(lmrsel$deltaMeth, bins)
 ```
 
@@ -330,7 +340,7 @@ plotBinDensity(lmrsel$deltaMeth, bins)
 Note that the bin breaks around the *no-change* bin are not exactly -0.3
 to 0.3. They have been adjusted to have the required 800 LMRs per bin
 below and above it.
-*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)* will give
+*[monaLisa](https://bioconductor.org/packages/3.24/monaLisa)* will give
 a warning if the adjusted bin breaks are strongly deviating from the
 requested `minAbsX` value, and `bin(..., model = "breaks")` can be used
 in cases where exactly defined bin boundaries are required.
@@ -340,10 +350,11 @@ in cases where exactly defined bin boundaries are required.
 Next we prepare the motif enrichment analysis. We first need known
 motifs representing transcription factor binding site preferences. We
 extract all vertebrate motifs from the
-*[JASPAR2020](https://bioconductor.org/packages/3.23/JASPAR2020)*
+*[JASPAR2020](https://bioconductor.org/packages/3.24/JASPAR2020)*
 package as positional weight matrices (PWMs):
 
 ``` r
+
 pwms <- getMatrixSet(JASPAR2020,
                      opts = list(matrixtype = "PWM",
                                  tax_group = "vertebrates"))
@@ -362,6 +373,7 @@ In addition, the resized regions may have to be constrained to the
 chromosome boundaries using trim:
 
 ``` r
+
 summary(width(lmrsel))
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 #>     9.0   213.0   401.0   512.9   676.0  5973.0
@@ -372,11 +384,12 @@ summary(width(lmrsel))
 ```
 
 We can now directly extract the corresponding sequences from the
-*[BSgenome.Mmusculus.UCSC.mm10](https://bioconductor.org/packages/3.23/BSgenome.Mmusculus.UCSC.mm10)*
+*[BSgenome.Mmusculus.UCSC.mm10](https://bioconductor.org/packages/3.24/BSgenome.Mmusculus.UCSC.mm10)*
 package (assuming you have started the analysis with genomic regions -
 if you already have sequences, just skip this step)
 
 ``` r
+
 lmrseqs <- getSeq(BSgenome.Mmusculus.UCSC.mm10, lmrsel)
 ```
 
@@ -386,12 +399,14 @@ the fraction of G+C bases, and “dinucfreq” creates a heatmap of average
 di-nucleotide frequencies in each bin, relative to the overall average.
 
 ``` r
+
 plotBinDiagnostics(seqs = lmrseqs, bins = bins, aspect = "GCfrac")
 ```
 
 ![](monaLisa_files/figure-html/bindiag-1.png)
 
 ``` r
+
 plotBinDiagnostics(seqs = lmrseqs, bins = bins, aspect = "dinucfreq")
 ```
 
@@ -427,12 +442,14 @@ For this example however, you can skip over the next step and just load
 the pre-computed results as shown further below.
 
 ``` r
+
 se <- calcBinnedMotifEnrR(seqs = lmrseqs, bins = bins, pwmL = pwms)
 ```
 
 In case you did not run the above code, let’s now read in the results:
 
 ``` r
+
 se <- readRDS(system.file("extdata", "results.binned_motif_enrichment_LMRs.rds",
                           package = "monaLisa"))
 ```
@@ -441,6 +458,7 @@ se <- readRDS(system.file("extdata", "results.binned_motif_enrichment_LMRs.rds",
 and corresponding metadata together:
 
 ``` r
+
 # summary
 se
 #> class: SummarizedExperiment 
@@ -547,10 +565,11 @@ assay(se, "log2enr")[1:5, 1:3]
 
 We can plot the results using the `plotMotifHeatmaps` function,
 e.g. selecting all transcription factor motifs that have a
-$- log_{10}FDR$ of at least 4.0 in any bin (corresponding to an
-$FDR < 10^{- 4}$). FDR values are stored in the `negLog10Padj` assay:
+$`-log_{10} FDR`$ of at least 4.0 in any bin (corresponding to an
+$`FDR < 10^{-4}`$). FDR values are stored in the `negLog10Padj` assay:
 
 ``` r
+
 # select strongly enriched motifs
 sel <- apply(assay(se, "negLog10Padj"), 1, 
              function(x) max(abs(x), 0, na.rm = TRUE)) > 4.0
@@ -570,6 +589,7 @@ In order to select only motifs with significant enrichments in a
 specific bin, or in any bin except the “zero” bin, you could use:
 
 ``` r
+
 # significantly enriched in bin 8
 levels(bins)[8]
 #> [1] "(0.585,0.862]"
@@ -601,6 +621,7 @@ multi-core backend, you can use:
 `motifSimilarity(..., BPPARAM = BiocParallel::MulticoreParam(n))`).
 
 ``` r
+
 SimMatSel <- motifSimilarity(rowData(seSel)$motif.pfm)
 range(SimMatSel)
 #> [1] 0.05339967 1.00000000
@@ -618,6 +639,7 @@ plotting of the dendrogram is controlled by the argument
 using `show_seqlogo`:
 
 ``` r
+
 # create hclust object, similarity defined by 1 - Pearson correlation
 hcl <- hclust(as.dist(1 - SimMatSel), method = "average")
 plotMotifHeatmaps(x = seSel, which.plots = c("log2enr", "negLog10Padj"), 
@@ -641,7 +663,7 @@ illustrated in section @ref(vsgenome).
 
 ### Convert between motif text file for `Homer` and motif objects in `R`
 
-*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)* provides
+*[monaLisa](https://bioconductor.org/packages/3.24/monaLisa)* provides
 two functions for performing binned motif enrichment analysis
 (`calcBinnedMotifEnrR` and `calcBinnedMotifEnrHomer`).
 `calcBinnedMotifEnrR` implements the binned motif enrichment analysis in
@@ -692,7 +714,7 @@ object to scan for motif hits. `calcBinnedMotifEnrHomer` on the other
 hand takes a motif text file with PPMs, and requires the user to have
 `Homer` installed to use it for the binned motif enrichment analysis.
 Here, we show how one can get motif PFMs from
-*[JASPAR2020](https://bioconductor.org/packages/3.23/JASPAR2020)* and
+*[JASPAR2020](https://bioconductor.org/packages/3.24/JASPAR2020)* and
 convert them to a `Homer`-compatible text file with PPMs (`dumpJaspar`)
 and vice versa (`homerToPFMatrixList`), and how to convert a
 [`TFBSTools::PFMatrixList`](https://rdrr.io/pkg/TFBSTools/man/XMatrixList-class.html)
@@ -701,6 +723,7 @@ to a
 for use with `calcBinnedMotifEnrR` or `findMotifHits`:
 
 ``` r
+
 # get PFMs from JASPAR2020 package (vertebrate subset)
 pfms <- getMatrixSet(JASPAR2020,
                      opts = list(matrixtype = "PFM",
@@ -764,7 +787,7 @@ not be available. Or we may be interested in analyzing just a single set
 of sequences (for example a set of ChIP-seq peaks), relative to some
 neutral background. In this section, we show how such binary or
 single-set motif enrichment analyses can be performed using
-*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)*.
+*[monaLisa](https://bioconductor.org/packages/3.24/monaLisa)*.
 
 ### Binary motif enrichment analysis: comparing two sets of sequences
 
@@ -778,6 +801,7 @@ changes in their methylation levels (`lmr.unchanged`, changes smaller
 than 5%) to those that gain more than 60% methylation (`lmr.up`):
 
 ``` r
+
 lmr.unchanged <- lmrsel[abs(lmrsel$deltaMeth) < 0.05]
 length(lmr.unchanged)
 #> [1] 608
@@ -795,6 +819,7 @@ objects, they can be just concatenated using
 `lmrseqs2 <- c(seqs.group1, seqs.group2)`.
 
 ``` r
+
 # combine the two sets or genomic regions
 lmrsel2 <- c(lmr.unchanged, lmr.up)
 
@@ -806,6 +831,7 @@ Finally, we manually create a binning factor (`bins2`) that defines the
 group membership for each element in `lmrseqs2`:
 
 ``` r
+
 # define binning vector
 bins2 <- rep(c("unchanged", "up"), c(length(lmr.unchanged), length(lmr.up)))
 bins2 <- factor(bins2)
@@ -820,6 +846,7 @@ calculation time short, we will just run it on the motifs that we had
 selected above in `seSel`:
 
 ``` r
+
 se2 <- calcBinnedMotifEnrR(seqs = lmrseqs2, bins = bins2,
                            pwmL = pwms[rownames(seSel)])
 se2
@@ -837,12 +864,13 @@ se2
 ```
 
 We visualize the results for motifs that are enriched in one of the two
-groups with an adjusted p value of less than $10^{- 4}$ (the order of
+groups with an adjusted p value of less than $`10^{-4}`$ (the order of
 the columns in the heatmap is defined by the order of the factor levels
 in `bins2`, given by `levels(bins2)` and can also be obtained from
 `colnames(se2)`; here it is unchanged, up):
 
 ``` r
+
 sel2 <- apply(assay(se2, "negLog10Padj"), 1, 
              function(x) max(abs(x), 0, na.rm = TRUE)) > 4.0
 sum(sel2)
@@ -865,11 +893,11 @@ same genome, or sequences obtained by randomization of the foreground
 sequences by shuffling or permutation.
 
 A noteworthy package in this context is
-*[nullranges](https://bioconductor.org/packages/3.23/nullranges)* that
+*[nullranges](https://bioconductor.org/packages/3.24/nullranges)* that
 focuses on the selection of such background ranges (representing the
 null hypothesis), for example controlling for confounding covariates
 like GC composition. After a suitable background set has been identified
-using *[nullranges](https://bioconductor.org/packages/3.23/nullranges)*,
+using *[nullranges](https://bioconductor.org/packages/3.24/nullranges)*,
 a binary motif enrichment analysis as described in section @ref(binary)
 can be performed. Manually defining the background set is recommended to
 control for covariates other than GC composition and to get access to
@@ -878,7 +906,7 @@ indeed similar to the foreground sequences for those covariates.
 
 A quick alternative with less flexibility in the background set
 definition is available directly in
-*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)*, by using
+*[monaLisa](https://bioconductor.org/packages/3.24/monaLisa)*, by using
 `calcBinnedMotifEnrR(..., background = "genome")`. This will select the
 background set by randomly sampling sequences from the genome (given by
 the `genome` argument, optionally restricted to the intervals defined in
@@ -899,6 +927,7 @@ calculation, we will only include the motifs we had selected above in
 `seSel`:
 
 ``` r
+
 lmrseqs3 <- lmrseqs[bins == levels(bins)[1]]
 length(lmrseqs3)
 #> [1] 800
@@ -913,55 +942,55 @@ se3 <- calcBinnedMotifEnrR(seqs = lmrseqs3,
                            verbose = TRUE)
 #> ℹ Filtering sequences ...
 #> ℹ in total filtering out 0 of 800 sequences (0%)
-#> ✔ in total filtering out 0 of 800 sequences (0%) [9ms]
+#> ✔ in total filtering out 0 of 800 sequences (0%) [7ms]
 #> 
-#> ℹ Filtering sequences ...✔ Filtering sequences ... [43ms]
+#> ℹ Filtering sequences ...✔ Filtering sequences ... [28ms]
 #> 
 #> ℹ Scanning sequences for motif hits...
-#> ✔ Scanning sequences for motif hits... [4.2s]
+#> ✔ Scanning sequences for motif hits... [2s]
 #> 
 #> ℹ Create motif hit matrix...
 #> ℹ starting analysis of bin 1
-#> ✔ starting analysis of bin 1 [6ms]
+#> ✔ starting analysis of bin 1 [5ms]
 #> 
 #> ℹ Create motif hit matrix...ℹ Defining background sequence set (genome)...
-#> ✔ Defining background sequence set (genome)... [2.6s]
+#> ✔ Defining background sequence set (genome)... [1s]
 #> 
 #> ℹ Create motif hit matrix...ℹ Scanning genomic background sequences for motif hits...
-#> ✔ Scanning genomic background sequences for motif hits... [3.7s]
+#> ✔ Scanning genomic background sequences for motif hits... [1.9s]
 #> 
 #> ℹ Create motif hit matrix...ℹ Correcting for GC differences to the background sequences...
 #> ℹ 8 of 9 GC-bins used (have both fore- and background sequences) 0 of 1600 sequ…
 #> ✔ 8 of 9 GC-bins used (have both fore- and background sequences) 0 of 1600 sequ…
 #> 
-#> ℹ Correcting for GC differences to the background sequences...✔ Correcting for GC differences to the background sequences... [66ms]
+#> ℹ Correcting for GC differences to the background sequences...✔ Correcting for GC differences to the background sequences... [38ms]
 #> 
 #> ℹ Create motif hit matrix...ℹ Correcting for k-mer differences between fore- and background sequences...
 #> ℹ starting iterative adjustment for k-mer composition (up to 160 iterations)
-#> ✔ starting iterative adjustment for k-mer composition (up to 160 iterations) [2…
+#> ✔ starting iterative adjustment for k-mer composition (up to 160 iterations) [8…
 #> 
 #> ℹ Correcting for k-mer differences between fore- and background sequences...ℹ 40 of 160 iterations done
-#> ✔ 80 of 160 iterations done [169ms]
+#> ✔ 80 of 160 iterations done [97ms]
 #> 
 #> ℹ Correcting for k-mer differences between fore- and background sequences...ℹ 80 of 160 iterations done
-#> ✔ 120 of 160 iterations done [169ms]
+#> ✔ 120 of 160 iterations done [518ms]
 #> 
 #> ℹ Correcting for k-mer differences between fore- and background sequences...ℹ 120 of 160 iterations done
-#> ✔ 160 of 160 iterations done [170ms]
+#> ✔ 160 of 160 iterations done [80ms]
 #> 
 #> ℹ Correcting for k-mer differences between fore- and background sequences...ℹ 160 of 160 iterations done
 #> ℹ     iterations finished
-#> ℹ 160 of 160 iterations done✔ 160 of 160 iterations done [18ms]
+#> ℹ 160 of 160 iterations done✔ 160 of 160 iterations done [13ms]
 #> 
-#> ℹ Correcting for k-mer differences between fore- and background sequences...✔ Correcting for k-mer differences between fore- and background sequences... [7…
+#> ℹ Correcting for k-mer differences between fore- and background sequences...✔ Correcting for k-mer differences between fore- and background sequences... [8…
 #> 
 #> ℹ Create motif hit matrix...ℹ Calculating motif enrichment...
 #> ℹ using Fisher's exact test (one-sided) to calculate log(p-values) for enrichme…
 #> ✔ using Fisher's exact test (one-sided) to calculate log(p-values) for enrichme…
 #> 
-#> ℹ Calculating motif enrichment...✔ Calculating motif enrichment... [58ms]
+#> ℹ Calculating motif enrichment...✔ Calculating motif enrichment... [36ms]
 #> 
-#> ℹ Create motif hit matrix...✔ Create motif hit matrix... [7.3s]
+#> ℹ Create motif hit matrix...✔ Create motif hit matrix... [3.8s]
 ```
 
 Note that we did not have to provide a `bins` argument, and that the
@@ -969,12 +998,13 @@ result will only have a single column, corresponding to the single set
 of sequences that we analyzed:
 
 ``` r
+
 ncol(se3)
 #> [1] 1
 ```
 
 When we visualize motifs that are enriched with an adjusted p value of
-less than $10^{- 4}$, we still find AT-rich motifs significantly
+less than $`10^{-4}`$, we still find AT-rich motifs significantly
 enriched, including the HOX family motifs that were weakly enriched in
 `seSel` but for which it was unclear if their enrichment was driven by
 the AT-rich (GC-poor) sequences in that specific bin. The fact that this
@@ -982,6 +1012,7 @@ motif family is still robustly identified when using a GC-matched
 genomic background supports that it may be a real biological signal.
 
 ``` r
+
 sel3 <- assay(se3, "negLog10Padj")[, 1] > 4.0
 sum(sel3)
 #> [1] 31
@@ -994,6 +1025,7 @@ plotMotifHeatmaps(x = se3[sel3,], which.plots = c("log2enr", "negLog10Padj"),
 ![](monaLisa_files/figure-html/plotSingleBin-1.png)
 
 ``` r
+
 
 # analyzed HOX motifs
 grep("HOX", rowData(se3)$motif.name, value = TRUE)
@@ -1017,6 +1049,7 @@ incorrect result, although note that the depletion was not significant
 in either of the two analyses:
 
 ``` r
+
 cols <- rep("gray", nrow(se3))
 cols[grep("HOX", rowData(se3)$motif.name)] <- "#DF536B"
 cols[grep("KLF|Klf", rowData(se3)$motif.name)] <- "#61D04F"
@@ -1045,11 +1078,13 @@ and we can also skip over the next step and load the processed object
 directly.
 
 ``` r
+
 sekm <- calcBinnedKmerEnr(seqs = lmrseqs, bins = bins, kmerLen = 6, 
                           includeRevComp = TRUE)
 ```
 
 ``` r
+
 sekm <- readRDS(system.file(
     "extdata", "results.binned_6mer_enrichment_LMRs.rds",
     package = "monaLisa"
@@ -1061,6 +1096,7 @@ Just as for the motif enrichment analysis, the return value is a
 annotations.
 
 ``` r
+
 sekm
 #> class: SummarizedExperiment 
 #> dim: 4096 8 
@@ -1080,6 +1116,7 @@ As for the motif enrichment, we can extract any k-mer that is enriched
 in any of the bins.
 
 ``` r
+
 selkm <- apply(assay(sekm, "negLog10Padj"), 1, 
                function(x) max(abs(x), 0, na.rm = TRUE)) > 4
 sum(selkm)
@@ -1094,6 +1131,7 @@ see whether, e.g., strongly enriched k-mers do not seem to correspond to
 an annotated motif.
 
 ``` r
+
 pfmSel <- rowData(seSel)$motif.pfm
 sims <- motifKmerSimilarity(x = pfmSel,
                             kmers = rownames(sekmSel),
@@ -1117,15 +1155,16 @@ Heatmap(sims,
 
 ![](monaLisa_files/figure-html/unnamed-chunk-6-1.png)
 
-## Use *[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)* to annotate genomic regions with predicted motifs
+## Use *[monaLisa](https://bioconductor.org/packages/3.24/monaLisa)* to annotate genomic regions with predicted motifs
 
 As mentioned,
-*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)* can also
+*[monaLisa](https://bioconductor.org/packages/3.24/monaLisa)* can also
 be used to scan sequences for motifs. For a quick description of motif
 representations see section @ref(motifConvert). Here is an example (just
 on a few sequences/motifs for illustration):
 
 ``` r
+
 # get sequences of promoters as a DNAStringSet
 # (the `subject` of `findMotifHits` could also be a single DNAString,
 #  or the name of a fasta file)
@@ -1225,14 +1264,15 @@ under the Creative Commons attribution - non-commercial 3.0 license:
 This vignette was built using:
 
 ``` r
+
 sessionInfo()
-#> R Under development (unstable) (2026-01-26 r89334)
-#> Platform: aarch64-apple-darwin20
-#> Running under: macOS Sequoia 15.7.3
+#> R version 4.6.0 (2026-04-24)
+#> Platform: aarch64-apple-darwin23
+#> Running under: macOS Sequoia 15.7.7
 #> 
 #> Matrix products: default
-#> BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
-#> LAPACK: /Library/Frameworks/R.framework/Versions/4.6-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+#> BLAS:   /Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libRblas.0.dylib 
+#> LAPACK: /Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
 #> 
 #> locale:
 #> [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -1246,79 +1286,80 @@ sessionInfo()
 #> 
 #> other attached packages:
 #>  [1] TxDb.Mmusculus.UCSC.mm10.knownGene_3.10.0
-#>  [2] GenomicFeatures_1.63.1                   
-#>  [3] AnnotationDbi_1.73.0                     
-#>  [4] circlize_0.4.17                          
-#>  [5] ComplexHeatmap_2.27.0                    
-#>  [6] monaLisa_1.17.1                          
+#>  [2] GenomicFeatures_1.65.0                   
+#>  [3] AnnotationDbi_1.75.0                     
+#>  [4] circlize_0.4.18                          
+#>  [5] ComplexHeatmap_2.29.0                    
+#>  [6] monaLisa_1.19.0                          
 #>  [7] BSgenome.Mmusculus.UCSC.mm10_1.4.3       
-#>  [8] BSgenome_1.79.1                          
-#>  [9] rtracklayer_1.71.3                       
-#> [10] BiocIO_1.21.0                            
-#> [11] Biostrings_2.79.4                        
-#> [12] XVector_0.51.0                           
-#> [13] TFBSTools_1.49.0                         
+#>  [8] BSgenome_1.81.0                          
+#>  [9] rtracklayer_1.73.0                       
+#> [10] BiocIO_1.23.3                            
+#> [11] Biostrings_2.81.3                        
+#> [12] XVector_0.53.0                           
+#> [13] TFBSTools_1.51.0                         
 #> [14] JASPAR2020_0.99.10                       
-#> [15] SummarizedExperiment_1.41.0              
-#> [16] Biobase_2.71.0                           
-#> [17] MatrixGenerics_1.23.0                    
+#> [15] SummarizedExperiment_1.43.0              
+#> [16] Biobase_2.73.1                           
+#> [17] MatrixGenerics_1.25.0                    
 #> [18] matrixStats_1.5.0                        
-#> [19] GenomicRanges_1.63.1                     
-#> [20] Seqinfo_1.1.0                            
-#> [21] IRanges_2.45.0                           
-#> [22] S4Vectors_0.49.0                         
-#> [23] BiocGenerics_0.57.0                      
+#> [19] GenomicRanges_1.65.0                     
+#> [20] Seqinfo_1.3.0                            
+#> [21] IRanges_2.47.2                           
+#> [22] S4Vectors_0.51.3                         
+#> [23] BiocGenerics_0.59.7                      
 #> [24] generics_0.1.4                           
-#> [25] BiocStyle_2.39.0                         
+#> [25] BiocStyle_2.41.0                         
 #> 
 #> loaded via a namespace (and not attached):
-#>  [1] DBI_1.2.3                   bitops_1.0-9               
-#>  [3] stabs_0.6-4                 rlang_1.1.7                
-#>  [5] magrittr_2.0.4              clue_0.3-66                
-#>  [7] GetoptLong_1.1.0            compiler_4.6.0             
-#>  [9] RSQLite_2.4.5               png_0.1-8                  
-#> [11] systemfonts_1.3.1           vctrs_0.7.1                
-#> [13] pwalign_1.7.0               pkgconfig_2.0.3            
-#> [15] shape_1.4.6.1               crayon_1.5.3               
-#> [17] fastmap_1.2.0               labeling_0.4.3             
-#> [19] caTools_1.18.3              Rsamtools_2.27.0           
-#> [21] rmarkdown_2.30              ragg_1.5.0                 
-#> [23] DirichletMultinomial_1.53.0 purrr_1.2.1                
-#> [25] bit_4.6.0                   xfun_0.56                  
-#> [27] glmnet_4.1-10               cachem_1.1.0               
-#> [29] cigarillo_1.1.0             jsonlite_2.0.0             
-#> [31] blob_1.3.0                  DelayedArray_0.37.0        
-#> [33] BiocParallel_1.45.0         parallel_4.6.0             
-#> [35] cluster_2.1.8.1             R6_2.6.1                   
-#> [37] bslib_0.10.0                RColorBrewer_1.1-3         
-#> [39] jquerylib_0.1.4             Rcpp_1.1.1                 
-#> [41] bookdown_0.46               iterators_1.0.14           
-#> [43] knitr_1.51                  splines_4.6.0              
-#> [45] Matrix_1.7-4                tidyselect_1.2.1           
-#> [47] abind_1.4-8                 yaml_2.3.12                
-#> [49] doParallel_1.0.17           codetools_0.2-20           
-#> [51] curl_7.0.0                  lattice_0.22-7             
-#> [53] tibble_3.3.1                KEGGREST_1.51.1            
-#> [55] withr_3.0.2                 S7_0.2.1                   
-#> [57] evaluate_1.0.5              survival_3.8-6             
-#> [59] desc_1.4.3                  pillar_1.11.1              
-#> [61] BiocManager_1.30.27         foreach_1.5.2              
-#> [63] RCurl_1.98-1.17             ggplot2_4.0.1              
-#> [65] scales_1.4.0                gtools_3.9.5               
-#> [67] glue_1.8.0                  seqLogo_1.77.0             
-#> [69] tools_4.6.0                 TFMPvalue_1.0.0            
-#> [71] GenomicAlignments_1.47.0    fs_1.6.6                   
-#> [73] XML_3.99-0.20               tidyr_1.3.2                
-#> [75] colorspace_2.1-2            restfulr_0.0.16            
-#> [77] cli_3.6.5                   textshaping_1.0.4          
-#> [79] S4Arrays_1.11.1             dplyr_1.1.4                
-#> [81] gtable_0.3.6                sass_0.4.10                
-#> [83] digest_0.6.39               SparseArray_1.11.10        
-#> [85] rjson_0.2.23                farver_2.1.2               
-#> [87] memoise_2.0.1               htmltools_0.5.9            
-#> [89] pkgdown_2.2.0.9000          lifecycle_1.0.5            
-#> [91] httr_1.4.7                  GlobalOptions_0.1.3        
-#> [93] bit64_4.6.0-1
+#>  [1] DBI_1.3.0                   bitops_1.0-9               
+#>  [3] stabs_0.7-1                 rlang_1.2.0                
+#>  [5] magrittr_2.0.5              clue_0.3-68                
+#>  [7] GetoptLong_1.1.1            otel_0.2.0                 
+#>  [9] compiler_4.6.0              RSQLite_3.53.1             
+#> [11] png_0.1-9                   systemfonts_1.3.2          
+#> [13] vctrs_0.7.3                 pwalign_1.9.1              
+#> [15] pkgconfig_2.0.3             shape_1.4.6.1              
+#> [17] crayon_1.5.3                fastmap_1.2.0              
+#> [19] labeling_0.4.3              caTools_1.18.3             
+#> [21] Rsamtools_2.29.0            rmarkdown_2.31             
+#> [23] ragg_1.5.2                  DirichletMultinomial_1.55.0
+#> [25] purrr_1.2.2                 bit_4.6.0                  
+#> [27] glmnet_5.0                  xfun_0.58                  
+#> [29] cachem_1.1.0                cigarillo_1.3.0            
+#> [31] jsonlite_2.0.0              blob_1.3.0                 
+#> [33] DelayedArray_0.39.3         BiocParallel_1.47.0        
+#> [35] parallel_4.6.0              cluster_2.1.8.2            
+#> [37] R6_2.6.1                    bslib_0.11.0               
+#> [39] RColorBrewer_1.1-3          jquerylib_0.1.4            
+#> [41] Rcpp_1.1.1-1.1              bookdown_0.46              
+#> [43] iterators_1.0.14            knitr_1.51                 
+#> [45] BiocBaseUtils_1.15.1        splines_4.6.0              
+#> [47] tidyselect_1.2.1            Matrix_1.7-5               
+#> [49] abind_1.4-8                 yaml_2.3.12                
+#> [51] doParallel_1.0.17           codetools_0.2-20           
+#> [53] curl_7.1.0                  lattice_0.22-9             
+#> [55] tibble_3.3.1                KEGGREST_1.53.0            
+#> [57] withr_3.0.2                 S7_0.2.2                   
+#> [59] evaluate_1.0.5              survival_3.8-6             
+#> [61] desc_1.4.3                  pillar_1.11.1              
+#> [63] BiocManager_1.30.27         foreach_1.5.2              
+#> [65] RCurl_1.98-1.19             ggplot2_4.0.3              
+#> [67] scales_1.4.0                gtools_3.9.5               
+#> [69] glue_1.8.1                  seqLogo_1.79.0             
+#> [71] tools_4.6.0                 TFMPvalue_1.0.0            
+#> [73] GenomicAlignments_1.49.0    fs_2.1.0                   
+#> [75] XML_3.99-0.23               tidyr_1.3.2                
+#> [77] colorspace_2.1-2            restfulr_0.0.17            
+#> [79] cli_3.6.6                   textshaping_1.0.5          
+#> [81] S4Arrays_1.13.0             dplyr_1.2.1                
+#> [83] gtable_0.3.6                sass_0.4.10                
+#> [85] digest_0.6.39               SparseArray_1.13.2         
+#> [87] rjson_0.2.23                farver_2.1.2               
+#> [89] memoise_2.0.1               htmltools_0.5.9            
+#> [91] pkgdown_2.2.0.9000          lifecycle_1.0.5            
+#> [93] httr_1.4.8                  GlobalOptions_0.1.4        
+#> [95] bit64_4.8.2
 ```
 
 ## References
@@ -1344,11 +1385,10 @@ Schübeler. 2018. “Cell cycle-resolved chromatin proteomics reveals the
 extent of mitotic preservation of the genomic regulatory landscape.”
 *Nat Commun* 9 (1): 4048.
 
-Heinz, S., C. Benner, N. Spann, E. Bertolino, Y. C. Lin, P. Laslo, J. X.
-Cheng, C. Murre, H. Singh, and C. K. Glass. 2010. “Simple combinations
-of lineage-determining transcription factors prime cis-regulatory
-elements required for macrophage and B cell identities.” *Mol Cell* 38
-(4): 576–89.
+Heinz, S., C. Benner, N. Spann, et al. 2010. “Simple combinations of
+lineage-determining transcription factors prime cis-regulatory elements
+required for macrophage and B cell identities.” *Mol Cell* 38 (4):
+576–89.
 
 McLeay, R. C., and T. L. Bailey. 2010. “Motif Enrichment Analysis: a
 unified framework and an evaluation on ChIP data.” *BMC Bioinformatics*
@@ -1363,7 +1403,6 @@ Roven, C., and H. J. Bussemaker. 2003. “REDUCE: An online tool for
 inferring cis-regulatory elements and transcriptional module activities
 from microarray data.” *Nucleic Acids Res* 31 (13): 3487–90.
 
-Stadler, Michael B., Rabih Murr, Lukas Burger, Robert Ivanek, Florian
-Lienert, Anne Schöler, Erik van Nimwegen, et al. 2011. “DNA-Binding
+Stadler, Michael B., Rabih Murr, Lukas Burger, et al. 2011. “DNA-Binding
 Factors Shape the Mouse Methylome at Distal Regulatory Regions.”
 *Nature* 480: 490–95. <https://doi.org/doi:10.1038/nature10716>.

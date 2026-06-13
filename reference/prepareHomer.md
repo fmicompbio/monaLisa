@@ -107,15 +107,15 @@ prepareHomer(gr = gr, b = b, genomedir = genomedir,
              outdir = outdir, motifFile = motiffile,
              homerfile = homerfile, verbose = TRUE)
 #> ℹ creating foreground/background region files for HOMER
-#> ✔ creating foreground/background region files for HOMER [6ms]
+#> ✔ creating foreground/background region files for HOMER [5ms]
 #> 
 #> ℹ bin [1,2.5]
-#> ✔ bin (2.5,4] [22ms]
+#> ✔ bin (2.5,4] [14ms]
 #> 
 #> ℹ bin (2.5,4]
-#> ✔ bin (2.5,4] [18ms]
+#> ✔ bin (2.5,4] [17ms]
 #> 
-#> [1] "/var/folders/kg/7q73ww8s3llgyl61c9z_j5g40000gn/T//RtmpfXuxrs/file612a67778663/run.sh"
+#> [1] "/var/folders/8d/778wjbv96mq1760tv6gk374m0000gn/T//RtmpyV8oRz/filee7f739b27b12/run.sh"
 list.files(outdir)
 #> [1] "bin_001_background.tab" "bin_001_foreground.tab" "bin_002_background.tab"
 #> [4] "bin_002_foreground.tab" "run.sh"                

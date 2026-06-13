@@ -6,13 +6,13 @@
 
 Identifying important transcription factor (TF) motifs, as shown in [the
 main
-vignette](https://bioconductor.org/packages/3.23/monaLisa/vignettes/monaLisa.html),
+vignette](https://bioconductor.org/packages/3.24/monaLisa/vignettes/monaLisa.html),
 could also be done using a regression-based approach, where motifs have
 to compete against each other for selection. In this framework, the
 response vector can be the observed experimental measure of interest,
 e.g. log-fold changes of accessibility for a set of regions, and the
 predictors consist of the TF motif hits across those regions. In
-*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)*, we
+*[monaLisa](https://bioconductor.org/packages/3.24/monaLisa)*, we
 implement the randomized lasso stability selection proposed by
 Meinshausen and Bühlmann (2010) with the improved error bounds
 introduced by Shah and Samworth (2013). We have modified the
@@ -26,12 +26,12 @@ Lasso stability selection performs the lasso regression multiple times
 on subsamples of the data, and returns a selection probability for each
 predictor (number of times selected divided by number of regressions
 done). With the randomized lasso, a weakness parameter is additionally
-used to vary the lasso penalty term $\lambda$ to a randomly chosen value
-between \[$\lambda$, $\lambda$/weakness\] for each predictor. This type
-of regularization has advantages in cases where the number of predictors
-exceeds the number of observations, in selecting variables consistently,
-demonstrating better error control and not depending strongly on the
-penalization parameter (Meinshausen and Bühlmann 2010).
+used to vary the lasso penalty term $`\lambda`$ to a randomly chosen
+value between \[$`\lambda`$, $`\lambda`$/weakness\] for each predictor.
+This type of regularization has advantages in cases where the number of
+predictors exceeds the number of observations, in selecting variables
+consistently, demonstrating better error control and not depending
+strongly on the penalization parameter (Meinshausen and Bühlmann 2010).
 
 With this approach, TF motifs compete against each other to explain the
 response vector, and we can also include additional predictors like GC
@@ -67,6 +67,7 @@ whereas negative values indicate more accessibility in the lung tissue.
 We start by loading the needed packages:
 
 ``` r
+
 library(monaLisa)
 library(JASPAR2020)
 library(TFBSTools)
@@ -82,7 +83,7 @@ library(ggrepel)
 
 In this example dataset from ENCODE (The ENCODE Project Consortium
 2012), and available in
-*[monaLisa](https://bioconductor.org/packages/3.23/monaLisa)*, we have
+*[monaLisa](https://bioconductor.org/packages/3.24/monaLisa)*, we have
 quantified ATAC-seq reads on enhancers in mouse P0 lung and liver
 tissues. The log2-fold change (our response vector in this example) is
 for liver vs lung chromatin accessibility. We are using a set of 10,000
@@ -90,6 +91,7 @@ randomly sampled enhancers to illustrate how randomized lasso stability
 selection can be used to select TF motifs.
 
 ``` r
+
 # load GRanges object with logFC and peaks
 gr_path <- system.file("extdata", "atac_liver_vs_lung.rds", 
                        package = "monaLisa")
@@ -100,7 +102,7 @@ gr <- readRDS(gr_path)
 
 We will now construct the transcription factor binding site (TFBS)
 matrix for known motifs (from a database like
-*[JASPAR2020](https://bioconductor.org/packages/3.23/JASPAR2020)*) in
+*[JASPAR2020](https://bioconductor.org/packages/3.24/JASPAR2020)*) in
 the given peak regions. We use the `findMotifHits` function to scan for
 TF motif hits. This matrix will be the predictor matrix in our
 regression. This step may take a while, and it may be useful to
@@ -115,6 +117,7 @@ ensure that selected TF motifs are not just detecting a simple trend in
 GC or CpG composition.
 
 ``` r
+
 # get PFMs (vertebrate TFs from Jaspar)
 pfms <- getMatrixSet(JASPAR2020, list(matrixtype = "PFM", 
                                       tax_group = "vertebrates"))
@@ -200,7 +203,7 @@ at <https://jaspar.genereg.net/matrix-clusters/vertebrates/>.
 If the user is interested in working with all correlated motifs, the
 binned approach is preferable as the motifs are independently tested for
 significance (see the [binned enrichment
-vignette](https://bioconductor.org/packages/3.23/monaLisa/vignettes/monaLisa.html)).
+vignette](https://bioconductor.org/packages/3.24/monaLisa/vignettes/monaLisa.html)).
 In the regression-based approach on the other hand, we can more clearly
 understand the relative contributions of TF motifs to the response in
 the context of each other.
@@ -224,6 +227,7 @@ for the default assumptions on the stability selection implementation by
 Shah and Samworth (2013).
 
 ``` r
+
 ## randLassoStabSel() is stochastic, so if we run with parallelization
 ##   (`mc.cores` argument), we must select a random number generator that can
 ##   provide multiple streams of random numbers used in the `parallel` package
@@ -262,6 +266,7 @@ The stability paths visualize how predictors get selected over
 decreasing regularization stringency (from left to right):
 
 ``` r
+
 plotStabilityPaths(se)
 ```
 
@@ -279,6 +284,7 @@ regularization step, they are shown in a random order. To reproduce the
 plot, you will need to set a seed.
 
 ``` r
+
 set.seed(123)
 plotStabilityPaths(se, labelPaths = TRUE)
 ```
@@ -289,6 +295,7 @@ Alternatively, we can visualize specific predictors, regardless of
 whether or not they were selected.
 
 ``` r
+
 set.seed(123)
 plotStabilityPaths(se, labelPaths = TRUE, labelNudgeX = 3,
                    labels = c("ISL2", "NR2C2", "NR2F1", "GATA4"))
@@ -310,6 +317,7 @@ parameter choices the model uses internally. See Meinshausen and
 Bühlmann (2010) for more details.
 
 ``` r
+
 plotSelectionProb(se, directional = TRUE, ylimext = 0.5)
 ```
 
@@ -325,6 +333,7 @@ issue, and that predictors that are highly correlated with each other
 might not end up being co-selected (see section @ref(collinearity)).
 
 ``` r
+
 # subset the selected TFs
 sel <- colnames(se)[se$selected]
 se_sub <- se[, sel]
@@ -373,6 +382,7 @@ We can examine the peaks that have hits for a selected TF motif of
 interest, ordered by absolute accessibility changes.
 
 ``` r
+
 TF <- sel[2]
 TF
 #> [1] "GATA1::TAL1"
@@ -410,14 +420,15 @@ under the Creative Commons attribution - non-commercial 3.0 license:
 This vignette was built using:
 
 ``` r
+
 sessionInfo()
-#> R Under development (unstable) (2026-01-26 r89334)
-#> Platform: aarch64-apple-darwin20
-#> Running under: macOS Sequoia 15.7.3
+#> R version 4.6.0 (2026-04-24)
+#> Platform: aarch64-apple-darwin23
+#> Running under: macOS Sequoia 15.7.7
 #> 
 #> Matrix products: default
-#> BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
-#> LAPACK: /Library/Frameworks/R.framework/Versions/4.6-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+#> BLAS:   /Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libRblas.0.dylib 
+#> LAPACK: /Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
 #> 
 #> locale:
 #> [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -430,66 +441,67 @@ sessionInfo()
 #> [8] methods   base     
 #> 
 #> other attached packages:
-#>  [1] ggrepel_0.9.6                      ggplot2_4.0.1                     
-#>  [3] circlize_0.4.17                    ComplexHeatmap_2.27.0             
-#>  [5] SummarizedExperiment_1.41.0        Biobase_2.71.0                    
-#>  [7] MatrixGenerics_1.23.0              matrixStats_1.5.0                 
-#>  [9] BSgenome.Mmusculus.UCSC.mm10_1.4.3 BSgenome_1.79.1                   
-#> [11] rtracklayer_1.71.3                 BiocIO_1.21.0                     
-#> [13] Biostrings_2.79.4                  XVector_0.51.0                    
-#> [15] GenomicRanges_1.63.1               Seqinfo_1.1.0                     
-#> [17] IRanges_2.45.0                     S4Vectors_0.49.0                  
-#> [19] BiocGenerics_0.57.0                generics_0.1.4                    
-#> [21] TFBSTools_1.49.0                   JASPAR2020_0.99.10                
-#> [23] monaLisa_1.17.1                    BiocStyle_2.39.0                  
+#>  [1] ggrepel_0.9.8                      ggplot2_4.0.3                     
+#>  [3] circlize_0.4.18                    ComplexHeatmap_2.29.0             
+#>  [5] SummarizedExperiment_1.43.0        Biobase_2.73.1                    
+#>  [7] MatrixGenerics_1.25.0              matrixStats_1.5.0                 
+#>  [9] BSgenome.Mmusculus.UCSC.mm10_1.4.3 BSgenome_1.81.0                   
+#> [11] rtracklayer_1.73.0                 BiocIO_1.23.3                     
+#> [13] Biostrings_2.81.3                  XVector_0.53.0                    
+#> [15] GenomicRanges_1.65.0               Seqinfo_1.3.0                     
+#> [17] IRanges_2.47.2                     S4Vectors_0.51.3                  
+#> [19] BiocGenerics_0.59.7                generics_0.1.4                    
+#> [21] TFBSTools_1.51.0                   JASPAR2020_0.99.10                
+#> [23] monaLisa_1.19.0                    BiocStyle_2.41.0                  
 #> 
 #> loaded via a namespace (and not attached):
-#>  [1] DBI_1.2.3                   bitops_1.0-9               
-#>  [3] stabs_0.6-4                 rlang_1.1.7                
-#>  [5] magrittr_2.0.4              clue_0.3-66                
-#>  [7] GetoptLong_1.1.0            compiler_4.6.0             
-#>  [9] RSQLite_2.4.5               png_0.1-8                  
-#> [11] systemfonts_1.3.1           vctrs_0.7.1                
-#> [13] pwalign_1.7.0               pkgconfig_2.0.3            
-#> [15] shape_1.4.6.1               crayon_1.5.3               
-#> [17] fastmap_1.2.0               labeling_0.4.3             
-#> [19] caTools_1.18.3              Rsamtools_2.27.0           
-#> [21] rmarkdown_2.30              ragg_1.5.0                 
-#> [23] DirichletMultinomial_1.53.0 purrr_1.2.1                
-#> [25] bit_4.6.0                   xfun_0.56                  
-#> [27] glmnet_4.1-10               cachem_1.1.0               
-#> [29] cigarillo_1.1.0             jsonlite_2.0.0             
-#> [31] blob_1.3.0                  DelayedArray_0.37.0        
-#> [33] BiocParallel_1.45.0         parallel_4.6.0             
-#> [35] cluster_2.1.8.1             R6_2.6.1                   
-#> [37] bslib_0.10.0                RColorBrewer_1.1-3         
-#> [39] jquerylib_0.1.4             Rcpp_1.1.1                 
-#> [41] bookdown_0.46               iterators_1.0.14           
-#> [43] knitr_1.51                  Matrix_1.7-4               
-#> [45] splines_4.6.0               tidyselect_1.2.1           
-#> [47] abind_1.4-8                 yaml_2.3.12                
-#> [49] doParallel_1.0.17           codetools_0.2-20           
-#> [51] curl_7.0.0                  lattice_0.22-7             
-#> [53] tibble_3.3.1                withr_3.0.2                
-#> [55] S7_0.2.1                    evaluate_1.0.5             
-#> [57] desc_1.4.3                  survival_3.8-6             
-#> [59] pillar_1.11.1               BiocManager_1.30.27        
-#> [61] foreach_1.5.2               RCurl_1.98-1.17            
-#> [63] scales_1.4.0                gtools_3.9.5               
-#> [65] glue_1.8.0                  seqLogo_1.77.0             
-#> [67] tools_4.6.0                 TFMPvalue_1.0.0            
-#> [69] GenomicAlignments_1.47.0    fs_1.6.6                   
-#> [71] XML_3.99-0.20               tidyr_1.3.2                
-#> [73] colorspace_2.1-2            restfulr_0.0.16            
-#> [75] cli_3.6.5                   textshaping_1.0.4          
-#> [77] S4Arrays_1.11.1             dplyr_1.1.4                
-#> [79] gtable_0.3.6                sass_0.4.10                
-#> [81] digest_0.6.39               SparseArray_1.11.10        
-#> [83] rjson_0.2.23                farver_2.1.2               
-#> [85] memoise_2.0.1               htmltools_0.5.9            
-#> [87] pkgdown_2.2.0.9000          lifecycle_1.0.5            
-#> [89] httr_1.4.7                  GlobalOptions_0.1.3        
-#> [91] bit64_4.6.0-1
+#>  [1] DBI_1.3.0                   bitops_1.0-9               
+#>  [3] stabs_0.7-1                 rlang_1.2.0                
+#>  [5] magrittr_2.0.5              clue_0.3-68                
+#>  [7] GetoptLong_1.1.1            otel_0.2.0                 
+#>  [9] compiler_4.6.0              RSQLite_3.53.1             
+#> [11] png_0.1-9                   systemfonts_1.3.2          
+#> [13] vctrs_0.7.3                 pwalign_1.9.1              
+#> [15] pkgconfig_2.0.3             shape_1.4.6.1              
+#> [17] crayon_1.5.3                fastmap_1.2.0              
+#> [19] labeling_0.4.3              caTools_1.18.3             
+#> [21] Rsamtools_2.29.0            rmarkdown_2.31             
+#> [23] ragg_1.5.2                  DirichletMultinomial_1.55.0
+#> [25] purrr_1.2.2                 bit_4.6.0                  
+#> [27] xfun_0.58                   glmnet_5.0                 
+#> [29] cachem_1.1.0                cigarillo_1.3.0            
+#> [31] jsonlite_2.0.0              blob_1.3.0                 
+#> [33] DelayedArray_0.39.3         BiocParallel_1.47.0        
+#> [35] parallel_4.6.0              cluster_2.1.8.2            
+#> [37] R6_2.6.1                    bslib_0.11.0               
+#> [39] RColorBrewer_1.1-3          jquerylib_0.1.4            
+#> [41] Rcpp_1.1.1-1.1              bookdown_0.46              
+#> [43] iterators_1.0.14            knitr_1.51                 
+#> [45] BiocBaseUtils_1.15.1        Matrix_1.7-5               
+#> [47] splines_4.6.0               tidyselect_1.2.1           
+#> [49] abind_1.4-8                 yaml_2.3.12                
+#> [51] doParallel_1.0.17           codetools_0.2-20           
+#> [53] curl_7.1.0                  lattice_0.22-9             
+#> [55] tibble_3.3.1                withr_3.0.2                
+#> [57] S7_0.2.2                    evaluate_1.0.5             
+#> [59] desc_1.4.3                  survival_3.8-6             
+#> [61] pillar_1.11.1               BiocManager_1.30.27        
+#> [63] foreach_1.5.2               RCurl_1.98-1.19            
+#> [65] scales_1.4.0                gtools_3.9.5               
+#> [67] glue_1.8.1                  seqLogo_1.79.0             
+#> [69] tools_4.6.0                 TFMPvalue_1.0.0            
+#> [71] GenomicAlignments_1.49.0    fs_2.1.0                   
+#> [73] XML_3.99-0.23               tidyr_1.3.2                
+#> [75] colorspace_2.1-2            restfulr_0.0.17            
+#> [77] cli_3.6.6                   textshaping_1.0.5          
+#> [79] S4Arrays_1.13.0             dplyr_1.2.1                
+#> [81] gtable_0.3.6                sass_0.4.10                
+#> [83] digest_0.6.39               SparseArray_1.13.2         
+#> [85] rjson_0.2.23                farver_2.1.2               
+#> [87] memoise_2.0.1               htmltools_0.5.9            
+#> [89] pkgdown_2.2.0.9000          lifecycle_1.0.5            
+#> [91] httr_1.4.8                  GlobalOptions_0.1.4        
+#> [93] bit64_4.8.2
 ```
 
 ## References
