@@ -68,7 +68,7 @@
       penalty.factor = 1/stats::runif(ncol(x), weakness,  1),  ...)
   if (type == "anticonservative")
     fit <- glmnet::glmnet(
-      x, y, dfmax = q - 1,
+      x, y, control = list(dfmax = q - 1),
       penalty.factor = 1/stats::runif(ncol(x), weakness,  1), ...)
 
   selected <- predict(fit, type = "nonzero")
@@ -92,23 +92,23 @@
 #'     package, but implements the randomized lasso version.
 #'
 #' @param x The predictor matrix.
-#' @param y The response vector. This should be a numeric vector (also for 
-#'     the binomial case - in this case it will be converted to a factor 
+#' @param y The response vector. This should be a numeric vector (also for
+#'     the binomial case - in this case it will be converted to a factor
 #'     internally by \code{glmnet}).
 #' @param weakness Value between 0 and 1 (default = 0.8).
 #'     It affects how strict the method will be in selecting predictors. The
 #'     closer it is to 0, the more stringent the selection. A weakness value
 #'     of 1 is identical to performing lasso stability selection (not the
 #'     randomized version).
-#' @param glmnet.args Named list with additional arguments to the internal 
-#'     \code{.glmnetRandomizedLasso} function (beyond \code{x}, 
-#'     \code{y} and \code{weakness}, which are determined automatically, and 
-#'     \code{q}, which should not be specified (it will be determined from 
-#'     \code{cutoff} and \code{PFER}). 
-#'     The available arguments to \code{.glmnetRandomizedLasso} are the same as 
-#'     the ones for \code{\link[stabs]{glmnet.lasso}}. A typical use case would 
-#'     be to define the \code{family} argument to \code{\link[glmnet]{glmnet}} 
-#'     (currently "gaussian" and "binomial" are supported). 
+#' @param glmnet.args Named list with additional arguments to the internal
+#'     \code{.glmnetRandomizedLasso} function (beyond \code{x},
+#'     \code{y} and \code{weakness}, which are determined automatically, and
+#'     \code{q}, which should not be specified (it will be determined from
+#'     \code{cutoff} and \code{PFER}).
+#'     The available arguments to \code{.glmnetRandomizedLasso} are the same as
+#'     the ones for \code{\link[stabs]{glmnet.lasso}}. A typical use case would
+#'     be to define the \code{family} argument to \code{\link[glmnet]{glmnet}}
+#'     (currently "gaussian" and "binomial" are supported).
 #' @param cutoff Value between 0 and 1 (default = 0.8) which is the cutoff
 #'     for the selection probability. Any variable with a selection probability
 #'     that is higher than the set cutoff will be selected.
@@ -261,17 +261,17 @@ randLassoStabSel <- function(x, y, weakness=0.8, cutoff=0.8, PFER=2,
     }
     .assertVector(x = glmnet.args, type = "list")
     if (length(glmnet.args) > 0) {
-        .assertVector(x = names(glmnet.args), type = "character", 
+        .assertVector(x = names(glmnet.args), type = "character",
                       validValues = c("weakness",
                                       union(formalArgs(glmnet::glmnet),
                                             formalArgs(stabs::glmnet.lasso))))
         if (any(i <- names(glmnet.args) %in% c("x", "y", "q", "weakness"))) {
-            warning(paste0("Ignoring the following elements of 'glmnet.args' (as ", 
-                           "they are set automatically): ", 
-                           paste(names(glmnet.args)[i], collapse = ",")))    
+            warning(paste0("Ignoring the following elements of 'glmnet.args' (as ",
+                           "they are set automatically): ",
+                           paste(names(glmnet.args)[i], collapse = ",")))
             glmnet.args <- glmnet.args[!i]
         }
-        if ("family" %in% names(glmnet.args) && 
+        if ("family" %in% names(glmnet.args) &&
             !glmnet.args$family %in% c("binomial", "gaussian")) {
             cli_abort("currently only binomial and gaussian families are supported")
         }
