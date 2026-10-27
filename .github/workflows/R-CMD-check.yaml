@@ -35,7 +35,7 @@ jobs:
     # steps to run in the defined environments
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v7
         with:
           path: ${{ env.PKG_PATH }}
 
@@ -77,7 +77,7 @@ jobs:
 
       - name: Cache R packages
         if: runner.os != 'Windows' && matrix.config.image == null
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ env.R_LIBS_USER }}
           key: ${{ env.cache-version }}-${{ runner.os }}-bioc-${{ matrix.config.bioc }}-${{ hashFiles('depends.Rds') }}
