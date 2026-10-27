@@ -942,55 +942,55 @@ se3 <- calcBinnedMotifEnrR(seqs = lmrseqs3,
                            verbose = TRUE)
 #> ℹ Filtering sequences ...
 #> ℹ in total filtering out 0 of 800 sequences (0%)
-#> ✔ in total filtering out 0 of 800 sequences (0%) [7ms]
+#> ✔ in total filtering out 0 of 800 sequences (0%) [11ms]
 #> 
-#> ℹ Filtering sequences ...✔ Filtering sequences ... [28ms]
+#> ℹ Filtering sequences ...✔ Filtering sequences ... [61ms]
 #> 
 #> ℹ Scanning sequences for motif hits...
-#> ✔ Scanning sequences for motif hits... [2s]
+#> ✔ Scanning sequences for motif hits... [2.9s]
 #> 
 #> ℹ Create motif hit matrix...
 #> ℹ starting analysis of bin 1
 #> ✔ starting analysis of bin 1 [5ms]
 #> 
 #> ℹ Create motif hit matrix...ℹ Defining background sequence set (genome)...
-#> ✔ Defining background sequence set (genome)... [1s]
+#> ✔ Defining background sequence set (genome)... [1.8s]
 #> 
 #> ℹ Create motif hit matrix...ℹ Scanning genomic background sequences for motif hits...
-#> ✔ Scanning genomic background sequences for motif hits... [1.9s]
+#> ✔ Scanning genomic background sequences for motif hits... [3.3s]
 #> 
 #> ℹ Create motif hit matrix...ℹ Correcting for GC differences to the background sequences...
 #> ℹ 8 of 9 GC-bins used (have both fore- and background sequences) 0 of 1600 sequ…
 #> ✔ 8 of 9 GC-bins used (have both fore- and background sequences) 0 of 1600 sequ…
 #> 
-#> ℹ Correcting for GC differences to the background sequences...✔ Correcting for GC differences to the background sequences... [38ms]
+#> ℹ Correcting for GC differences to the background sequences...✔ Correcting for GC differences to the background sequences... [49ms]
 #> 
 #> ℹ Create motif hit matrix...ℹ Correcting for k-mer differences between fore- and background sequences...
 #> ℹ starting iterative adjustment for k-mer composition (up to 160 iterations)
-#> ✔ starting iterative adjustment for k-mer composition (up to 160 iterations) [8…
+#> ✔ starting iterative adjustment for k-mer composition (up to 160 iterations) [1…
 #> 
 #> ℹ Correcting for k-mer differences between fore- and background sequences...ℹ 40 of 160 iterations done
-#> ✔ 80 of 160 iterations done [97ms]
+#> ✔ 80 of 160 iterations done [112ms]
 #> 
 #> ℹ Correcting for k-mer differences between fore- and background sequences...ℹ 80 of 160 iterations done
-#> ✔ 120 of 160 iterations done [518ms]
+#> ✔ 120 of 160 iterations done [133ms]
 #> 
 #> ℹ Correcting for k-mer differences between fore- and background sequences...ℹ 120 of 160 iterations done
-#> ✔ 160 of 160 iterations done [80ms]
+#> ✔ 160 of 160 iterations done [131ms]
 #> 
 #> ℹ Correcting for k-mer differences between fore- and background sequences...ℹ 160 of 160 iterations done
 #> ℹ     iterations finished
-#> ℹ 160 of 160 iterations done✔ 160 of 160 iterations done [13ms]
+#> ℹ 160 of 160 iterations done✔ 160 of 160 iterations done [24ms]
 #> 
-#> ℹ Correcting for k-mer differences between fore- and background sequences...✔ Correcting for k-mer differences between fore- and background sequences... [8…
+#> ℹ Correcting for k-mer differences between fore- and background sequences...✔ Correcting for k-mer differences between fore- and background sequences... [5…
 #> 
 #> ℹ Create motif hit matrix...ℹ Calculating motif enrichment...
 #> ℹ using Fisher's exact test (one-sided) to calculate log(p-values) for enrichme…
 #> ✔ using Fisher's exact test (one-sided) to calculate log(p-values) for enrichme…
 #> 
-#> ℹ Calculating motif enrichment...✔ Calculating motif enrichment... [36ms]
+#> ℹ Calculating motif enrichment...✔ Calculating motif enrichment... [55ms]
 #> 
-#> ℹ Create motif hit matrix...✔ Create motif hit matrix... [3.8s]
+#> ℹ Create motif hit matrix...✔ Create motif hit matrix... [5.8s]
 ```
 
 Note that we did not have to provide a `bins` argument, and that the
@@ -1177,7 +1177,7 @@ library(BSgenome.Mmusculus.UCSC.mm10)
 seqs <- getSeq(BSgenome.Mmusculus.UCSC.mm10, gr)
 seqs
 #> DNAStringSet object of length 4:
-#>     width seq                                               names               
+#>     width sequence                                          names               
 #> [1]  1500 CCCTTTTGGATAGATTCTAGGCT...GCTGATTTATGAGTAAGGGATGT ENSMUST00000193812.1
 #> [2]  1500 TGCGGTATGTTCATGTATACATG...ATGAATTTACCAATGCCACACAG ENSMUST00000161581.1
 #> [3]  1500 TGATTAAGAAAATTCCCTGGTGG...CCCTTGGTGTGGTAGTCACGTCC ENSMUST00000192183.1
@@ -1266,9 +1266,9 @@ This vignette was built using:
 ``` r
 
 sessionInfo()
-#> R version 4.6.0 (2026-04-24)
+#> R version 4.6.1 (2026-06-24)
 #> Platform: aarch64-apple-darwin23
-#> Running under: macOS Sequoia 15.7.7
+#> Running under: macOS Tahoe 26.6.2
 #> 
 #> Matrix products: default
 #> BLAS:   /Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libRblas.0.dylib 
@@ -1287,79 +1287,79 @@ sessionInfo()
 #> other attached packages:
 #>  [1] TxDb.Mmusculus.UCSC.mm10.knownGene_3.10.0
 #>  [2] GenomicFeatures_1.65.0                   
-#>  [3] AnnotationDbi_1.75.0                     
+#>  [3] AnnotationDbi_1.75.2                     
 #>  [4] circlize_0.4.18                          
 #>  [5] ComplexHeatmap_2.29.0                    
-#>  [6] monaLisa_1.19.0                          
+#>  [6] monaLisa_1.19.1                          
 #>  [7] BSgenome.Mmusculus.UCSC.mm10_1.4.3       
-#>  [8] BSgenome_1.81.0                          
+#>  [8] BSgenome_1.81.1                          
 #>  [9] rtracklayer_1.73.0                       
 #> [10] BiocIO_1.23.3                            
-#> [11] Biostrings_2.81.3                        
+#> [11] Biostrings_2.81.9                        
 #> [12] XVector_0.53.0                           
 #> [13] TFBSTools_1.51.0                         
 #> [14] JASPAR2020_0.99.10                       
 #> [15] SummarizedExperiment_1.43.0              
-#> [16] Biobase_2.73.1                           
+#> [16] Biobase_2.73.2                           
 #> [17] MatrixGenerics_1.25.0                    
 #> [18] matrixStats_1.5.0                        
-#> [19] GenomicRanges_1.65.0                     
-#> [20] Seqinfo_1.3.0                            
-#> [21] IRanges_2.47.2                           
-#> [22] S4Vectors_0.51.3                         
-#> [23] BiocGenerics_0.59.7                      
+#> [19] GenomicRanges_1.65.4                     
+#> [20] Seqinfo_1.3.2                            
+#> [21] IRanges_2.47.5                           
+#> [22] S4Vectors_0.51.10                        
+#> [23] BiocGenerics_0.59.12                     
 #> [24] generics_0.1.4                           
 #> [25] BiocStyle_2.41.0                         
 #> 
 #> loaded via a namespace (and not attached):
-#>  [1] DBI_1.3.0                   bitops_1.0-9               
-#>  [3] stabs_0.7-1                 rlang_1.2.0                
+#>  [1] DBI_1.3.0                   bitops_1.1-0               
+#>  [3] stabs_0.7-1                 rlang_1.3.0                
 #>  [5] magrittr_2.0.5              clue_0.3-68                
 #>  [7] GetoptLong_1.1.1            otel_0.2.0                 
-#>  [9] compiler_4.6.0              RSQLite_3.53.1             
+#>  [9] compiler_4.6.1              RSQLite_3.53.3             
 #> [11] png_0.1-9                   systemfonts_1.3.2          
 #> [13] vctrs_0.7.3                 pwalign_1.9.1              
 #> [15] pkgconfig_2.0.3             shape_1.4.6.1              
 #> [17] crayon_1.5.3                fastmap_1.2.0              
-#> [19] labeling_0.4.3              caTools_1.18.3             
-#> [21] Rsamtools_2.29.0            rmarkdown_2.31             
-#> [23] ragg_1.5.2                  DirichletMultinomial_1.55.0
+#> [19] labeling_0.4.3              caTools_1.18.4             
+#> [21] Rsamtools_2.29.0            rmarkdown_2.32             
+#> [23] ragg_1.5.2                  DirichletMultinomial_1.55.1
 #> [25] purrr_1.2.2                 bit_4.6.0                  
-#> [27] glmnet_5.0                  xfun_0.58                  
-#> [29] cachem_1.1.0                cigarillo_1.3.0            
+#> [27] glmnet_5.1                  xfun_0.62                  
+#> [29] cachem_1.1.0                cigarillo_1.3.1            
 #> [31] jsonlite_2.0.0              blob_1.3.0                 
-#> [33] DelayedArray_0.39.3         BiocParallel_1.47.0        
-#> [35] parallel_4.6.0              cluster_2.1.8.2            
-#> [37] R6_2.6.1                    bslib_0.11.0               
+#> [33] DelayedArray_0.39.8         BiocParallel_1.47.0        
+#> [35] parallel_4.6.1              cluster_2.1.8.2            
+#> [37] R6_2.6.1                    bslib_0.12.0               
 #> [39] RColorBrewer_1.1-3          jquerylib_0.1.4            
-#> [41] Rcpp_1.1.1-1.1              bookdown_0.46              
-#> [43] iterators_1.0.14            knitr_1.51                 
-#> [45] BiocBaseUtils_1.15.1        splines_4.6.0              
+#> [41] Rcpp_1.1.2                  bookdown_0.48              
+#> [43] iterators_1.0.14            knitr_1.52                 
+#> [45] BiocBaseUtils_1.15.1        splines_4.6.1              
 #> [47] tidyselect_1.2.1            Matrix_1.7-5               
 #> [49] abind_1.4-8                 yaml_2.3.12                
 #> [51] doParallel_1.0.17           codetools_0.2-20           
-#> [53] curl_7.1.0                  lattice_0.22-9             
-#> [55] tibble_3.3.1                KEGGREST_1.53.0            
-#> [57] withr_3.0.2                 S7_0.2.2                   
+#> [53] curl_8.1.0                  lattice_0.22-9             
+#> [55] tibble_3.3.1                KEGGREST_1.53.6            
+#> [57] withr_3.0.3                 S7_0.2.2                   
 #> [59] evaluate_1.0.5              survival_3.8-6             
 #> [61] desc_1.4.3                  pillar_1.11.1              
 #> [63] BiocManager_1.30.27         foreach_1.5.2              
-#> [65] RCurl_1.98-1.19             ggplot2_4.0.3              
+#> [65] RCurl_1.98-1.20             ggplot2_4.0.3              
 #> [67] scales_1.4.0                gtools_3.9.5               
 #> [69] glue_1.8.1                  seqLogo_1.79.0             
-#> [71] tools_4.6.0                 TFMPvalue_1.0.0            
-#> [73] GenomicAlignments_1.49.0    fs_2.1.0                   
-#> [75] XML_3.99-0.23               tidyr_1.3.2                
-#> [77] colorspace_2.1-2            restfulr_0.0.17            
+#> [71] tools_4.6.1                 TFMPvalue_1.0.0            
+#> [73] GenomicAlignments_1.49.2    fs_2.1.0                   
+#> [75] XML_3.99-0.25               tidyr_1.3.2                
+#> [77] colorspace_2.1-4            restfulr_0.0.17            
 #> [79] cli_3.6.6                   textshaping_1.0.5          
-#> [81] S4Arrays_1.13.0             dplyr_1.2.1                
+#> [81] S4Arrays_1.13.2             dplyr_1.2.1                
 #> [83] gtable_0.3.6                sass_0.4.10                
-#> [85] digest_0.6.39               SparseArray_1.13.2         
+#> [85] digest_0.6.39               SparseArray_1.13.4         
 #> [87] rjson_0.2.23                farver_2.1.2               
 #> [89] memoise_2.0.1               htmltools_0.5.9            
-#> [91] pkgdown_2.2.0.9000          lifecycle_1.0.5            
-#> [93] httr_1.4.8                  GlobalOptions_0.1.4        
-#> [95] bit64_4.8.2
+#> [91] pkgdown_2.2.1.9000          lifecycle_1.0.5            
+#> [93] httr_1.4.9                  GlobalOptions_0.1.4        
+#> [95] bit64_4.8.6
 ```
 
 ## References

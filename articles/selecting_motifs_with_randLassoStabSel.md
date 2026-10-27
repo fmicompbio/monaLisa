@@ -422,9 +422,9 @@ This vignette was built using:
 ``` r
 
 sessionInfo()
-#> R version 4.6.0 (2026-04-24)
+#> R version 4.6.1 (2026-06-24)
 #> Platform: aarch64-apple-darwin23
-#> Running under: macOS Sequoia 15.7.7
+#> Running under: macOS Tahoe 26.6.2
 #> 
 #> Matrix products: default
 #> BLAS:   /Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libRblas.0.dylib 
@@ -443,65 +443,65 @@ sessionInfo()
 #> other attached packages:
 #>  [1] ggrepel_0.9.8                      ggplot2_4.0.3                     
 #>  [3] circlize_0.4.18                    ComplexHeatmap_2.29.0             
-#>  [5] SummarizedExperiment_1.43.0        Biobase_2.73.1                    
+#>  [5] SummarizedExperiment_1.43.0        Biobase_2.73.2                    
 #>  [7] MatrixGenerics_1.25.0              matrixStats_1.5.0                 
-#>  [9] BSgenome.Mmusculus.UCSC.mm10_1.4.3 BSgenome_1.81.0                   
+#>  [9] BSgenome.Mmusculus.UCSC.mm10_1.4.3 BSgenome_1.81.1                   
 #> [11] rtracklayer_1.73.0                 BiocIO_1.23.3                     
-#> [13] Biostrings_2.81.3                  XVector_0.53.0                    
-#> [15] GenomicRanges_1.65.0               Seqinfo_1.3.0                     
-#> [17] IRanges_2.47.2                     S4Vectors_0.51.3                  
-#> [19] BiocGenerics_0.59.7                generics_0.1.4                    
+#> [13] Biostrings_2.81.9                  XVector_0.53.0                    
+#> [15] GenomicRanges_1.65.4               Seqinfo_1.3.2                     
+#> [17] IRanges_2.47.5                     S4Vectors_0.51.10                 
+#> [19] BiocGenerics_0.59.12               generics_0.1.4                    
 #> [21] TFBSTools_1.51.0                   JASPAR2020_0.99.10                
-#> [23] monaLisa_1.19.0                    BiocStyle_2.41.0                  
+#> [23] monaLisa_1.19.1                    BiocStyle_2.41.0                  
 #> 
 #> loaded via a namespace (and not attached):
-#>  [1] DBI_1.3.0                   bitops_1.0-9               
-#>  [3] stabs_0.7-1                 rlang_1.2.0                
+#>  [1] DBI_1.3.0                   bitops_1.1-0               
+#>  [3] stabs_0.7-1                 rlang_1.3.0                
 #>  [5] magrittr_2.0.5              clue_0.3-68                
 #>  [7] GetoptLong_1.1.1            otel_0.2.0                 
-#>  [9] compiler_4.6.0              RSQLite_3.53.1             
+#>  [9] compiler_4.6.1              RSQLite_3.53.3             
 #> [11] png_0.1-9                   systemfonts_1.3.2          
 #> [13] vctrs_0.7.3                 pwalign_1.9.1              
 #> [15] pkgconfig_2.0.3             shape_1.4.6.1              
 #> [17] crayon_1.5.3                fastmap_1.2.0              
-#> [19] labeling_0.4.3              caTools_1.18.3             
-#> [21] Rsamtools_2.29.0            rmarkdown_2.31             
-#> [23] ragg_1.5.2                  DirichletMultinomial_1.55.0
+#> [19] labeling_0.4.3              caTools_1.18.4             
+#> [21] Rsamtools_2.29.0            rmarkdown_2.32             
+#> [23] ragg_1.5.2                  DirichletMultinomial_1.55.1
 #> [25] purrr_1.2.2                 bit_4.6.0                  
-#> [27] xfun_0.58                   glmnet_5.0                 
-#> [29] cachem_1.1.0                cigarillo_1.3.0            
+#> [27] xfun_0.62                   glmnet_5.1                 
+#> [29] cachem_1.1.0                cigarillo_1.3.1            
 #> [31] jsonlite_2.0.0              blob_1.3.0                 
-#> [33] DelayedArray_0.39.3         BiocParallel_1.47.0        
-#> [35] parallel_4.6.0              cluster_2.1.8.2            
-#> [37] R6_2.6.1                    bslib_0.11.0               
+#> [33] DelayedArray_0.39.8         BiocParallel_1.47.0        
+#> [35] parallel_4.6.1              cluster_2.1.8.2            
+#> [37] R6_2.6.1                    bslib_0.12.0               
 #> [39] RColorBrewer_1.1-3          jquerylib_0.1.4            
-#> [41] Rcpp_1.1.1-1.1              bookdown_0.46              
-#> [43] iterators_1.0.14            knitr_1.51                 
+#> [41] Rcpp_1.1.2                  bookdown_0.48              
+#> [43] iterators_1.0.14            knitr_1.52                 
 #> [45] BiocBaseUtils_1.15.1        Matrix_1.7-5               
-#> [47] splines_4.6.0               tidyselect_1.2.1           
+#> [47] splines_4.6.1               tidyselect_1.2.1           
 #> [49] abind_1.4-8                 yaml_2.3.12                
 #> [51] doParallel_1.0.17           codetools_0.2-20           
-#> [53] curl_7.1.0                  lattice_0.22-9             
-#> [55] tibble_3.3.1                withr_3.0.2                
+#> [53] curl_8.1.0                  lattice_0.22-9             
+#> [55] tibble_3.3.1                withr_3.0.3                
 #> [57] S7_0.2.2                    evaluate_1.0.5             
 #> [59] desc_1.4.3                  survival_3.8-6             
 #> [61] pillar_1.11.1               BiocManager_1.30.27        
-#> [63] foreach_1.5.2               RCurl_1.98-1.19            
+#> [63] foreach_1.5.2               RCurl_1.98-1.20            
 #> [65] scales_1.4.0                gtools_3.9.5               
 #> [67] glue_1.8.1                  seqLogo_1.79.0             
-#> [69] tools_4.6.0                 TFMPvalue_1.0.0            
-#> [71] GenomicAlignments_1.49.0    fs_2.1.0                   
-#> [73] XML_3.99-0.23               tidyr_1.3.2                
-#> [75] colorspace_2.1-2            restfulr_0.0.17            
+#> [69] tools_4.6.1                 TFMPvalue_1.0.0            
+#> [71] GenomicAlignments_1.49.2    fs_2.1.0                   
+#> [73] XML_3.99-0.25               tidyr_1.3.2                
+#> [75] colorspace_2.1-4            restfulr_0.0.17            
 #> [77] cli_3.6.6                   textshaping_1.0.5          
-#> [79] S4Arrays_1.13.0             dplyr_1.2.1                
+#> [79] S4Arrays_1.13.2             dplyr_1.2.1                
 #> [81] gtable_0.3.6                sass_0.4.10                
-#> [83] digest_0.6.39               SparseArray_1.13.2         
+#> [83] digest_0.6.39               SparseArray_1.13.4         
 #> [85] rjson_0.2.23                farver_2.1.2               
 #> [87] memoise_2.0.1               htmltools_0.5.9            
-#> [89] pkgdown_2.2.0.9000          lifecycle_1.0.5            
-#> [91] httr_1.4.8                  GlobalOptions_0.1.4        
-#> [93] bit64_4.8.2
+#> [89] pkgdown_2.2.1.9000          lifecycle_1.0.5            
+#> [91] httr_1.4.9                  GlobalOptions_0.1.4        
+#> [93] bit64_4.8.6
 ```
 
 ## References
