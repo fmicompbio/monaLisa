@@ -1,6 +1,7 @@
 name: R-CMD-check
 
 on:
+  workflow_dispatch: # enable "run workflow" button
   push:
   pull_request:
     branches:
